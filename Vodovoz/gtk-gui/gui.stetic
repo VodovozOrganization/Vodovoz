@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<stetic-interface>
+  <configuration>
+    <images-root-path>..</images-root-path>
+  </configuration>
+  <import>
+    <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+  </import>
+  <icon-factory>
+    <icon-set id="users">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.menu.users.png</property>
+      </source>
+    </icon-set>
+  </icon-factory>
+  <widget class="Gtk.Window" id="MainWindow" design-size="622 300">
+    <action-group name="Default">
+      <action id="Action">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">База</property>
+        <property name="ShortLabel" translatable="yes">База</property>
+      </action>
+      <action id="dialogAuthenticationAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Изменить пароль</property>
+        <property name="ShortLabel" translatable="yes">Изменить пароль</property>
+        <property name="StockId">gtk-dialog-authentication</property>
+        <signal name="Activated" handler="OnDialogAuthenticationActionActivated" />
+      </action>
+      <action id="Action1">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Справка</property>
+        <property name="ShortLabel" translatable="yes">Справка</property>
+      </action>
+      <action id="Action2">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Справочники</property>
+        <property name="ShortLabel" translatable="yes">Справочники</property>
+      </action>
+      <action id="aboutAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">_О программе</property>
+        <property name="ShortLabel" translatable="yes">_О программе</property>
+        <property name="StockId">gtk-about</property>
+        <signal name="Activated" handler="OnAboutActionActivated" />
+      </action>
+      <action id="Action3">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Пользователи</property>
+        <property name="ShortLabel" translatable="yes">Пользователи</property>
+        <property name="StockId">users</property>
+        <signal name="Activated" handler="OnAction3Activated" />
+      </action>
+      <action id="quitAction">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">В_ыход</property>
+        <property name="ShortLabel" translatable="yes">В_ыход</property>
+        <property name="StockId">gtk-quit</property>
+        <signal name="Activated" handler="OnQuitActionActivated" />
+      </action>
+    </action-group>
+    <property name="MemberName" />
+    <property name="Title" translatable="yes">MainWindow</property>
+    <property name="WindowPosition">CenterOnParent</property>
+    <signal name="DeleteEvent" handler="OnDeleteEvent" />
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.MenuBar" id="menubarMain">
+            <property name="MemberName" />
+            <node name="menubarMain" type="Menubar">
+              <node type="Menu" action="Action">
+                <node type="Menuitem" action="dialogAuthenticationAction" />
+                <node type="Menuitem" action="Action3" />
+                <node type="Separator" />
+                <node type="Menuitem" action="quitAction" />
+              </node>
+              <node type="Menu" action="Action2" />
+              <node type="Menu" action="Action1">
+                <node type="Menuitem" action="aboutAction" />
+              </node>
+            </node>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Toolbar" id="toolbarMain">
+            <property name="MemberName" />
+            <property name="ShowArrow">False</property>
+            <property name="ButtonStyle">Both</property>
+            <property name="IconSize">LargeToolbar</property>
+            <node name="toolbarMain" type="Toolbar" />
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Toolbar" id="toolbarSub">
+            <property name="MemberName" />
+            <property name="ShowArrow">False</property>
+            <property name="ButtonStyle">BothHoriz</property>
+            <property name="IconSize">SmallToolbar</property>
+            <node name="toolbarSub" type="Toolbar" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Statusbar" id="statusbarMain">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">4</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+</stetic-interface>
