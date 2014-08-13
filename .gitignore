@@ -1,0 +1,8 @@
+#User Specific
+*.userprefs
+*.usertasks
+*~
+
+#Mono Project Files
+bin/
+obj/
