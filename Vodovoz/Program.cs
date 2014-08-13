@@ -41,7 +41,7 @@ namespace Vodovoz
 			if (LoginResult == ResponseType.DeleteEvent || LoginResult == ResponseType.Cancel)
 				return;
 
-			LoginDialog.Destroy ();
+			LoginDialog.Destroy();
 
 			//Запускаем программу
 			MainWin = new MainWindow ();
@@ -49,6 +49,17 @@ namespace Vodovoz
 				return;
 			MainWin.Show ();
 			Application.Run ();
+		}
+
+		public static void StatusMessage(string message)
+		{
+			if (StatusBarLabel == null)
+				return;
+			StatusBarLabel.Text = message;
+			while (GLib.MainContext.Pending())
+			{
+				Gtk.Main.Iteration();
+			}
 		}
 	}
 }

@@ -15,6 +15,7 @@ using QSProjectsLib;
 [assembly: AssemblyCulture("")]
 [assembly: AssemblyLogoIcon("Vodovoz.icons.logo.png")]
 [assembly: AssemblySupport("", true, "MySQL")]
+[assembly: AssemblyAppWebsite("http://www.qsolution.ru/")]
 
 [assembly: AssemblyAuthor("Ганьков Андрей <gav@qsolution.ru>")]
 

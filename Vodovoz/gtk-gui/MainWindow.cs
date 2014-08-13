@@ -15,7 +15,7 @@ public partial class MainWindow
 	
 	private global::Gtk.Action aboutAction;
 	
-	private global::Gtk.Action Action3;
+	private global::Gtk.Action UsersAction;
 	
 	private global::Gtk.Action quitAction;
 	
@@ -23,7 +23,15 @@ public partial class MainWindow
 	
 	private global::Gtk.MenuBar menubarMain;
 	
+	private global::Gtk.Toolbar toolbarMain;
+	
+	private global::Gtk.Toolbar toolbarSub;
+	
 	private global::Gtk.Statusbar statusbarMain;
+	
+	private global::Gtk.Label labelUser;
+	
+	private global::Gtk.Label labelStatus;
 
 	protected virtual void Build ()
 	{
@@ -46,9 +54,9 @@ public partial class MainWindow
 		this.aboutAction = new global::Gtk.Action ("aboutAction", global::Mono.Unix.Catalog.GetString ("_О программе"), null, "gtk-about");
 		this.aboutAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_О программе");
 		w1.Add (this.aboutAction, null);
-		this.Action3 = new global::Gtk.Action ("Action3", global::Mono.Unix.Catalog.GetString ("Пользователи"), null, "users");
-		this.Action3.ShortLabel = global::Mono.Unix.Catalog.GetString ("Пользователи");
-		w1.Add (this.Action3, null);
+		this.UsersAction = new global::Gtk.Action ("UsersAction", global::Mono.Unix.Catalog.GetString ("Пользователи"), null, "users");
+		this.UsersAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Пользователи");
+		w1.Add (this.UsersAction, null);
 		this.quitAction = new global::Gtk.Action ("quitAction", global::Mono.Unix.Catalog.GetString ("В_ыход"), null, "gtk-quit");
 		this.quitAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("В_ыход");
 		w1.Add (this.quitAction, null);
@@ -62,7 +70,7 @@ public partial class MainWindow
 		this.vbox1.Name = "vbox1";
 		this.vbox1.Spacing = 6;
 		// Container child vbox1.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='Action3' action='Action3'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action2' action='Action2'/><menu name='Action1' action='Action1'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
+		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action2' action='Action2'/><menu name='Action1' action='Action1'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add (this.menubarMain);
@@ -71,14 +79,57 @@ public partial class MainWindow
 		w2.Expand = false;
 		w2.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
+		this.UIManager.AddUiFromString ("<ui><toolbar name='toolbarMain'/></ui>");
+		this.toolbarMain = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbarMain")));
+		this.toolbarMain.Name = "toolbarMain";
+		this.toolbarMain.ShowArrow = false;
+		this.toolbarMain.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
+		this.toolbarMain.IconSize = ((global::Gtk.IconSize)(3));
+		this.vbox1.Add (this.toolbarMain);
+		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.toolbarMain]));
+		w3.Position = 1;
+		w3.Expand = false;
+		w3.Fill = false;
+		// Container child vbox1.Gtk.Box+BoxChild
+		this.UIManager.AddUiFromString ("<ui><toolbar name='toolbarSub'/></ui>");
+		this.toolbarSub = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/toolbarSub")));
+		this.toolbarSub.Name = "toolbarSub";
+		this.toolbarSub.ShowArrow = false;
+		this.toolbarSub.ToolbarStyle = ((global::Gtk.ToolbarStyle)(3));
+		this.toolbarSub.IconSize = ((global::Gtk.IconSize)(2));
+		this.vbox1.Add (this.toolbarSub);
+		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.toolbarSub]));
+		w4.Position = 2;
+		w4.Expand = false;
+		w4.Fill = false;
+		// Container child vbox1.Gtk.Box+BoxChild
 		this.statusbarMain = new global::Gtk.Statusbar ();
 		this.statusbarMain.Name = "statusbarMain";
 		this.statusbarMain.Spacing = 6;
+		// Container child statusbarMain.Gtk.Box+BoxChild
+		this.labelUser = new global::Gtk.Label ();
+		this.labelUser.Name = "labelUser";
+		this.labelUser.LabelProp = global::Mono.Unix.Catalog.GetString ("label2");
+		this.statusbarMain.Add (this.labelUser);
+		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.statusbarMain [this.labelUser]));
+		w5.Position = 0;
+		w5.Expand = false;
+		w5.Fill = false;
+		// Container child statusbarMain.Gtk.Box+BoxChild
+		this.labelStatus = new global::Gtk.Label ();
+		this.labelStatus.Name = "labelStatus";
+		this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
+		this.statusbarMain.Add (this.labelStatus);
+		global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.statusbarMain [this.labelStatus]));
+		w6.Position = 2;
+		w6.Expand = false;
+		w6.Fill = false;
 		this.vbox1.Add (this.statusbarMain);
-		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbarMain]));
-		w3.Position = 2;
-		w3.Expand = false;
-		w3.Fill = false;
+		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbarMain]));
+		w7.PackType = ((global::Gtk.PackType)(1));
+		w7.Position = 4;
+		w7.Expand = false;
+		w7.Fill = false;
 		this.Add (this.vbox1);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
@@ -89,7 +140,7 @@ public partial class MainWindow
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler (this.OnDialogAuthenticationActionActivated);
 		this.aboutAction.Activated += new global::System.EventHandler (this.OnAboutActionActivated);
-		this.Action3.Activated += new global::System.EventHandler (this.OnAction3Activated);
+		this.UsersAction.Activated += new global::System.EventHandler (this.OnAction3Activated);
 		this.quitAction.Activated += new global::System.EventHandler (this.OnQuitActionActivated);
 	}
 }
