@@ -13,6 +13,24 @@ namespace Stetic
 				global::Gtk.IconFactory w1 = new global::Gtk.IconFactory ();
 				global::Gtk.IconSet w2 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.menu.users.png"));
 				w1.Add ("users", w2);
+				global::Gtk.IconSet w3 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.orders.png"));
+				w1.Add ("order", w3);
+				global::Gtk.IconSet w4 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.service.png"));
+				w1.Add ("service", w4);
+				global::Gtk.IconSet w5 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.stock.png"));
+				w1.Add ("stock", w5);
+				global::Gtk.IconSet w6 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.accounting.png"));
+				w1.Add ("accounting", w6);
+				global::Gtk.IconSet w7 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.reports.png"));
+				w1.Add ("report", w7);
+				global::Gtk.IconSet w8 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.archive.png"));
+				w1.Add ("archive", w8);
+				global::Gtk.IconSet w9 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.cash.png"));
+				w1.Add ("cash", w9);
+				global::Gtk.IconSet w10 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.toolbar.logistic.png"));
+				w1.Add ("logistic", w10);
+				global::Gtk.IconSet w11 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.menu.table.png"));
+				w1.Add ("table", w11);
 				w1.AddDefault ();
 			}
 		}

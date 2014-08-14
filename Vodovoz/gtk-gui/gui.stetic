@@ -15,8 +15,61 @@
         <property name="Image">resource:Vodovoz.icons.menu.users.png</property>
       </source>
     </icon-set>
+    <icon-set id="order">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.orders.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="service">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.service.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="stock">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.stock.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="accounting">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.accounting.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="report">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.reports.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="archive">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.archive.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="cash">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.cash.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="logistic">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.logistic.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="table">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.menu.table.png</property>
+      </source>
+    </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="622 300">
+  <widget class="Gtk.Window" id="MainWindow" design-size="739 300">
+    <action-group name="services">
+      <action id="ActionServiceTikets">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал заявок</property>
+        <property name="ShortLabel" translatable="yes">Журнал заявок</property>
+        <property name="StockId">table</property>
+      </action>
+    </action-group>
     <action-group name="Default">
       <action id="Action">
         <property name="Type">Action</property>
@@ -61,6 +114,102 @@
         <property name="StockId">gtk-quit</property>
         <signal name="Activated" handler="OnQuitActionActivated" />
       </action>
+      <action id="ActionOrders">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Заказы</property>
+        <property name="ShortLabel" translatable="yes">Заказы</property>
+        <property name="StockId">order</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+        <signal name="Toggled" handler="OnActionOrdersToggled" />
+      </action>
+      <action id="ActionServices">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Сервис</property>
+        <property name="ShortLabel" translatable="yes">Сервис</property>
+        <property name="StockId">service</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+        <signal name="Toggled" handler="OnActionServicesToggled" />
+      </action>
+      <action id="ActionLogistics">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Логистика</property>
+        <property name="ShortLabel" translatable="yes">Логистика</property>
+        <property name="StockId">logistic</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+      </action>
+      <action id="ActionStock">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Склад</property>
+        <property name="ShortLabel" translatable="yes">Склад</property>
+        <property name="StockId">stock</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+      </action>
+      <action id="ActionCash">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Касса</property>
+        <property name="ShortLabel" translatable="yes">Касса</property>
+        <property name="StockId">cash</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+      </action>
+      <action id="ActionAccounting">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Бухгалтерия</property>
+        <property name="ShortLabel" translatable="yes">Бухгалтерия</property>
+        <property name="StockId">accounting</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+      </action>
+      <action id="ActionReports">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Отчеты</property>
+        <property name="ShortLabel" translatable="yes">Отчеты</property>
+        <property name="StockId">report</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+      </action>
+      <action id="ActionArchive">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Архив</property>
+        <property name="ShortLabel" translatable="yes">Архив</property>
+        <property name="StockId">archive</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+      </action>
+    </action-group>
+    <action-group name="orders">
+      <action id="ActionNewOrder">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Новый заказ</property>
+        <property name="ShortLabel" translatable="yes">Новый заказ</property>
+        <property name="StockId">gtk-new</property>
+      </action>
+      <action id="ActionOrdersTable">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал заказов</property>
+        <property name="ShortLabel" translatable="yes">Журнал заказов</property>
+        <property name="StockId">table</property>
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -98,8 +247,17 @@
             <property name="MemberName" />
             <property name="ShowArrow">False</property>
             <property name="ButtonStyle">Both</property>
-            <property name="IconSize">LargeToolbar</property>
-            <node name="toolbarMain" type="Toolbar" />
+            <property name="IconSize">Dialog</property>
+            <node name="toolbarMain" type="Toolbar">
+              <node type="Toolitem" action="ActionOrders" />
+              <node type="Toolitem" action="ActionServices" />
+              <node type="Toolitem" action="ActionLogistics" />
+              <node type="Toolitem" action="ActionStock" />
+              <node type="Toolitem" action="ActionCash" />
+              <node type="Toolitem" action="ActionAccounting" />
+              <node type="Toolitem" action="ActionReports" />
+              <node type="Toolitem" action="ActionArchive" />
+            </node>
           </widget>
           <packing>
             <property name="Position">1</property>
@@ -112,7 +270,7 @@
           <widget class="Gtk.Toolbar" id="toolbarSub">
             <property name="MemberName" />
             <property name="ShowArrow">False</property>
-            <property name="ButtonStyle">BothHoriz</property>
+            <property name="ButtonStyle">Text</property>
             <property name="IconSize">SmallToolbar</property>
             <node name="toolbarSub" type="Toolbar" />
           </widget>

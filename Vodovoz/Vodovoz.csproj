@@ -60,6 +60,17 @@
     </EmbeddedResource>
     <EmbeddedResource Include="icons\logo.png" />
     <EmbeddedResource Include="icons\menu\users.png" />
+    <EmbeddedResource Include="icons\toolbar\accounting.png" />
+    <EmbeddedResource Include="icons\toolbar\archive.png" />
+    <EmbeddedResource Include="icons\toolbar\orders.png" />
+    <EmbeddedResource Include="icons\toolbar\reports.png" />
+    <EmbeddedResource Include="icons\toolbar\service.png" />
+    <EmbeddedResource Include="icons\toolbar\stock.png" />
+    <EmbeddedResource Include="icons\toolbar\cash.png" />
+    <EmbeddedResource Include="icons\toolbar\logistic.png" />
+    <EmbeddedResource Include="icons\menu\table.png" />
+    <EmbeddedResource Include="toolbars\orders.xml" />
+    <EmbeddedResource Include="toolbars\services.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -83,6 +94,8 @@
   <ItemGroup>
     <Folder Include="icons\" />
     <Folder Include="icons\menu\" />
+    <Folder Include="icons\toolbar\" />
+    <Folder Include="toolbars\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

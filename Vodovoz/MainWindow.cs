@@ -8,6 +8,7 @@ using NLog;
 public partial class MainWindow: Gtk.Window
 {
 	private static Logger logger = LogManager.GetCurrentClassLogger();
+	uint uiIdOrders, uiIdServices;
 
 	public MainWindow() : base(Gtk.WindowType.Toplevel)
 	{
@@ -153,6 +154,37 @@ public partial class MainWindow: Gtk.Window
 				ComboWorks.ComboFillReference(comboContractCategory,"contract_category", ComboWorks.ListMode.WithAll);
 				break;*/
 		} 
+	}
+		
+	protected void OnActionOrdersToggled(object sender, EventArgs e)
+	{
+		if (ActionOrders.Active)
+		{
+			uiIdOrders = this.UIManager.AddUiFromResource("Vodovoz.toolbars.orders.xml");
+			this.UIManager.EnsureUpdate();
+		}
+		else if (uiIdOrders > 0)
+		{
+			this.UIManager.RemoveUi(uiIdOrders);
+		}
+	}
+
+	protected void OnActionNewOrderActivated(object sender, EventArgs e)
+	{
+		throw new NotImplementedException();
+	}
+
+	protected void OnActionServicesToggled(object sender, EventArgs e)
+	{
+		if (ActionServices.Active)
+		{
+			uiIdServices = this.UIManager.AddUiFromResource("Vodovoz.toolbars.services.xml");
+			this.UIManager.EnsureUpdate();
+		} 
+		else if(uiIdServices > 0)
+		{
+			this.UIManager.RemoveUi(uiIdServices);
+		}
 	}
 
 }
