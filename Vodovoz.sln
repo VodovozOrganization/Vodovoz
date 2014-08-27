@@ -7,12 +7,24 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSProjectsLib", "..\QSProje
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSSupportLib", "..\QSProjects\QSSupportLib\QSSupportLib.csproj", "{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSTDI", "..\QSProjects\QSTDI\QSTDI.csproj", "{4B35C969-8C74-440F-8189-57047C9215FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSOrmProject", "..\QSProjects\QSOrmProject\QSOrmProject.csproj", "{00D32969-612C-417E-9565-BEC6A7719F80}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{00D32969-612C-417E-9565-BEC6A7719F80}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{00D32969-612C-417E-9565-BEC6A7719F80}.Debug|x86.Build.0 = Debug|Any CPU
+		{00D32969-612C-417E-9565-BEC6A7719F80}.Release|x86.ActiveCfg = Release|Any CPU
+		{00D32969-612C-417E-9565-BEC6A7719F80}.Release|x86.Build.0 = Release|Any CPU
+		{4B35C969-8C74-440F-8189-57047C9215FD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4B35C969-8C74-440F-8189-57047C9215FD}.Debug|x86.Build.0 = Debug|Any CPU
+		{4B35C969-8C74-440F-8189-57047C9215FD}.Release|x86.ActiveCfg = Release|Any CPU
+		{4B35C969-8C74-440F-8189-57047C9215FD}.Release|x86.Build.0 = Release|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Debug|x86.Build.0 = Debug|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Release|x86.ActiveCfg = Release|Any CPU

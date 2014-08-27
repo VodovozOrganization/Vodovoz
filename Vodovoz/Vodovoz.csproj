@@ -30,29 +30,23 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="glib-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="Mono.Posix" />
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\lib\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\packages\Iesi.Collections.4.0.0.4000\lib\net40\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.4.0.0.4000\lib\net40\NHibernate.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -71,6 +65,7 @@
     <EmbeddedResource Include="icons\menu\table.png" />
     <EmbeddedResource Include="toolbars\orders.xml" />
     <EmbeddedResource Include="toolbars\services.xml" />
+    <EmbeddedResource Include="Database.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -79,6 +74,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CreateProjectParam.cs" />
+    <Compile Include="Dialogs\OrganizationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
+    <Compile Include="Domain\Organization.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -90,15 +88,29 @@
       <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
       <Name>QSSupportLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSTDI\QSTDI.csproj">
+      <Project>{4B35C969-8C74-440F-8189-57047C9215FD}</Project>
+      <Name>QSTDI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
+      <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
+      <Name>QSOrmProject</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
     <Folder Include="icons\menu\" />
     <Folder Include="icons\toolbar\" />
     <Folder Include="toolbars\" />
+    <Folder Include="Dialogs\" />
+    <Folder Include="Domain\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
+    <None Include="hibernate.cfg.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

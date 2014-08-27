@@ -186,5 +186,17 @@ public partial class MainWindow: Gtk.Window
 			this.UIManager.RemoveUi(uiIdServices);
 		}
 	}
+		
+	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
+	{
+		/*Reference winref = new Reference();
+		winref.SetMode(false,false,true,true,true);
+		winref.FillList("organizations","Организация", "Организации");
+		winref.Show();
+		winref.Run();
+		winref.Destroy();*/
 
+		OrganizationDlg orgTab = new OrganizationDlg();
+		tdiMain.AddTab(orgTab);
+	}
 }

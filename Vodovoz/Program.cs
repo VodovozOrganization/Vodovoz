@@ -42,6 +42,8 @@ namespace Vodovoz
 				return;
 
 			LoginDialog.Destroy();
+			// Настройка ORM
+			QSOrmProject.OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz" });
 
 			//Запускаем программу
 			MainWin = new MainWindow ();

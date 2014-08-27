@@ -7,6 +7,8 @@ public partial class MainWindow
 	
 	private global::Gtk.Action ActionServiceTikets;
 	
+	private global::Gtk.Action ActionOrganizations;
+	
 	private global::Gtk.Action Action;
 	
 	private global::Gtk.Action dialogAuthenticationAction;
@@ -49,6 +51,8 @@ public partial class MainWindow
 	
 	private global::Gtk.Toolbar toolbarSub;
 	
+	private global::QSTDI.TdiNotebook tdiMain;
+	
 	private global::Gtk.Statusbar statusbarMain;
 	
 	private global::Gtk.Label labelUser;
@@ -64,6 +68,9 @@ public partial class MainWindow
 		this.ActionServiceTikets = new global::Gtk.Action ("ActionServiceTikets", global::Mono.Unix.Catalog.GetString ("Журнал заявок"), null, "table");
 		this.ActionServiceTikets.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заявок");
 		w1.Add (this.ActionServiceTikets, null);
+		this.ActionOrganizations = new global::Gtk.Action ("ActionOrganizations", global::Mono.Unix.Catalog.GetString ("Организации"), null, null);
+		this.ActionOrganizations.ShortLabel = global::Mono.Unix.Catalog.GetString ("Организации");
+		w1.Add (this.ActionOrganizations, null);
 		this.UIManager.InsertActionGroup (w1, 0);
 		global::Gtk.ActionGroup w2 = new global::Gtk.ActionGroup ("Default");
 		this.Action = new global::Gtk.Action ("Action", global::Mono.Unix.Catalog.GetString ("База"), null, null);
@@ -104,19 +111,19 @@ public partial class MainWindow
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString ("Склад");
 		w2.Add (this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction ("ActionCash", global::Mono.Unix.Catalog.GetString ("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionOrders.Group;
+		this.ActionCash.Group = this.ActionStock.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString ("Касса");
 		w2.Add (this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction ("ActionAccounting", global::Mono.Unix.Catalog.GetString ("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionOrders.Group;
+		this.ActionAccounting.Group = this.ActionCash.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString ("Бухгалтерия");
 		w2.Add (this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction ("ActionReports", global::Mono.Unix.Catalog.GetString ("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionOrders.Group;
+		this.ActionReports.Group = this.ActionCash.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString ("Отчеты");
 		w2.Add (this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction ("ActionArchive", global::Mono.Unix.Catalog.GetString ("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionOrders.Group;
+		this.ActionArchive.Group = this.ActionCash.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString ("Архив");
 		w2.Add (this.ActionArchive, null);
 		this.UIManager.InsertActionGroup (w2, 1);
@@ -137,7 +144,7 @@ public partial class MainWindow
 		this.vbox1.Name = "vbox1";
 		this.vbox1.Spacing = 6;
 		// Container child vbox1.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action2' action='Action2'/><menu name='Action1' action='Action1'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
+		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='Action' action='Action'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action2' action='Action2'><menuitem name='ActionOrganizations' action='ActionOrganizations'/></menu><menu name='Action1' action='Action1'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add (this.menubarMain);
@@ -170,6 +177,14 @@ public partial class MainWindow
 		w6.Expand = false;
 		w6.Fill = false;
 		// Container child vbox1.Gtk.Box+BoxChild
+		this.tdiMain = new global::QSTDI.TdiNotebook ();
+		this.tdiMain.Name = "tdiMain";
+		this.tdiMain.CurrentPage = 0;
+		this.tdiMain.ShowTabs = false;
+		this.vbox1.Add (this.tdiMain);
+		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.tdiMain]));
+		w7.Position = 3;
+		// Container child vbox1.Gtk.Box+BoxChild
 		this.statusbarMain = new global::Gtk.Statusbar ();
 		this.statusbarMain.Name = "statusbarMain";
 		this.statusbarMain.Spacing = 6;
@@ -178,25 +193,25 @@ public partial class MainWindow
 		this.labelUser.Name = "labelUser";
 		this.labelUser.LabelProp = global::Mono.Unix.Catalog.GetString ("label2");
 		this.statusbarMain.Add (this.labelUser);
-		global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.statusbarMain [this.labelUser]));
-		w7.Position = 0;
-		w7.Expand = false;
-		w7.Fill = false;
+		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.statusbarMain [this.labelUser]));
+		w8.Position = 0;
+		w8.Expand = false;
+		w8.Fill = false;
 		// Container child statusbarMain.Gtk.Box+BoxChild
 		this.labelStatus = new global::Gtk.Label ();
 		this.labelStatus.Name = "labelStatus";
 		this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
 		this.statusbarMain.Add (this.labelStatus);
-		global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.statusbarMain [this.labelStatus]));
-		w8.Position = 2;
-		w8.Expand = false;
-		w8.Fill = false;
-		this.vbox1.Add (this.statusbarMain);
-		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbarMain]));
-		w9.PackType = ((global::Gtk.PackType)(1));
-		w9.Position = 4;
+		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.statusbarMain [this.labelStatus]));
+		w9.Position = 2;
 		w9.Expand = false;
 		w9.Fill = false;
+		this.vbox1.Add (this.statusbarMain);
+		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbarMain]));
+		w10.PackType = ((global::Gtk.PackType)(1));
+		w10.Position = 4;
+		w10.Expand = false;
+		w10.Fill = false;
 		this.Add (this.vbox1);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
@@ -205,6 +220,7 @@ public partial class MainWindow
 		this.DefaultHeight = 300;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
+		this.ActionOrganizations.Activated += new global::System.EventHandler (this.OnActionOrganizationsActivated);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler (this.OnDialogAuthenticationActionActivated);
 		this.aboutAction.Activated += new global::System.EventHandler (this.OnAboutActionActivated);
 		this.UsersAction.Activated += new global::System.EventHandler (this.OnAction3Activated);
