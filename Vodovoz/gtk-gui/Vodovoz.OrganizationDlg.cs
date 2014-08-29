@@ -14,21 +14,21 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonCancel;
 		
-		private global::Gtk.Table table1;
+		private global::Gtk.DataBindings.DataTable datatableMain;
 		
-		private global::Gtk.Entry entryEmail;
+		private global::Gtk.DataBindings.DataEntry dataentryEmail;
 		
-		private global::Gtk.Entry entryFullName;
+		private global::Gtk.DataBindings.DataEntry dataentryFullName;
 		
-		private global::Gtk.Entry entryINN;
+		private global::Gtk.DataBindings.DataEntry dataentryINN;
 		
-		private global::Gtk.Entry entryKPP;
+		private global::Gtk.DataBindings.DataEntry dataentryKPP;
 		
-		private global::Gtk.Entry entryName;
+		private global::Gtk.DataBindings.DataEntry dataentryName;
 		
-		private global::Gtk.Entry entryOGRN;
+		private global::Gtk.DataBindings.DataEntry dataentryOGRN;
 		
-		private global::Gtk.Entry entryPhone;
+		private global::Gtk.DataBindings.DataEntry dataentryPhone;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
@@ -106,109 +106,166 @@ namespace Vodovoz
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table (((uint)(9)), ((uint)(2)), false);
-			this.table1.Name = "table1";
-			this.table1.RowSpacing = ((uint)(6));
-			this.table1.ColumnSpacing = ((uint)(6));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryEmail = new global::Gtk.Entry ();
-			this.entryEmail.CanFocus = true;
-			this.entryEmail.Name = "entryEmail";
-			this.entryEmail.IsEditable = true;
-			this.entryEmail.InvisibleChar = '●';
-			this.table1.Add (this.entryEmail);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryEmail]));
+			this.datatableMain = new global::Gtk.DataBindings.DataTable (((uint)(9)), ((uint)(2)), false);
+			this.datatableMain.Name = "datatableMain";
+			this.datatableMain.RowSpacing = ((uint)(6));
+			this.datatableMain.ColumnSpacing = ((uint)(6));
+			this.datatableMain.InheritedDataSource = false;
+			this.datatableMain.InheritedBoundaryDataSource = false;
+			this.datatableMain.InheritedDataSource = false;
+			this.datatableMain.InheritedBoundaryDataSource = false;
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.dataentryEmail = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryEmail.CanFocus = true;
+			this.dataentryEmail.Name = "dataentryEmail";
+			this.dataentryEmail.IsEditable = true;
+			this.dataentryEmail.MaxLength = 45;
+			this.dataentryEmail.InvisibleChar = '●';
+			this.dataentryEmail.InheritedDataSource = true;
+			this.dataentryEmail.Mappings = "Email";
+			this.dataentryEmail.InheritedBoundaryDataSource = false;
+			this.dataentryEmail.InheritedDataSource = true;
+			this.dataentryEmail.Mappings = "Email";
+			this.dataentryEmail.InheritedBoundaryDataSource = false;
+			this.dataentryEmail.Editable = true;
+			this.datatableMain.Add (this.dataentryEmail);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryEmail]));
 			w8.TopAttach = ((uint)(3));
 			w8.BottomAttach = ((uint)(4));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryFullName = new global::Gtk.Entry ();
-			this.entryFullName.CanFocus = true;
-			this.entryFullName.Name = "entryFullName";
-			this.entryFullName.IsEditable = true;
-			this.entryFullName.InvisibleChar = '●';
-			this.table1.Add (this.entryFullName);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryFullName]));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.dataentryFullName = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryFullName.CanFocus = true;
+			this.dataentryFullName.Name = "dataentryFullName";
+			this.dataentryFullName.IsEditable = true;
+			this.dataentryFullName.MaxLength = 200;
+			this.dataentryFullName.InvisibleChar = '●';
+			this.dataentryFullName.InheritedDataSource = true;
+			this.dataentryFullName.Mappings = "FullName";
+			this.dataentryFullName.InheritedBoundaryDataSource = false;
+			this.dataentryFullName.InheritedDataSource = true;
+			this.dataentryFullName.Mappings = "FullName";
+			this.dataentryFullName.InheritedBoundaryDataSource = false;
+			this.dataentryFullName.Editable = true;
+			this.datatableMain.Add (this.dataentryFullName);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryFullName]));
 			w9.TopAttach = ((uint)(1));
 			w9.BottomAttach = ((uint)(2));
 			w9.LeftAttach = ((uint)(1));
 			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryINN = new global::Gtk.Entry ();
-			this.entryINN.CanFocus = true;
-			this.entryINN.Name = "entryINN";
-			this.entryINN.IsEditable = true;
-			this.entryINN.MaxLength = 12;
-			this.entryINN.InvisibleChar = '●';
-			this.table1.Add (this.entryINN);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryINN]));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.dataentryINN = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryINN.CanFocus = true;
+			this.dataentryINN.Name = "dataentryINN";
+			this.dataentryINN.IsEditable = true;
+			this.dataentryINN.MaxLength = 12;
+			this.dataentryINN.InvisibleChar = '●';
+			this.dataentryINN.InheritedDataSource = true;
+			this.dataentryINN.Mappings = "INN";
+			this.dataentryINN.InheritedBoundaryDataSource = false;
+			this.dataentryINN.InheritedDataSource = true;
+			this.dataentryINN.Mappings = "INN";
+			this.dataentryINN.InheritedBoundaryDataSource = false;
+			this.dataentryINN.Editable = true;
+			this.datatableMain.Add (this.dataentryINN);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryINN]));
 			w10.TopAttach = ((uint)(4));
 			w10.BottomAttach = ((uint)(5));
 			w10.LeftAttach = ((uint)(1));
 			w10.RightAttach = ((uint)(2));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryKPP = new global::Gtk.Entry ();
-			this.entryKPP.CanFocus = true;
-			this.entryKPP.Name = "entryKPP";
-			this.entryKPP.IsEditable = true;
-			this.entryKPP.MaxLength = 10;
-			this.entryKPP.InvisibleChar = '●';
-			this.table1.Add (this.entryKPP);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryKPP]));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.dataentryKPP = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryKPP.CanFocus = true;
+			this.dataentryKPP.Name = "dataentryKPP";
+			this.dataentryKPP.IsEditable = true;
+			this.dataentryKPP.MaxLength = 10;
+			this.dataentryKPP.InvisibleChar = '●';
+			this.dataentryKPP.InheritedDataSource = true;
+			this.dataentryKPP.Mappings = "KPP";
+			this.dataentryKPP.InheritedBoundaryDataSource = false;
+			this.dataentryKPP.InheritedDataSource = true;
+			this.dataentryKPP.Mappings = "KPP";
+			this.dataentryKPP.InheritedBoundaryDataSource = false;
+			this.dataentryKPP.Editable = true;
+			this.datatableMain.Add (this.dataentryKPP);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryKPP]));
 			w11.TopAttach = ((uint)(5));
 			w11.BottomAttach = ((uint)(6));
 			w11.LeftAttach = ((uint)(1));
 			w11.RightAttach = ((uint)(2));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryName = new global::Gtk.Entry ();
-			this.entryName.CanFocus = true;
-			this.entryName.Name = "entryName";
-			this.entryName.IsEditable = true;
-			this.entryName.InvisibleChar = '●';
-			this.table1.Add (this.entryName);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryName]));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.dataentryName = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryName.CanFocus = true;
+			this.dataentryName.Name = "dataentryName";
+			this.dataentryName.IsEditable = true;
+			this.dataentryName.MaxLength = 100;
+			this.dataentryName.InvisibleChar = '●';
+			this.dataentryName.InheritedDataSource = true;
+			this.dataentryName.Mappings = "Name";
+			this.dataentryName.InheritedBoundaryDataSource = false;
+			this.dataentryName.InheritedDataSource = true;
+			this.dataentryName.Mappings = "Name";
+			this.dataentryName.InheritedBoundaryDataSource = false;
+			this.dataentryName.Editable = true;
+			this.datatableMain.Add (this.dataentryName);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryName]));
 			w12.LeftAttach = ((uint)(1));
 			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryOGRN = new global::Gtk.Entry ();
-			this.entryOGRN.CanFocus = true;
-			this.entryOGRN.Name = "entryOGRN";
-			this.entryOGRN.IsEditable = true;
-			this.entryOGRN.MaxLength = 15;
-			this.entryOGRN.InvisibleChar = '●';
-			this.table1.Add (this.entryOGRN);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryOGRN]));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.dataentryOGRN = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryOGRN.CanFocus = true;
+			this.dataentryOGRN.Name = "dataentryOGRN";
+			this.dataentryOGRN.IsEditable = true;
+			this.dataentryOGRN.MaxLength = 15;
+			this.dataentryOGRN.InvisibleChar = '●';
+			this.dataentryOGRN.InheritedDataSource = true;
+			this.dataentryOGRN.Mappings = "OGRN";
+			this.dataentryOGRN.InheritedBoundaryDataSource = false;
+			this.dataentryOGRN.InheritedDataSource = true;
+			this.dataentryOGRN.Mappings = "OGRN";
+			this.dataentryOGRN.InheritedBoundaryDataSource = false;
+			this.dataentryOGRN.Editable = true;
+			this.datatableMain.Add (this.dataentryOGRN);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryOGRN]));
 			w13.TopAttach = ((uint)(6));
 			w13.BottomAttach = ((uint)(7));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.entryPhone = new global::Gtk.Entry ();
-			this.entryPhone.CanFocus = true;
-			this.entryPhone.Name = "entryPhone";
-			this.entryPhone.IsEditable = true;
-			this.entryPhone.InvisibleChar = '●';
-			this.table1.Add (this.entryPhone);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryPhone]));
+			// Container child datatableMain.Gtk.Table+TableChild
+			this.dataentryPhone = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryPhone.CanFocus = true;
+			this.dataentryPhone.Name = "dataentryPhone";
+			this.dataentryPhone.IsEditable = true;
+			this.dataentryPhone.MaxLength = 45;
+			this.dataentryPhone.InvisibleChar = '●';
+			this.dataentryPhone.InheritedDataSource = true;
+			this.dataentryPhone.Mappings = "Phone";
+			this.dataentryPhone.InheritedBoundaryDataSource = false;
+			this.dataentryPhone.InheritedDataSource = true;
+			this.dataentryPhone.Mappings = "Phone";
+			this.dataentryPhone.InheritedBoundaryDataSource = false;
+			this.dataentryPhone.Editable = true;
+			this.datatableMain.Add (this.dataentryPhone);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryPhone]));
 			w14.TopAttach = ((uint)(2));
 			w14.BottomAttach = ((uint)(3));
 			w14.LeftAttach = ((uint)(1));
 			w14.RightAttach = ((uint)(2));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -217,15 +274,15 @@ namespace Vodovoz
 			this.textviewAddress.CanFocus = true;
 			this.textviewAddress.Name = "textviewAddress";
 			this.GtkScrolledWindow.Add (this.textviewAddress);
-			this.table1.Add (this.GtkScrolledWindow);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.GtkScrolledWindow]));
+			this.datatableMain.Add (this.GtkScrolledWindow);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.GtkScrolledWindow]));
 			w16.TopAttach = ((uint)(7));
 			w16.BottomAttach = ((uint)(8));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -234,116 +291,116 @@ namespace Vodovoz
 			this.textviewJurAddress.CanFocus = true;
 			this.textviewJurAddress.Name = "textviewJurAddress";
 			this.GtkScrolledWindow1.Add (this.textviewJurAddress);
-			this.table1.Add (this.GtkScrolledWindow1);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1 [this.GtkScrolledWindow1]));
+			this.datatableMain.Add (this.GtkScrolledWindow1);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.GtkScrolledWindow1]));
 			w18.TopAttach = ((uint)(8));
 			w18.BottomAttach = ((uint)(9));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label10 = new global::Gtk.Label ();
 			this.label10.Name = "label10";
 			this.label10.Xalign = 1F;
 			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString ("ОГРН:");
-			this.table1.Add (this.label10);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.label10]));
+			this.datatableMain.Add (this.label10);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label10]));
 			w19.TopAttach = ((uint)(6));
 			w19.BottomAttach = ((uint)(7));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label11 = new global::Gtk.Label ();
 			this.label11.Name = "label11";
 			this.label11.Xalign = 1F;
 			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("E-mail:");
-			this.table1.Add (this.label11);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1 [this.label11]));
+			this.datatableMain.Add (this.label11);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label11]));
 			w20.TopAttach = ((uint)(3));
 			w20.BottomAttach = ((uint)(4));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Название<span foreground=\"red\">*</span>:");
 			this.label2.UseMarkup = true;
-			this.table1.Add (this.label2);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1 [this.label2]));
+			this.datatableMain.Add (this.label2);
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label2]));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label ();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Полное название:");
-			this.table1.Add (this.label3);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1 [this.label3]));
+			this.datatableMain.Add (this.label3);
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label3]));
 			w22.TopAttach = ((uint)(1));
 			w22.BottomAttach = ((uint)(2));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label ();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
 			this.label5.Yalign = 0F;
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Адрес:");
-			this.table1.Add (this.label5);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1 [this.label5]));
+			this.datatableMain.Add (this.label5);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label5]));
 			w23.TopAttach = ((uint)(7));
 			w23.BottomAttach = ((uint)(8));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label ();
 			this.label6.Name = "label6";
 			this.label6.Xalign = 1F;
 			this.label6.Yalign = 0F;
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Юр. адрес:");
-			this.table1.Add (this.label6);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1 [this.label6]));
+			this.datatableMain.Add (this.label6);
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label6]));
 			w24.TopAttach = ((uint)(8));
 			w24.BottomAttach = ((uint)(9));
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label ();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("ИНН:");
-			this.table1.Add (this.label7);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1 [this.label7]));
+			this.datatableMain.Add (this.label7);
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label7]));
 			w25.TopAttach = ((uint)(4));
 			w25.BottomAttach = ((uint)(5));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label8 = new global::Gtk.Label ();
 			this.label8.Name = "label8";
 			this.label8.Xalign = 1F;
 			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString ("КПП:");
-			this.table1.Add (this.label8);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1 [this.label8]));
+			this.datatableMain.Add (this.label8);
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label8]));
 			w26.TopAttach = ((uint)(5));
 			w26.BottomAttach = ((uint)(6));
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.label9 = new global::Gtk.Label ();
 			this.label9.Name = "label9";
 			this.label9.Xalign = 1F;
 			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString ("Телефон:");
-			this.table1.Add (this.label9);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1 [this.label9]));
+			this.datatableMain.Add (this.label9);
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label9]));
 			w27.TopAttach = ((uint)(2));
 			w27.BottomAttach = ((uint)(3));
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox1.Add (this.table1);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.table1]));
+			this.vbox1.Add (this.datatableMain);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatableMain]));
 			w28.Position = 1;
 			w28.Expand = false;
 			w28.Fill = false;
@@ -353,6 +410,8 @@ namespace Vodovoz
 			}
 			w1.SetUiManager (UIManager);
 			this.Hide ();
+			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 		}
 	}
 }

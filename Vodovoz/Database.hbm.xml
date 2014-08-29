@@ -11,5 +11,6 @@
 	 	<property name="KPP" column="KPP" />
 	 	<property name="OGRN" column="OGRN" />
 	 	<property name="Phone" column="phone" />
+	 	<property name="Email" column="email" />
  	</class>
 </hibernate-mapping>

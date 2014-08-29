@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace Vodovoz
 {
-	public class Organization
+
+	public class Organization //: PropertyChangedBase
 	{
 
 		#region Свойства
@@ -13,12 +15,18 @@ namespace Vodovoz
 		public string KPP { get; set; }
 		public string OGRN { get; set; }
 		public string Phone { get; set; }
+		public string Email { get; set; }
 		#endregion
 
 		public Organization()
 		{
-
-
+			Name = "Новая организация";
+			FullName = String.Empty;
+			INN = String.Empty;
+			KPP = String.Empty;
+			OGRN = String.Empty;
+			Phone = String.Empty;
+			Email = String.Empty;
 		}
 	}
 }
