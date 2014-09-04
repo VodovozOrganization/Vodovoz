@@ -1,8 +1,11 @@
 ﻿using System;
 using Gtk;
 using QSProjectsLib;
+using QSOrmProject;
+using QSTDI;
 using Vodovoz;
 using QSSupportLib;
+using NHibernate;
 using NLog;
 
 public partial class MainWindow: Gtk.Window
@@ -17,8 +20,6 @@ public partial class MainWindow: Gtk.Window
 		//Передаем лебл
 		MainClass.StatusBarLabel = labelStatus;
 		QSMain.MakeNewStatusTargetForNlog("StatusMessage", "Vodovoz.MainClass, Vodovoz");
-		Reference.RunReferenceItemDlg += OnRunReferenceItemDialog;
-		QSMain.ReferenceUpdated += OnReferenceUpdate;
 
 		//Test version of base
 		try
@@ -64,6 +65,29 @@ public partial class MainWindow: Gtk.Window
 			QSMain.User.UpdateUserInfoByLogin ();
 		UsersAction.Sensitive = QSMain.User.admin;
 		labelUser.LabelProp = QSMain.User.Name;
+
+		//Настраиваем виджет вкладок
+		tdiMain.CreateDialogWidget += OnCreateDialogWidget;
+	}
+
+	void OnCreateDialogWidget (object sender, QSTDI.TdiOpenObjDialogEventArgs e)
+	{
+		System.Type dlgType = OrmMain.GetDialogType(e.ObjectClass);
+		if(e.NewObject)
+		{
+			System.Reflection.ConstructorInfo ci = dlgType.GetConstructor(new Type[] { });
+			e.ResultDialogWidget = (ITdiDialog)ci.Invoke(new object[] { });
+		}
+		else if(e.ObjectVar != null)
+		{
+			System.Reflection.ConstructorInfo ci = dlgType.GetConstructor(new Type[] {e.ObjectClass});
+			e.ResultDialogWidget = (ITdiDialog)ci.Invoke(new object[] {e.ObjectVar });
+		}
+		else
+		{
+			System.Reflection.ConstructorInfo ci = dlgType.GetConstructor(new Type[] {typeof(int)});
+			e.ResultDialogWidget = (ITdiDialog)ci.Invoke(new object[] {e.ObjectId });
+		}
 	}
 
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
@@ -95,67 +119,6 @@ public partial class MainWindow: Gtk.Window
 		QSMain.RunAboutDialog();
 	}
 
-	protected void OnRunReferenceItemDialog(object sender, Reference.RunReferenceItemDlgEventArgs e)
-	{
-		ResponseType Result;
-		/*switch (e.TableName)
-		{
-			case "lessees":
-				lessee LesseeEdit = new lessee();
-				if(!e.NewItem)
-					LesseeEdit.Fill(e.ItemId);
-				LesseeEdit.Show();
-				Result = (ResponseType)LesseeEdit.Run();
-				LesseeEdit.Destroy();
-				break;
-			case "organizations":
-				Organization OrgEdit = new Organization();
-				if(!e.NewItem)
-					OrgEdit.Fill(e.ItemId);
-				OrgEdit.Show();
-				Result = (ResponseType)OrgEdit.Run();
-				OrgEdit.Destroy();
-				break;
-			case "stead":
-				Stead SteadEdit = new Stead();
-				if(!e.NewItem)
-					SteadEdit.Fill(e.ItemId);
-				SteadEdit.Show();
-				Result = (ResponseType)SteadEdit.Run();
-				SteadEdit.Destroy();
-				break;
-			case "contract_types":
-				ContractType contractTypeEdit = new ContractType();
-				if(!e.NewItem)
-					contractTypeEdit.Fill(e.ItemId);
-				contractTypeEdit.Show();
-				Result = (ResponseType)contractTypeEdit.Run();
-				contractTypeEdit.Destroy();
-				break;
-			default:
-				Result = ResponseType.None;
-				break;
-		}
-		e.Result = Result;*/
-	}
-
-	protected void OnReferenceUpdate(object sender, QSMain.ReferenceUpdatedEventArgs e)
-	{
-		switch (e.ReferenceTable) {
-		/*	case "place_types":
-				ComboWorks.ComboFillReference(comboPlaceType,"place_types", ComboWorks.ListMode.WithAll);
-				ComboWorks.ComboFillReference(comboContractPlaceT,"place_types", ComboWorks.ListMode.WithAll);
-				break;
-			case "organizations":
-				ComboWorks.ComboFillReference(comboPlaceOrg,"organizations", ComboWorks.ListMode.WithAll);
-				ComboWorks.ComboFillReference(comboContractOrg, "organizations", ComboWorks.ListMode.WithAll);
-				break;
-			case "contract_category":
-				ComboWorks.ComboFillReference(comboContractCategory,"contract_category", ComboWorks.ListMode.WithAll);
-				break;*/
-		} 
-	}
-		
 	protected void OnActionOrdersToggled(object sender, EventArgs e)
 	{
 		if (ActionOrders.Active)
@@ -189,14 +152,12 @@ public partial class MainWindow: Gtk.Window
 		
 	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
-		/*Reference winref = new Reference();
-		winref.SetMode(false,false,true,true,true);
-		winref.FillList("organizations","Организация", "Организации");
-		winref.Show();
-		winref.Run();
-		winref.Destroy();*/
+		ISession session = OrmMain.Sessions.OpenSession();
+		var orgs = session.CreateCriteria<Organization>();
 
-		OrganizationDlg orgTab = new OrganizationDlg();
-		tdiMain.AddTab(orgTab);
+		OrmReference refWin = new OrmReference(typeof(Organization), session, orgs, "{Vodovoz.Organization} Name[Имя];");
+
+		//OrganizationDlg orgTab = new OrganizationDlg(1);
+		tdiMain.AddTab(refWin);
 	}
 }

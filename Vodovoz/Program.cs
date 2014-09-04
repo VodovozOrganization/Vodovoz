@@ -1,6 +1,7 @@
 ﻿using System;
 using Gtk;
 using QSProjectsLib;
+using QSOrmProject;
 using NLog;
 
 namespace Vodovoz
@@ -43,7 +44,11 @@ namespace Vodovoz
 
 			LoginDialog.Destroy();
 			// Настройка ORM
-			QSOrmProject.OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz" });
+			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz" });
+			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
+			{
+				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg))
+			};
 
 			//Запускаем программу
 			MainWin = new MainWindow ();

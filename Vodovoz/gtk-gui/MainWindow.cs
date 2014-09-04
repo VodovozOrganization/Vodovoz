@@ -5,9 +5,9 @@ public partial class MainWindow
 {
 	private global::Gtk.UIManager UIManager;
 	
-	private global::Gtk.Action ActionServiceTikets;
+	private global::Gtk.Action ActionNewOrder;
 	
-	private global::Gtk.Action ActionOrganizations;
+	private global::Gtk.Action ActionOrdersTable;
 	
 	private global::Gtk.Action Action;
 	
@@ -39,9 +39,9 @@ public partial class MainWindow
 	
 	private global::Gtk.RadioAction ActionArchive;
 	
-	private global::Gtk.Action ActionNewOrder;
+	private global::Gtk.Action ActionServiceTikets;
 	
-	private global::Gtk.Action ActionOrdersTable;
+	private global::Gtk.Action ActionOrganizations;
 	
 	private global::Gtk.VBox vbox1;
 	
@@ -64,13 +64,13 @@ public partial class MainWindow
 		global::Stetic.Gui.Initialize (this);
 		// Widget MainWindow
 		this.UIManager = new global::Gtk.UIManager ();
-		global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("services");
-		this.ActionServiceTikets = new global::Gtk.Action ("ActionServiceTikets", global::Mono.Unix.Catalog.GetString ("Журнал заявок"), null, "table");
-		this.ActionServiceTikets.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заявок");
-		w1.Add (this.ActionServiceTikets, null);
-		this.ActionOrganizations = new global::Gtk.Action ("ActionOrganizations", global::Mono.Unix.Catalog.GetString ("Организации"), null, null);
-		this.ActionOrganizations.ShortLabel = global::Mono.Unix.Catalog.GetString ("Организации");
-		w1.Add (this.ActionOrganizations, null);
+		global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("orders");
+		this.ActionNewOrder = new global::Gtk.Action ("ActionNewOrder", global::Mono.Unix.Catalog.GetString ("Новый заказ"), null, "gtk-new");
+		this.ActionNewOrder.ShortLabel = global::Mono.Unix.Catalog.GetString ("Новый заказ");
+		w1.Add (this.ActionNewOrder, null);
+		this.ActionOrdersTable = new global::Gtk.Action ("ActionOrdersTable", global::Mono.Unix.Catalog.GetString ("Журнал заказов"), null, "table");
+		this.ActionOrdersTable.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заказов");
+		w1.Add (this.ActionOrdersTable, null);
 		this.UIManager.InsertActionGroup (w1, 0);
 		global::Gtk.ActionGroup w2 = new global::Gtk.ActionGroup ("Default");
 		this.Action = new global::Gtk.Action ("Action", global::Mono.Unix.Catalog.GetString ("База"), null, null);
@@ -103,37 +103,37 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сервис");
 		w2.Add (this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction ("ActionLogistics", global::Mono.Unix.Catalog.GetString ("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionServices.Group;
+		this.ActionLogistics.Group = this.ActionOrders.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString ("Логистика");
 		w2.Add (this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction ("ActionStock", global::Mono.Unix.Catalog.GetString ("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionLogistics.Group;
+		this.ActionStock.Group = this.ActionOrders.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString ("Склад");
 		w2.Add (this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction ("ActionCash", global::Mono.Unix.Catalog.GetString ("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionLogistics.Group;
+		this.ActionCash.Group = this.ActionStock.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString ("Касса");
 		w2.Add (this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction ("ActionAccounting", global::Mono.Unix.Catalog.GetString ("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionLogistics.Group;
+		this.ActionAccounting.Group = this.ActionStock.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString ("Бухгалтерия");
 		w2.Add (this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction ("ActionReports", global::Mono.Unix.Catalog.GetString ("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionLogistics.Group;
+		this.ActionReports.Group = this.ActionStock.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString ("Отчеты");
 		w2.Add (this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction ("ActionArchive", global::Mono.Unix.Catalog.GetString ("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionReports.Group;
+		this.ActionArchive.Group = this.ActionStock.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString ("Архив");
 		w2.Add (this.ActionArchive, null);
 		this.UIManager.InsertActionGroup (w2, 1);
-		global::Gtk.ActionGroup w3 = new global::Gtk.ActionGroup ("orders");
-		this.ActionNewOrder = new global::Gtk.Action ("ActionNewOrder", global::Mono.Unix.Catalog.GetString ("Новый заказ"), null, "gtk-new");
-		this.ActionNewOrder.ShortLabel = global::Mono.Unix.Catalog.GetString ("Новый заказ");
-		w3.Add (this.ActionNewOrder, null);
-		this.ActionOrdersTable = new global::Gtk.Action ("ActionOrdersTable", global::Mono.Unix.Catalog.GetString ("Журнал заказов"), null, "table");
-		this.ActionOrdersTable.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заказов");
-		w3.Add (this.ActionOrdersTable, null);
+		global::Gtk.ActionGroup w3 = new global::Gtk.ActionGroup ("services");
+		this.ActionServiceTikets = new global::Gtk.Action ("ActionServiceTikets", global::Mono.Unix.Catalog.GetString ("Журнал заявок"), null, "table");
+		this.ActionServiceTikets.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заявок");
+		w3.Add (this.ActionServiceTikets, null);
+		this.ActionOrganizations = new global::Gtk.Action ("ActionOrganizations", global::Mono.Unix.Catalog.GetString ("Организации"), null, null);
+		this.ActionOrganizations.ShortLabel = global::Mono.Unix.Catalog.GetString ("Организации");
+		w3.Add (this.ActionOrganizations, null);
 		this.UIManager.InsertActionGroup (w3, 2);
 		this.AddAccelGroup (this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -220,12 +220,12 @@ public partial class MainWindow
 		this.DefaultHeight = 300;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
-		this.ActionOrganizations.Activated += new global::System.EventHandler (this.OnActionOrganizationsActivated);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler (this.OnDialogAuthenticationActionActivated);
 		this.aboutAction.Activated += new global::System.EventHandler (this.OnAboutActionActivated);
 		this.UsersAction.Activated += new global::System.EventHandler (this.OnAction3Activated);
 		this.quitAction.Activated += new global::System.EventHandler (this.OnQuitActionActivated);
 		this.ActionOrders.Toggled += new global::System.EventHandler (this.OnActionOrdersToggled);
 		this.ActionServices.Toggled += new global::System.EventHandler (this.OnActionServicesToggled);
+		this.ActionOrganizations.Activated += new global::System.EventHandler (this.OnActionOrganizationsActivated);
 	}
 }

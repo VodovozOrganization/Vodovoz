@@ -1,21 +1,22 @@
 ﻿using System;
 using System.ComponentModel;
+using QSOrmProject;
 
 namespace Vodovoz
 {
-
+	[OrmSubjectAttibutes("Организации")]
 	public class Organization //: PropertyChangedBase
 	{
 
 		#region Свойства
-		public int Id { get; set; }
-		public string Name { get; set; }
-		public string FullName { get; set; }
-		public string INN { get; set; }
-		public string KPP { get; set; }
-		public string OGRN { get; set; }
-		public string Phone { get; set; }
-		public string Email { get; set; }
+		public virtual int Id { get; set; }
+		public virtual string Name { get; set; }
+		public virtual string FullName { get; set; }
+		public virtual string INN { get; set; }
+		public virtual string KPP { get; set; }
+		public virtual string OGRN { get; set; }
+		public virtual string Phone { get; set; }
+		public virtual string Email { get; set; }
 		#endregion
 
 		public Organization()
