@@ -64,24 +64,33 @@ namespace Vodovoz
 			this.Build();
 			NewItem = true;
 			subject = new Organization();
-			adaptorOrg.Target = subject;
-			datatableMain.DataSource = adaptorOrg;
+			ConfigureDlg();
 		}
 
 		public OrganizationDlg(int id)
 		{
 			this.Build();
 			subject = Session.Load<Organization>(id);
-			adaptorOrg.Target = subject;
-			datatableMain.DataSource = adaptorOrg;
+			TabName = subject.Name;
+			ConfigureDlg();
 		}
 
 		public OrganizationDlg(Organization sub)
 		{
 			this.Build();
 			subject = Session.Load<Organization>(sub.Id);
+			TabName = subject.Name;
+			ConfigureDlg();
+		}
+
+		private void ConfigureDlg()
+		{
 			adaptorOrg.Target = subject;
 			datatableMain.DataSource = adaptorOrg;
+			datatextviewAddress.Editable = true;
+			datatextviewJurAddress.Editable = true;
+			notebookMain.Page = 0;
+			notebookMain.ShowTabs = false;
 		}
 
 		public bool Save()
@@ -115,6 +124,18 @@ namespace Vodovoz
 		{
 			if (CloseTab != null)
 				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+		}
+
+		protected void OnRadioTabInfoToggled(object sender, EventArgs e)
+		{
+			if (radioTabInfo.Active)
+				notebookMain.CurrentPage = 0;
+		}
+
+		protected void OnRadioTabAccountsToggled(object sender, EventArgs e)
+		{
+			if (radioTabAccounts.Active)
+				notebookMain.CurrentPage = 1;
 		}
 	}
 }

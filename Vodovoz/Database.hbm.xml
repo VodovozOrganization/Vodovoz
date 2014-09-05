@@ -12,5 +12,7 @@
 	 	<property name="OGRN" column="OGRN" />
 	 	<property name="Phone" column="phone" />
 	 	<property name="Email" column="email" />
+	 	<property name="Address" column="address" />
+	 	<property name="JurAddress" column="jur_address" />
  	</class>
 </hibernate-mapping>

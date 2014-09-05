@@ -17,6 +17,8 @@ namespace Vodovoz
 		public virtual string OGRN { get; set; }
 		public virtual string Phone { get; set; }
 		public virtual string Email { get; set; }
+		public virtual string Address { get; set; }
+		public virtual string JurAddress { get; set; }
 		#endregion
 
 		public Organization()
@@ -28,6 +30,8 @@ namespace Vodovoz
 			OGRN = String.Empty;
 			Phone = String.Empty;
 			Email = String.Empty;
+			Address = String.Empty;
+			JurAddress = String.Empty;
 		}
 	}
 }

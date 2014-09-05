@@ -106,6 +106,14 @@
       <Project>{8D85E430-325A-4532-A123-BF28F9644DB4}</Project>
       <Name>gtk-databind-lib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSWidgetLib\QSWidgetLib.csproj">
+      <Project>{5A2BB01E-E124-432E-8099-D1343D3897B9}</Project>
+      <Name>QSWidgetLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
+      <Project>{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}</Project>
+      <Name>QSBanks</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
