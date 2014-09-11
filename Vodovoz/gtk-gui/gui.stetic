@@ -82,8 +82,16 @@
         <property name="StockId">table</property>
       </action>
     </action-group>
+    <action-group name="services">
+      <action id="ActionServiceTikets">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал заявок</property>
+        <property name="ShortLabel" translatable="yes">Журнал заявок</property>
+        <property name="StockId">table</property>
+      </action>
+    </action-group>
     <action-group name="Default">
-      <action id="Action">
+      <action id="ActionBaseMenu">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">База</property>
         <property name="ShortLabel" translatable="yes">База</property>
@@ -100,7 +108,7 @@
         <property name="Label" translatable="yes">Справка</property>
         <property name="ShortLabel" translatable="yes">Справка</property>
       </action>
-      <action id="Action2">
+      <action id="ActionReferenceMenu">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Справочники</property>
         <property name="ShortLabel" translatable="yes">Справочники</property>
@@ -208,19 +216,22 @@
         <property name="Value">0</property>
         <property name="Group">group1</property>
       </action>
-    </action-group>
-    <action-group name="services">
-      <action id="ActionServiceTikets">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Журнал заявок</property>
-        <property name="ShortLabel" translatable="yes">Журнал заявок</property>
-        <property name="StockId">table</property>
-      </action>
-      <action id="ActionOrganizations">
+      <action id="Action">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Организации</property>
         <property name="ShortLabel" translatable="yes">Организации</property>
         <signal name="Activated" handler="OnActionOrganizationsActivated" />
+      </action>
+      <action id="ActionBanksMenu">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Банки</property>
+        <property name="ShortLabel" translatable="yes">Банки</property>
+      </action>
+      <action id="ActionBanksRF">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Банки РФ</property>
+        <property name="ShortLabel" translatable="yes">Банки РФ</property>
+        <signal name="Activated" handler="OnActionBanksRFActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -235,14 +246,17 @@
           <widget class="Gtk.MenuBar" id="menubarMain">
             <property name="MemberName" />
             <node name="menubarMain" type="Menubar">
-              <node type="Menu" action="Action">
+              <node type="Menu" action="ActionBaseMenu">
                 <node type="Menuitem" action="dialogAuthenticationAction" />
                 <node type="Menuitem" action="UsersAction" />
                 <node type="Separator" />
                 <node type="Menuitem" action="quitAction" />
               </node>
-              <node type="Menu" action="Action2">
-                <node type="Menuitem" action="ActionOrganizations" />
+              <node type="Menu" action="ActionReferenceMenu">
+                <node type="Menuitem" action="Action" />
+                <node type="Menu" action="ActionBanksMenu">
+                  <node type="Menuitem" action="ActionBanksRF" />
+                </node>
               </node>
               <node type="Menu" action="Action1">
                 <node type="Menuitem" action="aboutAction" />

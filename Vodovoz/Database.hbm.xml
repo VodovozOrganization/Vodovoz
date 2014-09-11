@@ -14,5 +14,10 @@
 	 	<property name="Email" column="email" />
 	 	<property name="Address" column="address" />
 	 	<property name="JurAddress" column="jur_address" />
+	 	<many-to-one name="DefaultAccount" class="QSBanks.Account" column="default_account_id" />
+	 	<bag name="Accounts" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="org_id"/>
+    		<one-to-many class="QSBanks.Account" />
+		</bag>
  	</class>
 </hibernate-mapping>

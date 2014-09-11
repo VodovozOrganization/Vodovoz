@@ -1,11 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using QSOrmProject;
+using QSBanks;
 
 namespace Vodovoz
 {
 	[OrmSubjectAttibutes("Организации")]
-	public class Organization //: PropertyChangedBase
+	public class Organization : QSBanks.IAccountOwner //: PropertyChangedBase
 	{
 
 		#region Свойства
@@ -19,6 +21,10 @@ namespace Vodovoz
 		public virtual string Email { get; set; }
 		public virtual string Address { get; set; }
 		public virtual string JurAddress { get; set; }
+
+		//Банковские счета
+		public virtual IList<Account> Accounts { get; set;}
+		public virtual Account DefaultAccount { get; set;}
 		#endregion
 
 		public Organization()

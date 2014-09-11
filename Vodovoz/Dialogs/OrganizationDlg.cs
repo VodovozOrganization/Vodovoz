@@ -1,6 +1,7 @@
 ﻿using System;
 using QSTDI;
 using QSOrmProject;
+using QSBanks;
 using NHibernate;
 using System.Data.Bindings;
 using NLog;
@@ -15,6 +16,8 @@ namespace Vodovoz
 		private Adaptor adaptorOrg = new Adaptor();
 		private Organization subject;
 		private bool NewItem = false;
+
+		public ITdiTabParent TabParent { set; get;}
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
@@ -41,12 +44,13 @@ namespace Vodovoz
 			get
 			{
 				if (session == null)
-					session = OrmMain.Sessions.OpenSession();
+					Session = OrmMain.Sessions.OpenSession();
 				return session;
 			}
 			set
 			{
 				session = value;
+				accountsview1.Session = value;
 			}
 		}
 
@@ -91,6 +95,7 @@ namespace Vodovoz
 			datatextviewJurAddress.Editable = true;
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
+			accountsview1.AccountOwner = (IAccountOwner)Subject;
 		}
 
 		public bool Save()

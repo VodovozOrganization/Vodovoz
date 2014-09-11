@@ -4,6 +4,7 @@ using QSProjectsLib;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz;
+using QSBanks;
 using QSSupportLib;
 using NHibernate;
 using NLog;
@@ -19,6 +20,7 @@ public partial class MainWindow: Gtk.Window
 
 		//Передаем лебл
 		MainClass.StatusBarLabel = labelStatus;
+		this.Title = QSSupportLib.MainSupport.GetTitle();
 		QSMain.MakeNewStatusTargetForNlog("StatusMessage", "Vodovoz.MainClass, Vodovoz");
 
 		//Test version of base
@@ -156,8 +158,15 @@ public partial class MainWindow: Gtk.Window
 		var orgs = session.CreateCriteria<Organization>();
 
 		OrmReference refWin = new OrmReference(typeof(Organization), session, orgs, "{Vodovoz.Organization} Name[Имя];");
+		tdiMain.AddTab(refWin);
+	}
 
-		//OrganizationDlg orgTab = new OrganizationDlg(1);
+	protected void OnActionBanksRFActivated(object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Bank>();
+
+		OrmReference refWin = new OrmReference(typeof(Bank), session, criteria, "{QSBanks.Bank} Bik[БИК]; Name[Имя]; City[Город];");
 		tdiMain.AddTab(refWin);
 	}
 }

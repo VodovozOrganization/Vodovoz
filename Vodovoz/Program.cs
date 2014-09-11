@@ -44,11 +44,12 @@ namespace Vodovoz
 
 			LoginDialog.Destroy();
 			// Настройка ORM
-			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz" });
+			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks" });
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
 				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg))
 			};
+			OrmMain.ClassMapingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 
 			//Запускаем программу
 			MainWin = new MainWindow ();
