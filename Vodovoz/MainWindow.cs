@@ -157,7 +157,7 @@ public partial class MainWindow: Gtk.Window
 		ISession session = OrmMain.Sessions.OpenSession();
 		var orgs = session.CreateCriteria<Organization>();
 
-		OrmReference refWin = new OrmReference(typeof(Organization), session, orgs, "{Vodovoz.Organization} Name[Имя];");
+		OrmReference refWin = new OrmReference(typeof(Organization), session, orgs, "{Vodovoz.Organization} Name[Название];");
 		tdiMain.AddTab(refWin);
 	}
 
@@ -166,7 +166,21 @@ public partial class MainWindow: Gtk.Window
 		ISession session = OrmMain.Sessions.OpenSession();
 		var criteria = session.CreateCriteria<Bank>();
 
-		OrmReference refWin = new OrmReference(typeof(Bank), session, criteria, "{QSBanks.Bank} Bik[БИК]; Name[Имя]; City[Город];");
+		OrmReference refWin = new OrmReference(typeof(Bank), session, criteria, "{QSBanks.Bank} Bik[БИК]; Name[Название]; City[Город];");
 		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnActionNationalityActivated(object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Nationality>();
+
+		OrmReference refWin = new OrmReference(typeof(Nationality), session, criteria, "{Vodovoz.Nationality} Name[Название];");
+		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnActionEmploeyActivated(object sender, EventArgs e)
+	{
+		throw new NotImplementedException();
 	}
 }

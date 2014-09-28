@@ -81,6 +81,9 @@
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
     <Compile Include="Domain\Organization.cs" />
     <Compile Include="PropertyChangedBase.cs" />
+    <Compile Include="Domain\Employee.cs" />
+    <Compile Include="Domain\Nationality.cs" />
+    <Compile Include="Domain\User.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

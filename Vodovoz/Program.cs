@@ -17,6 +17,7 @@ namespace Vodovoz
 			Application.Init();
 			AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e) 
 			{
+				logger.FatalException("Поймано не обработаное исключение.", (Exception) e.ExceptionObject);
 				QSMain.ErrorMessage(MainWin, (Exception) e.ExceptionObject);
 			};
 
@@ -47,7 +48,8 @@ namespace Vodovoz
 			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks" });
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
-				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg))
+				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg)),
+				new OrmObjectMaping(typeof(Nationality), null)
 			};
 			OrmMain.ClassMapingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 
