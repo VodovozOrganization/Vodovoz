@@ -10,7 +10,7 @@
     <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
     <widget-library name="../../../QSProjects/QSTDI/bin/Debug/QSTDI.dll" />
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
-    <widget-library name="../../../gtk-databind-code/gtk-databind-lib/bin/Debug/gtk-databind-lib.dll" />
+    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />

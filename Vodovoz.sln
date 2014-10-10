@@ -11,6 +11,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSTDI", "..\QSProjects\QSTD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSOrmProject", "..\QSProjects\QSOrmProject\QSOrmProject.csproj", "{00D32969-612C-417E-9565-BEC6A7719F80}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSWidgetLib", "..\QSProjects\QSWidgetLib\QSWidgetLib.csproj", "{5A2BB01E-E124-432E-8099-D1343D3897B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{2B971ED3-E5E1-4CE7-B142-4393EC61DA67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSBanks", "..\QSProjects\Modules\QSBanks\QSBanks.csproj", "{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gtk-databind-lib", "..\Gtk.DataBindings\gtk-databind-lib.csproj", "{8D85E430-325A-4532-A123-BF28F9644DB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -25,6 +35,22 @@ Global
 		{4B35C969-8C74-440F-8189-57047C9215FD}.Debug|x86.Build.0 = Debug|Any CPU
 		{4B35C969-8C74-440F-8189-57047C9215FD}.Release|x86.ActiveCfg = Release|Any CPU
 		{4B35C969-8C74-440F-8189-57047C9215FD}.Release|x86.Build.0 = Release|Any CPU
+		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.Debug|x86.Build.0 = Debug|Any CPU
+		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.Release|x86.ActiveCfg = Release|Any CPU
+		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.Release|x86.Build.0 = Release|Any CPU
+		{5A2BB01E-E124-432E-8099-D1343D3897B9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5A2BB01E-E124-432E-8099-D1343D3897B9}.Debug|x86.Build.0 = Debug|Any CPU
+		{5A2BB01E-E124-432E-8099-D1343D3897B9}.Release|x86.ActiveCfg = Release|Any CPU
+		{5A2BB01E-E124-432E-8099-D1343D3897B9}.Release|x86.Build.0 = Release|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Debug|x86.Build.0 = Debug|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Debug|x86.Build.0 = Debug|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Release|x86.ActiveCfg = Release|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Release|x86.ActiveCfg = Release|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Release|x86.Build.0 = Release|Any CPU
+		{8D85E430-325A-4532-A123-BF28F9644DB4}.Release|x86.Build.0 = Release|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Debug|x86.Build.0 = Debug|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Release|x86.ActiveCfg = Release|Any CPU
@@ -33,10 +59,17 @@ Global
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Debug|x86.Build.0 = Debug|Any CPU
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Release|x86.ActiveCfg = Release|Any CPU
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Release|x86.Build.0 = Release|Any CPU
+		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}.Debug|x86.Build.0 = Debug|Any CPU
+		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}.Release|x86.ActiveCfg = Release|Any CPU
+		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}.Release|x86.Build.0 = Release|Any CPU
 		{FBD0A975-C275-4C43-9840-9D96C4E4EB21}.Debug|x86.ActiveCfg = Debug|x86
 		{FBD0A975-C275-4C43-9840-9D96C4E4EB21}.Debug|x86.Build.0 = Debug|x86
 		{FBD0A975-C275-4C43-9840-9D96C4E4EB21}.Release|x86.ActiveCfg = Release|x86
 		{FBD0A975-C275-4C43-9840-9D96C4E4EB21}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Vodovoz\Vodovoz.csproj
