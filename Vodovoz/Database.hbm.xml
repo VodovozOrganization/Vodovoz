@@ -14,10 +14,41 @@
 	 	<property name="Email" column="email" />
 	 	<property name="Address" column="address" />
 	 	<property name="JurAddress" column="jur_address" />
+	 	<many-to-one name="Leader" class="Employee" column="leader_id" />
+	 	<many-to-one name="Buhgalter" class="Employee" column="buhgalter_id" />
 	 	<many-to-one name="DefaultAccount" class="QSBanks.Account" column="default_account_id" />
 	 	<bag name="Accounts" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="org_id"/>
     		<one-to-many class="QSBanks.Account" />
 		</bag>
  	</class>
+ 	<class name="Nationality" lazy="false" table="nationality">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+ 	</class>
+ 	<class name="User" lazy="false" table="users">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+	 	<property name="Login" column="login" />
+ 	</class>
+ 	<class name="Employee" lazy="false" table="employees">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+	 	<property name="LastName" column="last_name" />
+	 	<property name="Patronymic" column="patronymic" />
+	 	<property name="Category" column="category" type= "Vodovoz.EmployeeCategoryStringType, Vodovoz"/>
+	 	<property name="PassportSeria" column="passport_seria" />
+	 	<property name="PassportNumber" column="passport_number" />
+	 	<property name="DrivingNumber" column="driving_number" />
+	 	<property name="Photo" column="photo" type="BinaryBlob" />
+	 	<many-to-one name="Nationality" class="Nationality" column="nationality_id" />
+	 	<many-to-one name="User" class="User" column="user_id" />
+ 	</class>
+
 </hibernate-mapping>

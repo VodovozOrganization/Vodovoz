@@ -21,7 +21,8 @@ namespace Vodovoz
 		public virtual string Email { get; set; }
 		public virtual string Address { get; set; }
 		public virtual string JurAddress { get; set; }
-
+		public virtual Employee Leader{ get; set; }
+		public virtual Employee Buhgalter{ get; set; }
 		#endregion
 
 		public Organization()

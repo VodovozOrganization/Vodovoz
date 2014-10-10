@@ -48,8 +48,10 @@ namespace Vodovoz
 			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks" });
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
-				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg)),
-				new OrmObjectMaping(typeof(Nationality), null)
+				new OrmObjectMaping(typeof(User), null, "{Vodovoz.User} Name[Название];"),
+				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
+				new OrmObjectMaping(typeof(Nationality), null, "{Vodovoz.Nationality} Name[Название];"),
+				new OrmObjectMaping(typeof(Employee), typeof(EmployeeDlg), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];")
 			};
 			OrmMain.ClassMapingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 
@@ -65,7 +67,7 @@ namespace Vodovoz
 		{
 			if (StatusBarLabel == null)
 				return;
-			StatusBarLabel.Text = message;
+			StatusBarLabel.LabelProp = message;
 			while (GLib.MainContext.Pending())
 			{
 				Gtk.Main.Iteration();
