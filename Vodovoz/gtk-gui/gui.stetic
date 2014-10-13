@@ -99,6 +99,18 @@
         <property name="ShortLabel" translatable="yes">Единицы измерения</property>
         <signal name="Activated" handler="OnActionUnitsActivated" />
       </action>
+      <action id="ActionManufacturers">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Производители оборудования</property>
+        <property name="ShortLabel" translatable="yes">Производители оборудования</property>
+        <signal name="Activated" handler="OnActionManufacturersActivated" />
+      </action>
+      <action id="ActionEquipmentTypes">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Типы оборудования</property>
+        <property name="ShortLabel" translatable="yes">Типы оборудования</property>
+        <signal name="Activated" handler="OnActionEquipmentTypesActivated" />
+      </action>
     </action-group>
     <action-group name="services">
       <action id="ActionServiceTikets">
@@ -299,6 +311,8 @@
                 </node>
                 <node type="Menuitem" action="ActionColors" />
                 <node type="Menuitem" action="ActionUnits" />
+                <node type="Menuitem" action="ActionManufacturers" />
+                <node type="Menuitem" action="ActionEquipmentTypes" />
               </node>
               <node type="Menu" action="Action1">
                 <node type="Menuitem" action="aboutAction" />

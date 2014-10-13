@@ -50,7 +50,9 @@ namespace Vodovoz
 			{
 				new OrmObjectMaping(typeof(User), null, "{Vodovoz.User} Name[Название];"),
 				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
-				new OrmObjectMaping(typeof(Nationality), null, "{Vodovoz.Colors} Name[Название];"),
+				new OrmObjectMaping(typeof(Nationality), null, "{Vodovoz.Nationality} Name[Название];"),
+				new OrmObjectMaping(typeof(Manufacturer), null, "{Vodovoz.Manufacturer} Name[Название];"),
+				new OrmObjectMaping(typeof(EquipmentType), null, "{Vodovoz.EquipmentType} Name[Название];"),
 				new OrmObjectMaping(typeof(MeasurementUnits), null, "{Vodovoz.MeasurementUnits} Name[Название];"),
 				new OrmObjectMaping(typeof(Colors), null, "{Vodovoz.Colors} Name[Название];"),
 				new OrmObjectMaping(typeof(Employee), typeof(EmployeeDlg), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];"),

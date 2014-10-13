@@ -214,4 +214,22 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference(typeof(Colors), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
+
+	protected void OnActionManufacturersActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Manufacturer>();
+
+		OrmReference refWin = new OrmReference(typeof(Manufacturer), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnActionEquipmentTypesActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<EquipmentType>();
+
+		OrmReference refWin = new OrmReference(typeof(EquipmentType), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
 }
