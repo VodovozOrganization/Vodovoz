@@ -51,7 +51,8 @@ namespace Vodovoz
 				new OrmObjectMaping(typeof(User), null, "{Vodovoz.User} Name[Название];"),
 				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
 				new OrmObjectMaping(typeof(Nationality), null, "{Vodovoz.Nationality} Name[Название];"),
-				new OrmObjectMaping(typeof(Employee), typeof(EmployeeDlg), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];")
+				new OrmObjectMaping(typeof(Employee), typeof(EmployeeDlg), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];"),
+				new OrmObjectMaping(typeof(Car), typeof(CarsDlg), "{Vodovoz.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер];")
 			};
 			OrmMain.ClassMapingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 

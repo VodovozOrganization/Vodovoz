@@ -10,9 +10,9 @@
     <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
     <widget-library name="../../../QSProjects/QSTDI/bin/Debug/QSTDI.dll" />
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
-    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
+    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
@@ -80,6 +80,12 @@
         <property name="Label" translatable="yes">Журнал заказов</property>
         <property name="ShortLabel" translatable="yes">Журнал заказов</property>
         <property name="StockId">table</property>
+      </action>
+      <action id="ActionCars">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Автомобили</property>
+        <property name="ShortLabel" translatable="yes">Автомобили</property>
+        <signal name="Activated" handler="OnActionCarsActivated" />
       </action>
     </action-group>
     <action-group name="services">
@@ -274,6 +280,7 @@
                 <node type="Menu" action="ActionOrgMenu">
                   <node type="Menuitem" action="ActionEmploey" />
                   <node type="Menuitem" action="ActionNationality" />
+                  <node type="Menuitem" action="ActionCars" />
                 </node>
                 <node type="Menu" action="ActionBanksMenu">
                   <node type="Menuitem" action="ActionBanksRF" />
@@ -1671,7 +1678,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="407 268">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="407 194">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -1683,13 +1690,14 @@
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Button" id="button1">
+              <widget class="Gtk.Button" id="buttonSave">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-floppy Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -1699,13 +1707,14 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Button" id="button2">
+              <widget class="Gtk.Button" id="buttonCancel">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отмена</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -1773,23 +1782,34 @@
             <property name="CanFocus">True</property>
             <property name="CurrentPage">0</property>
             <child>
-              <widget class="Gtk.Table" id="table1">
+              <widget class="Gtk.DataBindings.DataTable" id="tableCarData">
                 <property name="MemberName" />
                 <property name="NRows">4</property>
                 <property name="NColumns">2</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <property name="InheritedDataSource">False</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="InheritedDataSource">False</property>
+                <property name="InheritedBoundaryDataSource">False</property>
                 <child>
-                  <widget class="Gtk.Entry" id="entry1">
+                  <widget class="Gtk.DataBindings.DataEntry" id="dataentryModel">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>
                     <property name="InvisibleChar">●</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Model</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Model</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="Editable">False</property>
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
-                    <property name="AutoSize">True</property>
+                    <property name="AutoSize">False</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">True</property>
                     <property name="XFill">True</property>
@@ -1800,53 +1820,17 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Entry" id="entry2">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="IsEditable">True</property>
-                    <property name="InvisibleChar">●</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">1</property>
-                    <property name="BottomAttach">2</property>
-                    <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
-                    <property name="AutoSize">True</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">True</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Entry" id="entry3">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="IsEditable">True</property>
-                    <property name="InvisibleChar">●</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">2</property>
-                    <property name="BottomAttach">3</property>
-                    <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
-                    <property name="AutoSize">True</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">True</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="QSOrmProject.EntryReference" id="entryreference1">
+                  <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryreferenceDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="DisplayFields">Name
+LastName
+Patronymic</property>
+                    <property name="DisplayFormatString">{0} {1} {2}</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Driver</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="CursorPointsEveryType">False</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">3</property>
@@ -1854,8 +1838,72 @@
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
-                    <property name="XExpand">True</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntry" id="dataentryRegNumber">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">●</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">RegistrationNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">RegistrationNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="Editable">False</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">1</property>
+                    <property name="BottomAttach">2</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataSpinButton" id="dataspinbutton1">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Upper">999</property>
+                    <property name="PageIncrement">10</property>
+                    <property name="StepIncrement">1</property>
+                    <property name="ClimbRate">1</property>
+                    <property name="Digits">2</property>
+                    <property name="Numeric">True</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">FuelConsumption</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">FuelConsumption</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">2</property>
+                    <property name="BottomAttach">3</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>

@@ -98,7 +98,7 @@ namespace Vodovoz
 			accountsview1.AccountOwner = (IAccountOwner)Subject;
 		}
 
-		public bool Save()
+		public bool SaveButton()
 		{
 			logger.Info("Сохраняем организацию...");
 			Session.SaveOrUpdate(subject);
@@ -116,7 +116,7 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
+			if (!this.HasChanges || SaveButton())
 				OnCloseTab(false);
 		}
 

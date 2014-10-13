@@ -28,6 +28,15 @@
 	 	</id>
 	 	<property name="Name" column="name" />
  	</class>
+	<class name="Car" lazy="false" table="cars">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Model" column="model" />
+	 	<property name="RegistrationNumber" column="reg_number" />
+	 	<many-to-one name="Driver" class="Employee" column="driver"/>
+	 	<property name="FuelConsumption" column="fuel_consumption" />
+ 	</class>
  	<class name="User" lazy="false" table="users">
 		<id name="Id" column="id">
 			<generator class="native"></generator>

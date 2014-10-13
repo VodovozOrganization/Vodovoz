@@ -185,6 +185,15 @@ public partial class MainWindow: Gtk.Window
 		var criteria = session.CreateCriteria<Employee>();
 
 		OrmReference refWin = new OrmReference(typeof(Employee), session, criteria);
-		tdiMain.AddTab(refWin);
+		tdiMain.AddTab (refWin);
+	}
+
+	protected void OnActionCarsActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Car>();
+
+		OrmReference refWin = new OrmReference(typeof(Car), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 }

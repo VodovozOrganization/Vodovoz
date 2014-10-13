@@ -105,7 +105,7 @@ namespace Vodovoz
 			logger.Debug("Property {0} changed", e.PropertyName);
 		}
 
-		public bool Save()
+		public bool SaveButton()
 		{
 			logger.Info("Сохраняем сотрудника...");
 			try
@@ -134,7 +134,7 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
+			if (!this.HasChanges || SaveButton())
 				OnCloseTab(false);
 		}
 
