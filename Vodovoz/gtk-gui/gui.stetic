@@ -87,6 +87,18 @@
         <property name="ShortLabel" translatable="yes">Автомобили</property>
         <signal name="Activated" handler="OnActionCarsActivated" />
       </action>
+      <action id="ActionColors">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Цвета</property>
+        <property name="ShortLabel" translatable="yes">Цвета</property>
+        <signal name="Activated" handler="OnActionColorsActivated" />
+      </action>
+      <action id="ActionUnits">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Единицы измерения</property>
+        <property name="ShortLabel" translatable="yes">Единицы измерения</property>
+        <signal name="Activated" handler="OnActionUnitsActivated" />
+      </action>
     </action-group>
     <action-group name="services">
       <action id="ActionServiceTikets">
@@ -285,6 +297,8 @@
                 <node type="Menu" action="ActionBanksMenu">
                   <node type="Menuitem" action="ActionBanksRF" />
                 </node>
+                <node type="Menuitem" action="ActionColors" />
+                <node type="Menuitem" action="ActionUnits" />
               </node>
               <node type="Menu" action="Action1">
                 <node type="Menuitem" action="aboutAction" />
@@ -388,7 +402,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrganizationDlg" design-size="417 467">
+  <widget class="Gtk.Bin" id="Vodovoz.OrganizationDlg" design-size="417 510">
     <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
@@ -489,14 +503,15 @@
           <widget class="Gtk.Notebook" id="notebookMain">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="datatableMain">
                 <property name="MemberName" />
-                <property name="NRows">9</property>
+                <property name="NRows">11</property>
                 <property name="NColumns">2</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <property name="BorderWidth">2</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
@@ -579,8 +594,8 @@
                     <property name="Editable">True</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">4</property>
-                    <property name="BottomAttach">5</property>
+                    <property name="TopAttach">6</property>
+                    <property name="BottomAttach">7</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -610,8 +625,8 @@
                     <property name="Editable">True</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">5</property>
-                    <property name="BottomAttach">6</property>
+                    <property name="TopAttach">7</property>
+                    <property name="BottomAttach">8</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -669,8 +684,8 @@
                     <property name="Editable">True</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">6</property>
-                    <property name="BottomAttach">7</property>
+                    <property name="TopAttach">8</property>
+                    <property name="BottomAttach">9</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -738,8 +753,8 @@
                     </child>
                   </widget>
                   <packing>
-                    <property name="TopAttach">7</property>
-                    <property name="BottomAttach">8</property>
+                    <property name="TopAttach">9</property>
+                    <property name="BottomAttach">10</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -776,8 +791,8 @@
                     </child>
                   </widget>
                   <packing>
-                    <property name="TopAttach">8</property>
-                    <property name="BottomAttach">9</property>
+                    <property name="TopAttach">10</property>
+                    <property name="BottomAttach">11</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -798,8 +813,8 @@
                     <property name="LabelProp" translatable="yes">ОГРН:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">6</property>
-                    <property name="BottomAttach">7</property>
+                    <property name="TopAttach">8</property>
+                    <property name="BottomAttach">9</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -820,6 +835,46 @@
                   <packing>
                     <property name="TopAttach">3</property>
                     <property name="BottomAttach">4</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Label" id="label13">
+                    <property name="MemberName" />
+                    <property name="Xalign">1</property>
+                    <property name="LabelProp" translatable="yes">Руководитель:</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Label" id="label14">
+                    <property name="MemberName" />
+                    <property name="Xalign">1</property>
+                    <property name="LabelProp" translatable="yes">Главный бухгалтер:</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">5</property>
+                    <property name="BottomAttach">6</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -878,8 +933,8 @@
                     <property name="LabelProp" translatable="yes">Адрес:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">7</property>
-                    <property name="BottomAttach">8</property>
+                    <property name="TopAttach">9</property>
+                    <property name="BottomAttach">10</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -899,8 +954,8 @@
                     <property name="LabelProp" translatable="yes">Юр. адрес:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">8</property>
-                    <property name="BottomAttach">9</property>
+                    <property name="TopAttach">10</property>
+                    <property name="BottomAttach">11</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -919,8 +974,8 @@
                     <property name="LabelProp" translatable="yes">ИНН:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">4</property>
-                    <property name="BottomAttach">5</property>
+                    <property name="TopAttach">6</property>
+                    <property name="BottomAttach">7</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -939,8 +994,8 @@
                     <property name="LabelProp" translatable="yes">КПП:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">5</property>
-                    <property name="BottomAttach">6</property>
+                    <property name="TopAttach">7</property>
+                    <property name="BottomAttach">8</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -961,6 +1016,64 @@
                   <packing>
                     <property name="TopAttach">2</property>
                     <property name="BottomAttach">3</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceBuhgalter">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                    <property name="DisplayFields">Name
+LastName
+Patronymic</property>
+                    <property name="DisplayFormatString">{0} {1} {2}</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Buhgalter</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="CursorPointsEveryType">False</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">5</property>
+                    <property name="BottomAttach">6</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceLeader">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                    <property name="DisplayFields">Name
+LastName
+Patronymic</property>
+                    <property name="DisplayFormatString">{0} {1} {2}</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Leader</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="CursorPointsEveryType">False</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -993,7 +1106,7 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label4">
+              <widget class="Gtk.Label" id="label12">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Счет</property>
               </widget>

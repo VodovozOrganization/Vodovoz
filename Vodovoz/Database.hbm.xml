@@ -28,6 +28,18 @@
 	 	</id>
 	 	<property name="Name" column="name" />
  	</class>
+	<class name="Colors" lazy="false" table="colors">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+ 	</class>
+	<class name="MeasurementUnits" lazy="false" table="measurement_units">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+ 	</class>
 	<class name="Car" lazy="false" table="cars">
 		<id name="Id" column="id">
 			<generator class="native"></generator>

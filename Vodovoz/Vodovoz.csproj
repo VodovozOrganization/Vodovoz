@@ -91,6 +91,8 @@
     <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="Domain\Car.cs" />
     <Compile Include="Dialogs\CarsDlg.cs" />
+    <Compile Include="Domain\Colors.cs" />
+    <Compile Include="Domain\MeasurementUnits.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

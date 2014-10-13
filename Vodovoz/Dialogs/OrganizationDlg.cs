@@ -96,6 +96,8 @@ namespace Vodovoz
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.AccountOwner = (IAccountOwner)Subject;
+			referenceBuhgalter.SubjectType = typeof(Employee);
+			referenceLeader.SubjectType = typeof(Employee);
 		}
 
 		public bool SaveButton()

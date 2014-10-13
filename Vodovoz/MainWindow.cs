@@ -196,4 +196,22 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference(typeof(Car), session, criteria);
 		tdiMain.AddTab (refWin);
 	}
+
+	protected void OnActionUnitsActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<MeasurementUnits>();
+
+		OrmReference refWin = new OrmReference(typeof(MeasurementUnits), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnActionColorsActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Colors>();
+
+		OrmReference refWin = new OrmReference(typeof(Colors), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
 }
