@@ -89,7 +89,7 @@
       </action>
       <action id="ActionColors">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Цвета</property>
+        <property name="Label" translatable="yes">Цвета оборудования</property>
         <property name="ShortLabel" translatable="yes">Цвета</property>
         <signal name="Activated" handler="OnActionColorsActivated" />
       </action>
@@ -110,6 +110,11 @@
         <property name="Label" translatable="yes">Типы оборудования</property>
         <property name="ShortLabel" translatable="yes">Типы оборудования</property>
         <signal name="Activated" handler="OnActionEquipmentTypesActivated" />
+      </action>
+      <action id="ActionNomenclature">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Номенклатура</property>
+        <property name="ShortLabel" translatable="yes">Номенклатура</property>
       </action>
     </action-group>
     <action-group name="services">
@@ -280,6 +285,11 @@
         <property name="ShortLabel" translatable="yes">Национальность</property>
         <signal name="Activated" handler="OnActionNationalityActivated" />
       </action>
+      <action id="Action2">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">ТМЦ</property>
+        <property name="ShortLabel" translatable="yes">ТМЦ</property>
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -300,19 +310,24 @@
                 <node type="Menuitem" action="quitAction" />
               </node>
               <node type="Menu" action="Action">
-                <node type="Menuitem" action="ActionOrg" />
                 <node type="Menu" action="ActionOrgMenu">
+                  <node type="Menuitem" action="ActionOrg" />
+                  <node type="Separator" />
                   <node type="Menuitem" action="ActionEmploey" />
                   <node type="Menuitem" action="ActionNationality" />
                   <node type="Menuitem" action="ActionCars" />
                 </node>
+                <node type="Menu" action="Action2">
+                  <node type="Menuitem" action="ActionNomenclature" />
+                  <node type="Menuitem" action="ActionUnits" />
+                  <node type="Separator" />
+                  <node type="Menuitem" action="ActionEquipmentTypes" />
+                  <node type="Menuitem" action="ActionManufacturers" />
+                  <node type="Menuitem" action="ActionColors" />
+                </node>
                 <node type="Menu" action="ActionBanksMenu">
                   <node type="Menuitem" action="ActionBanksRF" />
                 </node>
-                <node type="Menuitem" action="ActionColors" />
-                <node type="Menuitem" action="ActionUnits" />
-                <node type="Menuitem" action="ActionManufacturers" />
-                <node type="Menuitem" action="ActionEquipmentTypes" />
               </node>
               <node type="Menu" action="Action1">
                 <node type="Menuitem" action="aboutAction" />
