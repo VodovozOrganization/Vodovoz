@@ -99,7 +99,7 @@ namespace Vodovoz
 			referenceLeader.SubjectType = typeof(Employee);
 		}
 
-		public bool SaveButton()
+		public bool Save()
 		{
 			logger.Info("Сохраняем организацию...");
 			Session.SaveOrUpdate(subject);
@@ -117,7 +117,7 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked(object sender, EventArgs e)
 		{
-			if (!this.HasChanges || SaveButton())
+			if (!this.HasChanges || Save())
 				OnCloseTab(false);
 		}
 

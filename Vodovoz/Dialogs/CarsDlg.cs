@@ -97,12 +97,7 @@ namespace Vodovoz
 			radiobuttonMain.Active = true;
 		}
 
-		/*void OnPropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			logger.Debug("Property {0} changed", e.PropertyName);
-		}*/
-
-		public bool SaveButton()
+		public bool Save()
 		{
 			logger.Info("Сохраняем автомобиль...");
 			try
@@ -112,7 +107,7 @@ namespace Vodovoz
 			}
 			catch( Exception ex)
 			{
-				logger.ErrorException("Не удалось записать сотрудника.", ex);
+				logger.ErrorException("Не удалось записать Автомобиль.", ex);
 				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
 				return false;
 			}
@@ -154,7 +149,7 @@ namespace Vodovoz
 			
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || SaveButton())
+			if (!this.HasChanges || Save())
 				OnCloseTab (false);
 		}
 	}
