@@ -18,6 +18,7 @@ using QSProjectsLib;
 [assembly: AssemblyAppWebsite("http://www.qsolution.ru/")]
 
 [assembly: AssemblyAuthor("Ганьков Андрей <gav@qsolution.ru>")]
+[assembly: AssemblyAuthor("Виноградов Андрей <vad@qsolution.ru>")]
 
 // The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
