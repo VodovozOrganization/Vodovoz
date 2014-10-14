@@ -76,6 +76,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label1;
 		
+		private global::QSAttachment.Attachment attachmentFiles;
+		
 		private global::Gtk.Label label12;
 
 		protected virtual void Build ()
@@ -482,7 +484,6 @@ namespace Vodovoz
 			w31.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbuttonbox1 = new global::Gtk.HButtonBox ();
-			this.hbuttonbox1.Name = "hbuttonbox1";
 			// Container child hbuttonbox1.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonLoadPhoto = new global::Gtk.Button ();
 			this.buttonLoadPhoto.CanFocus = true;
@@ -527,14 +528,18 @@ namespace Vodovoz
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Информация");
 			this.notebookMain.SetTabLabel (this.datatableMain, this.label1);
 			this.label1.ShowAll ();
+			// Container child notebookMain.Gtk.Notebook+NotebookChild
+			this.attachmentFiles = new global::QSAttachment.Attachment ();
+			this.attachmentFiles.Events = ((global::Gdk.EventMask)(256));
+			this.attachmentFiles.Name = "attachmentFiles";
+			this.notebookMain.Add (this.attachmentFiles);
+			global::Gtk.Notebook.NotebookChild w39 = ((global::Gtk.Notebook.NotebookChild)(this.notebookMain [this.attachmentFiles]));
+			w39.Position = 1;
 			// Notebook tab
-			global::Gtk.Label w39 = new global::Gtk.Label ();
-			w39.Visible = true;
-			this.notebookMain.Add (w39);
 			this.label12 = new global::Gtk.Label ();
 			this.label12.Name = "label12";
 			this.label12.LabelProp = global::Mono.Unix.Catalog.GetString ("Файлы");
-			this.notebookMain.SetTabLabel (w39, this.label12);
+			this.notebookMain.SetTabLabel (this.attachmentFiles, this.label12);
 			this.label12.ShowAll ();
 			this.vbox1.Add (this.notebookMain);
 			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebookMain]));

@@ -21,7 +21,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public bool HasChanges { 
-			get{return NewItem || Session.IsDirty();}
+			get{return NewItem || Session.IsDirty() || attachmentFiles.HasChanges;}
 		}
 
 		private string _tabName = "Новый автомобиль";
@@ -95,6 +95,13 @@ namespace Vodovoz
 			dataentryRegNumber.IsEditable = true;
 			dataentryreferenceDriver.SubjectType = typeof(Employee);
 			radiobuttonMain.Active = true;
+
+			attachmentFiles.AttachToTable = OrmMain.GetDBTableName(typeof(Car));
+			if(!NewItem)
+			{
+				attachmentFiles.ItemId = subject.Id;
+				attachmentFiles.UpdateFileList();
+			}
 		}
 
 		public bool Save()
@@ -104,6 +111,11 @@ namespace Vodovoz
 			{
 				Session.SaveOrUpdate(subject);
 				Session.Flush();
+				if(NewItem)
+				{
+					attachmentFiles.ItemId = subject.Id;
+				}
+				attachmentFiles.SaveChanges();
 			}
 			catch( Exception ex)
 			{

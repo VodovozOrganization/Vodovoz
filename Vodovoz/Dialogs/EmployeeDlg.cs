@@ -23,7 +23,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public bool HasChanges { 
-			get{return NewItem || Session.IsDirty();}
+			get{return NewItem || Session.IsDirty() || attachmentFiles.HasChanges;}
 		}
 
 		private string _tabName = "Новый сотрудник";
@@ -98,6 +98,12 @@ namespace Vodovoz
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
+			attachmentFiles.AttachToTable = OrmMain.GetDBTableName(typeof(Employee));
+			if(!NewItem)
+			{
+				attachmentFiles.ItemId = subject.Id;
+				attachmentFiles.UpdateFileList();
+			}
 		}
 
 		void OnPropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -112,6 +118,11 @@ namespace Vodovoz
 			{
 				Session.SaveOrUpdate(subject);
 				Session.Flush();
+				if(NewItem)
+				{
+					attachmentFiles.ItemId = subject.Id;
+				}
+				attachmentFiles.SaveChanges();
 			}
 			catch( Exception ex)
 			{

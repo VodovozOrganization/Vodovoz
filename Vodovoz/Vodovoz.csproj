@@ -131,6 +131,10 @@
       <Project>{8D85E430-325A-4532-A123-BF28F9644DB4}</Project>
       <Name>gtk-databind-lib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSAttachment\QSAttachment.csproj">
+      <Project>{AED7339A-4A71-4063-9C67-0D54821230A3}</Project>
+      <Name>QSAttachment</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

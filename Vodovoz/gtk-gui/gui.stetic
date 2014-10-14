@@ -14,6 +14,7 @@
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
     <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -1800,7 +1801,13 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <placeholder />
+              <widget class="QSAttachment.Attachment" id="attachmentFiles">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+              </packing>
             </child>
             <child>
               <widget class="Gtk.Label" id="label12">
@@ -1820,7 +1827,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="407 194">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="549 224">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -1922,7 +1929,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="tableCarData">
                 <property name="MemberName" />
@@ -2143,7 +2150,13 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <placeholder />
+              <widget class="QSAttachment.Attachment" id="attachmentFiles">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+              </packing>
             </child>
             <child>
               <widget class="Gtk.Label" id="label2">
