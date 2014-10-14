@@ -50,7 +50,6 @@ namespace Vodovoz
 			set
 			{
 				session = value;
-				accountsview1.Session = value;
 			}
 		}
 
