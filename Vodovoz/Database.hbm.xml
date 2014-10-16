@@ -22,6 +22,23 @@
     		<one-to-many class="QSBanks.Account" />
 		</bag>
  	</class>
+ 	<class name="Nomenclature" lazy="false" table="nomenclature">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+	 	<property name="Model" column="model" />
+	 	<property name="Weight" column="weight" />
+	 	<property name="Price" column="price" />
+	 	<property name="VAT" column="vat" />
+	 	<property name="DoNotReserve" column="reserve" />
+	 	<property name="Serial" column="serial" />
+	 	<many-to-one name="Unit" class="MeasurementUnits" column="unit" />
+	 	<property name="Category" column="category" type="Vodovoz.NomenclatureCategoryStringType, Vodovoz"/>
+	 	<many-to-one name="Color" class="Colors" column="color" />
+	 	<many-to-one name="Type" class="EquipmentType" column="type" />
+	 	<many-to-one name="Manufacturer" class="Manufacturer" column="manufacturer" />
+ 	</class>
  	<class name="Nationality" lazy="false" table="nationality">
 		<id name="Id" column="id">
 			<generator class="native"></generator>

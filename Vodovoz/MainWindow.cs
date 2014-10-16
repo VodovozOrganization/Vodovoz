@@ -109,11 +109,13 @@ public partial class MainWindow: Gtk.Window
 			e.ResultDialogWidget = (ITdiDialog)ci.Invoke(new object[] {e.ObjectId });
 		}
 	}
-
+		
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
-		Application.Quit();
-		a.RetVal = true;
+		if (tdiMain.CloseAllTabs ()) {
+			Application.Quit ();
+			a.RetVal = true;
+		} else return;
 	}
 
 	protected void OnQuitActionActivated(object sender, EventArgs e)
@@ -248,6 +250,15 @@ public partial class MainWindow: Gtk.Window
 		var criteria = session.CreateCriteria<EquipmentType>();
 
 		OrmReference refWin = new OrmReference(typeof(EquipmentType), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnActionNomenclatureActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Nomenclature>();
+
+		OrmReference refWin = new OrmReference(typeof(Nomenclature), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
 }

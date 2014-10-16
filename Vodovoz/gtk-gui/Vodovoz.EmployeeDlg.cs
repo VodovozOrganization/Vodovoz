@@ -484,6 +484,7 @@ namespace Vodovoz
 			w31.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbuttonbox1 = new global::Gtk.HButtonBox ();
+			this.hbuttonbox1.Name = "hbuttonbox1";
 			// Container child hbuttonbox1.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonLoadPhoto = new global::Gtk.Button ();
 			this.buttonLoadPhoto.CanFocus = true;
