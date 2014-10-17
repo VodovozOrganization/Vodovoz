@@ -134,26 +134,13 @@ namespace Vodovoz
 		}
 
 		protected void ConfigureInputs (NomenclatureCategory selected) {
-			referenceUnit.Sensitive = true;
-			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = false;
-			labelColor.Sensitive = referenceColor.Sensitive = false;
-			labelClass.Sensitive =  referenceType.Sensitive = false;
-			labelModel.Sensitive = entryModel.IsEditable = false;
-			labelSerial.Sensitive = checkSerial.Sensitive = false;
-			labelDeposit.Sensitive = spinDeposit.Sensitive = false;
-
-			if (selected == NomenclatureCategory.equipment) {
-				labelManufacturer.Sensitive = referenceManufacturer.Sensitive = true;
-				labelColor.Sensitive = referenceColor.Sensitive = true;
-				labelClass.Sensitive = referenceType.Sensitive = true;
-				labelModel.Sensitive = entryModel.IsEditable = true;
-				labelSerial.Sensitive = checkSerial.Sensitive = true;
-			} else if (selected == NomenclatureCategory.rent) {
-				labelClass.Sensitive = referenceType.Sensitive = true;
-				//referenceColor.Subject = null;
-				//referenceManufacturer = null;
-				labelDeposit.Sensitive = spinDeposit.IsEditable = true;
-			}
+			referenceUnit.Sensitive = spinWeight.Sensitive = true;
+			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
+			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
+			labelClass.Sensitive =  referenceType.Sensitive = (selected == NomenclatureCategory.equipment || selected == NomenclatureCategory.rent);
+			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment) ;
+			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment) ;
+			labelDeposit.Sensitive = spinDeposit.Sensitive = (selected == NomenclatureCategory.rent);
 		}
 	}
 }
