@@ -112,15 +112,23 @@ public partial class MainWindow: Gtk.Window
 		
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
-		if (tdiMain.CloseAllTabs ()) {
-			Application.Quit ();
+		if (tdiMain.CloseAllTabs())
+		{
+			a.RetVal = false;
+			Application.Quit();
+		}
+		else
+		{
 			a.RetVal = true;
-		} else return;
+		}
 	}
 
 	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
-		Application.Quit();
+		if (tdiMain.CloseAllTabs())
+		{
+			Application.Quit();
+		}
 	}
 
 	protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
