@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSBanks", "..\QSProjects\Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSAttachment", "..\QSProjects\Modules\QSAttachment\QSAttachment.csproj", "{AED7339A-4A71-4063-9C67-0D54821230A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSPhones", "..\QSProjects\Modules\QSPhones\QSPhones.csproj", "{A236518F-E4D0-4CFF-B23F-769802B2821F}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gtk-databind-lib", "..\Gtk.DataBindings\gtk-databind-lib.csproj", "{8D85E430-325A-4532-A123-BF28F9644DB4}"
@@ -55,6 +57,10 @@ Global
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Debug|x86.Build.0 = Debug|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Release|x86.ActiveCfg = Release|Any CPU
 		{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}.Release|x86.Build.0 = Release|Any CPU
+		{A236518F-E4D0-4CFF-B23F-769802B2821F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A236518F-E4D0-4CFF-B23F-769802B2821F}.Debug|x86.Build.0 = Debug|Any CPU
+		{A236518F-E4D0-4CFF-B23F-769802B2821F}.Release|x86.ActiveCfg = Release|Any CPU
+		{A236518F-E4D0-4CFF-B23F-769802B2821F}.Release|x86.Build.0 = Release|Any CPU
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Debug|x86.Build.0 = Debug|Any CPU
 		{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}.Release|x86.ActiveCfg = Release|Any CPU
@@ -79,6 +85,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
 		{AED7339A-4A71-4063-9C67-0D54821230A3} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
+		{A236518F-E4D0-4CFF-B23F-769802B2821F} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Vodovoz\Vodovoz.csproj
