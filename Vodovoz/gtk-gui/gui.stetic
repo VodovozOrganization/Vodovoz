@@ -12,9 +12,9 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
-    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -496,7 +496,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1232,6 +1231,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1778,6 +1778,7 @@ Patronymic</property>
                             <property name="Icon">resource:Vodovoz.icons.drive-harddisk.png</property>
                             <property name="Label" translatable="yes">Сохранить</property>
                             <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonSavePhotoClicked" />
                           </widget>
                           <packing>
                             <property name="Position">1</property>
@@ -1798,10 +1799,12 @@ Patronymic</property>
                     <property name="LeftAttach">2</property>
                     <property name="RightAttach">3</property>
                     <property name="AutoSize">False</property>
-                    <property name="XExpand">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
-                    <property name="YExpand">True</property>
+                    <property name="YExpand">False</property>
                     <property name="YFill">True</property>
                     <property name="YShrink">False</property>
                   </packing>

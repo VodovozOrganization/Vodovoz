@@ -74,6 +74,7 @@ namespace Vodovoz
 		public EmployeeDlg(int id)
 		{
 			this.Build();
+			logger.Info("Загрузка информации о сотруднике...");
 			subject = Session.Load<Employee>(id);
 			TabName = subject.Name;
 			ConfigureDlg();
@@ -82,6 +83,7 @@ namespace Vodovoz
 		public EmployeeDlg(Employee sub)
 		{
 			this.Build();
+			logger.Info("Загрузка информации о сотруднике...");
 			subject = Session.Load<Employee>(sub.Id);
 			TabName = subject.Name;
 			ConfigureDlg();
@@ -104,6 +106,8 @@ namespace Vodovoz
 				attachmentFiles.ItemId = subject.Id;
 				attachmentFiles.UpdateFileList();
 			}
+			buttonSavePhoto.Sensitive = subject.Photo != null;
+			logger.Info("Ok");
 		}
 
 		void OnPropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -139,7 +143,7 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			Session.Close();
-			//adaptorOrg.Disconnect();
+			adaptorEmployee.Disconnect();
 			base.Destroy();
 		}
 
@@ -206,13 +210,31 @@ namespace Vodovoz
 					subject.Photo = image.SaveToBuffer("jpeg");
 				}
 				fs.Close();
-				//ImageChanged = true;
-				//ReadImage();
 				buttonSavePhoto.Sensitive = true;
 				logger.Info("Ok");
 			}
 			Chooser.Destroy ();
 
+		}
+
+		protected void OnButtonSavePhotoClicked(object sender, EventArgs e)
+		{
+			FileChooserDialog fc=
+				new FileChooserDialog("Укажите файл для сохранения фотографии",
+					(Window)this.Toplevel,
+					FileChooserAction.Save,
+					"Отмена",ResponseType.Cancel,
+					"Сохранить",ResponseType.Accept);
+			fc.CurrentName = dataentryLastName.Text + " " + dataentryName.Text + " " + dataentryPatronymic.Text + ".jpg";
+			fc.Show(); 
+			if(fc.Run() == (int) ResponseType.Accept)
+			{
+				fc.Hide();
+				FileStream fs = new FileStream(fc.Filename, FileMode.Create, FileAccess.Write);
+				fs.Write(subject.Photo, 0, subject.Photo.Length);
+				fs.Close();
+			}
+			fc.Destroy();
 		}
 	}
 }

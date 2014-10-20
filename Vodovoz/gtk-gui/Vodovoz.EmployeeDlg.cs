@@ -522,6 +522,8 @@ namespace Vodovoz
 			w37.BottomAttach = ((uint)(6));
 			w37.LeftAttach = ((uint)(2));
 			w37.RightAttach = ((uint)(3));
+			w37.XOptions = ((global::Gtk.AttachOptions)(4));
+			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.notebookMain.Add (this.datatableMain);
 			// Notebook tab
 			this.label1 = new global::Gtk.Label ();
@@ -556,6 +558,7 @@ namespace Vodovoz
 			this.radioTabInfo.Toggled += new global::System.EventHandler (this.OnRadioTabInfoToggled);
 			this.radioTabFiles.Toggled += new global::System.EventHandler (this.OnRadioTabAccountsToggled);
 			this.buttonLoadPhoto.Clicked += new global::System.EventHandler (this.OnButtonLoadClicked);
+			this.buttonSavePhoto.Clicked += new global::System.EventHandler (this.OnButtonSavePhotoClicked);
 		}
 	}
 }
