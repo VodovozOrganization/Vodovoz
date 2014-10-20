@@ -138,6 +138,10 @@
       <Project>{AED7339A-4A71-4063-9C67-0D54821230A3}</Project>
       <Name>QSAttachment</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSPhones\QSPhones.csproj">
+      <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
+      <Name>QSPhones</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

@@ -97,6 +97,7 @@ namespace Vodovoz
 			accountsview1.AccountOwner = (IAccountOwner)Subject;
 			referenceBuhgalter.SubjectType = typeof(Employee);
 			referenceLeader.SubjectType = typeof(Employee);
+			phonesview1.Session = Session;
 		}
 
 		public bool Save()

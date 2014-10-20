@@ -8,6 +8,7 @@ using QSBanks;
 using QSSupportLib;
 using NHibernate;
 using NLog;
+using QSPhones;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -267,6 +268,14 @@ public partial class MainWindow: Gtk.Window
 		var criteria = session.CreateCriteria<Nomenclature>();
 
 		OrmReference refWin = new OrmReference(typeof(Nomenclature), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
+	protected void OnActionPhoneTypesActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<PhoneType>();
+
+		OrmReference refWin = new OrmReference(typeof(PhoneType), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
 }
