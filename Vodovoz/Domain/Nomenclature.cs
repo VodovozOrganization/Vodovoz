@@ -14,7 +14,7 @@ namespace Vodovoz
 		public virtual string Model { get; set; }
 		public virtual double Weight { get; set; }
 		public virtual double Price { get; set; }
-		public virtual double VAT { get; set; }
+		public virtual VAT VAT { get; set; }
 		public virtual bool DoNotReserve { get; set; }
 		public virtual bool Serial { get; set; }
 		public virtual MeasurementUnits Unit { get; set; }
@@ -30,6 +30,17 @@ namespace Vodovoz
 			Model = String.Empty;
 			Category = NomenclatureCategory.water;
 		}
+	}
+
+	public enum VAT{
+		[ItemTitleAttribute("Не входит")] excluded,
+		[ItemTitleAttribute("НДС 18%")] included
+	}
+
+	public class VATStringType : NHibernate.Type.EnumStringType
+	{
+		public VATStringType() : base(typeof(VAT))
+		{}
 	}
 
 	public enum NomenclatureCategory{

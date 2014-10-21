@@ -12,7 +12,7 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ISession session;
-		private Adaptor adaptorOrg = new Adaptor();
+		private Adaptor adaptor = new Adaptor();
 		private Nomenclature subject;
 		private bool NewItem = false;
 
@@ -86,9 +86,10 @@ namespace Vodovoz
 		{
 			spinWeight.Sensitive = false;
 			entryName.IsEditable = true;
-			adaptorOrg.Target = subject;
-			datatable1.DataSource = adaptorOrg;
-			enumType.DataSource = adaptorOrg;
+			adaptor.Target = subject;
+			datatable1.DataSource = adaptor;
+			enumType.DataSource = adaptor;
+			enumVAT.DataSource = adaptor;
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceColor.SubjectType = typeof (Colors);
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
@@ -141,6 +142,7 @@ namespace Vodovoz
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment) ;
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment) ;
 			labelDeposit.Sensitive = spinDeposit.Sensitive = (selected == NomenclatureCategory.rent);
+			labelVAT.Sensitive = enumVAT.Sensitive = (selected == NomenclatureCategory.rent);
 		}
 	}
 }

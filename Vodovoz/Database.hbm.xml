@@ -30,7 +30,7 @@
 	 	<property name="Model" column="model" />
 	 	<property name="Weight" column="weight" />
 	 	<property name="Price" column="price" />
-	 	<property name="VAT" column="vat" />
+	 	<property name="VAT" column="vat" type="Vodovoz.VATStringType, Vodovoz"/>
 	 	<property name="DoNotReserve" column="reserve" />
 	 	<property name="Serial" column="serial" />
 	 	<many-to-one name="Unit" class="MeasurementUnits" column="unit" />
