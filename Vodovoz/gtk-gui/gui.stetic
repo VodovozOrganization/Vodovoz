@@ -2881,7 +2881,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="701 302">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="701 322">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -2900,6 +2900,7 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-floppy Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -2916,6 +2917,7 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отмена</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -2940,7 +2942,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2978,7 +2979,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                 <property name="MemberName" />
@@ -3012,20 +3013,16 @@ Patronymic</property>
                   <placeholder />
                 </child>
                 <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
                   <widget class="Gtk.DataBindings.DataEntry" id="entryFullName">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>
                     <property name="InvisibleChar">●</property>
-                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">FullName</property>
                     <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">FullName</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="Editable">False</property>
                   </widget>
@@ -3050,9 +3047,11 @@ Patronymic</property>
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>
                     <property name="InvisibleChar">●</property>
-                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Name</property>
                     <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Name</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="Editable">False</property>
                   </widget>
@@ -3062,6 +3061,62 @@ Patronymic</property>
                     <property name="AutoSize">False</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">True</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumPayment">
+                    <property name="MemberName" />
+                    <property name="IsTextCombo">False</property>
+                    <property name="Items" translatable="yes" />
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="Mappings">PaymentMethod</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="Mappings">PaymentMethod</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">9</property>
+                    <property name="BottomAttach">10</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumPersonType">
+                    <property name="MemberName" />
+                    <property name="IsTextCombo">False</property>
+                    <property name="Items" translatable="yes" />
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">PersonType</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">PersonType</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">5</property>
+                    <property name="BottomAttach">6</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
                     <property name="YExpand">False</property>
@@ -3440,7 +3495,7 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSWidgetLib.ValidatedEntry" id="validatedentry1">
+                  <widget class="QSWidgetLib.ValidatedEntry" id="validateEmail">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>

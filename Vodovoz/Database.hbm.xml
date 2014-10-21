@@ -92,7 +92,7 @@
 	 	<property name="Name" column="name" />
 	 	<property name="LastName" column="last_name" />
 	 	<property name="Patronymic" column="patronymic" />
-	 	<property name="Category" column="category" type= "Vodovoz.EmployeeCategoryStringType, Vodovoz"/>
+	 	<property name="Category" column="category" type="Vodovoz.EmployeeCategoryStringType, Vodovoz"/>
 	 	<property name="PassportSeria" column="passport_seria" />
 	 	<property name="PassportNumber" column="passport_number" />
 	 	<property name="DrivingNumber" column="driving_number" />
@@ -106,5 +106,7 @@
  		</id>
 		<property name="Name" column="name" />
 		<property name="FullName" column="full_name" /> 
+		<property name="PaymentMethod" column="payment_method" type="Vodovoz.PaymentStringType, Vodovoz"/>
+		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
  	</class>
 </hibernate-mapping>

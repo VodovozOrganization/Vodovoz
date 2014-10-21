@@ -12,7 +12,7 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ISession session;
-		private Adaptor adaptorEmployee = new Adaptor();
+		private Adaptor adaptor = new Adaptor();
 		private Counterparty subject;
 		private bool NewItem = false;
 
@@ -42,7 +42,15 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-//TODO: Realize
+			validateEmail.ValidationType = QSWidgetLib.ValidatedEntry.Validation.email;
+			entryName.IsEditable = true;
+			entryFullName.IsEditable = true;
+			notebook1.CurrentPage = 0;
+			adaptor.Target = subject;
+			datatable1.DataSource = adaptor;
+			datatable2.DataSource = adaptor;
+			enumPayment.DataSource = adaptor;
+			enumPersonType.DataSource = adaptor;
 		}
 
 		#region ITdiTab implementation
@@ -107,6 +115,23 @@ namespace Vodovoz
 			}
 		}
 		#endregion
+
+		protected void OnButtonSaveClicked (object sender, EventArgs e)
+		{
+			if (!this.HasChanges || Save())
+				OnCloseTab(false);
+		}
+
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
+		{
+			OnCloseTab(false);
+		}
+
+		protected void OnCloseTab(bool askSave)
+		{
+			if (CloseTab != null)
+				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+		}
 	}
 }
 
