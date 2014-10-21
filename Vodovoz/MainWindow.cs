@@ -278,4 +278,14 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference(typeof(PhoneType), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
+
+	protected void OnActionCounterpartyActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Counterparty>();
+
+		OrmReference refWin = new OrmReference(typeof(Counterparty), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
+
 }
