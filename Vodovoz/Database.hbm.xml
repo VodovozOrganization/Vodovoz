@@ -100,5 +100,11 @@
 	 	<many-to-one name="Nationality" class="Nationality" column="nationality_id" />
 	 	<many-to-one name="User" class="User" column="user_id" />
  	</class>
-
+ 	<class name="Counterparty" lazy="false" table="counterparty">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+		<property name="FullName" column="full_name" /> 
+ 	</class>
 </hibernate-mapping>

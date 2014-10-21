@@ -48,7 +48,7 @@ namespace Vodovoz
 			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSPhones"});
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
-				new OrmObjectMaping(typeof(Counterparty), typeof(CounterpartyDlg), "{Vodovoz.CounterParty} Name[Наименование]"),
+				new OrmObjectMaping(typeof(Counterparty), typeof(CounterpartyDlg), "{Vodovoz.Counterparty} Name[Наименование]"),
 				new OrmObjectMaping(typeof(User), null, "{Vodovoz.User} Name[Название];"),
 				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
 				new OrmObjectMaping(typeof(Nomenclature), typeof(NomenclatureDlg), "{Vodovoz.Nomenclature} Name[Название];"),
