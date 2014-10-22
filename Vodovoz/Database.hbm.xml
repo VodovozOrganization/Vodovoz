@@ -10,7 +10,6 @@
 	 	<property name="INN" column="INN" />
 	 	<property name="KPP" column="KPP" />
 	 	<property name="OGRN" column="OGRN" />
-	 	<property name="Phone" column="phone" />
 	 	<property name="Email" column="email" />
 	 	<property name="Address" column="address" />
 	 	<property name="JurAddress" column="jur_address" />
@@ -20,6 +19,10 @@
 	 	<bag name="Accounts" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="org_id"/>
     		<one-to-many class="QSBanks.Account" />
+		</bag>
+	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="org_id"/>
+    		<one-to-many class="QSPhones.Phone" />
 		</bag>
  	</class>
  	<class name="Nomenclature" lazy="false" table="nomenclature">

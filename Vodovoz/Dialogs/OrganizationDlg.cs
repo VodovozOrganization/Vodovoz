@@ -5,6 +5,8 @@ using QSBanks;
 using NHibernate;
 using System.Data.Bindings;
 using NLog;
+using System.Collections.Generic;
+using QSPhones;
 
 namespace Vodovoz
 {
@@ -98,15 +100,28 @@ namespace Vodovoz
 			referenceBuhgalter.SubjectType = typeof(Employee);
 			referenceLeader.SubjectType = typeof(Employee);
 			phonesview1.Session = Session;
+			if (subject.Phones == null)
+				subject.Phones = new List<Phone>();
+			phonesview1.Phones = subject.Phones;
 		}
 
 		public bool Save()
 		{
 			logger.Info("Сохраняем организацию...");
-			Session.SaveOrUpdate(subject);
-			Session.Flush();
-			OrmMain.NotifyObjectUpdated(subject);
-			return true;
+			try
+			{
+				Session.SaveOrUpdate(subject);
+				phonesview1.SaveChanges();
+				Session.Flush();
+				OrmMain.NotifyObjectUpdated(subject);
+				return true;
+			} catch(Exception ex)
+			{
+				string text = "Организация не сохранилась...";
+				logger.ErrorException(text, ex);
+				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex, text);
+				return false;
+			}
 		}
 
 		public override void Destroy()

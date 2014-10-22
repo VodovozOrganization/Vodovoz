@@ -519,6 +519,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1045,7 +1046,8 @@
                           <widget class="Gtk.Label" id="label9">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Телефон:</property>
+                            <property name="Yalign">0</property>
+                            <property name="LabelProp" translatable="yes">Телефоны:</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">2</property>

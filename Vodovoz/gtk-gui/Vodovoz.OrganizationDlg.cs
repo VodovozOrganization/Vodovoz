@@ -478,7 +478,8 @@ namespace Vodovoz
 			this.label9 = new global::Gtk.Label ();
 			this.label9.Name = "label9";
 			this.label9.Xalign = 1F;
-			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString ("Телефон:");
+			this.label9.Yalign = 0F;
+			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString ("Телефоны:");
 			this.datatableMain.Add (this.label9);
 			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label9]));
 			w32.TopAttach = ((uint)(2));

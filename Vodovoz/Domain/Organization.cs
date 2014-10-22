@@ -17,7 +17,7 @@ namespace Vodovoz
 		public virtual string INN { get; set; }
 		public virtual string KPP { get; set; }
 		public virtual string OGRN { get; set; }
-		public virtual string Phone { get; set; }
+		public virtual IList<QSPhones.Phone> Phones { get; set; }
 		public virtual string Email { get; set; }
 		public virtual string Address { get; set; }
 		public virtual string JurAddress { get; set; }
@@ -32,7 +32,6 @@ namespace Vodovoz
 			INN = String.Empty;
 			KPP = String.Empty;
 			OGRN = String.Empty;
-			Phone = String.Empty;
 			Email = String.Empty;
 			Address = String.Empty;
 			JurAddress = String.Empty;
