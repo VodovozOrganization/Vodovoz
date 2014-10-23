@@ -55,6 +55,7 @@ namespace Vodovoz
 			referenceStatus.SubjectType = typeof(Status);
 			enumPayment.DataSource = adaptor;
 			enumPersonType.DataSource = adaptor;
+			enumCounterpartyType.DataSource = adaptor;
 			phonesView.Session = Session;
 			if (subject.Phones == null)
 				subject.Phones = new List<Phone>();

@@ -111,6 +111,7 @@
 		<property name="FullName" column="full_name" /> 
 		<property name="PaymentMethod" column="payment_method" type="Vodovoz.PaymentStringType, Vodovoz"/>
 		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
+		<property name="CounterpartyType" column="counterparty_type" type="Vodovoz.CounterpartyTypeStringType, Vodovoz"/>
 		<many-to-one name="Significance" class="Significance" column="significance_id"/>
 		<many-to-one name="Status" class="Status" column="status_id"/>
 		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
