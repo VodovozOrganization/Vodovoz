@@ -113,7 +113,10 @@
 		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
 		<property name="CounterpartyType" column="counterparty_type" type="Vodovoz.CounterpartyTypeStringType, Vodovoz"/>
 		<many-to-one name="Significance" class="Significance" column="significance_id"/>
-		<many-to-one name="Status" class="Status" column="status_id"/>
+		<many-to-one name="Status" class="CounterpartyStatus" column="status_id"/>
+		<many-to-one name="Accountant" class="Employee" column="accountant"/>
+		<many-to-one name="SalesManager" class="Employee" column="sales_manager"/>
+		<many-to-one name="BottlesManager" class="Employee" column="bottles_manager"/>
 		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="QSPhones.Phone" />
@@ -125,7 +128,7 @@
  		</id>
 		<property name="Name" column="name" />
 	</class>
-	<class name="Status" lazy="false" table="status">
+	<class name="CounterpartyStatus" lazy="false" table="status">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>

@@ -16,8 +16,12 @@ namespace Vodovoz
 		public virtual PersonType PersonType { get; set; }
 		public virtual Significance Significance { get; set; }
 		public virtual CounterpartyType CounterpartyType { get; set; }
-		public virtual Status Status { get; set; }
+		public virtual CounterpartyStatus Status { get; set; }
 		public virtual IList<QSPhones.Phone> Phones { get; set; }
+		public virtual Employee Accountant { get; set; }
+		public virtual Employee SalesManager { get; set; }
+		public virtual Employee BottlesManager { get; set; }
+
 		#endregion
 
 		public Counterparty ()

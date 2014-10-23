@@ -44,15 +44,18 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			validateEmail.ValidationType = QSWidgetLib.ValidatedEntry.Validation.email;
 			entryName.IsEditable = true;
 			entryFullName.IsEditable = true;
 			notebook1.CurrentPage = 0;
+			notebook1.ShowTabs = false;
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			datatable2.DataSource = adaptor;
 			referenceSignificance.SubjectType = typeof(Significance);
-			referenceStatus.SubjectType = typeof(Status);
+			referenceStatus.SubjectType = typeof(CounterpartyStatus);
+			referenceAccountant.SubjectType = typeof(Employee);
+			referenceBottleManager.SubjectType = typeof(Employee);
+			referenceSalesManager.SubjectType = typeof(Employee);
 			enumPayment.DataSource = adaptor;
 			enumPersonType.DataSource = adaptor;
 			enumCounterpartyType.DataSource = adaptor;
@@ -141,6 +144,30 @@ namespace Vodovoz
 		{
 			if (CloseTab != null)
 				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+		}
+
+		protected void OnRadioInfoToggled (object sender, EventArgs e)
+		{
+			if (radioInfo.Active)
+				notebook1.CurrentPage = 0;
+		}
+
+		protected void OnRadioContactsToggled (object sender, EventArgs e)
+		{
+			if (radioContacts.Active)
+				notebook1.CurrentPage = 1;
+		}
+
+		protected void OnRadioDetailsToggled (object sender, EventArgs e)
+		{
+			if (radioDetails.Active)
+				notebook1.CurrentPage = 2;
+		}
+
+		protected void OnRadioCuratorsToggled (object sender, EventArgs e)
+		{
+			if (radioCurators.Active)
+				notebook1.CurrentPage = 3;
 		}
 	}
 }

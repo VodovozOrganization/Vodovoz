@@ -299,9 +299,9 @@ public partial class MainWindow: Gtk.Window
 	protected void OnActionStatusActivated (object sender, EventArgs e)
 	{
 		ISession session = OrmMain.Sessions.OpenSession();
-		var criteria = session.CreateCriteria<Status>();
+		var criteria = session.CreateCriteria<CounterpartyStatus>();
 
-		OrmReference refWin = new OrmReference(typeof(Status), session, criteria);
+		OrmReference refWin = new OrmReference(typeof(CounterpartyStatus), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
 }

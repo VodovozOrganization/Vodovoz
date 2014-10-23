@@ -102,6 +102,7 @@
     <Compile Include="Domain\Counterparty.cs" />
     <Compile Include="Domain\Significance.cs" />
     <Compile Include="Domain\EquipmentColors.cs" />
+    <Compile Include="Domain\CounterpartyStatus.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
