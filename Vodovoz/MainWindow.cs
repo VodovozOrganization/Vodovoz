@@ -296,4 +296,12 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference(typeof(Significance), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
+	protected void OnActionStatusActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Status>();
+
+		OrmReference refWin = new OrmReference(typeof(Status), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
 }

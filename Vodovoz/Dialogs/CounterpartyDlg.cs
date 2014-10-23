@@ -52,6 +52,7 @@ namespace Vodovoz
 			datatable1.DataSource = adaptor;
 			datatable2.DataSource = adaptor;
 			referenceSignificance.SubjectType = typeof(Significance);
+			referenceStatus.SubjectType = typeof(Status);
 			enumPayment.DataSource = adaptor;
 			enumPersonType.DataSource = adaptor;
 			phonesView.Session = Session;

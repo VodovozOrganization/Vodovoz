@@ -15,6 +15,7 @@ namespace Vodovoz
 		public virtual Payment PaymentMethod { get; set; }
 		public virtual PersonType PersonType { get; set; }
 		public virtual Significance Significance { get; set; }
+		public virtual Status Status { get; set; }
 		public virtual IList<QSPhones.Phone> Phones { get; set; }
 		#endregion
 
