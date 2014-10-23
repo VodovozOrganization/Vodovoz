@@ -12,10 +12,10 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
-    <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
     <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
+    <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
     <widget-library name="../../../QSProjects/Modules/QSPhones/bin/Debug/QSPhones.dll" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -70,81 +70,6 @@
     </icon-set>
   </icon-factory>
   <widget class="Gtk.Window" id="MainWindow" design-size="862 530">
-    <action-group name="orders">
-      <action id="ActionNewOrder">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Новый заказ</property>
-        <property name="ShortLabel" translatable="yes">Новый заказ</property>
-        <property name="StockId">gtk-new</property>
-      </action>
-      <action id="ActionOrdersTable">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Журнал заказов</property>
-        <property name="ShortLabel" translatable="yes">Журнал заказов</property>
-        <property name="StockId">table</property>
-      </action>
-      <action id="ActionCars">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Автомобили</property>
-        <property name="ShortLabel" translatable="yes">Автомобили</property>
-        <signal name="Activated" handler="OnActionCarsActivated" />
-      </action>
-      <action id="ActionColors">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Цвета оборудования</property>
-        <property name="ShortLabel" translatable="yes">Цвета</property>
-        <signal name="Activated" handler="OnActionColorsActivated" />
-      </action>
-      <action id="ActionUnits">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Единицы измерения</property>
-        <property name="ShortLabel" translatable="yes">Единицы измерения</property>
-        <signal name="Activated" handler="OnActionUnitsActivated" />
-      </action>
-      <action id="ActionManufacturers">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Производители оборудования</property>
-        <property name="ShortLabel" translatable="yes">Производители оборудования</property>
-        <signal name="Activated" handler="OnActionManufacturersActivated" />
-      </action>
-      <action id="ActionEquipmentTypes">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Типы оборудования</property>
-        <property name="ShortLabel" translatable="yes">Типы оборудования</property>
-        <signal name="Activated" handler="OnActionEquipmentTypesActivated" />
-      </action>
-      <action id="ActionNomenclature">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Номенклатура</property>
-        <property name="ShortLabel" translatable="yes">Номенклатура</property>
-        <signal name="Activated" handler="OnActionNomenclatureActivated" />
-      </action>
-      <action id="ActionPhoneTypes">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Типы телефонов</property>
-        <property name="ShortLabel" translatable="yes">Типы телефонов</property>
-        <signal name="Activated" handler="OnActionPhoneTypesActivated" />
-      </action>
-      <action id="ActionClients">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Клиенты</property>
-        <property name="ShortLabel" translatable="yes">Клиенты</property>
-      </action>
-      <action id="ActionCounterparty">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Контрагенты</property>
-        <property name="ShortLabel" translatable="yes">Контрагенты</property>
-        <signal name="Activated" handler="OnActionCounterpartyActivated" />
-      </action>
-    </action-group>
-    <action-group name="services">
-      <action id="ActionServiceTikets">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Журнал заявок</property>
-        <property name="ShortLabel" translatable="yes">Журнал заявок</property>
-        <property name="StockId">table</property>
-      </action>
-    </action-group>
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -158,15 +83,10 @@
         <property name="StockId">gtk-dialog-authentication</property>
         <signal name="Activated" handler="OnDialogAuthenticationActionActivated" />
       </action>
-      <action id="Action1">
+      <action id="ActionAbout">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Справка</property>
         <property name="ShortLabel" translatable="yes">Справка</property>
-      </action>
-      <action id="Action">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Справочники</property>
-        <property name="ShortLabel" translatable="yes">Справочники</property>
       </action>
       <action id="aboutAction">
         <property name="Type">Action</property>
@@ -305,10 +225,96 @@
         <property name="ShortLabel" translatable="yes">Национальность</property>
         <signal name="Activated" handler="OnActionNationalityActivated" />
       </action>
-      <action id="Action2">
+    </action-group>
+    <action-group name="services">
+      <action id="ActionServiceTikets">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал заявок</property>
+        <property name="ShortLabel" translatable="yes">Журнал заявок</property>
+        <property name="StockId">table</property>
+      </action>
+    </action-group>
+    <action-group name="orders">
+      <action id="ActionNewOrder">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Новый заказ</property>
+        <property name="ShortLabel" translatable="yes">Новый заказ</property>
+        <property name="StockId">gtk-new</property>
+      </action>
+      <action id="ActionOrdersTable">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал заказов</property>
+        <property name="ShortLabel" translatable="yes">Журнал заказов</property>
+        <property name="StockId">table</property>
+      </action>
+      <action id="ActionCars">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Автомобили</property>
+        <property name="ShortLabel" translatable="yes">Автомобили</property>
+        <signal name="Activated" handler="OnActionCarsActivated" />
+      </action>
+      <action id="ActionColors">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Цвета оборудования</property>
+        <property name="ShortLabel" translatable="yes">Цвета</property>
+        <signal name="Activated" handler="OnActionColorsActivated" />
+      </action>
+      <action id="ActionUnits">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Единицы измерения</property>
+        <property name="ShortLabel" translatable="yes">Единицы измерения</property>
+        <signal name="Activated" handler="OnActionUnitsActivated" />
+      </action>
+      <action id="ActionManufacturers">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Производители оборудования</property>
+        <property name="ShortLabel" translatable="yes">Производители оборудования</property>
+        <signal name="Activated" handler="OnActionManufacturersActivated" />
+      </action>
+      <action id="ActionEquipmentTypes">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Типы оборудования</property>
+        <property name="ShortLabel" translatable="yes">Типы оборудования</property>
+        <signal name="Activated" handler="OnActionEquipmentTypesActivated" />
+      </action>
+      <action id="ActionNomenclature">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Номенклатура</property>
+        <property name="ShortLabel" translatable="yes">Номенклатура</property>
+        <signal name="Activated" handler="OnActionNomenclatureActivated" />
+      </action>
+      <action id="ActionPhoneTypes">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Типы телефонов</property>
+        <property name="ShortLabel" translatable="yes">Типы телефонов</property>
+        <signal name="Activated" handler="OnActionPhoneTypesActivated" />
+      </action>
+      <action id="ActionTMC">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">ТМЦ</property>
         <property name="ShortLabel" translatable="yes">ТМЦ</property>
+      </action>
+      <action id="ActionHandbook">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Справочники</property>
+        <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
+      </action>
+      <action id="ActionCounterparty1">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Контрагенты</property>
+        <property name="ShortLabel" translatable="yes">Контрагенты</property>
+      </action>
+      <action id="ActionCounterpartyHandbook">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Контрагенты</property>
+        <property name="ShortLabel" translatable="yes">Контрагенты</property>
+        <signal name="Activated" handler="OnActionCounterpartyHandbookActivated" />
+      </action>
+      <action id="ActionSignificance">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Значимость контрагента</property>
+        <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
+        <signal name="Activated" handler="OnActionSignificanceActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -329,7 +335,7 @@
                 <node type="Separator" />
                 <node type="Menuitem" action="quitAction" />
               </node>
-              <node type="Menu" action="Action">
+              <node type="Menu" action="ActionHandbook">
                 <node type="Menu" action="ActionOrgMenu">
                   <node type="Menuitem" action="ActionOrg" />
                   <node type="Separator" />
@@ -339,7 +345,7 @@
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionPhoneTypes" />
                 </node>
-                <node type="Menu" action="Action2">
+                <node type="Menu" action="ActionTMC">
                   <node type="Menuitem" action="ActionNomenclature" />
                   <node type="Menuitem" action="ActionUnits" />
                   <node type="Separator" />
@@ -350,11 +356,13 @@
                 <node type="Menu" action="ActionBanksMenu">
                   <node type="Menuitem" action="ActionBanksRF" />
                 </node>
-                <node type="Menu" action="ActionClients">
-                  <node type="Menuitem" action="ActionCounterparty" />
+                <node type="Menu" action="ActionCounterparty1">
+                  <node type="Menuitem" action="ActionCounterpartyHandbook" />
+                  <node type="Separator" />
+                  <node type="Menuitem" action="ActionSignificance" />
                 </node>
               </node>
-              <node type="Menu" action="Action1">
+              <node type="Menu" action="ActionAbout">
                 <node type="Menuitem" action="aboutAction" />
               </node>
             </node>
@@ -519,7 +527,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2883,7 +2890,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="701 322">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="701 344">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -2993,9 +3000,6 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <child>
-                  <placeholder />
-                </child>
                 <child>
                   <placeholder />
                 </child>
@@ -3346,6 +3350,32 @@ Patronymic</property>
                     <property name="YShrink">False</property>
                   </packing>
                 </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceSignificance">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                    <property name="DisplayFields">Name</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Significance</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="CursorPointsEveryType">False</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
               </widget>
             </child>
             <child>
@@ -3478,7 +3508,7 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSPhones.PhonesView" id="phonesview1">
+                  <widget class="QSPhones.PhonesView" id="phonesView">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>

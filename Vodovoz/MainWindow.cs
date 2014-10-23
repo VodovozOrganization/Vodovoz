@@ -279,7 +279,7 @@ public partial class MainWindow: Gtk.Window
 		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionCounterpartyActivated (object sender, EventArgs e)
+	protected void OnActionCounterpartyHandbookActivated (object sender, EventArgs e)
 	{
 		ISession session = OrmMain.Sessions.OpenSession();
 		var criteria = session.CreateCriteria<Counterparty>();
@@ -288,4 +288,12 @@ public partial class MainWindow: Gtk.Window
 		tdiMain.AddTab(refWin);
 	}
 
+	protected void OnActionSignificanceActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<Significance>();
+
+		OrmReference refWin = new OrmReference(typeof(Significance), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
 }

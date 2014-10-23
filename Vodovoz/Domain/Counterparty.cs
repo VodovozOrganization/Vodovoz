@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.Data.Bindings;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -12,7 +13,9 @@ namespace Vodovoz
 		public virtual string Name { get; set; }
 		public virtual string FullName { get; set; }
 		public virtual Payment PaymentMethod { get; set; }
-		public virtual PersonType PersonType { get; set; } 
+		public virtual PersonType PersonType { get; set; }
+		public virtual Significance Significance { get; set; }
+		public virtual IList<QSPhones.Phone> Phones { get; set; }
 		#endregion
 
 		public Counterparty ()

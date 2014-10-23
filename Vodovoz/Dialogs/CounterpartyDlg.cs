@@ -4,6 +4,8 @@ using QSTDI;
 using NLog;
 using NHibernate;
 using System.Data.Bindings;
+using System.Collections.Generic;
+using QSPhones;
 
 namespace Vodovoz
 {
@@ -49,8 +51,13 @@ namespace Vodovoz
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			datatable2.DataSource = adaptor;
+			referenceSignificance.SubjectType = typeof(Significance);
 			enumPayment.DataSource = adaptor;
 			enumPersonType.DataSource = adaptor;
+			phonesView.Session = Session;
+			if (subject.Phones == null)
+				subject.Phones = new List<Phone>();
+			phonesView.Phones = subject.Phones;
 		}
 
 		#region ITdiTab implementation
@@ -83,6 +90,7 @@ namespace Vodovoz
 		{
 			logger.Info("Сохраняем контрагента...");
 			Session.SaveOrUpdate(subject);
+			phonesView.SaveChanges();
 			Session.Flush();
 			OrmMain.NotifyObjectUpdated(subject);
 			return true;

@@ -101,6 +101,7 @@
     <Compile Include="Dialogs\CounterpartyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="Domain\Counterparty.cs" />
+    <Compile Include="Domain\Significance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
