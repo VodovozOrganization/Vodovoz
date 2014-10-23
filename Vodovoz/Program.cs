@@ -57,7 +57,7 @@ namespace Vodovoz
 				new OrmObjectMaping(typeof(Manufacturer), null, "{Vodovoz.Manufacturer} Name[Название];"),
 				new OrmObjectMaping(typeof(EquipmentType), null, "{Vodovoz.EquipmentType} Name[Название];"),
 				new OrmObjectMaping(typeof(MeasurementUnits), null, "{Vodovoz.MeasurementUnits} Name[Название];"),
-				new OrmObjectMaping(typeof(Colors), null, "{Vodovoz.Colors} Name[Название];"),
+				new OrmObjectMaping(typeof(EquipmentColors), null, "{Vodovoz.EquipmentColors} Name[Название];"),
 				new OrmObjectMaping(typeof(Employee), typeof(EmployeeDlg), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];"),
 				new OrmObjectMaping(typeof(Car), typeof(CarsDlg), "{Vodovoz.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер];")
 			};

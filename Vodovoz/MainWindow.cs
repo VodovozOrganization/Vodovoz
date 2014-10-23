@@ -238,9 +238,9 @@ public partial class MainWindow: Gtk.Window
 	protected void OnActionColorsActivated (object sender, EventArgs e)
 	{
 		ISession session = OrmMain.Sessions.OpenSession();
-		var criteria = session.CreateCriteria<Colors>();
+		var criteria = session.CreateCriteria<EquipmentColors>();
 
-		OrmReference refWin = new OrmReference(typeof(Colors), session, criteria);
+		OrmReference refWin = new OrmReference(typeof(EquipmentColors), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
 

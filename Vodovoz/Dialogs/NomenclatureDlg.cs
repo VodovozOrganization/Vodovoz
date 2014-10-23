@@ -91,7 +91,7 @@ namespace Vodovoz
 			enumType.DataSource = adaptor;
 			enumVAT.DataSource = adaptor;
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
-			referenceColor.SubjectType = typeof (Colors);
+			referenceColor.SubjectType = typeof (EquipmentColors);
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceType.SubjectType = typeof(EquipmentType);
 			ConfigureInputs((NomenclatureCategory)enumType.Active);

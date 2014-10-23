@@ -19,7 +19,7 @@ namespace Vodovoz
 		public virtual bool Serial { get; set; }
 		public virtual MeasurementUnits Unit { get; set; }
 		public virtual NomenclatureCategory Category { get; set; }
-		public virtual Colors Color { get; set; }
+		public virtual EquipmentColors Color { get; set; }
 		public virtual EquipmentType Type { get; set; }
 		public virtual Manufacturer Manufacturer { get; set; }
 		#endregion

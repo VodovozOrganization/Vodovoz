@@ -38,7 +38,7 @@
 	 	<property name="Serial" column="serial" />
 	 	<many-to-one name="Unit" class="MeasurementUnits" column="unit" />
 	 	<property name="Category" column="category" type="Vodovoz.NomenclatureCategoryStringType, Vodovoz"/>
-	 	<many-to-one name="Color" class="Colors" column="color" />
+	 	<many-to-one name="Color" class="EquipmentColors" column="color" />
 	 	<many-to-one name="Type" class="EquipmentType" column="type" />
 	 	<many-to-one name="Manufacturer" class="Manufacturer" column="manufacturer" />
  	</class>
@@ -48,7 +48,7 @@
 	 	</id>
 	 	<property name="Name" column="name" />
  	</class>
-	<class name="Colors" lazy="false" table="colors">
+	<class name="EquipmentColors" lazy="false" table="equipment_colors">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
