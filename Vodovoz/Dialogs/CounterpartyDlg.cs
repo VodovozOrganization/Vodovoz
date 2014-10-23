@@ -59,6 +59,10 @@ namespace Vodovoz
 			enumPayment.DataSource = adaptor;
 			enumPersonType.DataSource = adaptor;
 			enumCounterpartyType.DataSource = adaptor;
+			emailsView.Session = Session;
+			if (subject.Emails == null)
+				subject.Emails = new List<Email>();
+			emailsView.Emails = subject.Emails;
 			phonesView.Session = Session;
 			if (subject.Phones == null)
 				subject.Phones = new List<Phone>();
@@ -96,6 +100,7 @@ namespace Vodovoz
 			logger.Info("Сохраняем контрагента...");
 			Session.SaveOrUpdate(subject);
 			phonesView.SaveChanges();
+			emailsView.SaveChanges ();
 			Session.Flush();
 			OrmMain.NotifyObjectUpdated(subject);
 			return true;

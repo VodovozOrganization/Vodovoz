@@ -304,4 +304,12 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference(typeof(CounterpartyStatus), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
+	protected void OnActionEMailTypesActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.Sessions.OpenSession();
+		var criteria = session.CreateCriteria<EmailType>();
+
+		OrmReference refWin = new OrmReference(typeof(EmailType), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
 }
