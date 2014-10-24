@@ -322,6 +322,12 @@
         <property name="ShortLabel" translatable="yes">Статусы</property>
         <signal name="Activated" handler="OnActionStatusActivated" />
       </action>
+      <action id="ActionEMailTypes">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Типы e-mail адресов</property>
+        <property name="ShortLabel" translatable="yes">Типы e-mail адресов</property>
+        <signal name="Activated" handler="OnActionEMailTypesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -350,6 +356,7 @@
                   <node type="Menuitem" action="ActionCars" />
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionPhoneTypes" />
+                  <node type="Menuitem" action="ActionEMailTypes" />
                 </node>
                 <node type="Menu" action="ActionTMC">
                   <node type="Menuitem" action="ActionNomenclature" />
@@ -3030,7 +3037,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                 <property name="MemberName" />
@@ -3475,7 +3482,25 @@ Patronymic</property>
                   <placeholder />
                 </child>
                 <child>
-                  <placeholder />
+                  <widget class="QSPhones.EmailsView" id="emailsView">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">1</property>
+                    <property name="BottomAttach">2</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
                 </child>
                 <child>
                   <widget class="Gtk.Label" id="label11">
@@ -3695,7 +3720,9 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceAccountant">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name LastName Patronymic</property>
+                    <property name="DisplayFields">LastName
+Name
+Patronymic</property>
                     <property name="DisplayFormatString">{0} {1} {2}</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">Accountant</property>
@@ -3721,7 +3748,9 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceBottleManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name Lastname Patronymic</property>
+                    <property name="DisplayFields">LastName
+Name
+Patronymic</property>
                     <property name="DisplayFormatString">{0} {1} {2}</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">BottlesManager</property>
@@ -3747,7 +3776,9 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceSalesManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Name LastName Patronymic</property>
+                    <property name="DisplayFields">LastName
+Name
+Patronymic</property>
                     <property name="DisplayFormatString">{0} {1} {2}</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">SalesManager</property>
