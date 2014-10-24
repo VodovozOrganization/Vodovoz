@@ -33,7 +33,7 @@ namespace Vodovoz
 	}
 
 	public enum VAT{
-		[ItemTitleAttribute("Не входит")] excluded,
+		[ItemTitleAttribute("Без НДС")] excluded,
 		[ItemTitleAttribute("НДС 18%")] included
 	}
 

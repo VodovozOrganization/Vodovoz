@@ -186,7 +186,7 @@ namespace Vodovoz
 			this.entryModel.InheritedDataSource = true;
 			this.entryModel.Mappings = "Model";
 			this.entryModel.InheritedBoundaryDataSource = false;
-			this.entryModel.Editable = false;
+			this.entryModel.Editable = true;
 			this.datatable1.Add (this.entryModel);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryModel]));
 			w9.TopAttach = ((uint)(4));
@@ -481,6 +481,7 @@ namespace Vodovoz
 			this.spinWeight.Name = "spinWeight";
 			this.spinWeight.Adjustment.PageIncrement = 10;
 			this.spinWeight.ClimbRate = 1;
+			this.spinWeight.Digits = ((uint)(3));
 			this.spinWeight.Numeric = true;
 			this.spinWeight.InheritedDataSource = true;
 			this.spinWeight.Mappings = "Weight";

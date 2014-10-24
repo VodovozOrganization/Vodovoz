@@ -135,14 +135,13 @@ namespace Vodovoz
 		}
 
 		protected void ConfigureInputs (NomenclatureCategory selected) {
-			referenceUnit.Sensitive = spinWeight.Sensitive = true;
+			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent);
 			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelClass.Sensitive =  referenceType.Sensitive = (selected == NomenclatureCategory.equipment || selected == NomenclatureCategory.rent);
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment) ;
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment) ;
 			labelDeposit.Sensitive = spinDeposit.Sensitive = (selected == NomenclatureCategory.rent);
-			labelVAT.Sensitive = enumVAT.Sensitive = (selected == NomenclatureCategory.rent);
 		}
 	}
 }
