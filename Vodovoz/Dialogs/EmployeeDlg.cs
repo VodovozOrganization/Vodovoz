@@ -83,10 +83,17 @@ namespace Vodovoz
 		public EmployeeDlg(Employee sub)
 		{
 			this.Build();
-			logger.Info("Загрузка информации о сотруднике...");
-			subject = Session.Load<Employee>(sub.Id);
-			TabName = subject.Name;
-			ConfigureDlg();
+			try
+			{
+				logger.Info("Загрузка информации о сотруднике...");
+				subject = Session.Load<Employee>(sub.Id);
+				TabName = subject.Name;
+				ConfigureDlg();
+				logger.Info("Ok");
+			} catch(Exception ex)
+			{
+				QSProjectsLib.QSMain.ErrorMessageWithLog("Не удалось загрузить сотрудника.", logger, ex);
+			}
 		}
 
 		private void ConfigureDlg()

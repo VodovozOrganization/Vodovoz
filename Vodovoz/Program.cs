@@ -67,6 +67,7 @@ namespace Vodovoz
 
 			//Запускаем программу
 			MainWin = new MainWindow ();
+			QSMain.ErrorDlgParrent = MainWin;
 			if(QSMain.User.Login == "root")
 				return;
 			MainWin.Show ();
@@ -77,11 +78,13 @@ namespace Vodovoz
 		{
 			if (StatusBarLabel == null)
 				return;
-			StatusBarLabel.LabelProp = message;
-			while (GLib.MainContext.Pending())
-			{
-				Gtk.Main.Iteration();
-			}
+			Application.Invoke(delegate(object sender, EventArgs e) {
+				StatusBarLabel.LabelProp = message;
+				while (GLib.MainContext.Pending())
+				{
+					Gtk.Main.Iteration();
+				}
+			});
 		}
 	}
 }
