@@ -32,7 +32,7 @@
 	 	<property name="Name" column="name" />
 	 	<property name="Model" column="model" />
 	 	<property name="Weight" column="weight" />
-	 	<property name="Price" column="price" />
+	 	<property name="RentPrice" column="rent_price" />
 	 	<property name="VAT" column="vat" type="Vodovoz.VATStringType, Vodovoz"/>
 	 	<property name="DoNotReserve" column="reserve" />
 	 	<property name="Serial" column="serial" />
@@ -41,6 +41,17 @@
 	 	<many-to-one name="Color" class="EquipmentColors" column="color" />
 	 	<many-to-one name="Type" class="EquipmentType" column="type" />
 	 	<many-to-one name="Manufacturer" class="Manufacturer" column="manufacturer" />
+	 	<bag name="NomenclaturePrice" inverse="false" cascade="all-delete-orphan" lazy="false" >
+    		<key column="nomenclature_id"/>
+    		<one-to-many class="Vodovoz.NomenclaturePrice" />
+		</bag>
+ 	</class>
+	<class name="NomenclaturePrice" lazy="false" table="nomenclature_price">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="MinCount" column="min_count" />
+	 	<property name="Price" column="price" />
  	</class>
  	<class name="Nationality" lazy="false" table="nationality">
 		<id name="Id" column="id">

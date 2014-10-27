@@ -4,6 +4,7 @@ using QSOrmProject;
 using QSTDI;
 using NHibernate;
 using NLog;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -88,6 +89,7 @@ namespace Vodovoz
 			entryName.IsEditable = true;
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
+			datatable2.DataSource = adaptor;
 			enumType.DataSource = adaptor;
 			enumVAT.DataSource = adaptor;
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
@@ -95,12 +97,18 @@ namespace Vodovoz
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceType.SubjectType = typeof(EquipmentType);
 			ConfigureInputs((NomenclatureCategory)enumType.Active);
+			pricesView.Session = Session;
+			if (subject.NomenclaturePrice == null)
+				subject.NomenclaturePrice = new List<NomenclaturePrice>();
+			pricesView.Prices = subject.NomenclaturePrice;
+
 		}
 
 		public bool Save()
 		{
 			logger.Info("Сохраняем номенклатуру...");
 			Session.SaveOrUpdate(subject);
+			pricesView.SaveChanges ();
 			Session.Flush();
 			OrmMain.NotifyObjectUpdated(subject);
 			return true;

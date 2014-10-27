@@ -12,6 +12,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonCancel;
 		
+		private global::Gtk.Notebook notebook1;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
@@ -63,6 +65,14 @@ namespace Vodovoz
 		private global::Gtk.DataBindings.DataSpinButton spinDeposit;
 		
 		private global::Gtk.DataBindings.DataSpinButton spinWeight;
+		
+		private global::Gtk.Label label1;
+		
+		private global::Gtk.DataBindings.DataTable datatable2;
+		
+		private global::Vodovoz.PricesView pricesView;
+		
+		private global::Gtk.Label label2;
 
 		protected virtual void Build ()
 		{
@@ -111,9 +121,13 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.notebook1 = new global::Gtk.Notebook ();
+			this.notebook1.CanFocus = true;
+			this.notebook1.Name = "notebook1";
+			this.notebook1.CurrentPage = 0;
+			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			global::Gtk.Viewport w6 = new global::Gtk.Viewport ();
@@ -462,10 +476,10 @@ namespace Vodovoz
 			this.spinDeposit.Digits = ((uint)(2));
 			this.spinDeposit.Numeric = true;
 			this.spinDeposit.InheritedDataSource = true;
-			this.spinDeposit.Mappings = "Price";
+			this.spinDeposit.Mappings = "RentPrice";
 			this.spinDeposit.InheritedBoundaryDataSource = false;
 			this.spinDeposit.InheritedDataSource = true;
-			this.spinDeposit.Mappings = "Price";
+			this.spinDeposit.Mappings = "RentPrice";
 			this.spinDeposit.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.spinDeposit);
 			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinDeposit]));
@@ -499,9 +513,42 @@ namespace Vodovoz
 			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			w6.Add (this.datatable1);
 			this.GtkScrolledWindow.Add (w6);
-			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w33.Position = 1;
+			this.notebook1.Add (this.GtkScrolledWindow);
+			// Notebook tab
+			this.label1 = new global::Gtk.Label ();
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Информация");
+			this.notebook1.SetTabLabel (this.GtkScrolledWindow, this.label1);
+			this.label1.ShowAll ();
+			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.datatable2 = new global::Gtk.DataBindings.DataTable (((uint)(1)), ((uint)(2)), false);
+			this.datatable2.Name = "datatable2";
+			this.datatable2.RowSpacing = ((uint)(6));
+			this.datatable2.ColumnSpacing = ((uint)(6));
+			this.datatable2.InheritedDataSource = false;
+			this.datatable2.InheritedBoundaryDataSource = false;
+			this.datatable2.InheritedDataSource = false;
+			this.datatable2.InheritedBoundaryDataSource = false;
+			// Container child datatable2.Gtk.Table+TableChild
+			this.pricesView = new global::Vodovoz.PricesView ();
+			this.pricesView.Events = ((global::Gdk.EventMask)(256));
+			this.pricesView.Name = "pricesView";
+			this.datatable2.Add (this.pricesView);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.datatable2 [this.pricesView]));
+			w34.LeftAttach = ((uint)(1));
+			w34.RightAttach = ((uint)(2));
+			this.notebook1.Add (this.datatable2);
+			global::Gtk.Notebook.NotebookChild w35 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.datatable2]));
+			w35.Position = 1;
+			// Notebook tab
+			this.label2 = new global::Gtk.Label ();
+			this.label2.Name = "label2";
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Цены");
+			this.notebook1.SetTabLabel (this.datatable2, this.label2);
+			this.label2.ShowAll ();
+			this.vbox1.Add (this.notebook1);
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
+			w36.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

@@ -103,6 +103,9 @@
     <Compile Include="Domain\Significance.cs" />
     <Compile Include="Domain\EquipmentColors.cs" />
     <Compile Include="Domain\CounterpartyStatus.cs" />
+    <Compile Include="PricesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
+    <Compile Include="Domain\NomenclaturePrice.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

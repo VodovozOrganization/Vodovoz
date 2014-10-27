@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Bindings;
 using QSOrmProject;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -13,7 +14,7 @@ namespace Vodovoz
 		public virtual string Name { get; set; }
 		public virtual string Model { get; set; }
 		public virtual double Weight { get; set; }
-		public virtual double Price { get; set; }
+		public virtual double RentPrice { get; set; }
 		public virtual VAT VAT { get; set; }
 		public virtual bool DoNotReserve { get; set; }
 		public virtual bool Serial { get; set; }
@@ -22,6 +23,7 @@ namespace Vodovoz
 		public virtual EquipmentColors Color { get; set; }
 		public virtual EquipmentType Type { get; set; }
 		public virtual Manufacturer Manufacturer { get; set; }
+		public virtual IList<NomenclaturePrice> NomenclaturePrice{ get; set; }
 		#endregion
 
 		public Nomenclature()
