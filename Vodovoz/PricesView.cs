@@ -50,7 +50,7 @@ namespace Vodovoz
 						PricesList.Add (new NomenclaturePrice ());
 					else {
 						foreach (NomenclaturePrice price in PricesList)
-							AddEmailRow (price);
+							AddPriceRow (price);
 					}
 				}
 			}
@@ -81,7 +81,7 @@ namespace Vodovoz
 		{
 			foreach(int i in aIdx)
 			{
-				AddEmailRow(PricesList[i]);
+				AddPriceRow(PricesList[i]);
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Vodovoz
 			PricesList.Add(new NomenclaturePrice());
 		}
 
-		private void AddEmailRow(NomenclaturePrice newPrice) 
+		private void AddPriceRow(NomenclaturePrice newPrice) 
 		{
 			datatablePrices.NRows = RowNum + 1;
 			Adaptor rowAdaptor = new Adaptor(newPrice);
@@ -109,16 +109,15 @@ namespace Vodovoz
 			DataSpinButton countDataEntry = new DataSpinButton(1, 9999, 1);
 			countDataEntry.DataSource = rowAdaptor;
 			countDataEntry.Mappings = "MinCount";
-			countDataEntry.Digits = 0;
 			datatablePrices.Attach (countDataEntry, (uint)1, (uint)2, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Label textCplLabel = new Gtk.Label (" - ");
 			datatablePrices.Attach (textCplLabel, (uint)2, (uint)3, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
 			DataSpinButton priceDataEntry = new DataSpinButton (0, 999999, 1);
+			priceDataEntry.Digits = 2;
 			priceDataEntry.DataSource = rowAdaptor;
 			priceDataEntry.Mappings = "Price";
-			priceDataEntry.Digits = 0;
 			datatablePrices.Attach (priceDataEntry, (uint)3, (uint)4, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Label textCurrencyLabel = new Gtk.Label ("руб.");
