@@ -100,11 +100,19 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			logger.Info("Сохраняем контрагента...");
+			if (entryName.Text == String.Empty) {
+				logger.Error ("Не введено имя контрагента.");
+				return false;
+			}
 			Session.SaveOrUpdate(subject);
 			phonesView.SaveChanges();
 			emailsView.SaveChanges ();
 			Session.Flush();
+			foreach (Contact c in (Subject as Counterparty).Contacts) {
+				OrmMain.NotifyObjectUpdated (c);
+			}
 			OrmMain.NotifyObjectUpdated(subject);
+
 			return true;
 		}
 

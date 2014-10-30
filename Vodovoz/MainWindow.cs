@@ -183,7 +183,7 @@ public partial class MainWindow: Gtk.Window
 		
 	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var orgs = session.CreateCriteria<Organization>();
 
 		OrmReference refWin = new OrmReference(typeof(Organization), session, orgs);
@@ -192,7 +192,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionBanksRFActivated(object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Bank>();
 
 		OrmReference refWin = new OrmReference(typeof(Bank), session, criteria, "{QSBanks.Bank} Bik[БИК]; Name[Название]; City[Город];");
@@ -201,7 +201,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionNationalityActivated(object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Nationality>();
 
 		OrmReference refWin = new OrmReference(typeof(Nationality), session, criteria);
@@ -210,7 +210,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionEmploeyActivated(object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Employee>();
 
 		OrmReference refWin = new OrmReference(typeof(Employee), session, criteria);
@@ -219,7 +219,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionCarsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Car>();
 
 		OrmReference refWin = new OrmReference(typeof(Car), session, criteria);
@@ -228,7 +228,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionUnitsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<MeasurementUnits>();
 
 		OrmReference refWin = new OrmReference(typeof(MeasurementUnits), session, criteria);
@@ -237,7 +237,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionColorsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<EquipmentColors>();
 
 		OrmReference refWin = new OrmReference(typeof(EquipmentColors), session, criteria);
@@ -246,7 +246,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionManufacturersActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Manufacturer>();
 
 		OrmReference refWin = new OrmReference(typeof(Manufacturer), session, criteria);
@@ -255,7 +255,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionEquipmentTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<EquipmentType>();
 
 		OrmReference refWin = new OrmReference(typeof(EquipmentType), session, criteria);
@@ -264,7 +264,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionNomenclatureActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Nomenclature>();
 
 		OrmReference refWin = new OrmReference(typeof(Nomenclature), session, criteria);
@@ -272,7 +272,7 @@ public partial class MainWindow: Gtk.Window
 	}
 	protected void OnActionPhoneTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<PhoneType>();
 
 		OrmReference refWin = new OrmReference(typeof(PhoneType), session, criteria);
@@ -281,7 +281,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionCounterpartyHandbookActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Counterparty>();
 
 		OrmReference refWin = new OrmReference(typeof(Counterparty), session, criteria);
@@ -290,7 +290,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionSignificanceActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<Significance>();
 
 		OrmReference refWin = new OrmReference(typeof(Significance), session, criteria);
@@ -298,7 +298,7 @@ public partial class MainWindow: Gtk.Window
 	}
 	protected void OnActionStatusActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<CounterpartyStatus>();
 
 		OrmReference refWin = new OrmReference(typeof(CounterpartyStatus), session, criteria);
@@ -306,7 +306,7 @@ public partial class MainWindow: Gtk.Window
 	}
 	protected void OnActionEMailTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.Sessions.OpenSession();
+		ISession session = OrmMain.OpenSession();
 		var criteria = session.CreateCriteria<EmailType>();
 
 		OrmReference refWin = new OrmReference(typeof(EmailType), session, criteria);
