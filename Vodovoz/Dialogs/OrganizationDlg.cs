@@ -6,7 +6,7 @@ using NHibernate;
 using System.Data.Bindings;
 using NLog;
 using System.Collections.Generic;
-using QSPhones;
+using QSContacts;
 
 namespace Vodovoz
 {

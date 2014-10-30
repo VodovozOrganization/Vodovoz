@@ -2,11 +2,12 @@
 using QSOrmProject;
 using System.Data.Bindings;
 using System.Collections.Generic;
+using QSContacts;
 
 namespace Vodovoz
 {
 	[OrmSubjectAttibutes("Контрагенты")]
-	public class Counterparty : IDomainObject
+	public class Counterparty : QSContacts.ContactBase
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -17,11 +18,13 @@ namespace Vodovoz
 		public virtual Significance Significance { get; set; }
 		public virtual CounterpartyType CounterpartyType { get; set; }
 		public virtual CounterpartyStatus Status { get; set; }
-		public virtual IList<QSPhones.Phone> Phones { get; set; }
-		public virtual IList<QSPhones.Email> Emails { get; set; }
+		public virtual IList<QSContacts.Phone> Phones { get; set; }
+		public virtual IList<QSContacts.Email> Emails { get; set; }
 		public virtual Employee Accountant { get; set; }
 		public virtual Employee SalesManager { get; set; }
 		public virtual Employee BottlesManager { get; set; }
+		//public virtual Contact MainContact { get; set; }
+		//public virtual Contact FinancialContact { get; set; }
 
 		#endregion
 

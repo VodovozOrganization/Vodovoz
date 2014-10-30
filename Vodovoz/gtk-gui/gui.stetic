@@ -12,9 +12,9 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
-    <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
     <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
-    <widget-library name="../../../QSProjects/Modules/QSPhones/bin/Debug/QSPhones.dll" />
+    <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
+    <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Debug/QSContacts.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
@@ -306,7 +306,7 @@
         <property name="Label" translatable="yes">ТМЦ</property>
         <property name="ShortLabel" translatable="yes">ТМЦ</property>
       </action>
-      <action id="ActionHandbook">
+      <action id="Action">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Справочники</property>
         <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
@@ -347,7 +347,7 @@
                 <node type="Separator" />
                 <node type="Menuitem" action="quitAction" />
               </node>
-              <node type="Menu" action="ActionHandbook">
+              <node type="Menu" action="Action">
                 <node type="Menu" action="ActionOrgMenu">
                   <node type="Menuitem" action="ActionOrg" />
                   <node type="Separator" />
@@ -1085,7 +1085,7 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSPhones.PhonesView" id="phonesview1">
+                          <widget class="QSContacts.PhonesView" id="phonesview1">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -1094,13 +1094,14 @@
                             <property name="BottomAttach">3</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
-                            <property name="AutoSize">False</property>
-                            <property name="YOptions">0</property>
-                            <property name="XExpand">True</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
                             <property name="XFill">True</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
-                            <property name="YFill">False</property>
+                            <property name="YFill">True</property>
                             <property name="YShrink">False</property>
                           </packing>
                         </child>
@@ -3025,6 +3026,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3084,6 +3086,22 @@ Patronymic</property>
                 <property name="AutoSize">True</property>
               </packing>
             </child>
+            <child>
+              <widget class="Gtk.RadioButton" id="radioContactPersons">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Контактные лица</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnRadioContactPersonsToggled" />
+              </widget>
+              <packing>
+                <property name="Position">7</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">0</property>
@@ -3096,7 +3114,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                 <property name="MemberName" />
@@ -3541,7 +3559,7 @@ Patronymic</property>
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="QSPhones.EmailsView" id="emailsView">
+                  <widget class="QSContacts.EmailsView" id="emailsView">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -3662,7 +3680,7 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSPhones.PhonesView" id="phonesView">
+                  <widget class="QSContacts.PhonesView" id="phonesView">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -3866,6 +3884,24 @@ Patronymic</property>
               <widget class="Gtk.Label" id="label10">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Кураторы</property>
+              </widget>
+              <packing>
+                <property name="type">tab</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSContacts.ContactsView" id="contactsview1">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="Position">4</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label24">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Контактные лица</property>
               </widget>
               <packing>
                 <property name="type">tab</property>

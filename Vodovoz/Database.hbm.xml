@@ -22,7 +22,7 @@
 		</bag>
 	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="org_id"/>
-    		<one-to-many class="QSPhones.Phone" />
+    		<one-to-many class="QSContacts.Phone" />
 		</bag>
  	</class>
  	<class name="Nomenclature" lazy="false" table="nomenclature">
@@ -130,11 +130,15 @@
 		<many-to-one name="BottlesManager" class="Employee" column="bottles_manager"/>
 		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
-    		<one-to-many class="QSPhones.Phone" />
+    		<one-to-many class="QSContacts.Phone" />
 		</bag>
 		<bag name="Emails" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
-    		<one-to-many class="QSPhones.Email" />
+    		<one-to-many class="QSContacts.Email" />
+		</bag>
+		<bag name="Contacts" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="counterparty_id"/>
+    		<one-to-many class="QSContacts.Contact" />
 		</bag>
  	</class>
  	<class name="Significance" lazy="false" table="significance">

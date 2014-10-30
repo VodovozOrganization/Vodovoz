@@ -5,7 +5,7 @@ using NLog;
 using NHibernate;
 using System.Data.Bindings;
 using System.Collections.Generic;
-using QSPhones;
+using QSContacts;
 
 namespace Vodovoz
 {
@@ -59,6 +59,8 @@ namespace Vodovoz
 			enumPayment.DataSource = adaptor;
 			enumPersonType.DataSource = adaptor;
 			enumCounterpartyType.DataSource = adaptor;
+			contactsview1.Contact = (IContact)Subject;
+			contactsview1.Session = Session;
 			emailsView.Session = Session;
 			if (subject.Emails == null)
 				subject.Emails = new List<Email>();
@@ -173,6 +175,12 @@ namespace Vodovoz
 		{
 			if (radioCurators.Active)
 				notebook1.CurrentPage = 3;
+		}
+
+		protected void OnRadioContactPersonsToggled (object sender, EventArgs e)
+		{
+			if (radioContactPersons.Active)
+				notebook1.CurrentPage = 4;
 		}
 	}
 }

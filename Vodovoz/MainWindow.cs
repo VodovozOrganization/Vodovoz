@@ -8,7 +8,7 @@ using QSBanks;
 using QSSupportLib;
 using NHibernate;
 using NLog;
-using QSPhones;
+using QSContacts;
 
 public partial class MainWindow: Gtk.Window
 {

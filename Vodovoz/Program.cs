@@ -45,7 +45,7 @@ namespace Vodovoz
 
 			LoginDialog.Destroy();
 			// Настройка ORM
-			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSPhones"});
+			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts"});
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
 				new OrmObjectMaping(typeof(CounterpartyStatus), null, "{Vodovoz.CounterpartyStatus} Name[Название]"),
@@ -63,7 +63,7 @@ namespace Vodovoz
 				new OrmObjectMaping(typeof(Car), typeof(CarsDlg), "{Vodovoz.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер];")
 			};
 			OrmMain.ClassMapingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
-			OrmMain.ClassMapingList.AddRange(QSPhones.QSPhonesMain.GetModuleMaping());
+			OrmMain.ClassMapingList.AddRange(QSContacts.QSContactsMain.GetModuleMaping());
 
 			//Запускаем программу
 			MainWin = new MainWindow ();

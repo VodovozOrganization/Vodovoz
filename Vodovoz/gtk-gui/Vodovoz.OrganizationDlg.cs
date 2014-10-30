@@ -68,7 +68,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label9;
 		
-		private global::QSPhones.PhonesView phonesview1;
+		private global::QSContacts.PhonesView phonesview1;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceBuhgalter;
 		
@@ -137,7 +137,6 @@ namespace Vodovoz
 			this.radioTabInfo = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Основное"));
 			this.radioTabInfo.CanFocus = true;
 			this.radioTabInfo.Name = "radioTabInfo";
-			this.radioTabInfo.Active = true;
 			this.radioTabInfo.DrawIndicator = false;
 			this.radioTabInfo.UseUnderline = true;
 			this.radioTabInfo.Group = new global::GLib.SList (global::System.IntPtr.Zero);
@@ -488,7 +487,7 @@ namespace Vodovoz
 			w32.XOptions = ((global::Gtk.AttachOptions)(4));
 			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.phonesview1 = new global::QSPhones.PhonesView ();
+			this.phonesview1 = new global::QSContacts.PhonesView ();
 			this.phonesview1.Events = ((global::Gdk.EventMask)(256));
 			this.phonesview1.Name = "phonesview1";
 			this.datatableMain.Add (this.phonesview1);
@@ -497,7 +496,8 @@ namespace Vodovoz
 			w33.BottomAttach = ((uint)(3));
 			w33.LeftAttach = ((uint)(1));
 			w33.RightAttach = ((uint)(2));
-			w33.YOptions = ((global::Gtk.AttachOptions)(0));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.referenceBuhgalter = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceBuhgalter.Events = ((global::Gdk.EventMask)(256));
