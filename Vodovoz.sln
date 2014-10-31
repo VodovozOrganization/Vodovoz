@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSBanks", "..\QSProjects\Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSAttachment", "..\QSProjects\Modules\QSAttachment\QSAttachment.csproj", "{AED7339A-4A71-4063-9C67-0D54821230A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSPhones", "..\QSProjects\Modules\QSPhones\QSPhones.csproj", "{A236518F-E4D0-4CFF-B23F-769802B2821F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSContacts", "..\QSProjects\Modules\QSContacts\QSContacts.csproj", "{A236518F-E4D0-4CFF-B23F-769802B2821F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
 EndProject
