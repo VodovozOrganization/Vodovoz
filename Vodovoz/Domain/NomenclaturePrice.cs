@@ -8,8 +8,8 @@ namespace Vodovoz
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
-		public virtual double MinCount { get; set; }
-		public virtual double Price { get; set; }
+		public virtual int MinCount { get; set; }
+		public virtual decimal Price { get; set; }
 		#endregion
 
 		public NomenclaturePrice ()
