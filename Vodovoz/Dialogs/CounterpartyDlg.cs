@@ -104,7 +104,7 @@ namespace Vodovoz
 				logger.Error ("Не введено имя контрагента.");
 				return false;
 			}
-			Session.SaveOrUpdate(subject);
+			//Session.SaveOrUpdate(subject);
 			phonesView.SaveChanges();
 			emailsView.SaveChanges ();
 			Session.Flush();
@@ -189,6 +189,14 @@ namespace Vodovoz
 		{
 			if (radioContactPersons.Active)
 				notebook1.CurrentPage = 4;
+		}
+
+		public override void Destroy()
+		{
+			Session.Close();
+			contactsview1.Destroy ();
+			adaptor.Disconnect();
+			base.Destroy();
 		}
 	}
 }
