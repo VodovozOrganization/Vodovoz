@@ -127,7 +127,7 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			Session.Close();
-			//adaptorOrg.Disconnect();
+			adaptorOrg.Disconnect();
 			base.Destroy();
 		}
 
