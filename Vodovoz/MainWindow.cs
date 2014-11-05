@@ -75,39 +75,17 @@ public partial class MainWindow: Gtk.Window
 
 	void OnCreateDialogWidget (object sender, QSTDI.TdiOpenObjDialogEventArgs e)
 	{
-		System.Type dlgType = OrmMain.GetDialogType(e.ObjectClass);
 		if(e.NewObject)
 		{
-			System.Reflection.ConstructorInfo ci = dlgType.GetConstructor(new Type[] { });
-			if(ci == null)
-			{
-				InvalidOperationException ex = new InvalidOperationException(String.Format("Конструктор {0}() не найден.", dlgType.ToString()));
-				logger.Error(ex);
-				throw ex;
-			}
-			e.ResultDialogWidget = (ITdiDialog)ci.Invoke(new object[] { });
+			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass);
 		}
 		else if(e.ObjectVar != null)
 		{
-			System.Reflection.ConstructorInfo ci = dlgType.GetConstructor(new Type[] {e.ObjectClass});
-			if(ci == null)
-			{
-				InvalidOperationException ex = new InvalidOperationException(String.Format("Конструктор {0}({1} object) не найден.", dlgType.ToString(), e.ObjectClass.ToString()));
-				logger.Error(ex);
-				throw ex;
-			}
-			e.ResultDialogWidget = (ITdiDialog)ci.Invoke(new object[] {e.ObjectVar });
+			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass, e.ObjectVar);
 		}
 		else
 		{
-			System.Reflection.ConstructorInfo ci = dlgType.GetConstructor(new Type[] {typeof(int)});
-			if(ci == null)
-			{
-				InvalidOperationException ex = new InvalidOperationException(String.Format("Конструктор {0}(int id) не найден.", dlgType.ToString()));
-				logger.Error(ex);
-				throw ex;
-			}
-			e.ResultDialogWidget = (ITdiDialog)ci.Invoke(new object[] {e.ObjectId });
+			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass, e.ObjectId);		
 		}
 	}
 		
