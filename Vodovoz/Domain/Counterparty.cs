@@ -7,7 +7,7 @@ using QSContacts;
 namespace Vodovoz
 {
 	[OrmSubjectAttibutes("Контрагенты")]
-	public class Counterparty : QSContacts.ContactBase
+	public class Counterparty : QSContacts.ContactOwnBase
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
@@ -23,8 +23,8 @@ namespace Vodovoz
 		public virtual Employee Accountant { get; set; }
 		public virtual Employee SalesManager { get; set; }
 		public virtual Employee BottlesManager { get; set; }
-		//public virtual Contact MainContact { get; set; }
-		//public virtual Contact FinancialContact { get; set; }
+		public virtual Contact MainContact { get; set; }
+		public virtual Contact FinancialContact { get; set; }
 
 		#endregion
 

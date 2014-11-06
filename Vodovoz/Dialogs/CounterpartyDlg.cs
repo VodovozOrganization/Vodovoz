@@ -16,13 +16,12 @@ namespace Vodovoz
 		private ISession session;
 		private Adaptor adaptor = new Adaptor();
 		private Counterparty subject;
-		private bool NewItem = false;
 
 		public CounterpartyDlg()
 		{
 			this.Build();
-			NewItem = true;
 			subject = new Counterparty();
+			Session.Persist (subject);
 			ConfigureDlg();
 		}
 
@@ -59,8 +58,9 @@ namespace Vodovoz
 			enumPayment.DataSource = adaptor;
 			enumPersonType.DataSource = adaptor;
 			enumCounterpartyType.DataSource = adaptor;
-			contactsview1.Contact = (IContact)Subject;
-			contactsview1.Session = Session;
+			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			emailsView.Session = Session;
 			if (subject.Emails == null)
 				subject.Emails = new List<Email>();
@@ -104,20 +104,16 @@ namespace Vodovoz
 				logger.Error ("Не введено имя контрагента.");
 				return false;
 			}
-			//Session.SaveOrUpdate(subject);
 			phonesView.SaveChanges();
 			emailsView.SaveChanges ();
 			Session.Flush();
-			foreach (Contact c in (Subject as Counterparty).Contacts) {
-				OrmMain.NotifyObjectUpdated (c);
-			}
 			OrmMain.NotifyObjectUpdated(subject);
 
 			return true;
 		}
 
 		public bool HasChanges {
-			get {return NewItem || Session.IsDirty();}
+			get {return Session.IsDirty();}
 		}
 
 		#endregion
