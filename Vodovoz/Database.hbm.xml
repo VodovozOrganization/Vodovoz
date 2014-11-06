@@ -128,6 +128,8 @@
 		<many-to-one name="Accountant" class="Employee" column="accountant"/>
 		<many-to-one name="SalesManager" class="Employee" column="sales_manager"/>
 		<many-to-one name="BottlesManager" class="Employee" column="bottles_manager"/>
+		<many-to-one name="MainContact" class="QSContacts.Contact" column="main_contact_id"/>
+		<many-to-one name="FinancialContact" class="QSContacts.Contact" column="financial_contact_id"/>
 		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="QSContacts.Phone" />
