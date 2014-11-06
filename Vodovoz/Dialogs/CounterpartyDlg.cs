@@ -6,6 +6,7 @@ using NHibernate;
 using System.Data.Bindings;
 using System.Collections.Generic;
 using QSContacts;
+using NHibernate.Criterion;
 
 namespace Vodovoz
 {
@@ -43,29 +44,27 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			entryName.IsEditable = true;
-			entryFullName.IsEditable = true;
+			entryName.IsEditable = entryFullName.IsEditable = true;
+			dataComment.Editable = dataWaybillComment.Editable = true;
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			adaptor.Target = subject;
-			datatable1.DataSource = adaptor;
-			datatable2.DataSource = adaptor;
+			datatable1.DataSource = datatable2.DataSource = enumPayment.DataSource = 
+				enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
-			referenceAccountant.SubjectType = typeof(Employee);
-			referenceBottleManager.SubjectType = typeof(Employee);
-			referenceSalesManager.SubjectType = typeof(Employee);
-			enumPayment.DataSource = adaptor;
-			enumPersonType.DataSource = adaptor;
-			enumCounterpartyType.DataSource = adaptor;
+			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = 
+				referenceSalesManager.SubjectType = typeof(Employee);
+			referenceMainCounterparty.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
+				.Add (Restrictions.Not(Restrictions.Eq("id", subject.Id)));
+			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
-			emailsView.Session = Session;
+			emailsView.Session = phonesView.Session = Session;
 			if (subject.Emails == null)
 				subject.Emails = new List<Email>();
 			emailsView.Emails = subject.Emails;
-			phonesView.Session = Session;
 			if (subject.Phones == null)
 				subject.Phones = new List<Phone>();
 			phonesView.Phones = subject.Phones;

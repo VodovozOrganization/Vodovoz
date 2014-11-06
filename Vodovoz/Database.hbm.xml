@@ -119,12 +119,16 @@
  			<generator class="native"></generator>
  		</id>
 		<property name="Name" column="name" />
+		<property name="MaxCredit" column="max_credit" />
 		<property name="FullName" column="full_name" /> 
+		<property name="Comment" column="comment" /> 
+		<property name="WaybillComment" column="waybill_comment" /> 
 		<property name="PaymentMethod" column="payment_method" type="Vodovoz.PaymentStringType, Vodovoz"/>
 		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
 		<property name="CounterpartyType" column="counterparty_type" type="Vodovoz.CounterpartyTypeStringType, Vodovoz"/>
 		<many-to-one name="Significance" class="Significance" column="significance_id"/>
 		<many-to-one name="Status" class="CounterpartyStatus" column="status_id"/>
+		<many-to-one name="MainCounterparty" class="Counterparty" column="maincounterparty_id" />
 		<many-to-one name="Accountant" class="Employee" column="accountant"/>
 		<many-to-one name="SalesManager" class="Employee" column="sales_manager"/>
 		<many-to-one name="BottlesManager" class="Employee" column="bottles_manager"/>

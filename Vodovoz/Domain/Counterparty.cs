@@ -11,11 +11,15 @@ namespace Vodovoz
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
+		public virtual decimal MaxCredit { get; set; }
 		public virtual string Name { get; set; }
 		public virtual string FullName { get; set; }
+		public virtual string Comment { get; set; }
+		public virtual string WaybillComment { get; set; }
 		public virtual Payment PaymentMethod { get; set; }
 		public virtual PersonType PersonType { get; set; }
 		public virtual Significance Significance { get; set; }
+		public virtual Counterparty MainCounterparty { get; set; }
 		public virtual CounterpartyType CounterpartyType { get; set; }
 		public virtual CounterpartyStatus Status { get; set; }
 		public virtual IList<QSContacts.Phone> Phones { get; set; }
@@ -32,6 +36,8 @@ namespace Vodovoz
 		{
 			Name = String.Empty;
 			FullName = String.Empty;
+			Comment = String.Empty;
+			WaybillComment = String.Empty;
 		}
 	}
 
