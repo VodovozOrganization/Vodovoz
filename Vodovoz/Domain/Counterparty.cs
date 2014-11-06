@@ -3,12 +3,40 @@ using QSOrmProject;
 using System.Data.Bindings;
 using System.Collections.Generic;
 using QSContacts;
+using QSProxies;
 
 namespace Vodovoz
 {
 	[OrmSubjectAttibutes("Контрагенты")]
-	public class Counterparty : QSContacts.ContactOwnBase
+	public class Counterparty : QSContacts.IContactOwner, QSProxies.IProxyOwner
 	{
+		private IList<Contact> contact;
+
+		#region IContact implementation
+		public virtual IList<Contact> Contacts {
+			get {
+				return contact;
+			}
+			set {
+				contact = value;
+			}
+		}
+
+		#endregion
+
+		private IList<Proxy> proxies;
+
+		#region IProxyOwner implementation
+		public virtual IList<Proxy> Proxies {
+			get {
+				return proxies;
+			}
+			set {
+				proxies = value;
+			}
+		}
+		#endregion
+
 		#region Свойства
 		public virtual int Id { get; set; }
 		public virtual decimal MaxCredit { get; set; }

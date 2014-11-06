@@ -59,6 +59,7 @@ namespace Vodovoz
 				.Add (Restrictions.Not(Restrictions.Eq("id", subject.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			proxiesview1.ParentReference = new OrmParentReference (Session, Subject, "Proxies");
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			emailsView.Session = phonesView.Session = Session;
@@ -192,6 +193,12 @@ namespace Vodovoz
 			contactsview1.Destroy ();
 			adaptor.Disconnect();
 			base.Destroy();
+		}
+
+		protected void OnRadiobuttonProxiesToggled (object sender, EventArgs e)
+		{
+			if (radiobuttonProxies.Active)
+				notebook1.CurrentPage = 5;
 		}
 	}
 }

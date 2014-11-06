@@ -150,6 +150,10 @@
       <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
       <Name>QSContacts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSProxies\QSProxies.csproj">
+      <Project>{32976195-C322-426D-82E2-E16CFD63AE72}</Project>
+      <Name>QSProxies</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

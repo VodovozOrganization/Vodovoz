@@ -146,6 +146,10 @@
     		<key column="counterparty_id"/>
     		<one-to-many class="QSContacts.Contact" />
 		</bag>
+		<bag name="Proxies" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="counterparty_id"/>
+    		<one-to-many class="QSProxies.Proxy" />
+		</bag>
  	</class>
  	<class name="Significance" lazy="false" table="significance">
  		<id name="Id" column="id">
