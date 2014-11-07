@@ -44,6 +44,9 @@ namespace Vodovoz
 		public virtual string FullName { get; set; }
 		public virtual string Comment { get; set; }
 		public virtual string WaybillComment { get; set; }
+		public virtual string INN { get; set; }
+		public virtual string KPP { get; set; }
+		public virtual string JurAddress { get; set; }
 		public virtual Payment PaymentMethod { get; set; }
 		public virtual PersonType PersonType { get; set; }
 		public virtual Significance Significance { get; set; }
@@ -66,6 +69,9 @@ namespace Vodovoz
 			FullName = String.Empty;
 			Comment = String.Empty;
 			WaybillComment = String.Empty;
+			INN = String.Empty;
+			KPP = String.Empty;
+			JurAddress = String.Empty;
 		}
 	}
 

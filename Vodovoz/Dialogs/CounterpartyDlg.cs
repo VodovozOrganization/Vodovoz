@@ -44,13 +44,16 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			entryName.IsEditable = entryFullName.IsEditable = true;
+			entryName.IsEditable = entryJurAddress.IsEditable = entryFullName.IsEditable = true;
 			dataComment.Editable = dataWaybillComment.Editable = true;
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			adaptor.Target = subject;
-			datatable1.DataSource = datatable2.DataSource = enumPayment.DataSource = 
-				enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
+			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			validatedINN.MaxLength = validatedKPP.MaxLength = 12;
+			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
+			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource =
+				enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = 

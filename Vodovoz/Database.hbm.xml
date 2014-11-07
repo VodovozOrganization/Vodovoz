@@ -123,6 +123,9 @@
 		<property name="FullName" column="full_name" /> 
 		<property name="Comment" column="comment" /> 
 		<property name="WaybillComment" column="waybill_comment" /> 
+		<property name="INN" column="inn" /> 
+		<property name="KPP" column="kpp" /> 
+		<property name="JurAddress" column="jur_address" /> 
 		<property name="PaymentMethod" column="payment_method" type="Vodovoz.PaymentStringType, Vodovoz"/>
 		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
 		<property name="CounterpartyType" column="counterparty_type" type="Vodovoz.CounterpartyTypeStringType, Vodovoz"/>
