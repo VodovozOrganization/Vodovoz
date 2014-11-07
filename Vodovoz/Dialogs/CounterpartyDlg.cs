@@ -7,6 +7,7 @@ using System.Data.Bindings;
 using System.Collections.Generic;
 using QSContacts;
 using NHibernate.Criterion;
+using QSBanks;
 
 namespace Vodovoz
 {
@@ -49,6 +50,7 @@ namespace Vodovoz
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			adaptor.Target = subject;
+			accountsView.AccountOwner = (IAccountOwner)Subject;
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.MaxLength = validatedKPP.MaxLength = 12;
 			validatedINN.DataSource = validatedKPP.DataSource = adaptor;

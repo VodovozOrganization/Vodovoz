@@ -8,7 +8,7 @@ using QSProxies;
 namespace Vodovoz
 {
 	[OrmSubjectAttibutes("Контрагенты")]
-	public class Counterparty : QSContacts.IContactOwner, QSProxies.IProxyOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner
 	{
 		private IList<Contact> contact;
 
