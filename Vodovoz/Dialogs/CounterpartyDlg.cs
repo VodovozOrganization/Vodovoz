@@ -54,8 +54,8 @@ namespace Vodovoz
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.MaxLength = validatedKPP.MaxLength = 12;
 			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
-			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource =
-				enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
+			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = datatable5.DataSource = adaptor;
+			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = 
@@ -192,18 +192,24 @@ namespace Vodovoz
 				notebook1.CurrentPage = 4;
 		}
 
+		protected void OnRadiobuttonProxiesToggled (object sender, EventArgs e)
+		{
+			if (radiobuttonProxies.Active)
+				notebook1.CurrentPage = 5;
+		}
+
+		protected void OnRadioContractsToggled (object sender, EventArgs e)
+		{
+			if (radioContracts.Active)
+				notebook1.CurrentPage = 6;
+		}
+
 		public override void Destroy()
 		{
 			Session.Close();
 			contactsview1.Destroy ();
 			adaptor.Disconnect();
 			base.Destroy();
-		}
-
-		protected void OnRadiobuttonProxiesToggled (object sender, EventArgs e)
-		{
-			if (radiobuttonProxies.Active)
-				notebook1.CurrentPage = 5;
 		}
 	}
 }

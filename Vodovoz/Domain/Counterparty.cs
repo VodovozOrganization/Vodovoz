@@ -11,7 +11,6 @@ namespace Vodovoz
 	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner
 	{
 		private IList<Contact> contact;
-
 		#region IContact implementation
 		public virtual IList<Contact> Contacts {
 			get {
@@ -25,7 +24,6 @@ namespace Vodovoz
 		#endregion
 
 		private IList<Proxy> proxies;
-
 		#region IProxyOwner implementation
 		public virtual IList<Proxy> Proxies {
 			get {
@@ -39,7 +37,11 @@ namespace Vodovoz
 
 		#region Свойства
 		public virtual int Id { get; set; }
+		public virtual int ContractMaxDelay { get; set; }
+		public virtual bool ContractIsArchive { get; set; }
+		public virtual bool ContractOnCancellation { get; set; }
 		public virtual decimal MaxCredit { get; set; }
+		public virtual string ContractNumber { get; set; }
 		public virtual string Name { get; set; }
 		public virtual string FullName { get; set; }
 		public virtual string Comment { get; set; }
@@ -55,12 +57,13 @@ namespace Vodovoz
 		public virtual CounterpartyStatus Status { get; set; }
 		public virtual IList<QSContacts.Phone> Phones { get; set; }
 		public virtual IList<QSContacts.Email> Emails { get; set; }
+		public virtual IList<AdditionalAgreement> Agreements { get; set; }
 		public virtual Employee Accountant { get; set; }
 		public virtual Employee SalesManager { get; set; }
 		public virtual Employee BottlesManager { get; set; }
 		public virtual Contact MainContact { get; set; }
 		public virtual Contact FinancialContact { get; set; }
-
+		public virtual DateTime ContractIssueDate { get; set; }
 		#endregion
 
 		public Counterparty ()
@@ -74,7 +77,6 @@ namespace Vodovoz
 			JurAddress = String.Empty;
 		}
 	}
-
 	public enum PersonType{
 		[ItemTitleAttribute("Физическая")]
 		natural,

@@ -290,4 +290,12 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference(typeof(EmailType), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
+	protected void OnActionCounterpartyPostActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession();
+		var criteria = session.CreateCriteria<Post>();
+
+		OrmReference refWin = new OrmReference(typeof(Post), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
 }

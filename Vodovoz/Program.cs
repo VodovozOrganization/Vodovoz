@@ -3,6 +3,7 @@ using Gtk;
 using QSProjectsLib;
 using QSOrmProject;
 using NLog;
+using QSContacts;
 
 namespace Vodovoz
 {
@@ -48,6 +49,7 @@ namespace Vodovoz
 			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts", "QSProxies"});
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
+				new OrmObjectMaping(typeof(Post), null, "{QSContacts.Post} Name[Должность]"),
 				new OrmObjectMaping(typeof(CounterpartyStatus), null, "{Vodovoz.CounterpartyStatus} Name[Название]"),
 				new OrmObjectMaping(typeof(Significance), null, "{Vodovoz.Significance} Name[Значимость клиента]"),
 				new OrmObjectMaping(typeof(Counterparty), typeof(CounterpartyDlg), "{Vodovoz.Counterparty} Name[Наименование]"),

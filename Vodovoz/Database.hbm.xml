@@ -114,10 +114,24 @@
 	 	<many-to-one name="Nationality" class="Nationality" column="nationality_id" />
 	 	<many-to-one name="User" class="User" column="user_id" />
  	</class>
+	<class name="AdditionalAgreement" lazy="false" table="additional_agreement">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="AgreementNumber" column="number" />
+		<property name="StartDate" column="start_date" />
+		<property name="IssueDate" column="issue_date" /> 
+		<property name="Type" column="type" />
+	</class>
  	<class name="Counterparty" lazy="false" table="counterparty">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
+		<property name="ContractNumber" column="contract_number" />
+		<property name="ContractMaxDelay" column="contract_max_delay" />
+		<property name="ContractIsArchive" column="contract_is_archive" /> 
+		<property name="ContractOnCancellation" column="contract_on_cancellation" /> 
+		<property name="ContractIssueDate" column="contract_issue_date" /> 
 		<property name="Name" column="name" />
 		<property name="MaxCredit" column="max_credit" />
 		<property name="FullName" column="full_name" /> 
@@ -137,11 +151,15 @@
 		<many-to-one name="BottlesManager" class="Employee" column="bottles_manager"/>
 		<many-to-one name="MainContact" class="QSContacts.Contact" column="main_contact_id"/>
 		<many-to-one name="FinancialContact" class="QSContacts.Contact" column="financial_contact_id"/>
+		<many-to-one name="DefaultAccount" class="QSBanks.Account" column="default_account_id" />
 		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="QSContacts.Phone" />
 		</bag>
-		<many-to-one name="DefaultAccount" class="QSBanks.Account" column="default_account_id" />
+		<bag name="Agreements" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="counterparty_id"/>
+    		<one-to-many class="AdditionalAgreement" />
+		</bag>
 		<bag name="Accounts" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="QSBanks.Account" />
