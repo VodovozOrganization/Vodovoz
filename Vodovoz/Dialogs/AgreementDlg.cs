@@ -8,7 +8,7 @@ using QSTDI;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AgreementDlg : Gtk.Bin
+	public partial class AgreementDlg : Gtk.Bin, QSTDI.ITdiTab
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ISession session;
@@ -55,6 +55,9 @@ namespace Vodovoz
 		private void ConfigureDlg()
 		{
 			adaptor.Target = subject;
+			datatable1.DataSource = adaptor;
+			enumType.DataSource = adaptor;
+			entryNumber.IsEditable = true;
 		}
 
 		#region ITdiTab implementation

@@ -307,7 +307,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 6;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(11)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";

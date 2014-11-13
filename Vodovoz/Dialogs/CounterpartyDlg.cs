@@ -65,6 +65,7 @@ namespace Vodovoz
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			proxiesview1.ParentReference = new OrmParentReference (Session, Subject, "Proxies");
+			additionalagreementsview1.ParentReference = new OrmParentReference (Session, Subject, "AdditionalAgreements");
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			emailsView.Session = phonesView.Session = Session;

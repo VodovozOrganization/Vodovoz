@@ -8,8 +8,23 @@ using QSProxies;
 namespace Vodovoz
 {
 	[OrmSubjectAttibutes("Контрагенты")]
-	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner, IAdditionalAgreementOwner
 	{
+		private IList<AdditionalAgreement> agreements { get; set; }
+
+		#region IAdditionalAgreementOwner implementation
+
+		public virtual IList<AdditionalAgreement> AdditionalAgreements {
+			get {
+				return agreements;
+			}
+			set {
+				agreements = value;
+			}
+		}
+
+		#endregion
+
 		private IList<Contact> contact;
 		#region IContact implementation
 		public virtual IList<Contact> Contacts {
@@ -57,7 +72,6 @@ namespace Vodovoz
 		public virtual CounterpartyStatus Status { get; set; }
 		public virtual IList<QSContacts.Phone> Phones { get; set; }
 		public virtual IList<QSContacts.Email> Emails { get; set; }
-		public virtual IList<AdditionalAgreement> Agreements { get; set; }
 		public virtual Employee Accountant { get; set; }
 		public virtual Employee SalesManager { get; set; }
 		public virtual Employee BottlesManager { get; set; }

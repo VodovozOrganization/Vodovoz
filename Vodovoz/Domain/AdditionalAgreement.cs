@@ -20,6 +20,8 @@ namespace Vodovoz
 		{
 			AgreementNumber = String.Empty;
 		}
+
+		public string AgreementType { get { return Type.GetEnumTitle(); } }
 	}
 
 	public class NonfreeRentAgreement : AdditionalAgreement

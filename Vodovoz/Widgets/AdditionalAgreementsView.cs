@@ -85,8 +85,8 @@ namespace Vodovoz
 			var newAgreement = new AdditionalAgreement ();
 			additionalAgreements.Add(newAgreement);
 
-			//AgreementDlg dlg = new AgreementDlg(ParentReference, newAgreement);
-			//mytab.TabParent.AddSlaveTab(mytab, dlg);
+			AgreementDlg dlg = new AgreementDlg(ParentReference, newAgreement);
+			mytab.TabParent.AddSlaveTab(mytab, dlg);
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
@@ -95,8 +95,8 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			//AgreementDlg dlg = new AgreementDlg(ParentReference, treeAdditionalAgreements.GetSelectedObjects()[0] as AdditionalAgreement);
-			//mytab.TabParent.AddSlaveTab(mytab, dlg);
+			AgreementDlg dlg = new AgreementDlg(ParentReference, treeAdditionalAgreements.GetSelectedObjects()[0] as AdditionalAgreement);
+			mytab.TabParent.AddSlaveTab(mytab, dlg);
 		}
 
 		protected void OnTreeAdditionalAgreementsRowActivated(object o, Gtk.RowActivatedArgs args)

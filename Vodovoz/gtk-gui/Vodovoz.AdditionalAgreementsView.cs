@@ -53,6 +53,7 @@ namespace Vodovoz
 			this.treeAdditionalAgreements.InheritedBoundaryDataSource = false;
 			this.treeAdditionalAgreements.InheritedDataSource = false;
 			this.treeAdditionalAgreements.InheritedBoundaryDataSource = false;
+			this.treeAdditionalAgreements.ColumnMappings = "{Vodovoz.AdditionalAgreement} AgreementNumber[Номер]; AgreementType[Тип];";
 			this.GtkScrolledWindow.Add (this.treeAdditionalAgreements);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
