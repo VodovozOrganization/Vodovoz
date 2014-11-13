@@ -503,11 +503,9 @@ namespace Vodovoz
 			this.referenceBuhgalter.Events = ((global::Gdk.EventMask)(256));
 			this.referenceBuhgalter.Name = "referenceBuhgalter";
 			this.referenceBuhgalter.DisplayFields = new string[] {
-				"Name",
-				"LastName",
-				"Patronymic"
+				"FullName"
 			};
-			this.referenceBuhgalter.DisplayFormatString = "{0} {1} {2}";
+			this.referenceBuhgalter.DisplayFormatString = "{0}";
 			this.referenceBuhgalter.InheritedDataSource = true;
 			this.referenceBuhgalter.Mappings = "Buhgalter";
 			this.referenceBuhgalter.InheritedBoundaryDataSource = false;
@@ -525,11 +523,9 @@ namespace Vodovoz
 			this.referenceLeader.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLeader.Name = "referenceLeader";
 			this.referenceLeader.DisplayFields = new string[] {
-				"Name",
-				"LastName",
-				"Patronymic"
+				"FullName"
 			};
-			this.referenceLeader.DisplayFormatString = "{0} {1} {2}";
+			this.referenceLeader.DisplayFormatString = "{0}";
 			this.referenceLeader.InheritedDataSource = true;
 			this.referenceLeader.Mappings = "Leader";
 			this.referenceLeader.InheritedBoundaryDataSource = false;

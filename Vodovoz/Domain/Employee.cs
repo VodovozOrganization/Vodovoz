@@ -46,6 +46,12 @@ namespace Vodovoz
 			DrivingNumber = String.Empty;
 			Category = EmployeeCategory.office;
 		}
+
+		public string FullName {
+			get {
+				return String.Format ("{0} {1} {2}", LastName, Name, Patronymic);
+			}
+		}
 	}
 
 	public enum EmployeeCategory{

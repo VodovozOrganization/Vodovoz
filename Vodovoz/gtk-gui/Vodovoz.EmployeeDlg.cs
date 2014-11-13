@@ -42,7 +42,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label13;
 		
-		private global::Gtk.DataBindings.DataEntry dataentry4;
+		private global::Gtk.DataBindings.DataEntry dataentryPassportNumber;
 		
 		private global::Gtk.Label label11;
 		
@@ -174,6 +174,7 @@ namespace Vodovoz
 			this.datatableMain.InheritedBoundaryDataSource = false;
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.dataentryDrivingNumber = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryDrivingNumber.TooltipMarkup = "Десять символов серии и номера без пробелов.";
 			this.dataentryDrivingNumber.CanFocus = true;
 			this.dataentryDrivingNumber.Name = "dataentryDrivingNumber";
 			this.dataentryDrivingNumber.IsEditable = true;
@@ -315,20 +316,20 @@ namespace Vodovoz
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child datahbox2.Gtk.Box+BoxChild
-			this.dataentry4 = new global::Gtk.DataBindings.DataEntry ();
-			this.dataentry4.CanFocus = true;
-			this.dataentry4.Name = "dataentry4";
-			this.dataentry4.IsEditable = true;
-			this.dataentry4.InvisibleChar = '●';
-			this.dataentry4.InheritedDataSource = true;
-			this.dataentry4.Mappings = "PassportNumber";
-			this.dataentry4.InheritedBoundaryDataSource = false;
-			this.dataentry4.InheritedDataSource = true;
-			this.dataentry4.Mappings = "PassportNumber";
-			this.dataentry4.InheritedBoundaryDataSource = false;
-			this.dataentry4.Editable = true;
-			this.datahbox2.Add (this.dataentry4);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.dataentry4]));
+			this.dataentryPassportNumber = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryPassportNumber.CanFocus = true;
+			this.dataentryPassportNumber.Name = "dataentryPassportNumber";
+			this.dataentryPassportNumber.IsEditable = true;
+			this.dataentryPassportNumber.InvisibleChar = '●';
+			this.dataentryPassportNumber.InheritedDataSource = true;
+			this.dataentryPassportNumber.Mappings = "PassportNumber";
+			this.dataentryPassportNumber.InheritedBoundaryDataSource = false;
+			this.dataentryPassportNumber.InheritedDataSource = true;
+			this.dataentryPassportNumber.Mappings = "PassportNumber";
+			this.dataentryPassportNumber.InheritedBoundaryDataSource = false;
+			this.dataentryPassportNumber.Editable = true;
+			this.datahbox2.Add (this.dataentryPassportNumber);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.dataentryPassportNumber]));
 			w19.Position = 3;
 			this.datatableMain.Add (this.datahbox2);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.datahbox2]));

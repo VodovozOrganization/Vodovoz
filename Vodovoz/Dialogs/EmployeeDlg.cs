@@ -101,6 +101,9 @@ namespace Vodovoz
 			adaptorEmployee.Target = subject;
 			datatableMain.DataSource = adaptorEmployee;
 			dataenumcomboCategory.DataSource = adaptorEmployee;
+			dataentryPassportSeria.MaxLength = 5;
+			dataentryPassportNumber.MaxLength = 6;
+			dataentryDrivingNumber.MaxLength = 10;
 			subject.PropertyChanged += OnPropertyChanged;
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;

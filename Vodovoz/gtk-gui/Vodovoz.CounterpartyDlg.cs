@@ -674,7 +674,7 @@ namespace Vodovoz
 			this.dataentryFinancialContact.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryFinancialContact.Name = "dataentryFinancialContact";
 			this.dataentryFinancialContact.DisplayFields = new string[] {
-				"Name"
+				"FullName"
 			};
 			this.dataentryFinancialContact.InheritedDataSource = true;
 			this.dataentryFinancialContact.Mappings = "FinancialContact";
@@ -693,7 +693,7 @@ namespace Vodovoz
 			this.dataentryMainContact.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryMainContact.Name = "dataentryMainContact";
 			this.dataentryMainContact.DisplayFields = new string[] {
-				"Name"
+				"FullName"
 			};
 			this.dataentryMainContact.InheritedDataSource = true;
 			this.dataentryMainContact.Mappings = "MainContact";
