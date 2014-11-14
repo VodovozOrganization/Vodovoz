@@ -17,6 +17,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 		private ISession session;
 		private Adaptor adaptor = new Adaptor();
+		private Adaptor contractAdaptor = new Adaptor();
 		private Counterparty subject;
 
 		public CounterpartyDlg()
@@ -45,36 +46,48 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			entryName.IsEditable = entryJurAddress.IsEditable = entryFullName.IsEditable = true;
-			dataComment.Editable = dataWaybillComment.Editable = true;
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
-			adaptor.Target = subject;
-			accountsView.AccountOwner = (IAccountOwner)Subject;
+			//Initializing null fields
+			emailsView.Session = phonesView.Session = Session;
+			if (subject.Emails == null)
+				subject.Emails = new List<Email> ();
+			emailsView.Emails = subject.Emails;
+			if (subject.Phones == null)
+				subject.Phones = new List<Phone> ();
+			phonesView.Phones = subject.Phones;
+			if (subject.Contract == null) {
+				subject.Contract = new CounterpartyContract ();
+				Session.Save (subject.Contract);
+			}
+			//Setting up editable property
+			entryName.IsEditable = entryJurAddress.IsEditable = entryFullName.IsEditable = true;
+			dataComment.Editable = dataWaybillComment.Editable = true;
+			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			validatedINN.MaxLength = validatedKPP.MaxLength = 12;
-			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
-			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = datatable5.DataSource = adaptor;
+			//Setting up adaptors
+			adaptor.Target = subject;
+			contractAdaptor.Target = subject.Contract;
+			//Setting up fields sources
+			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = adaptor;
+			datatable5.DataSource = contractAdaptor;
 			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
+			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
+			//Setting subjects
+			accountsView.AccountOwner = (IAccountOwner)Subject;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
-			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = 
-				referenceSalesManager.SubjectType = typeof(Employee);
+			referenceOrganization.SubjectType = typeof(Organization);
+			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);
 			referenceMainCounterparty.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
-				.Add (Restrictions.Not(Restrictions.Eq("id", subject.Id)));
+				.Add (Restrictions.Not (Restrictions.Eq ("id", subject.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			proxiesview1.ParentReference = new OrmParentReference (Session, Subject, "Proxies");
-			additionalagreementsview1.ParentReference = new OrmParentReference (Session, Subject, "AdditionalAgreements");
+			additionalagreementsview1.ParentReference = new OrmParentReference (Session, (Subject as Counterparty).Contract, "AdditionalAgreements");
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
-			emailsView.Session = phonesView.Session = Session;
-			if (subject.Emails == null)
-				subject.Emails = new List<Email>();
-			emailsView.Emails = subject.Emails;
-			if (subject.Phones == null)
-				subject.Phones = new List<Phone>();
-			phonesView.Phones = subject.Phones;
 		}
 
 		#region ITdiTab implementation
@@ -210,6 +223,7 @@ namespace Vodovoz
 			Session.Close();
 			contactsview1.Destroy ();
 			adaptor.Disconnect();
+			contractAdaptor.Disconnect ();
 			base.Destroy();
 		}
 	}

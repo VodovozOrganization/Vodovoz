@@ -111,6 +111,7 @@
     <Compile Include="Domain\AdditionalAgreement.cs" />
     <Compile Include="Dialogs\AgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.AgreementDlg.cs" />
+    <Compile Include="Domain\CounterpartyContract.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

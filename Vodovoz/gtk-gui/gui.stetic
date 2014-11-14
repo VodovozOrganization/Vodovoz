@@ -3150,7 +3150,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">6</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                 <property name="MemberName" />
@@ -4302,7 +4302,7 @@ Patronymic</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="datatable5">
                 <property name="MemberName" />
-                <property name="NRows">8</property>
+                <property name="NRows">7</property>
                 <property name="NColumns">2</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
@@ -4311,20 +4311,14 @@ Patronymic</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
                   <widget class="Vodovoz.AdditionalAgreementsView" id="additionalagreementsview1">
                     <property name="MemberName" />
                     <property name="HeightRequest">150</property>
                     <property name="Events">ButtonPressMask</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">7</property>
-                    <property name="BottomAttach">8</property>
+                    <property name="TopAttach">6</property>
+                    <property name="BottomAttach">7</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -4347,17 +4341,17 @@ Patronymic</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractIsArchive</property>
+                    <property name="Mappings">IsArchive</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="Editable">True</property>
                     <property name="AutomaticTitle">False</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractIsArchive</property>
+                    <property name="Mappings">IsArchive</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">5</property>
-                    <property name="BottomAttach">6</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -4380,17 +4374,17 @@ Patronymic</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractOnCancellation</property>
+                    <property name="Mappings">OnCancellation</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="Editable">True</property>
                     <property name="AutomaticTitle">False</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractOnCancellation</property>
+                    <property name="Mappings">OnCancellation</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">4</property>
-                    <property name="BottomAttach">5</property>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -4412,7 +4406,7 @@ Patronymic</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">False</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractIssueDate</property>
+                    <property name="Mappings">IssueDate</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                   </widget>
                   <packing>
@@ -4437,10 +4431,10 @@ Patronymic</property>
                     <property name="IsEditable">True</property>
                     <property name="InvisibleChar">●</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractNumber</property>
+                    <property name="Mappings">Number</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractNumber</property>
+                    <property name="Mappings">Number</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="Editable">True</property>
                   </widget>
@@ -4496,34 +4490,14 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="label34">
-                    <property name="MemberName" />
-                    <property name="Xalign">1</property>
-                    <property name="LabelProp" translatable="yes">Клиент:</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">2</property>
-                    <property name="BottomAttach">3</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
                   <widget class="Gtk.Label" id="label35">
                     <property name="MemberName" />
                     <property name="Xalign">1</property>
                     <property name="LabelProp" translatable="yes">Организация:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">3</property>
-                    <property name="BottomAttach">4</property>
+                    <property name="TopAttach">2</property>
+                    <property name="BottomAttach">3</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -4542,8 +4516,8 @@ Patronymic</property>
                     <property name="LabelProp" translatable="yes">На расторжении:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">4</property>
-                    <property name="BottomAttach">5</property>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -4562,8 +4536,8 @@ Patronymic</property>
                     <property name="LabelProp" translatable="yes">Архивный:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">5</property>
-                    <property name="BottomAttach">6</property>
+                    <property name="TopAttach">4</property>
+                    <property name="BottomAttach">5</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -4583,8 +4557,8 @@ Patronymic</property>
 срок отсрочки:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">6</property>
-                    <property name="BottomAttach">7</property>
+                    <property name="TopAttach">5</property>
+                    <property name="BottomAttach">6</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -4603,8 +4577,34 @@ Patronymic</property>
                     <property name="LabelProp" translatable="yes">Доп. соглашения:</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">7</property>
-                    <property name="BottomAttach">8</property>
+                    <property name="TopAttach">6</property>
+                    <property name="BottomAttach">7</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceOrganization">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                    <property name="DisplayFields">Name</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">Organization</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="CursorPointsEveryType">False</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">2</property>
+                    <property name="BottomAttach">3</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -4627,15 +4627,15 @@ Patronymic</property>
                     <property name="Numeric">True</property>
                     <property name="Value">3</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractMaxDelay</property>
+                    <property name="Mappings">MaxDelay</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ContractMaxDelay</property>
+                    <property name="Mappings">MaxDelay</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                   </widget>
                   <packing>
-                    <property name="TopAttach">6</property>
-                    <property name="BottomAttach">7</property>
+                    <property name="TopAttach">5</property>
+                    <property name="BottomAttach">6</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
                     <property name="AutoSize">True</property>
@@ -4655,7 +4655,7 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label31">
+              <widget class="Gtk.Label" id="label34">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Договор</property>
               </widget>
@@ -4885,7 +4885,7 @@ Patronymic</property>
         <child>
           <widget class="Gtk.DataBindings.DataTable" id="datatable1">
             <property name="MemberName" />
-            <property name="NRows">4</property>
+            <property name="NRows">8</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
@@ -4893,6 +4893,30 @@ Patronymic</property>
             <property name="InheritedBoundaryDataSource">False</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
             <child>
               <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
                 <property name="MemberName" />
@@ -5085,8 +5109,6 @@ Patronymic</property>
           <packing>
             <property name="Position">1</property>
             <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>

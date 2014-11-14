@@ -8,23 +8,8 @@ using QSProxies;
 namespace Vodovoz
 {
 	[OrmSubjectAttibutes("Контрагенты")]
-	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner, IAdditionalAgreementOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner
 	{
-		private IList<AdditionalAgreement> agreements { get; set; }
-
-		#region IAdditionalAgreementOwner implementation
-
-		public virtual IList<AdditionalAgreement> AdditionalAgreements {
-			get {
-				return agreements;
-			}
-			set {
-				agreements = value;
-			}
-		}
-
-		#endregion
-
 		private IList<Contact> contact;
 		#region IContact implementation
 		public virtual IList<Contact> Contacts {
@@ -52,11 +37,7 @@ namespace Vodovoz
 
 		#region Свойства
 		public virtual int Id { get; set; }
-		public virtual int ContractMaxDelay { get; set; }
-		public virtual bool ContractIsArchive { get; set; }
-		public virtual bool ContractOnCancellation { get; set; }
 		public virtual decimal MaxCredit { get; set; }
-		public virtual string ContractNumber { get; set; }
 		public virtual string Name { get; set; }
 		public virtual string FullName { get; set; }
 		public virtual string Comment { get; set; }
@@ -68,6 +49,7 @@ namespace Vodovoz
 		public virtual PersonType PersonType { get; set; }
 		public virtual Significance Significance { get; set; }
 		public virtual Counterparty MainCounterparty { get; set; }
+		public virtual CounterpartyContract Contract { get; set; }
 		public virtual CounterpartyType CounterpartyType { get; set; }
 		public virtual CounterpartyStatus Status { get; set; }
 		public virtual IList<QSContacts.Phone> Phones { get; set; }
@@ -77,7 +59,6 @@ namespace Vodovoz
 		public virtual Employee BottlesManager { get; set; }
 		public virtual Contact MainContact { get; set; }
 		public virtual Contact FinancialContact { get; set; }
-		public virtual DateTime ContractIssueDate { get; set; }
 		#endregion
 
 		public Counterparty ()
