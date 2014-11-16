@@ -26,17 +26,17 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatableMain;
 		
-		private global::Gtk.DataBindings.DataEntry dataentryEmail;
+		private global::QSOrmProject.DataValidatedEntry dataentryEmail;
 		
 		private global::Gtk.DataBindings.DataEntry dataentryFullName;
 		
-		private global::Gtk.DataBindings.DataEntry dataentryINN;
+		private global::QSOrmProject.DataValidatedEntry dataentryINN;
 		
-		private global::Gtk.DataBindings.DataEntry dataentryKPP;
+		private global::QSOrmProject.DataValidatedEntry dataentryKPP;
 		
 		private global::Gtk.DataBindings.DataEntry dataentryName;
 		
-		private global::Gtk.DataBindings.DataEntry dataentryOGRN;
+		private global::QSOrmProject.DataValidatedEntry dataentryOGRN;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
@@ -183,7 +183,7 @@ namespace Vodovoz
 			this.datatableMain.InheritedDataSource = false;
 			this.datatableMain.InheritedBoundaryDataSource = false;
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryEmail = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryEmail = new global::QSOrmProject.DataValidatedEntry ();
 			this.dataentryEmail.CanFocus = true;
 			this.dataentryEmail.Name = "dataentryEmail";
 			this.dataentryEmail.IsEditable = true;
@@ -192,10 +192,6 @@ namespace Vodovoz
 			this.dataentryEmail.InheritedDataSource = true;
 			this.dataentryEmail.Mappings = "Email";
 			this.dataentryEmail.InheritedBoundaryDataSource = false;
-			this.dataentryEmail.InheritedDataSource = true;
-			this.dataentryEmail.Mappings = "Email";
-			this.dataentryEmail.InheritedBoundaryDataSource = false;
-			this.dataentryEmail.Editable = true;
 			this.datatableMain.Add (this.dataentryEmail);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryEmail]));
 			w12.TopAttach = ((uint)(3));
@@ -217,7 +213,6 @@ namespace Vodovoz
 			this.dataentryFullName.InheritedDataSource = true;
 			this.dataentryFullName.Mappings = "FullName";
 			this.dataentryFullName.InheritedBoundaryDataSource = false;
-			this.dataentryFullName.Editable = true;
 			this.datatableMain.Add (this.dataentryFullName);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryFullName]));
 			w13.TopAttach = ((uint)(1));
@@ -227,7 +222,7 @@ namespace Vodovoz
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryINN = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryINN = new global::QSOrmProject.DataValidatedEntry ();
 			this.dataentryINN.CanFocus = true;
 			this.dataentryINN.Name = "dataentryINN";
 			this.dataentryINN.IsEditable = true;
@@ -236,10 +231,6 @@ namespace Vodovoz
 			this.dataentryINN.InheritedDataSource = true;
 			this.dataentryINN.Mappings = "INN";
 			this.dataentryINN.InheritedBoundaryDataSource = false;
-			this.dataentryINN.InheritedDataSource = true;
-			this.dataentryINN.Mappings = "INN";
-			this.dataentryINN.InheritedBoundaryDataSource = false;
-			this.dataentryINN.Editable = true;
 			this.datatableMain.Add (this.dataentryINN);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryINN]));
 			w14.TopAttach = ((uint)(6));
@@ -249,7 +240,7 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryKPP = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryKPP = new global::QSOrmProject.DataValidatedEntry ();
 			this.dataentryKPP.CanFocus = true;
 			this.dataentryKPP.Name = "dataentryKPP";
 			this.dataentryKPP.IsEditable = true;
@@ -258,10 +249,6 @@ namespace Vodovoz
 			this.dataentryKPP.InheritedDataSource = true;
 			this.dataentryKPP.Mappings = "KPP";
 			this.dataentryKPP.InheritedBoundaryDataSource = false;
-			this.dataentryKPP.InheritedDataSource = true;
-			this.dataentryKPP.Mappings = "KPP";
-			this.dataentryKPP.InheritedBoundaryDataSource = false;
-			this.dataentryKPP.Editable = true;
 			this.datatableMain.Add (this.dataentryKPP);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryKPP]));
 			w15.TopAttach = ((uint)(7));
@@ -283,14 +270,13 @@ namespace Vodovoz
 			this.dataentryName.InheritedDataSource = true;
 			this.dataentryName.Mappings = "Name";
 			this.dataentryName.InheritedBoundaryDataSource = false;
-			this.dataentryName.Editable = true;
 			this.datatableMain.Add (this.dataentryName);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryName]));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryOGRN = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryOGRN = new global::QSOrmProject.DataValidatedEntry ();
 			this.dataentryOGRN.CanFocus = true;
 			this.dataentryOGRN.Name = "dataentryOGRN";
 			this.dataentryOGRN.IsEditable = true;
@@ -299,10 +285,6 @@ namespace Vodovoz
 			this.dataentryOGRN.InheritedDataSource = true;
 			this.dataentryOGRN.Mappings = "OGRN";
 			this.dataentryOGRN.InheritedBoundaryDataSource = false;
-			this.dataentryOGRN.InheritedDataSource = true;
-			this.dataentryOGRN.Mappings = "OGRN";
-			this.dataentryOGRN.InheritedBoundaryDataSource = false;
-			this.dataentryOGRN.Editable = true;
 			this.datatableMain.Add (this.dataentryOGRN);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryOGRN]));
 			w17.TopAttach = ((uint)(8));
@@ -319,7 +301,6 @@ namespace Vodovoz
 			this.datatextviewJurAddress = new global::Gtk.DataBindings.DataTextView ();
 			this.datatextviewJurAddress.CanFocus = true;
 			this.datatextviewJurAddress.Name = "datatextviewJurAddress";
-			this.datatextviewJurAddress.Editable = false;
 			this.datatextviewJurAddress.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.datatextviewJurAddress.InheritedDataSource = true;
 			this.datatextviewJurAddress.Mappings = "JurAddress";
@@ -327,7 +308,6 @@ namespace Vodovoz
 			this.datatextviewJurAddress.InheritedDataSource = true;
 			this.datatextviewJurAddress.Mappings = "JurAddress";
 			this.datatextviewJurAddress.InheritedBoundaryDataSource = false;
-			this.datatextviewJurAddress.Editable = false;
 			this.GtkScrolledWindow1.Add (this.datatextviewJurAddress);
 			this.datatableMain.Add (this.GtkScrolledWindow1);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.GtkScrolledWindow1]));
@@ -345,7 +325,6 @@ namespace Vodovoz
 			this.datatextviewAddress = new global::Gtk.DataBindings.DataTextView ();
 			this.datatextviewAddress.CanFocus = true;
 			this.datatextviewAddress.Name = "datatextviewAddress";
-			this.datatextviewAddress.Editable = false;
 			this.datatextviewAddress.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.datatextviewAddress.InheritedDataSource = true;
 			this.datatextviewAddress.Mappings = "Address";
@@ -353,7 +332,6 @@ namespace Vodovoz
 			this.datatextviewAddress.InheritedDataSource = true;
 			this.datatextviewAddress.Mappings = "Address";
 			this.datatextviewAddress.InheritedBoundaryDataSource = false;
-			this.datatextviewAddress.Editable = false;
 			this.GtkScrolledWindow2.Add (this.datatextviewAddress);
 			this.datatableMain.Add (this.GtkScrolledWindow2);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.GtkScrolledWindow2]));

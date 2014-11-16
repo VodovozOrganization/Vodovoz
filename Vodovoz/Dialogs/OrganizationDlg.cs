@@ -92,8 +92,10 @@ namespace Vodovoz
 		{
 			adaptorOrg.Target = subject;
 			datatableMain.DataSource = adaptorOrg;
-			datatextviewAddress.Editable = true;
-			datatextviewJurAddress.Editable = true;
+			dataentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
+			dataentryINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			dataentryKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			dataentryOGRN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.AccountOwner = (IAccountOwner)Subject;
