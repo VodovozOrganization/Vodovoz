@@ -118,10 +118,19 @@
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
+		<discriminator column="type" type="String"/>
+		<property name="Type" column="type" type="Vodovoz.AgreementTypeStringType, Vodovoz" />
 		<property name="AgreementNumber" column="number" />
 		<property name="StartDate" column="start_date" />
 		<property name="IssueDate" column="issue_date" /> 
-		<property name="Type" column="type" type="Vodovoz.AgreementTypeStringType, Vodovoz"/>
+		<subclass name="NonfreeRentAgreement" discriminator-value="NonfreeRent">
+        </subclass>
+    	<subclass name="FreeRentAgreement" discriminator-value="FreeRent">
+        </subclass>
+    	<subclass name="WaterSalesAgreement" discriminator-value="WaterSales">
+        </subclass>
+        <subclass name="RepairAgreement" discriminator-value="Repair">
+        </subclass>
 	</class>
 	<class name="CounterpartyContract" lazy="false" table="counterparty_contract">
 		<id name="Id" column="id">

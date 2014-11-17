@@ -8,7 +8,7 @@ using System.Data.Bindings;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementBase : Gtk.Bin, ITdiTab, IOrmDialog
+	public partial class AdditionalAgreementBase : Gtk.Bin, ITdiDialog, IOrmDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger();
 		protected ISession session;
@@ -94,7 +94,6 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			Session.Close();
 			adaptor.Disconnect();
 			base.Destroy();
 		}

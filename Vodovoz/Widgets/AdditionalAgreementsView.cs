@@ -83,22 +83,7 @@ namespace Vodovoz
 				return;
 
 			//TODO Add switch logic
-			int result = 0;
-			var dlg = new AdditionalAgreementBase ();
-			switch (result) {
-			case 0:
-				dlg = new AdditionalAgreementFreeRent (ParentReference); 
-				break;
-			case 1: 
-				dlg = new AdditionalAgreementNonFreeRent (ParentReference);
-				break;
-			case 2:
-				dlg = new AdditionalAgreementRepair (ParentReference);
-				break;
-			case 3:
-				dlg = new AdditionalAgreementWater (ParentReference);
-				break;
-			}
+			ITdiDialog dlg = OrmMain.CreateObjectDialog (typeof(FreeRentAgreement), parentReference);
 			mytab.TabParent.AddSlaveTab(mytab, dlg);
 		}
 
@@ -107,25 +92,8 @@ namespace Vodovoz
 			ITdiTab mytab = TdiHelper.FindMyTab(this);
 			if (mytab == null)
 				return;
-
-			AdditionalAgreement agreement = treeAdditionalAgreements.GetSelectedObjects()[0] as AdditionalAgreement;
-			AgreementType type = agreement.Type;
-			var dlg = new AdditionalAgreementBase ();
-
-			switch (type) {
-			case AgreementType.FreeRent:
-				dlg = new AdditionalAgreementFreeRent (ParentReference, agreement as FreeRentAgreement); 
-				break;
-			case AgreementType.NonfreeRent: 
-				dlg = new AdditionalAgreementNonFreeRent (ParentReference, agreement as NonfreeRentAgreement);
-				break;
-			case AgreementType.Repair:
-				dlg = new AdditionalAgreementRepair (ParentReference, agreement as RepairAgreement);
-				break;
-			case AgreementType.WaterSales:
-				dlg = new AdditionalAgreementWater (ParentReference, agreement as WaterSalesAgreement);
-				break; 
-			}
+				
+			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeAdditionalAgreements.GetSelectedObjects () [0]);
 			mytab.TabParent.AddSlaveTab(mytab, dlg);
 		}
 

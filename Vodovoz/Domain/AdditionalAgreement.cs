@@ -20,8 +20,8 @@ namespace Vodovoz
 		{
 			AgreementNumber = String.Empty;
 		}
+		public virtual string AgreementType { get { return Type.GetEnumTitle(); } }
 
-		public string AgreementType { get { return Type.GetEnumTitle(); } }
 	}
 
 	public class NonfreeRentAgreement : AdditionalAgreement
@@ -37,12 +37,6 @@ namespace Vodovoz
 		#endregion
 	}
 	public class WaterSalesAgreement : AdditionalAgreement
-	{
-		#region Свойства
-
-		#endregion
-	}
-	public class EquipmentSalesAgreement : AdditionalAgreement
 	{
 		#region Свойства
 
