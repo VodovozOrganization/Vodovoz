@@ -75,7 +75,7 @@ namespace Vodovoz
 			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
 			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
 			//Setting subjects
-			accountsView.AccountOwner = (IAccountOwner)Subject;
+			accountsView.ParentReference = new OrmParentReference(Session, Subject, "Accounts");
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
 			referenceOrganization.SubjectType = typeof(Organization);

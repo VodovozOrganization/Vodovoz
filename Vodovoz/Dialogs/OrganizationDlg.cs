@@ -98,7 +98,7 @@ namespace Vodovoz
 			dataentryOGRN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
-			accountsview1.AccountOwner = (IAccountOwner)Subject;
+			accountsview1.ParentReference = new OrmParentReference(Session, Subject, "Accounts");
 			referenceBuhgalter.SubjectType = typeof(Employee);
 			referenceLeader.SubjectType = typeof(Employee);
 			phonesview1.Session = Session;
