@@ -81,11 +81,6 @@ namespace Vodovoz
 				OnCloseTab(false);
 		}
 
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
-		{
-			OnCloseTab(false);
-		}
-
 		protected void OnCloseTab(bool askSave)
 		{
 			if (CloseTab != null)

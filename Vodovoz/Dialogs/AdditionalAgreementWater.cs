@@ -31,12 +31,17 @@ namespace Vodovoz
 			this.Build();
 			ParentReference = parentReference;
 			subject = sub;
-			TabName = subject.AgreementNumber;
+			TabName = subject.AgreementType + " " + subject.AgreementNumber;
 			ConfigureDlg();
 		}
 
 
-		private void ConfigureDlg(){}
+		private void ConfigureDlg()
+		{
+			adaptor.Target = subject;
+			datatable1.DataSource = adaptor;
+			entryAgreementNumber.IsEditable = true;
+		}
 	}
 }
 
