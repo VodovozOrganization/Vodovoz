@@ -83,6 +83,9 @@ namespace Vodovoz
 
 		protected void OnCloseTab(bool askSave)
 		{
+			if (TabParent.CheckClosingSlaveTabs ((ITdiTab)this))
+				return;
+		
 			if (CloseTab != null)
 				CloseTab(this, new TdiTabCloseEventArgs(askSave));
 		}

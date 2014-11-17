@@ -41,6 +41,16 @@ namespace Vodovoz
 			datatable1.DataSource = adaptor;
 			entryAgreementNumber.IsEditable = true;
 		}
+
+		public override bool Save ()
+		{
+			if (entryAgreementNumber.Text == String.Empty) {
+				logger.Warn("В доп. соглашении не заполнен номер - не сохраняем.");
+				return false;
+			}
+			OrmMain.DelayedNotifyObjectUpdated(ParentReference.ParentObject, subject);
+			return true;
+		}
 	}
 }
 
