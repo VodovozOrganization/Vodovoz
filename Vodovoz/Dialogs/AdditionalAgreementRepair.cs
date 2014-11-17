@@ -1,4 +1,5 @@
 ﻿using System;
+using QSOrmProject;
 
 namespace Vodovoz
 {
@@ -16,26 +17,20 @@ namespace Vodovoz
 			}
 		}
 
-		public AdditionalAgreementRepair()
+		public AdditionalAgreementRepair(OrmParentReference parentReference)
 		{
 			this.Build();
+			ParentReference = parentReference;
 			subject = new RepairAgreement();
-			Session.Persist (subject);
+			AgreementOwner.AdditionalAgreements.Add (subject);
 			ConfigureDlg();
 		}
 
-		public AdditionalAgreementRepair(int id)
+		public AdditionalAgreementRepair(OrmParentReference parentReference, RepairAgreement sub)
 		{
 			this.Build();
-			subject = Session.Load<RepairAgreement>(id);
-			TabName = subject.AgreementNumber;
-			ConfigureDlg();
-		}
-
-		public AdditionalAgreementRepair(RepairAgreement sub)
-		{
-			this.Build();
-			subject = Session.Load<RepairAgreement>(sub.Id);
+			ParentReference = parentReference;
+			subject = sub;
 			TabName = subject.AgreementNumber;
 			ConfigureDlg();
 		}

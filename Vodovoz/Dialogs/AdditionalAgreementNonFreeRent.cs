@@ -1,4 +1,5 @@
 ﻿using System;
+using QSOrmProject;
 
 namespace Vodovoz
 {
@@ -15,27 +16,21 @@ namespace Vodovoz
 					subject = value as NonfreeRentAgreement;
 			}
 		}
-
-		public AdditionalAgreementNonFreeRent()
+			
+		public AdditionalAgreementNonFreeRent(OrmParentReference parentReference)
 		{
 			this.Build();
+			ParentReference = parentReference;
 			subject = new NonfreeRentAgreement();
-			Session.Persist (subject);
+			AgreementOwner.AdditionalAgreements.Add (subject);
 			ConfigureDlg();
 		}
 
-		public AdditionalAgreementNonFreeRent(int id)
+		public AdditionalAgreementNonFreeRent(OrmParentReference parentReference, NonfreeRentAgreement sub)
 		{
 			this.Build();
-			subject = Session.Load<NonfreeRentAgreement>(id);
-			TabName = subject.AgreementNumber;
-			ConfigureDlg();
-		}
-
-		public AdditionalAgreementNonFreeRent(NonfreeRentAgreement sub)
-		{
-			this.Build();
-			subject = Session.Load<NonfreeRentAgreement>(sub.Id);
+			ParentReference = parentReference;
+			subject = sub;
 			TabName = subject.AgreementNumber;
 			ConfigureDlg();
 		}

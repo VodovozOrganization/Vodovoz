@@ -1,4 +1,5 @@
 ﻿using System;
+using QSOrmProject;
 
 namespace Vodovoz
 {
@@ -15,30 +16,25 @@ namespace Vodovoz
 					subject = value as WaterSalesAgreement;
 			}
 		}
-
-		public AdditionalAgreementWater()
+			
+		public AdditionalAgreementWater(OrmParentReference parentReference)
 		{
 			this.Build();
+			ParentReference = parentReference;
 			subject = new WaterSalesAgreement();
-			Session.Persist (subject);
+			AgreementOwner.AdditionalAgreements.Add (subject);
 			ConfigureDlg();
 		}
 
-		public AdditionalAgreementWater(int id)
+		public AdditionalAgreementWater(OrmParentReference parentReference, WaterSalesAgreement sub)
 		{
 			this.Build();
-			subject = Session.Load<WaterSalesAgreement>(id);
+			ParentReference = parentReference;
+			subject = sub;
 			TabName = subject.AgreementNumber;
 			ConfigureDlg();
 		}
 
-		public AdditionalAgreementWater(WaterSalesAgreement sub)
-		{
-			this.Build();
-			subject = Session.Load<WaterSalesAgreement>(sub.Id);
-			TabName = subject.AgreementNumber;
-			ConfigureDlg();
-		}
 
 		private void ConfigureDlg(){}
 	}

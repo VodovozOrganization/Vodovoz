@@ -1,4 +1,5 @@
 ﻿using System;
+using QSOrmProject;
 
 namespace Vodovoz
 {
@@ -6,6 +7,7 @@ namespace Vodovoz
 	public partial class AdditionalAgreementFreeRent : AdditionalAgreementBase
 	{
 		private FreeRentAgreement subject;
+
 		public override object Subject {
 			get {
 				return subject;
@@ -16,26 +18,20 @@ namespace Vodovoz
 			}
 		}
 
-		public AdditionalAgreementFreeRent()
+		public AdditionalAgreementFreeRent(OrmParentReference parentReference)
 		{
 			this.Build();
+			ParentReference = parentReference;
 			subject = new FreeRentAgreement();
-			Session.Persist (subject);
+			AgreementOwner.AdditionalAgreements.Add (subject);
 			ConfigureDlg();
 		}
 
-		public AdditionalAgreementFreeRent(int id)
+		public AdditionalAgreementFreeRent(OrmParentReference parentReference, FreeRentAgreement sub)
 		{
 			this.Build();
-			subject = Session.Load<FreeRentAgreement>(id);
-			TabName = subject.AgreementNumber;
-			ConfigureDlg();
-		}
-
-		public AdditionalAgreementFreeRent(FreeRentAgreement sub)
-		{
-			this.Build();
-			subject = Session.Load<FreeRentAgreement>(sub.Id);
+			ParentReference = parentReference;
+			subject = sub;
 			TabName = subject.AgreementNumber;
 			ConfigureDlg();
 		}
