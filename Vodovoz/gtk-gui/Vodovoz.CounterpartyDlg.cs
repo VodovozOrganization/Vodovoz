@@ -329,7 +329,6 @@ namespace Vodovoz
 			this.entryFullName.InheritedDataSource = true;
 			this.entryFullName.Mappings = "FullName";
 			this.entryFullName.InheritedBoundaryDataSource = false;
-			this.entryFullName.Editable = false;
 			this.datatable1.Add (this.entryFullName);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryFullName]));
 			w14.TopAttach = ((uint)(1));
@@ -349,7 +348,6 @@ namespace Vodovoz
 			this.entryName.InheritedDataSource = true;
 			this.entryName.Mappings = "Name";
 			this.entryName.InheritedBoundaryDataSource = false;
-			this.entryName.Editable = false;
 			this.datatable1.Add (this.entryName);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
 			w15.LeftAttach = ((uint)(1));
@@ -421,7 +419,6 @@ namespace Vodovoz
 			this.dataComment.InheritedDataSource = true;
 			this.dataComment.Mappings = "Comment";
 			this.dataComment.InheritedBoundaryDataSource = false;
-			this.dataComment.Editable = false;
 			this.GtkScrolledWindow1.Add (this.dataComment);
 			this.datatable1.Add (this.GtkScrolledWindow1);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.GtkScrolledWindow1]));
@@ -446,7 +443,6 @@ namespace Vodovoz
 			this.dataWaybillComment.InheritedDataSource = true;
 			this.dataWaybillComment.Mappings = "WaybillComment";
 			this.dataWaybillComment.InheritedBoundaryDataSource = false;
-			this.dataWaybillComment.Editable = false;
 			this.GtkScrolledWindow2.Add (this.dataWaybillComment);
 			this.datatable1.Add (this.GtkScrolledWindow2);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.GtkScrolledWindow2]));
@@ -806,7 +802,6 @@ namespace Vodovoz
 			this.entryJurAddress.InheritedDataSource = true;
 			this.entryJurAddress.Mappings = "JurAddress";
 			this.entryJurAddress.InheritedBoundaryDataSource = false;
-			this.entryJurAddress.Editable = false;
 			this.datatable4.Add (this.entryJurAddress);
 			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.datatable4 [this.entryJurAddress]));
 			w48.TopAttach = ((uint)(2));
@@ -1130,7 +1125,6 @@ namespace Vodovoz
 			this.entryNumber.InheritedDataSource = true;
 			this.entryNumber.Mappings = "Number";
 			this.entryNumber.InheritedBoundaryDataSource = false;
-			this.entryNumber.Editable = true;
 			this.datatable5.Add (this.entryNumber);
 			global::Gtk.Table.TableChild w70 = ((global::Gtk.Table.TableChild)(this.datatable5 [this.entryNumber]));
 			w70.LeftAttach = ((uint)(1));

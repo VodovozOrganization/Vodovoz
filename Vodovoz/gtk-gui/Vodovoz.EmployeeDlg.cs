@@ -186,7 +186,6 @@ namespace Vodovoz
 			this.dataentryDrivingNumber.InheritedDataSource = true;
 			this.dataentryDrivingNumber.Mappings = "DrivingNumber";
 			this.dataentryDrivingNumber.InheritedBoundaryDataSource = false;
-			this.dataentryDrivingNumber.Editable = true;
 			this.datatableMain.Add (this.dataentryDrivingNumber);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryDrivingNumber]));
 			w11.TopAttach = ((uint)(7));
@@ -207,7 +206,6 @@ namespace Vodovoz
 			this.dataentryLastName.InheritedDataSource = true;
 			this.dataentryLastName.Mappings = "LastName";
 			this.dataentryLastName.InheritedBoundaryDataSource = false;
-			this.dataentryLastName.Editable = true;
 			this.datatableMain.Add (this.dataentryLastName);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryLastName]));
 			w12.LeftAttach = ((uint)(1));
@@ -226,7 +224,6 @@ namespace Vodovoz
 			this.dataentryName.InheritedDataSource = true;
 			this.dataentryName.Mappings = "Name";
 			this.dataentryName.InheritedBoundaryDataSource = false;
-			this.dataentryName.Editable = true;
 			this.datatableMain.Add (this.dataentryName);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryName]));
 			w13.TopAttach = ((uint)(1));
@@ -247,7 +244,6 @@ namespace Vodovoz
 			this.dataentryPatronymic.InheritedDataSource = true;
 			this.dataentryPatronymic.Mappings = "Patronymic";
 			this.dataentryPatronymic.InheritedBoundaryDataSource = false;
-			this.dataentryPatronymic.Editable = true;
 			this.datatableMain.Add (this.dataentryPatronymic);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryPatronymic]));
 			w14.TopAttach = ((uint)(2));
@@ -302,7 +298,6 @@ namespace Vodovoz
 			this.dataentryPassportSeria.InheritedDataSource = true;
 			this.dataentryPassportSeria.Mappings = "PassportSeria";
 			this.dataentryPassportSeria.InheritedBoundaryDataSource = false;
-			this.dataentryPassportSeria.Editable = true;
 			this.datahbox2.Add (this.dataentryPassportSeria);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.dataentryPassportSeria]));
 			w17.Position = 1;
@@ -327,7 +322,6 @@ namespace Vodovoz
 			this.dataentryPassportNumber.InheritedDataSource = true;
 			this.dataentryPassportNumber.Mappings = "PassportNumber";
 			this.dataentryPassportNumber.InheritedBoundaryDataSource = false;
-			this.dataentryPassportNumber.Editable = true;
 			this.datahbox2.Add (this.dataentryPassportNumber);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.dataentryPassportNumber]));
 			w19.Position = 3;

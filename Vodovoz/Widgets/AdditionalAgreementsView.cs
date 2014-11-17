@@ -82,11 +82,23 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			var newAgreement = new AdditionalAgreement ();
-			additionalAgreements.Add(newAgreement);
+			Gtk.Menu dropList = new Gtk.Menu ();
+			Gtk.MenuItem item = new Gtk.MenuItem ("Продажа воды");
+			dropList.Add (item);
+			item = new Gtk.MenuItem ("Бесплатная аренда");
+			dropList.Add (item);
+			item = new Gtk.MenuItem ("Платная аренда");
+			dropList.Add (item);
 
-			AgreementDlg dlg = new AgreementDlg(ParentReference, newAgreement);
-			mytab.TabParent.AddSlaveTab(mytab, dlg);
+			dropList.ShowAll ();
+			dropList.Popup ();
+			/*int result = 0;
+			var dlg = new AdditionalAgreementBase ();
+			switch (result) {
+			case 0:
+				dlg = new AdditionalAgreementFreeRent (ParentReference); break;
+			}*/
+
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
@@ -94,9 +106,6 @@ namespace Vodovoz
 			ITdiTab mytab = TdiHelper.FindMyTab(this);
 			if (mytab == null)
 				return;
-
-			AgreementDlg dlg = new AgreementDlg(ParentReference, treeAdditionalAgreements.GetSelectedObjects()[0] as AdditionalAgreement);
-			mytab.TabParent.AddSlaveTab(mytab, dlg);
 		}
 
 		protected void OnTreeAdditionalAgreementsRowActivated(object o, Gtk.RowActivatedArgs args)

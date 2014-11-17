@@ -329,10 +329,15 @@
         <property name="ShortLabel" translatable="yes">Типы e-mail адресов</property>
         <signal name="Activated" handler="OnActionEMailTypesActivated" />
       </action>
-      <action id="Action">
+      <action id="ActionHandbook">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Должности контактных лиц</property>
-        <property name="ShortLabel" translatable="yes">Должности контактных лиц</property>
+        <property name="Label" translatable="yes">Справочники</property>
+        <property name="ShortLabel" translatable="yes">Справочники</property>
+      </action>
+      <action id="ActionCounterpartyPost">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Должности сотрудников контрагента</property>
+        <property name="ShortLabel" translatable="yes">Должности сотрудников контрагента</property>
         <signal name="Activated" handler="OnActionCounterpartyPostActivated" />
       </action>
     </action-group>
@@ -354,7 +359,7 @@
                 <node type="Separator" />
                 <node type="Menuitem" action="quitAction" />
               </node>
-              <node type="Menu" action="Action">
+              <node type="Menu" action="ActionHandbook">
                 <node type="Menu" action="ActionOrgMenu">
                   <node type="Menuitem" action="ActionOrg" />
                   <node type="Separator" />
@@ -381,7 +386,7 @@
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionSignificance" />
                   <node type="Menuitem" action="ActionStatus" />
-                  <node type="Menuitem" action="Action" />
+                  <node type="Menuitem" action="ActionCounterpartyPost" />
                 </node>
               </node>
               <node type="Menu" action="ActionAbout">
@@ -549,6 +554,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5073,6 +5079,41 @@ Patronymic</property>
           </packing>
         </child>
       </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementWater" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
     </child>
   </widget>
 </stetic-interface>

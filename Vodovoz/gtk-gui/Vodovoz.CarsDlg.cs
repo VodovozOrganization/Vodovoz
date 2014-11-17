@@ -147,7 +147,6 @@ namespace Vodovoz
 			this.dataentryModel.InheritedDataSource = true;
 			this.dataentryModel.Mappings = "Model";
 			this.dataentryModel.InheritedBoundaryDataSource = false;
-			this.dataentryModel.Editable = false;
 			this.tableCarData.Add (this.dataentryModel);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableCarData [this.dataentryModel]));
 			w9.LeftAttach = ((uint)(1));
@@ -187,7 +186,6 @@ namespace Vodovoz
 			this.dataentryRegNumber.InheritedDataSource = true;
 			this.dataentryRegNumber.Mappings = "RegistrationNumber";
 			this.dataentryRegNumber.InheritedBoundaryDataSource = false;
-			this.dataentryRegNumber.Editable = false;
 			this.tableCarData.Add (this.dataentryRegNumber);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.tableCarData [this.dataentryRegNumber]));
 			w11.TopAttach = ((uint)(1));

@@ -118,7 +118,6 @@ namespace Vodovoz
 			this.entryNumber.InheritedDataSource = true;
 			this.entryNumber.Mappings = "AgreementNumber";
 			this.entryNumber.InheritedBoundaryDataSource = false;
-			this.entryNumber.Editable = false;
 			this.datatable1.Add (this.entryNumber);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryNumber]));
 			w6.LeftAttach = ((uint)(1));

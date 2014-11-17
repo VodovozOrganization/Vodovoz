@@ -200,7 +200,6 @@ namespace Vodovoz
 			this.entryModel.InheritedDataSource = true;
 			this.entryModel.Mappings = "Model";
 			this.entryModel.InheritedBoundaryDataSource = false;
-			this.entryModel.Editable = true;
 			this.datatable1.Add (this.entryModel);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryModel]));
 			w9.TopAttach = ((uint)(4));
@@ -221,7 +220,6 @@ namespace Vodovoz
 			this.entryName.InheritedDataSource = true;
 			this.entryName.Mappings = "Name";
 			this.entryName.InheritedBoundaryDataSource = false;
-			this.entryName.Editable = false;
 			this.datatable1.Add (this.entryName);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
 			w10.LeftAttach = ((uint)(1));
