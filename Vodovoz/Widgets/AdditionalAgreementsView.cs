@@ -7,11 +7,6 @@ using QSTDI;
 
 namespace Vodovoz
 {
-	public interface IAdditionalAgreementOwner
-	{
-		IList<AdditionalAgreement> AdditionalAgreements { get; set;}
-	}
-
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementsView : Gtk.Bin
 	{

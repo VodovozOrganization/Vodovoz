@@ -34,5 +34,10 @@ namespace Vodovoz
 			Number = String.Empty;
 		}
 	}
+
+	public interface IAdditionalAgreementOwner
+	{
+		IList<AdditionalAgreement> AdditionalAgreements { get; set;}
+	}
 }
 
