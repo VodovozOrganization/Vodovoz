@@ -71,14 +71,30 @@ namespace Vodovoz
 			buttonEdit.Sensitive = buttonDelete.Sensitive = selected;
 		}
 
-		protected void OnButtonAddClicked(object sender, EventArgs e)
+		void OnButtonAddClicked(AgreementType type)
 		{
 			ITdiTab mytab = TdiHelper.FindMyTab(this);
 			if (mytab == null)
 				return;
 
-			//TODO Add switch logic
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (typeof(FreeRentAgreement), parentReference);
+			ITdiDialog dlg;
+			switch (type) {
+			case AgreementType.FreeRent:
+				dlg = new AdditionalAgreementFreeRent (ParentReference);
+				break;
+			case AgreementType.NonfreeRent:
+				dlg = new AdditionalAgreementNonFreeRent (ParentReference);
+				break;
+			case AgreementType.Repair:
+				dlg = new AdditionalAgreementRepair (ParentReference);
+				break;
+			case AgreementType.WaterSales:
+				dlg = new AdditionalAgreementWater (ParentReference);
+				break;
+			default:
+				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));
+			}
+				
 			mytab.TabParent.AddSlaveTab(mytab, dlg);
 		}
 
@@ -104,6 +120,11 @@ namespace Vodovoz
 				return;
 
 			additionalAgreements.Remove (treeAdditionalAgreements.GetSelectedObjects () [0] as AdditionalAgreement);
+		}
+
+		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		{
+			OnButtonAddClicked ((AgreementType)e.ItemEnum);
 		}
 	}
 }

@@ -3005,7 +3005,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4751,14 +4750,15 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Button" id="buttonAdd">
+              <widget class="QSOrmProject.EnumMenuButton" id="buttonAdd">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonAddClicked" />
+                <property name="ItemsEnumName">Vodovoz.AgreementType, Vodovoz</property>
+                <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -4812,7 +4812,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="314 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5046,7 +5046,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="314 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5280,7 +5280,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="314 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5514,7 +5514,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementWater" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementWater" design-size="314 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
