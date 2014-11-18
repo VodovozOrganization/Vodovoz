@@ -152,10 +152,6 @@
       <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
       <Name>System.Data.Bindings</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Gtk.DataBindings\gtk-databind-lib.csproj">
-      <Project>{8D85E430-325A-4532-A123-BF28F9644DB4}</Project>
-      <Name>gtk-databind-lib</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\Modules\QSAttachment\QSAttachment.csproj">
       <Project>{AED7339A-4A71-4063-9C67-0D54821230A3}</Project>
       <Name>QSAttachment</Name>
@@ -167,6 +163,10 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSProxies\QSProxies.csproj">
       <Project>{32976195-C322-426D-82E2-E16CFD63AE72}</Project>
       <Name>QSProxies</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gtk.DataBindings\Gtk.DataBindings.csproj">
+      <Project>{8D85E430-325A-4532-A123-BF28F9644DB4}</Project>
+      <Name>Gtk.DataBindings</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

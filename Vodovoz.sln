@@ -23,11 +23,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSContacts", "..\QSProjects
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSProxies", "..\QSProjects\Modules\QSProxies\QSProxies.csproj", "{32976195-C322-426D-82E2-E16CFD63AE72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gtk-databind-lib", "..\Gtk.DataBindings\gtk-databind-lib.csproj", "{8D85E430-325A-4532-A123-BF28F9644DB4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSScan", "..\QSProjects\QSScan\QSScan.csproj", "{DB2EEB00-FF15-4AF8-887D-E3261C31B173}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{98F3A7D6-1FDF-43E0-B7C2-08DE9B6E6B69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gtk.DataBindings", "..\Gtk.DataBindings\Gtk.DataBindings.csproj", "{8D85E430-325A-4532-A123-BF28F9644DB4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +95,8 @@ Global
 		{AED7339A-4A71-4063-9C67-0D54821230A3} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
 		{A236518F-E4D0-4CFF-B23F-769802B2821F} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
 		{32976195-C322-426D-82E2-E16CFD63AE72} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
+		{8D85E430-325A-4532-A123-BF28F9644DB4} = {98F3A7D6-1FDF-43E0-B7C2-08DE9B6E6B69}
+		{54F958F5-7E58-4C89-9A04-8835E63B97C3} = {98F3A7D6-1FDF-43E0-B7C2-08DE9B6E6B69}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Vodovoz\Vodovoz.csproj
