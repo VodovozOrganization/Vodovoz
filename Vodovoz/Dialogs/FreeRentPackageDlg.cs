@@ -5,6 +5,7 @@ using QSTDI;
 using NHibernate;
 using NLog;
 using System.Collections.Generic;
+using NHibernate.Criterion;
 
 namespace Vodovoz
 {
@@ -89,6 +90,8 @@ namespace Vodovoz
 			datatable1.DataSource = adaptor;
 			referenceDepositService.SubjectType = typeof(Nomenclature);
 			referenceEquipmentType.SubjectType = typeof(EquipmentType);
+			referenceDepositService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
+				.Add (Restrictions.Eq("Category", NomenclatureCategory.service));
 		}
 
 		public bool Save()
