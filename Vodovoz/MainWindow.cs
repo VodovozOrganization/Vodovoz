@@ -306,4 +306,12 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference(typeof(FreeRentPackage), session, criteria);
 		tdiMain.AddTab(refWin);
 	}
+	protected void OnActionPaidRentPackageActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession();
+		var criteria = session.CreateCriteria<PaidRentPackage>();
+
+		OrmReference refWin = new OrmReference(typeof(PaidRentPackage), session, criteria);
+		tdiMain.AddTab(refWin);
+	}
 }

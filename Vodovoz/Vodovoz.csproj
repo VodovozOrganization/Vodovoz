@@ -121,6 +121,9 @@
     <Compile Include="Domain\FreeRentPackage.cs" />
     <Compile Include="Dialogs\FreeRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackageDlg.cs" />
+    <Compile Include="Domain\PaidRentPackage.cs" />
+    <Compile Include="Dialogs\PaidRentPackageDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.PaidRentPackageDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

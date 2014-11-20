@@ -215,4 +215,15 @@
 		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
 		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
 	</class>
+	<class name="PaidRentPackage" lazy="false" table="paid_rent_packages">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+		<property name="RentPeriod" column="rent_period" />
+		<property name="Price" column="price" />
+		<property name="Daily" column="daily" />
+		<many-to-one name="RentService" class="Nomenclature" column="rent_service_id"/>
+		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
+	</class>
 </hibernate-mapping>

@@ -5,36 +5,6 @@ public partial class MainWindow
 {
 	private global::Gtk.UIManager UIManager;
 	
-	private global::Gtk.Action ActionNewOrder;
-	
-	private global::Gtk.Action ActionOrdersTable;
-	
-	private global::Gtk.Action ActionCars;
-	
-	private global::Gtk.Action ActionColors;
-	
-	private global::Gtk.Action ActionUnits;
-	
-	private global::Gtk.Action ActionManufacturers;
-	
-	private global::Gtk.Action ActionEquipmentTypes;
-	
-	private global::Gtk.Action ActionNomenclature;
-	
-	private global::Gtk.Action ActionPhoneTypes;
-	
-	private global::Gtk.Action ActionTMC;
-	
-	private global::Gtk.Action Action;
-	
-	private global::Gtk.Action ActionCounterparty1;
-	
-	private global::Gtk.Action ActionCounterpartyHandbook;
-	
-	private global::Gtk.Action ActionSignificance;
-	
-	private global::Gtk.Action ActionServiceTikets;
-	
 	private global::Gtk.Action ActionBaseMenu;
 	
 	private global::Gtk.Action dialogAuthenticationAction;
@@ -85,6 +55,38 @@ public partial class MainWindow
 	
 	private global::Gtk.Action ActionFreeRentPackage;
 	
+	private global::Gtk.Action ActionServiceTikets;
+	
+	private global::Gtk.Action ActionNewOrder;
+	
+	private global::Gtk.Action ActionOrdersTable;
+	
+	private global::Gtk.Action ActionCars;
+	
+	private global::Gtk.Action ActionColors;
+	
+	private global::Gtk.Action ActionUnits;
+	
+	private global::Gtk.Action ActionManufacturers;
+	
+	private global::Gtk.Action ActionEquipmentTypes;
+	
+	private global::Gtk.Action ActionNomenclature;
+	
+	private global::Gtk.Action ActionPhoneTypes;
+	
+	private global::Gtk.Action ActionTMC;
+	
+	private global::Gtk.Action Action;
+	
+	private global::Gtk.Action ActionCounterparty1;
+	
+	private global::Gtk.Action ActionCounterpartyHandbook;
+	
+	private global::Gtk.Action ActionSignificance;
+	
+	private global::Gtk.Action ActionPaidRentPackage;
+	
 	private global::Gtk.VBox vbox1;
 	
 	private global::Gtk.MenuBar menubarMain;
@@ -106,139 +108,142 @@ public partial class MainWindow
 		global::Stetic.Gui.Initialize (this);
 		// Widget MainWindow
 		this.UIManager = new global::Gtk.UIManager ();
-		global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("orders");
-		this.ActionNewOrder = new global::Gtk.Action ("ActionNewOrder", global::Mono.Unix.Catalog.GetString ("Новый заказ"), null, "gtk-new");
-		this.ActionNewOrder.ShortLabel = global::Mono.Unix.Catalog.GetString ("Новый заказ");
-		w1.Add (this.ActionNewOrder, null);
-		this.ActionOrdersTable = new global::Gtk.Action ("ActionOrdersTable", global::Mono.Unix.Catalog.GetString ("Журнал заказов"), null, "table");
-		this.ActionOrdersTable.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заказов");
-		w1.Add (this.ActionOrdersTable, null);
-		this.ActionCars = new global::Gtk.Action ("ActionCars", global::Mono.Unix.Catalog.GetString ("Автомобили"), null, null);
-		this.ActionCars.ShortLabel = global::Mono.Unix.Catalog.GetString ("Автомобили");
-		w1.Add (this.ActionCars, null);
-		this.ActionColors = new global::Gtk.Action ("ActionColors", global::Mono.Unix.Catalog.GetString ("Цвета оборудования"), null, null);
-		this.ActionColors.ShortLabel = global::Mono.Unix.Catalog.GetString ("Цвета");
-		w1.Add (this.ActionColors, null);
-		this.ActionUnits = new global::Gtk.Action ("ActionUnits", global::Mono.Unix.Catalog.GetString ("Единицы измерения"), null, null);
-		this.ActionUnits.ShortLabel = global::Mono.Unix.Catalog.GetString ("Единицы измерения");
-		w1.Add (this.ActionUnits, null);
-		this.ActionManufacturers = new global::Gtk.Action ("ActionManufacturers", global::Mono.Unix.Catalog.GetString ("Производители оборудования"), null, null);
-		this.ActionManufacturers.ShortLabel = global::Mono.Unix.Catalog.GetString ("Производители оборудования");
-		w1.Add (this.ActionManufacturers, null);
-		this.ActionEquipmentTypes = new global::Gtk.Action ("ActionEquipmentTypes", global::Mono.Unix.Catalog.GetString ("Типы оборудования"), null, null);
-		this.ActionEquipmentTypes.ShortLabel = global::Mono.Unix.Catalog.GetString ("Типы оборудования");
-		w1.Add (this.ActionEquipmentTypes, null);
-		this.ActionNomenclature = new global::Gtk.Action ("ActionNomenclature", global::Mono.Unix.Catalog.GetString ("Номенклатура"), null, null);
-		this.ActionNomenclature.ShortLabel = global::Mono.Unix.Catalog.GetString ("Номенклатура");
-		w1.Add (this.ActionNomenclature, null);
-		this.ActionPhoneTypes = new global::Gtk.Action ("ActionPhoneTypes", global::Mono.Unix.Catalog.GetString ("Типы телефонов"), null, null);
-		this.ActionPhoneTypes.ShortLabel = global::Mono.Unix.Catalog.GetString ("Типы телефонов");
-		w1.Add (this.ActionPhoneTypes, null);
-		this.ActionTMC = new global::Gtk.Action ("ActionTMC", global::Mono.Unix.Catalog.GetString ("ТМЦ"), null, null);
-		this.ActionTMC.ShortLabel = global::Mono.Unix.Catalog.GetString ("ТМЦ");
-		w1.Add (this.ActionTMC, null);
-		this.Action = new global::Gtk.Action ("Action", global::Mono.Unix.Catalog.GetString ("Справочники"), null, null);
-		this.Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("Значимость контрагента");
-		w1.Add (this.Action, null);
-		this.ActionCounterparty1 = new global::Gtk.Action ("ActionCounterparty1", global::Mono.Unix.Catalog.GetString ("Контрагенты"), null, null);
-		this.ActionCounterparty1.ShortLabel = global::Mono.Unix.Catalog.GetString ("Контрагенты");
-		w1.Add (this.ActionCounterparty1, null);
-		this.ActionCounterpartyHandbook = new global::Gtk.Action ("ActionCounterpartyHandbook", global::Mono.Unix.Catalog.GetString ("Контрагенты"), null, null);
-		this.ActionCounterpartyHandbook.ShortLabel = global::Mono.Unix.Catalog.GetString ("Контрагенты");
-		w1.Add (this.ActionCounterpartyHandbook, null);
-		this.ActionSignificance = new global::Gtk.Action ("ActionSignificance", global::Mono.Unix.Catalog.GetString ("Значимость контрагента"), null, null);
-		this.ActionSignificance.ShortLabel = global::Mono.Unix.Catalog.GetString ("Значимость контрагента");
-		w1.Add (this.ActionSignificance, null);
+		global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("Default");
+		this.ActionBaseMenu = new global::Gtk.Action ("ActionBaseMenu", global::Mono.Unix.Catalog.GetString ("База"), null, null);
+		this.ActionBaseMenu.ShortLabel = global::Mono.Unix.Catalog.GetString ("База");
+		w1.Add (this.ActionBaseMenu, null);
+		this.dialogAuthenticationAction = new global::Gtk.Action ("dialogAuthenticationAction", global::Mono.Unix.Catalog.GetString ("Изменить пароль"), null, "gtk-dialog-authentication");
+		this.dialogAuthenticationAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Изменить пароль");
+		w1.Add (this.dialogAuthenticationAction, null);
+		this.ActionAbout = new global::Gtk.Action ("ActionAbout", global::Mono.Unix.Catalog.GetString ("Справка"), null, null);
+		this.ActionAbout.ShortLabel = global::Mono.Unix.Catalog.GetString ("Справка");
+		w1.Add (this.ActionAbout, null);
+		this.aboutAction = new global::Gtk.Action ("aboutAction", global::Mono.Unix.Catalog.GetString ("_О программе"), null, "gtk-about");
+		this.aboutAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_О программе");
+		w1.Add (this.aboutAction, null);
+		this.UsersAction = new global::Gtk.Action ("UsersAction", global::Mono.Unix.Catalog.GetString ("Пользователи"), null, "users");
+		this.UsersAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Пользователи");
+		w1.Add (this.UsersAction, null);
+		this.quitAction = new global::Gtk.Action ("quitAction", global::Mono.Unix.Catalog.GetString ("В_ыход"), null, "gtk-quit");
+		this.quitAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("В_ыход");
+		w1.Add (this.quitAction, null);
+		this.ActionOrders = new global::Gtk.RadioAction ("ActionOrders", global::Mono.Unix.Catalog.GetString ("Заказы"), null, "order", 0);
+		this.ActionOrders.Group = new global::GLib.SList (global::System.IntPtr.Zero);
+		this.ActionOrders.ShortLabel = global::Mono.Unix.Catalog.GetString ("Заказы");
+		w1.Add (this.ActionOrders, null);
+		this.ActionServices = new global::Gtk.RadioAction ("ActionServices", global::Mono.Unix.Catalog.GetString ("Сервис"), null, "service", 0);
+		this.ActionServices.Group = this.ActionOrders.Group;
+		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сервис");
+		w1.Add (this.ActionServices, null);
+		this.ActionLogistics = new global::Gtk.RadioAction ("ActionLogistics", global::Mono.Unix.Catalog.GetString ("Логистика"), null, "logistic", 0);
+		this.ActionLogistics.Group = this.ActionServices.Group;
+		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString ("Логистика");
+		w1.Add (this.ActionLogistics, null);
+		this.ActionStock = new global::Gtk.RadioAction ("ActionStock", global::Mono.Unix.Catalog.GetString ("Склад"), null, "stock", 0);
+		this.ActionStock.Group = this.ActionServices.Group;
+		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString ("Склад");
+		w1.Add (this.ActionStock, null);
+		this.ActionCash = new global::Gtk.RadioAction ("ActionCash", global::Mono.Unix.Catalog.GetString ("Касса"), null, "cash", 0);
+		this.ActionCash.Group = this.ActionServices.Group;
+		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString ("Касса");
+		w1.Add (this.ActionCash, null);
+		this.ActionAccounting = new global::Gtk.RadioAction ("ActionAccounting", global::Mono.Unix.Catalog.GetString ("Бухгалтерия"), null, "accounting", 0);
+		this.ActionAccounting.Group = this.ActionServices.Group;
+		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString ("Бухгалтерия");
+		w1.Add (this.ActionAccounting, null);
+		this.ActionReports = new global::Gtk.RadioAction ("ActionReports", global::Mono.Unix.Catalog.GetString ("Отчеты"), null, "report", 0);
+		this.ActionReports.Group = this.ActionServices.Group;
+		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString ("Отчеты");
+		w1.Add (this.ActionReports, null);
+		this.ActionArchive = new global::Gtk.RadioAction ("ActionArchive", global::Mono.Unix.Catalog.GetString ("Архив"), null, "archive", 0);
+		this.ActionArchive.Group = this.ActionServices.Group;
+		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString ("Архив");
+		w1.Add (this.ActionArchive, null);
+		this.ActionOrg = new global::Gtk.Action ("ActionOrg", global::Mono.Unix.Catalog.GetString ("Организации"), null, null);
+		this.ActionOrg.ShortLabel = global::Mono.Unix.Catalog.GetString ("Организации");
+		w1.Add (this.ActionOrg, null);
+		this.ActionBanksMenu = new global::Gtk.Action ("ActionBanksMenu", global::Mono.Unix.Catalog.GetString ("Банки"), null, null);
+		this.ActionBanksMenu.ShortLabel = global::Mono.Unix.Catalog.GetString ("Банки");
+		w1.Add (this.ActionBanksMenu, null);
+		this.ActionBanksRF = new global::Gtk.Action ("ActionBanksRF", global::Mono.Unix.Catalog.GetString ("Банки РФ"), null, null);
+		this.ActionBanksRF.ShortLabel = global::Mono.Unix.Catalog.GetString ("Банки РФ");
+		w1.Add (this.ActionBanksRF, null);
+		this.ActionOrgMenu = new global::Gtk.Action ("ActionOrgMenu", global::Mono.Unix.Catalog.GetString ("Наша организация"), null, null);
+		this.ActionOrgMenu.ShortLabel = global::Mono.Unix.Catalog.GetString ("Наша организация");
+		w1.Add (this.ActionOrgMenu, null);
+		this.ActionEmploey = new global::Gtk.Action ("ActionEmploey", global::Mono.Unix.Catalog.GetString ("Сотрудники"), null, null);
+		this.ActionEmploey.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сотрудники");
+		w1.Add (this.ActionEmploey, null);
+		this.ActionNationality = new global::Gtk.Action ("ActionNationality", global::Mono.Unix.Catalog.GetString ("Национальность"), null, null);
+		this.ActionNationality.ShortLabel = global::Mono.Unix.Catalog.GetString ("Национальность");
+		w1.Add (this.ActionNationality, null);
+		this.ActionStatus = new global::Gtk.Action ("ActionStatus", global::Mono.Unix.Catalog.GetString ("Статусы"), null, null);
+		this.ActionStatus.ShortLabel = global::Mono.Unix.Catalog.GetString ("Статусы");
+		w1.Add (this.ActionStatus, null);
+		this.ActionEMailTypes = new global::Gtk.Action ("ActionEMailTypes", global::Mono.Unix.Catalog.GetString ("Типы e-mail адресов"), null, null);
+		this.ActionEMailTypes.ShortLabel = global::Mono.Unix.Catalog.GetString ("Типы e-mail адресов");
+		w1.Add (this.ActionEMailTypes, null);
+		this.ActionHandbook = new global::Gtk.Action ("ActionHandbook", global::Mono.Unix.Catalog.GetString ("Справочники"), null, null);
+		this.ActionHandbook.ShortLabel = global::Mono.Unix.Catalog.GetString ("Справочники");
+		w1.Add (this.ActionHandbook, null);
+		this.ActionCounterpartyPost = new global::Gtk.Action ("ActionCounterpartyPost", global::Mono.Unix.Catalog.GetString ("Должности сотрудников контрагента"), null, null);
+		this.ActionCounterpartyPost.ShortLabel = global::Mono.Unix.Catalog.GetString ("Должности сотрудников контрагента");
+		w1.Add (this.ActionCounterpartyPost, null);
+		this.ActionFreeRentPackage = new global::Gtk.Action ("ActionFreeRentPackage", global::Mono.Unix.Catalog.GetString ("Пакеты бесплатной аренды"), null, null);
+		this.ActionFreeRentPackage.ShortLabel = global::Mono.Unix.Catalog.GetString ("Пакеты бесплатной аренды");
+		w1.Add (this.ActionFreeRentPackage, null);
 		this.UIManager.InsertActionGroup (w1, 0);
 		global::Gtk.ActionGroup w2 = new global::Gtk.ActionGroup ("services");
 		this.ActionServiceTikets = new global::Gtk.Action ("ActionServiceTikets", global::Mono.Unix.Catalog.GetString ("Журнал заявок"), null, "table");
 		this.ActionServiceTikets.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заявок");
 		w2.Add (this.ActionServiceTikets, null);
 		this.UIManager.InsertActionGroup (w2, 1);
-		global::Gtk.ActionGroup w3 = new global::Gtk.ActionGroup ("Default");
-		this.ActionBaseMenu = new global::Gtk.Action ("ActionBaseMenu", global::Mono.Unix.Catalog.GetString ("База"), null, null);
-		this.ActionBaseMenu.ShortLabel = global::Mono.Unix.Catalog.GetString ("База");
-		w3.Add (this.ActionBaseMenu, null);
-		this.dialogAuthenticationAction = new global::Gtk.Action ("dialogAuthenticationAction", global::Mono.Unix.Catalog.GetString ("Изменить пароль"), null, "gtk-dialog-authentication");
-		this.dialogAuthenticationAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Изменить пароль");
-		w3.Add (this.dialogAuthenticationAction, null);
-		this.ActionAbout = new global::Gtk.Action ("ActionAbout", global::Mono.Unix.Catalog.GetString ("Справка"), null, null);
-		this.ActionAbout.ShortLabel = global::Mono.Unix.Catalog.GetString ("Справка");
-		w3.Add (this.ActionAbout, null);
-		this.aboutAction = new global::Gtk.Action ("aboutAction", global::Mono.Unix.Catalog.GetString ("_О программе"), null, "gtk-about");
-		this.aboutAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("_О программе");
-		w3.Add (this.aboutAction, null);
-		this.UsersAction = new global::Gtk.Action ("UsersAction", global::Mono.Unix.Catalog.GetString ("Пользователи"), null, "users");
-		this.UsersAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("Пользователи");
-		w3.Add (this.UsersAction, null);
-		this.quitAction = new global::Gtk.Action ("quitAction", global::Mono.Unix.Catalog.GetString ("В_ыход"), null, "gtk-quit");
-		this.quitAction.ShortLabel = global::Mono.Unix.Catalog.GetString ("В_ыход");
-		w3.Add (this.quitAction, null);
-		this.ActionOrders = new global::Gtk.RadioAction ("ActionOrders", global::Mono.Unix.Catalog.GetString ("Заказы"), null, "order", 0);
-		this.ActionOrders.Group = new global::GLib.SList (global::System.IntPtr.Zero);
-		this.ActionOrders.ShortLabel = global::Mono.Unix.Catalog.GetString ("Заказы");
-		w3.Add (this.ActionOrders, null);
-		this.ActionServices = new global::Gtk.RadioAction ("ActionServices", global::Mono.Unix.Catalog.GetString ("Сервис"), null, "service", 0);
-		this.ActionServices.Group = this.ActionOrders.Group;
-		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сервис");
-		w3.Add (this.ActionServices, null);
-		this.ActionLogistics = new global::Gtk.RadioAction ("ActionLogistics", global::Mono.Unix.Catalog.GetString ("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionServices.Group;
-		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString ("Логистика");
-		w3.Add (this.ActionLogistics, null);
-		this.ActionStock = new global::Gtk.RadioAction ("ActionStock", global::Mono.Unix.Catalog.GetString ("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionServices.Group;
-		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString ("Склад");
-		w3.Add (this.ActionStock, null);
-		this.ActionCash = new global::Gtk.RadioAction ("ActionCash", global::Mono.Unix.Catalog.GetString ("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionStock.Group;
-		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString ("Касса");
-		w3.Add (this.ActionCash, null);
-		this.ActionAccounting = new global::Gtk.RadioAction ("ActionAccounting", global::Mono.Unix.Catalog.GetString ("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionCash.Group;
-		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString ("Бухгалтерия");
-		w3.Add (this.ActionAccounting, null);
-		this.ActionReports = new global::Gtk.RadioAction ("ActionReports", global::Mono.Unix.Catalog.GetString ("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionCash.Group;
-		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString ("Отчеты");
-		w3.Add (this.ActionReports, null);
-		this.ActionArchive = new global::Gtk.RadioAction ("ActionArchive", global::Mono.Unix.Catalog.GetString ("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionCash.Group;
-		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString ("Архив");
-		w3.Add (this.ActionArchive, null);
-		this.ActionOrg = new global::Gtk.Action ("ActionOrg", global::Mono.Unix.Catalog.GetString ("Организации"), null, null);
-		this.ActionOrg.ShortLabel = global::Mono.Unix.Catalog.GetString ("Организации");
-		w3.Add (this.ActionOrg, null);
-		this.ActionBanksMenu = new global::Gtk.Action ("ActionBanksMenu", global::Mono.Unix.Catalog.GetString ("Банки"), null, null);
-		this.ActionBanksMenu.ShortLabel = global::Mono.Unix.Catalog.GetString ("Банки");
-		w3.Add (this.ActionBanksMenu, null);
-		this.ActionBanksRF = new global::Gtk.Action ("ActionBanksRF", global::Mono.Unix.Catalog.GetString ("Банки РФ"), null, null);
-		this.ActionBanksRF.ShortLabel = global::Mono.Unix.Catalog.GetString ("Банки РФ");
-		w3.Add (this.ActionBanksRF, null);
-		this.ActionOrgMenu = new global::Gtk.Action ("ActionOrgMenu", global::Mono.Unix.Catalog.GetString ("Наша организация"), null, null);
-		this.ActionOrgMenu.ShortLabel = global::Mono.Unix.Catalog.GetString ("Наша организация");
-		w3.Add (this.ActionOrgMenu, null);
-		this.ActionEmploey = new global::Gtk.Action ("ActionEmploey", global::Mono.Unix.Catalog.GetString ("Сотрудники"), null, null);
-		this.ActionEmploey.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сотрудники");
-		w3.Add (this.ActionEmploey, null);
-		this.ActionNationality = new global::Gtk.Action ("ActionNationality", global::Mono.Unix.Catalog.GetString ("Национальность"), null, null);
-		this.ActionNationality.ShortLabel = global::Mono.Unix.Catalog.GetString ("Национальность");
-		w3.Add (this.ActionNationality, null);
-		this.ActionStatus = new global::Gtk.Action ("ActionStatus", global::Mono.Unix.Catalog.GetString ("Статусы"), null, null);
-		this.ActionStatus.ShortLabel = global::Mono.Unix.Catalog.GetString ("Статусы");
-		w3.Add (this.ActionStatus, null);
-		this.ActionEMailTypes = new global::Gtk.Action ("ActionEMailTypes", global::Mono.Unix.Catalog.GetString ("Типы e-mail адресов"), null, null);
-		this.ActionEMailTypes.ShortLabel = global::Mono.Unix.Catalog.GetString ("Типы e-mail адресов");
-		w3.Add (this.ActionEMailTypes, null);
-		this.ActionHandbook = new global::Gtk.Action ("ActionHandbook", global::Mono.Unix.Catalog.GetString ("Справочники"), null, null);
-		this.ActionHandbook.ShortLabel = global::Mono.Unix.Catalog.GetString ("Справочники");
-		w3.Add (this.ActionHandbook, null);
-		this.ActionCounterpartyPost = new global::Gtk.Action ("ActionCounterpartyPost", global::Mono.Unix.Catalog.GetString ("Должности сотрудников контрагента"), null, null);
-		this.ActionCounterpartyPost.ShortLabel = global::Mono.Unix.Catalog.GetString ("Должности сотрудников контрагента");
-		w3.Add (this.ActionCounterpartyPost, null);
-		this.ActionFreeRentPackage = new global::Gtk.Action ("ActionFreeRentPackage", global::Mono.Unix.Catalog.GetString ("Пакеты бесплатной аренды"), null, null);
-		this.ActionFreeRentPackage.ShortLabel = global::Mono.Unix.Catalog.GetString ("Пакеты бесплатной аренды");
-		w3.Add (this.ActionFreeRentPackage, null);
+		global::Gtk.ActionGroup w3 = new global::Gtk.ActionGroup ("orders");
+		this.ActionNewOrder = new global::Gtk.Action ("ActionNewOrder", global::Mono.Unix.Catalog.GetString ("Новый заказ"), null, "gtk-new");
+		this.ActionNewOrder.ShortLabel = global::Mono.Unix.Catalog.GetString ("Новый заказ");
+		w3.Add (this.ActionNewOrder, null);
+		this.ActionOrdersTable = new global::Gtk.Action ("ActionOrdersTable", global::Mono.Unix.Catalog.GetString ("Журнал заказов"), null, "table");
+		this.ActionOrdersTable.ShortLabel = global::Mono.Unix.Catalog.GetString ("Журнал заказов");
+		w3.Add (this.ActionOrdersTable, null);
+		this.ActionCars = new global::Gtk.Action ("ActionCars", global::Mono.Unix.Catalog.GetString ("Автомобили"), null, null);
+		this.ActionCars.ShortLabel = global::Mono.Unix.Catalog.GetString ("Автомобили");
+		w3.Add (this.ActionCars, null);
+		this.ActionColors = new global::Gtk.Action ("ActionColors", global::Mono.Unix.Catalog.GetString ("Цвета оборудования"), null, null);
+		this.ActionColors.ShortLabel = global::Mono.Unix.Catalog.GetString ("Цвета");
+		w3.Add (this.ActionColors, null);
+		this.ActionUnits = new global::Gtk.Action ("ActionUnits", global::Mono.Unix.Catalog.GetString ("Единицы измерения"), null, null);
+		this.ActionUnits.ShortLabel = global::Mono.Unix.Catalog.GetString ("Единицы измерения");
+		w3.Add (this.ActionUnits, null);
+		this.ActionManufacturers = new global::Gtk.Action ("ActionManufacturers", global::Mono.Unix.Catalog.GetString ("Производители оборудования"), null, null);
+		this.ActionManufacturers.ShortLabel = global::Mono.Unix.Catalog.GetString ("Производители оборудования");
+		w3.Add (this.ActionManufacturers, null);
+		this.ActionEquipmentTypes = new global::Gtk.Action ("ActionEquipmentTypes", global::Mono.Unix.Catalog.GetString ("Типы оборудования"), null, null);
+		this.ActionEquipmentTypes.ShortLabel = global::Mono.Unix.Catalog.GetString ("Типы оборудования");
+		w3.Add (this.ActionEquipmentTypes, null);
+		this.ActionNomenclature = new global::Gtk.Action ("ActionNomenclature", global::Mono.Unix.Catalog.GetString ("Номенклатура"), null, null);
+		this.ActionNomenclature.ShortLabel = global::Mono.Unix.Catalog.GetString ("Номенклатура");
+		w3.Add (this.ActionNomenclature, null);
+		this.ActionPhoneTypes = new global::Gtk.Action ("ActionPhoneTypes", global::Mono.Unix.Catalog.GetString ("Типы телефонов"), null, null);
+		this.ActionPhoneTypes.ShortLabel = global::Mono.Unix.Catalog.GetString ("Типы телефонов");
+		w3.Add (this.ActionPhoneTypes, null);
+		this.ActionTMC = new global::Gtk.Action ("ActionTMC", global::Mono.Unix.Catalog.GetString ("ТМЦ"), null, null);
+		this.ActionTMC.ShortLabel = global::Mono.Unix.Catalog.GetString ("ТМЦ");
+		w3.Add (this.ActionTMC, null);
+		this.Action = new global::Gtk.Action ("Action", global::Mono.Unix.Catalog.GetString ("Справочники"), null, null);
+		this.Action.ShortLabel = global::Mono.Unix.Catalog.GetString ("Значимость контрагента");
+		w3.Add (this.Action, null);
+		this.ActionCounterparty1 = new global::Gtk.Action ("ActionCounterparty1", global::Mono.Unix.Catalog.GetString ("Контрагенты"), null, null);
+		this.ActionCounterparty1.ShortLabel = global::Mono.Unix.Catalog.GetString ("Контрагенты");
+		w3.Add (this.ActionCounterparty1, null);
+		this.ActionCounterpartyHandbook = new global::Gtk.Action ("ActionCounterpartyHandbook", global::Mono.Unix.Catalog.GetString ("Контрагенты"), null, null);
+		this.ActionCounterpartyHandbook.ShortLabel = global::Mono.Unix.Catalog.GetString ("Контрагенты");
+		w3.Add (this.ActionCounterpartyHandbook, null);
+		this.ActionSignificance = new global::Gtk.Action ("ActionSignificance", global::Mono.Unix.Catalog.GetString ("Значимость контрагента"), null, null);
+		this.ActionSignificance.ShortLabel = global::Mono.Unix.Catalog.GetString ("Значимость контрагента");
+		w3.Add (this.ActionSignificance, null);
+		this.ActionPaidRentPackage = new global::Gtk.Action ("ActionPaidRentPackage", global::Mono.Unix.Catalog.GetString ("Пакеты платной аренды"), null, null);
+		this.ActionPaidRentPackage.ShortLabel = global::Mono.Unix.Catalog.GetString ("Пакеты платной аренды");
+		w3.Add (this.ActionPaidRentPackage, null);
 		this.UIManager.InsertActionGroup (w3, 2);
 		this.AddAccelGroup (this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -249,7 +254,7 @@ public partial class MainWindow
 		this.vbox1.Name = "vbox1";
 		this.vbox1.Spacing = 6;
 		// Container child vbox1.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='ActionBaseMenu' action='ActionBaseMenu'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='ActionHandbook' action='ActionHandbook'><menu name='ActionOrgMenu' action='ActionOrgMenu'><menuitem name='ActionOrg' action='ActionOrg'/><separator/><menuitem name='ActionEmploey' action='ActionEmploey'/><menuitem name='ActionNationality' action='ActionNationality'/><menuitem name='ActionCars' action='ActionCars'/><separator/><menuitem name='ActionPhoneTypes' action='ActionPhoneTypes'/><menuitem name='ActionEMailTypes' action='ActionEMailTypes'/></menu><menu name='ActionTMC' action='ActionTMC'><menuitem name='ActionNomenclature' action='ActionNomenclature'/><menuitem name='ActionUnits' action='ActionUnits'/><separator/><menuitem name='ActionEquipmentTypes' action='ActionEquipmentTypes'/><menuitem name='ActionManufacturers' action='ActionManufacturers'/><menuitem name='ActionColors' action='ActionColors'/><menuitem name='ActionFreeRentPackage' action='ActionFreeRentPackage'/></menu><menu name='ActionBanksMenu' action='ActionBanksMenu'><menuitem name='ActionBanksRF' action='ActionBanksRF'/></menu><menu name='ActionCounterparty1' action='ActionCounterparty1'><menuitem name='ActionCounterpartyHandbook' action='ActionCounterpartyHandbook'/><separator/><menuitem name='ActionSignificance' action='ActionSignificance'/><menuitem name='ActionStatus' action='ActionStatus'/><menuitem name='ActionCounterpartyPost' action='ActionCounterpartyPost'/></menu></menu><menu name='ActionAbout' action='ActionAbout'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
+		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='ActionBaseMenu' action='ActionBaseMenu'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='ActionHandbook' action='ActionHandbook'><menu name='ActionOrgMenu' action='ActionOrgMenu'><menuitem name='ActionOrg' action='ActionOrg'/><separator/><menuitem name='ActionEmploey' action='ActionEmploey'/><menuitem name='ActionNationality' action='ActionNationality'/><menuitem name='ActionCars' action='ActionCars'/><separator/><menuitem name='ActionPhoneTypes' action='ActionPhoneTypes'/><menuitem name='ActionEMailTypes' action='ActionEMailTypes'/></menu><menu name='ActionTMC' action='ActionTMC'><menuitem name='ActionNomenclature' action='ActionNomenclature'/><menuitem name='ActionUnits' action='ActionUnits'/><separator/><menuitem name='ActionEquipmentTypes' action='ActionEquipmentTypes'/><menuitem name='ActionManufacturers' action='ActionManufacturers'/><menuitem name='ActionColors' action='ActionColors'/><menuitem name='ActionFreeRentPackage' action='ActionFreeRentPackage'/><menuitem name='ActionPaidRentPackage' action='ActionPaidRentPackage'/></menu><menu name='ActionBanksMenu' action='ActionBanksMenu'><menuitem name='ActionBanksRF' action='ActionBanksRF'/></menu><menu name='ActionCounterparty1' action='ActionCounterparty1'><menuitem name='ActionCounterpartyHandbook' action='ActionCounterpartyHandbook'/><separator/><menuitem name='ActionSignificance' action='ActionSignificance'/><menuitem name='ActionStatus' action='ActionStatus'/><menuitem name='ActionCounterpartyPost' action='ActionCounterpartyPost'/></menu></menu><menu name='ActionAbout' action='ActionAbout'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add (this.menubarMain);
@@ -326,15 +331,6 @@ public partial class MainWindow
 		this.DefaultHeight = 530;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
-		this.ActionCars.Activated += new global::System.EventHandler (this.OnActionCarsActivated);
-		this.ActionColors.Activated += new global::System.EventHandler (this.OnActionColorsActivated);
-		this.ActionUnits.Activated += new global::System.EventHandler (this.OnActionUnitsActivated);
-		this.ActionManufacturers.Activated += new global::System.EventHandler (this.OnActionManufacturersActivated);
-		this.ActionEquipmentTypes.Activated += new global::System.EventHandler (this.OnActionEquipmentTypesActivated);
-		this.ActionNomenclature.Activated += new global::System.EventHandler (this.OnActionNomenclatureActivated);
-		this.ActionPhoneTypes.Activated += new global::System.EventHandler (this.OnActionPhoneTypesActivated);
-		this.ActionCounterpartyHandbook.Activated += new global::System.EventHandler (this.OnActionCounterpartyHandbookActivated);
-		this.ActionSignificance.Activated += new global::System.EventHandler (this.OnActionSignificanceActivated);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler (this.OnDialogAuthenticationActionActivated);
 		this.aboutAction.Activated += new global::System.EventHandler (this.OnAboutActionActivated);
 		this.UsersAction.Activated += new global::System.EventHandler (this.OnAction3Activated);
@@ -349,5 +345,15 @@ public partial class MainWindow
 		this.ActionEMailTypes.Activated += new global::System.EventHandler (this.OnActionEMailTypesActivated);
 		this.ActionCounterpartyPost.Activated += new global::System.EventHandler (this.OnActionCounterpartyPostActivated);
 		this.ActionFreeRentPackage.Activated += new global::System.EventHandler (this.OnActionFreeRentPackageActivated);
+		this.ActionCars.Activated += new global::System.EventHandler (this.OnActionCarsActivated);
+		this.ActionColors.Activated += new global::System.EventHandler (this.OnActionColorsActivated);
+		this.ActionUnits.Activated += new global::System.EventHandler (this.OnActionUnitsActivated);
+		this.ActionManufacturers.Activated += new global::System.EventHandler (this.OnActionManufacturersActivated);
+		this.ActionEquipmentTypes.Activated += new global::System.EventHandler (this.OnActionEquipmentTypesActivated);
+		this.ActionNomenclature.Activated += new global::System.EventHandler (this.OnActionNomenclatureActivated);
+		this.ActionPhoneTypes.Activated += new global::System.EventHandler (this.OnActionPhoneTypesActivated);
+		this.ActionCounterpartyHandbook.Activated += new global::System.EventHandler (this.OnActionCounterpartyHandbookActivated);
+		this.ActionSignificance.Activated += new global::System.EventHandler (this.OnActionSignificanceActivated);
+		this.ActionPaidRentPackage.Activated += new global::System.EventHandler (this.OnActionPaidRentPackageActivated);
 	}
 }
