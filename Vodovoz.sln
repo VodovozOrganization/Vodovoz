@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gtk.DataBindings", "..\Gtk.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj", "{54F958F5-7E58-4C89-9A04-8835E63B97C3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSValidation", "..\QSProjects\QSValidation\QSValidation.csproj", "{CE5179E8-3172-4C08-9FE3-9C48C58A3831}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -77,6 +79,10 @@ Global
 		{AED7339A-4A71-4063-9C67-0D54821230A3}.Debug|x86.Build.0 = Debug|Any CPU
 		{AED7339A-4A71-4063-9C67-0D54821230A3}.Release|x86.ActiveCfg = Release|Any CPU
 		{AED7339A-4A71-4063-9C67-0D54821230A3}.Release|x86.Build.0 = Release|Any CPU
+		{CE5179E8-3172-4C08-9FE3-9C48C58A3831}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CE5179E8-3172-4C08-9FE3-9C48C58A3831}.Debug|x86.Build.0 = Debug|Any CPU
+		{CE5179E8-3172-4C08-9FE3-9C48C58A3831}.Release|x86.ActiveCfg = Release|Any CPU
+		{CE5179E8-3172-4C08-9FE3-9C48C58A3831}.Release|x86.Build.0 = Release|Any CPU
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}.Debug|x86.Build.0 = Debug|Any CPU
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}.Release|x86.ActiveCfg = Release|Any CPU
