@@ -12,10 +12,10 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
-    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
     <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Debug/QSContacts.dll" />
     <widget-library name="../../../QSProjects/Modules/QSProxies/bin/Debug/QSProxies.dll" />
+    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
@@ -71,6 +71,97 @@
     </icon-set>
   </icon-factory>
   <widget class="Gtk.Window" id="MainWindow" design-size="862 530">
+    <action-group name="orders">
+      <action id="ActionNewOrder">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Новый заказ</property>
+        <property name="ShortLabel" translatable="yes">Новый заказ</property>
+        <property name="StockId">gtk-new</property>
+      </action>
+      <action id="ActionOrdersTable">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал заказов</property>
+        <property name="ShortLabel" translatable="yes">Журнал заказов</property>
+        <property name="StockId">table</property>
+      </action>
+      <action id="ActionCars">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Автомобили</property>
+        <property name="ShortLabel" translatable="yes">Автомобили</property>
+        <signal name="Activated" handler="OnActionCarsActivated" />
+      </action>
+      <action id="ActionColors">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Цвета оборудования</property>
+        <property name="ShortLabel" translatable="yes">Цвета</property>
+        <signal name="Activated" handler="OnActionColorsActivated" />
+      </action>
+      <action id="ActionUnits">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Единицы измерения</property>
+        <property name="ShortLabel" translatable="yes">Единицы измерения</property>
+        <signal name="Activated" handler="OnActionUnitsActivated" />
+      </action>
+      <action id="ActionManufacturers">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Производители оборудования</property>
+        <property name="ShortLabel" translatable="yes">Производители оборудования</property>
+        <signal name="Activated" handler="OnActionManufacturersActivated" />
+      </action>
+      <action id="ActionEquipmentTypes">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Типы оборудования</property>
+        <property name="ShortLabel" translatable="yes">Типы оборудования</property>
+        <signal name="Activated" handler="OnActionEquipmentTypesActivated" />
+      </action>
+      <action id="ActionNomenclature">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Номенклатура</property>
+        <property name="ShortLabel" translatable="yes">Номенклатура</property>
+        <signal name="Activated" handler="OnActionNomenclatureActivated" />
+      </action>
+      <action id="ActionPhoneTypes">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Типы телефонов</property>
+        <property name="ShortLabel" translatable="yes">Типы телефонов</property>
+        <signal name="Activated" handler="OnActionPhoneTypesActivated" />
+      </action>
+      <action id="ActionTMC">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">ТМЦ</property>
+        <property name="ShortLabel" translatable="yes">ТМЦ</property>
+      </action>
+      <action id="Action">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Справочники</property>
+        <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
+      </action>
+      <action id="ActionCounterparty1">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Контрагенты</property>
+        <property name="ShortLabel" translatable="yes">Контрагенты</property>
+      </action>
+      <action id="ActionCounterpartyHandbook">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Контрагенты</property>
+        <property name="ShortLabel" translatable="yes">Контрагенты</property>
+        <signal name="Activated" handler="OnActionCounterpartyHandbookActivated" />
+      </action>
+      <action id="ActionSignificance">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Значимость контрагента</property>
+        <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
+        <signal name="Activated" handler="OnActionSignificanceActivated" />
+      </action>
+    </action-group>
+    <action-group name="services">
+      <action id="ActionServiceTikets">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Журнал заявок</property>
+        <property name="ShortLabel" translatable="yes">Журнал заявок</property>
+        <property name="StockId">table</property>
+      </action>
+    </action-group>
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -249,96 +340,11 @@
         <property name="ShortLabel" translatable="yes">Должности сотрудников контрагента</property>
         <signal name="Activated" handler="OnActionCounterpartyPostActivated" />
       </action>
-    </action-group>
-    <action-group name="services">
-      <action id="ActionServiceTikets">
+      <action id="ActionFreeRentPackage">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Журнал заявок</property>
-        <property name="ShortLabel" translatable="yes">Журнал заявок</property>
-        <property name="StockId">table</property>
-      </action>
-    </action-group>
-    <action-group name="orders">
-      <action id="ActionNewOrder">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Новый заказ</property>
-        <property name="ShortLabel" translatable="yes">Новый заказ</property>
-        <property name="StockId">gtk-new</property>
-      </action>
-      <action id="ActionOrdersTable">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Журнал заказов</property>
-        <property name="ShortLabel" translatable="yes">Журнал заказов</property>
-        <property name="StockId">table</property>
-      </action>
-      <action id="ActionCars">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Автомобили</property>
-        <property name="ShortLabel" translatable="yes">Автомобили</property>
-        <signal name="Activated" handler="OnActionCarsActivated" />
-      </action>
-      <action id="ActionColors">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Цвета оборудования</property>
-        <property name="ShortLabel" translatable="yes">Цвета</property>
-        <signal name="Activated" handler="OnActionColorsActivated" />
-      </action>
-      <action id="ActionUnits">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Единицы измерения</property>
-        <property name="ShortLabel" translatable="yes">Единицы измерения</property>
-        <signal name="Activated" handler="OnActionUnitsActivated" />
-      </action>
-      <action id="ActionManufacturers">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Производители оборудования</property>
-        <property name="ShortLabel" translatable="yes">Производители оборудования</property>
-        <signal name="Activated" handler="OnActionManufacturersActivated" />
-      </action>
-      <action id="ActionEquipmentTypes">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Типы оборудования</property>
-        <property name="ShortLabel" translatable="yes">Типы оборудования</property>
-        <signal name="Activated" handler="OnActionEquipmentTypesActivated" />
-      </action>
-      <action id="ActionNomenclature">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Номенклатура</property>
-        <property name="ShortLabel" translatable="yes">Номенклатура</property>
-        <signal name="Activated" handler="OnActionNomenclatureActivated" />
-      </action>
-      <action id="ActionPhoneTypes">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Типы телефонов</property>
-        <property name="ShortLabel" translatable="yes">Типы телефонов</property>
-        <signal name="Activated" handler="OnActionPhoneTypesActivated" />
-      </action>
-      <action id="ActionTMC">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">ТМЦ</property>
-        <property name="ShortLabel" translatable="yes">ТМЦ</property>
-      </action>
-      <action id="Action">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Справочники</property>
-        <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
-      </action>
-      <action id="ActionCounterparty1">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Контрагенты</property>
-        <property name="ShortLabel" translatable="yes">Контрагенты</property>
-      </action>
-      <action id="ActionCounterpartyHandbook">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Контрагенты</property>
-        <property name="ShortLabel" translatable="yes">Контрагенты</property>
-        <signal name="Activated" handler="OnActionCounterpartyHandbookActivated" />
-      </action>
-      <action id="ActionSignificance">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Значимость контрагента</property>
-        <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
-        <signal name="Activated" handler="OnActionSignificanceActivated" />
+        <property name="Label" translatable="yes">Пакеты бесплатной аренды</property>
+        <property name="ShortLabel" translatable="yes">Пакеты бесплатной аренды</property>
+        <signal name="Activated" handler="OnActionFreeRentPackageActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -377,6 +383,7 @@
                   <node type="Menuitem" action="ActionEquipmentTypes" />
                   <node type="Menuitem" action="ActionManufacturers" />
                   <node type="Menuitem" action="ActionColors" />
+                  <node type="Menuitem" action="ActionFreeRentPackage" />
                 </node>
                 <node type="Menu" action="ActionBanksMenu">
                   <node type="Menuitem" action="ActionBanksRF" />
@@ -554,6 +561,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3004,7 +3012,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5738,11 +5745,323 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementBase" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackageDlg" design-size="419 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <placeholder />
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Button" id="buttonSave">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-save Menu</property>
+                <property name="Label" translatable="yes">Сохранить</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonSaveClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonCancel">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-revert-to-saved Menu</property>
+                <property name="Label" translatable="yes">Отменить</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+            <property name="MemberName" />
+            <property name="NRows">5</property>
+            <property name="NColumns">2</property>
+            <property name="RowSpacing">6</property>
+            <property name="ColumnSpacing">6</property>
+            <property name="InheritedDataSource">False</property>
+            <property name="InheritedBoundaryDataSource">False</property>
+            <property name="InheritedDataSource">False</property>
+            <property name="InheritedBoundaryDataSource">False</property>
+            <child>
+              <widget class="Gtk.DataBindings.DataEntry" id="dataentryName">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="IsEditable">True</property>
+                <property name="InvisibleChar">●</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">Name</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">Name</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+              </widget>
+              <packing>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label1">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Название:</property>
+              </widget>
+              <packing>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label2">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Минимальное
+кол-во бутылей:</property>
+                <property name="Justify">Right</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label3">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Тип оборудования:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label4">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Сумма залога:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label5">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Услуга залога:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDepositService">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="DisplayFields">Name</property>
+                <property name="DisplayFormatString">{0}</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">DepositService</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="CursorPointsEveryType">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipmentType">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="DisplayFields">Name</property>
+                <property name="DisplayFormatString">{0}</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">EquipmentType</property>
+                <property name="ColumnMappings" />
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="CursorPointsEveryType">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataSpinButton" id="spinDeposit">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Upper">100000</property>
+                <property name="PageIncrement">10</property>
+                <property name="StepIncrement">1</property>
+                <property name="ClimbRate">1</property>
+                <property name="Numeric">True</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">Deposit</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">Deposit</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataSpinButton" id="spinMinWaterAmount">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Upper">100</property>
+                <property name="PageIncrement">10</property>
+                <property name="StepIncrement">1</property>
+                <property name="ClimbRate">1</property>
+                <property name="Numeric">True</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">MinWaterAmount</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">MinWaterAmount</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
     </child>
   </widget>
 </stetic-interface>

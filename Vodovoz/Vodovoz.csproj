@@ -118,8 +118,9 @@
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementRepair.cs" />
     <Compile Include="Dialogs\AdditionalAgreementWater.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementWater.cs" />
-    <Compile Include="Dialogs\AdditionalAgreementBase.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementBase.cs" />
+    <Compile Include="Domain\FreeRentPackage.cs" />
+    <Compile Include="Dialogs\FreeRentPackageDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FreeRentPackageDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

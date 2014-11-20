@@ -205,4 +205,14 @@
  		</id>
 		<property name="Name" column="name" />
 	</class>
+	<class name="FreeRentPackage" lazy="false" table="free_rent_packages">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+		<property name="MinWaterAmount" column="min_water_amount" />
+		<property name="Deposit" column="deposit" />
+		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
+		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
+	</class>
 </hibernate-mapping>
