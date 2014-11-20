@@ -27,13 +27,13 @@ namespace Vodovoz
 	public class NonfreeRentAgreement : AdditionalAgreement
 	{
 		#region Свойства
-
+		public virtual PaidRentPackage RentPackage { get; set; }
 		#endregion
 	}
 	public class FreeRentAgreement : AdditionalAgreement
 	{
 		#region Свойства
-
+		public virtual FreeRentPackage RentPackage { get; set; }
 		#endregion
 	}
 	public class WaterSalesAgreement : AdditionalAgreement

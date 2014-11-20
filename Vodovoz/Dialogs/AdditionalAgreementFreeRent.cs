@@ -125,6 +125,7 @@ namespace Vodovoz
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			entryAgreementNumber.IsEditable = true;
+			referenceRentPackage.SubjectType = typeof(FreeRentPackage);
 		}
 
 		public bool Save ()

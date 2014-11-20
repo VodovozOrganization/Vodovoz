@@ -124,8 +124,10 @@
 		<property name="StartDate" column="start_date" />
 		<property name="IssueDate" column="issue_date" /> 
 		<subclass name="NonfreeRentAgreement" discriminator-value="NonfreeRent">
+			<many-to-one name="RentPackage" class="PaidRentPackage" column="paid_rent_package_id" />
         </subclass>
     	<subclass name="FreeRentAgreement" discriminator-value="FreeRent">
+			<many-to-one name="RentPackage" class="FreeRentPackage" column="free_rent_package_id" />
         </subclass>
     	<subclass name="WaterSalesAgreement" discriminator-value="WaterSales">
         </subclass>

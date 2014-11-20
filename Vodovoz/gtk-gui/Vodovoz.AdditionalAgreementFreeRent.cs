@@ -25,6 +25,10 @@ namespace Vodovoz
 		private global::Gtk.Label label3;
 		
 		private global::Gtk.Label label4;
+		
+		private global::Gtk.Label label5;
+		
+		private global::Gtk.DataBindings.DataEntryReference referenceRentPackage;
 
 		protected virtual void Build ()
 		{
@@ -126,7 +130,7 @@ namespace Vodovoz
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Номер доп.\nсоглашения:");
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Номер доп. соглашения:");
 			this.datatable1.Add (this.label1);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label1]));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -164,9 +168,39 @@ namespace Vodovoz
 			w10.BottomAttach = ((uint)(4));
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.label5 = new global::Gtk.Label ();
+			this.label5.Name = "label5";
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Пакет бесплатной аренды:");
+			this.datatable1.Add (this.label5);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label5]));
+			w11.TopAttach = ((uint)(4));
+			w11.BottomAttach = ((uint)(5));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.referenceRentPackage = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceRentPackage.Events = ((global::Gdk.EventMask)(256));
+			this.referenceRentPackage.Name = "referenceRentPackage";
+			this.referenceRentPackage.DisplayFields = new string[] {
+				"Name"
+			};
+			this.referenceRentPackage.DisplayFormatString = "{0}";
+			this.referenceRentPackage.InheritedDataSource = true;
+			this.referenceRentPackage.Mappings = "RentPackage";
+			this.referenceRentPackage.InheritedBoundaryDataSource = false;
+			this.referenceRentPackage.CursorPointsEveryType = false;
+			this.datatable1.Add (this.referenceRentPackage);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceRentPackage]));
+			w12.TopAttach = ((uint)(4));
+			w12.BottomAttach = ((uint)(5));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w11.Position = 1;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w13.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
