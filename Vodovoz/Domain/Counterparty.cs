@@ -4,10 +4,12 @@ using System.Data.Bindings;
 using System.Collections.Generic;
 using QSContacts;
 using QSProxies;
+using System.ComponentModel.DataAnnotations;
+using DataAnnotationsExtensions;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes("Контрагенты")]
+	[OrmSubjectAttributes("Контрагенты")]
 	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner
 	{
 		private IList<Contact> contact;
@@ -38,11 +40,16 @@ namespace Vodovoz
 		#region Свойства
 		public virtual int Id { get; set; }
 		public virtual decimal MaxCredit { get; set; }
+		[Required(ErrorMessage = "Название контрагента должно быть заполнено.")]
 		public virtual string Name { get; set; }
 		public virtual string FullName { get; set; }
 		public virtual string Comment { get; set; }
 		public virtual string WaybillComment { get; set; }
+		[Digits(ErrorMessage = "ИНН может содержать только цифры.")]
+		[StringLength(12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
 		public virtual string INN { get; set; }
+		[Digits(ErrorMessage = "КПП может содержать только цифры.")]
+		[StringLength(9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
 		public virtual string KPP { get; set; }
 		public virtual string JurAddress { get; set; }
 		public virtual Payment PaymentMethod { get; set; }

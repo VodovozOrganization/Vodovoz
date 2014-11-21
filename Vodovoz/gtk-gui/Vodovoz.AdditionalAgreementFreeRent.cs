@@ -27,8 +27,6 @@ namespace Vodovoz
 		private global::Gtk.Label label4;
 		
 		private global::Gtk.Label label5;
-		
-		private global::Gtk.DataBindings.DataEntryReference referenceRentPackage;
 
 		protected virtual void Build ()
 		{
@@ -64,7 +62,7 @@ namespace Vodovoz
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(6)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(5)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -88,7 +86,6 @@ namespace Vodovoz
 			w4.BottomAttach = ((uint)(3));
 			w4.LeftAttach = ((uint)(1));
 			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.dateStart = new global::QSOrmProject.DataDatePicker ();
@@ -106,7 +103,6 @@ namespace Vodovoz
 			w5.BottomAttach = ((uint)(4));
 			w5.LeftAttach = ((uint)(1));
 			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.entryAgreementNumber = new global::Gtk.DataBindings.DataEntry ();
@@ -124,7 +120,6 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryAgreementNumber]));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
@@ -171,36 +166,19 @@ namespace Vodovoz
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label ();
 			this.label5.Name = "label5";
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Пакет бесплатной аренды:");
+			this.label5.Xalign = 1F;
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Оборудование:");
 			this.datatable1.Add (this.label5);
 			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label5]));
 			w11.TopAttach = ((uint)(4));
 			w11.BottomAttach = ((uint)(5));
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceRentPackage = new global::Gtk.DataBindings.DataEntryReference ();
-			this.referenceRentPackage.Events = ((global::Gdk.EventMask)(256));
-			this.referenceRentPackage.Name = "referenceRentPackage";
-			this.referenceRentPackage.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceRentPackage.DisplayFormatString = "{0}";
-			this.referenceRentPackage.InheritedDataSource = true;
-			this.referenceRentPackage.Mappings = "RentPackage";
-			this.referenceRentPackage.InheritedBoundaryDataSource = false;
-			this.referenceRentPackage.CursorPointsEveryType = false;
-			this.datatable1.Add (this.referenceRentPackage);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceRentPackage]));
-			w12.TopAttach = ((uint)(4));
-			w12.BottomAttach = ((uint)(5));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w13.Position = 1;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

@@ -2,15 +2,17 @@
 using System.Data.Bindings;
 using QSOrmProject;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes("Номенклатуры")]
+	[OrmSubjectAttributes("Номенклатуры")]
 	[Magic]
 	public class Nomenclature
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
+		[Required(ErrorMessage = "Название номенклатуры должно быть заполнено.")]
 		public virtual string Name { get; set; }
 		public virtual string Model { get; set; }
 		public virtual double Weight { get; set; }

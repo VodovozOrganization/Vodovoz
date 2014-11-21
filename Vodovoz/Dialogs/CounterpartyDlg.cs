@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using QSContacts;
 using NHibernate.Criterion;
 using QSBanks;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -118,6 +119,10 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
+			var valid = new QSValidator<Counterparty> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
+
 			logger.Info("Сохраняем контрагента...");
 			if (entryName.Text == String.Empty) {
 				logger.Error ("Не введено имя контрагента.");

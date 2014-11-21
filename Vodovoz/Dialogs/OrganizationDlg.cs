@@ -7,6 +7,7 @@ using System.Data.Bindings;
 using NLog;
 using System.Collections.Generic;
 using QSContacts;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -109,6 +110,9 @@ namespace Vodovoz
 
 		public bool Save()
 		{
+			var valid = new QSValidator<Organization> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
 			logger.Info("Сохраняем организацию...");
 			try
 			{

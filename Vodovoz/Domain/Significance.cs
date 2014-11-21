@@ -3,7 +3,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes("Значимость контрагентов")]
+	[OrmSubjectAttributes("Значимость контрагента")]
 	public class Significance : IDomainObject
 	{
 		#region Свойства

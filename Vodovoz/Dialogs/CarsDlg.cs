@@ -4,6 +4,7 @@ using NLog;
 using NHibernate;
 using QSTDI;
 using System.Data.Bindings;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -106,6 +107,10 @@ namespace Vodovoz
 
 		public bool Save()
 		{
+			var valid = new QSValidator<Car> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
+
 			logger.Info("Сохраняем автомобиль...");
 			try
 			{

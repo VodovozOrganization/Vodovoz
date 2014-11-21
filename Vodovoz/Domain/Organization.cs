@@ -3,19 +3,28 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using QSOrmProject;
 using QSBanks;
+using System.ComponentModel.DataAnnotations;
+using DataAnnotationsExtensions;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes("Организации")]
-	public class Organization : QSBanks.AccountOwnerBase //: PropertyChangedBase
+	[OrmSubjectAttributes("Организации")]
+	public class Organization : QSBanks.AccountOwnerBase
 	{
 
 		#region Свойства
 		public virtual int Id { get; set; }
+		[Required(ErrorMessage = "Название организации должно быть заполнено.")]
 		public virtual string Name { get; set; }
 		public virtual string FullName { get; set; }
+		[Digits(ErrorMessage = "ИНН может содержать только цифры.")]
+		[StringLength(12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
 		public virtual string INN { get; set; }
+		[Digits(ErrorMessage = "КПП может содержать только цифры.")]
+		[StringLength(9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
 		public virtual string KPP { get; set; }
+		[Digits(ErrorMessage = "ОГРН может содержать только цифры.")]
+		[StringLength(13, MinimumLength = 0, ErrorMessage = "Номер ОГРН не должен превышать 13 цифр.")]
 		public virtual string OGRN { get; set; }
 		public virtual IList<QSContacts.Phone> Phones { get; set; }
 		public virtual string Email { get; set; }

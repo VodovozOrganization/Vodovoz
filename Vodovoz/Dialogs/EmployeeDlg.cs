@@ -6,6 +6,7 @@ using NHibernate;
 using System.Data.Bindings;
 using NLog;
 using Gtk;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -127,6 +128,10 @@ namespace Vodovoz
 
 		public bool Save()
 		{
+			var valid = new QSValidator<Employee> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
+				
 			logger.Info("Сохраняем сотрудника...");
 			try
 			{

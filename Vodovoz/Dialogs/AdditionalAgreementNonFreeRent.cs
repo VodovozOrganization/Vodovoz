@@ -4,6 +4,7 @@ using NHibernate;
 using NLog;
 using QSOrmProject;
 using QSTDI;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -124,15 +125,14 @@ namespace Vodovoz
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			entryAgreementNumber.IsEditable = true;
-			referenceRentPackage.SubjectType = typeof(PaidRentPackage);
 		}
 
 		public bool Save ()
 		{
-			if (entryAgreementNumber.Text == String.Empty) {
-				logger.Warn("В доп. соглашении не заполнен номер - не сохраняем.");
+			var valid = new QSValidator<NonfreeRentAgreement> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			}
+
 			OrmMain.DelayedNotifyObjectUpdated(ParentReference.ParentObject, subject);
 			return true;
 		}

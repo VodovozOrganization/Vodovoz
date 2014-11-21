@@ -2,16 +2,18 @@
 using QSOrmProject;
 using NHibernate;
 using System.Data.Bindings;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes("Сотрудники")]
+	[OrmSubjectAttributes("Сотрудники")]
 	[Magic]
 	public class Employee : PropertyChangedBase
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
 		public virtual string Name { get; set; }
+		[Required(ErrorMessage = "Необходимо заполнить хотя бы фамилию сотрудника.")]
 		public virtual string LastName { get; set; }
 		public virtual string Patronymic { get; set; }
 		public virtual EmployeeCategory Category { get; set; }

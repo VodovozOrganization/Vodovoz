@@ -6,6 +6,7 @@ using NHibernate;
 using NLog;
 using System.Collections.Generic;
 using NHibernate.Criterion;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -99,6 +100,9 @@ namespace Vodovoz
 
 		public bool Save()
 		{
+			var valid = new QSValidator<PaidRentPackage> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
 			logger.Info("Сохраняем пакет платных услуг...");
 			if (checkbuttonDaily.Active)
 				spinRentPeriod.Value = 0;

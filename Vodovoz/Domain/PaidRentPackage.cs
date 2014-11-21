@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes("Пакеты платной аренды")]
+	[OrmSubjectAttributes("Пакеты платной аренды")]
 	public class PaidRentPackage: IDomainObject
 	{
 		#region Свойства

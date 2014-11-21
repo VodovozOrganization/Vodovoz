@@ -1,14 +1,16 @@
 ﻿using System;
 using QSOrmProject;
 using System.Data.Bindings;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes ("Дополнительные соглашения")]
+	[OrmSubjectAttributes("Дополнительные соглашения")]
 	public class AdditionalAgreement : IDomainObject
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
+		[Required(ErrorMessage = "Номер доп. соглашения должен быть заполнен.")]
 		public virtual string AgreementNumber { get; set; }
 		public virtual AgreementType Type { get; set; }
 		public virtual DateTime IssueDate { get; set; }

@@ -4,6 +4,7 @@ using NHibernate;
 using NLog;
 using QSOrmProject;
 using QSTDI;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -127,10 +128,9 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
-			if (entryAgreementNumber.Text == String.Empty) {
-				logger.Warn("В доп. соглашении не заполнен номер - не сохраняем.");
+			var valid = new QSValidator<RepairAgreement> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			}
 			OrmMain.DelayedNotifyObjectUpdated(ParentReference.ParentObject, subject);
 			return true;
 		}

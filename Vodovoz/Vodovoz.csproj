@@ -50,6 +50,10 @@
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.4.0.0.4000\lib\net40\NHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="DataAnnotationsExtensions">
+      <HintPath>..\packages\DataAnnotationsExtensions.1.1.0.0\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -171,6 +175,10 @@
     <ProjectReference Include="..\..\Gtk.DataBindings\Gtk.DataBindings.csproj">
       <Project>{8D85E430-325A-4532-A123-BF28F9644DB4}</Project>
       <Name>Gtk.DataBindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
+      <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
+      <Name>QSValidation</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

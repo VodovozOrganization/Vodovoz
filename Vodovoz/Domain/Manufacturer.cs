@@ -3,7 +3,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttibutes("Производители")]
+	[OrmSubjectAttributes("Производители")]
 	public class Manufacturer : IDomainObject
 	{
 		#region Свойства

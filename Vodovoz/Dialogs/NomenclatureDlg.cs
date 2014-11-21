@@ -5,6 +5,7 @@ using QSTDI;
 using NHibernate;
 using NLog;
 using System.Collections.Generic;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -106,6 +107,9 @@ namespace Vodovoz
 
 		public bool Save()
 		{
+			var valid = new QSValidator<Nomenclature> (subject);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
 			logger.Info("Сохраняем номенклатуру...");
 			Session.SaveOrUpdate(subject);
 			pricesView.SaveChanges ();
