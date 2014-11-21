@@ -8,12 +8,11 @@ namespace Vodovoz
 {
 	[OrmSubjectAttributes("Сотрудники")]
 	[Magic]
-	public class Employee : PropertyChangedBase
+	public class Employee : PropertyChangedBase, IValidatableObject
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
 		public virtual string Name { get; set; }
-		[Required(ErrorMessage = "Необходимо заполнить хотя бы фамилию сотрудника.")]
 		public virtual string LastName { get; set; }
 		public virtual string Patronymic { get; set; }
 		public virtual EmployeeCategory Category { get; set; }
@@ -54,6 +53,17 @@ namespace Vodovoz
 				return String.Format ("{0} {1} {2}", LastName, Name, Patronymic);
 			}
 		}
+
+		#region IValidatableObject implementation
+
+		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if (String.IsNullOrEmpty (Name) && String.IsNullOrEmpty (LastName) && String.IsNullOrEmpty (Patronymic))
+				yield return new ValidationResult ("Должно быть заполнено хотя бы одно из следующих полей: " +
+					"Фамилия, Имя, Отчество)", new[] {"Name", "LastName", "Patronymic"});
+		}
+
+		#endregion
 	}
 
 	public enum EmployeeCategory{
