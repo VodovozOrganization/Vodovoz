@@ -2,6 +2,7 @@
 using System.Data.Bindings;
 using QSOrmProject;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -11,6 +12,7 @@ namespace Vodovoz
 		#region Свойства
 		public virtual int Id { get; set; }
 		public virtual int RentPeriod { get; set; }
+		[Required(ErrorMessage="Необходимо заполнить название пакета платной аренды.")]
 		public virtual string Name { get; set; }
 		public virtual decimal Price { get; set; }
 		public virtual bool Daily { get; set; }
