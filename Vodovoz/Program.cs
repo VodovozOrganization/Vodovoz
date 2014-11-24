@@ -49,6 +49,7 @@ namespace Vodovoz
 			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts", "QSProxies"});
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
+				new OrmObjectMaping(typeof(DeliveryPoint), typeof(DeliveryPointDlg), "{Vodovoz.DeliveryPoint} Name[Название];"),
 				new OrmObjectMaping(typeof(PaidRentPackage), typeof(PaidRentPackageDlg), "{Vodovoz.PaidRentPackage} Name[Название]; RentPeriodString[Период аренды];"),
 				new OrmObjectMaping(typeof(FreeRentPackage), typeof(FreeRentPackageDlg), "{Vodovoz.FreeRentPackage} Name[Название];"),
 				new OrmObjectMaping(typeof(FreeRentAgreement), typeof(AdditionalAgreementFreeRent), "{Vodovoz.FreeRentAgreement} AgreementNumber[Номер]"),

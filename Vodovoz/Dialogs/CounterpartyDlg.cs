@@ -77,6 +77,7 @@ namespace Vodovoz
 			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
 			//Setting subjects
 			accountsView.ParentReference = new OrmParentReference(Session, Subject, "Accounts");
+			deliveryPointView.ParentReference = new OrmParentReference (Session, Subject, "DeliveryPoints");
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
 			referenceOrganization.SubjectType = typeof(Organization);
@@ -221,6 +222,12 @@ namespace Vodovoz
 		{
 			if (radioContracts.Active)
 				notebook1.CurrentPage = 6;
+		}
+
+		protected void OnRadioDeliveryPointToggled (object sender, EventArgs e)
+		{
+			if (radioDeliveryPoint.Active)
+				notebook1.CurrentPage = 7;
 		}
 
 		public override void Destroy()

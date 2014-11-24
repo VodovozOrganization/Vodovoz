@@ -10,8 +10,20 @@ using DataAnnotationsExtensions;
 namespace Vodovoz
 {
 	[OrmSubjectAttributes("Контрагенты")]
-	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner, IDeliveryPointOwner
 	{
+		private IList<DeliveryPoint> deliveryPoints;
+		#region IDeliveryPointOwner implementation
+		public IList<DeliveryPoint> DeliveryPoints {
+			get {
+				return deliveryPoints;
+			}
+			set {
+				deliveryPoints = value;
+			}
+		}
+		#endregion
+
 		private IList<Contact> contact;
 		#region IContact implementation
 		public virtual IList<Contact> Contacts {
@@ -22,7 +34,6 @@ namespace Vodovoz
 				contact = value;
 			}
 		}
-
 		#endregion
 
 		private IList<Proxy> proxies;

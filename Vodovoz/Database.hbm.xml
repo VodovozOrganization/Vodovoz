@@ -182,6 +182,10 @@
     		<key column="counterparty_id"/>
     		<one-to-many class="QSBanks.Account" />
 		</bag>
+		<bag name="DeliveryPoints" inverse="false" cascade="all-delete-orphan" lazy="true">
+			<key column="counterparty_id" />
+			<one-to-many class="Vodovoz.DeliveryPoint" />
+		</bag>
 		<bag name="Emails" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="QSContacts.Email" />
@@ -227,5 +231,25 @@
 		<property name="Daily" column="daily" />
 		<many-to-one name="RentService" class="Nomenclature" column="rent_service_id"/>
 		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
+	</class>
+	<class name="DeliveryPoint" lazy="false" table="delivery_points">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+		<property name="MinutesToUnload" column="minutes_to_unload" />
+		<property name="Floor" column="floor" />
+		<property name="Region" column="region" />
+		<property name="City" column="city" />
+		<property name="Street" column="street" />
+		<property name="Building" column="building" />
+		<property name="Room" column="room" />
+		<property name="Comment" column="comment" />
+		<property name="Latitude" column="latitude" />
+		<property name="Longitude" column="longitude" />
+		<property name="IsActive" column="is_active" />
+		<many-to-one name="Contact" class="QSContacts.Contact" column="contact_person_id" />
+		<many-to-one name="Phone" class="QSContacts.Phone" column="phone_id" />
+		<!--<many-to-one name="LogisticRegion" class="" column="logistic_region_id" />-->
 	</class>
 </hibernate-mapping>
