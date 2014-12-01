@@ -3,14 +3,13 @@ using QSOrmProject;
 using System.Data.Bindings;
 using System.Collections.Generic;
 using QSContacts;
-using QSProxies;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 
 namespace Vodovoz
 {
 	[OrmSubjectAttributes("Контрагенты")]
-	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, QSProxies.IProxyOwner, IDeliveryPointOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, IProxyOwner, IDeliveryPointOwner
 	{
 		private IList<DeliveryPoint> deliveryPoints;
 		#region IDeliveryPointOwner implementation

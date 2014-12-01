@@ -54,6 +54,9 @@
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\packages\DataAnnotationsExtensions.1.1.0.0\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="gtk-databind-lib">
+      <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -133,6 +136,11 @@
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
     <Compile Include="Dialogs\DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
+    <Compile Include="Domain\Proxy.cs" />
+    <Compile Include="Widgets\ProxyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
+    <Compile Include="Dialogs\ProxyDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -172,10 +180,6 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSContacts\QSContacts.csproj">
       <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
       <Name>QSContacts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\Modules\QSProxies\QSProxies.csproj">
-      <Project>{32976195-C322-426D-82E2-E16CFD63AE72}</Project>
-      <Name>QSProxies</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Gtk.DataBindings\Gtk.DataBindings.csproj">
       <Project>{8D85E430-325A-4532-A123-BF28F9644DB4}</Project>

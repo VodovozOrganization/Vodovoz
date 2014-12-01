@@ -146,7 +146,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label24;
 		
-		private global::QSProxies.ProxiesView proxiesview1;
+		private global::Vodovoz.ProxyView proxiesview1;
 		
 		private global::Gtk.Label label30;
 		
@@ -325,7 +325,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 7;
+			this.notebook1.CurrentPage = 5;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -1042,7 +1042,7 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel (this.contactsview1, this.label24);
 			this.label24.ShowAll ();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.proxiesview1 = new global::QSProxies.ProxiesView ();
+			this.proxiesview1 = new global::Vodovoz.ProxyView ();
 			this.proxiesview1.Events = ((global::Gdk.EventMask)(256));
 			this.proxiesview1.Name = "proxiesview1";
 			this.notebook1.Add (this.proxiesview1);

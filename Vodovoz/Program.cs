@@ -46,9 +46,10 @@ namespace Vodovoz
 
 			LoginDialog.Destroy();
 			// Настройка ORM
-			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts", "QSProxies"});
+			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts"});
 			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
 			{
+				new OrmObjectMaping(typeof(Proxy), typeof(ProxyDlg), "{Vodovoz.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По]"),
 				new OrmObjectMaping(typeof(DeliveryPoint), typeof(DeliveryPointDlg), "{Vodovoz.DeliveryPoint} Name[Название];"),
 				new OrmObjectMaping(typeof(PaidRentPackage), typeof(PaidRentPackageDlg), "{Vodovoz.PaidRentPackage} Name[Название]; RentPeriodString[Период аренды];"),
 				new OrmObjectMaping(typeof(FreeRentPackage), typeof(FreeRentPackageDlg), "{Vodovoz.FreeRentPackage} Name[Название];"),
@@ -73,7 +74,6 @@ namespace Vodovoz
 			};
 			OrmMain.ClassMapingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
 			OrmMain.ClassMapingList.AddRange(QSContacts.QSContactsMain.GetModuleMaping());
-			OrmMain.ClassMapingList.AddRange(QSProxies.QSProxiesMain.GetModuleMaping());
 
 			//Запускаем программу
 			MainWin = new MainWindow ();

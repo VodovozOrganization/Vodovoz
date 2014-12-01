@@ -196,7 +196,7 @@
 		</bag>
 		<bag name="Proxies" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
-    		<one-to-many class="QSProxies.Proxy" />
+    		<one-to-many class="Vodovoz.Proxy" />
 		</bag>
  	</class>
  	<class name="Significance" lazy="false" table="significance">
@@ -251,5 +251,18 @@
 		<many-to-one name="Contact" class="QSContacts.Contact" column="contact_person_id" />
 		<many-to-one name="Phone" class="QSContacts.Phone" column="phone_id" />
 		<!--<many-to-one name="LogisticRegion" class="" column="logistic_region_id" />-->
+	</class>
+	<class name="Proxy" lazy="false" table="counterparty_proxies">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Number" column="number" />
+		<property name="IssueDate" column="issue_date" />
+		<property name="StartDate" column="start_date" /> 
+		<property name="ExpirationDate" column="expiration_date" />
+		<bag name="Persons" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="counterparty_id"/>
+    		<one-to-many class="QSContacts.Person" />
+		</bag>
 	</class>
 </hibernate-mapping>
