@@ -16,6 +16,7 @@ namespace Vodovoz
 		public virtual DateTime StartDate { get; set; }
 		public virtual DateTime ExpirationDate { get; set; }
 		public virtual IList<Person> Persons { get; set; }
+		public virtual DeliveryPoint DeliveryPoint { get; set; }
 		#endregion
 
 		public Proxy ()
@@ -24,7 +25,7 @@ namespace Vodovoz
 		}
 		public string Issue { get { return IssueDate.ToShortDateString(); } } 
 		public string Start { get { return StartDate.ToShortDateString(); } } 
-		public string Expiration { get { return ExpirationDate.ToShortDateString(); } } 
+		public string Expiration { get { return ExpirationDate.ToShortDateString(); } }  
 	}
 
 	public interface IProxyOwner

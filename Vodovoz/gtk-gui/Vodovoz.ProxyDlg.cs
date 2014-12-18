@@ -12,13 +12,17 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
 		
-		private global::QSOrmProject.DataDatePicker datepickerExpiration;
-		
 		private global::QSOrmProject.DataDatePicker datepickerIssue;
+		
+		private global::Gtk.DataBindings.DataEntry entryNumber;
+		
+		private global::Gtk.HBox hbox4;
 		
 		private global::QSOrmProject.DataDatePicker datepickerStart;
 		
-		private global::Gtk.DataBindings.DataEntry entryNumber;
+		private global::Gtk.Label label5;
+		
+		private global::QSOrmProject.DataDatePicker datepickerExpiration;
 		
 		private global::Gtk.Label label1;
 		
@@ -28,9 +32,11 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label4;
 		
-		private global::Gtk.Label label5;
+		private global::Gtk.Label label6;
 		
 		private global::QSContacts.PersonsView personsView;
+		
+		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPoint;
 
 		protected virtual void Build ()
 		{
@@ -75,24 +81,6 @@ namespace Vodovoz
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.datepickerExpiration = new global::QSOrmProject.DataDatePicker ();
-			this.datepickerExpiration.Events = ((global::Gdk.EventMask)(256));
-			this.datepickerExpiration.Name = "datepickerExpiration";
-			this.datepickerExpiration.Date = new global::System.DateTime (0);
-			this.datepickerExpiration.IsEditable = true;
-			this.datepickerExpiration.AutoSeparation = false;
-			this.datepickerExpiration.InheritedDataSource = true;
-			this.datepickerExpiration.Mappings = "ExpirationDate";
-			this.datepickerExpiration.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.datepickerExpiration);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.datepickerExpiration]));
-			w4.TopAttach = ((uint)(3));
-			w4.BottomAttach = ((uint)(4));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
 			this.datepickerIssue = new global::QSOrmProject.DataDatePicker ();
 			this.datepickerIssue.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerIssue.Name = "datepickerIssue";
@@ -103,31 +91,12 @@ namespace Vodovoz
 			this.datepickerIssue.Mappings = "IssueDate";
 			this.datepickerIssue.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.datepickerIssue);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.datepickerIssue]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.datepickerStart = new global::QSOrmProject.DataDatePicker ();
-			this.datepickerStart.Events = ((global::Gdk.EventMask)(256));
-			this.datepickerStart.Name = "datepickerStart";
-			this.datepickerStart.Date = new global::System.DateTime (0);
-			this.datepickerStart.IsEditable = true;
-			this.datepickerStart.AutoSeparation = false;
-			this.datepickerStart.InheritedDataSource = true;
-			this.datepickerStart.Mappings = "StartDate";
-			this.datepickerStart.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.datepickerStart);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.datepickerStart]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.datepickerIssue]));
+			w4.TopAttach = ((uint)(1));
+			w4.BottomAttach = ((uint)(2));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.entryNumber = new global::Gtk.DataBindings.DataEntry ();
 			this.entryNumber.CanFocus = true;
@@ -141,81 +110,148 @@ namespace Vodovoz
 			this.entryNumber.Mappings = "Number";
 			this.entryNumber.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.entryNumber);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryNumber]));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryNumber]));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.hbox4 = new global::Gtk.HBox ();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.datepickerStart = new global::QSOrmProject.DataDatePicker ();
+			this.datepickerStart.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerStart.Name = "datepickerStart";
+			this.datepickerStart.Date = new global::System.DateTime (0);
+			this.datepickerStart.IsEditable = true;
+			this.datepickerStart.AutoSeparation = false;
+			this.datepickerStart.InheritedDataSource = true;
+			this.datepickerStart.Mappings = "StartDate";
+			this.datepickerStart.InheritedBoundaryDataSource = false;
+			this.hbox4.Add (this.datepickerStart);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.datepickerStart]));
+			w6.Position = 0;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.label5 = new global::Gtk.Label ();
+			this.label5.Name = "label5";
+			this.label5.Xalign = 1F;
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString (" - ");
+			this.hbox4.Add (this.label5);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.label5]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.datepickerExpiration = new global::QSOrmProject.DataDatePicker ();
+			this.datepickerExpiration.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerExpiration.Name = "datepickerExpiration";
+			this.datepickerExpiration.Date = new global::System.DateTime (0);
+			this.datepickerExpiration.IsEditable = true;
+			this.datepickerExpiration.AutoSeparation = false;
+			this.datepickerExpiration.InheritedDataSource = true;
+			this.datepickerExpiration.Mappings = "ExpirationDate";
+			this.datepickerExpiration.InheritedBoundaryDataSource = false;
+			this.hbox4.Add (this.datepickerExpiration);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.datepickerExpiration]));
+			w8.Position = 2;
+			this.datatable1.Add (this.hbox4);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox4]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Список сотрудников:");
 			this.datatable1.Add (this.label1);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label1]));
-			w8.TopAttach = ((uint)(4));
-			w8.BottomAttach = ((uint)(5));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label1]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Номер:");
 			this.datatable1.Add (this.label2);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label2]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label2]));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label ();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата выдачи:");
 			this.datatable1.Add (this.label3);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label3]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label3]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label ();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата начала \n    действия:");
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Сроки действия:");
 			this.datatable1.Add (this.label4);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label4]));
-			w11.TopAttach = ((uint)(2));
-			w11.BottomAttach = ((uint)(3));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label4]));
+			w13.TopAttach = ((uint)(2));
+			w13.BottomAttach = ((uint)(3));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label5 = new global::Gtk.Label ();
-			this.label5.Name = "label5";
-			this.label5.Xalign = 1F;
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата окончания:");
-			this.datatable1.Add (this.label5);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label5]));
-			w12.TopAttach = ((uint)(3));
-			w12.BottomAttach = ((uint)(4));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.label6 = new global::Gtk.Label ();
+			this.label6.Name = "label6";
+			this.label6.Xalign = 1F;
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Точка доставки:");
+			this.datatable1.Add (this.label6);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label6]));
+			w14.TopAttach = ((uint)(4));
+			w14.BottomAttach = ((uint)(5));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.personsView = new global::QSContacts.PersonsView ();
 			this.personsView.Events = ((global::Gdk.EventMask)(256));
 			this.personsView.Name = "personsView";
 			this.datatable1.Add (this.personsView);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.personsView]));
-			w13.TopAttach = ((uint)(4));
-			w13.BottomAttach = ((uint)(5));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.personsView]));
+			w15.TopAttach = ((uint)(3));
+			w15.BottomAttach = ((uint)(4));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
+			this.referenceDeliveryPoint.DisplayFields = new string[] {
+				"Point"
+			};
+			this.referenceDeliveryPoint.DisplayFormatString = "{0}";
+			this.referenceDeliveryPoint.InheritedDataSource = true;
+			this.referenceDeliveryPoint.Mappings = "DeliveryPoint";
+			this.referenceDeliveryPoint.InheritedBoundaryDataSource = false;
+			this.referenceDeliveryPoint.CursorPointsEveryType = false;
+			this.datatable1.Add (this.referenceDeliveryPoint);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceDeliveryPoint]));
+			w16.TopAttach = ((uint)(4));
+			w16.BottomAttach = ((uint)(5));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w17.Position = 1;
+			w17.Expand = false;
+			w17.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

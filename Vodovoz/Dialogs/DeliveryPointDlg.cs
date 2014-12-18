@@ -113,6 +113,15 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public DeliveryPointDlg(DeliveryPoint sub)
+		{
+			this.Build ();
+			ParentReference = null;
+			subject = sub;
+			TabName = subject.Name;
+			ConfigureDlg ();
+		}
+
 		public DeliveryPointDlg(OrmParentReference parentReference, DeliveryPoint sub)
 		{
 			this.Build();

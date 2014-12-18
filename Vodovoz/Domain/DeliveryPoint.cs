@@ -47,6 +47,13 @@ namespace Vodovoz
 			Latitude = String.Empty;
 			Longitude = String.Empty;
 		}
+
+		public string Point { 
+			get { 
+				return String.Format ("\"{0}\": г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
+					Name, City, Street, Building, Room);
+			} 
+		}
 	}
 	public interface IDeliveryPointOwner
 	{

@@ -260,6 +260,7 @@
 		<property name="IssueDate" column="issue_date" />
 		<property name="StartDate" column="start_date" /> 
 		<property name="ExpirationDate" column="expiration_date" />
+		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
 		<bag name="Persons" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="QSContacts.Person" />
