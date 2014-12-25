@@ -251,6 +251,17 @@ namespace Vodovoz
 			}
 			fc.Destroy();
 		}
+
+		protected void OnDataimageviewerPhotoButtonPressEvent (object o, ButtonPressEventArgs args)
+		{
+			if (((Gdk.EventButton)args.Event).Type == Gdk.EventType.TwoButtonPress) {
+				string filePath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "temp_img.jpg");
+				FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+				fs.Write(subject.Photo, 0, subject.Photo.Length);
+				fs.Close();
+				System.Diagnostics.Process.Start (filePath);
+			}
+		}
 	}
 }
 

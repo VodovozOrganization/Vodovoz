@@ -552,6 +552,7 @@ namespace Vodovoz
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.radioTabInfo.Toggled += new global::System.EventHandler (this.OnRadioTabInfoToggled);
 			this.radioTabFiles.Toggled += new global::System.EventHandler (this.OnRadioTabAccountsToggled);
+			this.dataimageviewerPhoto.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler (this.OnDataimageviewerPhotoButtonPressEvent);
 			this.buttonLoadPhoto.Clicked += new global::System.EventHandler (this.OnButtonLoadClicked);
 			this.buttonSavePhoto.Clicked += new global::System.EventHandler (this.OnButtonSavePhotoClicked);
 		}
