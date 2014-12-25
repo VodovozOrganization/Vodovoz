@@ -325,7 +325,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 5;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -716,8 +716,10 @@ namespace Vodovoz
 			this.dataentryMainContact.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryMainContact.Name = "dataentryMainContact";
 			this.dataentryMainContact.DisplayFields = new string[] {
-				"FullName"
+				"FullName",
+				"MainPhoneString"
 			};
+			this.dataentryMainContact.DisplayFormatString = "{0}; телефон: {1}";
 			this.dataentryMainContact.InheritedDataSource = true;
 			this.dataentryMainContact.Mappings = "MainContact";
 			this.dataentryMainContact.InheritedBoundaryDataSource = false;
