@@ -91,6 +91,7 @@
 	 	<property name="RegistrationNumber" column="reg_number" />
 	 	<many-to-one name="Driver" class="Employee" column="driver"/>
 	 	<property name="FuelConsumption" column="fuel_consumption" />
+	 	<property name="IsArchive" column="is_archive"/>
  	</class>
  	<class name="User" lazy="false" table="users">
 		<id name="Id" column="id">

@@ -64,6 +64,7 @@ namespace Vodovoz {
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
+			this.buttonAdd.UseMarkup = false;
 			this.buttonAdd.ItemsEnumName = "Vodovoz.AgreementType, Vodovoz";
 			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
 			global::Gtk.Image w4 = new global::Gtk.Image();

@@ -15,13 +15,11 @@ namespace Vodovoz
 		public virtual string RegistrationNumber { get; set; }
 		public virtual double FuelConsumption { get; set; }
 		public virtual Employee Driver { get; set; }
+		public virtual bool IsArchive { get; set; }
 		#endregion
 
-		public string DriverInfo {
-			get {
-				return Driver.FullName;
-			}
-		}
+		public string DriverInfo { get { return Driver.FullName; } }
+
 		public Car ()
 		{
 			Model = String.Empty;
