@@ -111,8 +111,14 @@
 	 	<property name="PassportNumber" column="passport_number" />
 	 	<property name="DrivingNumber" column="driving_number" />
 	 	<property name="Photo" column="photo" type="BinaryBlob" />
+	 	<property name="AddressRegistration" column="address_registration" />
+	 	<property name="AddressCurrent" column="address_current" />
 	 	<many-to-one name="Nationality" class="Nationality" column="nationality_id" />
 	 	<many-to-one name="User" class="User" column="user_id" />
+	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="employee_id"/>
+    		<one-to-many class="QSContacts.Phone" />
+		</bag>
  	</class>
 	<class name="AdditionalAgreement" lazy="false" table="additional_agreements">
 		<id name="Id" column="id">

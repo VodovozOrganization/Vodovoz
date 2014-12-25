@@ -3,6 +3,7 @@ using QSOrmProject;
 using NHibernate;
 using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -19,6 +20,9 @@ namespace Vodovoz
 		public virtual string PassportSeria { get; set; }
 		public virtual string PassportNumber { get; set; }
 		public virtual string DrivingNumber { get; set; }
+		public virtual string AddressRegistration { get; set; }
+		public virtual string AddressCurrent { get; set; }
+		public virtual IList<QSContacts.Phone> Phones { get; set; }
 		public virtual Nationality Nationality { get; set; }
 		public virtual User User { get; set; }
 		byte[] photo;
@@ -46,6 +50,8 @@ namespace Vodovoz
 			PassportNumber = String.Empty;
 			DrivingNumber = String.Empty;
 			Category = EmployeeCategory.office;
+			AddressRegistration = String.Empty;
+			AddressCurrent = String.Empty;
 		}
 
 		public string FullName {

@@ -7,6 +7,8 @@ using System.Data.Bindings;
 using NLog;
 using Gtk;
 using QSValidation;
+using System.Collections.Generic;
+using QSContacts;
 
 namespace Vodovoz
 {
@@ -117,6 +119,10 @@ namespace Vodovoz
 				attachmentFiles.ItemId = subject.Id;
 				attachmentFiles.UpdateFileList();
 			}
+			phonesView.Session = Session;
+			if (subject.Phones == null)
+				subject.Phones = new List<Phone>();
+			phonesView.Phones = subject.Phones;
 			buttonSavePhoto.Sensitive = subject.Photo != null;
 			logger.Info("Ok");
 		}
@@ -131,7 +137,7 @@ namespace Vodovoz
 			var valid = new QSValidator<Employee> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-				
+			phonesView.SaveChanges();	
 			logger.Info("Сохраняем сотрудника...");
 			try
 			{

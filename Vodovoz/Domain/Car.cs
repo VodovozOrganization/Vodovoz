@@ -17,6 +17,11 @@ namespace Vodovoz
 		public virtual Employee Driver { get; set; }
 		#endregion
 
+		public string DriverInfo {
+			get {
+				return Driver.FullName;
+			}
+		}
 		public Car ()
 		{
 			Model = String.Empty;
