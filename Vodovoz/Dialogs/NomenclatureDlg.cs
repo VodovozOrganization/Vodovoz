@@ -155,6 +155,7 @@ namespace Vodovoz
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment) ;
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment) ;
 			labelDeposit.Sensitive = spinDeposit.Sensitive = (selected == NomenclatureCategory.rent);
+			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent);
 		}
 	}
 }
