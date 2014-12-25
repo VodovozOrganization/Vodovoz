@@ -98,11 +98,12 @@ namespace Vodovoz
 			radiobuttonMain.Active = true;
 
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName(typeof(Car));
-			if(!NewItem)
-			{
+			if (!NewItem) {
 				attachmentFiles.ItemId = subject.Id;
-				attachmentFiles.UpdateFileList();
+				attachmentFiles.UpdateFileList ();
 			}
+			OnDataentryreferenceDriverChanged (null, null);
+			textDriverInfo.Selectable = true;
 		}
 
 		public bool Save()
@@ -168,6 +169,13 @@ namespace Vodovoz
 		{
 			if (!this.HasChanges || Save())
 				OnCloseTab (false);
+		}
+
+		protected void OnDataentryreferenceDriverChanged (object sender, EventArgs e)
+		{
+			if (subject.Driver != null)
+				textDriverInfo.Text = "\tПаспорт: " + subject.Driver.PassportSeria + " № " + subject.Driver.PassportNumber + 
+					"\n\tАдрес регистрации: " + subject.Driver.AddressRegistration;
 		}
 	}
 }

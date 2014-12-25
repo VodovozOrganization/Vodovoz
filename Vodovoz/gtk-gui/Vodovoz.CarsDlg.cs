@@ -38,6 +38,10 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label6;
 		
+		private global::Gtk.Label label7;
+		
+		private global::Gtk.Label textDriverInfo;
+		
 		private global::Gtk.Label label1;
 		
 		private global::QSAttachment.Attachment attachmentFiles;
@@ -124,10 +128,9 @@ namespace Vodovoz
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
-			this.notebook1.Name = "notebook1";
 			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.tableCarData = new global::Gtk.DataBindings.DataTable (((uint)(4)), ((uint)(2)), false);
+			this.tableCarData = new global::Gtk.DataBindings.DataTable (((uint)(5)), ((uint)(2)), false);
 			this.tableCarData.Name = "tableCarData";
 			this.tableCarData.RowSpacing = ((uint)(6));
 			this.tableCarData.ColumnSpacing = ((uint)(6));
@@ -258,6 +261,29 @@ namespace Vodovoz
 			w16.BottomAttach = ((uint)(4));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableCarData.Gtk.Table+TableChild
+			this.label7 = new global::Gtk.Label ();
+			this.label7.Name = "label7";
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString (" Информация\nо водителе:");
+			this.label7.Justify = ((global::Gtk.Justification)(1));
+			this.tableCarData.Add (this.label7);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableCarData [this.label7]));
+			w17.TopAttach = ((uint)(4));
+			w17.BottomAttach = ((uint)(5));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableCarData.Gtk.Table+TableChild
+			this.textDriverInfo = new global::Gtk.Label ();
+			this.textDriverInfo.Name = "textDriverInfo";
+			this.textDriverInfo.Xalign = 0F;
+			this.tableCarData.Add (this.textDriverInfo);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableCarData [this.textDriverInfo]));
+			w18.TopAttach = ((uint)(4));
+			w18.BottomAttach = ((uint)(5));
+			w18.LeftAttach = ((uint)(1));
+			w18.RightAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.notebook1.Add (this.tableCarData);
 			// Notebook tab
 			this.label1 = new global::Gtk.Label ();
@@ -270,8 +296,8 @@ namespace Vodovoz
 			this.attachmentFiles.Events = ((global::Gdk.EventMask)(256));
 			this.attachmentFiles.Name = "attachmentFiles";
 			this.notebook1.Add (this.attachmentFiles);
-			global::Gtk.Notebook.NotebookChild w18 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.attachmentFiles]));
-			w18.Position = 1;
+			global::Gtk.Notebook.NotebookChild w20 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.attachmentFiles]));
+			w20.Position = 1;
 			// Notebook tab
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
@@ -279,8 +305,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel (this.attachmentFiles, this.label2);
 			this.label2.ShowAll ();
 			this.vbox1.Add (this.notebook1);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
-			w19.Position = 1;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
+			w21.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -290,6 +316,7 @@ namespace Vodovoz
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.radiobuttonMain.Toggled += new global::System.EventHandler (this.OnRadiobuttonMainToggled);
 			this.radiobuttonFiles.Toggled += new global::System.EventHandler (this.OnRadiobuttonFilesToggled);
+			this.dataentryreferenceDriver.Changed += new global::System.EventHandler (this.OnDataentryreferenceDriverChanged);
 		}
 	}
 }
