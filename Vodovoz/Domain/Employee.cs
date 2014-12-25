@@ -22,6 +22,7 @@ namespace Vodovoz
 		public virtual string DrivingNumber { get; set; }
 		public virtual string AddressRegistration { get; set; }
 		public virtual string AddressCurrent { get; set; }
+		public virtual bool IsFired { get; set; }
 		public virtual IList<QSContacts.Phone> Phones { get; set; }
 		public virtual Nationality Nationality { get; set; }
 		public virtual User User { get; set; }

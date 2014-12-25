@@ -86,6 +86,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
+			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
 			entryName.IsEditable = true;
 			adaptor.Target = subject;
@@ -102,7 +103,7 @@ namespace Vodovoz
 			if (subject.NomenclaturePrice == null)
 				subject.NomenclaturePrice = new List<NomenclaturePrice>();
 			pricesView.Prices = subject.NomenclaturePrice;
-
+			radioInfo.Active = true;
 		}
 
 		public bool Save()
@@ -156,6 +157,18 @@ namespace Vodovoz
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment) ;
 			labelDeposit.Sensitive = spinDeposit.Sensitive = (selected == NomenclatureCategory.rent);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent);
+		}
+			
+		protected void OnRadioPriceToggled (object sender, EventArgs e)
+		{
+			if (radioPrice.Active)
+				notebook1.CurrentPage = 1;
+		}
+
+		protected void OnRadioInfoToggled (object sender, EventArgs e)
+		{
+			if (radioInfo.Active)
+				notebook1.CurrentPage = 0;
 		}
 	}
 }

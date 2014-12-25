@@ -114,6 +114,7 @@
 	 	<property name="Photo" column="photo" type="BinaryBlob" />
 	 	<property name="AddressRegistration" column="address_registration" />
 	 	<property name="AddressCurrent" column="address_current" />
+	 	<property name="IsFired" column="is_fired" />
 	 	<many-to-one name="Nationality" class="Nationality" column="nationality_id" />
 	 	<many-to-one name="User" class="User" column="user_id" />
 	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
