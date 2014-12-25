@@ -337,7 +337,7 @@ namespace Vodovoz
 			this.label11 = new global::Gtk.Label ();
 			this.label11.Name = "label11";
 			this.label11.Xalign = 1F;
-			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("Права:");
+			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("Водительское\nудостоверение:");
 			this.datatableMain.Add (this.label11);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label11]));
 			w21.TopAttach = ((uint)(7));
@@ -479,6 +479,7 @@ namespace Vodovoz
 			w31.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbuttonbox1 = new global::Gtk.HButtonBox ();
+			this.hbuttonbox1.Name = "hbuttonbox1";
 			// Container child hbuttonbox1.Gtk.ButtonBox+ButtonBoxChild
 			this.buttonLoadPhoto = new global::Gtk.Button ();
 			this.buttonLoadPhoto.CanFocus = true;

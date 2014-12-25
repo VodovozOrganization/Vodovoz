@@ -90,9 +90,9 @@ namespace Vodovoz
 		}
 	}
 	public enum PersonType{
-		[ItemTitleAttribute("Физическая")]
+		[ItemTitleAttribute("Физическое лицо")]
 		natural,
-		[ItemTitleAttribute("Юридическая")]
+		[ItemTitleAttribute("Юридическое лицо")]
 		legal
 	}
 

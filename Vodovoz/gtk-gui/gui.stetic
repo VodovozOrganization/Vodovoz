@@ -1207,7 +1207,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="622 380">
+  <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="711 380">
     <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
@@ -1269,6 +1269,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1553,7 +1554,8 @@
                   <widget class="Gtk.Label" id="label11">
                     <property name="MemberName" />
                     <property name="Xalign">1</property>
-                    <property name="LabelProp" translatable="yes">Права:</property>
+                    <property name="LabelProp" translatable="yes">Водительское
+удостоверение:</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">7</property>

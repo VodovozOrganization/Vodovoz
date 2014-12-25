@@ -48,12 +48,12 @@ namespace Vodovoz
 	}
 
 	public enum NomenclatureCategory{
-		[ItemTitleAttribute("Вода")] water,
+		[ItemTitleAttribute("Вода в многооборотной таре")] water,
 		[ItemTitleAttribute("Оборудование")] equipment,
 		[ItemTitleAttribute("Услуга")] service,
 		[ItemTitleAttribute("Аренда")] rent,
 		[ItemTitleAttribute("Запчасти")] spare_parts,
-		[ItemTitleAttribute("Дополнительно")] additional
+		[ItemTitleAttribute("Товары")] additional
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType 
