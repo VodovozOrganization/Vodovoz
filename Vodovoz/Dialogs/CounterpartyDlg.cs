@@ -9,6 +9,7 @@ using QSContacts;
 using NHibernate.Criterion;
 using QSBanks;
 using QSValidation;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -90,6 +91,8 @@ namespace Vodovoz
 			additionalagreementsview1.ParentReference = new OrmParentReference (Session, (Subject as Counterparty).Contract, "AdditionalAgreements");
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			//Setting permissions
+			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
 		}
 
 		#region ITdiTab implementation

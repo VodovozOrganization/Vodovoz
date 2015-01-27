@@ -10,8 +10,8 @@ namespace Vodovoz
 		{
 			QSMain.AdminFieldName = "admin";
 			QSMain.ProjectPermission = new Dictionary<string, UserPermission>();
-			//QSMain.ProjectPermission.Add ("edit_slips", new UserPermission("edit_slips", "Изменение кассы задним числом",
-			//                                                             "Пользователь может изменять или добавлять кассовые документы задним числом."));
+			QSMain.ProjectPermission.Add ("max_loan_amount", new UserPermission("max_loan_amount", "Установка максимального кредита",
+			                                                             "Пользователь имеет права для установки максимальной суммы кредита."));
 
 			QSMain.User = new UserInfo();
 
