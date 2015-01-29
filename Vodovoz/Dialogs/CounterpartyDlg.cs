@@ -86,11 +86,13 @@ namespace Vodovoz
 			referenceMainCounterparty.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
 				.Add (Restrictions.Not (Restrictions.Eq ("id", subject.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
-			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			proxiesview1.ParentReference = new OrmParentReference (Session, Subject, "Proxies");
 			additionalagreementsview1.ParentReference = new OrmParentReference (Session, (Subject as Counterparty).Contract, "AdditionalAgreements");
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			//Setting Contacts
+			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			contactsview1.ColumnMappings = "{Vodovoz.CustomerContact} FullName[Имя]; PostName[Должность]; PointCurator[Курируемые точки]; MainPhoneString[Телефон]; Comment[Комментарий];";
 			//Setting permissions
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
 		}
