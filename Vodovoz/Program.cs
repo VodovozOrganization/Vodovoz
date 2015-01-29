@@ -10,7 +10,6 @@ namespace Vodovoz
 	partial class MainClass
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		public static Label StatusBarLabel;
 		public static MainWindow MainWin;
 
 		public static void Main(string[] args)
@@ -21,7 +20,7 @@ namespace Vodovoz
 				logger.FatalException("Поймано не обработаное исключение.", (Exception) e.ExceptionObject);
 				QSMain.ErrorMessage(MainWin, (Exception) e.ExceptionObject);
 			};
-
+			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			CreateProjectParam();
 			// Создаем окно входа
 			Login LoginDialog = new QSProjectsLib.Login ();
@@ -83,19 +82,6 @@ namespace Vodovoz
 				return;
 			MainWin.Show ();
 			Application.Run ();
-		}
-
-		public static void StatusMessage(string message)
-		{
-			if (StatusBarLabel == null)
-				return;
-			Application.Invoke(delegate(object sender, EventArgs e) {
-				StatusBarLabel.LabelProp = message;
-				while (GLib.MainContext.Pending())
-				{
-					Gtk.Main.Iteration();
-				}
-			});
 		}
 	}
 }

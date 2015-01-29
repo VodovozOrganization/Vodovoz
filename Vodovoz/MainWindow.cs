@@ -21,9 +21,9 @@ public partial class MainWindow: Gtk.Window
 		Build();
 		this.KeyReleaseEvent += HandleKeyReleaseEvent;
 		//Передаем лебл
-		MainClass.StatusBarLabel = labelStatus;
+		QSMain.StatusBarLabel = labelStatus;
 		this.Title = QSSupportLib.MainSupport.GetTitle();
-		QSMain.MakeNewStatusTargetForNlog("StatusMessage", "Vodovoz.MainClass, Vodovoz");
+		QSMain.MakeNewStatusTargetForNlog();
 
 		//Test version of base
 		try
