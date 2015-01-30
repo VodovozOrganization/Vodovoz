@@ -46,34 +46,34 @@ namespace Vodovoz
 			LoginDialog.Destroy();
 			// Настройка ORM
 			OrmMain.ConfigureOrm(QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts"});
-			OrmMain.ClassMapingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMaping>
+			OrmMain.ClassMappingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMapping>
 			{
-				new OrmObjectMaping(typeof(Proxy), typeof(ProxyDlg), "{Vodovoz.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] {"Number"}),
-				new OrmObjectMaping(typeof(DeliveryPoint), typeof(DeliveryPointDlg), "{Vodovoz.DeliveryPoint} Name[Название];"),
-				new OrmObjectMaping(typeof(PaidRentPackage), typeof(PaidRentPackageDlg), "{Vodovoz.PaidRentPackage} Name[Название]; RentPeriodString[Период аренды];"),
-				new OrmObjectMaping(typeof(FreeRentPackage), typeof(FreeRentPackageDlg), "{Vodovoz.FreeRentPackage} Name[Название];"),
-				new OrmObjectMaping(typeof(FreeRentAgreement), typeof(AdditionalAgreementFreeRent), "{Vodovoz.FreeRentAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
-				new OrmObjectMaping(typeof(NonfreeRentAgreement), typeof(AdditionalAgreementNonFreeRent), "{Vodovoz.NonfreeRentAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
-				new OrmObjectMaping(typeof(WaterSalesAgreement), typeof(AdditionalAgreementWater), "{Vodovoz.WaterSalesAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
-				new OrmObjectMaping(typeof(RepairAgreement), typeof(AdditionalAgreementRepair), "{Vodovoz.RepairAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
-				new OrmObjectMaping(typeof(Post), null, "{QSContacts.Post} Name[Должность];"),
-				new OrmObjectMaping(typeof(CounterpartyStatus), null, "{Vodovoz.CounterpartyStatus} Name[Название];"),
-				new OrmObjectMaping(typeof(Significance), null, "{Vodovoz.Significance} Name[Значимость клиента];"),
-				new OrmObjectMaping(typeof(Counterparty), typeof(CounterpartyDlg), "{Vodovoz.Counterparty} Name[Наименование];"),
-				new OrmObjectMaping(typeof(User), null, "{Vodovoz.User} Name[Название];"),
-				new OrmObjectMaping(typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
-				new OrmObjectMaping(typeof(Nomenclature), typeof(NomenclatureDlg), "{Vodovoz.Nomenclature} Name[Название];"),
-				new OrmObjectMaping(typeof(Nationality), null, "{Vodovoz.Nationality} Name[Название];"),
-				new OrmObjectMaping(typeof(Manufacturer), null, "{Vodovoz.Manufacturer} Name[Название];"),
-				new OrmObjectMaping(typeof(EquipmentType), null, "{Vodovoz.EquipmentType} Name[Название];"),
-				new OrmObjectMaping(typeof(MeasurementUnits), null, "{Vodovoz.MeasurementUnits} Name[Название];"),
-				new OrmObjectMaping(typeof(EquipmentColors), null, "{Vodovoz.EquipmentColors} Name[Название];"),
-				new OrmObjectMaping(typeof(Employee), typeof(EmployeeDlg), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];", new string[] {"Name", "LastName", "Patronymic"}),
-				new OrmObjectMaping(typeof(Car), typeof(CarsDlg), "{Vodovoz.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] {"Model", "RegistrationNumber", "DriverInfo"}),
-				new OrmObjectMaping(typeof(CustomerContact), typeof(QSContacts.ContactDlg), "{QSContacts.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] {"Surname", "Name", "Lastname", "Post"})
+				new OrmObjectMapping(typeof(Proxy), typeof(ProxyDlg), "{Vodovoz.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] {"Number"}),
+				new OrmObjectMapping(typeof(DeliveryPoint), typeof(DeliveryPointDlg), "{Vodovoz.DeliveryPoint} Name[Название];"),
+				new OrmObjectMapping(typeof(PaidRentPackage), typeof(PaidRentPackageDlg), "{Vodovoz.PaidRentPackage} Name[Название]; RentPeriodString[Период аренды];"),
+				new OrmObjectMapping(typeof(FreeRentPackage), typeof(FreeRentPackageDlg), "{Vodovoz.FreeRentPackage} Name[Название];"),
+				new OrmObjectMapping(typeof(FreeRentAgreement), typeof(AdditionalAgreementFreeRent), "{Vodovoz.FreeRentAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
+				new OrmObjectMapping(typeof(NonfreeRentAgreement), typeof(AdditionalAgreementNonFreeRent), "{Vodovoz.NonfreeRentAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
+				new OrmObjectMapping(typeof(WaterSalesAgreement), typeof(AdditionalAgreementWater), "{Vodovoz.WaterSalesAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
+				new OrmObjectMapping(typeof(RepairAgreement), typeof(AdditionalAgreementRepair), "{Vodovoz.RepairAgreement} AgreementNumber[Номер];", new string[] {"AgreementNumber"}),
+				new OrmObjectMapping(typeof(Post), null, "{QSContacts.Post} Name[Должность];"),
+				new OrmObjectMapping(typeof(CounterpartyStatus), null, "{Vodovoz.CounterpartyStatus} Name[Название];"),
+				new OrmObjectMapping(typeof(Significance), null, "{Vodovoz.Significance} Name[Значимость клиента];"),
+				new OrmObjectMapping(typeof(Counterparty), typeof(CounterpartyDlg), "{Vodovoz.Counterparty} Name[Наименование];"),
+				new OrmObjectMapping(typeof(User), null, "{Vodovoz.User} Name[Название];"),
+				new OrmObjectMapping(typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
+				new OrmObjectMapping(typeof(Nomenclature), typeof(NomenclatureDlg), "{Vodovoz.Nomenclature} Name[Название];"),
+				new OrmObjectMapping(typeof(Nationality), null, "{Vodovoz.Nationality} Name[Название];"),
+				new OrmObjectMapping(typeof(Manufacturer), null, "{Vodovoz.Manufacturer} Name[Название];"),
+				new OrmObjectMapping(typeof(EquipmentType), null, "{Vodovoz.EquipmentType} Name[Название];"),
+				new OrmObjectMapping(typeof(MeasurementUnits), null, "{Vodovoz.MeasurementUnits} Name[Название];"),
+				new OrmObjectMapping(typeof(EquipmentColors), null, "{Vodovoz.EquipmentColors} Name[Название];"),
+				new OrmObjectMapping(typeof(Employee), typeof(EmployeeDlg), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];", new string[] {"Name", "LastName", "Patronymic"}),
+				new OrmObjectMapping(typeof(Car), typeof(CarsDlg), "{Vodovoz.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] {"Model", "RegistrationNumber", "DriverInfo"}),
+				new OrmObjectMapping(typeof(CustomerContact), typeof(QSContacts.ContactDlg), "{QSContacts.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] {"Surname", "Name", "Lastname", "Post"})
 			};
-			OrmMain.ClassMapingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
-			OrmMain.ClassMapingList.AddRange(QSContacts.QSContactsMain.GetModuleMaping());
+			OrmMain.ClassMappingList.AddRange(QSBanks.QSBanksMain.GetModuleMaping());
+			OrmMain.ClassMappingList.AddRange(QSContacts.QSContactsMain.GetModuleMaping());
 
 			//Запускаем программу
 			MainWin = new MainWindow ();
