@@ -130,13 +130,10 @@ namespace Vodovoz
 				return false;
 
 			logger.Info("Сохраняем контрагента...");
-			if (entryName.Text == String.Empty) {
-				logger.Error ("Не введено имя контрагента.");
-				return false;
-			}
 			phonesView.SaveChanges();
 			emailsView.SaveChanges ();
 			Session.Flush();
+			logger.Info("Ok.");
 			OrmMain.NotifyObjectUpdated(subject);
 
 			return true;
