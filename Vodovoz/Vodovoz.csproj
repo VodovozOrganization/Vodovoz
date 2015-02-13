@@ -192,6 +192,10 @@
       <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
       <Name>QSValidation</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSSaaS\QSSaaS.csproj">
+      <Project>{4B502FE5-D419-4B5C-9276-0A25EF2F508A}</Project>
+      <Name>QSSaaS</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

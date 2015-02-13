@@ -81,7 +81,9 @@ namespace Vodovoz
 			if(QSMain.User.Login == "root")
 				return;
 			MainWin.Show ();
+			QSSaaS.Session.StartSessionRefresh();
 			Application.Run ();
+			QSSaaS.Session.StopSessionRefresh();
 		}
 	}
 }

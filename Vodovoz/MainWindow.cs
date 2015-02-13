@@ -65,8 +65,13 @@ public partial class MainWindow: Gtk.Window
 		}
 
 		//Загружаем информацию о пользователе
-		if(QSMain.User.TestUserExistByLogin (true))
+		if ((QSSaaS.Session.IsSaasConnection && QSMain.User.TestUserExistByLogin (false)) ||
+			(!QSSaaS.Session.IsSaasConnection && QSMain.User.TestUserExistByLogin (true)))
 			QSMain.User.UpdateUserInfoByLogin ();
+		else {
+			logger.Fatal (String.Format ("Пользователь {0} не найден в базе!", QSMain.User.Login));
+			Environment.Exit (1);
+		}
 		UsersAction.Sensitive = QSMain.User.admin;
 		labelUser.LabelProp = QSMain.User.Name;
 
