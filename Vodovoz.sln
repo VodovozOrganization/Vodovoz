@@ -31,6 +31,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Data.Bindings", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSValidation", "..\QSProjects\QSValidation\QSValidation.csproj", "{CE5179E8-3172-4C08-9FE3-9C48C58A3831}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSSaaS", "..\QSProjects\QSSaaS\QSSaaS.csproj", "{4B502FE5-D419-4B5C-9276-0A25EF2F508A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSUpdater", "..\QSProjects\QSUpdater\QSUpdater.csproj", "{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -45,6 +49,10 @@ Global
 		{4B35C969-8C74-440F-8189-57047C9215FD}.Debug|x86.Build.0 = Debug|Any CPU
 		{4B35C969-8C74-440F-8189-57047C9215FD}.Release|x86.ActiveCfg = Release|Any CPU
 		{4B35C969-8C74-440F-8189-57047C9215FD}.Release|x86.Build.0 = Release|Any CPU
+		{4B502FE5-D419-4B5C-9276-0A25EF2F508A}.Debug|x86.ActiveCfg = Debug|x86
+		{4B502FE5-D419-4B5C-9276-0A25EF2F508A}.Debug|x86.Build.0 = Debug|x86
+		{4B502FE5-D419-4B5C-9276-0A25EF2F508A}.Release|x86.ActiveCfg = Release|x86
+		{4B502FE5-D419-4B5C-9276-0A25EF2F508A}.Release|x86.Build.0 = Release|x86
 		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.Debug|x86.Build.0 = Debug|Any CPU
 		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.Release|x86.ActiveCfg = Release|Any CPU
@@ -53,6 +61,10 @@ Global
 		{5A2BB01E-E124-432E-8099-D1343D3897B9}.Debug|x86.Build.0 = Debug|Any CPU
 		{5A2BB01E-E124-432E-8099-D1343D3897B9}.Release|x86.ActiveCfg = Release|Any CPU
 		{5A2BB01E-E124-432E-8099-D1343D3897B9}.Release|x86.Build.0 = Release|Any CPU
+		{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}.Debug|x86.ActiveCfg = Debug|x86
+		{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}.Debug|x86.Build.0 = Debug|x86
+		{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}.Release|x86.ActiveCfg = Release|x86
+		{6D755374-6EAF-44B6-8C6C-6FE5E5AB3432}.Release|x86.Build.0 = Release|x86
 		{8D85E430-325A-4532-A123-BF28F9644DB4}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{8D85E430-325A-4532-A123-BF28F9644DB4}.Debug|x86.Build.0 = Debug|Any CPU
 		{8D85E430-325A-4532-A123-BF28F9644DB4}.Release|x86.ActiveCfg = Release|Any CPU
@@ -96,8 +108,5 @@ Global
 		{A236518F-E4D0-4CFF-B23F-769802B2821F} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
 		{8D85E430-325A-4532-A123-BF28F9644DB4} = {98F3A7D6-1FDF-43E0-B7C2-08DE9B6E6B69}
 		{54F958F5-7E58-4C89-9A04-8835E63B97C3} = {98F3A7D6-1FDF-43E0-B7C2-08DE9B6E6B69}
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Vodovoz\Vodovoz.csproj
 	EndGlobalSection
 EndGlobal
