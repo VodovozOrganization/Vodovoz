@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Сотрудники")]
+	[OrmSubject("Сотрудники")]
 	[Magic]
 	public class Employee : PropertyChangedBase, IValidatableObject
 	{

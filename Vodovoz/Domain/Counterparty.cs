@@ -8,7 +8,7 @@ using DataAnnotationsExtensions;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Контрагенты")]
+	[OrmSubject("Контрагенты")]
 	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, IProxyOwner, IDeliveryPointOwner
 	{
 		private IList<DeliveryPoint> deliveryPoints;

@@ -3,7 +3,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Типы оборудования")]
+	[OrmSubject("Типы оборудования")]
 	public class EquipmentType : IDomainObject
 	{
 		#region Свойства

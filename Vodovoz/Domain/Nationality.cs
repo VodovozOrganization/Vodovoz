@@ -3,7 +3,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Национальности")]
+	[OrmSubject("Национальности")]
 	public class Nationality : IDomainObject
 	{
 		#region Свойства

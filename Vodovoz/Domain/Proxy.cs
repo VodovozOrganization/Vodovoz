@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Доверенности")]
+	[OrmSubject("Доверенности")]
 	public class Proxy : BaseNotifyPropertyChanged, IDomainObject
 	{
 		#region Свойства

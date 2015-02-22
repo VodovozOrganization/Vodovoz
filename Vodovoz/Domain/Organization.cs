@@ -8,7 +8,7 @@ using DataAnnotationsExtensions;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Организации")]
+	[OrmSubject("Организации")]
 	public class Organization : QSBanks.AccountOwnerBase
 	{
 

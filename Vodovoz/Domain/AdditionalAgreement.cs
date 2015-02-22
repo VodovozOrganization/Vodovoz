@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Дополнительные соглашения")]
+	[OrmSubject("Дополнительные соглашения")]
 	public class AdditionalAgreement : IDomainObject
 	{
 		#region Свойства

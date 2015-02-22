@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Бесплатные пакеты аренды")]
+	[OrmSubject("Бесплатные пакеты аренды")]
 	public class FreeRentPackage: IDomainObject
 	{
 		#region Свойства

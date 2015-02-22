@@ -3,7 +3,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Цены")]
+	[OrmSubject("Цены")]
 	public partial class NomenclaturePrice
 	{
 		#region Свойства

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Автомобили")]
+	[OrmSubject("Автомобили")]
 	public class Car : IDomainObject
 	{
 		#region Свойства

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Пользователи")]
+	[OrmSubject("Пользователи")]
 	public class User
 	{
 		#region Свойства

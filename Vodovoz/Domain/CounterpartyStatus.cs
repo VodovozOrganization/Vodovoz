@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Статусы контрагента")]
+	[OrmSubject("Статусы контрагента")]
 	public class CounterpartyStatus : IDomainObject
 	{
 		#region Свойства

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Точки доставки")]
+	[OrmSubject("Точки доставки")]
 	public class DeliveryPoint : IDomainObject
 	{
 		#region Свойства

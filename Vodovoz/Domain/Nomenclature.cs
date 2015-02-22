@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Номенклатуры")]
+	[OrmSubject("Номенклатуры")]
 	[Magic]
 	public class Nomenclature
 	{

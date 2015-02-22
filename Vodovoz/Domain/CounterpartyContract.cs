@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Договоры контрагента")]
+	[OrmSubject("Договоры контрагента")]
 	public class CounterpartyContract : IDomainObject, IAdditionalAgreementOwner
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }

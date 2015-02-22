@@ -3,7 +3,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubjectAttributes("Единицы измерения")]
+	[OrmSubject("Единицы измерения")]
 	public class MeasurementUnits : IDomainObject
 	{
 		#region Свойства
