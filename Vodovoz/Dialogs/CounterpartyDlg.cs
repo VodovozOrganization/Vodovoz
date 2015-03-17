@@ -16,37 +16,37 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CounterpartyDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		private ISession session;
-		private Adaptor adaptor = new Adaptor();
-		private Adaptor contractAdaptor = new Adaptor();
+		private Adaptor adaptor = new Adaptor ();
+		private Adaptor contractAdaptor = new Adaptor ();
 		private Counterparty subject;
 
-		public CounterpartyDlg()
+		public CounterpartyDlg ()
 		{
-			this.Build();
-			subject = new Counterparty();
+			this.Build ();
+			subject = new Counterparty ();
 			Session.Persist (subject);
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public CounterpartyDlg(int id)
+		public CounterpartyDlg (int id)
 		{
-			this.Build();
-			subject = Session.Load<Counterparty>(id);
+			this.Build ();
+			subject = Session.Load<Counterparty> (id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public CounterpartyDlg(Counterparty sub)
+		public CounterpartyDlg (Counterparty sub)
 		{
-			this.Build();
-			subject = Session.Load<Counterparty>(sub.Id);
+			this.Build ();
+			subject = Session.Load<Counterparty> (sub.Id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg ()
 		{
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
@@ -77,7 +77,7 @@ namespace Vodovoz
 			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
 			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
 			//Setting subjects
-			accountsView.ParentReference = new OrmParentReference(Session, Subject, "Accounts");
+			accountsView.ParentReference = new OrmParentReference (Session, Subject, "Accounts");
 			deliveryPointView.ParentReference = new OrmParentReference (Session, Subject, "DeliveryPoints");
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
@@ -104,15 +104,15 @@ namespace Vodovoz
 		public event EventHandler<QSTDI.TdiTabCloseEventArgs> CloseTab;
 
 		private string _tabName = "Новый контрагент";
-		public string TabName
-		{
-			get{return _tabName;}
-			set{
+
+		public string TabName {
+			get{ return _tabName; }
+			set {
 				if (_tabName == value)
 					return;
 				_tabName = value;
 				if (TabNameChanged != null)
-					TabNameChanged(this, new TdiTabNameChangedEventArgs(value));
+					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 
 		}
@@ -129,18 +129,18 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			logger.Info("Сохраняем контрагента...");
-			phonesView.SaveChanges();
+			logger.Info ("Сохраняем контрагента...");
+			phonesView.SaveChanges ();
 			emailsView.SaveChanges ();
-			Session.Flush();
-			logger.Info("Ok.");
-			OrmMain.NotifyObjectUpdated(subject);
+			Session.Flush ();
+			logger.Info ("Ok.");
+			OrmMain.NotifyObjectUpdated (subject);
 
 			return true;
 		}
 
 		public bool HasChanges {
-			get {return Session.IsDirty();}
+			get { return Session.IsDirty (); }
 		}
 
 		#endregion
@@ -159,29 +159,30 @@ namespace Vodovoz
 		}
 
 		public object Subject {
-			get {return subject;}
+			get { return subject; }
 			set {
 				if (value is Counterparty)
 					subject = value as Counterparty;
 			}
 		}
+
 		#endregion
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
-				OnCloseTab(false);
+			if (!this.HasChanges || Save ())
+				OnCloseTab (false);
 		}
 
 		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
-			OnCloseTab(false);
+			OnCloseTab (false);
 		}
 
-		protected void OnCloseTab(bool askSave)
+		protected void OnCloseTab (bool askSave)
 		{
 			if (CloseTab != null)
-				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 
 		protected void OnRadioInfoToggled (object sender, EventArgs e)
@@ -232,13 +233,13 @@ namespace Vodovoz
 				notebook1.CurrentPage = 7;
 		}
 
-		public override void Destroy()
+		public override void Destroy ()
 		{
-			Session.Close();
+			Session.Close ();
 			contactsview1.Destroy ();
-			adaptor.Disconnect();
+			adaptor.Disconnect ();
 			contractAdaptor.Disconnect ();
-			base.Destroy();
+			base.Destroy ();
 		}
 	}
 }

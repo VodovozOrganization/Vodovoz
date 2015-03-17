@@ -5,41 +5,47 @@ using NLog;
 using QSOrmProject;
 using QSTDI;
 using QSValidation;
+using NHibernate.Criterion;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementWater : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
-		protected static Logger logger = LogManager.GetCurrentClassLogger();
+		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 		protected ISession session;
-		protected Adaptor adaptor = new Adaptor();
+		protected Adaptor adaptor = new Adaptor ();
 		protected IAdditionalAgreementOwner AgreementOwner;
 
 		public bool HasChanges {
-			get {return Session.IsDirty();}
+			get { return false; }
 		}
 
 		#region ITdiTab implementation
+
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
+
 		public QSTDI.ITdiTabParent TabParent { get ; set ; }
 
 		protected string _tabName = "Новое доп. соглашение";
-		public string TabName
-		{
-			get{return _tabName;}
-			set{
+
+		public string TabName {
+			get{ return _tabName; }
+			set {
 				if (_tabName == value)
 					return;
 				_tabName = value;
 				if (TabNameChanged != null)
-					TabNameChanged(this, new TdiTabNameChangedEventArgs(value));
+					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 		}
+
 		#endregion
 
 		#region IOrmDialog implementation
+
 		public NHibernate.ISession Session {
 			get {
 				if (session == null)
@@ -50,9 +56,11 @@ namespace Vodovoz
 				session = value;
 			}
 		}
+
 		#endregion
 
 		OrmParentReference parentReference;
+
 		public OrmParentReference ParentReference {
 			set {
 				parentReference = value;
@@ -71,26 +79,27 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
-				OnCloseTab(false);
+			if (!this.HasChanges || Save ())
+				OnCloseTab (false);
 		}
 
-		protected void OnCloseTab(bool askSave)
+		protected void OnCloseTab (bool askSave)
 		{
 			if (TabParent.CheckClosingSlaveTabs ((ITdiTab)this))
 				return;
 
 			if (CloseTab != null)
-				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 
-		public override void Destroy()
+		public override void Destroy ()
 		{
-			adaptor.Disconnect();
-			base.Destroy();
+			adaptor.Disconnect ();
+			base.Destroy ();
 		}
 
 		private WaterSalesAgreement subject;
+
 		public object Subject {
 			get {
 				return subject;
@@ -100,31 +109,54 @@ namespace Vodovoz
 					subject = value as WaterSalesAgreement;
 			}
 		}
-			
-		public AdditionalAgreementWater(OrmParentReference parentReference)
+
+		public AdditionalAgreementWater (OrmParentReference parentReference)
 		{
-			this.Build();
+			this.Build ();
 			ParentReference = parentReference;
-			subject = new WaterSalesAgreement();
+			subject = new WaterSalesAgreement ();
+			//Вычисляем номер для нового соглашения.
+			var numbers = new List<int> ();
+			foreach (AdditionalAgreement a in (parentReference.ParentObject as CounterpartyContract).AdditionalAgreements) {
+				int res;
+				if (Int32.TryParse (a.AgreementNumber, out res))
+					numbers.Add (res);
+			}
+			numbers.Sort ();
+			String number = "00";
+			if (numbers.Count > 0) {
+				number += (numbers [numbers.Count - 1] + 1).ToString ();
+				number = number.Substring (number.Length - 3, 3);
+			} else
+				number += "1";
+			subject.AgreementNumber = number;
+
 			AgreementOwner.AdditionalAgreements.Add (subject);
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public AdditionalAgreementWater(OrmParentReference parentReference, WaterSalesAgreement sub)
+		public AdditionalAgreementWater (OrmParentReference parentReference, WaterSalesAgreement sub)
 		{
-			this.Build();
+			this.Build ();
 			ParentReference = parentReference;
 			subject = sub;
 			TabName = subject.AgreementType + " " + subject.AgreementNumber;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
 
-		private void ConfigureDlg()
+		private void ConfigureDlg ()
 		{
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			entryAgreementNumber.IsEditable = true;
+			var identifiers = new List<object> ();
+			foreach (DeliveryPoint d in (parentReference.ParentObject as CounterpartyContract).Counterparty.DeliveryPoints)
+				identifiers.Add (d.Id);
+			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
+			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+				.Add (Restrictions.In ("Id", identifiers));
+			dataAgreementType.Text = (parentReference.ParentObject as CounterpartyContract).Number + " - В";
 		}
 
 		public bool Save ()
@@ -133,7 +165,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			OrmMain.DelayedNotifyObjectUpdated(ParentReference.ParentObject, subject);
+			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
 		}
 	}

@@ -325,7 +325,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 1;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -338,6 +338,7 @@ namespace Vodovoz
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
+			this.datatable1.BorderWidth = ((uint)(6));
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			this.datatable1.InheritedDataSource = false;
@@ -688,6 +689,7 @@ namespace Vodovoz
 			this.datatable2.Name = "datatable2";
 			this.datatable2.RowSpacing = ((uint)(6));
 			this.datatable2.ColumnSpacing = ((uint)(6));
+			this.datatable2.BorderWidth = ((uint)(6));
 			this.datatable2.InheritedDataSource = false;
 			this.datatable2.InheritedBoundaryDataSource = false;
 			this.datatable2.InheritedDataSource = false;
@@ -809,6 +811,7 @@ namespace Vodovoz
 			this.vbox6 = new global::Gtk.VBox ();
 			this.vbox6.Name = "vbox6";
 			this.vbox6.Spacing = 6;
+			this.vbox6.BorderWidth = ((uint)(6));
 			// Container child vbox6.Gtk.Box+BoxChild
 			this.datatable4 = new global::Gtk.DataBindings.DataTable (((uint)(3)), ((uint)(2)), false);
 			this.datatable4.Name = "datatable4";
@@ -925,6 +928,7 @@ namespace Vodovoz
 			this.datatable3.Name = "datatable3";
 			this.datatable3.RowSpacing = ((uint)(6));
 			this.datatable3.ColumnSpacing = ((uint)(6));
+			this.datatable3.BorderWidth = ((uint)(6));
 			this.datatable3.InheritedDataSource = false;
 			this.datatable3.InheritedBoundaryDataSource = false;
 			this.datatable3.InheritedDataSource = false;
@@ -1061,6 +1065,7 @@ namespace Vodovoz
 			this.datatable5.Name = "datatable5";
 			this.datatable5.RowSpacing = ((uint)(6));
 			this.datatable5.ColumnSpacing = ((uint)(6));
+			this.datatable5.BorderWidth = ((uint)(6));
 			this.datatable5.InheritedDataSource = false;
 			this.datatable5.InheritedBoundaryDataSource = false;
 			this.datatable5.InheritedDataSource = false;
@@ -1274,6 +1279,7 @@ namespace Vodovoz
 			this.vbox9 = new global::Gtk.VBox ();
 			this.vbox9.Name = "vbox9";
 			this.vbox9.Spacing = 6;
+			this.vbox9.BorderWidth = ((uint)(6));
 			// Container child vbox9.Gtk.Box+BoxChild
 			this.deliveryPointView = new global::Vodovoz.DeliveryPointView ();
 			this.deliveryPointView.Events = ((global::Gdk.EventMask)(256));

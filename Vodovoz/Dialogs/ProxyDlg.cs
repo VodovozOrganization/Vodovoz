@@ -7,27 +7,28 @@ using QSTDI;
 using System.Collections.Generic;
 using QSContacts;
 using Gtk;
+using NHibernate.Criterion;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ProxyDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		private ISession session;
 		private IProxyOwner proxyOwner;
-		private Adaptor adaptor = new Adaptor();
+		private Adaptor adaptor = new Adaptor ();
 		private Proxy subject;
 
 		OrmParentReference parentReference;
+
 		public OrmParentReference ParentReference {
 			set {
 				parentReference = value;
 				if (parentReference != null) {
 					Session = parentReference.Session;
-					if(!(parentReference.ParentObject is IProxyOwner))
-					{
-						throw new ArgumentException (String.Format("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IProxyOwner)));
+					if (!(parentReference.ParentObject is IProxyOwner)) {
+						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IProxyOwner)));
 					}
 					this.proxyOwner = (IProxyOwner)parentReference.ParentObject;
 				}
@@ -37,32 +38,32 @@ namespace Vodovoz
 			}
 		}
 
-		public ProxyDlg(OrmParentReference parentReference)
+		public ProxyDlg (OrmParentReference parentReference)
 		{
-			this.Build();
+			this.Build ();
 			ParentReference = parentReference;
-			subject = new Proxy();
+			subject = new Proxy ();
 			proxyOwner.Proxies.Add (subject);
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public ProxyDlg(OrmParentReference parenReferance, Proxy subject)
+		public ProxyDlg (OrmParentReference parenReferance, Proxy subject)
 		{
-			this.Build();
+			this.Build ();
 			ParentReference = parenReferance;
 			this.subject = subject;
 			TabName = subject.Number;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg ()
 		{
 			entryNumber.IsEditable = true;
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			personsView.Session = Session;
 			if (subject.Persons == null)
-				subject.Persons = new List<Person>();
+				subject.Persons = new List<Person> ();
 			personsView.Persons = subject.Persons;
 			datepickerExpiration.DataSource = adaptor;
 			datepickerStart.DataSource = adaptor;
@@ -70,24 +71,31 @@ namespace Vodovoz
 			datepickerIssue.DateChanged += OnIssueDateChanged;
 			datepickerStart.DateChanged += OnStartDateChanged;
 			datepickerExpiration.DateChanged += OnExpirationDateChanged;
+
+			var identifiers = new List<object> ();
+			foreach (DeliveryPoint d in (parentReference.ParentObject as Counterparty).DeliveryPoints)
+				identifiers.Add (d.Id);
+			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
+			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+				.Add (Restrictions.In ("Id", identifiers));
 		}
 
-		private void OnIssueDateChanged(object sender, EventArgs e)
+		private void OnIssueDateChanged (object sender, EventArgs e)
 		{
-			if (datepickerIssue.Date != default(DateTime) && 
-				subject.StartDate == default(DateTime) && datepickerStart.Date < datepickerIssue.Date)
+			if (datepickerIssue.Date != default(DateTime) &&
+			    subject.StartDate == default(DateTime) && datepickerStart.Date < datepickerIssue.Date)
 				datepickerStart.Date = datepickerIssue.Date;
 		}
 
-		private void OnStartDateChanged(object sender, EventArgs e)
+		private void OnStartDateChanged (object sender, EventArgs e)
 		{
 			if (datepickerStart.Date < datepickerIssue.Date) {
 				datepickerStart.Date = datepickerIssue.Date;
 				string Message = "Нельзя установить дату начала действия доверенности раньше даты ее выдачи.";
 				MessageDialog md = new MessageDialog ((Window)this.Toplevel, DialogFlags.Modal,
-					MessageType.Warning, 
-					ButtonsType.Close,
-					Message);
+					                   MessageType.Warning, 
+					                   ButtonsType.Close,
+					                   Message);
 				md.Run ();
 				md.Destroy ();
 			}
@@ -95,34 +103,35 @@ namespace Vodovoz
 				datepickerExpiration.Date = datepickerStart.Date;
 		}
 
-		private void OnExpirationDateChanged(object sender, EventArgs e)
+		private void OnExpirationDateChanged (object sender, EventArgs e)
 		{
 			if (datepickerExpiration.Date < datepickerStart.Date) {
 				datepickerExpiration.Date = datepickerStart.Date;
 				string Message = "Нельзя установить дату окончания действия доверенности раньше даты начала ее действия.";
 				MessageDialog md = new MessageDialog ((Window)this.Toplevel, DialogFlags.Modal,
-					MessageType.Warning, 
-					ButtonsType.Close,
-					Message);
+					                   MessageType.Warning, 
+					                   ButtonsType.Close,
+					                   Message);
 				md.Run ();
 				md.Destroy ();
 			}
 		}
 
 		#region ITdiTab implementation
+
 		public event EventHandler<QSTDI.TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<QSTDI.TdiTabCloseEventArgs> CloseTab;
 
 		private string _tabName = "Новая доверенность";
-		public string TabName
-		{
-			get{return _tabName;}
-			set{
+
+		public string TabName {
+			get{ return _tabName; }
+			set {
 				if (_tabName == value)
 					return;
 				_tabName = value;
 				if (TabNameChanged != null)
-					TabNameChanged(this, new TdiTabNameChangedEventArgs(value));
+					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 
 		}
@@ -135,14 +144,14 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
-			logger.Info("Сохраняем доверенность...");
-			if(proxyOwner != null)
+			logger.Info ("Сохраняем доверенность...");
+			if (proxyOwner != null)
 				OrmMain.DelayedNotifyObjectUpdated (proxyOwner, subject);
 			return true;
 		}
 
 		public bool HasChanges {
-			get {return Session.IsDirty();}
+			get { return Session.IsDirty (); }
 		}
 
 		#endregion
@@ -161,24 +170,25 @@ namespace Vodovoz
 		}
 
 		public object Subject {
-			get {return subject;}
+			get { return subject; }
 			set {
 				if (value is Proxy)
 					subject = value as Proxy;
 			}
 		}
+
 		#endregion
 
 		protected void OnButtonOkClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
-				OnCloseTab(false);
+			if (!this.HasChanges || Save ())
+				OnCloseTab (false);
 		}
 
-		protected void OnCloseTab(bool askSave)
+		protected void OnCloseTab (bool askSave)
 		{
 			if (CloseTab != null)
-				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 	}
 }

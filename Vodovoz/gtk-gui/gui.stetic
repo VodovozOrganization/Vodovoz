@@ -568,7 +568,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1269,7 +1268,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3520,6 +3518,7 @@ Patronymic</property>
                         <property name="NColumns">2</property>
                         <property name="RowSpacing">6</property>
                         <property name="ColumnSpacing">6</property>
+                        <property name="BorderWidth">6</property>
                         <property name="InheritedDataSource">False</property>
                         <property name="InheritedBoundaryDataSource">False</property>
                         <property name="InheritedDataSource">False</property>
@@ -4087,6 +4086,7 @@ Patronymic</property>
                 <property name="NColumns">2</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <property name="BorderWidth">6</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
@@ -4282,6 +4282,7 @@ MainPhoneString</property>
               <widget class="Gtk.VBox" id="vbox6">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
+                <property name="BorderWidth">6</property>
                 <child>
                   <widget class="Gtk.DataBindings.DataTable" id="datatable4">
                     <property name="MemberName" />
@@ -4467,6 +4468,7 @@ MainPhoneString</property>
                 <property name="NColumns">2</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <property name="BorderWidth">6</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
@@ -4668,6 +4670,7 @@ Patronymic</property>
                 <property name="NColumns">2</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <property name="BorderWidth">6</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
@@ -5006,6 +5009,7 @@ Patronymic</property>
               <widget class="Gtk.VBox" id="vbox9">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
+                <property name="BorderWidth">6</property>
                 <child>
                   <widget class="Vodovoz.DeliveryPointView" id="deliveryPointView">
                     <property name="MemberName" />
@@ -5212,7 +5216,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="388 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="430 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5258,13 +5262,11 @@ Patronymic</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <property name="BorderWidth">6</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
-            <child>
-              <placeholder />
-            </child>
             <child>
               <placeholder />
             </child>
@@ -5321,24 +5323,51 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+              <widget class="Gtk.HBox" id="hbox5">
                 <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="IsEditable">True</property>
-                <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.DataBindings.DataLabel" id="dataAgreementType">
+                    <property name="MemberName" />
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="Important">False</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">●</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
-                <property name="AutoSize">False</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -5444,6 +5473,33 @@ Patronymic</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="DisplayFields">Point</property>
+                <property name="DisplayFormatString">{0}</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">DeliveryPoint</property>
+                <property name="ColumnMappings" />
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="CursorPointsEveryType">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">1</property>
@@ -5455,7 +5511,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="389 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="430 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5501,13 +5557,11 @@ Patronymic</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <property name="BorderWidth">6</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
-            <child>
-              <placeholder />
-            </child>
             <child>
               <placeholder />
             </child>
@@ -5564,24 +5618,51 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+              <widget class="Gtk.HBox" id="hbox5">
                 <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="IsEditable">True</property>
-                <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.DataBindings.DataLabel" id="dataAgreementType">
+                    <property name="MemberName" />
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="Important">False</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">●</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
-                <property name="AutoSize">False</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -5687,6 +5768,33 @@ Patronymic</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="DisplayFields">Point</property>
+                <property name="DisplayFormatString">{0}</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">DeliveryPoint</property>
+                <property name="ColumnMappings" />
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="CursorPointsEveryType">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">1</property>
@@ -5698,7 +5806,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="314 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="419 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5744,13 +5852,11 @@ Patronymic</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <property name="BorderWidth">6</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
-            <child>
-              <placeholder />
-            </child>
             <child>
               <placeholder />
             </child>
@@ -5818,17 +5924,43 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+              <widget class="Gtk.HBox" id="hbox5">
                 <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="IsEditable">True</property>
-                <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.DataBindings.DataLabel" id="dataAgreementType">
+                    <property name="MemberName" />
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="Important">False</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">●</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -5923,6 +6055,33 @@ Patronymic</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="DisplayFields">Point</property>
+                <property name="DisplayFormatString">{0}</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">DeliveryPoint</property>
+                <property name="ColumnMappings" />
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="CursorPointsEveryType">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">1</property>
@@ -5932,7 +6091,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementWater" design-size="314 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementWater" design-size="419 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5978,13 +6137,11 @@ Patronymic</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <property name="BorderWidth">6</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
-            <child>
-              <placeholder />
-            </child>
             <child>
               <placeholder />
             </child>
@@ -6052,17 +6209,43 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+              <widget class="Gtk.HBox" id="hbox5">
                 <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="IsEditable">True</property>
-                <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">AgreementNumber</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.DataBindings.DataLabel" id="dataAgreementType">
+                    <property name="MemberName" />
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="Important">False</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.DataBindings.DataEntry" id="entryAgreementNumber">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">●</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="Mappings">AgreementNumber</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -6150,6 +6333,33 @@ Patronymic</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="DisplayFields">Point</property>
+                <property name="DisplayFormatString">{0}</property>
+                <property name="InheritedDataSource">True</property>
+                <property name="Mappings">DeliveryPoint</property>
+                <property name="ColumnMappings" />
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="CursorPointsEveryType">False</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">False</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
