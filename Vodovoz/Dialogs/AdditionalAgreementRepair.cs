@@ -110,36 +110,12 @@ namespace Vodovoz
 			}
 		}
 
-		public AdditionalAgreementRepair (OrmParentReference parentReference)
-		{
-			this.Build ();
-			ParentReference = parentReference;
-			subject = new RepairAgreement ();
-			//Вычисляем номер для нового соглашения.
-			var numbers = new List<int> ();
-			foreach (AdditionalAgreement a in (parentReference.ParentObject as CounterpartyContract).AdditionalAgreements) {
-				int res;
-				if (Int32.TryParse (a.AgreementNumber, out res))
-					numbers.Add (res);
-			}
-			numbers.Sort ();
-			String number = "00";
-			if (numbers.Count > 0) {
-				number += (numbers [numbers.Count - 1] + 1).ToString ();
-				number = number.Substring (number.Length - 3, 3);
-			} else
-				number += "1";
-			subject.AgreementNumber = number;
-
-			ConfigureDlg ();
-		}
-
 		public AdditionalAgreementRepair (OrmParentReference parentReference, RepairAgreement sub)
 		{
 			this.Build ();
 			ParentReference = parentReference;
 			subject = sub;
-			TabName = subject.AgreementType + " " + subject.AgreementNumber;
+			TabName = subject.AgreementTypeTitle + " " + subject.AgreementNumber;
 			ConfigureDlg ();
 		}
 

@@ -15,7 +15,20 @@ namespace Vodovoz
 		[Required (ErrorMessage = "Номер доп. соглашения должен быть заполнен.")]
 		public virtual string AgreementNumber { get; set; }
 
-		public virtual AgreementType Type { get; set; }
+		public virtual AgreementType Type {
+			get {
+				if (this is NonfreeRentAgreement)
+					return AgreementType.NonfreeRent;
+				if (this is FreeRentAgreement)
+					return AgreementType.FreeRent;
+				if (this is WaterSalesAgreement)
+					return AgreementType.WaterSales;
+				if (this is RepairAgreement)
+					return AgreementType.Repair;
+				return AgreementType.EquipmentSales;
+			}
+
+		}
 
 		public virtual DateTime IssueDate { get; set; }
 
@@ -30,7 +43,7 @@ namespace Vodovoz
 			AgreementNumber = String.Empty;
 		}
 
-		public virtual string AgreementType { get { return Type.GetEnumTitle (); } }
+		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
 
 	}
 

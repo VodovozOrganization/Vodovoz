@@ -127,7 +127,6 @@
  			<generator class="native"></generator>
  		</id>
 		<discriminator column="type" type="String"/>
-		<property name="Type" column="type" type="Vodovoz.AgreementTypeStringType, Vodovoz" />
 		<property name="AgreementNumber" column="number" />
 		<property name="StartDate" column="start_date" />
 		<property name="IssueDate" column="issue_date" /> 
