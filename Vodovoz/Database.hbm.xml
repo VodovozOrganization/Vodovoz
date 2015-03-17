@@ -131,6 +131,7 @@
 		<property name="AgreementNumber" column="number" />
 		<property name="StartDate" column="start_date" />
 		<property name="IssueDate" column="issue_date" /> 
+		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
 		<subclass name="NonfreeRentAgreement" discriminator-value="NonfreeRent">
 			<many-to-one name="RentPackage" class="PaidRentPackage" column="paid_rent_package_id" />
         </subclass>
@@ -152,6 +153,7 @@
 		<property name="IsArchive" column="is_archive" /> 
 		<property name="OnCancellation" column="on_cancellation" /> 
 		<many-to-one name="Organization" class="Organization" column="organization_id"/>
+		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<bag name="AdditionalAgreements" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_contract_id"/>
     		<one-to-many class="AdditionalAgreement" />
@@ -172,8 +174,8 @@
 		<property name="PaymentMethod" column="payment_method" type="Vodovoz.PaymentStringType, Vodovoz"/>
 		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
 		<property name="CounterpartyType" column="counterparty_type" type="Vodovoz.CounterpartyTypeStringType, Vodovoz"/>
+		<one-to-one name="Contract" class="CounterpartyContract"/>
 		<many-to-one name="Significance" class="Significance" column="significance_id"/>
-		<many-to-one name="Contract" class="CounterpartyContract" column="contract_id" />
 		<many-to-one name="Status" class="CounterpartyStatus" column="status_id"/>
 		<many-to-one name="MainCounterparty" class="Counterparty" column="maincounterparty_id" />
 		<many-to-one name="Accountant" class="Employee" column="accountant"/>
