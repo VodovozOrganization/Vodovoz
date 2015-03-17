@@ -82,7 +82,7 @@ namespace Vodovoz
 			this.dateIssue.Events = ((global::Gdk.EventMask)(256));
 			this.dateIssue.Name = "dateIssue";
 			this.dateIssue.Date = new global::System.DateTime (0);
-			this.dateIssue.IsEditable = false;
+			this.dateIssue.IsEditable = true;
 			this.dateIssue.AutoSeparation = false;
 			this.dateIssue.InheritedDataSource = true;
 			this.dateIssue.Mappings = "IssueDate";
@@ -99,7 +99,7 @@ namespace Vodovoz
 			this.dateStart.Events = ((global::Gdk.EventMask)(256));
 			this.dateStart.Name = "dateStart";
 			this.dateStart.Date = new global::System.DateTime (0);
-			this.dateStart.IsEditable = false;
+			this.dateStart.IsEditable = true;
 			this.dateStart.AutoSeparation = false;
 			this.dateStart.InheritedDataSource = true;
 			this.dateStart.Mappings = "StartDate";
