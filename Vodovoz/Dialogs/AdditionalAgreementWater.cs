@@ -7,6 +7,7 @@ using QSTDI;
 using QSValidation;
 using NHibernate.Criterion;
 using System.Collections.Generic;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -79,7 +80,7 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save ())
+			if (Save ())
 				OnCloseTab (false);
 		}
 
@@ -94,6 +95,8 @@ namespace Vodovoz
 
 		public override void Destroy ()
 		{
+			if (checkForAgreementExists ())
+				(parentReference.ParentObject as IAdditionalAgreementOwner).AdditionalAgreements.Remove (subject);
 			adaptor.Disconnect ();
 			base.Destroy ();
 		}
@@ -140,7 +143,22 @@ namespace Vodovoz
 			var valid = new QSValidator<WaterSalesAgreement> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-
+			if (checkForAgreementExists ()) {
+				String message;
+				if (subject.DeliveryPoint != null)
+					message = "Дополнительное соглашение по продаже воды для данной точки доставки уже существует.";
+				else
+					message = "Общее дополнительное соглашение по продаже воды уже существует.";
+				MessageDialog md = new MessageDialog (null, 
+					                   DialogFlags.DestroyWithParent, 
+					                   MessageType.Error,
+					                   ButtonsType.Close,
+					                   message);
+				md.Show ();
+				md.Run ();
+				md.Destroy ();
+				return false;
+			}
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
 		}
@@ -148,6 +166,17 @@ namespace Vodovoz
 		protected void OnCheckIsFixedPriceToggled (object sender, EventArgs e)
 		{
 			spinFixedPrice.Sensitive = labelCurrency.Sensitive = subject.IsFixedPrice;
+		}
+
+		bool checkForAgreementExists ()
+		{
+			var agreements = new List<AdditionalAgreement> ();
+			foreach (AdditionalAgreement d in (parentReference.ParentObject as IAdditionalAgreementOwner).AdditionalAgreements)
+				if (d is WaterSalesAgreement)
+					agreements.Add (d);
+			if (agreements.FindAll (m => m.DeliveryPoint == subject.DeliveryPoint).Count > 1)
+				return true;
+			return false;
 		}
 	}
 }
