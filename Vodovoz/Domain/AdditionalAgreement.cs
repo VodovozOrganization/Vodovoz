@@ -69,6 +69,10 @@ namespace Vodovoz
 	{
 		#region Свойства
 
+		public virtual bool IsFixedPrice { get; set; }
+
+		public virtual decimal FixedPrice { get; set; }
+
 		#endregion
 	}
 

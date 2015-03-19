@@ -132,6 +132,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = (parentReference.ParentObject as CounterpartyContract).Number + " - В";
+			spinFixedPrice.Sensitive = labelCurrency.Sensitive = subject.IsFixedPrice;
 		}
 
 		public bool Save ()
@@ -142,6 +143,11 @@ namespace Vodovoz
 
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
+		}
+
+		protected void OnCheckIsFixedPriceToggled (object sender, EventArgs e)
+		{
+			spinFixedPrice.Sensitive = labelCurrency.Sensitive = subject.IsFixedPrice;
 		}
 	}
 }

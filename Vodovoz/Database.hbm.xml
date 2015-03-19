@@ -138,6 +138,8 @@
 			<many-to-one name="RentPackage" class="FreeRentPackage" column="free_rent_package_id" />
         </subclass>
     	<subclass name="WaterSalesAgreement" discriminator-value="WaterSales">
+    		<property name="IsFixedPrice" column="water_is_fixed_price" />
+    		<property name="FixedPrice" column="water_fixed_price" />
         </subclass>
         <subclass name="RepairAgreement" discriminator-value="Repair">
         </subclass>
