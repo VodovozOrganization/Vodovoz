@@ -2,11 +2,12 @@
 using QSOrmProject;
 using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
 	[OrmSubject ("Дополнительные соглашения")]
-	public class AdditionalAgreement : IDomainObject
+	public class AdditionalAgreement : IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -30,11 +31,19 @@ namespace Vodovoz
 
 		}
 
+		public virtual CounterpartyContract Contract { get; set; }
+
 		public virtual DateTime IssueDate { get; set; }
 
 		public virtual DateTime StartDate { get; set; }
 
 		public virtual DeliveryPoint DeliveryPoint { get; set; }
+
+		public virtual string AgreementDeliveryPoint { get { return DeliveryPoint != null ? DeliveryPoint.Point : "Не указана"; } }
+
+		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
+
+		public virtual bool IsNew { get; set; }
 
 		#endregion
 
@@ -43,8 +52,20 @@ namespace Vodovoz
 			AgreementNumber = String.Empty;
 		}
 
-		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
 
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			int count = 0;
+			foreach (AdditionalAgreement agreement in Contract.AdditionalAgreements)
+				if (agreement.AgreementNumber == this.AgreementNumber)
+					count++;
+			if (count > 1)
+				yield return new ValidationResult ("Доп. соглашение с таким номером уже существует.", new[] { "AgreementNumber" });
+		}
+
+		#endregion
 	}
 
 	public class NonfreeRentAgreement : AdditionalAgreement
@@ -72,6 +93,23 @@ namespace Vodovoz
 		public virtual bool IsFixedPrice { get; set; }
 
 		public virtual decimal FixedPrice { get; set; }
+
+		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			foreach (ValidationResult result in base.Validate (validationContext))
+				yield return result;
+			var agreements = new List<AdditionalAgreement> ();
+			foreach (AdditionalAgreement agreement in Contract.AdditionalAgreements)
+				if (agreement is WaterSalesAgreement)
+					agreements.Add (agreement);
+			if (agreements.FindAll (m => m.DeliveryPoint == this.DeliveryPoint).Count > 1) {
+				if (DeliveryPoint != null)
+					yield return new ValidationResult ("Доп. соглашение для данной точки доставки уже существует.", new[] { "DeliveryPoint" });
+				else
+					yield return new ValidationResult ("Общее доп. соглашение по продаже воды уже существует. " +
+					"Пожалуйста, укажите точку доставки или перейдите к существующему соглашению.", new[] { "DeliveryPoint" });
+			}
+		}
 
 		#endregion
 	}

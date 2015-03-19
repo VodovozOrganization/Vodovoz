@@ -130,6 +130,7 @@
 		<property name="AgreementNumber" column="number" />
 		<property name="StartDate" column="start_date" />
 		<property name="IssueDate" column="issue_date" /> 
+		<many-to-one name="Contract" class="Vodovoz.CounterpartyContract" column="counterparty_contract_id" />
 		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
 		<subclass name="NonfreeRentAgreement" discriminator-value="NonfreeRent">
 			<many-to-one name="RentPackage" class="PaidRentPackage" column="paid_rent_package_id" />

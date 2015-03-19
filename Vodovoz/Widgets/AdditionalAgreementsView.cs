@@ -94,6 +94,7 @@ namespace Vodovoz
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));
 			}
+			agreement.Contract = (agreementOwner as CounterpartyContract);
 			additionalAgreements.Add (agreement);
 
 			//Вычисляем номер для нового соглашения.
@@ -111,6 +112,7 @@ namespace Vodovoz
 			} else
 				number += "1";
 			agreement.AgreementNumber = number;
+			agreement.IsNew = true;
 
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}

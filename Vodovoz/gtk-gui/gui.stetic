@@ -5139,7 +5139,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип];</property>
+                <property name="ColumnMappings">{Vodovoz.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип]; AgreementDeliveryPoint[Точка доставки];</property>
                 <signal name="RowActivated" handler="OnTreeAdditionalAgreementsRowActivated" />
               </widget>
             </child>
