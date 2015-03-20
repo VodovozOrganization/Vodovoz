@@ -14,7 +14,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementWater : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
-		protected WaterSalesAgreement firstCopy = new WaterSalesAgreement ();
+		protected WaterSalesAgreement subjectCopy;
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 		protected ISession session;
 		protected Adaptor adaptor = new Adaptor ();
@@ -103,7 +103,7 @@ namespace Vodovoz
 				if (subject.IsNew)
 					(parentReference.ParentObject as IAdditionalAgreementOwner).AdditionalAgreements.Remove (subject);
 				else
-					ObjectCloner.ReflectionClone<WaterSalesAgreement> (firstCopy, ref subject);
+					ObjectCloner.FieldsCopy<WaterSalesAgreement> (subjectCopy, ref subject);
 			}
 			adaptor.Disconnect ();
 			base.Destroy ();
@@ -124,7 +124,7 @@ namespace Vodovoz
 		public AdditionalAgreementWater (OrmParentReference parentReference, WaterSalesAgreement sub)
 		{
 			this.Build ();
-			ObjectCloner.ReflectionClone<WaterSalesAgreement> (sub, ref firstCopy);
+			subjectCopy = ObjectCloner.Clone<WaterSalesAgreement> (sub);
 			ParentReference = parentReference;
 			subject = sub;
 			TabName = subject.AgreementTypeTitle + " " + subject.AgreementNumber;
