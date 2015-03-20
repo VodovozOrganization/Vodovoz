@@ -12,53 +12,49 @@ using QSContacts;
 
 public partial class MainWindow: Gtk.Window
 {
-	private static Gtk.Clipboard clipboard = Gtk.Clipboard.Get(Gdk.Atom.Intern("CLIPBOARD", false));
-	private static Logger logger = LogManager.GetCurrentClassLogger();
+	private static Gtk.Clipboard clipboard = Gtk.Clipboard.Get (Gdk.Atom.Intern ("CLIPBOARD", false));
+	private static Logger logger = LogManager.GetCurrentClassLogger ();
 	uint uiIdOrders, uiIdServices;
 
-	public MainWindow() : base(Gtk.WindowType.Toplevel)
+	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
-		Build();
+		Build ();
 		this.KeyReleaseEvent += HandleKeyReleaseEvent;
 		//Передаем лебл
 		QSMain.StatusBarLabel = labelStatus;
-		this.Title = QSSupportLib.MainSupport.GetTitle();
-		QSMain.MakeNewStatusTargetForNlog();
+		this.Title = QSSupportLib.MainSupport.GetTitle ();
+		QSMain.MakeNewStatusTargetForNlog ();
 
 		//Test version of base
-		try
-		{
-			MainSupport.BaseParameters = new BaseParam(QSMain.ConnectionDB);
-		}
-		catch(Exception e)
-		{
-			logger.FatalException("Не удалось получить информацию о версии базы данных.", e);
-			MessageDialog BaseError = new MessageDialog ( this, DialogFlags.DestroyWithParent,
-				MessageType.Warning, 
-				ButtonsType.Close, 
-				"Не удалось получить информацию о версии базы данных.");
-			BaseError.Run();
-			BaseError.Destroy();
-			Environment.Exit(0);
+		try {
+			MainSupport.BaseParameters = new BaseParam (QSMain.ConnectionDB);
+		} catch (Exception e) {
+			logger.FatalException ("Не удалось получить информацию о версии базы данных.", e);
+			MessageDialog BaseError = new MessageDialog (this, DialogFlags.DestroyWithParent,
+				                          MessageType.Warning, 
+				                          ButtonsType.Close, 
+				                          "Не удалось получить информацию о версии базы данных.");
+			BaseError.Run ();
+			BaseError.Destroy ();
+			Environment.Exit (0);
 		}
 
-		MainSupport.ProjectVerion = new AppVersion(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name.ToString(),
+		MainSupport.ProjectVerion = new AppVersion (System.Reflection.Assembly.GetExecutingAssembly ().GetName ().Name.ToString (),
 			"gpl",
-			System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
-		MainSupport.TestVersion(this); //Проверяем версию базы
+			System.Reflection.Assembly.GetExecutingAssembly ().GetName ().Version);
+		MainSupport.TestVersion (this); //Проверяем версию базы
 		QSMain.CheckServer (this); // Проверяем настройки сервера
 
-		if(QSMain.User.Login == "root")
-		{
+		if (QSMain.User.Login == "root") {
 			string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
-			MessageDialog md = new MessageDialog ( this, DialogFlags.DestroyWithParent,
-				MessageType.Info, 
-				ButtonsType.Ok,
-				Message);
+			MessageDialog md = new MessageDialog (this, DialogFlags.DestroyWithParent,
+				                   MessageType.Info, 
+				                   ButtonsType.Ok,
+				                   Message);
 			md.Run ();
-			md.Destroy();
-			Users WinUser = new Users();
-			WinUser.Show();
+			md.Destroy ();
+			Users WinUser = new Users ();
+			WinUser.Show ();
 			WinUser.Run ();
 			WinUser.Destroy ();
 			return;
@@ -66,7 +62,7 @@ public partial class MainWindow: Gtk.Window
 
 		//Загружаем информацию о пользователе
 		if ((QSSaaS.Session.IsSaasConnection && QSMain.User.TestUserExistByLogin (false)) ||
-			(!QSSaaS.Session.IsSaasConnection && QSMain.User.TestUserExistByLogin (true)))
+		    (!QSSaaS.Session.IsSaasConnection && QSMain.User.TestUserExistByLogin (true)))
 			QSMain.User.UpdateUserInfoByLogin ();
 		else {
 			logger.Fatal (String.Format ("Пользователь {0} не найден в базе!", QSMain.User.Login));
@@ -106,7 +102,7 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
-	void CopyToClipboard(Widget w)
+	void CopyToClipboard (Widget w)
 	{
 		int start, end;
 
@@ -121,7 +117,7 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
-	void CutToClipboard(Widget w)
+	void CutToClipboard (Widget w)
 	{
 		int start, end;
 
@@ -136,253 +132,253 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
-	void PasteFromClipboard(Widget w)
+	void PasteFromClipboard (Widget w)
 	{
-		if (w is Editable) 
+		if (w is Editable)
 			(w as Editable).PasteClipboard ();
-		else if (w is TextView) 
+		else if (w is TextView)
 			(w as TextView).Buffer.PasteClipboard (clipboard);
 	}
 
 	void OnCreateDialogWidget (object sender, QSTDI.TdiOpenObjDialogEventArgs e)
 	{
-		if(e.NewObject)
-		{
+		if (e.NewObject) {
 			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass);
-		}
-		else if(e.ObjectVar != null)
-		{
+		} else if (e.ObjectVar != null) {
 			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass, e.ObjectVar);
-		}
-		else
-		{
+		} else {
 			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass, e.ObjectId);		
 		}
 	}
-		
-	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
+
+	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
 	{
-		if (tdiMain.CloseAllTabs())
-		{
+		if (tdiMain.CloseAllTabs ()) {
 			a.RetVal = false;
-			Application.Quit();
-		}
-		else
-		{
+			Application.Quit ();
+		} else {
 			a.RetVal = true;
 		}
 	}
 
-	protected void OnQuitActionActivated(object sender, EventArgs e)
+	protected void OnQuitActionActivated (object sender, EventArgs e)
 	{
-		if (tdiMain.CloseAllTabs())
-		{
-			Application.Quit();
+		if (tdiMain.CloseAllTabs ()) {
+			Application.Quit ();
 		}
 	}
 
-	protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
+	protected void OnDialogAuthenticationActionActivated (object sender, EventArgs e)
 	{
 		QSMain.User.ChangeUserPassword (this);
 	}
 
-	protected void OnAction3Activated(object sender, EventArgs e)
+	protected void OnAction3Activated (object sender, EventArgs e)
 	{
-		Users winUsers = new Users();
-		winUsers.Show();
-		winUsers.Run();
-		winUsers.Destroy();
+		Users winUsers = new Users ();
+		winUsers.Show ();
+		winUsers.Run ();
+		winUsers.Destroy ();
 	}
 
-	protected void OnAboutActionActivated(object sender, EventArgs e)
+	protected void OnAboutActionActivated (object sender, EventArgs e)
 	{
-		QSMain.RunAboutDialog();
+		QSMain.RunAboutDialog ();
 	}
 
-	protected void OnActionOrdersToggled(object sender, EventArgs e)
+	protected void OnActionOrdersToggled (object sender, EventArgs e)
 	{
-		if (ActionOrders.Active)
-		{
-			uiIdOrders = this.UIManager.AddUiFromResource("Vodovoz.toolbars.orders.xml");
-			this.UIManager.EnsureUpdate();
-		}
-		else if (uiIdOrders > 0)
-		{
-			this.UIManager.RemoveUi(uiIdOrders);
+		if (ActionOrders.Active) {
+			uiIdOrders = this.UIManager.AddUiFromResource ("Vodovoz.toolbars.orders.xml");
+			this.UIManager.EnsureUpdate ();
+		} else if (uiIdOrders > 0) {
+			this.UIManager.RemoveUi (uiIdOrders);
 		}
 	}
 
-	protected void OnActionNewOrderActivated(object sender, EventArgs e)
+	protected void OnActionNewOrderActivated (object sender, EventArgs e)
 	{
-		throw new NotImplementedException();
+		throw new NotImplementedException ();
 	}
 
-	protected void OnActionServicesToggled(object sender, EventArgs e)
+	protected void OnActionServicesToggled (object sender, EventArgs e)
 	{
-		if (ActionServices.Active)
-		{
-			uiIdServices = this.UIManager.AddUiFromResource("Vodovoz.toolbars.services.xml");
-			this.UIManager.EnsureUpdate();
-		} 
-		else if(uiIdServices > 0)
-		{
-			this.UIManager.RemoveUi(uiIdServices);
+		if (ActionServices.Active) {
+			uiIdServices = this.UIManager.AddUiFromResource ("Vodovoz.toolbars.services.xml");
+			this.UIManager.EnsureUpdate ();
+		} else if (uiIdServices > 0) {
+			this.UIManager.RemoveUi (uiIdServices);
 		}
 	}
-		
-	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
-	{
-		ISession session = OrmMain.OpenSession();
-		var orgs = session.CreateCriteria<Organization>();
 
-		OrmReference refWin = new OrmReference(typeof(Organization), session, orgs);
-		tdiMain.AddTab(refWin);
+	protected void OnActionOrganizationsActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession ();
+		var orgs = session.CreateCriteria<Organization> ();
+
+		OrmReference refWin = new OrmReference (typeof(Organization), session, orgs);
+		tdiMain.AddTab (refWin);
 	}
 
-	protected void OnActionBanksRFActivated(object sender, EventArgs e)
+	protected void OnActionBanksRFActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Bank>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Bank> ();
 
-		OrmReference refWin = new OrmReference(typeof(Bank), session, criteria, "{QSBanks.Bank} Bik[БИК]; Name[Название]; City[Город];");
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(Bank), session, criteria, "{QSBanks.Bank} Bik[БИК]; Name[Название]; City[Город];");
+		tdiMain.AddTab (refWin);
 	}
 
-	protected void OnActionNationalityActivated(object sender, EventArgs e)
+	protected void OnActionNationalityActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Nationality>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Nationality> ();
 
-		OrmReference refWin = new OrmReference(typeof(Nationality), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(Nationality), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
-	protected void OnActionEmploeyActivated(object sender, EventArgs e)
+	protected void OnActionEmploeyActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Employee>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Employee> ();
 
-		OrmReference refWin = new OrmReference(typeof(Employee), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Employee), session, criteria);
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionCarsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Car>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Car> ();
 
-		OrmReference refWin = new OrmReference(typeof(Car), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Car), session, criteria);
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionUnitsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<MeasurementUnits>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<MeasurementUnits> ();
 
-		OrmReference refWin = new OrmReference(typeof(MeasurementUnits), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(MeasurementUnits), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionColorsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<EquipmentColors>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<EquipmentColors> ();
 
-		OrmReference refWin = new OrmReference(typeof(EquipmentColors), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(EquipmentColors), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionManufacturersActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Manufacturer>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Manufacturer> ();
 
-		OrmReference refWin = new OrmReference(typeof(Manufacturer), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(Manufacturer), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionEquipmentTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<EquipmentType>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<EquipmentType> ();
 
-		OrmReference refWin = new OrmReference(typeof(EquipmentType), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(EquipmentType), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionNomenclatureActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Nomenclature>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Nomenclature> ();
 
-		OrmReference refWin = new OrmReference(typeof(Nomenclature), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(Nomenclature), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
+
 	protected void OnActionPhoneTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<PhoneType>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<PhoneType> ();
 
-		OrmReference refWin = new OrmReference(typeof(PhoneType), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(PhoneType), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionCounterpartyHandbookActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Counterparty>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Counterparty> ();
 
-		OrmReference refWin = new OrmReference(typeof(Counterparty), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(Counterparty), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionSignificanceActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Significance>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Significance> ();
 
-		OrmReference refWin = new OrmReference(typeof(Significance), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(Significance), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
+
 	protected void OnActionStatusActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<CounterpartyStatus>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<CounterpartyStatus> ();
 
-		OrmReference refWin = new OrmReference(typeof(CounterpartyStatus), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(CounterpartyStatus), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
+
 	protected void OnActionEMailTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<EmailType>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<EmailType> ();
 
-		OrmReference refWin = new OrmReference(typeof(EmailType), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(EmailType), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
+
 	protected void OnActionCounterpartyPostActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<Post>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Post> ();
 
-		OrmReference refWin = new OrmReference(typeof(Post), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(Post), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
+
 	protected void OnActionFreeRentPackageActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<FreeRentPackage>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<FreeRentPackage> ();
 
-		OrmReference refWin = new OrmReference(typeof(FreeRentPackage), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(FreeRentPackage), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
+
 	protected void OnActionPaidRentPackageActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession();
-		var criteria = session.CreateCriteria<PaidRentPackage>();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<PaidRentPackage> ();
 
-		OrmReference refWin = new OrmReference(typeof(PaidRentPackage), session, criteria);
-		tdiMain.AddTab(refWin);
+		OrmReference refWin = new OrmReference (typeof(PaidRentPackage), session, criteria);
+		tdiMain.AddTab (refWin);
+	}
+
+	protected void OnActionEquipmentActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Equipment> ();
+
+		OrmReference refWin = new OrmReference (typeof(Equipment), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 }

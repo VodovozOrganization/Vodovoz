@@ -136,7 +136,6 @@
 			<many-to-one name="RentPackage" class="PaidRentPackage" column="paid_rent_package_id" />
         </subclass>
     	<subclass name="FreeRentAgreement" discriminator-value="FreeRent">
-			<many-to-one name="RentPackage" class="FreeRentPackage" column="free_rent_package_id" />
         </subclass>
     	<subclass name="WaterSalesAgreement" discriminator-value="WaterSales">
     		<property name="IsFixedPrice" column="water_is_fixed_price" />
@@ -301,4 +300,17 @@
     		<one-to-many class="DeliveryPoint" />
 		</bag>
 	</class>
+	<class name="Equipment" lazy="false" table="equipment">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Serial" column="serial_number" />
+ 		<property name="LastServiceDate" column="last_service_date" />
+		<property name="WarrantyEndDate" column="warranty_end_date" /> 
+		<property name="OnDuty" column="on_duty" />
+		<property name="Comment" column="comment" />
+		<many-to-one name="Nomenclature" class="Vodovoz.Nomenclature" column="nomenclature_id" />
+ 	</class>
+	
+
 </hibernate-mapping>

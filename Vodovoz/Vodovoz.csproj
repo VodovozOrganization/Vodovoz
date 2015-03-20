@@ -144,6 +144,11 @@
     <Compile Include="Domain\CustomerContact.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
     <Compile Include="ReferenceFilters\EmployeeFilter.cs" />
+    <Compile Include="Widgets\FreeRentPackagesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
+    <Compile Include="Domain\Equipment.cs" />
+    <Compile Include="Dialogs\EquipmentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

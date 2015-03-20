@@ -9,8 +9,6 @@ namespace Vodovoz
 	[OrmSubject ("Дополнительные соглашения")]
 	public class AdditionalAgreement : IDomainObject, IValidatableObject
 	{
-		#region Свойства
-
 		public virtual int Id { get; set; }
 
 		[Required (ErrorMessage = "Номер доп. соглашения должен быть заполнен.")]
@@ -45,15 +43,11 @@ namespace Vodovoz
 
 		public virtual bool IsNew { get; set; }
 
-		#endregion
-
 		public AdditionalAgreement ()
 		{
 			AgreementNumber = String.Empty;
+			IssueDate = StartDate = DateTime.Now;
 		}
-
-
-		#region IValidatableObject implementation
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
@@ -64,32 +58,20 @@ namespace Vodovoz
 			if (count > 1)
 				yield return new ValidationResult ("Доп. соглашение с таким номером уже существует.", new[] { "AgreementNumber" });
 		}
-
-		#endregion
 	}
 
 	public class NonfreeRentAgreement : AdditionalAgreement
 	{
-		#region Свойства
-
 		public virtual PaidRentPackage RentPackage { get; set; }
-
-		#endregion
 	}
 
-	public class FreeRentAgreement : AdditionalAgreement
+	public class FreeRentAgreement : AdditionalAgreement//, IFreeRentPackageOwner
 	{
-		#region Свойства
-
-		public virtual FreeRentPackage RentPackage { get; set; }
-
-		#endregion
+		//public IList<FreeRentPackage> FreeRentPackages { get; set; }
 	}
 
 	public class WaterSalesAgreement : AdditionalAgreement
 	{
-		#region Свойства
-
 		public virtual bool IsFixedPrice { get; set; }
 
 		public virtual decimal FixedPrice { get; set; }
@@ -110,15 +92,10 @@ namespace Vodovoz
 					"Пожалуйста, укажите точку доставки или перейдите к существующему соглашению.", new[] { "DeliveryPoint" });
 			}
 		}
-
-		#endregion
 	}
 
 	public class RepairAgreement : AdditionalAgreement
 	{
-		#region Свойства
-
-		#endregion
 	}
 
 	public enum AgreementType
