@@ -33,8 +33,8 @@ namespace Vodovoz
 		}
 	}
 
-	public interface IFreeRentPackageOwner
+	public interface IFreeRentEquipmentOwner
 	{
-		IList<FreeRentPackage> FreeRentPackages { get; set; }
+		IList<FreeRentEquipment> Equipment { get; set; }
 	}
 }

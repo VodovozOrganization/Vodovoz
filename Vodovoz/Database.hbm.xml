@@ -136,6 +136,10 @@
 			<many-to-one name="RentPackage" class="PaidRentPackage" column="paid_rent_package_id" />
         </subclass>
     	<subclass name="FreeRentAgreement" discriminator-value="FreeRent">
+    		<bag name="Equipment" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    			<key column="additional_agreement_id"/>
+    			<one-to-many class="Vodovoz.FreeRentEquipment"/>
+			</bag>
         </subclass>
     	<subclass name="WaterSalesAgreement" discriminator-value="WaterSales">
     		<property name="IsFixedPrice" column="water_is_fixed_price" />
@@ -310,6 +314,15 @@
 		<property name="OnDuty" column="on_duty" />
 		<property name="Comment" column="comment" />
 		<many-to-one name="Nomenclature" class="Vodovoz.Nomenclature" column="nomenclature_id" />
+ 	</class>
+ 	<class name="FreeRentEquipment" lazy="false" table="free_rent_equipment">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Deposit" column="deposit" />
+ 		<property name="WaterAmount" column="water_amount" />
+ 		<many-to-one name="FreeRentPackage" class="Vodovoz.FreeRentPackage" column="free_rent_package_id" />
+ 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
  	</class>
 	
 

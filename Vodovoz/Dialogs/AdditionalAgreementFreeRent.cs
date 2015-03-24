@@ -132,6 +132,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = (parentReference.ParentObject as CounterpartyContract).Number + " - Б";
+			freerentpackagesview1.ParentReference = new OrmParentReference (session, subject, "Equipment");
 		}
 
 		public bool Save ()

@@ -65,9 +65,9 @@ namespace Vodovoz
 		public virtual PaidRentPackage RentPackage { get; set; }
 	}
 
-	public class FreeRentAgreement : AdditionalAgreement//, IFreeRentPackageOwner
+	public class FreeRentAgreement : AdditionalAgreement, IFreeRentEquipmentOwner
 	{
-		//public IList<FreeRentPackage> FreeRentPackages { get; set; }
+		public virtual IList<FreeRentEquipment> Equipment { get; set; }
 	}
 
 	public class WaterSalesAgreement : AdditionalAgreement

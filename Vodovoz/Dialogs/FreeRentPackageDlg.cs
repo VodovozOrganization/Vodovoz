@@ -13,30 +13,31 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class FreeRentPackageDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		private ISession session;
-		private Adaptor adaptor = new Adaptor();
+		private Adaptor adaptor = new Adaptor ();
 		private FreeRentPackage subject;
 		private bool NewItem = false;
 
-		public ITdiTabParent TabParent { set; get;}
+		public ITdiTabParent TabParent { set; get; }
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
+
 		public bool HasChanges { 
-			get{return NewItem || Session.IsDirty();}
+			get{ return NewItem || Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новый пакет бесплатных услуг";
-		public string TabName
-		{
-			get{return _tabName;}
-			set{
+
+		public string TabName {
+			get{ return _tabName; }
+			set {
 				if (_tabName == value)
 					return;
 				_tabName = value;
 				if (TabNameChanged != null)
-					TabNameChanged(this, new TdiTabNameChangedEventArgs(value));
+					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 
 		}
@@ -44,7 +45,7 @@ namespace Vodovoz
 		public ISession Session {
 			get {
 				if (session == null)
-					Session = OrmMain.Sessions.OpenSession();
+					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
 			set {
@@ -52,83 +53,82 @@ namespace Vodovoz
 			}
 		}
 
-		public object Subject
-		{
-			get {return subject;}
+		public object Subject {
+			get { return subject; }
 			set {
 				if (value is FreeRentPackage)
 					subject = value as FreeRentPackage;
 			}
 		}
 
-		public FreeRentPackageDlg()
+		public FreeRentPackageDlg ()
 		{
-			this.Build();
+			this.Build ();
 			NewItem = true;
-			subject = new FreeRentPackage();
-			ConfigureDlg();
+			subject = new FreeRentPackage ();
+			ConfigureDlg ();
 		}
 
-		public FreeRentPackageDlg(int id)
+		public FreeRentPackageDlg (int id)
 		{
-			this.Build();
-			subject = Session.Load<FreeRentPackage>(id);
+			this.Build ();
+			subject = Session.Load<FreeRentPackage> (id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public FreeRentPackageDlg(FreeRentPackage sub)
+		public FreeRentPackageDlg (FreeRentPackage sub)
 		{
-			this.Build();
-			subject = Session.Load<FreeRentPackage>(sub.Id);
+			this.Build ();
+			subject = Session.Load<FreeRentPackage> (sub.Id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg ()
 		{
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			referenceDepositService.SubjectType = typeof(Nomenclature);
 			referenceEquipmentType.SubjectType = typeof(EquipmentType);
 			referenceDepositService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
-				.Add (Restrictions.Eq("Category", NomenclatureCategory.service));
+				.Add (Restrictions.Eq ("Category", NomenclatureCategory.service));
 		}
 
-		public bool Save()
+		public bool Save ()
 		{
 			var valid = new QSValidator<FreeRentPackage> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			logger.Info("Сохраняем пакет бесплатных услуг...");
-			Session.SaveOrUpdate(subject);
-			Session.Flush();
-			OrmMain.NotifyObjectUpdated(subject);
+			logger.Info ("Сохраняем пакет бесплатных услуг...");
+			Session.SaveOrUpdate (subject);
+			Session.Flush ();
+			OrmMain.NotifyObjectUpdated (subject);
 			return true;
 		}
 
-		public override void Destroy()
+		public override void Destroy ()
 		{
-			Session.Close();
+			Session.Close ();
 			adaptor.Disconnect ();
-			base.Destroy();
+			base.Destroy ();
 		}
 
-		protected void OnButtonSaveClicked(object sender, EventArgs e)
+		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
-				OnCloseTab(false);
+			if (!this.HasChanges || Save ())
+				OnCloseTab (false);
 		}
 
-		protected void OnButtonCancelClicked(object sender, EventArgs e)
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
-			OnCloseTab(false);
+			OnCloseTab (false);
 		}
 
-		protected void OnCloseTab(bool askSave)
+		protected void OnCloseTab (bool askSave)
 		{
 			if (CloseTab != null)
-				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 	}
 }
