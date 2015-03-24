@@ -149,6 +149,9 @@
     <Compile Include="Domain\Equipment.cs" />
     <Compile Include="Dialogs\EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
+    <Compile Include="ReferenceFilters\EquipmentFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
+    <Compile Include="Domain\FreeRentEquipment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

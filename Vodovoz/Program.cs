@@ -22,7 +22,7 @@ namespace Vodovoz
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			CreateProjectParam ();
 			// Создаем окно входа
-			Login LoginDialog = new QSProjectsLib.Login ();
+			Login LoginDialog = new Login ();
 			LoginDialog.Logo = Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png");
 			LoginDialog.SetDefaultNames ("Vodovoz");
 			LoginDialog.DefaultLogin = "user";
@@ -45,7 +45,7 @@ namespace Vodovoz
 			LoginDialog.Destroy ();
 			// Настройка ORM
 			OrmMain.ConfigureOrm (QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts" });
-			OrmMain.ClassMappingList = new System.Collections.Generic.List<QSOrmProject.OrmObjectMapping> {
+			OrmMain.ClassMappingList = new System.Collections.Generic.List<OrmObjectMapping> {
 				new OrmObjectMapping (typeof(Proxy), typeof(ProxyDlg), "{Vodovoz.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] { "Number" }),
 				new OrmObjectMapping (typeof(DeliveryPoint), typeof(DeliveryPointDlg), "{Vodovoz.DeliveryPoint} Name[Название];"),
 				new OrmObjectMapping (typeof(PaidRentPackage), typeof(PaidRentPackageDlg), "{Vodovoz.PaidRentPackage} Name[Название]; RentPeriodString[Период аренды];"),
@@ -68,11 +68,11 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(EquipmentColors), null, "{Vodovoz.EquipmentColors} Name[Название];"),
 				new OrmObjectMapping (typeof(Employee), typeof(EmployeeDlg), typeof(EmployeeFilter), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];", new string[] { "Name", "LastName", "Patronymic" }),
 				new OrmObjectMapping (typeof(Car), typeof(CarsDlg), "{Vodovoz.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] { "Model", "RegistrationNumber", "DriverInfo" }),
-				new OrmObjectMapping (typeof(CustomerContact), typeof(QSContacts.ContactDlg), "{QSContacts.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] { "Surname", "Name", "Lastname", "Post" }),
-				new OrmObjectMapping (typeof(Equipment), typeof(EquipmentDlg), "{Vodovoz.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" })
+				new OrmObjectMapping (typeof(CustomerContact), typeof(ContactDlg), "{QSContacts.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] { "Surname", "Name", "Lastname", "Post" }),
+				new OrmObjectMapping (typeof(Equipment), typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" })
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
-			OrmMain.ClassMappingList.AddRange (QSContacts.QSContactsMain.GetModuleMaping ());
+			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
 
 			//Запускаем программу
 			MainWin = new MainWindow ();
