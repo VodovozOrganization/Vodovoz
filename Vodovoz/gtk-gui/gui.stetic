@@ -369,6 +369,12 @@
         <property name="ShortLabel" translatable="yes">Графики доставки</property>
         <signal name="Activated" handler="OnActionDeliveryScheduleActivated" />
       </action>
+      <action id="ActionLogisticsArea">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Логистические районы</property>
+        <property name="ShortLabel" translatable="yes">Логистические районы</property>
+        <signal name="Activated" handler="OnActionLogisticsAreaActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -422,6 +428,7 @@
                 </node>
                 <node type="Menu" action="Action1">
                   <node type="Menuitem" action="ActionDeliverySchedule" />
+                  <node type="Menuitem" action="ActionLogisticsArea" />
                 </node>
               </node>
               <node type="Menu" action="ActionAbout">

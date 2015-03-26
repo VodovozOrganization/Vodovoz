@@ -83,6 +83,12 @@
 	 	</id>
 	 	<property name="Name" column="name" />
  	</class>
+ 	<class name="LogisticsArea" lazy="false" table="logistics_area">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+ 	</class>
 	<class name="Car" lazy="false" table="cars">
 		<id name="Id" column="id">
 			<generator class="native"></generator>

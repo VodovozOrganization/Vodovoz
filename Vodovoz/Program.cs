@@ -71,7 +71,8 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(CustomerContact), typeof(ContactDlg), "{QSContacts.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] { "Surname", "Name", "Lastname", "Post" }),
 				new OrmObjectMapping (typeof(Equipment), typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" }),
 				new OrmObjectMapping (typeof(FreeRentEquipment), typeof(FreeRentEquipmentDlg), "{Vodovoz.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
-				new OrmObjectMapping (typeof(DeliverySchedule), typeof(DeliveryScheduleDlg), "{Vodovoz.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];")
+				new OrmObjectMapping (typeof(DeliverySchedule), typeof(DeliveryScheduleDlg), "{Vodovoz.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
+				new OrmObjectMapping (typeof(LogisticsArea), null, "{Vodovoz.LogisticsArea} Name[Название]")
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
