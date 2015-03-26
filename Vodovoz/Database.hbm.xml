@@ -324,6 +324,13 @@
  		<many-to-one name="FreeRentPackage" class="Vodovoz.FreeRentPackage" column="free_rent_package_id" />
  		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
  	</class>
-	
+	<class name="DeliverySchedule" lazy="false" table="delivery_schedule">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Name" column="name" />
+ 		<property name="From" column="from_time" />
+ 		<property name="To" column="to_time" />
+ 	</class>
 
 </hibernate-mapping>

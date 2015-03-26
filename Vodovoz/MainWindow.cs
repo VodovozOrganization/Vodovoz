@@ -381,4 +381,13 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference (typeof(Equipment), session, criteria);
 		tdiMain.AddTab (refWin);
 	}
+
+	protected void OnActionDeliveryScheduleActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<DeliverySchedule> ();
+
+		OrmReference refWin = new OrmReference (typeof(DeliverySchedule), session, criteria);
+		tdiMain.AddTab (refWin);
+	}
 }
