@@ -19,6 +19,14 @@ namespace Vodovoz
 		private global::Gtk.Button buttonEdit;
 		
 		private global::Gtk.Button buttonDelete;
+		
+		private global::Gtk.Label label5;
+		
+		private global::Gtk.Label labelTotalDeposit;
+		
+		private global::Gtk.Label label6;
+		
+		private global::Gtk.Label labelTotalWaterAmount;
 
 		protected virtual void Build ()
 		{
@@ -104,11 +112,47 @@ namespace Vodovoz
 			w9.Position = 2;
 			w9.Expand = false;
 			w9.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w10.Position = 2;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.label5 = new global::Gtk.Label ();
+			this.label5.Name = "label5";
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Общий залог:");
+			this.hbox1.Add (this.label5);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label5]));
+			w10.Position = 3;
 			w10.Expand = false;
 			w10.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.labelTotalDeposit = new global::Gtk.Label ();
+			this.labelTotalDeposit.Name = "labelTotalDeposit";
+			this.labelTotalDeposit.LabelProp = global::Mono.Unix.Catalog.GetString ("#Deposit");
+			this.hbox1.Add (this.labelTotalDeposit);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelTotalDeposit]));
+			w11.Position = 4;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.label6 = new global::Gtk.Label ();
+			this.label6.Name = "label6";
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Минимальный заказ:");
+			this.hbox1.Add (this.label6);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label6]));
+			w12.Position = 5;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.labelTotalWaterAmount = new global::Gtk.Label ();
+			this.labelTotalWaterAmount.Name = "labelTotalWaterAmount";
+			this.labelTotalWaterAmount.LabelProp = global::Mono.Unix.Catalog.GetString ("#WaterAmount");
+			this.hbox1.Add (this.labelTotalWaterAmount);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelTotalWaterAmount]));
+			w13.Position = 6;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

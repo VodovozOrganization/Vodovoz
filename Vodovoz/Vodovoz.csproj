@@ -89,7 +89,6 @@
     <Compile Include="Dialogs\OrganizationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
     <Compile Include="Domain\Organization.cs" />
-    <Compile Include="PropertyChangedBase.cs" />
     <Compile Include="Domain\Employee.cs" />
     <Compile Include="Domain\Nationality.cs" />
     <Compile Include="Domain\User.cs" />

@@ -4,7 +4,7 @@ using QSOrmProject;
 namespace Vodovoz
 {
 	[OrmSubject ("Оборудование для бесплатной аренды")]
-	public class FreeRentEquipment : IDomainObject
+	public class FreeRentEquipment : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -12,9 +12,27 @@ namespace Vodovoz
 
 		public virtual Equipment Equipment { get; set; }
 
-		public virtual Decimal Deposit { get; set; }
+		Decimal deposit;
 
-		public virtual int WaterAmount { get; set; }
+		public virtual Decimal Deposit {
+			get {
+				return deposit;
+			}
+			set {
+				SetField (ref deposit, value, () => Deposit);
+			}
+		}
+
+		int waterAmount;
+
+		public virtual int WaterAmount {
+			get {
+				return waterAmount;
+			}
+			set {
+				SetField (ref waterAmount, value, () => WaterAmount);
+			}
+		}
 
 		public virtual string PackageName { get { return FreeRentPackage != null ? FreeRentPackage.Name : ""; } }
 

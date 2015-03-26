@@ -34,6 +34,7 @@ namespace Vodovoz
 				if (equipmentOwner.Equipment == null)
 					equipmentOwner.Equipment = new List<FreeRentEquipment> ();
 				Equipments = new GenericObservableList<FreeRentEquipment> (EquipmentOwner.Equipment);
+			
 				treeRentPackages.ItemsDataSource = Equipments;
 			}
 		}
@@ -54,6 +55,17 @@ namespace Vodovoz
 			get {
 				return parentReference;
 			}
+		}
+
+		void UpdateTotalLabels ()
+		{
+			TotalDeposit = TotalWaterAmount = 0;
+			foreach (FreeRentEquipment eq in Equipments) {
+				TotalDeposit += eq.Deposit;
+				TotalWaterAmount += eq.WaterAmount;
+			}
+			labelTotalWaterAmount.Text = String.Format ("{0} бутылей", TotalWaterAmount);
+			labelTotalDeposit.Text = String.Format ("{0} руб.", TotalDeposit);
 		}
 
 		public FreeRentPackagesView ()

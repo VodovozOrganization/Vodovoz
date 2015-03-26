@@ -7,42 +7,53 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject("Сотрудники")]
-	[Magic]
+	[OrmSubject ("Сотрудники")]
 	public class Employee : PropertyChangedBase, IValidatableObject
 	{
 		#region Свойства
+
 		public virtual int Id { get; set; }
+
 		public virtual string Name { get; set; }
+
 		public virtual string LastName { get; set; }
+
 		public virtual string Patronymic { get; set; }
+
 		public virtual EmployeeCategory Category { get; set; }
+
 		public virtual string PassportSeria { get; set; }
+
 		public virtual string PassportNumber { get; set; }
+
 		public virtual string DrivingNumber { get; set; }
+
 		public virtual string AddressRegistration { get; set; }
+
 		public virtual string AddressCurrent { get; set; }
+
 		public virtual bool IsFired { get; set; }
+
 		public virtual IList<QSContacts.Phone> Phones { get; set; }
+
 		public virtual Nationality Nationality { get; set; }
+
 		public virtual User User { get; set; }
+
 		byte[] photo;
-		[Magic]
-		public virtual byte[] Photo
-		{
-			get
-			{
+
+		public virtual byte[] Photo {
+			get {
 				return photo;
 			}
-			set
-			{
-				photo = value;
-				RaisePropertyChanged("Photo");
+			set {
+				SetField (ref photo, value, () => Photo);
 			}
 		}
+
 		#endregion
 
-		public Employee()
+		public Employee ()
 		{
 			Name = String.Empty;
 			LastName = String.Empty;
@@ -67,23 +78,25 @@ namespace Vodovoz
 		{
 			if (String.IsNullOrEmpty (Name) && String.IsNullOrEmpty (LastName) && String.IsNullOrEmpty (Patronymic))
 				yield return new ValidationResult ("Должно быть заполнено хотя бы одно из следующих полей: " +
-					"Фамилия, Имя, Отчество)", new[] {"Name", "LastName", "Patronymic"});
+				"Фамилия, Имя, Отчество)", new[] { "Name", "LastName", "Patronymic" });
 		}
 
 		#endregion
 	}
 
-	public enum EmployeeCategory{
-		[ItemTitleAttribute("Офисный работник")]
+	public enum EmployeeCategory
+	{
+		[ItemTitleAttribute ("Офисный работник")]
 		office,
-		[ItemTitleAttribute("Водитель")]
+		[ItemTitleAttribute ("Водитель")]
 		driver
 	}
 
-	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType 
+	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
 	{
-		public EmployeeCategoryStringType() : base(typeof(EmployeeCategory))
-		{}
+		public EmployeeCategoryStringType () : base (typeof(EmployeeCategory))
+		{
+		}
 	}
 }
 
