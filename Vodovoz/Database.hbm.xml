@@ -269,9 +269,10 @@
 		<property name="Latitude" column="latitude" />
 		<property name="Longitude" column="longitude" />
 		<property name="IsActive" column="is_active" />
+		<property name="Phone" column="phone" />
 		<many-to-one name="Contact" class="CustomerContact" column="contact_person_id" />
-		<many-to-one name="Phone" class="QSContacts.Phone" column="phone_id" />
-		<!--<many-to-one name="LogisticRegion" class="" column="logistic_region_id" />-->
+		<many-to-one name="LogisticsArea" class="LogisticsArea" column="logistic_area_id" />
+		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id" />
 	</class>
 	<class name="Proxy" lazy="false" table="counterparty_proxies">
  		<id name="Id" column="id">
