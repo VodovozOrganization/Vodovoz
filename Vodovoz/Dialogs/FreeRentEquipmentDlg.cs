@@ -13,12 +13,14 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class FreeRentEquipmentDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
+		protected FreeRentEquipment subjectCopy;
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 		ISession session;
 		Adaptor adaptor = new Adaptor ();
 		FreeRentEquipment subject;
 		bool firstCall = true;
 		IFreeRentEquipmentOwner FreeRentOwner;
+		protected bool isSaveButton;
 
 		public ITdiTabParent TabParent { set; get; }
 
@@ -87,6 +89,7 @@ namespace Vodovoz
 			subject = sub;
 			if (subject.Equipment != null && subject.FreeRentPackage != null)
 				TabName = subject.EquipmentName + " " + subject.PackageName;
+			subjectCopy = ObjectCloner.Clone<FreeRentEquipment> (sub);
 			ConfigureDlg ();
 		}
 
@@ -113,14 +116,22 @@ namespace Vodovoz
 
 		public override void Destroy ()
 		{
+			if (!isSaveButton) {
+				if (subject.IsNew)
+					(parentReference.ParentObject as IFreeRentEquipmentOwner).Equipment.Remove (subject);
+				else
+					ObjectCloner.FieldsCopy<FreeRentEquipment> (subjectCopy, ref subject);
+			}
 			adaptor.Disconnect ();
 			base.Destroy ();
 		}
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (Save ())
+			if (Save ()) {
+				isSaveButton = true;
 				OnCloseTab (false);
+			}
 		}
 
 		protected void OnButtonCancelClicked (object sender, EventArgs e)

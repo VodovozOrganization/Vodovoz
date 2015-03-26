@@ -68,6 +68,14 @@ namespace Vodovoz
 	public class FreeRentAgreement : AdditionalAgreement, IFreeRentEquipmentOwner
 	{
 		public virtual IList<FreeRentEquipment> Equipment { get; set; }
+
+		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			foreach (ValidationResult result in base.Validate (validationContext))
+				yield return result;
+			if (DeliveryPoint == null)
+				yield return new ValidationResult ("Необходимо указать точку доставки.", new[] { "DeliveryPoint" });
+		}
 	}
 
 	public class WaterSalesAgreement : AdditionalAgreement

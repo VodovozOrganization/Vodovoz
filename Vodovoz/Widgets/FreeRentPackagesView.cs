@@ -94,6 +94,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 			FreeRentEquipment equipment = new FreeRentEquipment ();
+			equipment.IsNew = true;
 			Equipments.Add (equipment);
 			equipment.PropertyChanged += EquimentPropertyChanged;
 			ITdiDialog dlg = new FreeRentEquipmentDlg (ParentReference, equipment);
