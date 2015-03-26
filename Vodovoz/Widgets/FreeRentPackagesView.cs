@@ -34,9 +34,16 @@ namespace Vodovoz
 				if (equipmentOwner.Equipment == null)
 					equipmentOwner.Equipment = new List<FreeRentEquipment> ();
 				Equipments = new GenericObservableList<FreeRentEquipment> (EquipmentOwner.Equipment);
-			
+				foreach (FreeRentEquipment eq in Equipments)
+					eq.PropertyChanged += EquimentPropertyChanged;
+				UpdateTotalLabels ();
 				treeRentPackages.ItemsDataSource = Equipments;
 			}
+		}
+
+		void EquimentPropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			UpdateTotalLabels ();
 		}
 
 		OrmParentReference parentReference;
@@ -60,10 +67,11 @@ namespace Vodovoz
 		void UpdateTotalLabels ()
 		{
 			TotalDeposit = TotalWaterAmount = 0;
-			foreach (FreeRentEquipment eq in Equipments) {
-				TotalDeposit += eq.Deposit;
-				TotalWaterAmount += eq.WaterAmount;
-			}
+			if (Equipments != null)
+				foreach (FreeRentEquipment eq in Equipments) {
+					TotalDeposit += eq.Deposit;
+					TotalWaterAmount += eq.WaterAmount;
+				}
 			labelTotalWaterAmount.Text = String.Format ("{0} бутылей", TotalWaterAmount);
 			labelTotalDeposit.Text = String.Format ("{0} руб.", TotalDeposit);
 		}
@@ -87,6 +95,7 @@ namespace Vodovoz
 				return;
 			FreeRentEquipment equipment = new FreeRentEquipment ();
 			Equipments.Add (equipment);
+			equipment.PropertyChanged += EquimentPropertyChanged;
 			ITdiDialog dlg = new FreeRentEquipmentDlg (ParentReference, equipment);
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
