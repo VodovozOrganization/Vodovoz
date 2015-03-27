@@ -48,6 +48,8 @@ namespace Vodovoz
 			Model = String.Empty;
 			Category = NomenclatureCategory.water;
 		}
+
+		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 	}
 
 	public enum VAT
