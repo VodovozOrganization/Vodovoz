@@ -7,6 +7,7 @@ using NLog;
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using QSValidation;
+using System.Collections;
 
 namespace Vodovoz
 {
@@ -159,6 +160,7 @@ namespace Vodovoz
 				referenceEquipment.ItemsCriteria = Session.CreateCriteria<Equipment> ()
 					.CreateAlias ("Nomenclature", "n")
 					.Add (Restrictions.Eq ("n.Type", type));
+				referenceEquipment.ItemsCriteria.Add (EquipmentWorks.FilterUsedEquipment (Session));
 				//Только при открытии уже существующего оборудования не надо корректировать цену из справочника. 
 				//В остальных случаях надо.
 				if (loadFromPackage) {

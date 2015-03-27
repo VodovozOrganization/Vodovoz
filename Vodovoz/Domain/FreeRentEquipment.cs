@@ -42,6 +42,8 @@ namespace Vodovoz
 
 		public virtual string EquipmentName { get { return Equipment != null ? Equipment.NomenclatureName : ""; } }
 
+		public virtual string EquipmentSerial { get { return Equipment != null ? Equipment.Serial : ""; } }
+
 		public virtual string DepositString { get { return String.Format ("{0} р.", Deposit); } }
 
 		public virtual string WaterAmountString { get { return String.Format ("{0} бутылей", WaterAmount); } }

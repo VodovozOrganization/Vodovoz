@@ -60,7 +60,7 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(Counterparty), typeof(CounterpartyDlg), "{Vodovoz.Counterparty} Name[Наименование];"),
 				new OrmObjectMapping (typeof(User), null, "{Vodovoz.User} Name[Название];"),
 				new OrmObjectMapping (typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
-				new OrmObjectMapping (typeof(Nomenclature), typeof(NomenclatureDlg), "{Vodovoz.Nomenclature} Name[Название]; CategoryString[Тип];"),
+				new OrmObjectMapping (typeof(Nomenclature), typeof(NomenclatureDlg), "{Vodovoz.Nomenclature} Name[Название]; CategoryString[Тип];", new string[] { "Name", "CategoryString" }),
 				new OrmObjectMapping (typeof(Nationality), null, "{Vodovoz.Nationality} Name[Название];"),
 				new OrmObjectMapping (typeof(Manufacturer), null, "{Vodovoz.Manufacturer} Name[Название];"),
 				new OrmObjectMapping (typeof(EquipmentType), null, "{Vodovoz.EquipmentType} Name[Название];"),

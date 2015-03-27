@@ -100,6 +100,10 @@ namespace Vodovoz
 			referencePaidRentPackage.Changed += OnReferencePaidRentPackageChanged;
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
+			if (referenceEquipment.ItemsCriteria == null)
+				referenceEquipment.ItemsCriteria = Session.CreateCriteria<Equipment> ();
+			referenceEquipment.ItemsCriteria.Add (EquipmentWorks.FilterUsedEquipment (Session));
+
 		}
 
 		public bool Save ()
