@@ -680,6 +680,7 @@ namespace Vodovoz
 			w46.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceLogisticsArea = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceLogisticsArea.TooltipMarkup = "При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.";
 			this.referenceLogisticsArea.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogisticsArea.Name = "referenceLogisticsArea";
 			this.referenceLogisticsArea.DisplayFields = new string[] {

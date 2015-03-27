@@ -8,6 +8,7 @@ using QSValidation;
 using QSContacts;
 using NHibernate.Criterion;
 using QSProjectsLib;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -159,6 +160,15 @@ namespace Vodovoz
 				return false;
 
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
+			if (subject.LogisticsArea != null) {
+				IList <DeliveryPoint> sameAddress = Session.CreateCriteria<DeliveryPoint> ()
+				.Add (Restrictions.Eq ("Region", subject.Region))
+				.Add (Restrictions.Eq ("City", subject.City))
+				.Add (Restrictions.Eq ("Street", subject.Street))
+				.Add (Restrictions.Eq ("Building", subject.Building)).List<DeliveryPoint> ();
+				foreach (DeliveryPoint dp in sameAddress)
+					dp.LogisticsArea = subject.LogisticsArea;
+			}
 			return true;
 		}
 
