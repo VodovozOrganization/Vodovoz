@@ -13,6 +13,8 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementRepair : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
+		protected RepairAgreement subjectCopy;
+		protected bool isSaveButton;
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 		protected ISession session;
 		protected Adaptor adaptor = new Adaptor ();
@@ -79,8 +81,10 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save ())
+			if (Save ()) {
+				isSaveButton = true;
 				OnCloseTab (false);
+			}
 		}
 
 		protected void OnCloseTab (bool askSave)
@@ -94,6 +98,12 @@ namespace Vodovoz
 
 		public override void Destroy ()
 		{
+			if (!isSaveButton) {
+				if (subject.IsNew)
+					(parentReference.ParentObject as IAdditionalAgreementOwner).AdditionalAgreements.Remove (subject);
+				else
+					ObjectCloner.FieldsCopy<RepairAgreement> (subjectCopy, ref subject);
+			}
 			adaptor.Disconnect ();
 			base.Destroy ();
 		}
@@ -113,6 +123,7 @@ namespace Vodovoz
 		public AdditionalAgreementRepair (OrmParentReference parentReference, RepairAgreement sub)
 		{
 			this.Build ();
+			subjectCopy = ObjectCloner.Clone<RepairAgreement> (sub);
 			ParentReference = parentReference;
 			subject = sub;
 			TabName = subject.AgreementTypeTitle + " " + subject.AgreementNumber;
@@ -138,6 +149,7 @@ namespace Vodovoz
 			var valid = new QSValidator<RepairAgreement> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+			subject.IsNew = false;
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
 		}

@@ -32,6 +32,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label5;
 		
+		private global::Vodovoz.PaidRentPackagesView paidrentpackagesview1;
+		
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPoint;
 
 		protected virtual void Build ()
@@ -203,6 +205,18 @@ namespace Vodovoz
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
+			this.paidrentpackagesview1 = new global::Vodovoz.PaidRentPackagesView ();
+			this.paidrentpackagesview1.Events = ((global::Gdk.EventMask)(256));
+			this.paidrentpackagesview1.Name = "paidrentpackagesview1";
+			this.datatable1.Add (this.paidrentpackagesview1);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.paidrentpackagesview1]));
+			w14.TopAttach = ((uint)(4));
+			w14.BottomAttach = ((uint)(5));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
@@ -216,17 +230,17 @@ namespace Vodovoz
 			this.referenceDeliveryPoint.InheritedBoundaryDataSource = false;
 			this.referenceDeliveryPoint.CursorPointsEveryType = false;
 			this.datatable1.Add (this.referenceDeliveryPoint);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceDeliveryPoint]));
-			w14.TopAttach = ((uint)(1));
-			w14.BottomAttach = ((uint)(2));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceDeliveryPoint]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

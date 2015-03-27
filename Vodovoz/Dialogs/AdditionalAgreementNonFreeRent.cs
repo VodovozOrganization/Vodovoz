@@ -13,6 +13,8 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementNonFreeRent : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
+		protected NonfreeRentAgreement subjectCopy;
+		protected bool isSaveButton;
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 		protected ISession session;
 		protected Adaptor adaptor = new Adaptor ();
@@ -79,8 +81,10 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save ())
+			if (Save ()) {
+				isSaveButton = true;
 				OnCloseTab (false);
+			}
 		}
 
 		protected void OnCloseTab (bool askSave)
@@ -94,6 +98,12 @@ namespace Vodovoz
 
 		public override void Destroy ()
 		{
+			if (!isSaveButton) {
+				if (subject.IsNew)
+					(parentReference.ParentObject as IAdditionalAgreementOwner).AdditionalAgreements.Remove (subject);
+				else
+					ObjectCloner.FieldsCopy<NonfreeRentAgreement> (subjectCopy, ref subject);
+			}
 			adaptor.Disconnect ();
 			base.Destroy ();
 		}
@@ -114,6 +124,7 @@ namespace Vodovoz
 		public AdditionalAgreementNonFreeRent (OrmParentReference parentReference, NonfreeRentAgreement sub)
 		{
 			this.Build ();
+			subjectCopy = ObjectCloner.Clone<NonfreeRentAgreement> (sub);
 			ParentReference = parentReference;
 			subject = sub;
 			TabName = subject.AgreementTypeTitle + " " + subject.AgreementNumber;
@@ -132,6 +143,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = (parentReference.ParentObject as CounterpartyContract).Number + " - А";
+			paidrentpackagesview1.ParentReference = new OrmParentReference (session, subject, "Equipment");
 		}
 
 		public bool Save ()
@@ -140,6 +152,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
+			subject.IsNew = false;
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
 		}

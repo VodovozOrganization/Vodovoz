@@ -18,7 +18,7 @@ namespace Vodovoz
 		ISession session;
 		Adaptor adaptor = new Adaptor ();
 		FreeRentEquipment subject;
-		bool firstCall = true;
+		bool loadFromPackage;
 		IFreeRentEquipmentOwner FreeRentOwner;
 		protected bool isSaveButton;
 
@@ -31,7 +31,7 @@ namespace Vodovoz
 			get { return false; }
 		}
 
-		string _tabName = "Новый оборудование к доп. соглашению";
+		string _tabName = "Новое оборудование к доп. соглашению";
 
 		public string TabName {
 			get{ return _tabName; }
@@ -87,6 +87,7 @@ namespace Vodovoz
 			this.Build ();
 			ParentReference = parentReference;
 			subject = sub;
+			loadFromPackage = subject.IsNew;
 			if (subject.Equipment != null && subject.FreeRentPackage != null)
 				TabName = subject.EquipmentName + " " + subject.PackageName;
 			subjectCopy = ObjectCloner.Clone<FreeRentEquipment> (sub);
@@ -109,7 +110,8 @@ namespace Vodovoz
 			var valid = new QSValidator<FreeRentEquipment> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-
+			
+			subject.IsNew = false;
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
 		}
@@ -119,8 +121,10 @@ namespace Vodovoz
 			if (!isSaveButton) {
 				if (subject.IsNew)
 					(parentReference.ParentObject as IFreeRentEquipmentOwner).Equipment.Remove (subject);
-				else
+				else {
 					ObjectCloner.FieldsCopy<FreeRentEquipment> (subjectCopy, ref subject);
+					subject.FirePropertyChanged ();
+				}
 			}
 			adaptor.Disconnect ();
 			base.Destroy ();
@@ -155,11 +159,13 @@ namespace Vodovoz
 				referenceEquipment.ItemsCriteria = Session.CreateCriteria<Equipment> ()
 					.CreateAlias ("Nomenclature", "n")
 					.Add (Restrictions.Eq ("n.Type", type));
-				if (!firstCall) {
+				//Только при открытии уже существующего оборудования не надо корректировать цену из справочника. 
+				//В остальных случаях надо.
+				if (loadFromPackage) {
 					subject.Deposit = (referenceFreeRentPackage.Subject as FreeRentPackage).Deposit;
 					subject.WaterAmount = (referenceFreeRentPackage.Subject as FreeRentPackage).MinWaterAmount;
 				} else
-					firstCall = false;
+					loadFromPackage = true;
 				if (subject.Equipment != null &&
 				    subject.Equipment.Nomenclature.Type != (referenceFreeRentPackage.Subject as FreeRentPackage).EquipmentType)
 					subject.Equipment = null;

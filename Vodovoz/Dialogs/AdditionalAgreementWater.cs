@@ -152,7 +152,8 @@ namespace Vodovoz
 			var valid = new QSValidator<WaterSalesAgreement> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			
+
+			subject.IsNew = false;
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
 		}
