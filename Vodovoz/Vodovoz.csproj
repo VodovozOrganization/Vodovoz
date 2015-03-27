@@ -157,6 +157,11 @@
     <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
     <Compile Include="Domain\LogisticsArea.cs" />
+    <Compile Include="Domain\PaidRentEquipment.cs" />
+    <Compile Include="Dialogs\PaidRentEquipmentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.PaidRentEquipmentDlg.cs" />
+    <Compile Include="Widgets\PaidRentPackagesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.PaidRentPackagesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

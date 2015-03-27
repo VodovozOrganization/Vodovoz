@@ -139,7 +139,10 @@
 		<many-to-one name="Contract" class="Vodovoz.CounterpartyContract" column="counterparty_contract_id" />
 		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
 		<subclass name="NonfreeRentAgreement" discriminator-value="NonfreeRent">
-			<many-to-one name="RentPackage" class="PaidRentPackage" column="paid_rent_package_id" />
+			<bag name="Equipment" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    			<key column="additional_agreement_id"/>
+    			<one-to-many class="Vodovoz.PaidRentEquipment"/>	
+			</bag>
         </subclass>
     	<subclass name="FreeRentAgreement" discriminator-value="FreeRent">
     		<bag name="Equipment" inverse="false" cascade="all-delete-orphan" lazy="true" >
@@ -329,6 +332,14 @@
  		<property name="Deposit" column="deposit" />
  		<property name="WaterAmount" column="water_amount" />
  		<many-to-one name="FreeRentPackage" class="Vodovoz.FreeRentPackage" column="free_rent_package_id" />
+ 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
+ 	</class>
+ 	<class name="PaidRentEquipment" lazy="false" table="paid_rent_equipment">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Price" column="price" />
+ 		<many-to-one name="PaidRentPackage" class="Vodovoz.PaidRentPackage" column="paid_rent_package_id" />
  		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
  	</class>
 	<class name="DeliverySchedule" lazy="false" table="delivery_schedule">

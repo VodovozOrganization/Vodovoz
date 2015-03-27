@@ -60,9 +60,17 @@ namespace Vodovoz
 		}
 	}
 
-	public class NonfreeRentAgreement : AdditionalAgreement
+	public class NonfreeRentAgreement : AdditionalAgreement, IPaidRentEquipmentOwner
 	{
-		public virtual PaidRentPackage RentPackage { get; set; }
+		public virtual IList<PaidRentEquipment> Equipment { get; set; }
+
+		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			foreach (ValidationResult result in base.Validate (validationContext))
+				yield return result;
+			if (DeliveryPoint == null)
+				yield return new ValidationResult ("Необходимо указать точку доставки.", new[] { "DeliveryPoint" });
+		}
 	}
 
 	public class FreeRentAgreement : AdditionalAgreement, IFreeRentEquipmentOwner
