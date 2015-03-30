@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Граффики доставки")]
+	[OrmSubject ("Графики доставки")]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
@@ -13,17 +13,13 @@ namespace Vodovoz
 		string name;
 
 		public virtual string Name {
-			get {
-				return name;
-			}
-			set {
-				SetField (ref name, value, () => Name);
-			}
+			get {return name;}
+			set {SetField (ref name, value, () => Name);}
 		}
 
-		DateTime from;
+		TimeSpan from;
 
-		public virtual DateTime From {
+		public virtual TimeSpan From {
 			get {
 				return from;
 			}
@@ -32,9 +28,9 @@ namespace Vodovoz
 			}
 		}
 
-		DateTime to;
+		TimeSpan to;
 
-		public virtual DateTime To {
+		public virtual TimeSpan To {
 			get {
 				return to;
 			}
@@ -43,7 +39,7 @@ namespace Vodovoz
 			}
 		}
 
-		public virtual string DeliveryTime { get { return String.Format ("с {0} до {1}", from.ToShortTimeString (), to.ToShortTimeString ()); } }
+		public virtual string DeliveryTime { get { return String.Format ("с {0:hh\\:mm} до {1:hh\\:mm}", from, to); } }
 
 		#region IValidatableObject implementation
 
@@ -51,10 +47,8 @@ namespace Vodovoz
 		{
 			if (String.IsNullOrEmpty (Name))
 				yield return new ValidationResult ("Не заполнено название.", new[] { "Name" });
-			if (From.Hour > To.Hour || (From.Hour == To.Hour && From.Minute > To.Minute))
+			if (From > To)
 				yield return new ValidationResult ("Окончание периода доставки не может быть раньше его начала.", new[] { "From", "To" });
-			
-			
 		}
 
 		#endregion

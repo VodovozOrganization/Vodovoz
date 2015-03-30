@@ -113,7 +113,7 @@ namespace Vodovoz
 			this.entryFrom.InvisibleChar = '●';
 			this.entryFrom.ShowSeconds = false;
 			this.entryFrom.AutocompleteStep = 30;
-			this.entryFrom.Time = new global::System.DateTime (0);
+			this.entryFrom.DateTime = new global::System.DateTime (0);
 			this.entryFrom.InheritedDataSource = true;
 			this.entryFrom.Mappings = "From";
 			this.entryFrom.InheritedBoundaryDataSource = false;
@@ -139,7 +139,7 @@ namespace Vodovoz
 			this.entryTo.InvisibleChar = '●';
 			this.entryTo.ShowSeconds = false;
 			this.entryTo.AutocompleteStep = 30;
-			this.entryTo.Time = new global::System.DateTime (0);
+			this.entryTo.DateTime = new global::System.DateTime (0);
 			this.entryTo.InheritedDataSource = true;
 			this.entryTo.Mappings = "To";
 			this.entryTo.InheritedBoundaryDataSource = false;

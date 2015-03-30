@@ -347,8 +347,8 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="Name" column="name" />
- 		<property name="From" column="from_time" />
- 		<property name="To" column="to_time" />
+ 		<property name="From" column="from_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
+ 		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
  	</class>
 
 </hibernate-mapping>
