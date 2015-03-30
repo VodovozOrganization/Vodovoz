@@ -16,7 +16,6 @@ namespace Vodovoz
 		private ISession session;
 		private Adaptor adaptor = new Adaptor ();
 		private Equipment subject;
-		private bool NewItem = false;
 
 		public ITdiTabParent TabParent { set; get; }
 
@@ -24,7 +23,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		public bool HasChanges { 
-			get{ return NewItem || Session.IsDirty (); }
+			get{ return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новое оборудование";
@@ -63,8 +62,8 @@ namespace Vodovoz
 		public EquipmentDlg ()
 		{
 			this.Build ();
-			NewItem = true;
 			subject = new Equipment ();
+			Session.Persist (subject);
 			ConfigureDlg ();
 		}
 
@@ -101,7 +100,6 @@ namespace Vodovoz
 				return false;
 			
 			logger.Info ("Сохраняем оборудование...");
-			Session.SaveOrUpdate (subject);
 			Session.Flush ();
 			OrmMain.NotifyObjectUpdated (subject);
 			return true;

@@ -18,14 +18,13 @@ namespace Vodovoz
 		private ISession session;
 		private Adaptor adaptorOrg = new Adaptor();
 		private Organization subject;
-		private bool NewItem = false;
 
 		public ITdiTabParent TabParent { set; get;}
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public bool HasChanges { 
-			get{return NewItem || Session.IsDirty();}
+			get{return Session.IsDirty();}
 		}
 
 		private string _tabName = "Новая организация";
@@ -68,8 +67,8 @@ namespace Vodovoz
 		public OrganizationDlg()
 		{
 			this.Build();
-			NewItem = true;
 			subject = new Organization();
+			Session.Persist (subject);
 			ConfigureDlg();
 		}
 
@@ -116,7 +115,6 @@ namespace Vodovoz
 			logger.Info("Сохраняем организацию...");
 			try
 			{
-				Session.SaveOrUpdate(subject);
 				phonesview1.SaveChanges();
 				Session.Flush();
 				OrmMain.NotifyObjectUpdated(subject);

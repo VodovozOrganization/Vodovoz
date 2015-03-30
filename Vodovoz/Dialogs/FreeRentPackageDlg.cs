@@ -17,7 +17,6 @@ namespace Vodovoz
 		private ISession session;
 		private Adaptor adaptor = new Adaptor ();
 		private FreeRentPackage subject;
-		private bool NewItem = false;
 
 		public ITdiTabParent TabParent { set; get; }
 
@@ -25,7 +24,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		public bool HasChanges { 
-			get{ return NewItem || Session.IsDirty (); }
+			get{ return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новый пакет бесплатных услуг";
@@ -64,8 +63,8 @@ namespace Vodovoz
 		public FreeRentPackageDlg ()
 		{
 			this.Build ();
-			NewItem = true;
 			subject = new FreeRentPackage ();
+			Session.Persist (subject);
 			ConfigureDlg ();
 		}
 
@@ -101,7 +100,6 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 			logger.Info ("Сохраняем пакет бесплатных услуг...");
-			Session.SaveOrUpdate (subject);
 			Session.Flush ();
 			OrmMain.NotifyObjectUpdated (subject);
 			return true;

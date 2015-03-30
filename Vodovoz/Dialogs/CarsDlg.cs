@@ -22,7 +22,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public bool HasChanges { 
-			get{return NewItem || Session.IsDirty() || attachmentFiles.HasChanges;}
+			get{return Session.IsDirty() || attachmentFiles.HasChanges;}
 		}
 
 		private string _tabName = "Новый автомобиль";
@@ -67,6 +67,7 @@ namespace Vodovoz
 			this.Build();
 			NewItem = true;
 			subject = new Car();
+			Session.Persist (subject);
 			ConfigureDlg();
 		}
 
@@ -115,7 +116,6 @@ namespace Vodovoz
 			logger.Info("Сохраняем автомобиль...");
 			try
 			{
-				Session.SaveOrUpdate(subject);
 				Session.Flush();
 				if(NewItem)
 				{

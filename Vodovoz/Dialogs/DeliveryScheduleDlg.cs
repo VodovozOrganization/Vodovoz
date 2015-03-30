@@ -15,7 +15,6 @@ namespace Vodovoz
 		private ISession session;
 		private Adaptor adaptor = new Adaptor ();
 		private DeliverySchedule subject;
-		private bool NewItem = false;
 
 		public ITdiTabParent TabParent { set; get; }
 
@@ -23,7 +22,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		public bool HasChanges { 
-			get{ return NewItem || Session.IsDirty (); }
+			get{ return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новый график доставки";
@@ -62,8 +61,8 @@ namespace Vodovoz
 		public DeliveryScheduleDlg ()
 		{
 			this.Build ();
-			NewItem = true;
 			subject = new DeliverySchedule ();
+			Session.Persist (subject);
 			ConfigureDlg ();
 		}
 
@@ -96,7 +95,6 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем график доставки...");
-			Session.SaveOrUpdate (subject);
 			Session.Flush ();
 			OrmMain.NotifyObjectUpdated (subject);
 			return true;

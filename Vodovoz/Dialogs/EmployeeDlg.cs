@@ -26,7 +26,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public bool HasChanges { 
-			get{return NewItem || Session.IsDirty() || attachmentFiles.HasChanges;}
+			get{return Session.IsDirty() || attachmentFiles.HasChanges;}
 		}
 
 		private string _tabName = "Новый сотрудник";
@@ -71,6 +71,7 @@ namespace Vodovoz
 			this.Build();
 			NewItem = true;
 			subject = new Employee();
+			Session.Persist (subject);
 			ConfigureDlg();
 		}
 
@@ -141,7 +142,6 @@ namespace Vodovoz
 			logger.Info("Сохраняем сотрудника...");
 			try
 			{
-				Session.SaveOrUpdate(subject);
 				Session.Flush();
 				if(NewItem)
 				{

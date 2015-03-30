@@ -17,14 +17,13 @@ namespace Vodovoz
 		private ISession session;
 		private Adaptor adaptor = new Adaptor();
 		private PaidRentPackage subject;
-		private bool NewItem = false;
 
 		public ITdiTabParent TabParent { set; get;}
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 		public bool HasChanges { 
-			get{return NewItem || Session.IsDirty();}
+			get{return Session.IsDirty();}
 		}
 
 		private string _tabName = "Новый пакет платных услуг";
@@ -64,8 +63,8 @@ namespace Vodovoz
 		public PaidRentPackageDlg()
 		{
 			this.Build();
-			NewItem = true;
 			subject = new PaidRentPackage();
+			Session.Persist (subject);
 			ConfigureDlg();
 		}
 
@@ -106,7 +105,6 @@ namespace Vodovoz
 			logger.Info("Сохраняем пакет платных услуг...");
 			if (checkbuttonDaily.Active)
 				spinRentPeriod.Value = 0;
-			Session.SaveOrUpdate(subject);
 			Session.Flush();
 			OrmMain.NotifyObjectUpdated(subject);
 			return true;
