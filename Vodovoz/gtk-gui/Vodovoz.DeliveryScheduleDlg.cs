@@ -14,7 +14,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
 		
-		private global::Gtk.DataBindings.DataEntry entrySerialNumber;
+		private global::Gtk.DataBindings.DataEntry entryName;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -85,19 +85,19 @@ namespace Vodovoz
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entrySerialNumber = new global::Gtk.DataBindings.DataEntry ();
-			this.entrySerialNumber.CanFocus = true;
-			this.entrySerialNumber.Name = "entrySerialNumber";
-			this.entrySerialNumber.IsEditable = true;
-			this.entrySerialNumber.InvisibleChar = '●';
-			this.entrySerialNumber.InheritedDataSource = true;
-			this.entrySerialNumber.Mappings = "Name";
-			this.entrySerialNumber.InheritedBoundaryDataSource = false;
-			this.entrySerialNumber.InheritedDataSource = true;
-			this.entrySerialNumber.Mappings = "Name";
-			this.entrySerialNumber.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.entrySerialNumber);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entrySerialNumber]));
+			this.entryName = new global::Gtk.DataBindings.DataEntry ();
+			this.entryName.CanFocus = true;
+			this.entryName.Name = "entryName";
+			this.entryName.IsEditable = true;
+			this.entryName.InvisibleChar = '●';
+			this.entryName.InheritedDataSource = true;
+			this.entryName.Mappings = "Name";
+			this.entryName.InheritedBoundaryDataSource = false;
+			this.entryName.InheritedDataSource = true;
+			this.entryName.Mappings = "Name";
+			this.entryName.InheritedBoundaryDataSource = false;
+			this.datatable1.Add (this.entryName);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -114,6 +114,7 @@ namespace Vodovoz
 			this.entryFrom.ShowSeconds = false;
 			this.entryFrom.AutocompleteStep = 30;
 			this.entryFrom.DateTime = new global::System.DateTime (0);
+			this.entryFrom.Time = new global::System.TimeSpan (0);
 			this.entryFrom.InheritedDataSource = true;
 			this.entryFrom.Mappings = "From";
 			this.entryFrom.InheritedBoundaryDataSource = false;
@@ -140,6 +141,7 @@ namespace Vodovoz
 			this.entryTo.ShowSeconds = false;
 			this.entryTo.AutocompleteStep = 30;
 			this.entryTo.DateTime = new global::System.DateTime (0);
+			this.entryTo.Time = new global::System.TimeSpan (0);
 			this.entryTo.InheritedDataSource = true;
 			this.entryTo.Mappings = "To";
 			this.entryTo.InheritedBoundaryDataSource = false;

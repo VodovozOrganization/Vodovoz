@@ -662,7 +662,7 @@ namespace Vodovoz
 			this.referenceDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliverySchedule.Name = "referenceDeliverySchedule";
 			this.referenceDeliverySchedule.DisplayFields = new string[] {
-				"DeliveryTime"
+				"Name"
 			};
 			this.referenceDeliverySchedule.DisplayFormatString = "{0}";
 			this.referenceDeliverySchedule.InheritedDataSource = true;

@@ -5,6 +5,7 @@ using NHibernate;
 using System.Data.Bindings;
 using QSTDI;
 using QSValidation;
+using QSWidgetLib;
 
 namespace Vodovoz
 {
@@ -86,6 +87,21 @@ namespace Vodovoz
 		{
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
+
+			var parallel = new ParallelEditing (entryName);
+			parallel.SubscribeOnChanges (entryFrom);
+			parallel.SubscribeOnChanges (entryTo);
+			parallel.GetParallelTextFunc = NameCreateFunc;
+		}
+
+		string NameCreateFunc (object arg)
+		{
+			return String.Format ("{0}-{1}", VeryShortTime (entryFrom.Time), VeryShortTime (entryTo.Time));
+		}
+
+		string VeryShortTime(TimeSpan time)
+		{
+			return (time.Minutes == 0) ? String.Format ("{0}", time.Hours) : String.Format ("{0}:{1}", time.Hours, time.Minutes);
 		}
 
 		public bool Save ()
