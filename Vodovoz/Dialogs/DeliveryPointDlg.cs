@@ -19,6 +19,8 @@ namespace Vodovoz
 		protected ISession session;
 		protected Adaptor adaptor = new Adaptor ();
 		protected IDeliveryPointOwner DeliveryPointOwner;
+		protected bool isSaveButton;
+		protected DeliveryPoint subjectCopy;
 
 		public bool HasChanges {
 			get { return Session.IsDirty (); }
@@ -34,7 +36,7 @@ namespace Vodovoz
 		protected string _tabName = "Новая точка доставки";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -54,9 +56,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		#endregion
@@ -74,15 +74,15 @@ namespace Vodovoz
 					DeliveryPointOwner = (IDeliveryPointOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save ())
+			if (Save ()) {
+				isSaveButton = true;
 				OnCloseTab (false);
+			}
 		}
 
 		protected void OnCloseTab (bool askSave)
@@ -96,6 +96,14 @@ namespace Vodovoz
 
 		public override void Destroy ()
 		{
+			if (!isSaveButton) {
+				if (subject.IsNew)
+					(parentReference.ParentObject as IDeliveryPointOwner).DeliveryPoints.Remove (subject);
+				else {
+					ObjectCloner.FieldsCopy<DeliveryPoint> (subjectCopy, ref subject);
+					subject.FirePropertyChanged ();
+				}
+			}
 			adaptor.Disconnect ();
 			base.Destroy ();
 		}
@@ -104,31 +112,11 @@ namespace Vodovoz
 		private DeliveryPoint subject;
 
 		public object Subject {
-			get {
-				return subject;
-			}
+			get { return subject; }
 			set {
 				if (value is DeliveryPoint)
 					subject = value as DeliveryPoint;
 			}
-		}
-
-		public DeliveryPointDlg (OrmParentReference parentReference)
-		{
-			this.Build ();
-			ParentReference = parentReference;
-			subject = new DeliveryPoint ();
-			DeliveryPointOwner.DeliveryPoints.Add (subject);
-			ConfigureDlg ();
-		}
-
-		public DeliveryPointDlg (DeliveryPoint sub)
-		{
-			this.Build ();
-			ParentReference = null;
-			subject = sub;
-			TabName = subject.Name;
-			ConfigureDlg ();
 		}
 
 		public DeliveryPointDlg (OrmParentReference parentReference, DeliveryPoint sub)
@@ -138,6 +126,7 @@ namespace Vodovoz
 			subject = sub;
 			TabName = subject.Name;
 			ConfigureDlg ();
+			subjectCopy = ObjectCloner.Clone<DeliveryPoint> (sub);
 		}
 
 		private void ConfigureDlg ()
@@ -168,16 +157,8 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
+			subject.IsNew = false;
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
-			if (subject.LogisticsArea != null) {
-				IList <DeliveryPoint> sameAddress = Session.CreateCriteria<DeliveryPoint> ()
-				.Add (Restrictions.Eq ("Region", subject.Region))
-				.Add (Restrictions.Eq ("City", subject.City))
-				.Add (Restrictions.Eq ("Street", subject.Street))
-				.Add (Restrictions.Eq ("Building", subject.Building)).List<DeliveryPoint> ();
-				foreach (DeliveryPoint dp in sameAddress)
-					dp.LogisticsArea = subject.LogisticsArea;
-			}
 			return true;
 		}
 
@@ -198,7 +179,6 @@ namespace Vodovoz
 				.List<DeliveryPoint> ();
 			if (sameAddress.Count > 0) {
 				subject.LogisticsArea = sameAddress [0].LogisticsArea;
-				//referenceLogisticsArea.Se
 			}
 		}
 	}

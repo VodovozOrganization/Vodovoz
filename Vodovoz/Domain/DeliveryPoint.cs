@@ -129,6 +129,13 @@ namespace Vodovoz
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
 		}
 
+		bool isNew;
+
+		public virtual bool IsNew {
+			get { return isNew; }
+			set { SetField (ref isNew, value, () => IsNew); }
+		}
+
 		//Масштаб карты
 		//Файл схемы проезда
 
