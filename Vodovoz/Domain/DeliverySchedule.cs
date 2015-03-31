@@ -13,30 +13,22 @@ namespace Vodovoz
 		string name;
 
 		public virtual string Name {
-			get {return name;}
-			set {SetField (ref name, value, () => Name);}
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
 		}
 
 		TimeSpan from;
 
 		public virtual TimeSpan From {
-			get {
-				return from;
-			}
-			set {
-				SetField (ref from, value, () => From);
-			}
+			get { return from; } 
+			set { SetField (ref from, value, () => From); }
 		}
 
 		TimeSpan to;
 
 		public virtual TimeSpan To {
-			get {
-				return to;
-			}
-			set {
-				SetField (ref to, value, () => To);
-			}
+			get { return to; }
+			set { SetField (ref to, value, () => To); }
 		}
 
 		public virtual string DeliveryTime { get { return String.Format ("с {0:hh\\:mm} до {1:hh\\:mm}", from, to); } }

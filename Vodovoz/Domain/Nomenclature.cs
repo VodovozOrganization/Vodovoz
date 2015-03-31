@@ -7,38 +7,103 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz
 {
 	[OrmSubject ("Номенклатуры")]
-	public class Nomenclature
+	public class Nomenclature: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
+		string name;
+
 		[Required (ErrorMessage = "Название номенклатуры должно быть заполнено.")]
-		public virtual string Name { get; set; }
+		public virtual string Name {
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
+		}
 
-		public virtual string Model { get; set; }
+		string model;
 
-		public virtual double Weight { get; set; }
+		public virtual string Model {
+			get { return model; }
+			set { SetField (ref model, value, () => Model); }
+		}
 
-		public virtual double RentPrice { get; set; }
+		double weight;
 
-		public virtual VAT VAT { get; set; }
+		public virtual double Weight {
+			get { return weight; }
+			set { SetField (ref weight, value, () => Weight); }
+		}
 
-		public virtual bool DoNotReserve { get; set; }
+		double rentPrice;
 
-		public virtual bool Serial { get; set; }
+		public virtual double RentPrice {
+			get { return rentPrice; }
+			set { SetField (ref rentPrice, value, () => RentPrice); }
+		}
 
-		public virtual MeasurementUnits Unit { get; set; }
+		VAT vAT;
 
-		public virtual NomenclatureCategory Category { get; set; }
+		public virtual VAT VAT {
+			get { return vAT; }
+			set { SetField (ref vAT, value, () => VAT); }
+		}
 
-		public virtual EquipmentColors Color { get; set; }
+		bool doNotReserve;
 
-		public virtual EquipmentType Type { get; set; }
+		public virtual bool DoNotReserve {
+			get { return doNotReserve; }
+			set { SetField (ref doNotReserve, value, () => DoNotReserve); }
+		}
 
-		public virtual Manufacturer Manufacturer { get; set; }
+		bool serial;
 
-		public virtual IList<NomenclaturePrice> NomenclaturePrice{ get; set; }
+		public virtual bool Serial {
+			get { return serial; }
+			set { SetField (ref serial, value, () => Serial); }
+		}
+
+		MeasurementUnits unit;
+
+		public virtual MeasurementUnits Unit {
+			get { return unit; }
+			set { SetField (ref unit, value, () => Unit); }
+		}
+
+		NomenclatureCategory category;
+
+		public virtual NomenclatureCategory Category {
+			get { return category; }
+			set { SetField (ref category, value, () => Category); }
+		}
+
+		EquipmentColors color;
+
+		public virtual EquipmentColors Color {
+			get { return color; }
+			set { SetField (ref color, value, () => Color); }
+		}
+
+		EquipmentType type;
+
+		public virtual EquipmentType Type {
+			get { return type; }
+			set { SetField (ref type, value, () => Type); }
+		}
+
+		Manufacturer manufacturer;
+
+		public virtual Manufacturer Manufacturer {
+			get { return manufacturer; }
+			set { SetField (ref manufacturer, value, () => Manufacturer); }
+		}
+
+		IList<NomenclaturePrice> nomenclaturePrice;
+
+		public virtual IList<NomenclaturePrice> NomenclaturePrice {
+			get { return nomenclaturePrice; }
+			set { SetField (ref nomenclaturePrice, value, () => NomenclaturePrice); }
+		}
 
 		#endregion
 

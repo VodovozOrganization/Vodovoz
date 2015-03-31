@@ -8,23 +8,53 @@ using NHibernate;
 namespace Vodovoz
 {
 	[OrmSubject ("Оборудование")]
-	public class Equipment: IDomainObject, IValidatableObject
+	public class Equipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		public virtual bool OnDuty { get; set; }
+		bool onDuty;
 
-		public virtual string Serial { get; set; }
+		public virtual bool OnDuty {
+			get { return onDuty; }
+			set { SetField (ref onDuty, value, () => OnDuty); }
+		}
 
-		public virtual string Comment { get; set; }
+		string serial;
 
-		public virtual Nomenclature Nomenclature { get; set; }
+		public virtual string Serial {
+			get { return serial; }
+			set { SetField (ref serial, value, () => Serial); }
+		}
 
-		public virtual DateTime LastServiceDate { get; set; }
+		string comment;
 
-		public virtual DateTime WarrantyEndDate { get; set; }
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
+
+		Nomenclature nomenclature;
+
+		public virtual Nomenclature Nomenclature {
+			get { return nomenclature; }
+			set { SetField (ref nomenclature, value, () => Nomenclature); }
+		}
+
+		DateTime lastServiceDate;
+
+		public virtual DateTime LastServiceDate {
+			get { return lastServiceDate; }
+			set { SetField (ref lastServiceDate, value, () => LastServiceDate); }
+		}
+
+		DateTime warrantyEndDate;
+
+		public virtual DateTime WarrantyEndDate {
+			get { return warrantyEndDate; }
+			set { SetField (ref warrantyEndDate, value, () => WarrantyEndDate); }
+		}
 
 		#endregion
 

@@ -7,24 +7,54 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz
 {
 	[OrmSubject ("Пакеты платной аренды")]
-	public class PaidRentPackage: IDomainObject
+	public class PaidRentPackage: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		public virtual int RentPeriod { get; set; }
+		int rentPeriod;
+
+		public virtual int RentPeriod {
+			get { return rentPeriod; }
+			set { SetField (ref rentPeriod, value, () => RentPeriod); }
+		}
+
+		string name;
 
 		[Required (ErrorMessage = "Необходимо заполнить название пакета платной аренды.")]
-		public virtual string Name { get; set; }
+		public virtual string Name {
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
+		}
 
-		public virtual decimal Price { get; set; }
+		decimal price;
 
-		public virtual bool Daily { get; set; }
+		public virtual decimal Price {
+			get { return price; }
+			set { SetField (ref price, value, () => Price); }
+		}
 
-		public virtual Nomenclature DepositService { get; set; }
+		bool daily;
 
-		public virtual Nomenclature RentService { get; set; }
+		public virtual bool Daily {
+			get { return daily; }
+			set { SetField (ref daily, value, () => Daily); }
+		}
+
+		Nomenclature depositService;
+
+		public virtual Nomenclature DepositService {
+			get { return depositService; }
+			set { SetField (ref depositService, value, () => DepositService); }
+		}
+
+		Nomenclature rentService;
+
+		public virtual Nomenclature RentService {
+			get { return rentService; }
+			set { SetField (ref rentService, value, () => RentService); }
+		}
 
 		#endregion
 

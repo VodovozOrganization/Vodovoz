@@ -10,22 +10,33 @@ namespace Vodovoz
 	{
 		public virtual int Id { get; set; }
 
-		public virtual PaidRentPackage PaidRentPackage { get; set; }
+		PaidRentPackage paidRentPackage;
 
-		public virtual Equipment Equipment { get; set; }
+		public virtual PaidRentPackage PaidRentPackage {
+			get { return paidRentPackage; }
+			set { SetField (ref paidRentPackage, value, () => PaidRentPackage); }
+		}
+
+		Equipment equipment;
+
+		public virtual Equipment Equipment {
+			get { return equipment; }
+			set { SetField (ref equipment, value, () => Equipment); }
+		}
 
 		Decimal price;
 
 		public virtual Decimal Price {
-			get {
-				return price;
-			}
-			set {
-				SetField (ref price, value, () => Price);
-			}
+			get { return price; }
+			set { SetField (ref price, value, () => Price); }
 		}
 
-		public virtual bool IsNew { get; set; }
+		bool isNew;
+
+		public virtual bool IsNew {
+			get { return isNew; }
+			set { SetField (ref isNew, value, () => IsNew); }
+		}
 
 		public virtual string PackageName { get { return PaidRentPackage != null ? PaidRentPackage.Name : ""; } }
 

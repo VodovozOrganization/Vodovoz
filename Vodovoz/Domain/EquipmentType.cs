@@ -3,15 +3,23 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubject("Типы оборудования")]
-	public class EquipmentType : IDomainObject
+	[OrmSubject ("Типы оборудования")]
+	public class EquipmentType : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
+
 		public virtual int Id { get; set; }
-		public virtual string Name { get; set; }
+
+		string name;
+
+		public virtual string Name {
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
+		}
+
 		#endregion
 
-		public EquipmentType()
+		public EquipmentType ()
 		{
 			Name = String.Empty;
 		}

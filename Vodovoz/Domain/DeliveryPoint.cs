@@ -7,47 +7,127 @@ using System.Collections.Generic;
 namespace Vodovoz
 {
 	[OrmSubject ("Точки доставки")]
-	public class DeliveryPoint : IDomainObject
+	public class DeliveryPoint : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		public virtual int MinutesToUnload { get; set; }
+		int minutesToUnload;
 
-		public virtual int Floor { get; set; }
+		public virtual int MinutesToUnload {
+			get { return minutesToUnload; }
+			set { SetField (ref minutesToUnload, value, () => MinutesToUnload); }
+		}
+
+		int floor;
+
+		public virtual int Floor {
+			get { return floor; }
+			set { SetField (ref floor, value, () => Floor); }
+		}
+
+		string name;
 
 		[Required (ErrorMessage = "Название точки доставки должно быть заполнено.")]
-		public virtual string Name { get; set; }
+		public virtual string Name {
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
+		}
 
-		public virtual string Region { get; set; }
+		string region;
+
+		public virtual string Region {
+			get { return region; }
+			set { SetField (ref region, value, () => Region); }
+		}
+
+		string city;
 
 		[Required (ErrorMessage = "Город должен быть заполнен.")]
-		public virtual string City { get; set; }
+		public virtual string City {
+			get { return city; }
+			set { SetField (ref city, value, () => City); }
+		}
+
+		string street;
 
 		[Required (ErrorMessage = "Улица должна быть заполнена.")]
-		public virtual string Street { get; set; }
+		public virtual string Street {
+			get { return street; }
+			set { SetField (ref street, value, () => Street); }
+		}
+
+		string building;
 
 		[Required (ErrorMessage = "Номер дома должен быть заполнен.")]
-		public virtual string Building { get; set; }
+		public virtual string Building {
+			get { return building; }
+			set { SetField (ref building, value, () => Building); }
+		}
 
-		public virtual string Room { get; set; }
+		string room;
 
-		public virtual string Comment { get; set; }
+		public virtual string Room {
+			get { return room; }
+			set { SetField (ref room, value, () => Room); }
+		}
 
-		public virtual string Latitude { get; set; }
+		string comment;
 
-		public virtual string Longitude { get; set; }
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
 
-		public virtual bool IsActive { get; set; }
+		string latitude;
 
-		public virtual Contact Contact { get; set; }
+		public virtual string Latitude {
+			get { return latitude; }
+			set { SetField (ref latitude, value, () => Latitude); }
+		}
 
-		public virtual string Phone { get; set; }
+		string longitude;
 
-		public virtual LogisticsArea LogisticsArea { get; set; }
+		public virtual string Longitude {
+			get { return longitude; }
+			set { SetField (ref longitude, value, () => Longitude); }
+		}
 
-		public virtual DeliverySchedule DeliverySchedule { get; set; }
+		bool isActive;
+
+		public virtual bool IsActive {
+			get { return isActive; }
+			set { SetField (ref isActive, value, () => IsActive); }
+		}
+
+		Contact contact;
+
+		public virtual Contact Contact {
+			get { return contact; }
+			set { SetField (ref contact, value, () => Contact); }
+		}
+
+		string phone;
+
+		public virtual string Phone {
+			get { return phone; }
+			set { SetField (ref phone, value, () => Phone); }
+		}
+
+		LogisticsArea logisticsArea;
+
+		public virtual LogisticsArea LogisticsArea {
+			get { return logisticsArea; }
+			set { SetField (ref logisticsArea, value, () => LogisticsArea); }
+		}
+
+		DeliverySchedule deliverySchedule;
+
+		public virtual DeliverySchedule DeliverySchedule {
+			get { return deliverySchedule; }
+			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
+		}
 
 		//Масштаб карты
 		//Файл схемы проезда
@@ -69,10 +149,8 @@ namespace Vodovoz
 		}
 
 		public string Point { 
-			get { 
-				return String.Format ("\"{0}\": г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
-					Name, City, Street, Building, Room);
-			} 
+			get { return String.Format ("\"{0}\": г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
+				Name, City, Street, Building, Room); } 
 		}
 	}
 

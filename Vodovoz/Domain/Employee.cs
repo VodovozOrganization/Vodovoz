@@ -14,41 +14,102 @@ namespace Vodovoz
 
 		public virtual int Id { get; set; }
 
-		public virtual string Name { get; set; }
+		string name;
 
-		public virtual string LastName { get; set; }
+		public virtual string Name {
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
+		}
 
-		public virtual string Patronymic { get; set; }
+		string lastName;
 
-		public virtual EmployeeCategory Category { get; set; }
+		public virtual string LastName {
+			get { return lastName; }
+			set { SetField (ref lastName, value, () => LastName); }
+		}
 
-		public virtual string PassportSeria { get; set; }
+		string patronymic;
 
-		public virtual string PassportNumber { get; set; }
+		public virtual string Patronymic {
+			get { return patronymic; }
+			set { SetField (ref patronymic, value, () => Patronymic); }
+		}
 
-		public virtual string DrivingNumber { get; set; }
+		EmployeeCategory category;
 
-		public virtual string AddressRegistration { get; set; }
+		public virtual EmployeeCategory Category {
+			get { return category; }
+			set { SetField (ref category, value, () => Category); }
+		}
 
-		public virtual string AddressCurrent { get; set; }
+		string passportSeria;
 
-		public virtual bool IsFired { get; set; }
+		public virtual string PassportSeria {
+			get { return passportSeria; }
+			set { SetField (ref passportSeria, value, () => PassportSeria); }
+		}
 
-		public virtual IList<QSContacts.Phone> Phones { get; set; }
+		string passportNumber;
 
-		public virtual Nationality Nationality { get; set; }
+		public virtual string PassportNumber {
+			get { return passportNumber; }
+			set { SetField (ref passportNumber, value, () => PassportNumber); }
+		}
 
-		public virtual User User { get; set; }
+		string drivingNumber;
+
+		public virtual string DrivingNumber {
+			get { return drivingNumber; }
+			set { SetField (ref drivingNumber, value, () => DrivingNumber); }
+		}
+
+		string addressRegistration;
+
+		public virtual string AddressRegistration {
+			get { return addressRegistration; }
+			set { SetField (ref addressRegistration, value, () => AddressRegistration); }
+		}
+
+		string addressCurrent;
+
+		public virtual string AddressCurrent {
+			get { return addressCurrent; }
+			set { SetField (ref addressCurrent, value, () => AddressCurrent); }
+		}
+
+		bool isFired;
+
+		public virtual bool IsFired {
+			get { return isFired; }
+			set { SetField (ref isFired, value, () => IsFired); }
+		}
+
+		IList<QSContacts.Phone> phones;
+
+		public virtual IList<QSContacts.Phone> Phones {
+			get { return phones; }
+			set { SetField (ref phones, value, () => Phones); }
+		}
+
+		Nationality nationality;
+
+		public virtual Nationality Nationality {
+			get { return nationality; }
+			set { SetField (ref nationality, value, () => Nationality); }
+		}
+
+		User user;
+
+		public virtual User User {
+			get { return user; }
+			set { SetField (ref user, value, () => User); }
+		}
 
 		byte[] photo;
 
 		public virtual byte[] Photo {
-			get {
-				return photo;
-			}
-			set {
-				SetField (ref photo, value, () => Photo);
-			}
+			get { return photo; }
+			set { SetField (ref photo, value, () => Photo); }
 		}
 
 		#endregion
@@ -67,9 +128,7 @@ namespace Vodovoz
 		}
 
 		public string FullName {
-			get {
-				return String.Format ("{0} {1} {2}", LastName, Name, Patronymic);
-			}
+			get { return String.Format ("{0} {1} {2}", LastName, Name, Patronymic); }
 		}
 
 		#region IValidatableObject implementation

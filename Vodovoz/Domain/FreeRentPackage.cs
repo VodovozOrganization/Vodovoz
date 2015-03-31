@@ -7,23 +7,48 @@ using System.ComponentModel.DataAnnotations;
 namespace Vodovoz
 {
 	[OrmSubject ("Бесплатные пакеты аренды")]
-	public class FreeRentPackage: IDomainObject
+	public class FreeRentPackage: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
+		int minWaterAmount;
+
 		[Range (1, 200, ErrorMessage = "Минимальное количество воды в пакете аренды не может быть равно нулю.")]
-		public virtual int MinWaterAmount { get; set; }
+		public virtual int MinWaterAmount {
+			get { return minWaterAmount; }
+			set { SetField (ref minWaterAmount, value, () => MinWaterAmount); }
+		}
+
+		string name;
 
 		[Required (ErrorMessage = "Необходимо заполнить название пакета.")]
-		public virtual string Name { get; set; }
+		public virtual string Name {
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
+		}
 
-		public virtual decimal Deposit { get; set; }
+		decimal deposit;
 
-		public virtual EquipmentType EquipmentType { get; set; }
+		public virtual decimal Deposit {
+			get { return deposit; }
+			set { SetField (ref deposit, value, () => Deposit); }
+		}
 
-		public virtual Nomenclature DepositService { get; set; }
+		EquipmentType equipmentType;
+
+		public virtual EquipmentType EquipmentType {
+			get { return equipmentType; }
+			set { SetField (ref equipmentType, value, () => EquipmentType); }
+		}
+
+		Nomenclature depositService;
+
+		public virtual Nomenclature DepositService {
+			get { return depositService; }
+			set { SetField (ref depositService, value, () => DepositService); }
+		}
 
 		#endregion
 

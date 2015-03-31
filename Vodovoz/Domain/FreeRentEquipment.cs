@@ -10,33 +10,40 @@ namespace Vodovoz
 	{
 		public virtual int Id { get; set; }
 
-		public virtual FreeRentPackage FreeRentPackage { get; set; }
+		FreeRentPackage freeRentPackage;
 
-		public virtual Equipment Equipment { get; set; }
+		public virtual FreeRentPackage FreeRentPackage {
+			get { return freeRentPackage; }
+			set { SetField (ref freeRentPackage, value, () => FreeRentPackage); }
+		}
+
+		Equipment equipment;
+
+		public virtual Equipment Equipment {
+			get { return equipment; }
+			set { SetField (ref equipment, value, () => Equipment); }
+		}
 
 		Decimal deposit;
 
 		public virtual Decimal Deposit {
-			get {
-				return deposit;
-			}
-			set {
-				SetField (ref deposit, value, () => Deposit);
-			}
+			get { return deposit; }
+			set { SetField (ref deposit, value, () => Deposit); }
 		}
 
 		int waterAmount;
 
 		public virtual int WaterAmount {
-			get {
-				return waterAmount;
-			}
-			set {
-				SetField (ref waterAmount, value, () => WaterAmount);
-			}
+			get { return waterAmount; }
+			set { SetField (ref waterAmount, value, () => WaterAmount); }
 		}
 
-		public virtual bool IsNew { get; set; }
+		bool isNew;
+
+		public virtual bool IsNew {
+			get { return isNew; }
+			set { SetField (ref isNew, value, () => IsNew); }
+		}
 
 		public virtual string PackageName { get { return FreeRentPackage != null ? FreeRentPackage.Name : ""; } }
 
