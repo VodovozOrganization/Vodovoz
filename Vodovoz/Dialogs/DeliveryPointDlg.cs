@@ -151,6 +151,15 @@ namespace Vodovoz
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
 			referenceContact.SubjectType = typeof(Contact);
 			referenceContact.ParentReference = new OrmParentReference (Session, ParentReference.ParentObject, "Contacts");
+			entryCity.FocusOutEvent += FocusOut;
+			entryStreet.FocusOutEvent += FocusOut;
+			entryRegion.FocusOutEvent += FocusOut;
+			entryBuilding.FocusOutEvent += FocusOut;
+		}
+
+		void FocusOut (object o, Gtk.FocusOutEventArgs args)
+		{
+			SetLogisticsArea ();
 		}
 
 		public bool Save ()
@@ -175,6 +184,22 @@ namespace Vodovoz
 		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
 			OnCloseTab (false);
+		}
+
+		protected void SetLogisticsArea ()
+		{
+			IList <DeliveryPoint> sameAddress = Session.CreateCriteria<DeliveryPoint> ()
+				.Add (Restrictions.Eq ("Region", subject.Region))
+				.Add (Restrictions.Eq ("City", subject.City))
+				.Add (Restrictions.Eq ("Street", subject.Street))
+				.Add (Restrictions.Eq ("Building", subject.Building))
+				.Add (Restrictions.IsNotNull ("LogisticsArea"))
+			    .Add (Restrictions.Not (Restrictions.Eq ("Id", subject.Id)))
+				.List<DeliveryPoint> ();
+			if (sameAddress.Count > 0) {
+				subject.LogisticsArea = sameAddress [0].LogisticsArea;
+				//referenceLogisticsArea.Se
+			}
 		}
 	}
 }
