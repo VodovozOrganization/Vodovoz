@@ -73,6 +73,8 @@ public partial class MainWindow: Gtk.Window
 
 		//Настраиваем виджет вкладок
 		tdiMain.CreateDialogWidget += OnCreateDialogWidget;
+
+		BanksUpdater.Update (false);
 	}
 
 	void HandleKeyReleaseEvent (object o, KeyReleaseEventArgs args)
@@ -398,5 +400,10 @@ public partial class MainWindow: Gtk.Window
 
 		OrmReference refWin = new OrmReference (typeof(LogisticsArea), session, criteria);
 		tdiMain.AddTab (refWin);	
+	}
+
+	protected void OnActionUpdateBanksActivated (object sender, EventArgs e)
+	{
+		BanksUpdater.Update (true);
 	}
 }
