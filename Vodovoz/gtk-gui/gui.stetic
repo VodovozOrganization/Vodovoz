@@ -6,17 +6,17 @@
   </configuration>
   <import>
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
-    <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
-    <widget-library name="../../../QSProjects/QSTDI/bin/Debug/QSTDI.dll" />
-    <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
-    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
-    <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
-    <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
-    <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Debug/QSContacts.dll" />
-    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
-    <widget-library name="../../../QSProjects/QSValidation/bin/Debug/QSValidation.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../../../QSProjects/QSProjectsLib/bin/Release/QSProjectsLib.dll" />
+    <widget-library name="../../../QSProjects/QSSupportLib/bin/Release/QSSupportLib.dll" />
+    <widget-library name="../../../QSProjects/QSTDI/bin/Release/QSTDI.dll" />
+    <widget-library name="../../../QSProjects/QSOrmProject/bin/Release/QSOrmProject.dll" />
+    <widget-library name="../../../QSProjects/QSWidgetLib/bin/Release/QSWidgetLib.dll" />
+    <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Release/QSBanks.dll" />
+    <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Release/QSAttachment.dll" />
+    <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Release/QSContacts.dll" />
+    <widget-library name="../../../Gtk.DataBindings/bin/Release/gtk-databind-lib.dll" />
+    <widget-library name="../../../QSProjects/QSValidation/bin/Release/QSValidation.dll" />
+    <widget-library name="../bin/Release/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
