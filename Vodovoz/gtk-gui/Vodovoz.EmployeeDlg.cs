@@ -479,7 +479,7 @@ namespace Vodovoz
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Фамилия<span foreground=\"red\">*</span>:");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Фамилия:");
 			this.label2.UseMarkup = true;
 			this.datatableMain.Add (this.label2);
 			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.label2]));

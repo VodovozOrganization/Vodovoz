@@ -1789,7 +1789,7 @@
                           <widget class="Gtk.Label" id="label2">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Фамилия&lt;span foreground="red"&gt;*&lt;/span&gt;:</property>
+                            <property name="LabelProp" translatable="yes">Фамилия:</property>
                             <property name="UseMarkup">True</property>
                           </widget>
                           <packing>
