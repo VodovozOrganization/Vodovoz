@@ -34,7 +34,7 @@ namespace Vodovoz
 		protected string _tabName = "Новое доп. соглашение";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -54,9 +54,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		#endregion
@@ -74,9 +72,7 @@ namespace Vodovoz
 					AgreementOwner = (IAdditionalAgreementOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
@@ -112,9 +108,7 @@ namespace Vodovoz
 		private NonfreeRentAgreement subject;
 
 		public object Subject {
-			get {
-				return subject;
-			}
+			get { return subject; }
 			set {
 				if (value is NonfreeRentAgreement)
 					subject = value as NonfreeRentAgreement;
@@ -136,6 +130,7 @@ namespace Vodovoz
 			adaptor.Target = subject;
 			datatable1.DataSource = adaptor;
 			entryAgreementNumber.IsEditable = true;
+
 			var identifiers = new List<object> ();
 			foreach (DeliveryPoint d in (parentReference.ParentObject as CounterpartyContract).Counterparty.DeliveryPoints)
 				identifiers.Add (d.Id);
@@ -143,6 +138,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = (parentReference.ParentObject as CounterpartyContract).Number + " - А";
+
 			paidrentpackagesview1.ParentReference = new OrmParentReference (session, subject, "Equipment");
 		}
 

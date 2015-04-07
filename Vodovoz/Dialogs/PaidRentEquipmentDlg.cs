@@ -99,6 +99,11 @@ namespace Vodovoz
 			if (referenceEquipment.ItemsCriteria == null)
 				referenceEquipment.ItemsCriteria = Session.CreateCriteria<Equipment> ();
 			referenceEquipment.ItemsCriteria.Add (EquipmentWorks.FilterUsedEquipment (Session));
+			if (subject.PaidRentPackage != null) {
+				referenceEquipment.ItemsCriteria
+					.CreateAlias ("Nomenclature", "n")
+					.Add (Restrictions.Eq ("n.Type", subject.PaidRentPackage.EquipmentType));
+			}
 
 		}
 
@@ -148,36 +153,16 @@ namespace Vodovoz
 
 		protected void OnReferencePaidRentPackageChanged (object sender, EventArgs e)
 		{
-			/*if (loadFromPackage) {	//Загружаем все значения из выбранного пакета.
-				subject.Price = (referencePaidRentPackage.Subject as PaidRentPackage).PriceDaily;
-				subject.RentPeriod = (referencePaidRentPackage.Subject as PaidRentPackage).RentPeriod;
-			} else {	//Загружаем из уже сохраненных и скорректированных
+			if (loadFromPackage)	//Загружаем все значения из выбранного пакета.
+				subject.Price = (referencePaidRentPackage.Subject as PaidRentPackage).PriceMonthly;
+			else					//Загружаем уже сохраненное значение
 				loadFromPackage = true;
-
-			}
-			if (subject.PaidRentPackage != null) {
-				if (subject.PaidRentPackage.Daily) {
-					labelRentPeriod.Text = "дней";
-					labelRentPeriod.Sensitive = spinRentPeriod.Sensitive = true;
-
-				} else {
-					labelRentPeriod.Text = "мес.";
-					labelRentPeriod.Sensitive = spinRentPeriod.Sensitive = false;
-				}
-				RecalcTotal ();
-			}*/
+			UpdatePrice ();
 		}
 
-		protected void RecalcTotal ()
+		protected void UpdatePrice ()
 		{
-			//labelTotalPrice.Text = String.Format ("Итоговая стоимость аренды: {0}", 
-			//	subject.PaidRentPackage.Daily ? subject.Price * subject.RentPeriod : subject.Price);
-		}
-
-		protected void OnSpinRentPeriodValueChanged (object sender, EventArgs e)
-		{
-			if (subject.PaidRentPackage != null)
-				RecalcTotal ();
+			labelPrice.Text = String.Format ("{0} руб. в месяц", subject.Price);
 		}
 	}
 }

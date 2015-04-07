@@ -30,7 +30,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label4;
 		
-		private global::Gtk.Label label5;
+		private global::Gtk.Label label6;
 		
 		private global::Vodovoz.PaidRentPackagesView paidrentpackagesview1;
 		
@@ -194,12 +194,12 @@ namespace Vodovoz
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label5 = new global::Gtk.Label ();
-			this.label5.Name = "label5";
-			this.label5.Xalign = 1F;
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Оборудование:");
-			this.datatable1.Add (this.label5);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label5]));
+			this.label6 = new global::Gtk.Label ();
+			this.label6.Name = "label6";
+			this.label6.Xalign = 1F;
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Оборудование:");
+			this.datatable1.Add (this.label6);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label6]));
 			w13.TopAttach = ((uint)(4));
 			w13.BottomAttach = ((uint)(5));
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));

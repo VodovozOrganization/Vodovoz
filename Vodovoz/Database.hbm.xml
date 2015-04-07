@@ -339,7 +339,6 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="Price" column="price" />
- 		<property name="RentPeriod" column="rent_period" />
  		<many-to-one name="PaidRentPackage" class="Vodovoz.PaidRentPackage" column="paid_rent_package_id" />
  		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
  	</class>

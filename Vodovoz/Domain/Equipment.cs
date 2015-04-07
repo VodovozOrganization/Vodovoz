@@ -97,7 +97,8 @@ namespace Vodovoz
 					IDs.Add (eq.Equipment.Id);
 			foreach (NonfreeRentAgreement nfr in nAgreements)
 				foreach (PaidRentEquipment eq in nfr.Equipment)
-					IDs.Add (eq.Equipment.Id);
+					if (eq.Equipment != null)
+						IDs.Add (eq.Equipment.Id);
 			int[] arr = new int[IDs.Count];
 			IDs.CopyTo (arr, 0);
 
