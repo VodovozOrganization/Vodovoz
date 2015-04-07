@@ -24,6 +24,13 @@ namespace Vodovoz
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
+		int rentPeriod;
+
+		public virtual int RentPeriod {
+			get { return rentPeriod; }
+			set { SetField (ref rentPeriod, value, () => RentPeriod); }
+		}
+
 		Decimal price;
 
 		public virtual Decimal Price {

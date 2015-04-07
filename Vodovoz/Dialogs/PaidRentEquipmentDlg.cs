@@ -33,7 +33,7 @@ namespace Vodovoz
 		string _tabName = "Новое оборудование к доп. соглашению";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -50,9 +50,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		public object Subject {
@@ -76,9 +74,7 @@ namespace Vodovoz
 					PaidRentOwner = (IPaidRentEquipmentOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		public PaidRentEquipmentDlg (OrmParentReference parentReference, PaidRentEquipment sub)
@@ -152,10 +148,36 @@ namespace Vodovoz
 
 		protected void OnReferencePaidRentPackageChanged (object sender, EventArgs e)
 		{
-			if (loadFromPackage)
-				subject.Price = (referencePaidRentPackage.Subject as PaidRentPackage).Price;
-			else
+			/*if (loadFromPackage) {	//Загружаем все значения из выбранного пакета.
+				subject.Price = (referencePaidRentPackage.Subject as PaidRentPackage).PriceDaily;
+				subject.RentPeriod = (referencePaidRentPackage.Subject as PaidRentPackage).RentPeriod;
+			} else {	//Загружаем из уже сохраненных и скорректированных
 				loadFromPackage = true;
+
+			}
+			if (subject.PaidRentPackage != null) {
+				if (subject.PaidRentPackage.Daily) {
+					labelRentPeriod.Text = "дней";
+					labelRentPeriod.Sensitive = spinRentPeriod.Sensitive = true;
+
+				} else {
+					labelRentPeriod.Text = "мес.";
+					labelRentPeriod.Sensitive = spinRentPeriod.Sensitive = false;
+				}
+				RecalcTotal ();
+			}*/
+		}
+
+		protected void RecalcTotal ()
+		{
+			//labelTotalPrice.Text = String.Format ("Итоговая стоимость аренды: {0}", 
+			//	subject.PaidRentPackage.Daily ? subject.Price * subject.RentPeriod : subject.Price);
+		}
+
+		protected void OnSpinRentPeriodValueChanged (object sender, EventArgs e)
+		{
+			if (subject.PaidRentPackage != null)
+				RecalcTotal ();
 		}
 	}
 }

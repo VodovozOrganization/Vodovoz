@@ -13,13 +13,6 @@ namespace Vodovoz
 
 		public virtual int Id { get; set; }
 
-		int rentPeriod;
-
-		public virtual int RentPeriod {
-			get { return rentPeriod; }
-			set { SetField (ref rentPeriod, value, () => RentPeriod); }
-		}
-
 		string name;
 
 		[Required (ErrorMessage = "Необходимо заполнить название пакета платной аренды.")]
@@ -28,18 +21,25 @@ namespace Vodovoz
 			set { SetField (ref name, value, () => Name); }
 		}
 
-		decimal price;
+		decimal priceDaily;
 
-		public virtual decimal Price {
-			get { return price; }
-			set { SetField (ref price, value, () => Price); }
+		public virtual decimal PriceDaily {
+			get { return priceDaily; }
+			set { SetField (ref priceDaily, value, () => PriceDaily); }
 		}
 
-		bool daily;
+		decimal priceMonthly;
 
-		public virtual bool Daily {
-			get { return daily; }
-			set { SetField (ref daily, value, () => Daily); }
+		public virtual decimal PriceMonthly {
+			get { return priceMonthly; }
+			set { SetField (ref priceMonthly, value, () => PriceMonthly); }
+		}
+
+		EquipmentType equipmentType;
+
+		public virtual EquipmentType EquipmentType {
+			get { return equipmentType; }
+			set { SetField (ref equipmentType, value, () => EquipmentType); }
 		}
 
 		Nomenclature depositService;
@@ -58,19 +58,16 @@ namespace Vodovoz
 
 		#endregion
 
-		public string RentPeriodString { 
-			get {
-				if (Daily)
-					return "Посуточно";
-				else
-					return String.Format ("{0} мес.", RentPeriod);
-			} 
-		}
-
 		public PaidRentPackage ()
 		{
 			Name = String.Empty;
 		}
+
+		public virtual string PriceDailyString { get { return String.Format ("{0} руб.", PriceDaily); } }
+
+		public virtual string PriceMonthlyString { get { return String.Format ("{0} руб.", PriceMonthly); } }
+
+
 	}
 
 	public interface IPaidRentEquipmentOwner

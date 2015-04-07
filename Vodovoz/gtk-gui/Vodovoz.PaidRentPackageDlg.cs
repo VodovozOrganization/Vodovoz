@@ -14,13 +14,9 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
 		
-		private global::Gtk.DataBindings.DataCheckButton checkbuttonDaily;
-		
 		private global::Gtk.DataBindings.DataEntry dataentryName;
 		
 		private global::Gtk.Label label1;
-		
-		private global::Gtk.Label label2;
 		
 		private global::Gtk.Label label3;
 		
@@ -30,13 +26,17 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label6;
 		
+		private global::Gtk.Label label7;
+		
 		private global::Gtk.DataBindings.DataEntryReference referenceDepositService;
+		
+		private global::Gtk.DataBindings.DataEntryReference referenceEquipmentType;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceRentService;
 		
-		private global::Gtk.DataBindings.DataSpinButton spinPrice;
+		private global::Gtk.DataBindings.DataSpinButton spinPriceDaily;
 		
-		private global::Gtk.DataBindings.DataSpinButton spinRentPeriod;
+		private global::Gtk.DataBindings.DataSpinButton spinPriceMonthly;
 
 		protected virtual void Build ()
 		{
@@ -95,29 +95,6 @@ namespace Vodovoz
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.checkbuttonDaily = new global::Gtk.DataBindings.DataCheckButton ();
-			this.checkbuttonDaily.CanFocus = true;
-			this.checkbuttonDaily.Name = "checkbuttonDaily";
-			this.checkbuttonDaily.Label = "";
-			this.checkbuttonDaily.DrawIndicator = true;
-			this.checkbuttonDaily.UseUnderline = true;
-			this.checkbuttonDaily.InheritedDataSource = true;
-			this.checkbuttonDaily.Mappings = "Daily";
-			this.checkbuttonDaily.InheritedBoundaryDataSource = false;
-			this.checkbuttonDaily.Editable = true;
-			this.checkbuttonDaily.AutomaticTitle = false;
-			this.checkbuttonDaily.InheritedBoundaryDataSource = false;
-			this.checkbuttonDaily.InheritedDataSource = true;
-			this.checkbuttonDaily.Mappings = "Daily";
-			this.datatable1.Add (this.checkbuttonDaily);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.checkbuttonDaily]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
 			this.dataentryName = new global::Gtk.DataBindings.DataEntry ();
 			this.dataentryName.CanFocus = true;
 			this.dataentryName.Name = "dataentryName";
@@ -130,74 +107,74 @@ namespace Vodovoz
 			this.dataentryName.Mappings = "Name";
 			this.dataentryName.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.dataentryName);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.dataentryName]));
-			w7.LeftAttach = ((uint)(1));
-			w7.RightAttach = ((uint)(2));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.dataentryName]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Название:");
 			this.datatable1.Add (this.label1);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label1]));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.label2 = new global::Gtk.Label ();
-			this.label2.Name = "label2";
-			this.label2.Xalign = 1F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Срок аренды (мес.):");
-			this.label2.Justify = ((global::Gtk.Justification)(1));
-			this.datatable1.Add (this.label2);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label2]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label1]));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label ();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Услуга аренды:");
 			this.datatable1.Add (this.label3);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label3]));
-			w10.TopAttach = ((uint)(5));
-			w10.BottomAttach = ((uint)(6));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label3]));
+			w8.TopAttach = ((uint)(5));
+			w8.BottomAttach = ((uint)(6));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label ();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Стоимость:");
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Стоимость (месяц):");
 			this.datatable1.Add (this.label4);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label4]));
-			w11.TopAttach = ((uint)(3));
-			w11.BottomAttach = ((uint)(4));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label4]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label ();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Услуга залога:");
 			this.datatable1.Add (this.label5);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label5]));
-			w12.TopAttach = ((uint)(4));
-			w12.BottomAttach = ((uint)(5));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label5]));
+			w10.TopAttach = ((uint)(4));
+			w10.BottomAttach = ((uint)(5));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label ();
 			this.label6.Name = "label6";
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Посуточная аренда:");
+			this.label6.Xalign = 1F;
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Стоимость (сутки):");
 			this.datatable1.Add (this.label6);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label6]));
-			w13.TopAttach = ((uint)(2));
-			w13.BottomAttach = ((uint)(3));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label6]));
+			w11.TopAttach = ((uint)(1));
+			w11.BottomAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.label7 = new global::Gtk.Label ();
+			this.label7.Name = "label7";
+			this.label7.Xalign = 1F;
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип оборудования:");
+			this.datatable1.Add (this.label7);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label7]));
+			w12.TopAttach = ((uint)(3));
+			w12.BottomAttach = ((uint)(4));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceDepositService = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceDepositService.Events = ((global::Gdk.EventMask)(256));
@@ -211,11 +188,31 @@ namespace Vodovoz
 			this.referenceDepositService.InheritedBoundaryDataSource = false;
 			this.referenceDepositService.CursorPointsEveryType = false;
 			this.datatable1.Add (this.referenceDepositService);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceDepositService]));
-			w14.TopAttach = ((uint)(4));
-			w14.BottomAttach = ((uint)(5));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceDepositService]));
+			w13.TopAttach = ((uint)(4));
+			w13.BottomAttach = ((uint)(5));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.referenceEquipmentType = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceEquipmentType.Events = ((global::Gdk.EventMask)(256));
+			this.referenceEquipmentType.Name = "referenceEquipmentType";
+			this.referenceEquipmentType.DisplayFields = new string[] {
+				"Name"
+			};
+			this.referenceEquipmentType.DisplayFormatString = "{0}";
+			this.referenceEquipmentType.InheritedDataSource = true;
+			this.referenceEquipmentType.Mappings = "EquipmentType";
+			this.referenceEquipmentType.InheritedBoundaryDataSource = false;
+			this.referenceEquipmentType.CursorPointsEveryType = false;
+			this.datatable1.Add (this.referenceEquipmentType);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceEquipmentType]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
 			w14.LeftAttach = ((uint)(1));
 			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceRentService = new global::Gtk.DataBindings.DataEntryReference ();
@@ -238,44 +235,46 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinPrice = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
-			this.spinPrice.CanFocus = true;
-			this.spinPrice.Name = "spinPrice";
-			this.spinPrice.Adjustment.PageIncrement = 10;
-			this.spinPrice.ClimbRate = 1;
-			this.spinPrice.Numeric = true;
-			this.spinPrice.InheritedDataSource = true;
-			this.spinPrice.Mappings = "Price";
-			this.spinPrice.InheritedBoundaryDataSource = false;
-			this.spinPrice.InheritedDataSource = true;
-			this.spinPrice.Mappings = "Price";
-			this.spinPrice.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.spinPrice);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinPrice]));
-			w16.TopAttach = ((uint)(3));
-			w16.BottomAttach = ((uint)(4));
+			this.spinPriceDaily = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
+			this.spinPriceDaily.CanFocus = true;
+			this.spinPriceDaily.Name = "spinPriceDaily";
+			this.spinPriceDaily.Adjustment.PageIncrement = 10;
+			this.spinPriceDaily.ClimbRate = 1;
+			this.spinPriceDaily.Numeric = true;
+			this.spinPriceDaily.InheritedDataSource = true;
+			this.spinPriceDaily.Mappings = "PriceDaily";
+			this.spinPriceDaily.InheritedBoundaryDataSource = false;
+			this.spinPriceDaily.InheritedDataSource = true;
+			this.spinPriceDaily.Mappings = "PriceDaily";
+			this.spinPriceDaily.InheritedBoundaryDataSource = false;
+			this.datatable1.Add (this.spinPriceDaily);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinPriceDaily]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinRentPeriod = new global::Gtk.DataBindings.DataSpinButton (0, 24, 1);
-			this.spinRentPeriod.CanFocus = true;
-			this.spinRentPeriod.Name = "spinRentPeriod";
-			this.spinRentPeriod.Adjustment.PageIncrement = 10;
-			this.spinRentPeriod.ClimbRate = 1;
-			this.spinRentPeriod.Numeric = true;
-			this.spinRentPeriod.InheritedDataSource = true;
-			this.spinRentPeriod.Mappings = "RentPeriod";
-			this.spinRentPeriod.InheritedBoundaryDataSource = false;
-			this.spinRentPeriod.InheritedDataSource = true;
-			this.spinRentPeriod.Mappings = "RentPeriod";
-			this.spinRentPeriod.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.spinRentPeriod);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinRentPeriod]));
-			w17.TopAttach = ((uint)(1));
-			w17.BottomAttach = ((uint)(2));
+			this.spinPriceMonthly = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
+			this.spinPriceMonthly.CanFocus = true;
+			this.spinPriceMonthly.Name = "spinPriceMonthly";
+			this.spinPriceMonthly.Adjustment.PageIncrement = 10;
+			this.spinPriceMonthly.ClimbRate = 1;
+			this.spinPriceMonthly.Numeric = true;
+			this.spinPriceMonthly.InheritedDataSource = true;
+			this.spinPriceMonthly.Mappings = "PriceMonthly";
+			this.spinPriceMonthly.InheritedBoundaryDataSource = false;
+			this.spinPriceMonthly.InheritedDataSource = true;
+			this.spinPriceMonthly.Mappings = "PriceMonthly";
+			this.spinPriceMonthly.InheritedBoundaryDataSource = false;
+			this.datatable1.Add (this.spinPriceMonthly);
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinPriceMonthly]));
+			w17.TopAttach = ((uint)(2));
+			w17.BottomAttach = ((uint)(3));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add (this.datatable1);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.datatable1]));
@@ -289,7 +288,6 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
-			this.checkbuttonDaily.Toggled += new global::System.EventHandler (this.OnCheckbuttonDailyToggled);
 		}
 	}
 }

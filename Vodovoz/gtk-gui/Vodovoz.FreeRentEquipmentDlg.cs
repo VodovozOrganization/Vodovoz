@@ -170,6 +170,7 @@ namespace Vodovoz
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.spinDeposit = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
+			this.spinDeposit.Sensitive = false;
 			this.spinDeposit.CanFocus = true;
 			this.spinDeposit.Name = "spinDeposit";
 			this.spinDeposit.Adjustment.PageIncrement = 10;
@@ -191,6 +192,7 @@ namespace Vodovoz
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.spinMinWaterAmount = new global::Gtk.DataBindings.DataSpinButton (0, 100, 1);
+			this.spinMinWaterAmount.Sensitive = false;
 			this.spinMinWaterAmount.CanFocus = true;
 			this.spinMinWaterAmount.Name = "spinMinWaterAmount";
 			this.spinMinWaterAmount.Adjustment.PageIncrement = 10;
