@@ -22,6 +22,7 @@ namespace Vodovoz
 					treeRentPackages.Columns [2].Title = "Цена аренды (в сутки)";
 				else
 					treeRentPackages.Columns [2].Title = "Цена аренды (в месяц)";
+				UpdateTotalLabels ();
 			}
 		}
 
@@ -72,7 +73,8 @@ namespace Vodovoz
 			if (equipments != null)
 				foreach (PaidRentEquipment eq in equipments)
 					TotalPrice += eq.Price;
-			labelTotalPrice.Text = String.Format ("{0} руб.", TotalPrice);
+			labelTotalPrice.Text = String.Format ("{0} руб.", 
+				(DailyRent ? TotalPrice * (parentReference.ParentObject as DailyRentAgreement).RentDays : TotalPrice));
 		}
 
 		public PaidRentPackagesView ()
