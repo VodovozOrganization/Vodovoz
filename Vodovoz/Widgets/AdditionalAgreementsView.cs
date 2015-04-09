@@ -15,18 +15,12 @@ namespace Vodovoz
 		private ISession session;
 
 		public ISession Session {
-			get {
-				return session;
-			}
-			set {
-				session = value;
-			}
+			get { return session; }
+			set { session = value; }
 		}
 
 		public IAdditionalAgreementOwner AgreementOwner {
-			get {
-				return agreementOwner;
-			}
+			get { return agreementOwner; }
 			set {
 				agreementOwner = value;
 				if (agreementOwner.AdditionalAgreements == null)
@@ -49,9 +43,7 @@ namespace Vodovoz
 					AgreementOwner = (IAdditionalAgreementOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		public AdditionalAgreementsView ()
@@ -90,6 +82,10 @@ namespace Vodovoz
 			case AgreementType.WaterSales:
 				agreement = new WaterSalesAgreement ();
 				dlg = new AdditionalAgreementWater (ParentReference, agreement as WaterSalesAgreement);
+				break;
+			case AgreementType.DailyRent:
+				agreement = new DailyRentAgreement ();
+				dlg = new AdditionalAgreementDailyRent (ParentReference, agreement as DailyRentAgreement);
 				break;
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));

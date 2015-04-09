@@ -11,9 +11,9 @@ using NHibernate.Criterion;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementNonFreeRent : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
+	public partial class AdditionalAgreementDailyRent : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
-		protected NonfreeRentAgreement subjectCopy;
+		protected DailyRentAgreement subjectCopy;
 		protected bool isSaveButton;
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 		protected ISession session;
@@ -98,27 +98,27 @@ namespace Vodovoz
 				if (subject.IsNew)
 					(parentReference.ParentObject as IAdditionalAgreementOwner).AdditionalAgreements.Remove (subject);
 				else
-					ObjectCloner.FieldsCopy<NonfreeRentAgreement> (subjectCopy, ref subject);
+					ObjectCloner.FieldsCopy<DailyRentAgreement> (subjectCopy, ref subject);
 			}
 			adaptor.Disconnect ();
 			base.Destroy ();
 		}
 
 
-		private NonfreeRentAgreement subject;
+		private DailyRentAgreement subject;
 
 		public object Subject {
 			get { return subject; }
 			set {
-				if (value is NonfreeRentAgreement)
-					subject = value as NonfreeRentAgreement;
+				if (value is DailyRentAgreement)
+					subject = value as DailyRentAgreement;
 			}
 		}
 
-		public AdditionalAgreementNonFreeRent (OrmParentReference parentReference, NonfreeRentAgreement sub)
+		public AdditionalAgreementDailyRent (OrmParentReference parentReference, DailyRentAgreement sub)
 		{
 			this.Build ();
-			subjectCopy = ObjectCloner.Clone<NonfreeRentAgreement> (sub);
+			subjectCopy = ObjectCloner.Clone<DailyRentAgreement> (sub);
 			ParentReference = parentReference;
 			subject = sub;
 			TabName = subject.AgreementTypeTitle + " " + subject.AgreementNumber;
@@ -140,12 +140,12 @@ namespace Vodovoz
 			dataAgreementType.Text = (parentReference.ParentObject as CounterpartyContract).Number + " - А";
 
 			paidrentpackagesview1.ParentReference = new OrmParentReference (session, subject, "Equipment");
-			paidrentpackagesview1.DailyRent = false;
+			paidrentpackagesview1.DailyRent = true;
 		}
 
 		public bool Save ()
 		{
-			var valid = new QSValidator<NonfreeRentAgreement> (subject);
+			var valid = new QSValidator<DailyRentAgreement> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 

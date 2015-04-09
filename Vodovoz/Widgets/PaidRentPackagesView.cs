@@ -10,33 +10,37 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class PaidRentPackagesView : Gtk.Bin
 	{
-		private IPaidRentEquipmentOwner equipmentOwner;
-		private GenericObservableList<PaidRentEquipment> Equipments;
-		private ISession session;
-		Decimal TotalPrice = 0;
+		GenericObservableList<PaidRentEquipment> equipments;
 
-		public ISession Session {
-			get {
-				return session;
-			}
+		bool dailyRent;
+
+		public bool DailyRent {
+			get { return dailyRent; }
 			set {
-				session = value;
+				dailyRent = value; 
+				if (DailyRent)
+					treeRentPackages.Columns [2].Title = "Цена аренды (в сутки)";
+				else
+					treeRentPackages.Columns [2].Title = "Цена аренды (в месяц)";
 			}
 		}
 
+
+		public ISession Session { get; set; }
+
+		IPaidRentEquipmentOwner equipmentOwner;
+
 		public IPaidRentEquipmentOwner EquipmentOwner {
-			get {
-				return equipmentOwner;
-			}
+			get { return equipmentOwner; }
 			set {
 				equipmentOwner = value;
 				if (equipmentOwner.Equipment == null)
 					equipmentOwner.Equipment = new List<PaidRentEquipment> ();
-				Equipments = new GenericObservableList<PaidRentEquipment> (EquipmentOwner.Equipment);
-				foreach (PaidRentEquipment eq in Equipments)
+				equipments = new GenericObservableList<PaidRentEquipment> (EquipmentOwner.Equipment);
+				foreach (PaidRentEquipment eq in equipments)
 					eq.PropertyChanged += EquimentPropertyChanged;
 				UpdateTotalLabels ();
-				treeRentPackages.ItemsDataSource = Equipments;
+				treeRentPackages.ItemsDataSource = equipments;
 			}
 		}
 
@@ -59,16 +63,14 @@ namespace Vodovoz
 					EquipmentOwner = (IPaidRentEquipmentOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		void UpdateTotalLabels ()
 		{
-			TotalPrice = 0;
-			if (Equipments != null)
-				foreach (PaidRentEquipment eq in Equipments)
+			Decimal TotalPrice = 0;
+			if (equipments != null)
+				foreach (PaidRentEquipment eq in equipments)
 					TotalPrice += eq.Price;
 			labelTotalPrice.Text = String.Format ("{0} руб.", TotalPrice);
 		}
@@ -92,9 +94,10 @@ namespace Vodovoz
 				return;
 			PaidRentEquipment equipment = new PaidRentEquipment ();
 			equipment.IsNew = true;
-			Equipments.Add (equipment);
+			equipments.Add (equipment);
 			equipment.PropertyChanged += EquimentPropertyChanged;
 			ITdiDialog dlg = new PaidRentEquipmentDlg (ParentReference, equipment);
+			(dlg as PaidRentEquipmentDlg).DailyRent = DailyRent;
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
@@ -105,6 +108,7 @@ namespace Vodovoz
 				return;
 
 			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeRentPackages.GetSelectedObjects () [0]);
+			(dlg as PaidRentEquipmentDlg).DailyRent = DailyRent;
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
@@ -114,7 +118,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			Equipments.Remove (treeRentPackages.GetSelectedObjects () [0] as PaidRentEquipment);
+			equipments.Remove (treeRentPackages.GetSelectedObjects () [0] as PaidRentEquipment);
 		}
 
 		protected void OnTreeRentPackagesRowActivated (object o, Gtk.RowActivatedArgs args)

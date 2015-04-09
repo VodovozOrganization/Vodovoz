@@ -12,14 +12,15 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class PaidRentEquipmentDlg : Gtk.Bin, ITdiDialog, IOrmDialog
 	{
+		public bool DailyRent;
 		protected PaidRentEquipment subjectCopy;
+		protected bool isSaveButton;
 		static Logger logger = LogManager.GetCurrentClassLogger ();
+		bool loadFromPackage;
 		ISession session;
 		Adaptor adaptor = new Adaptor ();
 		PaidRentEquipment subject;
-		bool loadFromPackage;
 		IPaidRentEquipmentOwner PaidRentOwner;
-		protected bool isSaveButton;
 
 		public ITdiTabParent TabParent { set; get; }
 
@@ -91,6 +92,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
+			labelPrice.Text = "";
 			referenceEquipment.SubjectType = typeof(Equipment);
 			referencePaidRentPackage.SubjectType = typeof(PaidRentPackage);
 			referencePaidRentPackage.Changed += OnReferencePaidRentPackageChanged;
@@ -99,12 +101,10 @@ namespace Vodovoz
 			if (referenceEquipment.ItemsCriteria == null)
 				referenceEquipment.ItemsCriteria = Session.CreateCriteria<Equipment> ();
 			referenceEquipment.ItemsCriteria.Add (EquipmentWorks.FilterUsedEquipment (Session));
-			if (subject.PaidRentPackage != null) {
+			if (subject.PaidRentPackage != null)
 				referenceEquipment.ItemsCriteria
 					.CreateAlias ("Nomenclature", "n")
 					.Add (Restrictions.Eq ("n.Type", subject.PaidRentPackage.EquipmentType));
-			}
-
 		}
 
 		public bool Save ()
@@ -154,15 +154,21 @@ namespace Vodovoz
 		protected void OnReferencePaidRentPackageChanged (object sender, EventArgs e)
 		{
 			if (loadFromPackage)	//Загружаем все значения из выбранного пакета.
-				subject.Price = (referencePaidRentPackage.Subject as PaidRentPackage).PriceMonthly;
+				subject.Price = DailyRent ? 
+					(referencePaidRentPackage.Subject as PaidRentPackage).PriceDaily :
+					(referencePaidRentPackage.Subject as PaidRentPackage).PriceMonthly;
 			else					//Загружаем уже сохраненное значение
 				loadFromPackage = true;
+			if (subject.PaidRentPackage != null)
+				referenceEquipment.ItemsCriteria
+					.CreateAlias ("Nomenclature", "n")
+					.Add (Restrictions.Eq ("n.Type", subject.PaidRentPackage.EquipmentType));
 			UpdatePrice ();
 		}
 
 		protected void UpdatePrice ()
 		{
-			labelPrice.Text = String.Format ("{0} руб. в месяц", subject.Price);
+			labelPrice.Text = String.Format ("{0} руб. в " + (DailyRent ? "сутки" : "месяц"), subject.Price);
 		}
 	}
 }

@@ -15,8 +15,10 @@ namespace Vodovoz
 		public virtual string AgreementNumber { get; set; }
 
 		public virtual AgreementType Type {
-			get {
-				if (this is NonfreeRentAgreement)
+			get {	 
+				if (this is DailyRentAgreement)		//Не менять Daily и Nonfree местами!
+					return AgreementType.DailyRent;
+				if (this is NonfreeRentAgreement)	//Иначе из-за наследования тип будет определен некорректно.
 					return AgreementType.NonfreeRent;
 				if (this is FreeRentAgreement)
 					return AgreementType.FreeRent;
@@ -73,6 +75,19 @@ namespace Vodovoz
 		}
 	}
 
+	public class DailyRentAgreement : NonfreeRentAgreement
+	{
+		public virtual int RentDays { get; set; }
+
+		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			foreach (ValidationResult result in base.Validate (validationContext))
+				yield return result;
+			if (RentDays < 1)
+				yield return new ValidationResult ("Срок аренды не может быть меньше одного дня.", new[] { "RentDays" });
+		}
+	}
+
 	public class FreeRentAgreement : AdditionalAgreement, IFreeRentEquipmentOwner
 	{
 		public virtual IList<FreeRentEquipment> Equipment { get; set; }
@@ -118,6 +133,8 @@ namespace Vodovoz
 	{
 		[ItemTitleAttribute ("Платная аренда")]
 		NonfreeRent,
+		[ItemTitleAttribute ("Платная посуточная аренда")]
+		DailyRent,
 		[ItemTitleAttribute ("Бесплатная аренда")]
 		FreeRent,
 		[ItemTitleAttribute ("Продажа воды")]

@@ -60,6 +60,7 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(PaidRentPackage), typeof(PaidRentPackageDlg), "{Vodovoz.PaidRentPackage} Name[Название]; PriceDailyString[Цена в сутки]; PriceMonthlyString[Цена в месяц]; "),
 				new OrmObjectMapping (typeof(FreeRentPackage), typeof(FreeRentPackageDlg), "{Vodovoz.FreeRentPackage} Name[Название];"),
 				new OrmObjectMapping (typeof(FreeRentAgreement), typeof(AdditionalAgreementFreeRent), "{Vodovoz.FreeRentAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
+				new OrmObjectMapping (typeof(DailyRentAgreement), typeof(AdditionalAgreementDailyRent), "{Vodovoz.DailyRentAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
 				new OrmObjectMapping (typeof(NonfreeRentAgreement), typeof(AdditionalAgreementNonFreeRent), "{Vodovoz.NonfreeRentAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
 				new OrmObjectMapping (typeof(WaterSalesAgreement), typeof(AdditionalAgreementWater), "{Vodovoz.WaterSalesAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
 				new OrmObjectMapping (typeof(RepairAgreement), typeof(AdditionalAgreementRepair), "{Vodovoz.RepairAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
