@@ -15,10 +15,7 @@ namespace Vodovoz
 		public static void Main (string[] args)
 		{
 			Application.Init ();
-			AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e) {
-				logger.FatalException ("Поймано не обработаное исключение.", (Exception)e.ExceptionObject);
-				QSMain.ErrorMessage (MainWin, (Exception)e.ExceptionObject);
-			};
+			QSMain.SubscribeToUnhadledExceptions ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			CreateProjectParam ();
 			// Создаем окно входа
