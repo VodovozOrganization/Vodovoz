@@ -24,9 +24,7 @@ namespace Vodovoz
 					return AgreementType.FreeRent;
 				if (this is WaterSalesAgreement)
 					return AgreementType.WaterSales;
-				if (this is RepairAgreement)
-					return AgreementType.Repair;
-				return AgreementType.EquipmentSales;
+				return AgreementType.Repair;
 			}
 
 		}
@@ -139,8 +137,6 @@ namespace Vodovoz
 		FreeRent,
 		[ItemTitleAttribute ("Продажа воды")]
 		WaterSales,
-		[ItemTitleAttribute ("Продажа оборудования")]
-		EquipmentSales,
 		[ItemTitleAttribute ("Ремонт")]
 		Repair
 	}

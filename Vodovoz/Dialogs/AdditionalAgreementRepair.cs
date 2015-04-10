@@ -34,7 +34,7 @@ namespace Vodovoz
 		protected string _tabName = "Новое доп. соглашение";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -54,9 +54,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		#endregion
@@ -74,9 +72,7 @@ namespace Vodovoz
 					AgreementOwner = (IAdditionalAgreementOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
@@ -111,9 +107,7 @@ namespace Vodovoz
 		private RepairAgreement subject;
 
 		public object Subject {
-			get {
-				return subject;
-			}
+			get { return subject; }
 			set {
 				if (value is RepairAgreement)
 					subject = value as RepairAgreement;

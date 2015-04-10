@@ -4,6 +4,7 @@ using NHibernate;
 using System.Collections.Generic;
 using QSOrmProject;
 using QSTDI;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -76,6 +77,20 @@ namespace Vodovoz
 				dlg = new AdditionalAgreementNonFreeRent (ParentReference, agreement as NonfreeRentAgreement);
 				break;
 			case AgreementType.Repair:
+				foreach (AdditionalAgreement a in additionalAgreements)
+					if (a is RepairAgreement) {
+						MessageDialog md = new MessageDialog (null,
+							                   DialogFlags.Modal,
+							                   MessageType.Warning,
+							                   ButtonsType.Ok,
+							                   "Доп. соглашение на ремонт оборудования уже существует. " +
+							                   "Нельзя создать более одного доп. соглашения данного типа.");
+						md.SetPosition (WindowPosition.Center);
+						md.ShowAll ();
+						md.Run ();
+						md.Destroy ();
+						return;
+					}
 				agreement = new RepairAgreement ();
 				dlg = new AdditionalAgreementRepair (ParentReference, agreement as RepairAgreement);
 				break;
