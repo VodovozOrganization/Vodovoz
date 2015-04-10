@@ -28,11 +28,25 @@ namespace Vodovoz
 			set { SetField (ref priceDaily, value, () => PriceDaily); }
 		}
 
+		Nomenclature rentServiceDaily;
+
+		public virtual Nomenclature RentServiceDaily {
+			get { return rentServiceDaily; }
+			set { SetField (ref rentServiceDaily, value, () => RentServiceDaily); }
+		}
+
 		decimal priceMonthly;
 
 		public virtual decimal PriceMonthly {
 			get { return priceMonthly; }
 			set { SetField (ref priceMonthly, value, () => PriceMonthly); }
+		}
+
+		Nomenclature rentServiceMonthly;
+
+		public virtual Nomenclature RentServiceMonthly {
+			get { return rentServiceMonthly; }
+			set { SetField (ref rentServiceMonthly, value, () => RentServiceMonthly); }
 		}
 
 		EquipmentType equipmentType;
@@ -42,18 +56,18 @@ namespace Vodovoz
 			set { SetField (ref equipmentType, value, () => EquipmentType); }
 		}
 
+		decimal deposit;
+
+		public virtual decimal Deposit {
+			get { return deposit; }
+			set { SetField (ref deposit, value, () => Deposit); }
+		}
+
 		Nomenclature depositService;
 
 		public virtual Nomenclature DepositService {
 			get { return depositService; }
 			set { SetField (ref depositService, value, () => DepositService); }
-		}
-
-		Nomenclature rentService;
-
-		public virtual Nomenclature RentService {
-			get { return rentService; }
-			set { SetField (ref rentService, value, () => RentService); }
 		}
 
 		#endregion

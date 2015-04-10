@@ -149,10 +149,11 @@ namespace Vodovoz
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
-			labelClass.Sensitive = referenceType.Sensitive = (selected == NomenclatureCategory.equipment || selected == NomenclatureCategory.rent);
+			labelClass.Sensitive = referenceType.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+			radioPrice.Sensitive = !(selected == NomenclatureCategory.deposit || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.service);
 		}
 
 		protected void OnRadioPriceToggled (object sender, EventArgs e)

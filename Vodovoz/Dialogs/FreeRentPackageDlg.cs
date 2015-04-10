@@ -24,13 +24,13 @@ namespace Vodovoz
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		public bool HasChanges { 
-			get{ return Session.IsDirty (); }
+			get { return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новый пакет бесплатных услуг";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -47,9 +47,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		public object Subject {
@@ -91,7 +89,7 @@ namespace Vodovoz
 			referenceDepositService.SubjectType = typeof(Nomenclature);
 			referenceEquipmentType.SubjectType = typeof(EquipmentType);
 			referenceDepositService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
-				.Add (Restrictions.Eq ("Category", NomenclatureCategory.service));
+				.Add (Restrictions.Eq ("Category", NomenclatureCategory.deposit));
 		}
 
 		public bool Save ()

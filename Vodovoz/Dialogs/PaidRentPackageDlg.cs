@@ -87,9 +87,12 @@ namespace Vodovoz
 			datatable1.DataSource = adaptor;
 			referenceDepositService.SubjectType = typeof(Nomenclature);
 			referenceDepositService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
-				.Add (Restrictions.Eq ("Category", NomenclatureCategory.service));
-			referenceRentService.SubjectType = typeof(Nomenclature);
-			referenceRentService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
+				.Add (Restrictions.Eq ("Category", NomenclatureCategory.deposit));
+			referenceRentServiceDaily.SubjectType = typeof(Nomenclature);
+			referenceRentServiceDaily.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
+				.Add (Restrictions.Eq ("Category", NomenclatureCategory.rent));
+			referenceRentServiceMonthly.SubjectType = typeof(Nomenclature);
+			referenceRentServiceMonthly.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.rent));
 			referenceEquipmentType.SubjectType = typeof(EquipmentType);
 		}

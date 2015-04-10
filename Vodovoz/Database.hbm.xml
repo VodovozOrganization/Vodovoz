@@ -258,8 +258,10 @@
 		<property name="Name" column="name" />
 		<property name="PriceDaily" column="price_daily" />
 		<property name="PriceMonthly" column="price_monthly" />
+		<property name="Deposit" column="deposit" />
 		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
-		<many-to-one name="RentService" class="Nomenclature" column="rent_service_id"/>
+		<many-to-one name="RentServiceDaily" class="Nomenclature" column="rent_service_daily_id"/>
+		<many-to-one name="RentServiceMonthly" class="Nomenclature" column="rent_service_monthly_id"/>
 		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
 	</class>
 	<class name="DeliveryPoint" lazy="false" table="delivery_points">
