@@ -36,7 +36,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.FreeRentPackagesView";
 			// Container child Vodovoz.FreeRentPackagesView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label10 = new global::Gtk.Label ();

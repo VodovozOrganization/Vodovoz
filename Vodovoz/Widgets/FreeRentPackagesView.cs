@@ -65,7 +65,7 @@ namespace Vodovoz
 					TotalDeposit += eq.Deposit;
 					TotalWaterAmount += eq.WaterAmount;
 				}
-			labelTotalWaterAmount.Text = String.Format ("{0} бутылей", TotalWaterAmount);
+			labelTotalWaterAmount.Text = String.Format ("{0} " + RusNumber.Case (TotalWaterAmount, "бутыль", "бутыли", "бутылей"), TotalWaterAmount);
 			labelTotalDeposit.Text = CurrencyWorks.GetShortCurrencyString (TotalDeposit);
 		}
 

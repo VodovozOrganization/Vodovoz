@@ -22,13 +22,13 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label8;
 		
+		private global::Gtk.Label labelDeposit;
+		
+		private global::Gtk.Label labelMinWaterAmount;
+		
 		private global::Gtk.DataBindings.DataEntryReference referenceEquipment;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceFreeRentPackage;
-		
-		private global::Gtk.DataBindings.DataSpinButton spinDeposit;
-		
-		private global::Gtk.DataBindings.DataSpinButton spinMinWaterAmount;
 
 		protected virtual void Build ()
 		{
@@ -40,6 +40,7 @@ namespace Vodovoz
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
 			this.vbox3.Spacing = 6;
+			this.vbox3.BorderWidth = ((uint)(6));
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox ();
 			this.hbox4.Name = "hbox4";
@@ -94,8 +95,8 @@ namespace Vodovoz
 			this.label10.Justify = ((global::Gtk.Justification)(1));
 			this.datatable1.Add (this.label10);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label10]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
+			w6.TopAttach = ((uint)(2));
+			w6.BottomAttach = ((uint)(3));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
@@ -115,8 +116,8 @@ namespace Vodovoz
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Оборудование:");
 			this.datatable1.Add (this.label7);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label7]));
-			w8.TopAttach = ((uint)(3));
-			w8.BottomAttach = ((uint)(4));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
@@ -126,10 +127,36 @@ namespace Vodovoz
 			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString ("Сумма залога:");
 			this.datatable1.Add (this.label8);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label8]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.labelDeposit = new global::Gtk.Label ();
+			this.labelDeposit.Name = "labelDeposit";
+			this.labelDeposit.Xalign = 0F;
+			this.labelDeposit.LabelProp = global::Mono.Unix.Catalog.GetString ("%Deposit% рублей");
+			this.datatable1.Add (this.labelDeposit);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelDeposit]));
+			w10.TopAttach = ((uint)(3));
+			w10.BottomAttach = ((uint)(4));
+			w10.LeftAttach = ((uint)(1));
+			w10.RightAttach = ((uint)(2));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.labelMinWaterAmount = new global::Gtk.Label ();
+			this.labelMinWaterAmount.Name = "labelMinWaterAmount";
+			this.labelMinWaterAmount.Xalign = 0F;
+			this.labelMinWaterAmount.LabelProp = global::Mono.Unix.Catalog.GetString ("%minWaterAmount% бутылей");
+			this.datatable1.Add (this.labelMinWaterAmount);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelMinWaterAmount]));
+			w11.TopAttach = ((uint)(2));
+			w11.BottomAttach = ((uint)(3));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceEquipment = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceEquipment.Events = ((global::Gdk.EventMask)(256));
@@ -143,12 +170,12 @@ namespace Vodovoz
 			this.referenceEquipment.InheritedBoundaryDataSource = false;
 			this.referenceEquipment.CursorPointsEveryType = false;
 			this.datatable1.Add (this.referenceEquipment);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceEquipment]));
-			w10.TopAttach = ((uint)(3));
-			w10.BottomAttach = ((uint)(4));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceEquipment]));
+			w12.TopAttach = ((uint)(1));
+			w12.BottomAttach = ((uint)(2));
+			w12.LeftAttach = ((uint)(1));
+			w12.RightAttach = ((uint)(2));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceFreeRentPackage = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceFreeRentPackage.Events = ((global::Gdk.EventMask)(256));
@@ -163,53 +190,10 @@ namespace Vodovoz
 			this.referenceFreeRentPackage.InheritedBoundaryDataSource = false;
 			this.referenceFreeRentPackage.CursorPointsEveryType = false;
 			this.datatable1.Add (this.referenceFreeRentPackage);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceFreeRentPackage]));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.spinDeposit = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
-			this.spinDeposit.Sensitive = false;
-			this.spinDeposit.CanFocus = true;
-			this.spinDeposit.Name = "spinDeposit";
-			this.spinDeposit.Adjustment.PageIncrement = 10;
-			this.spinDeposit.ClimbRate = 1;
-			this.spinDeposit.Digits = ((uint)(2));
-			this.spinDeposit.Numeric = true;
-			this.spinDeposit.InheritedDataSource = true;
-			this.spinDeposit.Mappings = "Deposit";
-			this.spinDeposit.InheritedBoundaryDataSource = false;
-			this.spinDeposit.InheritedDataSource = true;
-			this.spinDeposit.Mappings = "Deposit";
-			this.spinDeposit.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.spinDeposit);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinDeposit]));
-			w12.TopAttach = ((uint)(2));
-			w12.BottomAttach = ((uint)(3));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.spinMinWaterAmount = new global::Gtk.DataBindings.DataSpinButton (0, 100, 1);
-			this.spinMinWaterAmount.Sensitive = false;
-			this.spinMinWaterAmount.CanFocus = true;
-			this.spinMinWaterAmount.Name = "spinMinWaterAmount";
-			this.spinMinWaterAmount.Adjustment.PageIncrement = 10;
-			this.spinMinWaterAmount.ClimbRate = 1;
-			this.spinMinWaterAmount.Numeric = true;
-			this.spinMinWaterAmount.InheritedDataSource = true;
-			this.spinMinWaterAmount.Mappings = "WaterAmount";
-			this.spinMinWaterAmount.InheritedBoundaryDataSource = false;
-			this.spinMinWaterAmount.InheritedDataSource = true;
-			this.spinMinWaterAmount.Mappings = "WaterAmount";
-			this.spinMinWaterAmount.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.spinMinWaterAmount);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinMinWaterAmount]));
-			w13.TopAttach = ((uint)(1));
-			w13.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceFreeRentPackage]));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox3.Add (this.datatable1);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.datatable1]));

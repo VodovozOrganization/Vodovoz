@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using NHibernate.Criterion;
 using QSValidation;
 using System.Collections;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -35,7 +36,7 @@ namespace Vodovoz
 		string _tabName = "Новое оборудование к доп. соглашению";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -52,9 +53,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		public object Subject {
@@ -78,9 +77,7 @@ namespace Vodovoz
 					FreeRentOwner = (IFreeRentEquipmentOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		public FreeRentEquipmentDlg (OrmParentReference parentReference, FreeRentEquipment sub)
@@ -172,6 +169,13 @@ namespace Vodovoz
 				    subject.Equipment.Nomenclature.Type != (referenceFreeRentPackage.Subject as FreeRentPackage).EquipmentType)
 					subject.Equipment = null;
 			}
+			updateLabels ();
+		}
+
+		void updateLabels ()
+		{
+			labelMinWaterAmount.Text = subject.WaterAmountString;
+			labelDeposit.Text = subject.DepositString;
 		}
 	}
 }

@@ -28,7 +28,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataSpinButton spinFixedPrice;
 		
-		private global::Gtk.Label labelCurrency;
+		private global::QSProjectsLib.CurrencyLabel currencylabel1;
 		
 		private global::Gtk.Label label1;
 		
@@ -50,7 +50,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.AdditionalAgreementWater";
 			// Container child Vodovoz.AdditionalAgreementWater.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
@@ -201,11 +200,11 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.spinFixedPrice]));
 			w10.Position = 1;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.labelCurrency = new global::Gtk.Label ();
-			this.labelCurrency.Name = "labelCurrency";
-			this.labelCurrency.LabelProp = global::Mono.Unix.Catalog.GetString ("руб.");
-			this.hbox6.Add (this.labelCurrency);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.labelCurrency]));
+			this.currencylabel1 = new global::QSProjectsLib.CurrencyLabel ();
+			this.currencylabel1.Name = "currencylabel1";
+			this.currencylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("currencylabel1");
+			this.hbox6.Add (this.currencylabel1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.currencylabel1]));
 			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;

@@ -54,7 +54,7 @@ namespace Vodovoz
 
 		public virtual string DepositString { get { return CurrencyWorks.GetShortCurrencyString (Deposit); } }
 
-		public virtual string WaterAmountString { get { return String.Format ("{0} бутылей", WaterAmount); } }
+		public virtual string WaterAmountString { get { return String.Format ("{0} " + RusNumber.Case (WaterAmount, "бутыль", "бутыли", "бутылей"), WaterAmount); } }
 
 		#region IValidatableObject implementation
 
