@@ -164,6 +164,9 @@
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementDailyRent.cs" />
     <Compile Include="ReferenceFilters\NomenclatureFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
+    <Compile Include="Domain\Operations\DepositOperation.cs" />
+    <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
+    <Compile Include="Domain\Operations\GoodsMovementOperation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -227,6 +230,7 @@
     <Folder Include="Widgets\" />
     <Folder Include="ReferenceFilters\" />
     <Folder Include="Сrutches\" />
+    <Folder Include="Domain\Operations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
