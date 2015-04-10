@@ -16,7 +16,12 @@ namespace Vodovoz
 			set { SetField (ref operationTime, value, () => OperationTime); }
 		}
 
-		//TODO ID Заказа
+		Order order;
+
+		public virtual Order Order {
+			get { return order; }
+			set { SetField (ref order, value, () => Order); }
+		}
 
 		//TODO ID Документа перемещения
 

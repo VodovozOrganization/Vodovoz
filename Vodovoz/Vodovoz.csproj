@@ -167,6 +167,8 @@
     <Compile Include="Domain\Operations\DepositOperation.cs" />
     <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
     <Compile Include="Domain\Operations\GoodsMovementOperation.cs" />
+    <Compile Include="Domain\Operations\MoneyMovementOperation.cs" />
+    <Compile Include="Domain\Order.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

@@ -5,8 +5,8 @@ using System.Data.Bindings;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Передвижения залогов")]
-	public class DepositOperation: PropertyChangedBase, IDomainObject, IValidatableObject
+	[OrmSubject ("Передвижения денег")]
+	public class MoneyMovementOperation: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -26,13 +26,6 @@ namespace Vodovoz
 
 		//TODO ID Строки заказа
 
-		DepositType depositType;
-
-		public virtual DepositType DepositType {
-			get { return depositType; }
-			set { SetField (ref depositType, value, () => DepositType); }
-		}
-
 		Counterparty counterparty;
 
 		public virtual Counterparty Counterparty {
@@ -47,18 +40,18 @@ namespace Vodovoz
 			set { SetField (ref deliveryPoint, value, () => DeliveryPoint); }
 		}
 
-		Decimal receivedDeposit;
+		PaymentType paymentType;
 
-		public virtual Decimal ReceivedDeposit {
-			get { return receivedDeposit; }
-			set { SetField (ref receivedDeposit, value, () => ReceivedDeposit); }
+		public virtual PaymentType PaymentType {
+			get { return paymentType; }
+			set { SetField (ref paymentType, value, () => PaymentType); }
 		}
 
-		Decimal refundDeposit;
+		Decimal sum;
 
-		public virtual Decimal RefundDeposit {
-			get { return refundDeposit; }
-			set { SetField (ref refundDeposit, value, () => RefundDeposit); }
+		public virtual Decimal Sum {
+			get { return sum; }
+			set { SetField (ref sum, value, () => Sum); }
 		}
 
 		#region IValidatableObject implementation
@@ -71,10 +64,10 @@ namespace Vodovoz
 		#endregion
 	}
 
-	public enum DepositType
+	public enum PaymentType
 	{
-		[ItemTitleAttribute ("Тара")] bottles,
-		[ItemTitleAttribute ("Оборудование")] equipment
+		[ItemTitleAttribute ("Наличная оплата")] cash,
+		[ItemTitleAttribute ("Безналичная оплата")] clearing
 	}
 }
 
