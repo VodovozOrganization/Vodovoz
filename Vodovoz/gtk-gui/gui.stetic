@@ -9774,7 +9774,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="417 300">
+  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="579 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -9892,6 +9892,30 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">4</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label1">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Суммарный залог:</property>
+              </widget>
+              <packing>
+                <property name="Position">5</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelTotalDeposit">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">#Deposit</property>
+              </widget>
+              <packing>
+                <property name="Position">6</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>

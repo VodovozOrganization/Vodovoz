@@ -4,6 +4,7 @@ using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using System.Collections.Generic;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -17,18 +18,12 @@ namespace Vodovoz
 		int TotalWaterAmount = 0;
 
 		public ISession Session {
-			get {
-				return session;
-			}
-			set {
-				session = value;
-			}
+			get { return session; }
+			set { session = value; }
 		}
 
 		public IFreeRentEquipmentOwner EquipmentOwner {
-			get {
-				return equipmentOwner;
-			}
+			get { return equipmentOwner; }
 			set {
 				equipmentOwner = value;
 				if (equipmentOwner.Equipment == null)
@@ -59,9 +54,7 @@ namespace Vodovoz
 					EquipmentOwner = (IFreeRentEquipmentOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		void UpdateTotalLabels ()
@@ -73,7 +66,7 @@ namespace Vodovoz
 					TotalWaterAmount += eq.WaterAmount;
 				}
 			labelTotalWaterAmount.Text = String.Format ("{0} бутылей", TotalWaterAmount);
-			labelTotalDeposit.Text = String.Format ("{0} руб.", TotalDeposit);
+			labelTotalDeposit.Text = CurrencyWorks.GetShortCurrencyString (TotalDeposit);
 		}
 
 		public FreeRentPackagesView ()

@@ -6,6 +6,7 @@ using NHibernate;
 using NLog;
 using NHibernate.Criterion;
 using QSValidation;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -157,8 +158,8 @@ namespace Vodovoz
 				subject.Price = DailyRent ? 
 					(referencePaidRentPackage.Subject as PaidRentPackage).PriceDaily :
 					(referencePaidRentPackage.Subject as PaidRentPackage).PriceMonthly;
-				//subject.Deposit = (referencePaidRentPackage.Subject as PaidRentPackage).DepositService.RentPrice;
-			} else					//Загружаем уже сохраненное значение
+				subject.Deposit = (referencePaidRentPackage.Subject as PaidRentPackage).Deposit;
+			} else	//Загружаем уже сохраненное значение
 				loadFromPackage = true;
 			if (subject.PaidRentPackage != null)
 				referenceEquipment.ItemsCriteria
@@ -169,8 +170,8 @@ namespace Vodovoz
 
 		protected void UpdatePrice ()
 		{
-			labelPrice.Text = String.Format ("{0} руб. в " + (DailyRent ? "сутки" : "месяц"), subject.Price);
-			labelDeposit.Text = String.Format ("{0} руб.", subject.Deposit);
+			labelPrice.Text = CurrencyWorks.GetShortCurrencyString (subject.Price) + " в " + (DailyRent ? "сутки" : "месяц");
+			labelDeposit.Text = CurrencyWorks.GetShortCurrencyString (subject.Deposit);
 		}
 	}
 }

@@ -4,6 +4,7 @@ using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using System.Collections.Generic;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -68,11 +69,15 @@ namespace Vodovoz
 		public void UpdateTotalLabels ()
 		{
 			Decimal TotalPrice = 0;
+			Decimal TotalDeposit = 0;
 			if (equipments != null)
-				foreach (PaidRentEquipment eq in equipments)
+				foreach (PaidRentEquipment eq in equipments) {
 					TotalPrice += eq.Price;
-			labelTotalPrice.Text = String.Format ("{0} руб.", 
+					TotalDeposit += eq.Deposit;
+				}
+			labelTotalPrice.Text = CurrencyWorks.GetShortCurrencyString (
 				(DailyRent ? TotalPrice * (parentReference.ParentObject as DailyRentAgreement).RentDays : TotalPrice));
+			labelTotalDeposit.Text = CurrencyWorks.GetShortCurrencyString (TotalDeposit);
 		}
 
 		public PaidRentPackagesView ()

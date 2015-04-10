@@ -23,6 +23,10 @@ namespace Vodovoz
 		private global::Gtk.Label label5;
 		
 		private global::Gtk.Label labelTotalPrice;
+		
+		private global::Gtk.Label label1;
+		
+		private global::Gtk.Label labelTotalDeposit;
 
 		protected virtual void Build ()
 		{
@@ -32,7 +36,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.PaidRentPackagesView";
 			// Container child Vodovoz.PaidRentPackagesView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label10 = new global::Gtk.Label ();
@@ -126,11 +129,29 @@ namespace Vodovoz
 			w11.Position = 4;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w12.Position = 2;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label ();
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Суммарный залог:");
+			this.hbox1.Add (this.label1);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label1]));
+			w12.Position = 5;
 			w12.Expand = false;
 			w12.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.labelTotalDeposit = new global::Gtk.Label ();
+			this.labelTotalDeposit.Name = "labelTotalDeposit";
+			this.labelTotalDeposit.LabelProp = global::Mono.Unix.Catalog.GetString ("#Deposit");
+			this.hbox1.Add (this.labelTotalDeposit);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelTotalDeposit]));
+			w13.Position = 6;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

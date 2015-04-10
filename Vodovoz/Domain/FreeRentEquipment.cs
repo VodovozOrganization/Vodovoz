@@ -2,6 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -51,7 +52,7 @@ namespace Vodovoz
 
 		public virtual string EquipmentSerial { get { return Equipment != null ? Equipment.Serial : ""; } }
 
-		public virtual string DepositString { get { return String.Format ("{0} р.", Deposit); } }
+		public virtual string DepositString { get { return CurrencyWorks.GetShortCurrencyString (Deposit); } }
 
 		public virtual string WaterAmountString { get { return String.Format ("{0} бутылей", WaterAmount); } }
 

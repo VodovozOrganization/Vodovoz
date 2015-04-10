@@ -3,6 +3,7 @@ using System.Data.Bindings;
 using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -77,9 +78,9 @@ namespace Vodovoz
 			Name = String.Empty;
 		}
 
-		public virtual string PriceDailyString { get { return String.Format ("{0} руб.", PriceDaily); } }
+		public virtual string PriceDailyString { get { return CurrencyWorks.GetShortCurrencyString (PriceDaily); } }
 
-		public virtual string PriceMonthlyString { get { return String.Format ("{0} руб.", PriceMonthly); } }
+		public virtual string PriceMonthlyString { get { return CurrencyWorks.GetShortCurrencyString (PriceMonthly); } }
 
 
 	}
