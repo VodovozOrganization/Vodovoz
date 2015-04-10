@@ -92,7 +92,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			labelPrice.Text = "";
+			labelPrice.Text = labelDeposit.Text = "";
 			referenceEquipment.SubjectType = typeof(Equipment);
 			referencePaidRentPackage.SubjectType = typeof(PaidRentPackage);
 			referencePaidRentPackage.Changed += OnReferencePaidRentPackageChanged;
@@ -153,11 +153,12 @@ namespace Vodovoz
 
 		protected void OnReferencePaidRentPackageChanged (object sender, EventArgs e)
 		{
-			if (loadFromPackage)	//Загружаем все значения из выбранного пакета.
+			if (loadFromPackage) {	//Загружаем все значения из выбранного пакета.
 				subject.Price = DailyRent ? 
 					(referencePaidRentPackage.Subject as PaidRentPackage).PriceDaily :
 					(referencePaidRentPackage.Subject as PaidRentPackage).PriceMonthly;
-			else					//Загружаем уже сохраненное значение
+				//subject.Deposit = (referencePaidRentPackage.Subject as PaidRentPackage).DepositService.RentPrice;
+			} else					//Загружаем уже сохраненное значение
 				loadFromPackage = true;
 			if (subject.PaidRentPackage != null)
 				referenceEquipment.ItemsCriteria
@@ -169,6 +170,7 @@ namespace Vodovoz
 		protected void UpdatePrice ()
 		{
 			labelPrice.Text = String.Format ("{0} руб. в " + (DailyRent ? "сутки" : "месяц"), subject.Price);
+			labelDeposit.Text = String.Format ("{0} руб.", subject.Deposit);
 		}
 	}
 }

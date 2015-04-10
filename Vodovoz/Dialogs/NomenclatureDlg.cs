@@ -12,29 +12,30 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class NomenclatureDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		private ISession session;
-		private Adaptor adaptor = new Adaptor();
+		private Adaptor adaptor = new Adaptor ();
 		private Nomenclature subject;
 
-		public ITdiTabParent TabParent { set; get;}
+		public ITdiTabParent TabParent { set; get; }
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
+
 		public bool HasChanges { 
-			get{return Session.IsDirty();}
+			get { return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новая номенклатура";
-		public string TabName
-		{
-			get{return _tabName;}
-			set{
+
+		public string TabName {
+			get { return _tabName; }
+			set {
 				if (_tabName == value)
 					return;
 				_tabName = value;
 				if (TabNameChanged != null)
-					TabNameChanged(this, new TdiTabNameChangedEventArgs(value));
+					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 
 		}
@@ -42,48 +43,45 @@ namespace Vodovoz
 		public ISession Session {
 			get {
 				if (session == null)
-					Session = OrmMain.Sessions.OpenSession();
+					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
-		public object Subject
-		{
-			get {return subject;}
+		public object Subject {
+			get { return subject; }
 			set {
 				if (value is Nomenclature)
 					subject = value as Nomenclature;
 			}
 		}
 
-		public NomenclatureDlg()
+		public NomenclatureDlg ()
 		{
-			this.Build();
-			subject = new Nomenclature();
+			this.Build ();
+			subject = new Nomenclature ();
 			Session.Persist (subject);
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public NomenclatureDlg(int id)
+		public NomenclatureDlg (int id)
 		{
-			this.Build();
-			subject = Session.Load<Nomenclature>(id);
+			this.Build ();
+			subject = Session.Load<Nomenclature> (id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public NomenclatureDlg(Nomenclature sub)
+		public NomenclatureDlg (Nomenclature sub)
 		{
-			this.Build();
-			subject = Session.Load<Nomenclature>(sub.Id);
+			this.Build ();
+			subject = Session.Load<Nomenclature> (sub.Id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg ()
 		{
 			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
@@ -94,51 +92,51 @@ namespace Vodovoz
 			enumType.DataSource = adaptor;
 			enumVAT.DataSource = adaptor;
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
-			referenceColor.SubjectType = typeof (EquipmentColors);
+			referenceColor.SubjectType = typeof(EquipmentColors);
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceType.SubjectType = typeof(EquipmentType);
-			ConfigureInputs((NomenclatureCategory)enumType.Active);
+			ConfigureInputs ((NomenclatureCategory)enumType.Active);
 			pricesView.Session = Session;
 			if (subject.NomenclaturePrice == null)
-				subject.NomenclaturePrice = new List<NomenclaturePrice>();
+				subject.NomenclaturePrice = new List<NomenclaturePrice> ();
 			pricesView.Prices = subject.NomenclaturePrice;
 			radioInfo.Active = true;
 		}
 
-		public bool Save()
+		public bool Save ()
 		{
 			var valid = new QSValidator<Nomenclature> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			logger.Info("Сохраняем номенклатуру...");
+			logger.Info ("Сохраняем номенклатуру...");
 			pricesView.SaveChanges ();
-			Session.Flush();
-			OrmMain.NotifyObjectUpdated(subject);
+			Session.Flush ();
+			OrmMain.NotifyObjectUpdated (subject);
 			return true;
 		}
 
-		public override void Destroy()
+		public override void Destroy ()
 		{
-			Session.Close();
+			Session.Close ();
 			adaptor.Disconnect ();
-			base.Destroy();
+			base.Destroy ();
 		}
 
-		protected void OnButtonSaveClicked(object sender, EventArgs e)
+		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
-				OnCloseTab(false);
+			if (!this.HasChanges || Save ())
+				OnCloseTab (false);
 		}
 
-		protected void OnButtonCancelClicked(object sender, EventArgs e)
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
-			OnCloseTab(false);
+			OnCloseTab (false);
 		}
 
-		protected void OnCloseTab(bool askSave)
+		protected void OnCloseTab (bool askSave)
 		{
 			if (CloseTab != null)
-				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 
 		protected void OnEnumTypeChanged (object sender, EventArgs e)
@@ -146,17 +144,17 @@ namespace Vodovoz
 			ConfigureInputs ((NomenclatureCategory)enumType.Active);
 		}
 
-		protected void ConfigureInputs (NomenclatureCategory selected) {
-			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent);
+		protected void ConfigureInputs (NomenclatureCategory selected)
+		{
+			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
-			labelClass.Sensitive =  referenceType.Sensitive = (selected == NomenclatureCategory.equipment || selected == NomenclatureCategory.rent);
-			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment) ;
-			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment) ;
-			labelDeposit.Sensitive = spinDeposit.Sensitive = (selected == NomenclatureCategory.rent);
-			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent);
+			labelClass.Sensitive = referenceType.Sensitive = (selected == NomenclatureCategory.equipment || selected == NomenclatureCategory.rent);
+			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment);
+			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
+			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 		}
-			
+
 		protected void OnRadioPriceToggled (object sender, EventArgs e)
 		{
 			if (radioPrice.Active)

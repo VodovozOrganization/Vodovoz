@@ -35,13 +35,6 @@ namespace Vodovoz
 			set { SetField (ref weight, value, () => Weight); }
 		}
 
-		double rentPrice;
-
-		public virtual double RentPrice {
-			get { return rentPrice; }
-			set { SetField (ref rentPrice, value, () => RentPrice); }
-		}
-
 		VAT vAT;
 
 		public virtual VAT VAT {
@@ -137,7 +130,8 @@ namespace Vodovoz
 		[ItemTitleAttribute ("Услуга")] service,
 		[ItemTitleAttribute ("Аренда")] rent,
 		[ItemTitleAttribute ("Запчасти")] spare_parts,
-		[ItemTitleAttribute ("Товары")] additional
+		[ItemTitleAttribute ("Товары")] additional,
+		[ItemTitleAttribute ("Залог")] deposit
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType

@@ -32,7 +32,6 @@
 	 	<property name="Name" column="name" />
 	 	<property name="Model" column="model" />
 	 	<property name="Weight" column="weight" />
-	 	<property name="RentPrice" column="rent_price" />
 	 	<property name="VAT" column="vat" type="Vodovoz.VATStringType, Vodovoz"/>
 	 	<property name="DoNotReserve" column="reserve" />
 	 	<property name="Serial" column="serial" />
@@ -346,6 +345,7 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="Price" column="price" />
+ 		<property name="Deposit" column="deposit" />
  		<many-to-one name="PaidRentPackage" class="Vodovoz.PaidRentPackage" column="paid_rent_package_id" />
  		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
  	</class>

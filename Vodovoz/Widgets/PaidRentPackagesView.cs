@@ -17,11 +17,9 @@ namespace Vodovoz
 		public bool DailyRent {
 			get { return dailyRent; }
 			set {
-				dailyRent = value; 
-				if (DailyRent)
-					treeRentPackages.Columns [2].Title = "Цена аренды (в сутки)";
-				else
-					treeRentPackages.Columns [2].Title = "Цена аренды (в месяц)";
+				dailyRent = value;
+				if (treeRentPackages.GetColumn (2) != null)
+					treeRentPackages.Columns [2].Title = DailyRent ? "Цена аренды (в сутки)" : "Цена аренды (в месяц)";
 				UpdateTotalLabels ();
 			}
 		}
@@ -67,7 +65,7 @@ namespace Vodovoz
 			get { return parentReference; }
 		}
 
-		void UpdateTotalLabels ()
+		public void UpdateTotalLabels ()
 		{
 			Decimal TotalPrice = 0;
 			if (equipments != null)

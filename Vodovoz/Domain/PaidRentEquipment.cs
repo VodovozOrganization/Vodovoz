@@ -31,6 +31,13 @@ namespace Vodovoz
 			set { SetField (ref price, value, () => Price); }
 		}
 
+		Decimal deposit;
+
+		public virtual Decimal Deposit {
+			get { return deposit; }
+			set { SetField (ref deposit, value, () => Deposit); }
+		}
+
 		bool isNew;
 
 		public virtual bool IsNew {

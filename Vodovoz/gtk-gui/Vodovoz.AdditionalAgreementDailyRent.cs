@@ -164,12 +164,13 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.spinRentDays = new global::Gtk.DataBindings.DataSpinButton (0, 100, 1);
+			this.spinRentDays = new global::Gtk.DataBindings.DataSpinButton (1, 100, 1);
 			this.spinRentDays.CanFocus = true;
 			this.spinRentDays.Name = "spinRentDays";
 			this.spinRentDays.Adjustment.PageIncrement = 10;
 			this.spinRentDays.ClimbRate = 1;
 			this.spinRentDays.Numeric = true;
+			this.spinRentDays.Value = 1;
 			this.spinRentDays.InheritedDataSource = true;
 			this.spinRentDays.Mappings = "RentDays";
 			this.spinRentDays.InheritedBoundaryDataSource = false;
@@ -264,6 +265,7 @@ namespace Vodovoz
 			this.paidrentpackagesview1 = new global::Vodovoz.PaidRentPackagesView ();
 			this.paidrentpackagesview1.Events = ((global::Gdk.EventMask)(256));
 			this.paidrentpackagesview1.Name = "paidrentpackagesview1";
+			this.paidrentpackagesview1.DailyRent = false;
 			this.datatable1.Add (this.paidrentpackagesview1);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.paidrentpackagesview1]));
 			w18.TopAttach = ((uint)(5));
@@ -303,6 +305,7 @@ namespace Vodovoz
 			}
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
+			this.spinRentDays.ValueChanged += new global::System.EventHandler (this.OnSpinRentDaysValueChanged);
 		}
 	}
 }

@@ -153,6 +153,11 @@ namespace Vodovoz
 			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
 			return true;
 		}
+
+		protected void OnSpinRentDaysValueChanged (object sender, EventArgs e)
+		{
+			paidrentpackagesview1.UpdateTotalLabels ();
+		}
 	}
 }
 

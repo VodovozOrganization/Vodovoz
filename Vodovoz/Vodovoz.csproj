@@ -162,6 +162,8 @@
     <Compile Include="Сrutches\TimeAsTimeSpanTypeClone.cs" />
     <Compile Include="Dialogs\AdditionalAgreementDailyRent.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementDailyRent.cs" />
+    <Compile Include="ReferenceFilters\NomenclatureFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
