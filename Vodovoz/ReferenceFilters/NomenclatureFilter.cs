@@ -54,7 +54,7 @@ namespace Vodovoz
 				FiltredCriteria.Add (Restrictions.Eq ("Category", enumcomboType.SelectedItem));
 				IsFiltred = true;
 			} else
-				FiltredCriteria.AddOrder (Order.Asc ("Category"));
+				FiltredCriteria.AddOrder (NHibernate.Criterion.Order.Asc ("Category"));
 			OnRefiltered ();
 		}
 

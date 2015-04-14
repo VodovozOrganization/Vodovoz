@@ -1,29 +1,11 @@
 ﻿using System;
 using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 
 namespace Vodovoz
 {
 	[OrmSubject ("Передвижения залогов")]
-	public class DepositOperation: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class DepositOperation: Operation
 	{
-		public virtual int Id { get; set; }
-
-		DateTime operationTime;
-
-		public virtual DateTime OperationTime {
-			get { return operationTime; }
-			set { SetField (ref operationTime, value, () => OperationTime); }
-		}
-
-		Order order;
-
-		public virtual Order Order {
-			get { return order; }
-			set { SetField (ref order, value, () => Order); }
-		}
-
 		//TODO ID Строки заказа
 
 		DepositType depositType;
@@ -60,21 +42,6 @@ namespace Vodovoz
 			get { return refundDeposit; }
 			set { SetField (ref refundDeposit, value, () => RefundDeposit); }
 		}
-
-		#region IValidatableObject implementation
-
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
-		{
-			return null;
-		}
-
-		#endregion
-	}
-
-	public enum DepositType
-	{
-		[ItemTitleAttribute ("Тара")] bottles,
-		[ItemTitleAttribute ("Оборудование")] equipment
 	}
 }
 

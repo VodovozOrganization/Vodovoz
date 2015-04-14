@@ -1,28 +1,11 @@
 ﻿using System;
 using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
 	[OrmSubject ("Передвижения бутылей")]
-	public class BottlesMovementOperation: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class BottlesMovementOperation: Operation
 	{
-		public virtual int Id { get; set; }
-
-		DateTime operationTime;
-
-		public virtual DateTime OperationTime {
-			get { return operationTime; }
-			set { SetField (ref operationTime, value, () => OperationTime); }
-		}
-
-		Order order;
-
-		public virtual Order Order {
-			get { return order; }
-			set { SetField (ref order, value, () => Order); }
-		}
-
 		//TODO ID Документа перемещения
 
 		//TODO ID Строки заказа
@@ -54,15 +37,6 @@ namespace Vodovoz
 			get { return movedFrom; }
 			set { SetField (ref movedFrom, value, () => MovedFrom); }
 		}
-
-		#region IValidatableObject implementation
-
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
-		{
-			return null;
-		}
-
-		#endregion
 	}
 }
 
