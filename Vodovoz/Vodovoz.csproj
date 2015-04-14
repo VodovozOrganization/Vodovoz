@@ -87,25 +87,18 @@
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
     <Compile Include="Domain\Organization.cs" />
     <Compile Include="Domain\Employee.cs" />
-    <Compile Include="Domain\Nationality.cs" />
     <Compile Include="Domain\User.cs" />
     <Compile Include="Dialogs\EmployeeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="Domain\Car.cs" />
     <Compile Include="Dialogs\CarsDlg.cs" />
-    <Compile Include="Domain\MeasurementUnits.cs" />
-    <Compile Include="Domain\Manufacturer.cs" />
-    <Compile Include="Domain\EquipmentType.cs" />
     <Compile Include="Dialogs\NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="Domain\Nomenclature.cs" />
     <Compile Include="Dialogs\CounterpartyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="Domain\Counterparty.cs" />
-    <Compile Include="Domain\Significance.cs" />
-    <Compile Include="Domain\EquipmentColors.cs" />
-    <Compile Include="Domain\CounterpartyStatus.cs" />
     <Compile Include="PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
     <Compile Include="Domain\NomenclaturePrice.cs" />
@@ -153,7 +146,6 @@
     <Compile Include="Domain\DeliverySchedule.cs" />
     <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
-    <Compile Include="Domain\LogisticsArea.cs" />
     <Compile Include="Domain\PaidRentEquipment.cs" />
     <Compile Include="Dialogs\PaidRentEquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentEquipmentDlg.cs" />
@@ -170,6 +162,14 @@
     <Compile Include="Domain\Operations\MoneyMovementOperation.cs" />
     <Compile Include="Domain\Order.cs" />
     <Compile Include="Domain\Operations\Operation.cs" />
+    <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
+    <Compile Include="Domain\BasicHandbooks\CounterpartyStatus.cs" />
+    <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
+    <Compile Include="Domain\BasicHandbooks\LogisticsArea.cs" />
+    <Compile Include="Domain\BasicHandbooks\Manufacturer.cs" />
+    <Compile Include="Domain\BasicHandbooks\MeasurementUnits.cs" />
+    <Compile Include="Domain\BasicHandbooks\Nationality.cs" />
+    <Compile Include="Domain\BasicHandbooks\Significance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -234,6 +234,7 @@
     <Folder Include="ReferenceFilters\" />
     <Folder Include="Сrutches\" />
     <Folder Include="Domain\Operations\" />
+    <Folder Include="Domain\BasicHandbooks\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
