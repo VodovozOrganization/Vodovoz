@@ -261,6 +261,12 @@
         <property name="ShortLabel" translatable="yes">Оборудование</property>
         <signal name="Activated" handler="OnActionEquipmentActivated" />
       </action>
+      <action id="ActionWarehouses">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Склады</property>
+        <property name="ShortLabel" translatable="yes">Склады</property>
+        <signal name="Activated" handler="OnActionWarehousesActivated" />
+      </action>
     </action-group>
     <action-group name="services">
       <action id="ActionServiceTikets">
@@ -407,6 +413,7 @@
                   <node type="Menuitem" action="ActionEmploey" />
                   <node type="Menuitem" action="ActionNationality" />
                   <node type="Menuitem" action="ActionCars" />
+                  <node type="Menuitem" action="ActionWarehouses" />
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionPhoneTypes" />
                   <node type="Menuitem" action="ActionEMailTypes" />

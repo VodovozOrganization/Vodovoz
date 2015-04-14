@@ -10,9 +10,19 @@ namespace Vodovoz
 
 		//TODO ID Приходной накладной
 
-		//TODO Склад списания
+		Warehouse writeoffWarehouse;
 
-		//TODO Склад прихода
+		public virtual Warehouse WriteoffWarehouse {
+			get { return writeoffWarehouse; }
+			set { SetField (ref writeoffWarehouse, value, () => WriteoffWarehouse); }
+		}
+
+		Warehouse incomingWarehouse;
+
+		public virtual Warehouse IncomingWarehouse {
+			get { return incomingWarehouse; }
+			set { SetField (ref incomingWarehouse, value, () => IncomingWarehouse); }
+		}
 
 		Counterparty incomingCounterparty;
 

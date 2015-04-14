@@ -241,6 +241,12 @@
  		</id>
 		<property name="Name" column="name" />
 	</class>
+	<class name="Warehouse" lazy="false" table="warehouses">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+	</class>
 	<class name="FreeRentPackage" lazy="false" table="free_rent_packages">
  		<id name="Id" column="id">
  			<generator class="native"></generator>

@@ -406,4 +406,13 @@ public partial class MainWindow: Gtk.Window
 	{
 		BanksUpdater.Update (true);
 	}
+
+	protected void OnActionWarehousesActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Warehouse> ();
+
+		OrmReference refWin = new OrmReference (typeof(Warehouse), session, criteria);
+		tdiMain.AddTab (refWin);	
+	}
 }

@@ -43,6 +43,7 @@ namespace Vodovoz
 			// Настройка ORM
 			OrmMain.ConfigureOrm (QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts" });
 			OrmMain.ClassMappingList = new System.Collections.Generic.List<OrmObjectMapping> {
+				//Простые справочники
 				new OrmObjectMapping (typeof(Nationality), null, "{Vodovoz.Nationality} Name[Название];"),
 				new OrmObjectMapping (typeof(Manufacturer), null, "{Vodovoz.Manufacturer} Name[Название];"),
 				new OrmObjectMapping (typeof(EquipmentType), null, "{Vodovoz.EquipmentType} Name[Название];"),
@@ -53,7 +54,8 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(Significance), null, "{Vodovoz.Significance} Name[Значимость клиента];"),
 				new OrmObjectMapping (typeof(User), null, "{Vodovoz.User} Name[Название];"),
 				new OrmObjectMapping (typeof(LogisticsArea), null, "{Vodovoz.LogisticsArea} Name[Название]"),
-
+				new OrmObjectMapping (typeof(Warehouse), null, "{Vodovoz.Warehouse} Name[Название]"),
+				//Остальные справочники
 				new OrmObjectMapping (typeof(Car), typeof(CarsDlg), "{Vodovoz.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] { "Model", "RegistrationNumber", "DriverInfo" }),
 				new OrmObjectMapping (typeof(Proxy), typeof(ProxyDlg), "{Vodovoz.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] { "Number" }),
 				new OrmObjectMapping (typeof(DeliveryPoint), typeof(DeliveryPointDlg), "{Vodovoz.DeliveryPoint} Name[Название];"),
@@ -70,7 +72,7 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(PaidRentEquipment), typeof(PaidRentEquipmentDlg), "{Vodovoz.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping (typeof(FreeRentEquipment), typeof(FreeRentEquipmentDlg), "{Vodovoz.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping (typeof(DeliverySchedule), typeof(DeliveryScheduleDlg), "{Vodovoz.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
-
+				//Справочники с фильтрами
 				new OrmObjectMapping (typeof(Nomenclature), typeof(NomenclatureDlg), typeof(NomenclatureFilter), "{Vodovoz.Nomenclature} Name[Название]; CategoryString[Тип];", new string[] { "Name", "CategoryString" }),
 				new OrmObjectMapping (typeof(Equipment), typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" }),
 				new OrmObjectMapping (typeof(Employee), typeof(EmployeeDlg), typeof(EmployeeFilter), "{Vodovoz.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];", new string[] { "Name", "LastName", "Patronymic" })
