@@ -1,132 +1,82 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
  auto-import="true" assembly="Vodovoz" namespace="Vodovoz">
-	<class name="Organization" lazy="false" table="organizations">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
-	 	<property name="FullName" column="full_name" />
-	 	<property name="INN" column="INN" />
-	 	<property name="KPP" column="KPP" />
-	 	<property name="OGRN" column="OGRN" />
-	 	<property name="Email" column="email" />
-	 	<property name="Address" column="address" />
-	 	<property name="JurAddress" column="jur_address" />
-	 	<many-to-one name="Leader" class="Employee" column="leader_id" />
-	 	<many-to-one name="Buhgalter" class="Employee" column="buhgalter_id" />
-	 	<many-to-one name="DefaultAccount" class="QSBanks.Account" column="default_account_id" />
-	 	<bag name="Accounts" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="org_id"/>
-    		<one-to-many class="QSBanks.Account" />
-		</bag>
-	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="org_id"/>
-    		<one-to-many class="QSContacts.Phone" />
-		</bag>
- 	</class>
- 	<class name="Nomenclature" lazy="false" table="nomenclature">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
-	 	<property name="Model" column="model" />
-	 	<property name="Weight" column="weight" />
-	 	<property name="VAT" column="vat" type="Vodovoz.VATStringType, Vodovoz"/>
-	 	<property name="DoNotReserve" column="reserve" />
-	 	<property name="Serial" column="serial" />
-	 	<many-to-one name="Unit" class="MeasurementUnits" column="unit" />
-	 	<property name="Category" column="category" type="Vodovoz.NomenclatureCategoryStringType, Vodovoz"/>
-	 	<many-to-one name="Color" class="EquipmentColors" column="color" />
-	 	<many-to-one name="Type" class="EquipmentType" column="type" />
-	 	<many-to-one name="Manufacturer" class="Manufacturer" column="manufacturer" />
-	 	<bag name="NomenclaturePrice" inverse="false" cascade="all-delete-orphan" lazy="false" >
-    		<key column="nomenclature_id"/>
-    		<one-to-many class="Vodovoz.NomenclaturePrice" />
-		</bag>
- 	</class>
-	<class name="NomenclaturePrice" lazy="false" table="nomenclature_price">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="MinCount" column="min_count" />
-	 	<property name="Price" column="price" />
- 	</class>
- 	<class name="Nationality" lazy="false" table="nationality">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
+
+ 	<!--Простые справочники-->
+
+ 	<class name="CounterpartyStatus" lazy="false" table="status">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+	</class>
+
 	<class name="EquipmentColors" lazy="false" table="equipment_colors">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="Name" column="name" />
  	</class>
-	<class name="MeasurementUnits" lazy="false" table="measurement_units">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
-	<class name="Manufacturer" lazy="false" table="manufacturers">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
+
 	<class name="EquipmentType" lazy="false" table="equipment_type">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="Name" column="name" />
  	</class>
+
  	<class name="LogisticsArea" lazy="false" table="logistics_area">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="Name" column="name" />
  	</class>
-	<class name="Car" lazy="false" table="cars">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Model" column="model" />
-	 	<property name="RegistrationNumber" column="reg_number" />
-	 	<many-to-one name="Driver" class="Employee" column="driver"/>
-	 	<property name="FuelConsumption" column="fuel_consumption" />
-	 	<property name="IsArchive" column="is_archive"/>
- 	</class>
- 	<class name="User" lazy="false" table="users">
+
+	<class name="Manufacturer" lazy="false" table="manufacturers">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="Name" column="name" />
-	 	<property name="Login" column="login" />
  	</class>
- 	<class name="Employee" lazy="false" table="employees">
+
+	<class name="MeasurementUnits" lazy="false" table="measurement_units">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="Name" column="name" />
-	 	<property name="LastName" column="last_name" />
-	 	<property name="Patronymic" column="patronymic" />
-	 	<property name="Category" column="category" type="Vodovoz.EmployeeCategoryStringType, Vodovoz"/>
-	 	<property name="PassportSeria" column="passport_seria" />
-	 	<property name="PassportNumber" column="passport_number" />
-	 	<property name="DrivingNumber" column="driving_number" />
-	 	<property name="Photo" column="photo" type="BinaryBlob" />
-	 	<property name="AddressRegistration" column="address_registration" />
-	 	<property name="AddressCurrent" column="address_current" />
-	 	<property name="IsFired" column="is_fired" />
-	 	<many-to-one name="Nationality" class="Nationality" column="nationality_id" />
-	 	<many-to-one name="User" class="User" column="user_id" />
-	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="employee_id"/>
-    		<one-to-many class="QSContacts.Phone" />
-		</bag>
  	</class>
+
+	<class name="Nationality" lazy="false" table="nationality">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+ 	</class>
+
+ 	<class name="NomenclaturePrice" lazy="false" table="nomenclature_price">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="MinCount" column="min_count" />
+	 	<property name="Price" column="price" />
+ 	</class>
+
+	<class name="Significance" lazy="false" table="significance">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+	</class>
+
+	<class name="Warehouse" lazy="false" table="warehouses">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+	</class>
+
+	<!--Прочие справочники-->
+
 	<class name="AdditionalAgreement" lazy="false" table="additional_agreements">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -163,22 +113,18 @@
         <subclass name="RepairAgreement" discriminator-value="Repair">
         </subclass>
 	</class>
-	<class name="CounterpartyContract" lazy="false" table="counterparty_contract">
+
+	<class name="Car" lazy="false" table="cars">
 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Number" column="number" />
-		<property name="MaxDelay" column="max_delay" />
-		<property name="IssueDate" column="issue_date" /> 
-		<property name="IsArchive" column="is_archive" /> 
-		<property name="OnCancellation" column="on_cancellation" /> 
-		<many-to-one name="Organization" class="Organization" column="organization_id"/>
-		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
-		<bag name="AdditionalAgreements" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="counterparty_contract_id"/>
-    		<one-to-many class="AdditionalAgreement" />
-		</bag>
-	</class>
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Model" column="model" />
+	 	<property name="RegistrationNumber" column="reg_number" />
+	 	<many-to-one name="Driver" class="Employee" column="driver"/>
+	 	<property name="FuelConsumption" column="fuel_consumption" />
+	 	<property name="IsArchive" column="is_archive"/>
+ 	</class>
+
  	<class name="Counterparty" lazy="false" table="counterparty">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -229,82 +175,24 @@
     		<one-to-many class="Vodovoz.Proxy" />
 		</bag>
  	</class>
- 	<class name="Significance" lazy="false" table="significance">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-	</class>
-	<class name="CounterpartyStatus" lazy="false" table="status">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-	</class>
-	<class name="Warehouse" lazy="false" table="warehouses">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-	</class>
-	<class name="FreeRentPackage" lazy="false" table="free_rent_packages">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-		<property name="MinWaterAmount" column="min_water_amount" />
-		<property name="Deposit" column="deposit" />
-		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
-		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
-	</class>
-	<class name="PaidRentPackage" lazy="false" table="paid_rent_packages">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-		<property name="PriceDaily" column="price_daily" />
-		<property name="PriceMonthly" column="price_monthly" />
-		<property name="Deposit" column="deposit" />
-		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
-		<many-to-one name="RentServiceDaily" class="Nomenclature" column="rent_service_daily_id"/>
-		<many-to-one name="RentServiceMonthly" class="Nomenclature" column="rent_service_monthly_id"/>
-		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
-	</class>
-	<class name="DeliveryPoint" lazy="false" table="delivery_points">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-		<property name="MinutesToUnload" column="minutes_to_unload" />
-		<property name="Floor" column="floor" />
-		<property name="Region" column="region" />
-		<property name="City" column="city" />
-		<property name="Street" column="street" />
-		<property name="Building" column="building" />
-		<property name="Room" column="room" />
-		<property name="Comment" column="comment" />
-		<property name="Latitude" column="latitude" />
-		<property name="Longitude" column="longitude" />
-		<property name="IsActive" column="is_active" />
-		<property name="Phone" column="phone" />
-		<many-to-one name="Contact" class="CustomerContact" column="contact_person_id" />
-		<many-to-one name="LogisticsArea" class="LogisticsArea" column="logistic_area_id" />
-		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id" />
-	</class>
-	<class name="Proxy" lazy="false" table="counterparty_proxies">
- 		<id name="Id" column="id">
+
+ 	<class name="CounterpartyContract" lazy="false" table="counterparty_contract">
+		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
 		<property name="Number" column="number" />
-		<property name="IssueDate" column="issue_date" />
-		<property name="StartDate" column="start_date" /> 
-		<property name="ExpirationDate" column="expiration_date" />
-		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
-		<bag name="Persons" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="counterparty_id"/>
-    		<one-to-many class="QSContacts.Person" />
+		<property name="MaxDelay" column="max_delay" />
+		<property name="IssueDate" column="issue_date" /> 
+		<property name="IsArchive" column="is_archive" /> 
+		<property name="OnCancellation" column="on_cancellation" /> 
+		<many-to-one name="Organization" class="Organization" column="organization_id"/>
+		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
+		<bag name="AdditionalAgreements" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="counterparty_contract_id"/>
+    		<one-to-many class="AdditionalAgreement" />
 		</bag>
 	</class>
+
 	<class name="CustomerContact" lazy="false" table="counterparty_contacts">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -328,7 +216,62 @@
     		<one-to-many class="DeliveryPoint" />
 		</bag>
 	</class>
-	<class name="Equipment" lazy="false" table="equipment">
+
+	<class name="DeliveryPoint" lazy="false" table="delivery_points">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+		<property name="MinutesToUnload" column="minutes_to_unload" />
+		<property name="Floor" column="floor" />
+		<property name="Region" column="region" />
+		<property name="City" column="city" />
+		<property name="Street" column="street" />
+		<property name="Building" column="building" />
+		<property name="Room" column="room" />
+		<property name="Comment" column="comment" />
+		<property name="Latitude" column="latitude" />
+		<property name="Longitude" column="longitude" />
+		<property name="IsActive" column="is_active" />
+		<property name="Phone" column="phone" />
+		<many-to-one name="Contact" class="CustomerContact" column="contact_person_id" />
+		<many-to-one name="LogisticsArea" class="LogisticsArea" column="logistic_area_id" />
+		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id" />
+	</class>
+
+	<class name="DeliverySchedule" lazy="false" table="delivery_schedule">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Name" column="name" />
+ 		<property name="From" column="from_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
+ 		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
+ 	</class>
+
+ 	<class name="Employee" lazy="false" table="employees">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+	 	<property name="LastName" column="last_name" />
+	 	<property name="Patronymic" column="patronymic" />
+	 	<property name="Category" column="category" type="Vodovoz.EmployeeCategoryStringType, Vodovoz"/>
+	 	<property name="PassportSeria" column="passport_seria" />
+	 	<property name="PassportNumber" column="passport_number" />
+	 	<property name="DrivingNumber" column="driving_number" />
+	 	<property name="Photo" column="photo" type="BinaryBlob" />
+	 	<property name="AddressRegistration" column="address_registration" />
+	 	<property name="AddressCurrent" column="address_current" />
+	 	<property name="IsFired" column="is_fired" />
+	 	<many-to-one name="Nationality" class="Nationality" column="nationality_id" />
+	 	<many-to-one name="User" class="User" column="user_id" />
+	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="employee_id"/>
+    		<one-to-many class="QSContacts.Phone" />
+		</bag>
+ 	</class>
+
+ 	<class name="Equipment" lazy="false" table="equipment">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
@@ -339,6 +282,7 @@
 		<property name="Comment" column="comment" />
 		<many-to-one name="Nomenclature" class="Vodovoz.Nomenclature" column="nomenclature_id" />
  	</class>
+
  	<class name="FreeRentEquipment" lazy="false" table="free_rent_equipment">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -348,6 +292,64 @@
  		<many-to-one name="FreeRentPackage" class="Vodovoz.FreeRentPackage" column="free_rent_package_id" />
  		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
  	</class>
+
+ 	<class name="FreeRentPackage" lazy="false" table="free_rent_packages">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Name" column="name" />
+		<property name="MinWaterAmount" column="min_water_amount" />
+		<property name="Deposit" column="deposit" />
+		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
+		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
+	</class>
+
+	<class name="Nomenclature" lazy="false" table="nomenclature">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+	 	<property name="Model" column="model" />
+	 	<property name="Weight" column="weight" />
+	 	<property name="VAT" column="vat" type="Vodovoz.VATStringType, Vodovoz"/>
+	 	<property name="DoNotReserve" column="reserve" />
+	 	<property name="Serial" column="serial" />
+	 	<many-to-one name="Unit" class="MeasurementUnits" column="unit" />
+	 	<property name="Category" column="category" type="Vodovoz.NomenclatureCategoryStringType, Vodovoz"/>
+	 	<many-to-one name="Color" class="EquipmentColors" column="color" />
+	 	<many-to-one name="Type" class="EquipmentType" column="type" />
+	 	<many-to-one name="Manufacturer" class="Manufacturer" column="manufacturer" />
+	 	<bag name="NomenclaturePrice" inverse="false" cascade="all-delete-orphan" lazy="false" >
+    		<key column="nomenclature_id"/>
+    		<one-to-many class="Vodovoz.NomenclaturePrice" />
+		</bag>
+ 	</class>
+
+	<class name="Organization" lazy="false" table="organizations">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+	 	<property name="FullName" column="full_name" />
+	 	<property name="INN" column="INN" />
+	 	<property name="KPP" column="KPP" />
+	 	<property name="OGRN" column="OGRN" />
+	 	<property name="Email" column="email" />
+	 	<property name="Address" column="address" />
+	 	<property name="JurAddress" column="jur_address" />
+	 	<many-to-one name="Leader" class="Employee" column="leader_id" />
+	 	<many-to-one name="Buhgalter" class="Employee" column="buhgalter_id" />
+	 	<many-to-one name="DefaultAccount" class="QSBanks.Account" column="default_account_id" />
+	 	<bag name="Accounts" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="org_id"/>
+    		<one-to-many class="QSBanks.Account" />
+		</bag>
+	 	<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="org_id"/>
+    		<one-to-many class="QSContacts.Phone" />
+		</bag>
+ 	</class>
+
  	<class name="PaidRentEquipment" lazy="false" table="paid_rent_equipment">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -357,13 +359,42 @@
  		<many-to-one name="PaidRentPackage" class="Vodovoz.PaidRentPackage" column="paid_rent_package_id" />
  		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
  	</class>
-	<class name="DeliverySchedule" lazy="false" table="delivery_schedule">
+
+ 	<class name="PaidRentPackage" lazy="false" table="paid_rent_packages">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
- 		<property name="Name" column="name" />
- 		<property name="From" column="from_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
- 		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
+		<property name="Name" column="name" />
+		<property name="PriceDaily" column="price_daily" />
+		<property name="PriceMonthly" column="price_monthly" />
+		<property name="Deposit" column="deposit" />
+		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
+		<many-to-one name="RentServiceDaily" class="Nomenclature" column="rent_service_daily_id"/>
+		<many-to-one name="RentServiceMonthly" class="Nomenclature" column="rent_service_monthly_id"/>
+		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
+	</class>
+
+ 	<class name="Proxy" lazy="false" table="counterparty_proxies">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<property name="Number" column="number" />
+		<property name="IssueDate" column="issue_date" />
+		<property name="StartDate" column="start_date" /> 
+		<property name="ExpirationDate" column="expiration_date" />
+		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
+		<bag name="Persons" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="counterparty_id"/>
+    		<one-to-many class="QSContacts.Person" />
+		</bag>
+	</class>
+
+	<class name="User" lazy="false" table="users">
+		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="Name" column="name" />
+	 	<property name="Login" column="login" />
  	</class>
 
 </hibernate-mapping>
