@@ -4,11 +4,16 @@ using QSOrmProject;
 namespace Vodovoz
 {
 	[OrmSubject ("Передвижения бутылей")]
-	public class BottlesMovementOperation: Operation
+	public class BottlesMovementOperation: OperationBase
 	{
 		//TODO ID Документа перемещения
 
-		//TODO ID Строки заказа
+		OrderItem orderItem;
+
+		public virtual OrderItem OrderItem {
+			get { return orderItem; }
+			set { SetField (ref orderItem, value, () => OrderItem); }
+		}
 
 		Counterparty counterparty;
 

@@ -4,9 +4,14 @@ using QSOrmProject;
 namespace Vodovoz
 {
 	[OrmSubject ("Передвижения залогов")]
-	public class DepositOperation: Operation
+	public class DepositOperation: OperationBase
 	{
-		//TODO ID Строки заказа
+		OrderItem orderItem;
+
+		public virtual OrderItem OrderItem {
+			get { return orderItem; }
+			set { SetField (ref orderItem, value, () => OrderItem); }
+		}
 
 		DepositType depositType;
 

@@ -4,7 +4,7 @@ using QSOrmProject;
 namespace Vodovoz
 {
 	[OrmSubject ("Передвижения товаров")]
-	public class GoodsMovementOperation: Operation
+	public class GoodsMovementOperation: OperationBase
 	{
 		//TODO ID Документа перемещения
 

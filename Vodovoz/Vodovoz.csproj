@@ -161,7 +161,6 @@
     <Compile Include="Domain\Operations\GoodsMovementOperation.cs" />
     <Compile Include="Domain\Operations\MoneyMovementOperation.cs" />
     <Compile Include="Domain\Order.cs" />
-    <Compile Include="Domain\Operations\Operation.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
     <Compile Include="Domain\BasicHandbooks\CounterpartyStatus.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
@@ -170,6 +169,9 @@
     <Compile Include="Domain\BasicHandbooks\MeasurementUnits.cs" />
     <Compile Include="Domain\BasicHandbooks\Nationality.cs" />
     <Compile Include="Domain\BasicHandbooks\Significance.cs" />
+    <Compile Include="Domain\OrderEquipment.cs" />
+    <Compile Include="Domain\OrderItem.cs" />
+    <Compile Include="Domain\Operations\OperationBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

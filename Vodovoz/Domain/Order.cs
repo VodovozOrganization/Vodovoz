@@ -2,10 +2,11 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Передвижения товаров")]
+	[OrmSubject ("Заказ")]
 	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
@@ -31,8 +32,6 @@ namespace Vodovoz
 			set { SetField (ref deliveryPoint, value, () => DeliveryPoint); }
 		}
 
-		//TODO: Договор. Какой договор имеется в виду?
-
 		DateTime deliveryDate;
 
 		public virtual DateTime DeliveryDate {
@@ -46,8 +45,6 @@ namespace Vodovoz
 			get { return deliverySchedule; }
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
 		}
-
-		//TODO: ID маршрутного листа
 
 		bool selfDelivery;
 
@@ -98,9 +95,23 @@ namespace Vodovoz
 			set { SetField (ref shipped, value, () => Shipped); }
 		}
 
-		//TODO: Товары по заказу
+		List<OrderItem> orderItems;
 
-		//TODO: Оборудование по заказу
+		public virtual List<OrderItem> OrderItems {
+			get { return orderItems; }
+			set { SetField (ref orderItems, value, () => OrderItems); }
+		}
+
+		List<OrderEquipment> orderEquipments;
+
+		public virtual List<OrderEquipment> OrderEquipments {
+			get { return orderEquipments; }
+			set { SetField (ref orderEquipments, value, () => OrderEquipments); }
+		}
+
+		//TODO: ID маршрутного листа
+
+		//TODO: Договор. Какой договор имеется в виду?
 
 		//TODO: Печатаемые документы
 
@@ -108,7 +119,7 @@ namespace Vodovoz
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			return null;
 		}

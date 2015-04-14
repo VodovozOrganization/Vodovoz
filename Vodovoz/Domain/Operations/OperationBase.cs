@@ -5,7 +5,7 @@ using System.Data.Bindings;
 
 namespace Vodovoz
 {
-	public class Operation: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class OperationBase: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
