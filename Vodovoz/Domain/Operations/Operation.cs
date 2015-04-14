@@ -35,15 +35,15 @@ namespace Vodovoz
 
 	public enum PaymentType
 	{
-		[ItemTitleAttribute ("Наличная оплата")] cash,
-		[ItemTitleAttribute ("Безналичная оплата")] clearing
+		[ItemTitleAttribute ("Наличная оплата")] Cash,
+		[ItemTitleAttribute ("Безналичная оплата")] Clearing
 	}
 
 	public enum DepositType
 	{
-		[ItemTitleAttribute ("Отсутствует")] none,
-		[ItemTitleAttribute ("Тара")] bottles,
-		[ItemTitleAttribute ("Оборудование")] equipment
+		[ItemTitleAttribute ("Отсутствует")] None,
+		[ItemTitleAttribute ("Тара")] Bottles,
+		[ItemTitleAttribute ("Оборудование")] Equipment
 	}
 }
 

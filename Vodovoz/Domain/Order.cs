@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
 
 namespace Vodovoz
 {
@@ -9,15 +10,12 @@ namespace Vodovoz
 	{
 		public virtual int Id { get; set; }
 
-		string orderNumber;
+		OrderStatus orderStatus;
 
-		public virtual string OrderNumber {
-			get { return orderNumber; }
-			set { SetField (ref orderNumber, value, () => OrderNumber); }
+		public virtual OrderStatus OrderStatus {
+			get { return orderStatus; }
+			set { SetField (ref orderStatus, value, () => OrderStatus); }
 		}
-		//Строка или число?
-
-		//TODO: Состояние. Enum?
 
 		Counterparty client;
 
@@ -58,7 +56,12 @@ namespace Vodovoz
 			set { SetField (ref selfDelivery, value, () => SelfDelivery); }
 		}
 
-		//TODO: Недовоз. ID предыдущего заказа. Что это за херь и с чем ее едят?
+		Order previousOrder;
+
+		public virtual Order PreviousOrder {
+			get { return previousOrder; }
+			set { SetField (ref previousOrder, value, () => PreviousOrder); }
+		}
 
 		int bottlesReturn;
 
@@ -66,7 +69,6 @@ namespace Vodovoz
 			get { return bottlesReturn; }
 			set { SetField (ref bottlesReturn, value, () => BottlesReturn); }
 		}
-		//Что значит предположительное кол-во?
 
 		string comment;
 
@@ -75,7 +77,12 @@ namespace Vodovoz
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		//TODO: Подписание документов. Что тут должно быть? Enum?
+		OrderSignatureType signatureType;
+
+		public virtual OrderSignatureType SignatureType {
+			get { return signatureType; }
+			set { SetField (ref signatureType, value, () => SignatureType); }
+		}
 
 		Decimal sumToReceive;
 
@@ -93,9 +100,9 @@ namespace Vodovoz
 
 		//TODO: Товары по заказу
 
-		//TODO: Печатаемые документы
-
 		//TODO: Оборудование по заказу
+
+		//TODO: Печатаемые документы
 
 		//TODO: Сервисное обслуживание.
 
@@ -110,8 +117,30 @@ namespace Vodovoz
 
 		public Order ()
 		{
-			Comment = OrderNumber = String.Empty;
+			Comment = String.Empty;
+			OrderStatus = OrderStatus.NewOrder;
 		}
+	}
+
+	public enum OrderStatus
+	{
+		[ItemTitleAttribute ("Новый")] NewOrder,
+		[ItemTitleAttribute ("Принят")] Accepted,
+		[ItemTitleAttribute ("В маршрутном листе")]InTravelList,
+		[ItemTitleAttribute ("На погрузке")]OnLoading,
+		[ItemTitleAttribute ("В пути")]OnTheWay,
+		[ItemTitleAttribute ("Доставлен")]Shipped,
+		[ItemTitleAttribute ("Выгрузка на складе")]UnloadingOnStock,
+		[ItemTitleAttribute ("Отчет не закрыт")]ReportNotClosed,
+		[ItemTitleAttribute ("Закрыт")]Closed,
+		[ItemTitleAttribute ("Отменен")]Canceled,
+		[ItemTitleAttribute ("Недовоз")]NotDelivered
+	}
+
+	public enum OrderSignatureType
+	{
+		[ItemTitleAttribute ("По печати")]BySeal,
+		[ItemTitleAttribute ("По доверенности")]ByProxy
 	}
 }
 
