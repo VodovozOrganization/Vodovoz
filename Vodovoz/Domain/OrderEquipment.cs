@@ -56,11 +56,25 @@ namespace Vodovoz
 		[ItemTitleAttribute ("Забрать")]PickUp
 	}
 
+	public class DirectionStringType : NHibernate.Type.EnumStringType
+	{
+		public DirectionStringType () : base (typeof(Direction))
+		{
+		}
+	}
+
 	public enum Reason
 	{
 		[ItemTitleAttribute ("Сервис")]Service,
 		[ItemTitleAttribute ("Аренда")]Rent,
 		[ItemTitleAttribute ("Расторжение")]Cancellation
+	}
+
+	public class ReasonStringType : NHibernate.Type.EnumStringType
+	{
+		public ReasonStringType () : base (typeof(Reason))
+		{
+		}
 	}
 }
 

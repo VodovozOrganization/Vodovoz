@@ -39,11 +39,25 @@ namespace Vodovoz
 		[ItemTitleAttribute ("Безналичная оплата")] Clearing
 	}
 
+	public class PaymentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public PaymentTypeStringType () : base (typeof(PaymentType))
+		{
+		}
+	}
+
 	public enum DepositType
 	{
 		[ItemTitleAttribute ("Отсутствует")] None,
 		[ItemTitleAttribute ("Тара")] Bottles,
 		[ItemTitleAttribute ("Оборудование")] Equipment
+	}
+
+	public class DepositTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DepositTypeStringType () : base (typeof(DepositType))
+		{
+		}
 	}
 }
 

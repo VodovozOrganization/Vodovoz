@@ -148,10 +148,24 @@ namespace Vodovoz
 		[ItemTitleAttribute ("Недовоз")]NotDelivered
 	}
 
+	public class OrderStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderStatusStringType () : base (typeof(OrderStatus))
+		{
+		}
+	}
+
 	public enum OrderSignatureType
 	{
 		[ItemTitleAttribute ("По печати")]BySeal,
 		[ItemTitleAttribute ("По доверенности")]ByProxy
+	}
+
+	public class OrderSignatureTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public OrderSignatureTypeStringType () : base (typeof(OrderSignatureType))
+		{
+		}
 	}
 }
 

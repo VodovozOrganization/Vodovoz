@@ -114,6 +114,19 @@
         </subclass>
 	</class>
 
+	<class name="BottlesMovementOperation" lazy="false" table="operation">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="OperationTime" column="operation_time"/>
+ 		<property name="MovedTo" column="moved_to"/>
+		<property name="MovedFrom" column="moved_from"/>
+		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
+		<many-to-one name="Counterparty" class="Vodovoz.Counterparty" column="counterparty_id"/>
+		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
+	</class>
+
 	<class name="Car" lazy="false" table="cars">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
@@ -248,7 +261,21 @@
  		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
  	</class>
 
- 	<class name="Employee" lazy="false" table="employees">
+ 	<class name="DepositOperation" lazy="false" table="operation">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="OperationTime" column="operation_time"/>
+ 		<property name="DepositType" column="deposit_type" type="Vodovoz.DepositTypeStringType, Vodovoz"/>
+		<property name="ReceivedDeposit" column="received_deposit"/>
+		<property name="RefundDeposit" column="refund_deposit"/>
+		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
+		<many-to-one name="Counterparty" class="Vodovoz.Counterparty" column="counterparty_id"/>
+		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
+	</class>
+
+	<class name="Employee" lazy="false" table="employees">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
@@ -304,6 +331,37 @@
 		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
 	</class>
 
+	<class name="GoodsMovementOperation" lazy="false" table="operation">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="OperationTime" column="operation_time"/>
+ 		<property name="Amount" column="amount"/>
+		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
+		<many-to-one name="WriteoffWarehouse" class="Vodovoz.Warehouse" column="writeoff_warehouse_id"/>
+		<many-to-one name="IncomingWarehouse" class="Vodovoz.Warehouse" column="incoming_warehouse_id"/>
+		<many-to-one name="WriteoffCounterparty" class="Vodovoz.Counterparty" column="writeoff_counterparty_id"/>
+		<many-to-one name="IncomingCounterparty" class="Vodovoz.Counterparty" column="incoming_counterparty_id"/>
+		<many-to-one name="WriteoffDeliveryPoint" class="Vodovoz.DeliveryPoint" column="writeoff_delivery_point_id"/>
+		<many-to-one name="IncomingDeliveryPoint" class="Vodovoz.DeliveryPoint" column="incoming_delivery_point_id"/>
+	</class>
+
+	<class name="MoneyMovementOperation" lazy="false" table="operation">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="OperationTime" column="operation_time"/>
+ 		<property name="Debt" column="debt"/>
+		<property name="Money" column="money"/>
+		<property name="Deposit" column="deposit"/>
+		<property name="DepositType" column="deposit_type" type="Vodovoz.DepositTypeStringType, Vodovoz"/>
+		<property name="PaymentType" column="payment_type" type="Vodovoz.PaymentTypeStringType, Vodovoz"/>
+		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
+		<many-to-one name="Counterparty" class="Vodovoz.Counterparty" column="counterparty_id"/>
+		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
+	</class>
+
 	<class name="Nomenclature" lazy="false" table="nomenclature">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
@@ -324,6 +382,53 @@
     		<one-to-many class="Vodovoz.NomenclaturePrice" />
 		</bag>
  	</class>
+
+ 	<class name="Order" lazy="false" table="order">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="OrderStatus" column="order_status" type="Vodovoz.OrderStatusStringType, Vodovoz"/>
+ 		<property name="SignatureType" column="signature_type" type="Vodovoz.OrderSignatureTypeStringType, Vodovoz"/>
+ 		<property name="DeliveryDate" column="delivery_date"/>
+ 		<property name="SelfDelivery" column="self_delivery"/>
+ 		<property name="BottlesReturn" column="bottles_return"/>
+ 		<property name="SumToReceive" column="sum_to_receive"/>
+ 		<property name="Shipped" column="shipped"/>
+ 		<many-to-one name="Client" class="Vodovoz.Counterparty" column="client_id"/>
+ 		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
+ 		<many-to-one name="DeliverySchedule" class="Vodovoz.DeliverySchedule" column="delivery_schedule_id"/>
+ 		<many-to-one name="PreviousOrder" class="Vodovoz.Order" column="previous_order_id"/>
+ 		<bag name="OrderItems" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="order_id"/>
+    		<one-to-many class="Vodovoz.OrderItem"/>	
+		</bag>
+		<bag name="OrderEquipments" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="order_id"/>
+    		<one-to-many class="Vodovoz.OrderEquipment"/>	
+		</bag>
+	</class>
+
+	<class name="OrderEquipment" lazy="false" table="order">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Direction" column="direction" type="Vodovoz.DirectionStringType, Vodovoz"/>
+ 		<property name="Reason" column="reason" type="Vodovoz.ReasonStringType, Vodovoz"/>
+ 		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
+ 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id"/>
+	</class>
+
+	<class name="OrderItem" lazy="false" table="order">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Price" column="price"/>
+ 		<property name="Count" column="count"/>
+ 		<many-to-one name="AdditionalAgreement" class="Vodovoz.AdditionalAgreement" column="additional_agreement_id"/>
+ 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id"/>
+ 		<many-to-one name="Nomenclature" class="Vodovoz.Nomenclature" column="nomenclature_id"/>
+ 		<many-to-one name="Units" class="Vodovoz.MeasurementUnits" column="units_id"/>
+	</class>
 
 	<class name="Organization" lazy="false" table="organizations">
 		<id name="Id" column="id">
