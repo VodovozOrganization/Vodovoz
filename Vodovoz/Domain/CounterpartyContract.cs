@@ -42,13 +42,7 @@ namespace Vodovoz
 			set { SetField (ref onCancellation, value, () => OnCancellation); }
 		}
 
-		string number;
-
-		[Required (ErrorMessage = "Название контрагента должно быть заполнено.")]
-		public virtual string Number {
-			get { return number; }
-			set { SetField (ref number, value, () => Number); }
-		}
+		public virtual string Number { get { return Id.ToString (); } set { } }
 
 		DateTime issueDate;
 
@@ -69,11 +63,6 @@ namespace Vodovoz
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
 			set { SetField (ref counterparty, value, () => Counterparty); }
-		}
-
-		public CounterpartyContract ()
-		{
-			Number = String.Empty;
 		}
 	}
 

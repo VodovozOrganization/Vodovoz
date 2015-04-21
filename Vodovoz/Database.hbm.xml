@@ -193,7 +193,6 @@
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
-		<property name="Number" column="number" />
 		<property name="MaxDelay" column="max_delay" />
 		<property name="IssueDate" column="issue_date" /> 
 		<property name="IsArchive" column="is_archive" /> 
