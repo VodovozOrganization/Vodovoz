@@ -9,8 +9,19 @@ using DataAnnotationsExtensions;
 namespace Vodovoz
 {
 	[OrmSubject ("Контрагенты")]
-	public class Counterparty : QSBanks.AccountOwnerBase, QSContacts.IContactOwner, IProxyOwner, IDeliveryPointOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, IContractOwner, IContactOwner, IProxyOwner, IDeliveryPointOwner
 	{
+		private IList<CounterpartyContract> counterpartyContracts;
+
+		#region IContractOwner implementation
+
+		public IList<CounterpartyContract> CounterpartyContracts {
+			get { return counterpartyContracts; }
+			set { SetField (ref counterpartyContracts, value, () => CounterpartyContracts); }
+		}
+
+		#endregion
+
 		private IList<DeliveryPoint> deliveryPoints;
 
 		#region IDeliveryPointOwner implementation
@@ -266,6 +277,11 @@ namespace Vodovoz
 		public CounterpartyTypeStringType () : base (typeof(CounterpartyType))
 		{
 		}
+	}
+
+	public interface IContractOwner
+	{
+		IList<CounterpartyContract> CounterpartyContracts { get; set; }
 	}
 }
 

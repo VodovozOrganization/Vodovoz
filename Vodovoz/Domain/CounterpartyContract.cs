@@ -28,6 +28,13 @@ namespace Vodovoz
 			set { SetField (ref maxDelay, value, () => MaxDelay); }
 		}
 
+		bool isNew;
+
+		public virtual bool IsNew {
+			get { return isNew; }
+			set { SetField (ref isNew, value, () => IsNew); }
+		}
+
 		bool isArchive;
 
 		public virtual bool IsArchive {
