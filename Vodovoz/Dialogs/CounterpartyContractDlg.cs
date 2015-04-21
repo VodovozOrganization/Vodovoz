@@ -130,6 +130,8 @@ namespace Vodovoz
 			adaptor.Target = subject;
 			datatable5.DataSource = adaptor;
 			referenceOrganization.SubjectType = typeof(Organization);
+			additionalagreementsview1.ParentReference = new OrmParentReference (Session, (Subject as CounterpartyContract), "AdditionalAgreements");
+
 		}
 
 		public bool Save ()

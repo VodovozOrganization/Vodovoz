@@ -19,7 +19,6 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		private ISession session;
 		private Adaptor adaptor = new Adaptor ();
-		private Adaptor contractAdaptor = new Adaptor ();
 		private Counterparty subject;
 
 		public CounterpartyDlg ()
@@ -58,10 +57,8 @@ namespace Vodovoz
 			if (subject.Phones == null)
 				subject.Phones = new List<Phone> ();
 			phonesView.Phones = subject.Phones;
-			if (subject.Contract == null) {
-				subject.Contract = new CounterpartyContract ();
-				subject.Contract.Counterparty = subject;
-				Session.Save (subject.Contract);
+			if (subject.CounterpartyContracts == null) {
+				subject.CounterpartyContracts = new List<CounterpartyContract> ();
 			}
 			//Setting up editable property
 			entryName.IsEditable = entryJurAddress.IsEditable = entryFullName.IsEditable = true;
@@ -71,24 +68,21 @@ namespace Vodovoz
 			validatedINN.MaxLength = validatedKPP.MaxLength = 12;
 			//Setting up adaptors
 			adaptor.Target = subject;
-			contractAdaptor.Target = subject.Contract;
 			//Setting up fields sources
 			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = adaptor;
-			datatable5.DataSource = contractAdaptor;
 			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = adaptor;
 			validatedINN.DataSource = validatedKPP.DataSource = adaptor;
 			//Setting subjects
 			accountsView.ParentReference = new OrmParentReference (Session, Subject, "Accounts");
 			deliveryPointView.ParentReference = new OrmParentReference (Session, Subject, "DeliveryPoints");
+			counterpartyContractsView.ParentReference = new OrmParentReference (Session, Subject, "CounterpartyContracts");
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
-			referenceOrganization.SubjectType = typeof(Organization);
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);
 			referenceMainCounterparty.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
 				.Add (Restrictions.Not (Restrictions.Eq ("id", subject.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			proxiesview1.ParentReference = new OrmParentReference (Session, Subject, "Proxies");
-			additionalagreementsview1.ParentReference = new OrmParentReference (Session, (Subject as Counterparty).Contract, "AdditionalAgreements");
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			//Setting Contacts
@@ -237,7 +231,6 @@ namespace Vodovoz
 			Session.Close ();
 			contactsview1.Destroy ();
 			adaptor.Disconnect ();
-			contractAdaptor.Disconnect ();
 			base.Destroy ();
 		}
 	}

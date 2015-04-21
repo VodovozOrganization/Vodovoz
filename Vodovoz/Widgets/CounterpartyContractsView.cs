@@ -40,7 +40,7 @@ namespace Vodovoz
 					if (!(parentReference.ParentObject is IContractOwner)) {
 						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IContractOwner)));
 					}
-					contractOwner = (IContractOwner)parentReference.ParentObject;
+					ContractOwner = (IContractOwner)parentReference.ParentObject;
 				}
 			}
 			get { return parentReference; }

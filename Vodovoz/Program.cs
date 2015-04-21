@@ -67,6 +67,7 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(WaterSalesAgreement), typeof(AdditionalAgreementWater), "{Vodovoz.WaterSalesAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
 				new OrmObjectMapping (typeof(RepairAgreement), typeof(AdditionalAgreementRepair), "{Vodovoz.RepairAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
 				new OrmObjectMapping (typeof(Counterparty), typeof(CounterpartyDlg), "{Vodovoz.Counterparty} Name[Наименование];"),
+				new OrmObjectMapping (typeof(CounterpartyContract), typeof(CounterpartyContractDlg), "{Vodovoz.CounterpartyContract} Number[Номер договора];"),
 				new OrmObjectMapping (typeof(Organization), typeof(OrganizationDlg), "{Vodovoz.Organization} Name[Название];"),
 				new OrmObjectMapping (typeof(CustomerContact), typeof(ContactDlg), "{QSContacts.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] { "Surname", "Name", "Lastname", "Post" }),
 				new OrmObjectMapping (typeof(PaidRentEquipment), typeof(PaidRentEquipmentDlg), "{Vodovoz.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),

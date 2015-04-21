@@ -148,13 +148,6 @@ namespace Vodovoz
 			set { SetField (ref mainCounterparty, value, () => MainCounterparty); }
 		}
 
-		CounterpartyContract contract;
-
-		public virtual CounterpartyContract Contract {
-			get { return contract; }
-			set { SetField (ref contract, value, () => Contract); }
-		}
-
 		CounterpartyType counterpartyType;
 
 		public virtual CounterpartyType CounterpartyType {

@@ -153,7 +153,6 @@
 		<property name="PaymentMethod" column="payment_method" type="Vodovoz.PaymentStringType, Vodovoz"/>
 		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
 		<property name="CounterpartyType" column="counterparty_type" type="Vodovoz.CounterpartyTypeStringType, Vodovoz"/>
-		<one-to-one name="Contract" class="CounterpartyContract"/>
 		<many-to-one name="Significance" class="Significance" column="significance_id"/>
 		<many-to-one name="Status" class="CounterpartyStatus" column="status_id"/>
 		<many-to-one name="MainCounterparty" class="Counterparty" column="maincounterparty_id" />
@@ -182,6 +181,10 @@
 		<bag name="Contacts" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="CustomerContact" />
+		</bag>
+		<bag name="CounterpartyContracts" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="counterparty_id"/>
+    		<one-to-many class="CounterpartyContract" />
 		</bag>
 		<bag name="Proxies" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>

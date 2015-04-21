@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.treeCounterpartyContracts.InheritedBoundaryDataSource = false;
 			this.treeCounterpartyContracts.InheritedDataSource = false;
 			this.treeCounterpartyContracts.InheritedBoundaryDataSource = false;
-			this.treeCounterpartyContracts.ColumnMappings = "{Vodovoz.DeliveryPoint} Point[Название]; IsActive[Активна];";
+			this.treeCounterpartyContracts.ColumnMappings = "{Vodovoz.CounterpartyContract} Number[Номер];";
 			this.GtkScrolledWindow.Add (this.treeCounterpartyContracts);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -114,6 +114,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.treeCounterpartyContracts.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeCounterpartyContractsRowActivated);
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler (this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
