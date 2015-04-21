@@ -133,9 +133,11 @@ namespace Vodovoz
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
 			if (mytab == null)
 				return;
-				
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeAdditionalAgreements.GetSelectedObjects () [0]);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+
+			if (treeAdditionalAgreements.GetSelectedObjects ().GetLength (0) > 0) {
+				ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeAdditionalAgreements.GetSelectedObjects () [0]);
+				mytab.TabParent.AddSlaveTab (mytab, dlg);
+			}
 		}
 
 		protected void OnTreeAdditionalAgreementsRowActivated (object o, Gtk.RowActivatedArgs args)

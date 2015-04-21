@@ -60,6 +60,7 @@ namespace Vodovoz
 			phonesView.Phones = subject.Phones;
 			if (subject.Contract == null) {
 				subject.Contract = new CounterpartyContract ();
+				subject.Contract.Counterparty = subject;
 				Session.Save (subject.Contract);
 			}
 			//Setting up editable property
@@ -106,7 +107,7 @@ namespace Vodovoz
 		private string _tabName = "Новый контрагент";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -153,9 +154,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		public object Subject {

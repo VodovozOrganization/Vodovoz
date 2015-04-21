@@ -29,7 +29,6 @@ namespace Vodovoz
 
 		string name;
 
-		[Required (ErrorMessage = "Название точки доставки должно быть заполнено.")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
@@ -156,8 +155,8 @@ namespace Vodovoz
 		}
 
 		public string Point { 
-			get { return String.Format ("\"{0}\": г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
-				Name, City, Street, Building, Room); } 
+			get { return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
+				(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room); } 
 		}
 	}
 

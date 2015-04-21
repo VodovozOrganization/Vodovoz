@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Vodovoz
 {
 	[OrmSubject ("Дополнительные соглашения")]
-	public class AdditionalAgreement : IDomainObject, IValidatableObject
+	public class AdditionalAgreement : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
