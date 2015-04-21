@@ -1,6 +1,5 @@
 ﻿using System;
 using QSOrmProject;
-using NHibernate;
 using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 namespace Vodovoz
 {
 	[OrmSubject ("Сотрудники")]
-	public class Employee : PropertyChangedBase, IValidatableObject
+	public class Employee : PropertyChangedBase, IValidatableObject, ISpecialRowsRender
 	{
 		#region Свойства
 
@@ -133,12 +132,18 @@ namespace Vodovoz
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (String.IsNullOrEmpty (Name) && String.IsNullOrEmpty (LastName) && String.IsNullOrEmpty (Patronymic))
 				yield return new ValidationResult ("Должно быть заполнено хотя бы одно из следующих полей: " +
 				"Фамилия, Имя, Отчество)", new[] { "Name", "LastName", "Patronymic" });
 		}
+
+		#endregion
+
+		#region ISpecialRowsRender implementation
+
+		public string TextColor { get { return IsFired ? "grey" : "black"; } }
 
 		#endregion
 	}
