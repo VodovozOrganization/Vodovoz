@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.treeDeliveryPoints.InheritedBoundaryDataSource = false;
 			this.treeDeliveryPoints.InheritedDataSource = false;
 			this.treeDeliveryPoints.InheritedBoundaryDataSource = false;
-			this.treeDeliveryPoints.ColumnMappings = "{Vodovoz.DeliveryPoint} Point[Название];";
+			this.treeDeliveryPoints.ColumnMappings = "{Vodovoz.DeliveryPoint} Point[Название]; IsActive[Активна];";
 			this.GtkScrolledWindow.Add (this.treeDeliveryPoints);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

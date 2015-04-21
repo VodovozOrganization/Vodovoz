@@ -4,6 +4,7 @@ using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using System.Collections.Generic;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -27,6 +28,8 @@ namespace Vodovoz
 					DeliveryPointOwner.DeliveryPoints = new List<DeliveryPoint> ();
 				DeliveryPoints = new GenericObservableList<DeliveryPoint> (DeliveryPointOwner.DeliveryPoints);
 				treeDeliveryPoints.ItemsDataSource = DeliveryPoints;
+				treeDeliveryPoints.Columns [0].SetCellDataFunc (treeDeliveryPoints.Columns [0].Cells [0], new TreeCellDataFunc (RenderDeliveryPoint));
+				treeDeliveryPoints.Columns [1].Visible = false;
 			}
 		}
 
@@ -96,7 +99,13 @@ namespace Vodovoz
 			DeliveryPoints.Remove (treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPoint);
 		}
 
-
+		private void RenderDeliveryPoint (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
+		{
+			if ((bool)model.GetValue (iter, 1) == false)
+				(cell as CellRendererText).Foreground = "grey";
+			else
+				(cell as CellRendererText).Foreground = "black";
+		}
 	}
 }
 
