@@ -87,7 +87,7 @@ namespace Vodovoz
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			//Setting Contacts
 			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
-			contactsview1.ColumnMappings = "{Vodovoz.CustomerContact} FullName[Имя]; PostName[Должность]; PointCurator[Курируемые точки]; MainPhoneString[Телефон]; Comment[Комментарий];";
+			contactsview1.ColumnMappings = "{QSContacts.Contact} FullName[Имя]; PostName[Должность]; MainPhoneString[Телефон]; Comment[Комментарий];";
 			//Setting permissions
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
 		}

@@ -130,7 +130,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
     <Compile Include="Dialogs\ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
-    <Compile Include="Domain\CustomerContact.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
     <Compile Include="ReferenceFilters\EmployeeFilter.cs" />
     <Compile Include="Widgets\FreeRentPackagesView.cs" />

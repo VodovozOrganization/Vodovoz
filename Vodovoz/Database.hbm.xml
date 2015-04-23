@@ -159,8 +159,8 @@
 		<many-to-one name="Accountant" class="Employee" column="accountant"/>
 		<many-to-one name="SalesManager" class="Employee" column="sales_manager"/>
 		<many-to-one name="BottlesManager" class="Employee" column="bottles_manager"/>
-		<many-to-one name="MainContact" class="CustomerContact" column="main_contact_id"/>
-		<many-to-one name="FinancialContact" class="CustomerContact" column="financial_contact_id"/>
+		<many-to-one name="MainContact" class="QSContacts.Contact" column="main_contact_id"/>
+		<many-to-one name="FinancialContact" class="QSContacts.Contact" column="financial_contact_id"/>
 		<many-to-one name="DefaultAccount" class="QSBanks.Account" column="default_account_id" />
 		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
@@ -180,7 +180,7 @@
 		</bag>
 		<bag name="Contacts" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
-    		<one-to-many class="CustomerContact" />
+    		<one-to-many class="QSContacts.Contact" />
 		</bag>
 		<bag name="CounterpartyContracts" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
@@ -208,30 +208,6 @@
 		</bag>
 	</class>
 
-	<class name="CustomerContact" lazy="false" table="counterparty_contacts">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-		<property name="Surname" column="surname" />
-		<property name="Lastname" column="lastname" />
-		<property name="Comment" column="comment" /> 
-		<property name="Fired" column="fired" />
-		<many-to-one name="Post" class="QSContacts.Post" column="post_id" />
-		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="counterparty_contact_id"/>
-    		<one-to-many class="QSContacts.Phone" />
-		</bag>
-		<bag name="Emails" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="counterparty_contact_id"/>
-    		<one-to-many class="QSContacts.Email" />
-		</bag>
-		<bag name="DeliveryPoints" inverse="true" lazy="true" >
-    		<key column="contact_person_id"/>
-    		<one-to-many class="DeliveryPoint" />
-		</bag>
-	</class>
-
 	<class name="DeliveryPoint" lazy="false" table="delivery_points">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -249,7 +225,7 @@
 		<property name="Longitude" column="longitude" />
 		<property name="IsActive" column="is_active" />
 		<property name="Phone" column="phone" />
-		<many-to-one name="Contact" class="CustomerContact" column="contact_person_id" />
+		<many-to-one name="Contact" class="QSContacts.Contact" column="contact_person_id" />
 		<many-to-one name="LogisticsArea" class="LogisticsArea" column="logistic_area_id" />
 		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id" />
 	</class>
