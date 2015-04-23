@@ -177,6 +177,8 @@
     <Compile Include="Widgets\CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="Domain\Contact.cs" />
+    <Compile Include="Dialogs\ContactDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
