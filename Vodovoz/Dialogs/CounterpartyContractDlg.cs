@@ -19,7 +19,7 @@ namespace Vodovoz
 		protected CounterpartyContract subjectCopy;
 
 		public bool HasChanges {
-			get { return Session.IsDirty (); }
+			get { return false; }
 		}
 
 		#region ITdiTab implementation

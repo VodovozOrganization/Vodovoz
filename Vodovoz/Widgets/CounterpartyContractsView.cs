@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using QSOrmProject;
 using NHibernate;
 using QSTDI;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -27,6 +28,10 @@ namespace Vodovoz
 					ContractOwner.CounterpartyContracts = new List<CounterpartyContract> ();
 				CounterpartyContracts = new GenericObservableList<CounterpartyContract> (contractOwner.CounterpartyContracts);
 				treeCounterpartyContracts.ItemsDataSource = CounterpartyContracts;
+				if (typeof(ISpecialRowsRender).IsAssignableFrom (typeof(CounterpartyContract))) {
+					foreach (TreeViewColumn col in treeCounterpartyContracts.Columns)
+						col.SetCellDataFunc (col.Cells [0], new TreeCellDataFunc (RenderCell));
+				}
 			}
 		}
 
@@ -66,6 +71,7 @@ namespace Vodovoz
 
 			CounterpartyContract contract = new CounterpartyContract ();
 			contract.IsNew = true;
+			contract.Counterparty = contractOwner as Counterparty;
 			CounterpartyContracts.Add (contract);
 
 			ITdiDialog dlg = new CounterpartyContractDlg (ParentReference, contract);
@@ -94,6 +100,13 @@ namespace Vodovoz
 				return;
 
 			CounterpartyContracts.Remove (treeCounterpartyContracts.GetSelectedObjects () [0] as CounterpartyContract);
+		}
+
+		private void RenderCell (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
+		{
+			object o = ((treeCounterpartyContracts.Model as TreeModelAdapter)
+				.Implementor as Gtk.DataBindings.MappingsImplementor).NodeFromIter (iter);
+			(cell as CellRendererText).Foreground = (o as ISpecialRowsRender).TextColor;
 		}
 	}
 }

@@ -1,12 +1,11 @@
 ﻿using System;
 using QSOrmProject;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
 	[OrmSubject ("Договоры контрагента")]
-	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner
+	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner, ISpecialRowsRender
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }
 
@@ -49,7 +48,7 @@ namespace Vodovoz
 			set { SetField (ref onCancellation, value, () => OnCancellation); }
 		}
 
-		public virtual string Number { get { return Id.ToString (); } set { } }
+		public virtual string Number { get { return Id > 0 ? Id.ToString () : "Не определен"; } set { } }
 
 		DateTime issueDate;
 
@@ -70,6 +69,33 @@ namespace Vodovoz
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
 			set { SetField (ref counterparty, value, () => Counterparty); }
+		}
+
+		#region ISpecialRowsRender implementation
+
+		public string TextColor {
+			get {
+				if (IsArchive)
+					return "grey";
+				if (OnCancellation)
+					return "blue";
+				return "black";
+					
+			}
+		}
+
+		#endregion
+
+		public virtual string Title { 
+			get { return String.Format ("№{0} от {1}", Id, IssueDate.ToShortDateString ()); }
+		}
+
+		public virtual string OrganizationTitle { 
+			get { return Organization != null ? Organization.FullName : "Не указана"; }
+		}
+
+		public virtual string AdditionalAgreementsCount { 
+			get { return AdditionalAgreements != null ? AdditionalAgreements.Count.ToString () : "0"; }
 		}
 	}
 

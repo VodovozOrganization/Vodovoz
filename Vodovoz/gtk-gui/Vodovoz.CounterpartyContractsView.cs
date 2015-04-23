@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.treeCounterpartyContracts.InheritedBoundaryDataSource = false;
 			this.treeCounterpartyContracts.InheritedDataSource = false;
 			this.treeCounterpartyContracts.InheritedBoundaryDataSource = false;
-			this.treeCounterpartyContracts.ColumnMappings = "{Vodovoz.CounterpartyContract} Number[Номер];";
+			this.treeCounterpartyContracts.ColumnMappings = "{Vodovoz.CounterpartyContract} Title[Номер]; OrganizationTitle[Организация]; AdditionalAgreementsCount[Кол-во доп. соглашений];";
 			this.GtkScrolledWindow.Add (this.treeCounterpartyContracts);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
