@@ -146,7 +146,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label10;
 		
-		private global::QSContacts.ContactsView contactsview1;
+		private global::Vodovoz.ContactsView contactsview1;
 		
 		private global::Gtk.Label label24;
 		
@@ -313,7 +313,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 6;
+			this.notebook1.CurrentPage = 4;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -1025,7 +1025,7 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel (this.datatable3, this.label10);
 			this.label10.ShowAll ();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.contactsview1 = new global::QSContacts.ContactsView ();
+			this.contactsview1 = new global::Vodovoz.ContactsView ();
 			this.contactsview1.Events = ((global::Gdk.EventMask)(256));
 			this.contactsview1.Name = "contactsview1";
 			this.notebook1.Add (this.contactsview1);
