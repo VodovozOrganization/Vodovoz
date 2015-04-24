@@ -1,12 +1,7 @@
-﻿using System;
-using QSOrmProject;
-
-namespace Vodovoz
+﻿namespace Vodovoz
 {
-	public class IncomingWater: PropertyChangedBase, IDomainObject
+	public class IncomingWater: Document
 	{
-		public virtual int Id { get; set; }
-
 		int amount;
 
 		public virtual int Amount {
@@ -14,11 +9,11 @@ namespace Vodovoz
 			set { SetField (ref amount, value, () => Amount); }
 		}
 
-		DateTime date;
+		Warehouse warehouse;
 
-		public virtual DateTime Date {
-			get { return date; }
-			set { SetField (ref date, value, () => Date); }
+		public virtual Warehouse Warehouse {
+			get { return warehouse; }
+			set { SetField (ref warehouse, value, () => Warehouse); }
 		}
 	}
 }

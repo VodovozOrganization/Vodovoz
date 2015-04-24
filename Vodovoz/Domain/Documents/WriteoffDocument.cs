@@ -1,18 +1,8 @@
-﻿using System;
-using QSOrmProject;
-
-namespace Vodovoz
+﻿namespace Vodovoz
 {
-	public class WriteoffDocument: PropertyChangedBase, IDomainObject
+	public class WriteoffDocument: Document
 	{
-		public virtual int Id { get; set; }
-
-		DateTime dateAndTime;
-
-		public virtual DateTime DateAndTime {
-			get { return dateAndTime; }
-			set { dateAndTime = value; }
-		}
+		//TODO List of elements
 
 		Employee responsibleEmployee;
 

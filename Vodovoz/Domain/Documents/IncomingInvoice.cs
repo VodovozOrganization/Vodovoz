@@ -1,20 +1,9 @@
-﻿using System;
-using QSOrmProject;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	public class IncomingInvoice: PropertyChangedBase, IDomainObject
+	public class IncomingInvoice: Document
 	{
-		public virtual int Id { get; set; }
-
-		DateTime date;
-
-		public virtual DateTime Date {
-			get { return date; }
-			set { SetField (ref date, value, () => Date); }
-		}
-
 		Counterparty contractor;
 
 		public virtual Counterparty Contractor {

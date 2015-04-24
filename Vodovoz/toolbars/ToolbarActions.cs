@@ -1,18 +1,23 @@
+using Gtk;
+
 public partial class MainWindow : Gtk.Window
 {
-	Gtk.Action ActionNewOrder;
-	Gtk.Action ActionOrdersTable;
-	Gtk.Action ActionServiceTikets;
+	Action ActionNewOrder;
+	Action ActionOrdersTable;
+	Action ActionServiceTickets;
+	Action ActionWarehouseDocuments;
 
 	public void BuildToolbarActions ()
 	{
-		ActionNewOrder = new Gtk.Action ("ActionNewOrder", "Новый заказ", null, "gtk-new");
-		ActionOrdersTable = new Gtk.Action ("ActionOrdersTable", "Журнал заказов", null, "table");
-		ActionServiceTikets = new Gtk.Action ("ActionServiceTikets", "Журнал заявок", null, "table");
-		Gtk.ActionGroup w1 = new Gtk.ActionGroup ("ToolbarActions");
+		ActionNewOrder = new Action ("ActionNewOrder", "Новый заказ", null, "gtk-new");
+		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
+		ActionServiceTickets = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
+		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
+		ActionGroup w1 = new ActionGroup ("ToolbarActions");
 		w1.Add (ActionNewOrder, null);
 		w1.Add (ActionOrdersTable, null);
-		w1.Add (ActionServiceTikets, null);
+		w1.Add (ActionServiceTickets, null);
+		w1.Add (ActionWarehouseDocuments, null);
 		UIManager.InsertActionGroup (w1, 0);
 	}
 }

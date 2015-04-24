@@ -214,6 +214,16 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
+	protected void OnActionStockToggled (object sender, EventArgs e)
+	{
+		if (ActionStock.Active) {
+			uiIdServices = this.UIManager.AddUiFromResource ("warehouse.xml");
+			this.UIManager.EnsureUpdate ();
+		} else if (uiIdServices > 0) {
+			this.UIManager.RemoveUi (uiIdServices);
+		}
+	}
+
 	protected void OnActionOrganizationsActivated (object sender, EventArgs e)
 	{
 		ISession session = OrmMain.OpenSession ();

@@ -348,6 +348,7 @@ public partial class MainWindow
 		this.quitAction.Activated += new global::System.EventHandler (this.OnQuitActionActivated);
 		this.ActionOrders.Toggled += new global::System.EventHandler (this.OnActionOrdersToggled);
 		this.ActionServices.Toggled += new global::System.EventHandler (this.OnActionServicesToggled);
+		this.ActionStock.Toggled += new global::System.EventHandler (this.OnActionStockToggled);
 		this.ActionOrg.Activated += new global::System.EventHandler (this.OnActionOrganizationsActivated);
 		this.ActionBanksRF.Activated += new global::System.EventHandler (this.OnActionBanksRFActivated);
 		this.ActionEmploey.Activated += new global::System.EventHandler (this.OnActionEmploeyActivated);

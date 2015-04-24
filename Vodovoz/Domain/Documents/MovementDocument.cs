@@ -3,17 +3,10 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	public class MovementDocument: PropertyChangedBase, IDomainObject
+	public class MovementDocument: Document
 	{
-		public virtual int Id { get; set; }
-
-		DateTime date;
-
-		public virtual DateTime Date {
-			get { return date; }
-			set { date = value; }
-		}
-
+		//TODO Movement type (CP - CP or WH - WH)
+		//TODO List of elements
 		Employee responsiblePerson;
 
 		public virtual Employee ResponsiblePerson {

@@ -78,6 +78,9 @@
     <EmbeddedResource Include="Database.hbm.xml" />
     <EmbeddedResource Include="icons\insert-image.png" />
     <EmbeddedResource Include="icons\drive-harddisk.png" />
+    <EmbeddedResource Include="toolbars\warehouse.xml">
+      <LogicalName>warehouse.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -190,6 +193,7 @@
     <Compile Include="Domain\Documents\WriteoffDocument.cs" />
     <Compile Include="Domain\Documents\MovementDocument.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
+    <Compile Include="Domain\Documents\Document.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
