@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.datatreeviewContacts.InheritedBoundaryDataSource = false;
 			this.datatreeviewContacts.InheritedDataSource = false;
 			this.datatreeviewContacts.InheritedBoundaryDataSource = false;
-			this.datatreeviewContacts.ColumnMappings = "{Vodovoz.Contact} Surname[Фамилия ]; Name[Имя]; Lastname[Отчество ];";
+			this.datatreeviewContacts.ColumnMappings = "{Vodovoz.Contact} FullName[Имя]; PostName[Должность]; PointCurator[Курируемые точки]; MainPhoneString[Телефон]; Comment[Комментарий];";
 			this.GtkScrolledWindow.Add (this.datatreeviewContacts);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

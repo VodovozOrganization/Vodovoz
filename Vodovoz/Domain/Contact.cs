@@ -29,7 +29,19 @@ namespace Vodovoz
 
 		public virtual IList<Email> Emails { get; set; }
 
+		public virtual IList<DeliveryPoint> DeliveryPoints { get; set; }
+
 		#endregion
+
+		public string PointCurator {
+			get{
+				if (DeliveryPoints == null || DeliveryPoints.Count <= 0)
+					return String.Empty;
+				if (DeliveryPoints.Count == 1)
+					return DeliveryPoints [0].Name;
+				return String.Format ("{0} и еще {1}", DeliveryPoints [0].Name, DeliveryPoints.Count);
+			}
+		}
 
 		public Contact ()
 		{
