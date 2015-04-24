@@ -15,20 +15,21 @@ namespace Vodovoz
 
 		string name;
 
+		[PropertyChangedAlso("FullName")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
 		}
 
 		string lastName;
-
+		[PropertyChangedAlso("FullName")]
 		public virtual string Lastname {
 			get { return lastName; }
 			set { SetField (ref lastName, value, () => Lastname); }
 		}
 
 		string surname;
-
+		[PropertyChangedAlso("FullName")]
 		public virtual string Surname {
 			get { return surname; }
 			set { SetField (ref surname, value, () => Surname); }
