@@ -19,6 +19,7 @@ public partial class MainWindow: Gtk.Window
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		Build ();
+		this.BuildToolbarActions ();
 		this.KeyReleaseEvent += HandleKeyReleaseEvent;
 		//Передаем лебл
 		QSMain.StatusBarLabel = labelStatus;

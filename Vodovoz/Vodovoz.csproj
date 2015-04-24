@@ -184,6 +184,12 @@
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="Widgets\ContactsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
+    <Compile Include="Domain\Documents\IncomingInvoice.cs" />
+    <Compile Include="Domain\Documents\IncomingInvoiceItem.cs" />
+    <Compile Include="Domain\Documents\IncomingWater.cs" />
+    <Compile Include="Domain\Documents\WriteoffDocument.cs" />
+    <Compile Include="Domain\Documents\MovementDocument.cs" />
+    <Compile Include="toolbars\ToolbarActions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -249,6 +255,7 @@
     <Folder Include="Сrutches\" />
     <Folder Include="Domain\Operations\" />
     <Folder Include="Domain\BasicHandbooks\" />
+    <Folder Include="Domain\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
