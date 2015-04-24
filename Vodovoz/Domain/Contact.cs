@@ -7,23 +7,53 @@ using QSContacts;
 namespace Vodovoz
 {
 	[OrmSubject ("Контакты")]
-	public class Contact : BaseNotifyPropertyChanged, IDomainObject
+	public class Contact : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		public virtual string Name { get; set; }
+		string name;
 
-		public virtual string Surname { get; set; }
+		public virtual string Name {
+			get { return name; }
+			set { SetField (ref name, value, () => Name); }
+		}
 
-		public virtual string Lastname { get; set; }
+		string lastName;
 
-		public virtual string Comment { get; set; }
+		public virtual string Lastname {
+			get { return lastName; }
+			set { SetField (ref lastName, value, () => Lastname); }
+		}
 
-		public virtual bool Fired { get; set; }
+		string surname;
 
-		public virtual Post Post { get; set; }
+		public virtual string Surname {
+			get { return surname; }
+			set { SetField (ref surname, value, () => Surname); }
+		}
+			
+		string comment;
+
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
+
+		bool fired;
+
+		public virtual bool Fired {
+			get { return fired; }
+			set { SetField (ref fired, value, () => Fired); }
+		}
+
+		Post post;
+
+		public virtual Post Post {
+			get { return post; }
+			set { SetField (ref post, value, () => Post); }
+		}
 
 		public virtual IList<Phone> Phones { get; set; }
 
