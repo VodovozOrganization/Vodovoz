@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Vodovoz
 {
 	[OrmSubject ("Сотрудники")]
-	public class Employee : PropertyChangedBase, IValidatableObject, ISpecialRowsRender
+	public class Employee : PropertyChangedBase, IDomainObject, IValidatableObject, ISpecialRowsRender
 	{
 		#region Свойства
 
