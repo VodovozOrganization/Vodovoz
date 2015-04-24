@@ -12,7 +12,6 @@ namespace Vodovoz
 	public partial class CounterpartyContractDlg : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
-		protected ISession session;
 		protected Adaptor adaptor = new Adaptor ();
 		protected IContractOwner ContractOwner;
 		protected bool isSaveButton;
@@ -44,26 +43,12 @@ namespace Vodovoz
 
 		#endregion
 
-		#region IOrmDialog implementation
-
-		public ISession Session {
-			get {
-				if (session == null)
-					Session = OrmMain.Sessions.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		#endregion
-
 		OrmParentReference parentReference;
 
 		public OrmParentReference ParentReference {
 			set {
 				parentReference = value;
 				if (parentReference != null) {
-					Session = parentReference.Session;
 					if (!(parentReference.ParentObject is IContractOwner)) {
 						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IContractOwner)));
 					}
@@ -130,7 +115,7 @@ namespace Vodovoz
 			adaptor.Target = subject;
 			datatable5.DataSource = adaptor;
 			referenceOrganization.SubjectType = typeof(Organization);
-			additionalagreementsview1.ParentReference = new OrmParentReference (Session, (Subject as CounterpartyContract), "AdditionalAgreements");
+			additionalagreementsview1.ParentReference = new OrmParentReference (ParentReference.Session, (Subject as CounterpartyContract), "AdditionalAgreements");
 
 		}
 

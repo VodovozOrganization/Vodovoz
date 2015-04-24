@@ -5,7 +5,6 @@ using NHibernate;
 using System.Data.Bindings;
 using QSTDI;
 using QSValidation;
-using QSContacts;
 using NHibernate.Criterion;
 using QSProjectsLib;
 using System.Collections.Generic;
@@ -16,14 +15,14 @@ namespace Vodovoz
 	public partial class DeliveryPointDlg : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
-		protected ISession session;
 		protected Adaptor adaptor = new Adaptor ();
 		protected IDeliveryPointOwner DeliveryPointOwner;
 		protected bool isSaveButton;
 		protected DeliveryPoint subjectCopy;
 
 		public bool HasChanges {
-			get { return Session.IsDirty (); }
+			get { return false; //FIXME 
+			}
 		}
 
 		#region ITdiTab implementation
@@ -48,26 +47,12 @@ namespace Vodovoz
 
 		#endregion
 
-		#region IOrmDialog implementation
-
-		public NHibernate.ISession Session {
-			get {
-				if (session == null)
-					Session = OrmMain.Sessions.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		#endregion
-
 		OrmParentReference parentReference;
 
 		public OrmParentReference ParentReference {
 			set {
 				parentReference = value;
 				if (parentReference != null) {
-					Session = parentReference.Session;
 					if (!(parentReference.ParentObject is IDeliveryPointOwner)) {
 						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IDeliveryPointOwner)));
 					}
@@ -139,7 +124,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
 			referenceContact.SubjectType = typeof(Contact);
-			referenceContact.ParentReference = new OrmParentReference (Session, ParentReference.ParentObject, "Contacts");
+			referenceContact.ParentReference = new OrmParentReference (ParentReference.Session, ParentReference.ParentObject, "Contacts");
 			entryCity.FocusOutEvent += FocusOut;
 			entryStreet.FocusOutEvent += FocusOut;
 			entryRegion.FocusOutEvent += FocusOut;
@@ -169,7 +154,7 @@ namespace Vodovoz
 
 		protected void SetLogisticsArea ()
 		{
-			IList <DeliveryPoint> sameAddress = Session.CreateCriteria<DeliveryPoint> ()
+			IList <DeliveryPoint> sameAddress = ParentReference.Session.CreateCriteria<DeliveryPoint> ()
 				.Add (Restrictions.Eq ("Region", subject.Region))
 				.Add (Restrictions.Eq ("City", subject.City))
 				.Add (Restrictions.Eq ("Street", subject.Street))

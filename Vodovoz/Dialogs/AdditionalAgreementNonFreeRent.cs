@@ -16,7 +16,6 @@ namespace Vodovoz
 		protected NonfreeRentAgreement subjectCopy;
 		protected bool isSaveButton;
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
-		protected ISession session;
 		protected Adaptor adaptor = new Adaptor ();
 		protected IAdditionalAgreementOwner AgreementOwner;
 
@@ -46,26 +45,12 @@ namespace Vodovoz
 
 		#endregion
 
-		#region IOrmDialog implementation
-
-		public NHibernate.ISession Session {
-			get {
-				if (session == null)
-					Session = OrmMain.Sessions.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		#endregion
-
 		OrmParentReference parentReference;
 
 		public OrmParentReference ParentReference {
 			set {
 				parentReference = value;
 				if (parentReference != null) {
-					Session = parentReference.Session;
 					if (!(parentReference.ParentObject is IAdditionalAgreementOwner)) {
 						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IAdditionalAgreementOwner)));
 					}
@@ -104,7 +89,6 @@ namespace Vodovoz
 			base.Destroy ();
 		}
 
-
 		private NonfreeRentAgreement subject;
 
 		public object Subject {
@@ -135,11 +119,11 @@ namespace Vodovoz
 			foreach (DeliveryPoint d in (parentReference.ParentObject as CounterpartyContract).Counterparty.DeliveryPoints)
 				identifiers.Add (d.Id);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+			referenceDeliveryPoint.ItemsCriteria = ParentReference.Session.CreateCriteria<DeliveryPoint> ()
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = (parentReference.ParentObject as CounterpartyContract).Number + " - А";
 
-			paidrentpackagesview1.ParentReference = new OrmParentReference (session, subject, "Equipment");
+			paidrentpackagesview1.ParentReference = new OrmParentReference (ParentReference.Session, subject, "Equipment");
 			paidrentpackagesview1.DailyRent = false;
 		}
 
