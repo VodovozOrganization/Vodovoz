@@ -7,19 +7,21 @@ using System.Data.Bindings;
 using System.Collections.Generic;
 using QSContacts;
 using NHibernate.Criterion;
-using QSBanks;
 using QSValidation;
 using QSProjectsLib;
+using System.Text.RegularExpressions;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CounterpartyDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
+	public partial class CounterpartyDlg : Gtk.Bin, ITdiDialog, IOrmDialog
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		private ISession session;
-		private Adaptor adaptor = new Adaptor ();
-		private Counterparty subject;
+		static Logger logger = LogManager.GetCurrentClassLogger ();
+		int dialogIsLoading = 2;
+		ISession session;
+		Adaptor adaptor = new Adaptor ();
+		Counterparty subject;
+
 
 		public CounterpartyDlg ()
 		{
@@ -89,13 +91,15 @@ namespace Vodovoz
 			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			//Setting permissions
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
+			entryName.Changed += EntryName_Changed;
+			entryFullName.Changed += EntryName_Changed;
 		}
 
 		#region ITdiTab implementation
 
-		public event EventHandler<QSTDI.TdiTabNameChangedEventArgs> TabNameChanged;
+		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 
-		public event EventHandler<QSTDI.TdiTabCloseEventArgs> CloseTab;
+		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		private string _tabName = "Новый контрагент";
 
@@ -111,7 +115,7 @@ namespace Vodovoz
 
 		}
 
-		public QSTDI.ITdiTabParent TabParent { get ; set ; }
+		public ITdiTabParent TabParent { get ; set ; }
 
 		#endregion
 
@@ -141,7 +145,7 @@ namespace Vodovoz
 
 		#region IOrmDialog implementation
 
-		public NHibernate.ISession Session {
+		public ISession Session {
 			get {
 				if (session == null)
 					Session = OrmMain.Sessions.OpenSession ();
@@ -231,6 +235,22 @@ namespace Vodovoz
 			contactsview1.Destroy ();
 			adaptor.Disconnect ();
 			base.Destroy ();
+		}
+
+		void EntryName_Changed (object sender, EventArgs e)
+		{
+			if (dialogIsLoading > 0) {
+				dialogIsLoading--;
+				return;
+			}
+			if (sender == entryName) {
+				foreach (KeyValuePair<string, string> pair in InformationHandbook.OrganizationTypes)
+					if (Regex.IsMatch (entryName.Text, pair.Key) || Regex.IsMatch (entryName.Text, pair.Value, RegexOptions.IgnoreCase))
+						enumPersonType.Active = (int)PersonType.legal;
+			} else
+				foreach (KeyValuePair<string, string> pair in InformationHandbook.OrganizationTypes)
+					if (Regex.IsMatch (entryFullName.Text, pair.Key) || Regex.IsMatch (entryFullName.Text, pair.Value, RegexOptions.IgnoreCase))
+						enumPersonType.Active = (int)PersonType.legal;
 		}
 	}
 }
