@@ -17,6 +17,7 @@ namespace Vodovoz
 		protected IContactOwner contactOwner;
 		protected Adaptor adaptor = new Adaptor ();
 		protected Contact subject;
+		protected bool isNew = false;
 
 		public bool HasChanges {
 			get { return false; }
@@ -103,6 +104,16 @@ namespace Vodovoz
 			}
 		}
 
+		public ContactDlg (OrmParentReference parenReferance)
+		{
+			this.Build ();
+			ParentReference = parenReferance;
+			subject = new Contact ();
+			isNew = true;
+			TabName = "Новый контакт";
+			ConfigureDlg ();
+		}
+
 		public ContactDlg (OrmParentReference parenReferance, Contact sub)
 		{
 			this.Build ();
@@ -132,6 +143,8 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			logger.Info ("Сохраняем контактное лицо...");
+			if (isNew)
+				(parentReference.ParentObject as Counterparty).Contacts.Add (subject);
 			phonesView.SaveChanges ();
 			emailsView.SaveChanges ();
 			if (contactOwner != null)
