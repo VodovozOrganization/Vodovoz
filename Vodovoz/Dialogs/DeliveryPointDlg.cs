@@ -21,8 +21,7 @@ namespace Vodovoz
 		protected DeliveryPoint subjectCopy;
 
 		public bool HasChanges {
-			get { return false; //FIXME 
-			}
+			get { return false; } //FIXME }
 		}
 
 		#region ITdiTab implementation
@@ -102,6 +101,17 @@ namespace Vodovoz
 				if (value is DeliveryPoint)
 					subject = value as DeliveryPoint;
 			}
+		}
+
+		public DeliveryPointDlg (OrmParentReference parentReference)
+		{
+			this.Build ();
+			ParentReference = parentReference;
+			subject = new DeliveryPoint ();
+			TabName = "Новая точка доставки";
+			(parentReference.ParentObject as IDeliveryPointOwner).DeliveryPoints.Add (subject);
+			ConfigureDlg ();
+			subjectCopy = ObjectCloner.Clone<DeliveryPoint> (subject);
 		}
 
 		public DeliveryPointDlg (OrmParentReference parentReference, DeliveryPoint sub)

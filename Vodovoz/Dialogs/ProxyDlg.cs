@@ -33,9 +33,7 @@ namespace Vodovoz
 					this.proxyOwner = (IProxyOwner)parentReference.ParentObject;
 				}
 			}
-			get {
-				return parentReference;
-			}
+			get { return parentReference; }
 		}
 
 		public ProxyDlg (OrmParentReference parentReference)
@@ -71,6 +69,7 @@ namespace Vodovoz
 			datepickerIssue.DateChanged += OnIssueDateChanged;
 			datepickerStart.DateChanged += OnStartDateChanged;
 			datepickerExpiration.DateChanged += OnExpirationDateChanged;
+			referenceDeliveryPoint.ParentReference = new OrmParentReference (Session, (ParentReference.ParentObject as Counterparty), "DeliveryPoints");
 
 			var identifiers = new List<object> ();
 			foreach (DeliveryPoint d in (parentReference.ParentObject as Counterparty).DeliveryPoints)
@@ -125,7 +124,7 @@ namespace Vodovoz
 		private string _tabName = "Новая доверенность";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -164,9 +163,7 @@ namespace Vodovoz
 					Session = OrmMain.Sessions.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		public object Subject {

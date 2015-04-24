@@ -10,7 +10,7 @@ using QSContacts;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ContactDlg : Gtk.Bin, ITdiDialog, IOrmDialog
+	public partial class ContactDlg : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 		protected ISession session;

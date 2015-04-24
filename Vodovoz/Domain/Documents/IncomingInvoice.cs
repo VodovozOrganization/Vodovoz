@@ -18,6 +18,8 @@ namespace Vodovoz
 			set { SetField (ref warehouse, value, () => Warehouse); }
 		}
 
+		//TODO Map invoice item to database
+
 		IList<IncomingInvoiceItem> items;
 
 		public virtual IList<IncomingInvoiceItem> Items {
