@@ -110,7 +110,6 @@ namespace Vodovoz
 			ParentReference = parenReferance;
 			subject = new Contact ();
 			isNew = true;
-			TabName = "Новый контакт";
 			ConfigureDlg ();
 		}
 

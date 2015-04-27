@@ -19,6 +19,7 @@ namespace Vodovoz
 		private IProxyOwner proxyOwner;
 		private Adaptor adaptor = new Adaptor ();
 		private Proxy subject;
+		private bool isNew = false;
 
 		OrmParentReference parentReference;
 
@@ -41,7 +42,7 @@ namespace Vodovoz
 			this.Build ();
 			ParentReference = parentReference;
 			subject = new Proxy ();
-			proxyOwner.Proxies.Add (subject);
+			isNew = true;
 			ConfigureDlg ();
 		}
 
@@ -144,6 +145,8 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			logger.Info ("Сохраняем доверенность...");
+			if (isNew)
+				(parentReference.ParentObject as Counterparty).Proxies.Add (subject);
 			if (proxyOwner != null)
 				OrmMain.DelayedNotifyObjectUpdated (proxyOwner, subject);
 			return true;

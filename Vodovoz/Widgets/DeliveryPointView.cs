@@ -67,11 +67,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			DeliveryPoint point = new DeliveryPoint ();
-			point.IsNew = true;
-			DeliveryPoints.Add (point);
-
-			ITdiDialog dlg = new DeliveryPointDlg (ParentReference, point);
+			ITdiDialog dlg = new DeliveryPointDlg (ParentReference);
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 

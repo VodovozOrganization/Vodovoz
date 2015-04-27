@@ -108,7 +108,7 @@ namespace Vodovoz
 			this.Build ();
 			ParentReference = parentReference;
 			subject = new DeliveryPoint ();
-			TabName = "Новая точка доставки";
+			subject.IsNew = true;
 			(parentReference.ParentObject as IDeliveryPointOwner).DeliveryPoints.Add (subject);
 			ConfigureDlg ();
 			subjectCopy = ObjectCloner.Clone<DeliveryPoint> (subject);

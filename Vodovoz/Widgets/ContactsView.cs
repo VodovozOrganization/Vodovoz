@@ -69,10 +69,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			var newContact = new Contact ();
-			contactsList.Add (newContact);
-			ContactDlg dlg = new ContactDlg (ParentReference, newContact);
-
+			ContactDlg dlg = new ContactDlg (ParentReference);
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
