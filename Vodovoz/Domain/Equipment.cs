@@ -7,7 +7,7 @@ using NHibernate;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Оборудование")]
+	[OrmSubject (JournalName = "Оборудование", ObjectName = "оборудование")]
 	public class Equipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -16,6 +16,7 @@ namespace Vodovoz
 
 		bool onDuty;
 
+		[Display(Name = "Дежурный куллер")]
 		public virtual bool OnDuty {
 			get { return onDuty; }
 			set { SetField (ref onDuty, value, () => OnDuty); }
@@ -23,6 +24,7 @@ namespace Vodovoz
 
 		string serial;
 
+		[Display(Name = "Серийный номер")]
 		public virtual string Serial {
 			get { return serial; }
 			set { SetField (ref serial, value, () => Serial); }
@@ -30,6 +32,7 @@ namespace Vodovoz
 
 		string comment;
 
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
@@ -37,6 +40,7 @@ namespace Vodovoz
 
 		Nomenclature nomenclature;
 
+		[Display(Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set { SetField (ref nomenclature, value, () => Nomenclature); }
@@ -44,6 +48,7 @@ namespace Vodovoz
 
 		DateTime lastServiceDate;
 
+		[Display(Name = "Последняя сан. обработка")]
 		public virtual DateTime LastServiceDate {
 			get { return lastServiceDate; }
 			set { SetField (ref lastServiceDate, value, () => LastServiceDate); }
@@ -51,6 +56,7 @@ namespace Vodovoz
 
 		DateTime warrantyEndDate;
 
+		[Display(Name = "Окончание гарантии")]
 		public virtual DateTime WarrantyEndDate {
 			get { return warrantyEndDate; }
 			set { SetField (ref warrantyEndDate, value, () => WarrantyEndDate); }
@@ -62,7 +68,6 @@ namespace Vodovoz
 
 		public virtual string NomenclatureName { get { return Nomenclature == null ? String.Empty : Nomenclature.Name; } }
 
-
 		public virtual string LastServiceDateString { get { return LastServiceDate.ToShortDateString (); } }
 
 		public Equipment ()
@@ -72,7 +77,7 @@ namespace Vodovoz
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (LastServiceDate > DateTime.Now)
 				yield return new ValidationResult ("Дата последней санитарной обработки не может быть в будущем.");

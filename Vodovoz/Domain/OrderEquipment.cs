@@ -5,13 +5,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Доставка/забор оборудования")]
+	[OrmSubject ("Строки оборудования в заказе", "оборудование в заказе")]
 	public class OrderEquipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		Direction direction;
 
+		[Display(Name = "Направление")]
 		public virtual Direction Direction {
 			get { return direction; }
 			set { SetField (ref direction, value, () => Direction); }
@@ -19,6 +20,7 @@ namespace Vodovoz
 
 		OrderItem orderItem;
 
+		[Display(Name = "Связанная строка")]
 		public virtual OrderItem OrderItem {
 			get { return orderItem; }
 			set { SetField (ref orderItem, value, () => OrderItem); }
@@ -26,6 +28,7 @@ namespace Vodovoz
 
 		Equipment equipment;
 
+		[Display(Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment); }
@@ -33,6 +36,7 @@ namespace Vodovoz
 
 		Reason reason;
 
+		[Display(Name = "Причина")]
 		public virtual Reason Reason {
 			get { return reason; }
 			set { SetField (ref reason, value, () => Reason); }

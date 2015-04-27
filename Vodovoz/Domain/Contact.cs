@@ -1,12 +1,12 @@
 ﻿using System;
-using QSOrmProject;
 using System.Collections.Generic;
-using System.Data.Bindings;
+using System.ComponentModel.DataAnnotations;
 using QSContacts;
+using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Контакты")]
+	[OrmSubject (JournalName = "Контакты", ObjectName = "контакт")]
 	public class Contact : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -16,6 +16,7 @@ namespace Vodovoz
 		string name;
 
 		[PropertyChangedAlso("FullName")]
+		[Display(Name = "Имя")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
@@ -23,6 +24,7 @@ namespace Vodovoz
 
 		string lastName;
 		[PropertyChangedAlso("FullName")]
+		[Display(Name = "Фамилия")]
 		public virtual string Lastname {
 			get { return lastName; }
 			set { SetField (ref lastName, value, () => Lastname); }
@@ -30,6 +32,7 @@ namespace Vodovoz
 
 		string surname;
 		[PropertyChangedAlso("FullName")]
+		[Display(Name = "Отчество")]
 		public virtual string Surname {
 			get { return surname; }
 			set { SetField (ref surname, value, () => Surname); }
@@ -37,29 +40,33 @@ namespace Vodovoz
 			
 		string comment;
 
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
 		bool fired;
-
+		[Display(Name = "Уволенный")]
 		public virtual bool Fired {
 			get { return fired; }
 			set { SetField (ref fired, value, () => Fired); }
 		}
 
 		Post post;
-
+		[Display(Name = "Должность")]
 		public virtual Post Post {
 			get { return post; }
 			set { SetField (ref post, value, () => Post); }
 		}
 
+		[Display(Name = "Телефоны")]
 		public virtual IList<Phone> Phones { get; set; }
 
+		[Display(Name = "E-mail адреса")]
 		public virtual IList<Email> Emails { get; set; }
 
+		[Display(Name = "Точки доставки")]
 		public virtual IList<DeliveryPoint> DeliveryPoints { get; set; }
 
 		#endregion

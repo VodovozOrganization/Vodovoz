@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Точки доставки")]
+	[OrmSubject (JournalName = "Точки доставки", ObjectName = "точка доставки")]
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -14,28 +14,28 @@ namespace Vodovoz
 		public virtual int Id { get; set; }
 
 		int minutesToUnload;
-
+		[Display(Name = "Время разгрузки")]
 		public virtual int MinutesToUnload {
 			get { return minutesToUnload; }
 			set { SetField (ref minutesToUnload, value, () => MinutesToUnload); }
 		}
 
 		int floor;
-
+		[Display(Name = "Этаж")]
 		public virtual int Floor {
 			get { return floor; }
 			set { SetField (ref floor, value, () => Floor); }
 		}
 
 		string name;
-
+		[Display(Name = "Название")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
 		}
 
 		string region;
-
+		[Display(Name = "Регион")]
 		public virtual string Region {
 			get { return region; }
 			set { SetField (ref region, value, () => Region); }
@@ -43,6 +43,7 @@ namespace Vodovoz
 
 		string city;
 
+		[Display(Name = "Город")]
 		[Required (ErrorMessage = "Город должен быть заполнен.")]
 		public virtual string City {
 			get { return city; }
@@ -51,6 +52,7 @@ namespace Vodovoz
 
 		string street;
 
+		[Display(Name = "Улица")]
 		[Required (ErrorMessage = "Улица должна быть заполнена.")]
 		public virtual string Street {
 			get { return street; }
@@ -59,6 +61,7 @@ namespace Vodovoz
 
 		string building;
 
+		[Display(Name = "Номер дома")]
 		[Required (ErrorMessage = "Номер дома должен быть заполнен.")]
 		public virtual string Building {
 			get { return building; }
@@ -67,6 +70,7 @@ namespace Vodovoz
 
 		string room;
 
+		[Display(Name = "Офис/Квартира")]
 		public virtual string Room {
 			get { return room; }
 			set { SetField (ref room, value, () => Room); }
@@ -74,6 +78,7 @@ namespace Vodovoz
 
 		string comment;
 
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
@@ -81,6 +86,7 @@ namespace Vodovoz
 
 		string latitude;
 
+		[Display(Name = "Широта")]
 		public virtual string Latitude {
 			get { return latitude; }
 			set { SetField (ref latitude, value, () => Latitude); }
@@ -88,34 +94,35 @@ namespace Vodovoz
 
 		string longitude;
 
+		[Display(Name = "Долгота")]
 		public virtual string Longitude {
 			get { return longitude; }
 			set { SetField (ref longitude, value, () => Longitude); }
 		}
 
 		bool isActive;
-
+		[Display(Name = "Активный")]
 		public virtual bool IsActive {
 			get { return isActive; }
 			set { SetField (ref isActive, value, () => IsActive); }
 		}
 
 		Contact contact;
-
+		[Display(Name = "Контактное лицо")]
 		public virtual Contact Contact {
 			get { return contact; }
 			set { SetField (ref contact, value, () => Contact); }
 		}
 
 		string phone;
-
+		[Display(Name = "Телефон точки")]
 		public virtual string Phone {
 			get { return phone; }
 			set { SetField (ref phone, value, () => Phone); }
 		}
 
 		LogisticsArea logisticsArea;
-
+		[Display(Name = "Логистический район")]
 		public virtual LogisticsArea LogisticsArea {
 			get { return logisticsArea; }
 			set { SetField (ref logisticsArea, value, () => LogisticsArea); }
@@ -123,6 +130,7 @@ namespace Vodovoz
 
 		DeliverySchedule deliverySchedule;
 
+		[Display(Name = "График доставки")]
 		public virtual DeliverySchedule DeliverySchedule {
 			get { return deliverySchedule; }
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }

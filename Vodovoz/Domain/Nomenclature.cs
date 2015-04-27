@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Номенклатуры")]
+	[OrmSubject (JournalName = "Номенклатура", ObjectName = "номенклатура")]
 	public class Nomenclature: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -15,6 +15,7 @@ namespace Vodovoz
 
 		string name;
 
+		[Display(Name = "Название")]
 		[Required (ErrorMessage = "Название номенклатуры должно быть заполнено.")]
 		public virtual string Name {
 			get { return name; }
@@ -23,6 +24,7 @@ namespace Vodovoz
 
 		string model;
 
+		[Display(Name = "Модель оборудования")]
 		public virtual string Model {
 			get { return model; }
 			set { SetField (ref model, value, () => Model); }
@@ -30,6 +32,7 @@ namespace Vodovoz
 
 		double weight;
 
+		[Display(Name = "Вес")]
 		public virtual double Weight {
 			get { return weight; }
 			set { SetField (ref weight, value, () => Weight); }
@@ -37,6 +40,7 @@ namespace Vodovoz
 
 		VAT vAT;
 
+		[Display(Name = "НДС")]
 		public virtual VAT VAT {
 			get { return vAT; }
 			set { SetField (ref vAT, value, () => VAT); }
@@ -44,6 +48,7 @@ namespace Vodovoz
 
 		bool doNotReserve;
 
+		[Display(Name = "Не резервировать")]
 		public virtual bool DoNotReserve {
 			get { return doNotReserve; }
 			set { SetField (ref doNotReserve, value, () => DoNotReserve); }
@@ -51,6 +56,7 @@ namespace Vodovoz
 
 		bool serial;
 
+		[Display(Name = "Серийный номер")]
 		public virtual bool Serial {
 			get { return serial; }
 			set { SetField (ref serial, value, () => Serial); }
@@ -58,6 +64,7 @@ namespace Vodovoz
 
 		MeasurementUnits unit;
 
+		[Display(Name = "Единица измерения")]
 		public virtual MeasurementUnits Unit {
 			get { return unit; }
 			set { SetField (ref unit, value, () => Unit); }
@@ -65,6 +72,7 @@ namespace Vodovoz
 
 		NomenclatureCategory category;
 
+		[Display(Name = "Категория")]
 		public virtual NomenclatureCategory Category {
 			get { return category; }
 			set { SetField (ref category, value, () => Category); }
@@ -72,6 +80,7 @@ namespace Vodovoz
 
 		EquipmentColors color;
 
+		[Display(Name = "Цает оборудования")]
 		public virtual EquipmentColors Color {
 			get { return color; }
 			set { SetField (ref color, value, () => Color); }
@@ -79,6 +88,7 @@ namespace Vodovoz
 
 		EquipmentType type;
 
+		[Display(Name = "Тип оборудования")]
 		public virtual EquipmentType Type {
 			get { return type; }
 			set { SetField (ref type, value, () => Type); }
@@ -86,13 +96,15 @@ namespace Vodovoz
 
 		Manufacturer manufacturer;
 
+		[Display(Name = "Производитель")]
 		public virtual Manufacturer Manufacturer {
 			get { return manufacturer; }
 			set { SetField (ref manufacturer, value, () => Manufacturer); }
 		}
-
+			
 		IList<NomenclaturePrice> nomenclaturePrice;
 
+		[Display(Name = "Цены")]
 		public virtual IList<NomenclaturePrice> NomenclaturePrice {
 			get { return nomenclaturePrice; }
 			set { SetField (ref nomenclaturePrice, value, () => NomenclaturePrice); }

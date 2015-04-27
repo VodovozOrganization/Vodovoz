@@ -6,13 +6,14 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Заказ")]
+	[OrmSubject (JournalName = "Заказы", ObjectName = "заказ" )]
 	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		OrderStatus orderStatus;
 
+		[Display(Name = "Статус заказа")]
 		public virtual OrderStatus OrderStatus {
 			get { return orderStatus; }
 			set { SetField (ref orderStatus, value, () => OrderStatus); }
@@ -20,6 +21,7 @@ namespace Vodovoz
 
 		Counterparty client;
 
+		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
 			get { return client; }
 			set { SetField (ref client, value, () => Client); }
@@ -27,6 +29,7 @@ namespace Vodovoz
 
 		DeliveryPoint deliveryPoint;
 
+		[Display(Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
 			set { SetField (ref deliveryPoint, value, () => DeliveryPoint); }
@@ -34,6 +37,7 @@ namespace Vodovoz
 
 		DateTime deliveryDate;
 
+		[Display(Name = "Дата доставки")]
 		public virtual DateTime DeliveryDate {
 			get { return deliveryDate; }
 			set { SetField (ref deliveryDate, value, () => DeliveryDate); }
@@ -41,6 +45,7 @@ namespace Vodovoz
 
 		DeliverySchedule deliverySchedule;
 
+		[Display(Name = "Время доставки")]
 		public virtual DeliverySchedule DeliverySchedule {
 			get { return deliverySchedule; }
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
@@ -48,6 +53,7 @@ namespace Vodovoz
 
 		bool selfDelivery;
 
+		[Display(Name = "Самовывоз")]
 		public virtual bool SelfDelivery {
 			get { return selfDelivery; }
 			set { SetField (ref selfDelivery, value, () => SelfDelivery); }
@@ -62,6 +68,7 @@ namespace Vodovoz
 
 		int bottlesReturn;
 
+		[Display(Name = "Бутылей на возврат")]
 		public virtual int BottlesReturn {
 			get { return bottlesReturn; }
 			set { SetField (ref bottlesReturn, value, () => BottlesReturn); }
@@ -69,6 +76,7 @@ namespace Vodovoz
 
 		string comment;
 
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
@@ -76,6 +84,7 @@ namespace Vodovoz
 
 		OrderSignatureType signatureType;
 
+		[Display(Name = "Подписание документов")]
 		public virtual OrderSignatureType SignatureType {
 			get { return signatureType; }
 			set { SetField (ref signatureType, value, () => SignatureType); }
@@ -96,7 +105,7 @@ namespace Vodovoz
 		}
 
 		List<OrderItem> orderItems;
-
+		[Display(Name = "Строки заказа")]
 		public virtual List<OrderItem> OrderItems {
 			get { return orderItems; }
 			set { SetField (ref orderItems, value, () => OrderItems); }
@@ -104,6 +113,7 @@ namespace Vodovoz
 
 		List<OrderEquipment> orderEquipments;
 
+		[Display(Name = "Список оборудования")]
 		public virtual List<OrderEquipment> OrderEquipments {
 			get { return orderEquipments; }
 			set { SetField (ref orderEquipments, value, () => OrderEquipments); }

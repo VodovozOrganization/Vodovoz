@@ -7,7 +7,7 @@ using QSProjectsLib;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Пакеты платной аренды")]
+	[OrmSubject (JournalName = "Пакеты платной аренды", ObjectName = "пакет платной аренды")]
 	public class PaidRentPackage: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -16,6 +16,7 @@ namespace Vodovoz
 
 		string name;
 
+		[Display(Name = "Название")]
 		[Required (ErrorMessage = "Необходимо заполнить название пакета платной аренды.")]
 		public virtual string Name {
 			get { return name; }
@@ -24,6 +25,7 @@ namespace Vodovoz
 
 		decimal priceDaily;
 
+		[Display(Name = "Стоимость дня")]
 		public virtual decimal PriceDaily {
 			get { return priceDaily; }
 			set { SetField (ref priceDaily, value, () => PriceDaily); }
@@ -31,6 +33,7 @@ namespace Vodovoz
 
 		Nomenclature rentServiceDaily;
 
+		[Display(Name = "Услуга КПА")]
 		public virtual Nomenclature RentServiceDaily {
 			get { return rentServiceDaily; }
 			set { SetField (ref rentServiceDaily, value, () => RentServiceDaily); }
@@ -38,6 +41,7 @@ namespace Vodovoz
 
 		decimal priceMonthly;
 
+		[Display(Name = "Стоимость месяца")]
 		public virtual decimal PriceMonthly {
 			get { return priceMonthly; }
 			set { SetField (ref priceMonthly, value, () => PriceMonthly); }
@@ -45,6 +49,7 @@ namespace Vodovoz
 
 		Nomenclature rentServiceMonthly;
 
+		[Display(Name = "Услуга ДПА")]
 		public virtual Nomenclature RentServiceMonthly {
 			get { return rentServiceMonthly; }
 			set { SetField (ref rentServiceMonthly, value, () => RentServiceMonthly); }
@@ -52,6 +57,7 @@ namespace Vodovoz
 
 		EquipmentType equipmentType;
 
+		[Display(Name = "Тип оборудования")]
 		public virtual EquipmentType EquipmentType {
 			get { return equipmentType; }
 			set { SetField (ref equipmentType, value, () => EquipmentType); }
@@ -59,6 +65,7 @@ namespace Vodovoz
 
 		decimal deposit;
 
+		[Display(Name = "Залог")]
 		public virtual decimal Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }
@@ -66,6 +73,7 @@ namespace Vodovoz
 
 		Nomenclature depositService;
 
+		[Display(Name = "Услуга залога")]
 		public virtual Nomenclature DepositService {
 			get { return depositService; }
 			set { SetField (ref depositService, value, () => DepositService); }

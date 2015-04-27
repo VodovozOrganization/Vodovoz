@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Пользователи")]
+	[OrmSubject (JournalName = "Пользователи", ObjectName = "пользователь")]
 	public class User: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -13,6 +13,7 @@ namespace Vodovoz
 
 		string name;
 
+		[Display(Name = "Имя пользователя")]
 		[Required (ErrorMessage = "Имя пользователя должно быть заполнено.")]
 		public virtual string Name {
 			get { return name; }
@@ -21,6 +22,7 @@ namespace Vodovoz
 
 		string login;
 
+		[Display(Name = "Логин")]
 		[Required (ErrorMessage = "Логин пользователя должен быть заполнен.")]
 		public virtual string Login {
 			get { return login; }

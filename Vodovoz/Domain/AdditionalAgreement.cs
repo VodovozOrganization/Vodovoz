@@ -6,14 +6,16 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Дополнительные соглашения")]
+	[OrmSubject (JournalName = "Дополнительные соглашения", ObjectName = "дополнительное соглашение")]
 	public class AdditionalAgreement : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		[Required (ErrorMessage = "Номер доп. соглашения должен быть заполнен.")]
+		[Display(Name = "Номер")]
 		public virtual string AgreementNumber { get; set; }
 
+		[Display(Name = "Тип доп. соглашения")]
 		public virtual AgreementType Type {
 			get {	 
 				if (this is DailyRentAgreement)		//Не менять Daily и Nonfree местами!
@@ -29,12 +31,19 @@ namespace Vodovoz
 
 		}
 
+		[Required (ErrorMessage = "Договор должен быть указан.")]
+		[Display(Name = "Договор")]
 		public virtual CounterpartyContract Contract { get; set; }
 
+		[Required (ErrorMessage = "Дата создания должна быть указана.")]
+		[Display(Name = "Дата подписания")]
 		public virtual DateTime IssueDate { get; set; }
 
+		[Required (ErrorMessage = "Дата начала действия должна быть указана.")]
+		[Display(Name = "Дата начала")]
 		public virtual DateTime StartDate { get; set; }
 
+		[Display(Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint { get; set; }
 
 		public virtual string AgreementDeliveryPoint { get { return DeliveryPoint != null ? DeliveryPoint.Point : "Не указана"; } }
@@ -62,6 +71,7 @@ namespace Vodovoz
 
 	public class NonfreeRentAgreement : AdditionalAgreement, IPaidRentEquipmentOwner
 	{
+		[Display(Name = "Список оборудования")]
 		public virtual IList<PaidRentEquipment> Equipment { get; set; }
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -75,6 +85,7 @@ namespace Vodovoz
 
 	public class DailyRentAgreement : NonfreeRentAgreement
 	{
+		[Display(Name = "Количество дней аренды")]
 		public virtual int RentDays { get; set; }
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -88,6 +99,7 @@ namespace Vodovoz
 
 	public class FreeRentAgreement : AdditionalAgreement, IFreeRentEquipmentOwner
 	{
+		[Display(Name = "Список оборудования")]
 		public virtual IList<FreeRentEquipment> Equipment { get; set; }
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -103,6 +115,7 @@ namespace Vodovoz
 	{
 		public virtual bool IsFixedPrice { get; set; }
 
+		[Display(Name = "Фиксированная стоимость воды")]
 		public virtual decimal FixedPrice { get; set; }
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -129,9 +142,9 @@ namespace Vodovoz
 
 	public enum AgreementType
 	{
-		[ItemTitleAttribute ("Платная аренда")]
+		[ItemTitleAttribute ("Долгосрочая аренда")]
 		NonfreeRent,
-		[ItemTitleAttribute ("Платная посуточная аренда")]
+		[ItemTitleAttribute ("Посуточная аренда")]
 		DailyRent,
 		[ItemTitleAttribute ("Бесплатная аренда")]
 		FreeRent,

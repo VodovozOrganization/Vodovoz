@@ -6,13 +6,14 @@ using QSProjectsLib;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Оборудование для бесплатной аренды")]
+	[OrmSubject (JournalName = "Строки БА соглашения", ObjectName = "строка БА соглашения")]
 	public class FreeRentEquipment : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		FreeRentPackage freeRentPackage;
 
+		[Display(Name = "Пакет бесплатной аренды")]
 		public virtual FreeRentPackage FreeRentPackage {
 			get { return freeRentPackage; }
 			set { SetField (ref freeRentPackage, value, () => FreeRentPackage); }
@@ -20,6 +21,7 @@ namespace Vodovoz
 
 		Equipment equipment;
 
+		[Display(Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment); }
@@ -27,13 +29,14 @@ namespace Vodovoz
 
 		Decimal deposit;
 
+		[Display(Name = "Залог")]
 		public virtual Decimal Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }
 		}
 
 		int waterAmount;
-
+		[Display(Name = "Кол. бутылей")]
 		public virtual int WaterAmount {
 			get { return waterAmount; }
 			set { SetField (ref waterAmount, value, () => WaterAmount); }

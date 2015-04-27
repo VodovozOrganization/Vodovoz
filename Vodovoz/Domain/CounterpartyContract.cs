@@ -1,16 +1,18 @@
 ﻿using System;
 using QSOrmProject;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Договоры контрагента")]
+	[OrmSubject (JournalName = "Договоры контрагента", ObjectName = "договор")]
 	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner, ISpecialRowsRender
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }
 
 		#region IAdditionalAgreementOwner implementation
 
+		[Display(Name = "Дополнительные соглашения")]
 		public virtual IList<AdditionalAgreement> AdditionalAgreements {
 			get { return agreements; }
 			set { agreements = value; }
@@ -21,7 +23,7 @@ namespace Vodovoz
 		public virtual int Id { get; set; }
 
 		int maxDelay;
-
+		[Display(Name = "Максимальный срок отсрочки")]
 		public virtual int MaxDelay {
 			get { return maxDelay; }
 			set { SetField (ref maxDelay, value, () => MaxDelay); }
@@ -35,37 +37,40 @@ namespace Vodovoz
 		}
 
 		bool isArchive;
-
+		[Display(Name = "Архивный")]
 		public virtual bool IsArchive {
 			get { return isArchive; }
 			set { SetField (ref isArchive, value, () => IsArchive); }
 		}
 
 		bool onCancellation;
-
+		[Display(Name = "На расторжении")]
 		public virtual bool OnCancellation {
 			get { return onCancellation; }
 			set { SetField (ref onCancellation, value, () => OnCancellation); }
 		}
 
+		[Display(Name = "Номер")]
 		public virtual string Number { get { return Id > 0 ? Id.ToString () : "Не определен"; } set { } }
 
 		DateTime issueDate;
-
+		[Display(Name = "Дата подписания")]
 		public virtual DateTime IssueDate {
 			get { return issueDate; }
 			set { SetField (ref issueDate, value, () => IssueDate); }
 		}
 
 		Organization organization;
-
+		[Required]
+		[Display(Name = "Организация")]
 		public virtual Organization Organization {
 			get { return organization; }
 			set { SetField (ref organization, value, () => Organization); }
 		}
 
 		Counterparty counterparty;
-
+		[Required]
+		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
 			set { SetField (ref counterparty, value, () => Counterparty); }

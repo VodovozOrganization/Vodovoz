@@ -5,13 +5,14 @@ using System.Collections.Generic;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Графики доставки")]
+	[OrmSubject (JournalName = "Графики доставки", ObjectName = "график доставки")]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		string name;
-
+		[Required (ErrorMessage = "Не заполнено название.")]
+		[Display(Name = "Название")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
@@ -19,6 +20,7 @@ namespace Vodovoz
 
 		TimeSpan from;
 
+		[Display(Name = "От часа")]
 		public virtual TimeSpan From {
 			get { return from; } 
 			set { SetField (ref from, value, () => From); }
@@ -26,6 +28,7 @@ namespace Vodovoz
 
 		TimeSpan to;
 
+		[Display(Name = "До часа")]
 		public virtual TimeSpan To {
 			get { return to; }
 			set { SetField (ref to, value, () => To); }
@@ -37,8 +40,6 @@ namespace Vodovoz
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (String.IsNullOrEmpty (Name))
-				yield return new ValidationResult ("Не заполнено название.", new[] { "Name" });
 			if (From > To)
 				yield return new ValidationResult ("Окончание периода доставки не может быть раньше его начала.", new[] { "From", "To" });
 		}
