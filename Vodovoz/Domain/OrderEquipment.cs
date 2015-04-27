@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Строки оборудования в заказе", "оборудование в заказе")]
+	[OrmSubject (JournalName =  "Строки оборудования в заказе", ObjectName = "оборудование в заказе")]
 	public class OrderEquipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
