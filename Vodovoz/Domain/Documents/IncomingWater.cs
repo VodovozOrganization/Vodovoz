@@ -8,20 +8,34 @@ namespace Vodovoz
 	public class IncomingWater: Document
 	{
 		int amount;
-		[Min(1)]
-		[Display(Name = "Количество")]
+
+		[Min (1)]
+		[Display (Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount); }
 		}
 
 		Warehouse warehouse;
+
 		[Required (ErrorMessage = "Склад должен быть указан.")]
-		[Display(Name = "Склад")]
+		[Display (Name = "Склад")]
 		public virtual Warehouse Warehouse {
 			get { return warehouse; }
 			set { SetField (ref warehouse, value, () => Warehouse); }
 		}
+
+		#region IDocument implementation
+
+		new public virtual string DocType {
+			get { return "Документ производства"; }
+		}
+
+		new public virtual string Description {
+			get { return ""; }
+		}
+
+		#endregion
 	}
 }
 

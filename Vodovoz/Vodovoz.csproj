@@ -194,6 +194,8 @@
     <Compile Include="Domain\Documents\MovementDocument.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Domain\Documents\Document.cs" />
+    <Compile Include="Widgets\WarehouseDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
