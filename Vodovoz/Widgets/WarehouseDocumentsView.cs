@@ -8,7 +8,7 @@ using Gtk;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class WarehouseDocumentsView : Gtk.Bin, ITdiTab
+	public partial class WarehouseDocumentsView : Gtk.Bin, ITdiJournal
 	{
 		List<Document> documents;
 		ISession session;
@@ -33,6 +33,39 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = documents;
 		}
 
+		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		{
+			Document document;
+
+			DocumentType type = (DocumentType)e.ItemEnum;	
+			switch (type) {
+			case DocumentType.IncomingInvoice:
+				document = new IncomingInvoice ();
+				break;
+			case DocumentType.IncomingWater:
+				document = new IncomingWater ();
+				break;
+			case DocumentType.MovementDocument:
+				document = new MovementDocument ();
+				break;
+			case DocumentType.WriteoffDocument:
+				document = new WriteoffDocument ();
+				break;
+			default:
+				throw new NotSupportedException ("Тип документа не поддерживается.");
+			}
+			if (TabParent.BeforeCreateNewTab ((object)null, null).HasFlag (TdiBeforeCreateResultFlag.Canceled))
+				return;
+			TabParent.AddTab (OrmMain.CreateObjectDialog (document.GetType ()), this);
+		}
+
+		#region ITdiJournal implementation
+
+		public event EventHandler<TdiOpenObjDialogEventArgs> OpenObjDialog;
+		public event EventHandler<TdiOpenObjDialogEventArgs> DeleteObj;
+
+		#endregion
+
 		#region ITdiTab implementation
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
@@ -55,36 +88,6 @@ namespace Vodovoz
 		}
 
 		#endregion
-
-		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
-		{
-			Document document = new Document ();
-			ITdiDialog dlg;
-
-			DocumentType type = (DocumentType)e.ItemEnum;	
-			switch (type) {
-			case DocumentType.IncomingInvoice:
-				document = new IncomingInvoice ();
-				dlg = new IncomingInvoiceDlg ();
-				break;
-			case DocumentType.IncomingWater:
-				document = new IncomingWater ();
-				dlg = new IncomingWaterDlg ();
-				break;
-			case DocumentType.MovementDocument:
-				document = new MovementDocument ();
-				dlg = new MovementDocumentDlg ();
-				break;
-			case DocumentType.WriteoffDocument:
-				document = new WriteoffDocument ();
-				dlg = new WriteoffDocumentDlg ();
-				break;
-			default:
-				throw new NotSupportedException ("Тип документа не поддерживается.");
-			}
-			OrmSimpleDialog.RunSimpleDialog ((Window)this.Toplevel, document.GetType (), document);
-		}
-
 	}
 }
 

@@ -73,6 +73,10 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(PaidRentEquipment), typeof(PaidRentEquipmentDlg), "{Vodovoz.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping (typeof(FreeRentEquipment), typeof(FreeRentEquipmentDlg), "{Vodovoz.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping (typeof(DeliverySchedule), typeof(DeliveryScheduleDlg), "{Vodovoz.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
+				new OrmObjectMapping (typeof(IncomingInvoice), typeof(IncomingInvoiceDlg), "{Vodovoz.IncomingInvoice} Id[Номер];"),
+				new OrmObjectMapping (typeof(IncomingWater), typeof(IncomingWaterDlg), "{Vodovoz.IncomingWater} Id[Номер];"),
+				new OrmObjectMapping (typeof(MovementDocument), typeof(MovementDocumentDlg), "{Vodovoz.MovementDocument} Id[Номер];"),
+				new OrmObjectMapping (typeof(WriteoffDocument), typeof(WriteoffDocumentDlg), "{Vodovoz.WriteoffDocument} Id[Номер];"),
 				//Справочники с фильтрами
 				new OrmObjectMapping (typeof(Nomenclature), typeof(NomenclatureDlg), typeof(NomenclatureFilter), "{Vodovoz.Nomenclature} Name[Название]; CategoryString[Тип];", new string[] { "Name", "CategoryString" }),
 				new OrmObjectMapping (typeof(Equipment), typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" }),

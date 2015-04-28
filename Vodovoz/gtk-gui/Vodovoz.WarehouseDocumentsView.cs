@@ -6,13 +6,13 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox1;
 		
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-		
-		private global::Gtk.DataBindings.DataTreeView treeDocuments;
-		
 		private global::Gtk.HBox hbox1;
 		
 		private global::QSOrmProject.EnumMenuButton buttonAdd;
+		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		
+		private global::Gtk.DataBindings.DataTreeView treeDocuments;
 
 		protected virtual void Build ()
 		{
@@ -24,6 +24,31 @@ namespace Vodovoz
 			this.vbox1 = new global::Gtk.VBox ();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonAdd = new global::QSOrmProject.EnumMenuButton ();
+			this.buttonAdd.CanFocus = true;
+			this.buttonAdd.Name = "buttonAdd";
+			this.buttonAdd.UseUnderline = true;
+			this.buttonAdd.UseMarkup = false;
+			this.buttonAdd.ItemsEnumName = "Vodovoz.DocumentType, Vodovoz";
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить");
+			global::Gtk.Image w1 = new global::Gtk.Image ();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAdd.Image = w1;
+			this.hbox1.Add (this.buttonAdd);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAdd]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w3.Position = 0;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -40,33 +65,8 @@ namespace Vodovoz
 			this.treeDocuments.ColumnMappings = "{Vodovoz.Document} Number[Номер]; DocType[Тип документа]; DateString[Дата]; Description[Детали];";
 			this.GtkScrolledWindow.Add (this.treeDocuments);
 			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w2.Position = 0;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonAdd = new global::QSOrmProject.EnumMenuButton ();
-			this.buttonAdd.CanFocus = true;
-			this.buttonAdd.Name = "buttonAdd";
-			this.buttonAdd.UseUnderline = true;
-			this.buttonAdd.UseMarkup = false;
-			this.buttonAdd.ItemsEnumName = "Vodovoz.DocumentType, Vodovoz";
-			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить");
-			global::Gtk.Image w3 = new global::Gtk.Image ();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAdd.Image = w3;
-			this.hbox1.Add (this.buttonAdd);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAdd]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
 			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
