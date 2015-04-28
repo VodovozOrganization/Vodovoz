@@ -196,6 +196,14 @@
     <Compile Include="Domain\Documents\Document.cs" />
     <Compile Include="Widgets\WarehouseDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\IncomingWaterDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.IncomingWaterDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\MovementDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.MovementDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -262,6 +270,7 @@
     <Folder Include="Domain\Operations\" />
     <Folder Include="Domain\BasicHandbooks\" />
     <Folder Include="Domain\Documents\" />
+    <Folder Include="Dialogs\DocumentDialogs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
