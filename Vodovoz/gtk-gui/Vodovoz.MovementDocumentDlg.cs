@@ -4,16 +4,82 @@ namespace Vodovoz
 {
 	public partial class MovementDocumentDlg
 	{
+		private global::Gtk.VBox vbox3;
+		
+		private global::Gtk.HBox hbox4;
+		
+		private global::Gtk.Button buttonSave;
+		
+		private global::Gtk.Button buttonCancel;
+		
+		private global::Gtk.DataBindings.DataTable datatable3;
+
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
 			// Widget Vodovoz.MovementDocumentDlg
 			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.MovementDocumentDlg";
+			// Container child Vodovoz.MovementDocumentDlg.Gtk.Container+ContainerChild
+			this.vbox3 = new global::Gtk.VBox ();
+			this.vbox3.Name = "vbox3";
+			this.vbox3.Spacing = 6;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox ();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.buttonSave = new global::Gtk.Button ();
+			this.buttonSave.CanFocus = true;
+			this.buttonSave.Name = "buttonSave";
+			this.buttonSave.UseUnderline = true;
+			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString ("Сохранить");
+			global::Gtk.Image w1 = new global::Gtk.Image ();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-save", global::Gtk.IconSize.Menu);
+			this.buttonSave.Image = w1;
+			this.hbox4.Add (this.buttonSave);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.buttonSave]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.buttonCancel = new global::Gtk.Button ();
+			this.buttonCancel.CanFocus = true;
+			this.buttonCancel.Name = "buttonCancel";
+			this.buttonCancel.UseUnderline = true;
+			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString ("Отменить");
+			global::Gtk.Image w3 = new global::Gtk.Image ();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w3;
+			this.hbox4.Add (this.buttonCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.buttonCancel]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			this.vbox3.Add (this.hbox4);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.hbox4]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.datatable3 = new global::Gtk.DataBindings.DataTable (((uint)(3)), ((uint)(2)), false);
+			this.datatable3.Name = "datatable3";
+			this.datatable3.RowSpacing = ((uint)(6));
+			this.datatable3.ColumnSpacing = ((uint)(6));
+			this.datatable3.InheritedDataSource = false;
+			this.datatable3.InheritedBoundaryDataSource = false;
+			this.datatable3.InheritedDataSource = false;
+			this.datatable3.InheritedBoundaryDataSource = false;
+			this.vbox3.Add (this.datatable3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.datatable3]));
+			w6.Position = 1;
+			this.Add (this.vbox3);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 		}
 	}
 }

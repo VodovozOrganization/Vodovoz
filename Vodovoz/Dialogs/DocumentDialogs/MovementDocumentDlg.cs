@@ -111,6 +111,17 @@ namespace Vodovoz
 
 		#endregion
 
+		protected void OnButtonSaveClicked (object sender, EventArgs e)
+		{
+			if (!this.HasChanges || Save ())
+				OnCloseTab (false);
+		}
+
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
+		{
+			OnCloseTab (false);
+		}
+
 		protected void OnCloseTab (bool askSave)
 		{
 			if (CloseTab != null)
