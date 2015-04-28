@@ -19,6 +19,8 @@ namespace Vodovoz
 		public MovementDocumentDlg ()
 		{
 			this.Build ();
+			subject = new MovementDocument ();
+			Session.Persist (subject);
 			ConfigureDlg ();
 		}
 

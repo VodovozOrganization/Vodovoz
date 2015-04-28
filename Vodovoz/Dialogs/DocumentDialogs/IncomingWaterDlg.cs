@@ -19,6 +19,8 @@ namespace Vodovoz
 		public IncomingWaterDlg ()
 		{
 			this.Build ();
+			subject = new IncomingWater ();
+			Session.Persist (subject);
 			ConfigureDlg ();
 		}
 

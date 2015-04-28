@@ -19,6 +19,8 @@ namespace Vodovoz
 		public WriteoffDocumentDlg ()
 		{
 			this.Build ();
+			subject = new WriteoffDocument ();
+			Session.Persist (subject);
 			ConfigureDlg ();
 		}
 

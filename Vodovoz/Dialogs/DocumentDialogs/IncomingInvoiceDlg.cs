@@ -19,6 +19,8 @@ namespace Vodovoz
 		public IncomingInvoiceDlg ()
 		{
 			this.Build ();
+			subject = new IncomingInvoice ();
+			Session.Persist (subject);
 			ConfigureDlg ();
 		}
 
