@@ -23,13 +23,13 @@ namespace Vodovoz
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		public bool HasChanges { 
-			get{ return Session.IsDirty (); }
+			get { return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новый график доставки";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -43,12 +43,10 @@ namespace Vodovoz
 		public ISession Session {
 			get {
 				if (session == null)
-					Session = OrmMain.Sessions.OpenSession ();
+					Session = OrmMain.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		public object Subject {
@@ -99,7 +97,7 @@ namespace Vodovoz
 			return String.Format ("{0}-{1}", VeryShortTime (entryFrom.Time), VeryShortTime (entryTo.Time));
 		}
 
-		string VeryShortTime(TimeSpan time)
+		string VeryShortTime (TimeSpan time)
 		{
 			return (time.Minutes == 0) ? String.Format ("{0}", time.Hours) : String.Format ("{0}:{1}", time.Hours, time.Minutes);
 		}

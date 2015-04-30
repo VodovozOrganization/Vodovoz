@@ -43,6 +43,7 @@ namespace Vodovoz
 		void ConfigureDlg ()
 		{
 			adaptor.Target = subject;
+			tableInvoice.DataSource = adaptor;
 		}
 
 		#region ITdiTab implementation
@@ -72,6 +73,7 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
+			subject.TimeStamp = DateTime.Now;
 			var valid = new QSValidator<IncomingInvoice> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -96,7 +98,7 @@ namespace Vodovoz
 		public ISession Session {
 			get {
 				if (session == null)
-					Session = OrmMain.Sessions.OpenSession ();
+					Session = OrmMain.OpenSession ();
 				return session;
 			}
 			set { session = value; }
@@ -114,7 +116,7 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save ())
+			if (!HasChanges || Save ())
 				OnCloseTab (false);
 		}
 

@@ -11,84 +11,80 @@ using QSValidation;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[System.ComponentModel.ToolboxItem (true)]
 	public partial class OrganizationDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger();
+		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		private ISession session;
-		private Adaptor adaptorOrg = new Adaptor();
+		private Adaptor adaptorOrg = new Adaptor ();
 		private Organization subject;
 
-		public ITdiTabParent TabParent { set; get;}
+		public ITdiTabParent TabParent { set; get; }
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
+
 		public bool HasChanges { 
-			get{return Session.IsDirty();}
+			get { return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новая организация";
-		public string TabName
-		{
-			get{return _tabName;}
-			set{
+
+		public string TabName {
+			get { return _tabName; }
+			set {
 				if (_tabName == value)
 					return;
 				_tabName = value;
 				if (TabNameChanged != null)
-					TabNameChanged(this, new TdiTabNameChangedEventArgs(value));
+					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 
 		}
 
-		public ISession Session
-		{
+		public ISession Session {
 			get
 			{
 				if (session == null)
-					Session = OrmMain.Sessions.OpenSession();
+					Session = OrmMain.OpenSession ();
 				return session;
 			}
-			set
-			{
-				session = value;
-			}
+			set { session = value; }
 		}
 
-		public object Subject
-		{
-			get {return subject;}
+		public object Subject {
+			get { return subject; }
 			set {
 				if (value is Organization)
 					subject = value as Organization;
 			}
 		}
 
-		public OrganizationDlg()
+		public OrganizationDlg ()
 		{
-			this.Build();
-			subject = new Organization();
+			this.Build ();
+			subject = new Organization ();
 			Session.Persist (subject);
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public OrganizationDlg(int id)
+		public OrganizationDlg (int id)
 		{
-			this.Build();
-			subject = Session.Load<Organization>(id);
+			this.Build ();
+			subject = Session.Load<Organization> (id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		public OrganizationDlg(Organization sub)
+		public OrganizationDlg (Organization sub)
 		{
-			this.Build();
-			subject = Session.Load<Organization>(sub.Id);
+			this.Build ();
+			subject = Session.Load<Organization> (sub.Id);
 			TabName = subject.Name;
-			ConfigureDlg();
+			ConfigureDlg ();
 		}
 
-		private void ConfigureDlg()
+		private void ConfigureDlg ()
 		{
 			adaptorOrg.Target = subject;
 			datatableMain.DataSource = adaptorOrg;
@@ -98,67 +94,65 @@ namespace Vodovoz
 			dataentryOGRN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
-			accountsview1.ParentReference = new OrmParentReference(Session, Subject, "Accounts");
+			accountsview1.ParentReference = new OrmParentReference (Session, Subject, "Accounts");
 			referenceBuhgalter.SubjectType = typeof(Employee);
 			referenceLeader.SubjectType = typeof(Employee);
 			phonesview1.Session = Session;
 			if (subject.Phones == null)
-				subject.Phones = new List<Phone>();
+				subject.Phones = new List<Phone> ();
 			phonesview1.Phones = subject.Phones;
 		}
 
-		public bool Save()
+		public bool Save ()
 		{
 			var valid = new QSValidator<Organization> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			logger.Info("Сохраняем организацию...");
-			try
-			{
-				phonesview1.SaveChanges();
-				Session.Flush();
-				OrmMain.NotifyObjectUpdated(subject);
+			logger.Info ("Сохраняем организацию...");
+			try {
+				phonesview1.SaveChanges ();
+				Session.Flush ();
+				OrmMain.NotifyObjectUpdated (subject);
 				return true;
-			} catch(Exception ex)
-			{
+			} catch (Exception ex) {
 				string text = "Организация не сохранилась...";
-				logger.ErrorException(text, ex);
-				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex, text);
+				logger.ErrorException (text, ex);
+				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex, text);
 				return false;
 			}
 		}
 
-		public override void Destroy()
+		public override void Destroy ()
 		{
-			Session.Close();
-			adaptorOrg.Disconnect();
-			base.Destroy();
+			Session.Close ();
+			adaptorOrg.Disconnect ();
+			base.Destroy ();
 		}
 
-		protected void OnButtonSaveClicked(object sender, EventArgs e)
+		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			if (!this.HasChanges || Save())
-				OnCloseTab(false);
+			if (!this.HasChanges || Save ())
+				OnCloseTab (false);
 		}
 
-		protected void OnButtonCancelClicked(object sender, EventArgs e)
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
-			OnCloseTab(false);
+			OnCloseTab (false);
 		}
 
-		protected void OnCloseTab(bool askSave)
+		protected void OnCloseTab (bool askSave)
 		{
 			if (CloseTab != null)
-				CloseTab(this, new TdiTabCloseEventArgs(askSave));
+				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 
-		protected void OnRadioTabInfoToggled(object sender, EventArgs e)
+		protected void OnRadioTabInfoToggled (object sender, EventArgs e)
 		{
 			if (radioTabInfo.Active)
 				notebookMain.CurrentPage = 0;
 		}
 
-		protected void OnRadioTabAccountsToggled(object sender, EventArgs e)
+		protected void OnRadioTabAccountsToggled (object sender, EventArgs e)
 		{
 			if (radioTabAccounts.Active)
 				notebookMain.CurrentPage = 1;

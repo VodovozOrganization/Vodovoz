@@ -12,7 +12,11 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonCancel;
 		
-		private global::Gtk.DataBindings.DataTable datatable1;
+		private global::Gtk.DataBindings.DataTable tableInvoice;
+		
+		private global::QSOrmProject.DataDatePicker datepickerTimeStamp;
+		
+		private global::Gtk.Label label1;
 
 		protected virtual void Build ()
 		{
@@ -62,17 +66,40 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(3)), ((uint)(2)), false);
-			this.datatable1.Name = "datatable1";
-			this.datatable1.RowSpacing = ((uint)(6));
-			this.datatable1.ColumnSpacing = ((uint)(6));
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
-			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w6.Position = 1;
+			this.tableInvoice = new global::Gtk.DataBindings.DataTable (((uint)(3)), ((uint)(2)), false);
+			this.tableInvoice.Name = "tableInvoice";
+			this.tableInvoice.RowSpacing = ((uint)(6));
+			this.tableInvoice.ColumnSpacing = ((uint)(6));
+			this.tableInvoice.InheritedDataSource = false;
+			this.tableInvoice.InheritedBoundaryDataSource = false;
+			this.tableInvoice.InheritedDataSource = false;
+			this.tableInvoice.InheritedBoundaryDataSource = false;
+			// Container child tableInvoice.Gtk.Table+TableChild
+			this.datepickerTimeStamp = new global::QSOrmProject.DataDatePicker ();
+			this.datepickerTimeStamp.Events = ((global::Gdk.EventMask)(256));
+			this.datepickerTimeStamp.Name = "datepickerTimeStamp";
+			this.datepickerTimeStamp.Date = new global::System.DateTime (0);
+			this.datepickerTimeStamp.IsEditable = true;
+			this.datepickerTimeStamp.AutoSeparation = false;
+			this.datepickerTimeStamp.InheritedDataSource = true;
+			this.datepickerTimeStamp.Mappings = "TimeStamp";
+			this.datepickerTimeStamp.InheritedBoundaryDataSource = false;
+			this.tableInvoice.Add (this.datepickerTimeStamp);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableInvoice [this.datepickerTimeStamp]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableInvoice.Gtk.Table+TableChild
+			this.label1 = new global::Gtk.Label ();
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
+			this.tableInvoice.Add (this.label1);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableInvoice [this.label1]));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			this.vbox1.Add (this.tableInvoice);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.tableInvoice]));
+			w8.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

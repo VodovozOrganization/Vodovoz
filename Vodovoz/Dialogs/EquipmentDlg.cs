@@ -23,13 +23,13 @@ namespace Vodovoz
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		public bool HasChanges { 
-			get{ return Session.IsDirty (); }
+			get { return Session.IsDirty (); }
 		}
 
 		private string _tabName = "Новое оборудование";
 
 		public string TabName {
-			get{ return _tabName; }
+			get { return _tabName; }
 			set {
 				if (_tabName == value)
 					return;
@@ -43,12 +43,10 @@ namespace Vodovoz
 		public ISession Session {
 			get {
 				if (session == null)
-					Session = OrmMain.Sessions.OpenSession ();
+					Session = OrmMain.OpenSession ();
 				return session;
 			}
-			set {
-				session = value;
-			}
+			set { session = value; }
 		}
 
 		public object Subject {

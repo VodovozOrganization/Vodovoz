@@ -163,7 +163,7 @@ namespace Vodovoz
 		public NHibernate.ISession Session {
 			get {
 				if (session == null)
-					Session = OrmMain.Sessions.OpenSession ();
+					Session = OrmMain.OpenSession ();
 				return session;
 			}
 			set { session = value; }

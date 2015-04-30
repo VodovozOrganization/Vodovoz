@@ -137,7 +137,6 @@ namespace Vodovoz
 			this.radioTabInfo = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Основное"));
 			this.radioTabInfo.CanFocus = true;
 			this.radioTabInfo.Name = "radioTabInfo";
-			this.radioTabInfo.Active = true;
 			this.radioTabInfo.DrawIndicator = false;
 			this.radioTabInfo.UseUnderline = true;
 			this.radioTabInfo.Group = new global::GLib.SList (global::System.IntPtr.Zero);
