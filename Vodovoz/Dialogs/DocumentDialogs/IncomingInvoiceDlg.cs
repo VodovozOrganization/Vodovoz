@@ -21,6 +21,7 @@ namespace Vodovoz
 			this.Build ();
 			subject = new IncomingInvoice ();
 			Session.Persist (subject);
+			subject.TimeStamp = DateTime.Now;
 			ConfigureDlg ();
 		}
 
@@ -82,7 +83,6 @@ namespace Vodovoz
 			Session.Flush ();
 			logger.Info ("Ok.");
 			OrmMain.NotifyObjectUpdated (subject);
-
 			return true;
 		}
 
@@ -98,7 +98,7 @@ namespace Vodovoz
 		public ISession Session {
 			get {
 				if (session == null)
-					Session = OrmMain.OpenSession ();
+					session = OrmMain.OpenSession ();
 				return session;
 			}
 			set { session = value; }

@@ -144,6 +144,41 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(IncomingInvoice),
+				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+				DisplayString = "Входящая накладная №{0} от {1}"
+				//TODO Строки 
+				//TODO Зависимости
+			}.FillFromMetaInfo ()
+			);
+
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(IncomingWater),
+				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+				DisplayString = "Документ производства №{0} от {1}"
+				//TODO Строки 
+				//TODO Зависимости
+			}.FillFromMetaInfo ()
+			);
+
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(MovementDocument),
+				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+				DisplayString = "Документ перемещения №{0} от {1}"
+				//TODO Строки
+				//TODO Зависимости
+			}.FillFromMetaInfo ()
+			);
+
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(WriteoffDocument),
+				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+				DisplayString = "Документ списания №{0} от {1}"
+				//TODO Строки 
+				//TODO Зависимости
+			}.FillFromMetaInfo ()
+			);
 
 			/*	DeleteConfig.AddDeleteInfo (new DeleteInfo{
 				ObjectClass = typeof(Contract),

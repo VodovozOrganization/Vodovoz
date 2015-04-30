@@ -2,6 +2,7 @@
 using QSTDI;
 using NHibernate;
 using QSOrmProject;
+using QSOrmProject.Deletion;
 using System.Collections.Generic;
 using Gtk;
 
@@ -31,6 +32,13 @@ namespace Vodovoz
 			documents.AddRange (Session.CreateCriteria<IncomingWater> ().List<IncomingWater> ());
 			documents.AddRange (Session.CreateCriteria<MovementDocument> ().List<MovementDocument> ());
 			treeDocuments.ItemsDataSource = documents;
+			treeDocuments.Selection.Changed += OnSelectionChanged;
+			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+		}
+
+		void OnSelectionChanged (object sender, EventArgs e)
+		{
+			buttonEdit.Sensitive = buttonDelete.Sensitive = treeDocuments.Selection.CountSelectedRows () > 0;
 		}
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
@@ -85,6 +93,28 @@ namespace Vodovoz
 				if (TabNameChanged != null)
 					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
+		}
+
+
+		protected void OnTreeDocumentsRowActivated (object o, RowActivatedArgs args)
+		{
+			buttonEdit.Click ();
+		}
+
+
+		protected void OnButtonEditClicked (object sender, EventArgs e)
+		{
+			if (TabParent.BeforeCreateNewTab ((object)null, null).HasFlag (TdiBeforeCreateResultFlag.Canceled))
+				return;
+			TabParent.AddTab (OrmMain.CreateObjectDialog (treeDocuments.GetSelectedObjects () [0]), this);
+		}
+
+
+		protected void OnButtonDeleteClicked (object sender, EventArgs e)
+		{
+			
+			DeleteDlg delete = new DeleteDlg ();
+			delete.RunDeletion (treeDocuments.GetSelectedObjects () [0].GetType (), (treeDocuments.GetSelectedObjects () [0] as IDomainObject).Id);
 		}
 
 		#endregion
