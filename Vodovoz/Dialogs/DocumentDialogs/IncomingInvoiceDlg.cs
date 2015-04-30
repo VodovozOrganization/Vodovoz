@@ -5,6 +5,7 @@ using NHibernate;
 using QSValidation;
 using NLog;
 using System.Data.Bindings;
+using NHibernate.Criterion;
 
 namespace Vodovoz
 {
@@ -45,6 +46,10 @@ namespace Vodovoz
 		{
 			adaptor.Target = subject;
 			tableInvoice.DataSource = adaptor;
+			referenceContractor.SubjectType = typeof(Counterparty);
+			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceContractor.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
+				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.supplier));
 		}
 
 		#region ITdiTab implementation

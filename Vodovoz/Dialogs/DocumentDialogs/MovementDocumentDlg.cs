@@ -21,6 +21,7 @@ namespace Vodovoz
 			this.Build ();
 			subject = new MovementDocument ();
 			Session.Persist (subject);
+			subject.TimeStamp = DateTime.Now;
 			ConfigureDlg ();
 		}
 

@@ -14,9 +14,9 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable tableWriteoff;
 		
-		private global::QSOrmProject.DataDatePicker datepickerTimeStamp;
-		
 		private global::Gtk.Label label1;
+		
+		private global::Gtk.DataBindings.DataLabel labelTimeStamp;
 
 		protected virtual void Build ()
 		{
@@ -75,27 +75,28 @@ namespace Vodovoz
 			this.tableWriteoff.InheritedDataSource = false;
 			this.tableWriteoff.InheritedBoundaryDataSource = false;
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.datepickerTimeStamp = new global::QSOrmProject.DataDatePicker ();
-			this.datepickerTimeStamp.Events = ((global::Gdk.EventMask)(256));
-			this.datepickerTimeStamp.Name = "datepickerTimeStamp";
-			this.datepickerTimeStamp.Date = new global::System.DateTime (0);
-			this.datepickerTimeStamp.IsEditable = true;
-			this.datepickerTimeStamp.AutoSeparation = false;
-			this.datepickerTimeStamp.InheritedDataSource = true;
-			this.datepickerTimeStamp.Mappings = "TimeStamp";
-			this.datepickerTimeStamp.InheritedBoundaryDataSource = false;
-			this.tableWriteoff.Add (this.datepickerTimeStamp);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.datepickerTimeStamp]));
-			w6.LeftAttach = ((uint)(1));
-			w6.RightAttach = ((uint)(2));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
 			this.tableWriteoff.Add (this.label1);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.label1]));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.label1]));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableWriteoff.Gtk.Table+TableChild
+			this.labelTimeStamp = new global::Gtk.DataBindings.DataLabel ();
+			this.labelTimeStamp.Name = "labelTimeStamp";
+			this.labelTimeStamp.Xalign = 0F;
+			this.labelTimeStamp.InheritedDataSource = true;
+			this.labelTimeStamp.Mappings = "DateString";
+			this.labelTimeStamp.InheritedBoundaryDataSource = false;
+			this.labelTimeStamp.Important = false;
+			this.labelTimeStamp.InheritedDataSource = true;
+			this.labelTimeStamp.Mappings = "DateString";
+			this.labelTimeStamp.InheritedBoundaryDataSource = false;
+			this.tableWriteoff.Add (this.labelTimeStamp);
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.labelTimeStamp]));
+			w7.LeftAttach = ((uint)(1));
+			w7.RightAttach = ((uint)(2));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox4.Add (this.tableWriteoff);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.tableWriteoff]));

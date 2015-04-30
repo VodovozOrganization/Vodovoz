@@ -21,6 +21,7 @@ namespace Vodovoz
 			this.Build ();
 			subject = new IncomingWater ();
 			Session.Persist (subject);
+			subject.TimeStamp = DateTime.Now;
 			ConfigureDlg ();
 		}
 
