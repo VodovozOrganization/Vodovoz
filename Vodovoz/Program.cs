@@ -85,6 +85,9 @@ namespace Vodovoz
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
 
+			//Настрока удаления
+			ConfigureDeletion ();
+
 			//Запускаем программу
 			MainWin = new MainWindow ();
 			QSMain.ErrorDlgParrent = MainWin;
