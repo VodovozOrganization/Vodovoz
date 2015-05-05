@@ -16,6 +16,7 @@ namespace Vodovoz
 		ISession session;
 		IncomingInvoice subject;
 		Adaptor adaptor = new Adaptor ();
+		bool isNew;
 
 		public IncomingInvoiceDlg ()
 		{
@@ -23,6 +24,7 @@ namespace Vodovoz
 			subject = new IncomingInvoice ();
 			Session.Persist (subject);
 			subject.TimeStamp = DateTime.Now;
+			isNew = true;
 			ConfigureDlg ();
 		}
 
@@ -127,6 +129,10 @@ namespace Vodovoz
 
 		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
+			if (isNew) {
+				Session.Delete (subject);
+				Session.Flush ();
+			}
 			OnCloseTab (false);
 		}
 

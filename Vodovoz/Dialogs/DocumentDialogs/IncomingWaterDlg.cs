@@ -15,6 +15,7 @@ namespace Vodovoz
 		ISession session;
 		IncomingWater subject;
 		Adaptor adaptor = new Adaptor ();
+		bool isNew;
 
 		public IncomingWaterDlg ()
 		{
@@ -22,6 +23,7 @@ namespace Vodovoz
 			subject = new IncomingWater ();
 			Session.Persist (subject);
 			subject.TimeStamp = DateTime.Now;
+			isNew = true;
 			ConfigureDlg ();
 		}
 
@@ -122,6 +124,10 @@ namespace Vodovoz
 
 		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
+			if (isNew) {
+				Session.Delete (subject);
+				Session.Flush ();
+			}
 			OnCloseTab (false);
 		}
 
