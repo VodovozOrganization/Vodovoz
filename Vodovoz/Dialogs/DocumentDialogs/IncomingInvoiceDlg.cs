@@ -16,7 +16,7 @@ namespace Vodovoz
 		ISession session;
 		IncomingInvoice subject;
 		Adaptor adaptor = new Adaptor ();
-		bool isNew;
+		bool isNew, isSaveButton;
 
 		public IncomingInvoiceDlg ()
 		{
@@ -81,10 +81,11 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
+			isSaveButton = true;
 			subject.TimeStamp = DateTime.Now;
 			var valid = new QSValidator<IncomingInvoice> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
-				return false;
+				return (isSaveButton = false);
 
 			logger.Info ("Сохраняем входящую накладную...");
 			Session.Flush ();
@@ -129,10 +130,6 @@ namespace Vodovoz
 
 		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
-			if (isNew) {
-				Session.Delete (subject);
-				Session.Flush ();
-			}
 			OnCloseTab (false);
 		}
 
@@ -144,6 +141,10 @@ namespace Vodovoz
 
 		public override void Destroy ()
 		{
+			if (isNew && !isSaveButton) {
+				Session.Delete (subject);
+				Session.Flush ();
+			}
 			Session.Close ();
 			adaptor.Disconnect ();
 			base.Destroy ();
