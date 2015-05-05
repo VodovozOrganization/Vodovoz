@@ -362,6 +362,8 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="TimeStamp" column="time_stamp"/>
+ 		<property name="Amount" column="amount"/>
+ 		<many-to-one name="Warehouse" class="Vodovoz.Warehouse" column="warehouse_id"/>
  	</class>
 
 	<class name="MoneyMovementOperation" lazy="false" table="operation">
@@ -379,6 +381,20 @@
 		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
 		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
 	</class>
+
+	<class name="MovementDocument" lazy="false" table="movement_document">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="TimeStamp" column="time_stamp"/>
+ 		<many-to-one name="ResponsiblePerson" class="Vodovoz.Employee" column="responsible_person_id"/>
+		<many-to-one name="FromDeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_from_id"/>
+		<many-to-one name="FromClient" class="Vodovoz.Counterparty" column="counterparty_from_id"/>
+		<many-to-one name="FromWarehouse" class="Vodovoz.Warehouse" column="warehouse_from_id"/>
+		<many-to-one name="ToDeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_to_id"/>
+		<many-to-one name="ToClient" class="Vodovoz.Counterparty" column="counterparty_to_id"/>
+		<many-to-one name="ToWarehouse" class="Vodovoz.Warehouse" column="warehouse_to_id"/>
+ 	</class>
 
 	<class name="Nomenclature" lazy="false" table="nomenclature">
 		<id name="Id" column="id">
@@ -520,4 +536,14 @@
 	 	<property name="Login" column="login" />
  	</class>
 
+ 	<class name="WriteoffDocument" lazy="false" table="writeoff_document">
+ 		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="TimeStamp" column="time_stamp"/>
+	 	<many-to-one name="ResponsibleEmployee" class="Vodovoz.Employee" column="responsible_employee_id"/>
+		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="Client" class="Vodovoz.Counterparty" column="counterparty_id"/>
+		<many-to-one name="WriteoffWarehouse" class="Vodovoz.Warehouse" column="warehouse_id"/>
+ 	</class>
 </hibernate-mapping>
