@@ -51,11 +51,11 @@
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.4.0.3.4000\lib\net40\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.3.2.0.0\lib\net40\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="gtk-databind-lib">
       <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\packages\NLog.3.2.1\lib\net40\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
