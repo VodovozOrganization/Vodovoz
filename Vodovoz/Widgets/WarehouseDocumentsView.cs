@@ -5,12 +5,14 @@ using QSOrmProject;
 using QSOrmProject.Deletion;
 using System.Collections.Generic;
 using Gtk;
+using NLog;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class WarehouseDocumentsView : Gtk.Bin, ITdiJournal
 	{
+		static Logger logger = LogManager.GetCurrentClassLogger ();
 		List<Document> documents;
 		ISession session;
 
@@ -26,14 +28,21 @@ namespace Vodovoz
 		public WarehouseDocumentsView ()
 		{
 			this.Build ();
-			documents = new List<Document> ();
-			documents.AddRange (Session.CreateCriteria<WriteoffDocument> ().List<WriteoffDocument> ());
-			documents.AddRange (Session.CreateCriteria<IncomingInvoice> ().List<IncomingInvoice> ());
-			documents.AddRange (Session.CreateCriteria<IncomingWater> ().List<IncomingWater> ());
-			documents.AddRange (Session.CreateCriteria<MovementDocument> ().List<MovementDocument> ());
-			treeDocuments.ItemsDataSource = documents;
 			treeDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+			UpdateTable ();
+			OrmObjectMapping map = OrmMain.GetObjectDiscription (typeof(IncomingInvoice));
+			if (map != null)
+				map.ObjectUpdated += OnRefObjectUpdated;
+			map = OrmMain.GetObjectDiscription (typeof(IncomingWater));
+			if (map != null)
+				map.ObjectUpdated += OnRefObjectUpdated;
+			map = OrmMain.GetObjectDiscription (typeof(MovementDocument));
+			if (map != null)
+				map.ObjectUpdated += OnRefObjectUpdated;
+			map = OrmMain.GetObjectDiscription (typeof(WriteoffDocument));
+			if (map != null)
+				map.ObjectUpdated += OnRefObjectUpdated;
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
@@ -95,12 +104,27 @@ namespace Vodovoz
 			}
 		}
 
+		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
+		{
+			logger.Info ("Получаем таблицу справочника<{0}>...", typeof(Document).Name);
+			UpdateTable ();
+			logger.Info ("Ok.");
+		}
+
+		void UpdateTable ()
+		{
+			documents = new List<Document> ();
+			documents.AddRange (Session.CreateCriteria<WriteoffDocument> ().List<WriteoffDocument> ());
+			documents.AddRange (Session.CreateCriteria<IncomingInvoice> ().List<IncomingInvoice> ());
+			documents.AddRange (Session.CreateCriteria<IncomingWater> ().List<IncomingWater> ());
+			documents.AddRange (Session.CreateCriteria<MovementDocument> ().List<MovementDocument> ());
+			treeDocuments.ItemsDataSource = documents;
+		}
 
 		protected void OnTreeDocumentsRowActivated (object o, RowActivatedArgs args)
 		{
 			buttonEdit.Click ();
 		}
-
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
 		{
@@ -108,7 +132,6 @@ namespace Vodovoz
 				return;
 			TabParent.AddTab (OrmMain.CreateObjectDialog (treeDocuments.GetSelectedObjects () [0]), this);
 		}
-
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
