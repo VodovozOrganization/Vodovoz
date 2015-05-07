@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using System;
 
 namespace Vodovoz
 {
@@ -41,7 +42,9 @@ namespace Vodovoz
 		}
 
 		new public virtual string Description {
-			get { return ""; }
+			get { return String.Format ("Поставщик: {0}; Склад поступления: {1};", 
+				Contractor != null ? Contractor.Name : "Не указан",
+				Warehouse != null ? Warehouse.Name : "Не указан"); }
 		}
 
 		#endregion

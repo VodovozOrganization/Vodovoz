@@ -77,7 +77,6 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			isSaveButton = true;
-			subject.TimeStamp = DateTime.Now;
 			var valid = new QSValidator<WriteoffDocument> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return (isSaveButton = false);

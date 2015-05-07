@@ -387,7 +387,8 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="TimeStamp" column="time_stamp"/>
- 		<many-to-one name="ResponsiblePerson" class="Vodovoz.Employee" column="responsible_person_id"/>
+ 		<property name="Category" column="category" type="Vodovoz.MovementDocumentCategoryStringType, Vodovoz"/>
+		<many-to-one name="ResponsiblePerson" class="Vodovoz.Employee" column="responsible_person_id"/>
 		<many-to-one name="FromDeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_from_id"/>
 		<many-to-one name="FromClient" class="Vodovoz.Counterparty" column="counterparty_from_id"/>
 		<many-to-one name="FromWarehouse" class="Vodovoz.Warehouse" column="warehouse_from_id"/>

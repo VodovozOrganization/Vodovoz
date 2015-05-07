@@ -1,13 +1,20 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
 
 namespace Vodovoz
 {
 	[OrmSubject (JournalName = "Перемещения ТМЦ", ObjectName = "Документ перемещения")]
 	public class MovementDocument: Document
 	{
-		//TODO Movement type (CP - CP or WH - WH)
+		MovementDocumentCategory category;
+
+		[Display (Name = "Тип документа перемещения")]
+		public virtual MovementDocumentCategory Category {
+			get { return category; }
+			set { SetField (ref category, value, () => Category); }
+		}
 		//TODO List of elements
 		Employee responsiblePerson;
 
@@ -15,7 +22,7 @@ namespace Vodovoz
 		[Display (Name = "Ответственный")]
 		public virtual Employee ResponsiblePerson {
 			get { return responsiblePerson; }
-			set { responsiblePerson = value; }
+			set { SetField (ref responsiblePerson, value, () => ResponsiblePerson); }
 		}
 
 		Counterparty fromClient;
@@ -23,7 +30,7 @@ namespace Vodovoz
 		[Display (Name = "Клиент отправки")]
 		public virtual Counterparty FromClient {
 			get { return fromClient; }
-			set { fromClient = value; }
+			set { SetField (ref fromClient, value, () => FromClient); }
 		}
 
 		Counterparty toClient;
@@ -31,7 +38,7 @@ namespace Vodovoz
 		[Display (Name = "Клиент получения")]
 		public virtual Counterparty ToClient {
 			get { return toClient; }
-			set { toClient = value; }
+			set { SetField (ref toClient, value, () => ToClient); }
 		}
 
 		DeliveryPoint fromDeliveryPoint;
@@ -39,7 +46,7 @@ namespace Vodovoz
 		[Display (Name = "Точка отправки")]
 		public virtual DeliveryPoint FromDeliveryPoint {
 			get { return fromDeliveryPoint; }
-			set { fromDeliveryPoint = value; }
+			set { SetField (ref fromDeliveryPoint, value, () => FromDeliveryPoint); }
 		}
 
 		DeliveryPoint toDeliveryPoint;
@@ -47,7 +54,7 @@ namespace Vodovoz
 		[Display (Name = "Точка получения")]
 		public virtual DeliveryPoint ToDeliveryPoint {
 			get { return toDeliveryPoint; }
-			set { toDeliveryPoint = value; }
+			set { SetField (ref toDeliveryPoint, value, () => ToDeliveryPoint); }
 		}
 
 		Warehouse fromWarehouse;
@@ -55,7 +62,7 @@ namespace Vodovoz
 		[Display (Name = "Склад отправки")]
 		public virtual Warehouse FromWarehouse {
 			get { return fromWarehouse; }
-			set { fromWarehouse = value; }
+			set { SetField (ref fromWarehouse, value, () => FromWarehouse); }
 		}
 
 		Warehouse toWarehouse;
@@ -63,7 +70,7 @@ namespace Vodovoz
 		[Display (Name = "Склад получения")]
 		public virtual Warehouse ToWarehouse {
 			get { return toWarehouse; }
-			set { toWarehouse = value; }
+			set { SetField (ref toWarehouse, value, () => ToWarehouse); }
 		}
 
 		#region IDocument implementation
@@ -77,6 +84,21 @@ namespace Vodovoz
 		}
 
 		#endregion
+	}
+
+	public enum MovementDocumentCategory
+	{
+		[ItemTitleAttribute ("Именное списание")]
+		counterparty,
+		[ItemTitleAttribute ("Внутреннее перемещение")]
+		warehouse
+	}
+
+	public class MovementDocumentCategoryStringType : NHibernate.Type.EnumStringType
+	{
+		public MovementDocumentCategoryStringType () : base (typeof(MovementDocumentCategory))
+		{
+		}
 	}
 }
 

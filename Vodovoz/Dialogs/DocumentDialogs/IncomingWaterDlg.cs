@@ -47,6 +47,7 @@ namespace Vodovoz
 		{
 			adaptor.Target = subject;
 			tableWater.DataSource = adaptor;
+			referenceWarehouse.SubjectType = typeof(Warehouse);
 		}
 
 		#region ITdiTab implementation
@@ -77,7 +78,6 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			isSaveButton = true;
-			subject.TimeStamp = DateTime.Now;
 			var valid = new QSValidator<IncomingWater> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return (isSaveButton = false);

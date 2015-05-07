@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSOrmProject;
+using System;
 
 namespace Vodovoz
 {
@@ -32,7 +33,7 @@ namespace Vodovoz
 		}
 
 		new public virtual string Description {
-			get { return ""; }
+			get { return String.Format ("Количество: {0}; Склад поступления: {1};", Amount, Warehouse.Name); }
 		}
 
 		#endregion

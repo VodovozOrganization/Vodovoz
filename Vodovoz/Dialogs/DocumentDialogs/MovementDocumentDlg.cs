@@ -5,6 +5,8 @@ using NHibernate;
 using QSValidation;
 using NLog;
 using System.Data.Bindings;
+using NHibernate.Criterion;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -46,7 +48,22 @@ namespace Vodovoz
 		void ConfigureDlg ()
 		{
 			adaptor.Target = subject;
-			tableMovement.DataSource = adaptor;
+			tableSender.DataSource = adaptor;
+			tableCommon.DataSource = adaptor;
+			tableReceiver.DataSource = adaptor;
+			enumMovementType.DataSource = adaptor;
+			referenceCounterpartyTo.SubjectType = typeof(Counterparty);
+			referenceCounterpartyFrom.SubjectType = typeof(Counterparty);
+			referenceCounterpartyTo.ItemsCriteria = session.CreateCriteria<Counterparty> ()
+				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
+			referenceCounterpartyFrom.ItemsCriteria = session.CreateCriteria<Counterparty> ()
+				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
+			referenceWarehouseTo.SubjectType = typeof(Warehouse);
+			referenceWarehouseFrom.SubjectType = typeof(Warehouse);
+			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
+			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
+			referenceEmployee.SubjectType = typeof(Employee);
+
 		}
 
 		#region ITdiTab implementation
@@ -77,7 +94,6 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			isSaveButton = true;
-			subject.TimeStamp = DateTime.Now;
 			var valid = new QSValidator<MovementDocument> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return (isSaveButton = false);
@@ -143,6 +159,37 @@ namespace Vodovoz
 			Session.Close ();
 			adaptor.Disconnect ();
 			base.Destroy ();
+		}
+
+		protected void OnEnumMovementTypeChanged (object sender, EventArgs e)
+		{
+			var selected = (MovementDocumentCategory)enumMovementType.Active;
+			referenceWarehouseTo.Sensitive = referenceWarehouseFrom.Sensitive = 
+				(selected == MovementDocumentCategory.warehouse);
+			referenceCounterpartyTo.Sensitive = referenceCounterpartyFrom.Sensitive =
+				(selected == MovementDocumentCategory.counterparty);
+			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
+			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
+		}
+
+		protected void OnReferenceCounterpartyFromChanged (object sender, EventArgs e)
+		{
+			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
+			if (referenceCounterpartyFrom.Subject != null) {
+				var points = ((Counterparty)referenceCounterpartyFrom.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
+				referenceDeliveryPointFrom.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+					.Add (Restrictions.In ("Id", points));
+			}
+		}
+
+		protected void OnReferenceCounterpartyToChanged (object sender, EventArgs e)
+		{
+			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
+			if (referenceCounterpartyTo.Subject != null) {
+				var points = ((Counterparty)referenceCounterpartyTo.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
+				referenceDeliveryPointTo.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+					.Add (Restrictions.In ("Id", points));
+			}
 		}
 	}
 }

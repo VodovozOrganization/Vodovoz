@@ -114,6 +114,7 @@ namespace Vodovoz
 		void UpdateTable ()
 		{
 			documents = new List<Document> ();
+			Session.Clear ();
 			documents.AddRange (Session.CreateCriteria<WriteoffDocument> ().List<WriteoffDocument> ());
 			documents.AddRange (Session.CreateCriteria<IncomingInvoice> ().List<IncomingInvoice> ());
 			documents.AddRange (Session.CreateCriteria<IncomingWater> ().List<IncomingWater> ());
