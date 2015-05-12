@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using System.Data.Bindings;
+using System;
 
 namespace Vodovoz
 {
@@ -49,7 +50,13 @@ namespace Vodovoz
 		}
 
 		new public virtual string Description {
-			get { return ""; }
+			get { 
+				if (WriteoffWarehouse != null)
+					return String.Format ("Со склада \"{0}\"", WriteoffWarehouse.Name);
+				else if (Client != null)
+					return String.Format ("От клиента \"{0}\"", Client.Name);
+				return "";
+			}
 		}
 
 		#endregion
