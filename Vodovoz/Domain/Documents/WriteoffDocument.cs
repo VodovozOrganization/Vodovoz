@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using System.Data.Bindings;
 
 namespace Vodovoz
 {
@@ -52,6 +53,21 @@ namespace Vodovoz
 		}
 
 		#endregion
+	}
+
+	public enum WriteoffType
+	{
+		[ItemTitleAttribute ("От клиента")]
+		counterparty,
+		[ItemTitleAttribute ("Со склада")]
+		warehouse
+	}
+
+	public class WriteoffStringType : NHibernate.Type.EnumStringType
+	{
+		public WriteoffStringType () : base (typeof(WriteoffType))
+		{
+		}
 	}
 }
 

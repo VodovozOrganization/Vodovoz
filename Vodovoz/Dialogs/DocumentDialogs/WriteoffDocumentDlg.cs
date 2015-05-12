@@ -5,6 +5,8 @@ using NHibernate;
 using QSValidation;
 using NLog;
 using System.Data.Bindings;
+using NHibernate.Criterion;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -47,6 +49,24 @@ namespace Vodovoz
 		{
 			adaptor.Target = subject;
 			tableWriteoff.DataSource = adaptor;
+			referenceCounterparty.SubjectType = typeof(Counterparty);
+			referenceCounterparty.ItemsCriteria = session.CreateCriteria<Counterparty> ()
+				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
+			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
+			referenceEmployee.SubjectType = typeof(Employee);
+			comboType.Sensitive = true;
+			comboType.ItemsEnum = typeof(WriteoffType);
+			referenceWarehouse.Sensitive = (subject.WriteoffWarehouse != null);
+			referenceDeliveryPoint.Sensitive = referenceCounterparty.Sensitive = (subject.Client != null);
+			comboType.EnumItemSelected += (object sender, EnumItemClickedEventArgs e) => {
+				referenceDeliveryPoint.Sensitive = (comboType.Active == (int)WriteoffType.counterparty && subject.Client != null);
+				referenceCounterparty.Sensitive = (comboType.Active == (int)WriteoffType.counterparty);
+				referenceWarehouse.Sensitive = (comboType.Active == (int)WriteoffType.warehouse);
+			};
+			comboType.Active = subject.Client != null ?
+				(int)WriteoffType.counterparty :
+				(int)WriteoffType.warehouse;
 		}
 
 		#region ITdiTab implementation
@@ -77,6 +97,12 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			isSaveButton = true;
+			if (comboType.Active == (int)WriteoffType.counterparty) {
+				subject.WriteoffWarehouse = null;
+			} else {
+				subject.Client = null;
+				subject.DeliveryPoint = null;
+			}
 			var valid = new QSValidator<WriteoffDocument> (subject);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return (isSaveButton = false);
@@ -142,6 +168,16 @@ namespace Vodovoz
 			Session.Close ();
 			adaptor.Disconnect ();
 			base.Destroy ();
+		}
+
+		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
+		{
+			referenceDeliveryPoint.Sensitive = referenceCounterparty.Subject != null;
+			if (referenceCounterparty.Subject != null) {
+				var points = ((Counterparty)referenceCounterparty.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
+				referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+					.Add (Restrictions.In ("Id", points));
+			}
 		}
 	}
 }

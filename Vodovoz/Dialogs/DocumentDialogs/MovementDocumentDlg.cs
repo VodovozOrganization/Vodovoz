@@ -168,8 +168,8 @@ namespace Vodovoz
 				(selected == MovementDocumentCategory.warehouse);
 			referenceCounterpartyTo.Sensitive = referenceCounterpartyFrom.Sensitive =
 				(selected == MovementDocumentCategory.counterparty);
-			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
-			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
+			referenceDeliveryPointFrom.Sensitive = (referenceCounterpartyFrom.Subject != null && selected == MovementDocumentCategory.counterparty);
+			referenceDeliveryPointTo.Sensitive = (referenceCounterpartyTo.Subject != null && selected == MovementDocumentCategory.counterparty);
 		}
 
 		protected void OnReferenceCounterpartyFromChanged (object sender, EventArgs e)

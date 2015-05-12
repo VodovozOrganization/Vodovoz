@@ -80,7 +80,15 @@ namespace Vodovoz
 		}
 
 		new public virtual string Description {
-			get { return ""; }
+			get { 
+				if (Category == MovementDocumentCategory.counterparty)
+					return String.Format ("\"{0}\" -> \"{1}\"", 
+						FromClient == null ? "" : FromClient.Name,
+						ToClient == null ? "" : ToClient.Name);
+				return String.Format ("{0} -> {1}",
+					FromWarehouse == null ? "" : FromWarehouse.Name,
+					ToWarehouse == null ? "" : ToWarehouse.Name); 
+			}
 		}
 
 		#endregion
