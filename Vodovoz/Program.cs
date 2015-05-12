@@ -77,6 +77,7 @@ namespace Vodovoz
 				new OrmObjectMapping (typeof(IncomingWater), typeof(IncomingWaterDlg), "{Vodovoz.IncomingWater} Id[Номер];"),
 				new OrmObjectMapping (typeof(MovementDocument), typeof(MovementDocumentDlg), "{Vodovoz.MovementDocument} Id[Номер];"),
 				new OrmObjectMapping (typeof(WriteoffDocument), typeof(WriteoffDocumentDlg), "{Vodovoz.WriteoffDocument} Id[Номер];"),
+				new OrmObjectMapping (typeof(IncomingInvoiceItem), typeof(AddInvoiceItemDlg), "{Vodovoz.IncomingInvoiceItem} Id[Номер];"),
 				//Справочники с фильтрами
 				new OrmObjectMapping (typeof(Nomenclature), typeof(NomenclatureDlg), typeof(NomenclatureFilter), "{Vodovoz.Nomenclature} Name[Название]; CategoryString[Тип];", new string[] { "Name", "CategoryString" }),
 				new OrmObjectMapping (typeof(Equipment), typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" }),

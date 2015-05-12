@@ -26,7 +26,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceWarehouse;
 		
-		private global::Gtk.Label label3;
+		private global::Vodovoz.IncomingInvoiceItemsView incominginvoiceitemsview1;
 
 		protected virtual void Build ()
 		{
@@ -177,14 +177,12 @@ namespace Vodovoz
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.label3 = new global::Gtk.Label ();
-			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Здесь могла бы быть ваша реклама...\nНу или список номенклатур по накладной.");
-			this.label3.Justify = ((global::Gtk.Justification)(2));
-			this.vbox1.Add (this.label3);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label3]));
+			this.incominginvoiceitemsview1 = new global::Vodovoz.IncomingInvoiceItemsView ();
+			this.incominginvoiceitemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.incominginvoiceitemsview1.Name = "incominginvoiceitemsview1";
+			this.vbox1.Add (this.incominginvoiceitemsview1);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.incominginvoiceitemsview1]));
 			w13.Position = 2;
-			w13.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

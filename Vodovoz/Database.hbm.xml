@@ -355,6 +355,20 @@
  		<property name="TimeStamp" column="time_stamp"/>
  		<many-to-one name="Contractor" class="Vodovoz.Counterparty" column="counterparty_id"/>
 		<many-to-one name="Warehouse" class="Vodovoz.Warehouse" column="warehouse_id"/>
+		<bag name="Items" inverse="false" cascade="all-delete-orphan" lazy="false" >
+    		<key column="incoming_invoice_id"/>
+    		<one-to-many class="Vodovoz.IncomingInvoiceItem" />
+		</bag>
+ 	</class>
+
+ 	<class name="IncomingInvoiceItem" lazy="false" table="incoming_invoice_items">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Price" column="price"/>
+ 		<property name="Amount" column="amount"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id"/>
  	</class>
 
  	<class name="IncomingWater" lazy="false" table="incoming_water">

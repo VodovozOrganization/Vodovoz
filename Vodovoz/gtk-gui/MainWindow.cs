@@ -142,11 +142,11 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сервис");
 		w1.Add (this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction ("ActionLogistics", global::Mono.Unix.Catalog.GetString ("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionOrders.Group;
+		this.ActionLogistics.Group = this.ActionServices.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString ("Логистика");
 		w1.Add (this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction ("ActionStock", global::Mono.Unix.Catalog.GetString ("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionOrders.Group;
+		this.ActionStock.Group = this.ActionServices.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString ("Склад");
 		w1.Add (this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction ("ActionCash", global::Mono.Unix.Catalog.GetString ("Касса"), null, "cash", 0);
