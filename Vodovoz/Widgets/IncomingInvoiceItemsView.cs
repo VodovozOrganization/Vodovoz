@@ -26,7 +26,10 @@ namespace Vodovoz
 
 		void RenderAmountCol (TreeViewColumn tree_column, CellRenderer cell, TreeModel tree_model, TreeIter iter)
 		{
-			(cell as CellRendererText).Editable = (bool)tree_model.GetValue (iter, 4);
+			var col = treeItemsList.Columns.First (c => c.Title == "CanEditAmount");
+			(cell as CellRendererText).Editable = (bool)tree_model.GetValue (
+				iter, 
+				treeItemsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == col));
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
@@ -58,7 +61,7 @@ namespace Vodovoz
 					cell.Text = CurrencyWorks.CurrencyShortName;
 					priceCol.PackStart (cell, true);
 					//FIXME Обход проблемы с отображением decimal
-					priceCol.SetCellDataFunc(priceCol.CellRenderers[0], RenderPriceColumnFunc);
+					priceCol.SetCellDataFunc (priceCol.CellRenderers [0], RenderPriceColumnFunc);
 				} else
 					logger.Warn ("Не найден столбец с ценой.");
 				var amountCol = treeItemsList.Columns.First (c => c.Title == "Количество");
@@ -78,9 +81,11 @@ namespace Vodovoz
 		}
 
 		private void RenderPriceColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
-			Gtk.TreeModel aModel, Gtk.TreeIter aIter)
+		                                    Gtk.TreeModel aModel, Gtk.TreeIter aIter)
 		{
-			(aCell as CellRendererText).Text = aModel.GetValue(aIter, 2).ToString();
+			(aCell as CellRendererText).Text = aModel.GetValue (
+				aIter,
+				treeItemsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == aColumn)).ToString ();
 		}
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
