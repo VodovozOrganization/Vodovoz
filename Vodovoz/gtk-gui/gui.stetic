@@ -13444,8 +13444,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.IncomingInvoiceItem} Name[Наименование]; Amount[Количество]; PriceString[Цена];</property>
-                <signal name="RowActivated" handler="OnTreeItemsListRowActivated" />
+                <property name="ColumnMappings">{Vodovoz.IncomingInvoiceItem} Name[Наименование]; Amount[Количество]&lt;&gt;; Price[Цена]&lt;&gt;;</property>
               </widget>
             </child>
           </widget>

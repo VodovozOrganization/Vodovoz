@@ -3,16 +3,24 @@ using NHibernate;
 using QSOrmProject;
 using System.Data.Bindings.Collections.Generic;
 using QSTDI;
+using NLog;
+using NHibernate.Criterion;
+using System.Linq;
+using Gtk;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class IncomingInvoiceItemsView : Gtk.Bin
 	{
+		static Logger logger = LogManager.GetCurrentClassLogger ();
+
 		public IncomingInvoiceItemsView ()
 		{
 			this.Build ();
 			treeItemsList.Selection.Changed += OnSelectionChanged;
+		
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
@@ -38,6 +46,13 @@ namespace Vodovoz
 					throw new ArgumentException (String.Format ("Родительский объект в parentReference должен являться классом {0}", typeof(IncomingInvoice)));
 				items = new GenericObservableList<IncomingInvoiceItem> ((ParentReference.ParentObject as IncomingInvoice).Items);
 				treeItemsList.ItemsDataSource = items;
+				var priceCol = treeItemsList.Columns.First (c => c.Title == "Цена");
+				if (priceCol != null) {
+					CellRendererText cell = new CellRendererText ();
+					cell.Text = CurrencyWorks.CurrencyShortName;
+					priceCol.PackStart (cell, true);
+				} else
+					logger.Warn ("Не найден столбец с ценой.");
 			}
 			get { return parentReference; }
 		}
@@ -61,25 +76,36 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			IncomingInvoiceItem sub = new IncomingInvoiceItem ();
-			items.Add (sub);
-
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
+			if (mytab == null) {
+				logger.Warn ("Родительская вкладка не найдена.");
 				return;
+			}
 
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, sub);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			IOrmDialog dlg = OrmMain.FindMyDialog (this);
+			if (dlg != null)
+				session = dlg.Session;
+			else
+				session = OrmMain.OpenSession ();
+			ICriteria ItemsCriteria = session.CreateCriteria (typeof(Nomenclature))
+				.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
+
+			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), session, ItemsCriteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode &= ~(ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanDelete);
+			SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
+
+			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+		}
+
+		void SelectDialog_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			items.Add (new IncomingInvoiceItem { Nomenclature = e.Subject as Nomenclature, Amount = 1, Price = 0, Equipment = null });
 		}
 
 		protected void OnButtonCreateClicked (object sender, EventArgs e)
 		{
 			throw new NotImplementedException ();
-		}
-
-		protected void OnTreeItemsListRowActivated (object o, Gtk.RowActivatedArgs args)
-		{
-			buttonEdit.Click ();
 		}
 	}
 }

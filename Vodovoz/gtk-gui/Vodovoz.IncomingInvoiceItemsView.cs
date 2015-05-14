@@ -57,7 +57,7 @@ namespace Vodovoz
 			this.treeItemsList.InheritedBoundaryDataSource = false;
 			this.treeItemsList.InheritedDataSource = false;
 			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.ColumnMappings = "{Vodovoz.IncomingInvoiceItem} Name[Наименование]; Amount[Количество]; PriceString[Цена];";
+			this.treeItemsList.ColumnMappings = "{Vodovoz.IncomingInvoiceItem} Name[Наименование]; Amount[Количество]<>; Price[Цена]<>;";
 			this.GtkScrolledWindow.Add (this.treeItemsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -142,7 +142,6 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
-			this.treeItemsList.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeItemsListRowActivated);
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonCreate.Clicked += new global::System.EventHandler (this.OnButtonCreateClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler (this.OnButtonEditClicked);
