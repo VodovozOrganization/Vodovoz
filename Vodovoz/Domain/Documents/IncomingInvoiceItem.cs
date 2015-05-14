@@ -1,4 +1,4 @@
-﻿using QSOrmProject;
+using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSProjectsLib;

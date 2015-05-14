@@ -56,6 +56,8 @@ namespace Vodovoz
 					CellRendererText cell = new CellRendererText ();
 					cell.Text = CurrencyWorks.CurrencyShortName;
 					priceCol.PackStart (cell, true);
+					//FIXME Обход проблемы с отображением decimal
+					priceCol.SetCellDataFunc(priceCol.CellRenderers[0], RenderPriceColumnFunc);
 				} else
 					logger.Warn ("Не найден столбец с ценой.");
 				var amountCol = treeItemsList.Columns.First (c => c.Title == "Количество");
@@ -72,6 +74,12 @@ namespace Vodovoz
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
 			items.Remove (treeItemsList.GetSelectedObjects () [0] as IncomingInvoiceItem);
+		}
+
+		private void RenderPriceColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
+			Gtk.TreeModel aModel, Gtk.TreeIter aIter)
+		{
+			(aCell as CellRendererText).Text = aModel.GetValue(aIter, 2).ToString();
 		}
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
