@@ -9,6 +9,7 @@ using System.Linq;
 using Gtk;
 using QSProjectsLib;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -102,12 +103,25 @@ namespace Vodovoz
 					return;
 				}
 
+				var invoices = session.CreateCriteria (typeof(IncomingInvoice)).List<IncomingInvoice> ();
+				//TODO FIXME !IMPORTANT! В этот фильтр следует добавлять 
+				//все возможные списки с оборудованием, которые будут появляться.
+				//Чтобы исключить возможность добавления во входящую накладную
+				//уже использующегося и зачисленного на предприятие оборудования.
+				List<int> usedItems = new List<int> ();
+				foreach (IncomingInvoice i in invoices) {
+					foreach (IncomingInvoiceItem item in i.Items) {
+						if (item.Equipment != null)
+							usedItems.Add (item.Equipment.Id);
+					}
+				}
 				ICriteria ItemsCriteria = session.CreateCriteria (typeof(Equipment))
-					.Add (Restrictions.Eq ("Nomenclature", e.Subject));
+					.Add (Restrictions.Eq ("Nomenclature", e.Subject))
+					.Add (Restrictions.Not (Restrictions.In ("Id", usedItems)));
 
 				OrmReference SelectDialog = new OrmReference (typeof(Equipment), session, ItemsCriteria);
 				SelectDialog.Mode = OrmReferenceMode.Select;
-				SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+				SelectDialog.ButtonMode = ReferenceButtonMode.TreatEditAsOpen | ReferenceButtonMode.CanEdit;
 
 				SelectDialog.ObjectSelected += (s, ev) => {
 					items.Add (new IncomingInvoiceItem { 
