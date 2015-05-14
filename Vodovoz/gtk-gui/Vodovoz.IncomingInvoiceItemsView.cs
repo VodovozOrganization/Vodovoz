@@ -113,6 +113,7 @@ namespace Vodovoz
 			this.buttonDelete.Image = w9;
 			this.hbox1.Add (this.buttonDelete);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDelete]));
+			w10.PackType = ((global::Gtk.PackType)(1));
 			w10.Position = 3;
 			w10.Expand = false;
 			w10.Fill = false;
