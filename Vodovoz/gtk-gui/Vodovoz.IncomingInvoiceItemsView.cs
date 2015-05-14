@@ -20,8 +20,6 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonCreate;
 		
-		private global::Gtk.Button buttonEdit;
-		
 		private global::Gtk.Button buttonDelete;
 
 		protected virtual void Build ()
@@ -57,7 +55,7 @@ namespace Vodovoz
 			this.treeItemsList.InheritedBoundaryDataSource = false;
 			this.treeItemsList.InheritedDataSource = false;
 			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.ColumnMappings = "{Vodovoz.IncomingInvoiceItem} Name[Наименование]; Amount[Количество]<>; Price[Цена]<>;";
+			this.treeItemsList.ColumnMappings = "{Vodovoz.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]<>; Price[Цена]<>; CanEditAmount[CanEditAmount];";
 			this.GtkScrolledWindow.Add (this.treeItemsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -95,7 +93,7 @@ namespace Vodovoz
 			this.buttonCreate.CanFocus = true;
 			this.buttonCreate.Name = "buttonCreate";
 			this.buttonCreate.UseUnderline = true;
-			this.buttonCreate.Label = global::Mono.Unix.Catalog.GetString ("Создать и добавить");
+			this.buttonCreate.Label = global::Mono.Unix.Catalog.GetString ("Создать");
 			global::Gtk.Image w7 = new global::Gtk.Image ();
 			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonCreate.Image = w7;
@@ -105,38 +103,24 @@ namespace Vodovoz
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonEdit = new global::Gtk.Button ();
-			this.buttonEdit.CanFocus = true;
-			this.buttonEdit.Name = "buttonEdit";
-			this.buttonEdit.UseUnderline = true;
-			this.buttonEdit.Label = global::Mono.Unix.Catalog.GetString ("Изменить");
-			global::Gtk.Image w9 = new global::Gtk.Image ();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.buttonEdit.Image = w9;
-			this.hbox1.Add (this.buttonEdit);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonEdit]));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonDelete = new global::Gtk.Button ();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;
 			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
-			global::Gtk.Image w11 = new global::Gtk.Image ();
-			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.buttonDelete.Image = w11;
+			global::Gtk.Image w9 = new global::Gtk.Image ();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDelete.Image = w9;
 			this.hbox1.Add (this.buttonDelete);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDelete]));
-			w12.Position = 4;
-			w12.Expand = false;
-			w12.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDelete]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -144,7 +128,6 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonCreate.Clicked += new global::System.EventHandler (this.OnButtonCreateClicked);
-			this.buttonEdit.Clicked += new global::System.EventHandler (this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 		}
 	}

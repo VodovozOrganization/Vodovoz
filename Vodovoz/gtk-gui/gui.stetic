@@ -13444,7 +13444,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.IncomingInvoiceItem} Name[Наименование]; Amount[Количество]&lt;&gt;; Price[Цена]&lt;&gt;;</property>
+                <property name="ColumnMappings">{Vodovoz.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
               </widget>
             </child>
           </widget>
@@ -13495,29 +13495,12 @@ Patronymic</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>
-                <property name="Label" translatable="yes">Создать и добавить</property>
+                <property name="Label" translatable="yes">Создать</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonCreateClicked" />
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.Button" id="buttonEdit">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-edit Menu</property>
-                <property name="Label" translatable="yes">Изменить</property>
-                <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonEditClicked" />
-              </widget>
-              <packing>
-                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -13534,7 +13517,7 @@ Patronymic</property>
                 <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
-                <property name="Position">4</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>

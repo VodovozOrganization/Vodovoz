@@ -8,6 +8,7 @@ using NHibernate.Criterion;
 using System.Linq;
 using Gtk;
 using QSProjectsLib;
+using System.Threading;
 
 namespace Vodovoz
 {
@@ -20,12 +21,16 @@ namespace Vodovoz
 		{
 			this.Build ();
 			treeItemsList.Selection.Changed += OnSelectionChanged;
-		
+		}
+
+		void RenderAmountCol (TreeViewColumn tree_column, CellRenderer cell, TreeModel tree_model, TreeIter iter)
+		{
+			(cell as CellRendererText).Editable = (bool)tree_model.GetValue (iter, 4);
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonEdit.Sensitive = buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
+			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
 		}
 
 		ISession session;
@@ -53,21 +58,16 @@ namespace Vodovoz
 					priceCol.PackStart (cell, true);
 				} else
 					logger.Warn ("Не найден столбец с ценой.");
+				var amountCol = treeItemsList.Columns.First (c => c.Title == "Количество");
+				if (amountCol != null) {
+					amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
+				}
+				treeItemsList.Columns.First (c => c.Title == "CanEditAmount").Visible = false;
 			}
 			get { return parentReference; }
 		}
 
 		GenericObservableList<IncomingInvoiceItem> items;
-
-		protected void OnButtonEditClicked (object sender, EventArgs e)
-		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeItemsList.GetSelectedObjects () [0]);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
-		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
@@ -82,25 +82,50 @@ namespace Vodovoz
 				return;
 			}
 
-			IOrmDialog dlg = OrmMain.FindMyDialog (this);
-			if (dlg != null)
-				session = dlg.Session;
-			else
-				session = OrmMain.OpenSession ();
 			ICriteria ItemsCriteria = session.CreateCriteria (typeof(Nomenclature))
 				.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
 
 			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), session, ItemsCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode &= ~(ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanDelete);
-			SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ObjectSelected += NomenclatureSelected;
 
 			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
 		}
 
-		void SelectDialog_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			items.Add (new IncomingInvoiceItem { Nomenclature = e.Subject as Nomenclature, Amount = 1, Price = 0, Equipment = null });
+			if ((e.Subject as Nomenclature).Category == NomenclatureCategory.equipment) {
+				ITdiTab mytab = TdiHelper.FindMyTab (this);
+				if (mytab == null) {
+					logger.Warn ("Родительская вкладка не найдена.");
+					return;
+				}
+
+				ICriteria ItemsCriteria = session.CreateCriteria (typeof(Equipment))
+					.Add (Restrictions.Eq ("Nomenclature", e.Subject));
+
+				OrmReference SelectDialog = new OrmReference (typeof(Equipment), session, ItemsCriteria);
+				SelectDialog.Mode = OrmReferenceMode.Select;
+				SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+
+				SelectDialog.ObjectSelected += (s, ev) => {
+					items.Add (new IncomingInvoiceItem { 
+						Nomenclature = (ev.Subject as Equipment).Nomenclature, 
+						Equipment = ev.Subject as Equipment, 
+						Amount = 1, Price = 0
+					});
+				};
+
+				mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+
+			} else
+				items.Add (new IncomingInvoiceItem { 
+					Nomenclature = e.Subject as Nomenclature, 
+					Equipment = null,
+					Amount = 1, Price = 0 
+				});
+
 		}
 
 		protected void OnButtonCreateClicked (object sender, EventArgs e)

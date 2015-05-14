@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSProjectsLib;
+using System;
 
 namespace Vodovoz
 {
@@ -49,7 +50,13 @@ namespace Vodovoz
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}
 
-		public virtual string PriceString { get { return CurrencyWorks.GetShortCurrencyString (Price); } }
+		public virtual string EquipmentString { 
+			get { return Equipment != null ? Equipment.Serial : "-"; } 
+		}
+
+		public virtual bool CanEditAmount { 
+			get { return Nomenclature == null ? false : Nomenclature.Category != NomenclatureCategory.equipment; }
+		}
 	}
 }
 
