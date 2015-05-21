@@ -276,6 +276,7 @@
     <Folder Include="Domain\BasicHandbooks\" />
     <Folder Include="Domain\Documents\" />
     <Folder Include="Dialogs\DocumentDialogs\" />
+    <Folder Include="Reports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -285,5 +286,6 @@
     <None Include="hibernate.cfg.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Reports\Equipment.rdl" />
   </ItemGroup>
 </Project>
