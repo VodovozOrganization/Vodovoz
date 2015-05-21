@@ -295,8 +295,6 @@ namespace Vodovoz
 			this.vbox1.Add (this.datatable5);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable5]));
 			w20.Position = 1;
-			w20.Expand = false;
-			w20.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
