@@ -93,7 +93,7 @@ namespace Vodovoz
 			this.buttonCreate.CanFocus = true;
 			this.buttonCreate.Name = "buttonCreate";
 			this.buttonCreate.UseUnderline = true;
-			this.buttonCreate.Label = global::Mono.Unix.Catalog.GetString ("Создать");
+			this.buttonCreate.Label = global::Mono.Unix.Catalog.GetString ("Новое оборудование");
 			global::Gtk.Image w7 = new global::Gtk.Image ();
 			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonCreate.Image = w7;
