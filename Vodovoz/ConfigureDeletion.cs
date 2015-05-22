@@ -1,328 +1,411 @@
-﻿using QSOrmProject.Deletion;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using QSBanks;
+using QSContacts;
+using QSOrmProject.Deletion;
 
 namespace Vodovoz
 {
 	partial class MainClass
 	{
-		static void ConfigureDeletion ()
+		static void ConfigureDeletion()
 		{
-			logger.Info ("Настройка параметров удаления...");
+			logger.Info("Настройка параметров удаления...");
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(CounterpartyStatus),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Counterparty> (item => item.Status)
-				}
-			}.FillFromMetaInfo ()
+			QSContactsMain.ConfigureDeletion();
+			QSBanksMain.ConfigureDeletion();
+
+			#region Goods
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Nomenclature),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.CreateFromBag<Nomenclature>(item => item.NomenclaturePrice),
+						DeleteDependenceInfo.Create<Equipment>(item => item.Nomenclature)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(EquipmentColors),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Nomenclature> (item => item.Color)
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(EquipmentColors),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Nomenclature>(item => item.Color)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(EquipmentType),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.Create<FreeRentPackage> (item => item.EquipmentType),
-					DeleteDependenceInfo.Create<Nomenclature> (item => item.Type),
-					DeleteDependenceInfo.Create<PaidRentPackage> (item => item.EquipmentType)
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(EquipmentType),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.Create<FreeRentPackage>(item => item.EquipmentType),
+						DeleteDependenceInfo.Create<Nomenclature>(item => item.Type),
+						DeleteDependenceInfo.Create<PaidRentPackage>(item => item.EquipmentType)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(LogisticsArea),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<DeliveryPoint> (item => item.LogisticsArea)
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Equipment),
+					SqlSelect = "SELECT @tablename.id, nomenclature.model, serial FROM @tablename " +
+					"LEFT JOIN nomenclature ON nomenclature.id = nomenclature_id",
+					DisplayString = "{1} ({0})",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.Create<FreeRentEquipment>(item => item.Equipment),
+						DeleteDependenceInfo.Create<IncomingInvoiceItem>(item => item.Equipment),
+						DeleteDependenceInfo.Create<OrderEquipment>(item => item.Equipment),
+						DeleteDependenceInfo.Create<OrderItem>(item => item.Equipment),
+						DeleteDependenceInfo.Create<PaidRentEquipment>(item => item.Equipment)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Manufacturer),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Nomenclature> (item => item.Manufacturer)
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Manufacturer),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Nomenclature>(item => item.Manufacturer)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(MeasurementUnits),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Nomenclature> (item => item.Unit),
-					ClearDependenceInfo.Create<OrderItem> (item => item.Units)
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(MeasurementUnits),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Nomenclature>(item => item.Unit),
+						ClearDependenceInfo.Create<OrderItem>(item => item.Units)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Nationality),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Employee> (item => item.Nationality)
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(NomenclaturePrice),
+					SqlSelect = "SELECT id, price, min_count FROM @tablename ",
+					DisplayString = "{1:C} (от {2})"
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(NomenclaturePrice),
-				SqlSelect = "SELECT id, price, min_count FROM @tablename ",
-				DisplayString = "{1:C} (от {2})"
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Warehouse),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.Create<IncomingInvoice>(item => item.Warehouse)
+						//FIXME добавить складские операции.
+					}
+				}.FillFromMetaInfo()
+			);
+			#endregion
+
+			//Наша организация
+			#region Organization
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Organization),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					DeleteItems = new List<DeleteDependenceInfo>{
+						DeleteDependenceInfo.Create<CounterpartyContract>(item => item.Organization)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Significance),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Counterparty> (item => item.Significance)
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Employee),
+					SqlSelect = "SELECT id, lastname, name, patronymic FROM @tablename ",
+					DisplayString = "{1} {2} {3}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Car>(item => item.Driver),
+						ClearDependenceInfo.Create<Counterparty>(item => item.Accountant),
+						ClearDependenceInfo.Create<Counterparty>(item => item.SalesManager),
+						ClearDependenceInfo.Create<Counterparty>(item => item.BottlesManager),
+						ClearDependenceInfo.Create<MovementDocument>(item => item.ResponsiblePerson),
+						ClearDependenceInfo.Create<WriteoffDocument>(item => item.ResponsibleEmployee),
+						ClearDependenceInfo.Create<Organization>(item => item.Leader),
+						ClearDependenceInfo.Create<Organization>(item => item.Buhgalter)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Warehouse),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.Create<IncomingInvoice> (item => item.Warehouse)
-					//FIXME добавить складские операции.
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Nationality),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Employee>(item => item.Nationality)
+					}
+				}.FillFromMetaInfo()
 			);
 
-			//<!--Прочие справочники-->
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(User),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+						{
+							ClearDependenceInfo.Create<Employee>(item => item.User)
+						}
+				}.FillFromMetaInfo()
+			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(AdditionalAgreement),
-				SqlSelect = "SELECT id, number FROM @tablename ",
-				DisplayString = "Доп. соглашение №{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<OrderItem> (item => item.AdditionalAgreement)
-				}
-			}.FillFromMetaInfo ()
+			#endregion
+
+
+
+			//Контрагент и все что сним связано
+			#region NearCounterparty
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Counterparty),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Contacts),
+						DeleteDependenceInfo.Create<BottlesMovementOperation>(item => item.Counterparty),
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Phones),
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Emails),
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Accounts),
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.DeliveryPoints),
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.CounterpartyContracts),
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Proxies),
+						DeleteDependenceInfo.Create<DepositOperation>(item => item.Counterparty),
+						DeleteDependenceInfo.Create<GoodsMovementOperation>(item => item.WriteoffCounterparty),
+						DeleteDependenceInfo.Create<GoodsMovementOperation>(item => item.IncomingCounterparty),
+						DeleteDependenceInfo.Create<IncomingInvoice>(item => item.Contractor),
+						DeleteDependenceInfo.Create<MoneyMovementOperation>(item => item.Counterparty),
+						DeleteDependenceInfo.Create<MovementDocument>(item => item.FromClient),
+						DeleteDependenceInfo.Create<MovementDocument>(item => item.ToClient),
+						DeleteDependenceInfo.Create<Order>(item => item.Client),
+						DeleteDependenceInfo.Create<WriteoffDocument>(item => item.Client)
+					},
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Counterparty>(item => item.MainCounterparty)
+					}
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddClearDependence<Account>(ClearDependenceInfo.Create<Counterparty>(item => item.DefaultAccount));
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Contact),
+					SqlSelect = "SELECT id, lastname, name, surname FROM @tablename ",
+					DisplayString = "{1} {2} {3}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Counterparty>(item => item.MainContact),
+						ClearDependenceInfo.Create<Counterparty>(item => item.FinancialContact),
+						ClearDependenceInfo.Create<DeliveryPoint>(item => item.Contact)
+					}
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddClearDependence<Post>(ClearDependenceInfo.Create<Contact>(item => item.Post));
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Significance),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Counterparty>(item => item.Significance)
+					}
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(CounterpartyStatus),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Counterparty>(item => item.Status)
+					}
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(CounterpartyContract),
+					SqlSelect = "SELECT id, issue_date FROM @tablename ",
+					DisplayString = "Договор №{0} от {1:d}",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.Create<AdditionalAgreement>(item => item.Contract),
+					}
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(AdditionalAgreement),
+					SqlSelect = "SELECT id, number FROM @tablename ",
+					DisplayString = "Доп. соглашение №{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<OrderItem>(item => item.AdditionalAgreement)
+					}
+				}.FillFromMetaInfo()
+			);
+				
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(DeliveryPoint),
+					SqlSelect = "SELECT id, Name FROM @tablename ",
+					DisplayString = "{1}",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.Create<AdditionalAgreement>(item => item.DeliveryPoint),
+						DeleteDependenceInfo.Create<BottlesMovementOperation>(item => item.DeliveryPoint),
+						DeleteDependenceInfo.Create<DepositOperation>(item => item.DeliveryPoint),
+						DeleteDependenceInfo.Create<GoodsMovementOperation>(item => item.WriteoffDeliveryPoint),
+						DeleteDependenceInfo.Create<GoodsMovementOperation>(item => item.IncomingDeliveryPoint),
+					}
+				}.FillFromMetaInfo()
+			);
+			#endregion
+				
+			#region Logistics
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Car),
+					SqlSelect = "SELECT id, model, reg_number FROM @tablename ",
+					DisplayString = "Автомобиль {1} ({2})"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(DeliverySchedule),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					DeleteItems = new List<DeleteDependenceInfo>
+					{
+						DeleteDependenceInfo.Create<Order>(item => item.DeliverySchedule)	
+					},
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<DeliveryPoint>(item => item.DeliverySchedule)
+					}
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(LogisticsArea),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "{1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<DeliveryPoint>(item => item.LogisticsArea)
+					}
+				}.FillFromMetaInfo()
 			);
 
 
-			//не закончено.
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Nomenclature),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.CreateFromBag<Nomenclature> (item => item.NomenclaturePrice),
-				}
-			}.FillFromMetaInfo ()
+			#endregion
+
+			//Документы
+			#region Documents
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(IncomingInvoice),
+					SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+					DisplayString = "Входящая накладная №{0} от {1}"
+					//TODO Строки 
+					//TODO Зависимости
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(CounterpartyContract),
-				SqlSelect = "SELECT id, issue_date FROM @tablename ",
-				DisplayString = "Договор №{0} от {1:d}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.Create<AdditionalAgreement> (item => item.Contract),
-				}
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(IncomingWater),
+					SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+					DisplayString = "Документ производства №{0} от {1}"
+					//TODO Строки 
+					//TODO Зависимости
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(IncomingInvoice),
-				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
-				DisplayString = "Входящая накладная №{0} от {1}"
-				//TODO Строки 
-				//TODO Зависимости
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(MovementDocument),
+					SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+					DisplayString = "Документ перемещения №{0} от {1}"
+					//TODO Строки
+					//TODO Зависимости
+				}.FillFromMetaInfo()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(IncomingWater),
-				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
-				DisplayString = "Документ производства №{0} от {1}"
-				//TODO Строки 
-				//TODO Зависимости
-			}.FillFromMetaInfo ()
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(WriteoffDocument),
+					SqlSelect = "SELECT id, time_stamp FROM @tablename ",
+					DisplayString = "Документ списания №{0} от {1}"
+					//TODO Строки 
+					//TODO Зависимости
+				}.FillFromMetaInfo()
 			);
+			#endregion
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(MovementDocument),
-				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
-				DisplayString = "Документ перемещения №{0} от {1}"
-				//TODO Строки
-				//TODO Зависимости
-			}.FillFromMetaInfo ()
+			//Операции в журналах
+			#region Operations
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(BottlesMovementOperation),
+					SqlSelect = "SELECT id, moved_to, moved_from FROM @tablename ",
+					DisplayString = "Движения тары к контрагенту {1} от контрагента {2} бутылей"
+				}.FillFromMetaInfo()
 			);
+			#endregion
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(WriteoffDocument),
-				SqlSelect = "SELECT id, time_stamp FROM @tablename ",
-				DisplayString = "Документ списания №{0} от {1}"
-				//TODO Строки 
-				//TODO Зависимости
-			}.FillFromMetaInfo ()
-			);
+			//Для тетирования
+			#if DEBUG
+			DeleteConfig.IgnoreMissingClass.Add(typeof(NonfreeRentAgreement));
+			DeleteConfig.IgnoreMissingClass.Add(typeof(DailyRentAgreement));
+			DeleteConfig.IgnoreMissingClass.Add(typeof(FreeRentAgreement));
+			DeleteConfig.IgnoreMissingClass.Add(typeof(WaterSalesAgreement));
+			DeleteConfig.IgnoreMissingClass.Add(typeof(RepairAgreement));
 
-			/*	DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(Contract),
-				TableName = "contracts",
-				ObjectsName = "Договора",
-				ObjectName = "договор",
-				SqlSelect = "SELECT number, sign_date, lessees.name as lessee, contracts.id as id FROM contracts " +
-					"LEFT JOIN lessees ON lessees.id = lessee_id ",
-				DisplayString = "Договор №{0} от {1:d} с арендатором {2}",
-				DeleteItems = new List<DeleteDependenceInfo>{
-					new DeleteDependenceInfo ("contract_docs", "WHERE contract_id = @id "),
-					new DeleteDependenceInfo ("files", "WHERE item_group = 'contracts' AND item_id = @id")
-				}
-			});
+			DeleteConfig.DeletionCheck();
+			#endif
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Lessee),
-				TableName = "lessees",
-				ObjectsName = "Арендаторы",
-				ObjectName = "арендатора",
-				SqlSelect = "SELECT name, id FROM lessees ",
-				DisplayString = "Арендатор {0}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					new DeleteDependenceInfo (typeof(Contract), "WHERE lessee_id = @id ")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(DocPattern),
-				TableName = "doc_patterns",
-				ObjectsName = "Шаблоны документов",
-				ObjectName = "шаблон",
-				SqlSelect = "SELECT name, id FROM doc_patterns ",
-				DisplayString = "Шаблон <{0}>",
-				ClearItems = new List<ClearDependenceInfo>{
-					new ClearDependenceInfo ("contract_docs", "WHERE pattern_id = @id", "pattern_id")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				TableName = "files",
-				ObjectsName = "Файлы",
-				ObjectName = "файл",
-				SqlSelect = "SELECT name, id FROM files ",
-				DisplayString = "Фаил <{0}>",
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(ContractType),
-				TableName = "contract_types",
-				ObjectsName = "Типы договоров",
-				ObjectName = "тип договора",
-				SqlSelect = "SELECT name, id FROM contract_types ",
-				DisplayString = "{0}",
-				DeleteItems = new List<DeleteDependenceInfo>{
-					new DeleteDependenceInfo (typeof(DocPattern), "WHERE contract_type_id = @id")
-				},
-				ClearItems = new List<ClearDependenceInfo>{
-					new ClearDependenceInfo (typeof(Contract), "WHERE contract_type_id = @id", "contract_type_id")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(Stead),
-				TableName = "stead",
-				ObjectsName = "Земельные участки",
-				ObjectName = "земельный участок",
-				SqlSelect = "SELECT name, id, address FROM stead ",
-				DisplayString = "{0} {2}",
-				ClearItems = new List<ClearDependenceInfo>{
-					new ClearDependenceInfo (typeof(Place), "WHERE stead_id = @id", "stead_id")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				TableName = "contract_docs",
-				ObjectsName = "Документы",
-				ObjectName = "измененый документа",
-				SqlSelect = "SELECT name, id FROM contract_docs ",
-				DisplayString = "Документ <{0}>"
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(ContractCategory),
-				TableName = "contract_category",
-				ObjectsName = "Категории договоров",
-				ObjectName = "категория",
-				SqlSelect = "SELECT name, id FROM contract_category ",
-				DisplayString = "{0}",
-				ClearItems = new List<ClearDependenceInfo>{
-					new ClearDependenceInfo (typeof(Contract), "WHERE category_id = @id", "category_id")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(Organization),
-				TableName = "organizations",
-				ObjectsName = "Организации",
-				ObjectName = "организацию",
-				SqlSelect = "SELECT name, id FROM organizations ",
-				DisplayString = "{0}",
-				DeleteItems = new List<DeleteDependenceInfo>{
-					new DeleteDependenceInfo (typeof(Contract), "WHERE org_id = @id ")
-				},
-				ClearItems = new List<ClearDependenceInfo>{
-					new ClearDependenceInfo (typeof(Place), "WHERE org_id = @id", "org_id")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(PlaceType),
-				TableName = "place_types",
-				ObjectsName = "Типы мест",
-				ObjectName = "тип места",
-				SqlSelect = "SELECT name, description, id FROM place_types ",
-				DisplayString = "{0} - {1}",
-				DeleteItems = new List<DeleteDependenceInfo>{
-					new DeleteDependenceInfo (typeof(Place), "WHERE type_id = @id")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(User),
-				TableName = "users",
-				ObjectsName = "Пользователи",
-				ObjectName = "пользователя",
-				SqlSelect = "SELECT name, id FROM users ",
-				DisplayString = "{0}",
-				ClearItems = new List<ClearDependenceInfo>{
-					new ClearDependenceInfo (typeof(Contract), "WHERE responsible_id = @id", "responsible_id"),
-					new ClearDependenceInfo (typeof(QSHistoryLog.HistoryChangeSet), "WHERE user_id = @id", "user_id")
-				}
-			});
-
-			DeleteConfig.AddDeleteInfo (new DeleteInfo{
-				ObjectClass = typeof(QSHistoryLog.HistoryChangeSet),
-				TableName = "history_changeset",
-				ObjectsName = "Журнал действий",
-				ObjectName = "действие пользователя",
-				SqlSelect = "SELECT datetime, object_title, id FROM history_changeset ",
-				DisplayString = "Изменено {1} в {0}"
-			});
-	*/
-			logger.Info ("Ок");
+			logger.Info("Ок");
 		}
 	}
 }

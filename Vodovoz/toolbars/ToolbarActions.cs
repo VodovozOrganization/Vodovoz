@@ -14,9 +14,12 @@ public partial class MainWindow : Gtk.Window
 	public void BuildToolbarActions ()
 	{
 		#region Creating actions
+		//Заказы
 		ActionNewOrder = new Action ("ActionNewOrder", "Новый заказ", null, "gtk-new");
 		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
+		//Сервис
 		ActionServiceTickets = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
+		//Склад
 		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar

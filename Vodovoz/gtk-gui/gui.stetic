@@ -3484,7 +3484,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">6</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -4868,7 +4868,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="857 377">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="857 402">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -4980,7 +4980,6 @@ Patronymic</property>
               <packing>
                 <property name="TopAttach">4</property>
                 <property name="BottomAttach">5</property>
-                <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">False</property>
                 <property name="YOptions">0</property>
@@ -5124,26 +5123,6 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label5">
-                <property name="MemberName" />
-                <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Оборудование:</property>
-              </widget>
-              <packing>
-                <property name="TopAttach">4</property>
-                <property name="BottomAttach">5</property>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
@@ -5181,7 +5160,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="419 174">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="419 204">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5456,7 +5435,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementWater" design-size="449 202">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementWater" design-size="449 234">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -6814,7 +6793,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="576 644">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="603 644">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -7705,10 +7684,9 @@ Patronymic</property>
                         <property name="BottomAttach">6</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
+                        <property name="AutoSize">False</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
+                        <property name="XExpand">True</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -8178,6 +8156,7 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Показывать уволенных</property>
+            <property name="Active">True</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -8186,7 +8165,7 @@ Patronymic</property>
           <packing>
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
             <property name="XFill">True</property>
@@ -9682,7 +9661,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="570 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="734 323">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -9839,24 +9818,6 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label1">
-                <property name="MemberName" />
-                <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Номер доп. соглашения:</property>
-              </widget>
-              <packing>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.Label" id="label2">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
@@ -9920,12 +9881,10 @@ Patronymic</property>
               <widget class="Gtk.Label" id="label6">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Оборудование:</property>
+                <property name="LabelProp" translatable="yes">Номер доп. соглашения:</property>
               </widget>
               <packing>
-                <property name="TopAttach">4</property>
-                <property name="BottomAttach">5</property>
-                <property name="AutoSize">False</property>
+                <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
@@ -9945,15 +9904,13 @@ Patronymic</property>
               <packing>
                 <property name="TopAttach">4</property>
                 <property name="BottomAttach">5</property>
-                <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
+                <property name="YExpand">True</property>
                 <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
@@ -9989,14 +9946,12 @@ Patronymic</property>
           <packing>
             <property name="Position">1</property>
             <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementDailyRent" design-size="570 328">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementDailyRent" design-size="734 361">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10210,24 +10165,6 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label1">
-                <property name="MemberName" />
-                <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Номер доп. соглашения:</property>
-              </widget>
-              <packing>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.Label" id="label2">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
@@ -10291,12 +10228,10 @@ Patronymic</property>
               <widget class="Gtk.Label" id="label6">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Оборудование:</property>
+                <property name="LabelProp" translatable="yes">Номер доп. соглашения:</property>
               </widget>
               <packing>
-                <property name="TopAttach">5</property>
-                <property name="BottomAttach">6</property>
-                <property name="AutoSize">False</property>
+                <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
@@ -10336,15 +10271,13 @@ Patronymic</property>
               <packing>
                 <property name="TopAttach">5</property>
                 <property name="BottomAttach">6</property>
-                <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
-                <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
+                <property name="YExpand">True</property>
                 <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
@@ -10380,8 +10313,6 @@ Patronymic</property>
           <packing>
             <property name="Position">1</property>
             <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>
@@ -10439,7 +10370,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyContractDlg" design-size="499 325">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyContractDlg" design-size="517 352">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10801,9 +10732,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">1</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
+            <property name="AutoSize">False</property>
           </packing>
         </child>
       </widget>
@@ -13410,7 +13339,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.IncomingInvoiceItemsView" design-size="430 300">
+  <widget class="Gtk.Bin" id="Vodovoz.IncomingInvoiceItemsView" design-size="446 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
