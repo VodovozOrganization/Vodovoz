@@ -23,26 +23,11 @@ public partial class MainWindow: Gtk.Window
 		this.KeyReleaseEvent += HandleKeyReleaseEvent;
 		//Передаем лебл
 		QSMain.StatusBarLabel = labelStatus;
-		this.Title = QSSupportLib.MainSupport.GetTitle ();
+		this.Title = MainSupport.GetTitle ();
 		QSMain.MakeNewStatusTargetForNlog ();
 
-		//Test version of base
-		try {
-			MainSupport.BaseParameters = new BaseParam (QSMain.ConnectionDB);
-		} catch (Exception e) {
-			logger.FatalException ("Не удалось получить информацию о версии базы данных.", e);
-			MessageDialog BaseError = new MessageDialog (this, DialogFlags.DestroyWithParent,
-				                          MessageType.Warning, 
-				                          ButtonsType.Close, 
-				                          "Не удалось получить информацию о версии базы данных.");
-			BaseError.Run ();
-			BaseError.Destroy ();
-			Environment.Exit (0);
-		}
+        MainSupport.LoadBaseParameters();
 
-		MainSupport.ProjectVerion = new AppVersion (System.Reflection.Assembly.GetExecutingAssembly ().GetName ().Name.ToString (),
-			"gpl",
-			System.Reflection.Assembly.GetExecutingAssembly ().GetName ().Version);
 		MainSupport.TestVersion (this); //Проверяем версию базы
 		QSMain.CheckServer (this); // Проверяем настройки сервера
 
@@ -61,14 +46,6 @@ public partial class MainWindow: Gtk.Window
 			return;
 		}
 
-		//Загружаем информацию о пользователе
-		if ((QSSaaS.Session.IsSaasConnection && QSMain.User.TestUserExistByLogin (false)) ||
-		    (!QSSaaS.Session.IsSaasConnection && QSMain.User.TestUserExistByLogin (true)))
-			QSMain.User.UpdateUserInfoByLogin ();
-		else {
-			logger.Fatal (String.Format ("Пользователь {0} не найден в базе!", QSMain.User.Login));
-			Environment.Exit (1);
-		}
 		UsersAction.Sensitive = QSMain.User.admin;
 		labelUser.LabelProp = QSMain.User.Name;
 
