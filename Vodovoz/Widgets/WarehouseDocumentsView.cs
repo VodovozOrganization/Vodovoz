@@ -136,8 +136,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			DeleteDlg delete = new DeleteDlg ();
-			delete.RunDeletion (treeDocuments.GetSelectedObjects () [0].GetType (), (treeDocuments.GetSelectedObjects () [0] as IDomainObject).Id);
+			OrmMain.DeleteObject(treeDocuments.GetSelectedObjects () [0]);
 		}
 
 		#endregion
