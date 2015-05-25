@@ -140,7 +140,7 @@ namespace Vodovoz
 			DeleteConfig.AddDeleteInfo(new DeleteInfo
 				{
 					ObjectClass = typeof(Employee),
-					SqlSelect = "SELECT id, lastname, name, patronymic FROM @tablename ",
+					SqlSelect = "SELECT id, last_name, name, patronymic FROM @tablename ",
 					DisplayString = "{1} {2} {3}",
                     DeleteItems = new List<DeleteDependenceInfo>{
                         DeleteDependenceInfo.CreateFromBag<Employee>(item => item.Phones) 
@@ -377,6 +377,28 @@ namespace Vodovoz
 
 			#endregion
 
+			//Вокруг заказа
+			#region Order
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Order),
+					SqlSelect = "SELECT id FROM @tablename ",
+					DisplayString = "Заказ №{0}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(OrderItem),
+					SqlSelect = "SELECT id, order_id FROM @tablename ",
+					DisplayString = "Строка заказа №{1}"
+				}.FillFromMetaInfo()
+			);
+
+
+			#endregion
+
 			//Документы
 			#region Documents
 
@@ -431,6 +453,33 @@ namespace Vodovoz
 					DisplayString = "Движения тары к контрагенту {1} от контрагента {2} бутылей"
 				}.FillFromMetaInfo()
 			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(GoodsMovementOperation),
+					SqlSelect = "SELECT id, amount FROM @tablename ",
+					//FIXME Указать название товара
+					DisplayString = "Перемещение Х в количестве {1}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(MoneyMovementOperation),
+					SqlSelect = "SELECT id FROM @tablename ",
+					//FIXME Создать грамотную строку отобржения.
+					DisplayString = "Денежная операция {0}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(DepositOperation),
+					SqlSelect = "SELECT id, received_deposit, refund_deposit FROM @tablename ",
+					DisplayString = "Залог: получено = {1:C}, возврат = {2:C}"
+				}.FillFromMetaInfo()
+			);
+
 			#endregion
 
 			//Для тетирования

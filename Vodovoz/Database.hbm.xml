@@ -114,7 +114,7 @@
         </subclass>
 	</class>
 
-	<class name="BottlesMovementOperation" lazy="false" table="operation">
+	<class name="BottlesMovementOperation" lazy="false" table="bottles_movement_operations">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
@@ -263,7 +263,7 @@
  		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
  	</class>
 
- 	<class name="DepositOperation" lazy="false" table="operation">
+ 	<class name="DepositOperation" lazy="false" table="deposit_operations">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
@@ -333,7 +333,7 @@
 		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
 	</class>
 
-	<class name="GoodsMovementOperation" lazy="false" table="operation">
+	<class name="GoodsMovementOperation" lazy="false" table="goods_movement_operations">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
@@ -380,7 +380,7 @@
  		<many-to-one name="Warehouse" class="Vodovoz.Warehouse" column="warehouse_id"/>
  	</class>
 
-	<class name="MoneyMovementOperation" lazy="false" table="operation">
+	<class name="MoneyMovementOperation" lazy="false" table="money_movement_operations">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
@@ -467,7 +467,7 @@
  		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id"/>
 	</class>
 
-	<class name="OrderItem" lazy="false" table="order">
+	<class name="OrderItem" lazy="false" table="order_items">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
