@@ -10,6 +10,7 @@ using Gtk;
 using QSProjectsLib;
 using System.Threading;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Vodovoz
 {
@@ -157,7 +158,13 @@ namespace Vodovoz
 
 		protected void OnButtonCreateClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null) {
+				logger.Warn ("Родительская вкладка не найдена.");
+				return;
+			}
+			EquipmentGenerator dlg = new EquipmentGenerator ();
+			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 	}
 }

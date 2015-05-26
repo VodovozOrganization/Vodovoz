@@ -1,5 +1,7 @@
 ﻿using System;
 using QSTDI;
+using System.IO;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -44,6 +46,36 @@ namespace Vodovoz
 		public EquipmentGenerator ()
 		{
 			this.Build ();
+			string ReportPath = System.IO.Path.Combine (Directory.GetCurrentDirectory (), "Reports", "Equipment" + ".rdl");
+			string Parameters = "dup=1&equipment_id=1,2,3";
+			reportviewer2.LoadReport (new Uri (ReportPath), Parameters, QSMain.ConnectionString);
+		}
+
+		protected void OnZoomInActionActivated (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
+		}
+
+		protected void OnZoomOutActionActivated (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
+		}
+
+
+		protected void OnPrintActionActivated (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
+		}
+
+		protected void OnPdfActionActivated (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
+		}
+
+
+		protected void OnRefreshActionActivated (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }
