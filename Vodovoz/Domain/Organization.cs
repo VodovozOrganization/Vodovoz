@@ -8,7 +8,7 @@ using QSOrmProject;
 namespace Vodovoz
 {
 	[OrmSubject (JournalName = "Организации", ObjectName = "организация")]
-	public class Organization : AccountOwnerBase
+	public class Organization : AccountOwnerBase, IDomainObject
 	{
 
 		#region Свойства

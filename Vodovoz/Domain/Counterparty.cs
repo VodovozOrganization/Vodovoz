@@ -9,7 +9,7 @@ using DataAnnotationsExtensions;
 namespace Vodovoz
 {
 	[OrmSubject (JournalName = "Контрагенты", ObjectName = "котрагент")]
-	public class Counterparty : QSBanks.AccountOwnerBase, IContractOwner, IContactOwner, IProxyOwner, IDeliveryPointOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContractOwner, IContactOwner, IProxyOwner, IDeliveryPointOwner
 	{
 		private IList<CounterpartyContract> counterpartyContracts;
 

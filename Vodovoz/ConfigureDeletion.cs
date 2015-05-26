@@ -58,7 +58,7 @@ namespace Vodovoz
 			DeleteConfig.AddDeleteInfo(new DeleteInfo
 				{
 					ObjectClass = typeof(Equipment),
-					SqlSelect = "SELECT @tablename.id, nomenclature.model, serial FROM @tablename " +
+					SqlSelect = "SELECT @tablename.id, nomenclature.model, serial_number FROM @tablename " +
 					"LEFT JOIN nomenclature ON nomenclature.id = nomenclature_id",
 					DisplayString = "{1} ({0})",
 					DeleteItems = new List<DeleteDependenceInfo>
@@ -128,16 +128,23 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "{1}",
 					DeleteItems = new List<DeleteDependenceInfo>{
+                        DeleteDependenceInfo.CreateFromBag<Organization>(item => item.Phones),
+                        DeleteDependenceInfo.CreateFromBag<Organization>(item => item.Accounts),
 						DeleteDependenceInfo.Create<CounterpartyContract>(item => item.Organization)
 					}
 				}.FillFromMetaInfo()
 			);
 
+            DeleteConfig.AddClearDependence<Account>(ClearDependenceInfo.Create<Organization>(item => item.DefaultAccount));
+
 			DeleteConfig.AddDeleteInfo(new DeleteInfo
 				{
 					ObjectClass = typeof(Employee),
-					SqlSelect = "SELECT id, lastname, name, patronymic FROM @tablename ",
+					SqlSelect = "SELECT id, last_name, name, patronymic FROM @tablename ",
 					DisplayString = "{1} {2} {3}",
+                    DeleteItems = new List<DeleteDependenceInfo>{
+                        DeleteDependenceInfo.CreateFromBag<Employee>(item => item.Phones) 
+                    },
 					ClearItems = new List<ClearDependenceInfo>
 					{
 						ClearDependenceInfo.Create<Car>(item => item.Driver),
@@ -196,7 +203,8 @@ namespace Vodovoz
 						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Emails),
 						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Accounts),
 						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.DeliveryPoints),
-						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.CounterpartyContracts),
+						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.CounterpartyContracts)
+                                .AddCheckProperty<CounterpartyContract>(item => item.Counterparty),
 						DeleteDependenceInfo.CreateFromBag<Counterparty>(item => item.Proxies),
 						DeleteDependenceInfo.Create<DepositOperation>(item => item.Counterparty),
 						DeleteDependenceInfo.Create<GoodsMovementOperation>(item => item.WriteoffCounterparty),
@@ -222,6 +230,10 @@ namespace Vodovoz
 					ObjectClass = typeof(Contact),
 					SqlSelect = "SELECT id, lastname, name, surname FROM @tablename ",
 					DisplayString = "{1} {2} {3}",
+                    DeleteItems = new List<DeleteDependenceInfo>{
+                        DeleteDependenceInfo.CreateFromBag<Contact>(item => item.Emails),
+                        DeleteDependenceInfo.CreateFromBag<Contact>(item => item.Phones),
+                    },
 					ClearItems = new List<ClearDependenceInfo>
 					{
 						ClearDependenceInfo.Create<Counterparty>(item => item.MainContact),
@@ -257,6 +269,17 @@ namespace Vodovoz
 				}.FillFromMetaInfo()
 			);
 
+            DeleteConfig.AddDeleteInfo(new DeleteInfo
+                {
+                    ObjectClass = typeof(Proxy),
+                    SqlSelect = "SELECT id, number, issue_date FROM @tablename ",
+                    DisplayString = "{1} от {2:d}",
+                    DeleteItems = new List<DeleteDependenceInfo>{
+                        DeleteDependenceInfo.CreateFromBag<Proxy>(item => item.Persons)
+                    }
+                }.FillFromMetaInfo()
+            );
+
 			DeleteConfig.AddDeleteInfo(new DeleteInfo
 				{
 					ObjectClass = typeof(CounterpartyContract),
@@ -264,7 +287,8 @@ namespace Vodovoz
 					DisplayString = "Договор №{0} от {1:d}",
 					DeleteItems = new List<DeleteDependenceInfo>
 					{
-						DeleteDependenceInfo.Create<AdditionalAgreement>(item => item.Contract),
+                            DeleteDependenceInfo.CreateFromBag<CounterpartyContract>(item => item.AdditionalAgreements)
+                                .AddCheckProperty<AdditionalAgreement>(item => item.Contract)
 					}
 				}.FillFromMetaInfo()
 			);
@@ -280,6 +304,20 @@ namespace Vodovoz
 					}
 				}.FillFromMetaInfo()
 			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(FreeRentEquipment),
+					SqlSelect = "SELECT @tablename.id, model, serial_number FROM @tablename " +
+						"LEFT JOIN equipment ON equipment.id = @tablename.equipment_id " +
+						"LEFT JOIN nomenclature ON equipment.nomenclature_id = nomenclature.id ",
+					DisplayString = "Доп. соглашение №{1}",
+					ClearItems = new List<ClearDependenceInfo>
+						{
+							ClearDependenceInfo.Create<OrderItem>(item => item.AdditionalAgreement)
+						}
+				}.FillFromMetaInfo()
+			);
 				
 			DeleteConfig.AddDeleteInfo(new DeleteInfo
 				{
@@ -293,6 +331,7 @@ namespace Vodovoz
 						DeleteDependenceInfo.Create<DepositOperation>(item => item.DeliveryPoint),
 						DeleteDependenceInfo.Create<GoodsMovementOperation>(item => item.WriteoffDeliveryPoint),
 						DeleteDependenceInfo.Create<GoodsMovementOperation>(item => item.IncomingDeliveryPoint),
+                        DeleteDependenceInfo.Create<Proxy>(item => item.DeliveryPoint)
 					}
 				}.FillFromMetaInfo()
 			);
@@ -332,6 +371,28 @@ namespace Vodovoz
 					{
 						ClearDependenceInfo.Create<DeliveryPoint>(item => item.LogisticsArea)
 					}
+				}.FillFromMetaInfo()
+			);
+
+
+			#endregion
+
+			//Вокруг заказа
+			#region Order
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Order),
+					SqlSelect = "SELECT id FROM @tablename ",
+					DisplayString = "Заказ №{0}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(OrderItem),
+					SqlSelect = "SELECT id, order_id FROM @tablename ",
+					DisplayString = "Строка заказа №{1}"
 				}.FillFromMetaInfo()
 			);
 
@@ -392,6 +453,33 @@ namespace Vodovoz
 					DisplayString = "Движения тары к контрагенту {1} от контрагента {2} бутылей"
 				}.FillFromMetaInfo()
 			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(GoodsMovementOperation),
+					SqlSelect = "SELECT id, amount FROM @tablename ",
+					//FIXME Указать название товара
+					DisplayString = "Перемещение Х в количестве {1}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(MoneyMovementOperation),
+					SqlSelect = "SELECT id FROM @tablename ",
+					//FIXME Создать грамотную строку отобржения.
+					DisplayString = "Денежная операция {0}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(DepositOperation),
+					SqlSelect = "SELECT id, received_deposit, refund_deposit FROM @tablename ",
+					DisplayString = "Залог: получено = {1:C}, возврат = {2:C}"
+				}.FillFromMetaInfo()
+			);
+
 			#endregion
 
 			//Для тетирования

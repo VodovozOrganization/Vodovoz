@@ -3,7 +3,7 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[OrmSubject ("Передвижения залогов")]
+	[OrmSubject ("Изменения залогов")]
 	public class DepositOperation: OperationBase
 	{
 		OrderItem orderItem;
