@@ -591,7 +591,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4791,7 +4790,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип]; AgreementDeliveryPoint[Точка доставки];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип]; AgreementDeliveryPoint[Точка доставки];</property>
                 <signal name="RowActivated" handler="OnTreeAdditionalAgreementsRowActivated" />
               </widget>
             </child>
@@ -4814,7 +4813,7 @@ Patronymic</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.AgreementType, Vodovoz</property>
+                <property name="ItemsEnumName">Vodovoz.Domain.AgreementType, Vodovoz</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -4853,7 +4852,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -6718,7 +6717,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.DeliveryPoint} Point[Название]; IsActive[Активна];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.DeliveryPoint} Point[Название]; IsActive[Активна];</property>
                 <signal name="RowActivated" handler="OnTreeDeliveryPointsRowActivated" />
               </widget>
             </child>
@@ -6778,7 +6777,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -7742,7 +7741,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Proxy} Number[Номер]; Start[Начало действия]; Expiration[Окончание действия];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.Proxy} Number[Номер]; Start[Начало действия]; Expiration[Окончание действия];</property>
                 <signal name="RowActivated" handler="OnDatatreeviewProxiesRowActivated" />
               </widget>
             </child>
@@ -7802,7 +7801,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -8253,7 +8252,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; EquipmentSerial[Серийный номер]; DepositString[Сумма залога]; WaterAmountString[Минимальное количество воды];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; EquipmentSerial[Серийный номер]; DepositString[Сумма залога]; WaterAmountString[Минимальное количество воды];</property>
                 <signal name="RowActivated" handler="OnTreeRentPackagesRowActivated" />
               </widget>
             </child>
@@ -8313,7 +8312,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -9538,7 +9537,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; PriceString[Цена аренды]; EquipmentSerial[Серийный номер];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; PriceString[Цена аренды]; EquipmentSerial[Серийный номер];</property>
                 <signal name="RowActivated" handler="OnTreeRentPackagesRowActivated" />
               </widget>
             </child>
@@ -9598,7 +9597,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -10773,7 +10772,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.CounterpartyContract} Title[Номер]; OrganizationTitle[Организация]; AdditionalAgreementsCount[Кол-во доп. соглашений];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.CounterpartyContract} Title[Номер]; OrganizationTitle[Организация]; AdditionalAgreementsCount[Кол-во доп. соглашений];</property>
                 <signal name="RowActivated" handler="OnTreeCounterpartyContractsRowActivated" />
               </widget>
             </child>
@@ -10833,7 +10832,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -11781,7 +11780,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Contact} FullName[Имя]; PostName[Должность]; PointCurator[Курируемые точки]; MainPhoneString[Телефон]; Comment[Комментарий];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.Contact} FullName[Имя]; PostName[Должность]; PointCurator[Курируемые точки]; MainPhoneString[Телефон]; Comment[Комментарий];</property>
                 <signal name="RowActivated" handler="OnDatatreeviewAccountsRowActivated" />
               </widget>
             </child>
@@ -11841,7 +11840,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -11877,7 +11876,7 @@ Patronymic</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.DocumentType, Vodovoz</property>
+                <property name="ItemsEnumName">Vodovoz.Domain.DocumentType, Vodovoz</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -11916,7 +11915,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -11943,7 +11942,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Document} Number[Номер]; DocType[Тип документа]; DateString[Дата]; Description[Детали];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.Document} Number[Номер]; DocType[Тип документа]; DateString[Дата]; Description[Детали];</property>
                 <signal name="RowActivated" handler="OnTreeDocumentsRowActivated" />
               </widget>
             </child>
@@ -13374,7 +13373,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
               </widget>
             </child>
           </widget>
@@ -13449,7 +13448,7 @@ Patronymic</property>
               <packing>
                 <property name="PackType">End</property>
                 <property name="Position">3</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>

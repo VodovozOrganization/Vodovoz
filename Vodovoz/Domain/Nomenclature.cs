@@ -4,7 +4,7 @@ using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Номенклатура", ObjectName = "номенклатура")]
 	public class Nomenclature: PropertyChangedBase, IDomainObject

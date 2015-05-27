@@ -1,10 +1,11 @@
 ﻿using System;
-using QSOrmProject;
-using NLog;
-using NHibernate;
-using QSTDI;
 using System.Data.Bindings;
+using NHibernate;
+using NLog;
+using QSOrmProject;
+using QSTDI;
 using QSValidation;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

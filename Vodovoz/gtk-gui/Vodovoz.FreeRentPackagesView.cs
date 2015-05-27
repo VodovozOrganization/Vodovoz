@@ -61,7 +61,7 @@ namespace Vodovoz
 			this.treeRentPackages.InheritedBoundaryDataSource = false;
 			this.treeRentPackages.InheritedDataSource = false;
 			this.treeRentPackages.InheritedBoundaryDataSource = false;
-			this.treeRentPackages.ColumnMappings = "{Vodovoz.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; EquipmentSerial[Серийный номер]; DepositString[Сумма залога]; WaterAmountString[Минимальное количество воды];";
+			this.treeRentPackages.ColumnMappings = "{Vodovoz.Domain.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; EquipmentSerial[Серийный номер]; DepositString[Сумма залога]; WaterAmountString[Минимальное количество воды];";
 			this.GtkScrolledWindow.Add (this.treeRentPackages);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

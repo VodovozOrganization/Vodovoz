@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Data.Bindings.Collections.Generic;
 using System.Collections.Generic;
-using QSOrmProject;
-using NHibernate;
-using QSTDI;
+using System.Data.Bindings.Collections.Generic;
 using Gtk;
+using NHibernate;
+using QSOrmProject;
+using QSTDI;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

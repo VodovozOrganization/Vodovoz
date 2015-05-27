@@ -5,7 +5,7 @@ using System.Data.Bindings;
 using QSContacts;
 using QSOrmProject;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject(JournalName = "Доверенности", ObjectName = "доверенность")]
 	public class Proxy : BaseNotifyPropertyChanged, IDomainObject

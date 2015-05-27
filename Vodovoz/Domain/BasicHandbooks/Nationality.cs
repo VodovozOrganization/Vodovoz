@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Национальности", ObjectName = " национальность")]
 	public class Nationality : PropertyChangedBase, IDomainObject

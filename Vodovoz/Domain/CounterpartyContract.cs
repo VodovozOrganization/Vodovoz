@@ -3,7 +3,7 @@ using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Договоры контрагента", ObjectName = "договор")]
 	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner, ISpecialRowsRender

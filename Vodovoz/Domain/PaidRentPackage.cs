@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSProjectsLib;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Пакеты платной аренды", ObjectName = "пакет платной аренды")]
 	public class PaidRentPackage: PropertyChangedBase, IDomainObject

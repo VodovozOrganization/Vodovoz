@@ -4,7 +4,7 @@ using DataAnnotationsExtensions;
 using QSProjectsLib;
 using System;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Строки накладной", ObjectName = "строка накладной")]
 	public class IncomingInvoiceItem: PropertyChangedBase, IDomainObject

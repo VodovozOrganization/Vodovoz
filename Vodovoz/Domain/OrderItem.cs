@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Строки заказа", ObjectName = "строка заказа")]
 	public class OrderItem: PropertyChangedBase, IDomainObject, IValidatableObject

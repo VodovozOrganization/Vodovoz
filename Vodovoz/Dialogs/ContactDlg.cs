@@ -1,11 +1,12 @@
 ﻿using System;
-using NLog;
-using NHibernate;
+using System.Collections.Generic;
 using System.Data.Bindings;
+using NHibernate;
+using NLog;
+using QSContacts;
 using QSOrmProject;
 using QSTDI;
-using System.Collections.Generic;
-using QSContacts;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

@@ -6,7 +6,7 @@ using QSContacts;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Контрагенты", ObjectName = "котрагент")]
 	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContractOwner, IContactOwner, IProxyOwner, IDeliveryPointOwner

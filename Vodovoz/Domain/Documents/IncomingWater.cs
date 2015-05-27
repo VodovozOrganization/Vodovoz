@@ -3,7 +3,7 @@ using DataAnnotationsExtensions;
 using QSOrmProject;
 using System;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Производство воды", ObjectName = "Документ производства")]
 	public class IncomingWater: Document

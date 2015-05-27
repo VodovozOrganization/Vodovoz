@@ -3,7 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Графики доставки", ObjectName = "график доставки")]
 	public class DeliverySchedule: PropertyChangedBase, IDomainObject, IValidatableObject

@@ -8,6 +8,7 @@ using NLog;
 using System.Collections.Generic;
 using QSContacts;
 using QSValidation;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

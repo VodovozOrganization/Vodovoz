@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using NHibernate;
-using System.Collections.Generic;
 using QSOrmProject;
 using QSTDI;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

@@ -4,7 +4,7 @@ using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Пакеты бесплатной аренды", ObjectName = "пакет бесплатной аренды")]
 	public class FreeRentPackage: PropertyChangedBase, IDomainObject

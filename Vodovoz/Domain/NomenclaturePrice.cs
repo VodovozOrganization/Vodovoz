@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Цены", ObjectName = "цена")]
 	public partial class NomenclaturePrice: PropertyChangedBase, IDomainObject

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using System;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 
 	[OrmSubject (JournalName = "Входящие накладные", ObjectName = "Входящая накладная")]

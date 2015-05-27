@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Статусы контрагента", ObjectName = "статус контагента")]
 	public class CounterpartyStatus : PropertyChangedBase, IDomainObject

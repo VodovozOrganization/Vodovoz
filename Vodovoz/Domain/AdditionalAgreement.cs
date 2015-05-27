@@ -4,7 +4,7 @@ using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Дополнительные соглашения", ObjectName = "дополнительное соглашение")]
 	public class AdditionalAgreement : PropertyChangedBase, IDomainObject, IValidatableObject

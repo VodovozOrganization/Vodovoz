@@ -9,6 +9,7 @@ using Gtk;
 using QSValidation;
 using System.Collections.Generic;
 using QSContacts;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

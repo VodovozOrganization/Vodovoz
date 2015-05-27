@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using NHibernate;
 using QSOrmProject;
 using QSTDI;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

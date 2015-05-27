@@ -1,14 +1,13 @@
 ﻿using System;
 using Gtk;
-using QSProjectsLib;
-using QSOrmProject;
-using QSTDI;
-using Vodovoz;
-using QSBanks;
-using QSSupportLib;
 using NHibernate;
 using NLog;
+using QSBanks;
 using QSContacts;
+using QSOrmProject;
+using QSProjectsLib;
+using QSSupportLib;
+using Vodovoz.Domain;
 
 public partial class MainWindow: Gtk.Window
 {

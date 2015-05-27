@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
- auto-import="true" assembly="Vodovoz" namespace="Vodovoz">
+ auto-import="true" assembly="Vodovoz" namespace="Vodovoz.Domain">
 
  	<!--Простые справочники-->
 
@@ -85,25 +85,25 @@
 		<property name="AgreementNumber" column="number" />
 		<property name="StartDate" column="start_date" />
 		<property name="IssueDate" column="issue_date" /> 
-		<many-to-one name="Contract" class="Vodovoz.CounterpartyContract" column="counterparty_contract_id" />
-		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
+		<many-to-one name="Contract" class="CounterpartyContract" column="counterparty_contract_id" />
+		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id" />
 		<subclass name="NonfreeRentAgreement" discriminator-value="NonfreeRent">
 			<bag name="Equipment" inverse="false" cascade="all-delete-orphan" lazy="true" >
     			<key column="additional_agreement_id"/>
-    			<one-to-many class="Vodovoz.PaidRentEquipment"/>	
+    			<one-to-many class="PaidRentEquipment"/>	
 			</bag>
         </subclass>
         <subclass name="DailyRentAgreement" discriminator-value="DailyRent">
 			<bag name="Equipment" inverse="false" cascade="all-delete-orphan" lazy="true" >
     			<key column="additional_agreement_id"/>
-    			<one-to-many class="Vodovoz.PaidRentEquipment"/>	
+    			<one-to-many class="PaidRentEquipment"/>	
 			</bag>
 			<property name="RentDays" column="rent_days" />
         </subclass>
     	<subclass name="FreeRentAgreement" discriminator-value="FreeRent">
     		<bag name="Equipment" inverse="false" cascade="all-delete-orphan" lazy="true" >
     			<key column="additional_agreement_id"/>
-    			<one-to-many class="Vodovoz.FreeRentEquipment"/>
+    			<one-to-many class="FreeRentEquipment"/>
 			</bag>
         </subclass>
     	<subclass name="WaterSalesAgreement" discriminator-value="WaterSales">
@@ -121,10 +121,10 @@
  		<property name="OperationTime" column="operation_time"/>
  		<property name="MovedTo" column="moved_to"/>
 		<property name="MovedFrom" column="moved_from"/>
-		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
-		<many-to-one name="Counterparty" class="Vodovoz.Counterparty" column="counterparty_id"/>
-		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
+		<many-to-one name="Order" class="Order" column="order_id"/>
+		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
+		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
 	</class>
 
 	<class name="Car" lazy="false" table="cars">
@@ -174,9 +174,9 @@
 		<property name="INN" column="inn" /> 
 		<property name="KPP" column="kpp" /> 
 		<property name="JurAddress" column="jur_address" /> 
-		<property name="PaymentMethod" column="payment_method" type="Vodovoz.PaymentStringType, Vodovoz"/>
-		<property name="PersonType" column="person_type" type="Vodovoz.PersonTypeStringType, Vodovoz"/>
-		<property name="CounterpartyType" column="counterparty_type" type="Vodovoz.CounterpartyTypeStringType, Vodovoz"/>
+		<property name="PaymentMethod" column="payment_method" type="PaymentStringType, Vodovoz"/>
+		<property name="PersonType" column="person_type" type="PersonTypeStringType, Vodovoz"/>
+		<property name="CounterpartyType" column="counterparty_type" type="CounterpartyTypeStringType, Vodovoz"/>
 		<many-to-one name="Significance" class="Significance" column="significance_id"/>
 		<many-to-one name="Status" class="CounterpartyStatus" column="status_id"/>
 		<many-to-one name="MainCounterparty" class="Counterparty" column="maincounterparty_id" />
@@ -196,7 +196,7 @@
 		</bag>
 		<bag name="DeliveryPoints" inverse="false" cascade="all-delete-orphan" lazy="true">
 			<key column="counterparty_id" />
-			<one-to-many class="Vodovoz.DeliveryPoint" />
+			<one-to-many class="DeliveryPoint" />
 		</bag>
 		<bag name="Emails" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
@@ -212,7 +212,7 @@
 		</bag>
 		<bag name="Proxies" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
-    		<one-to-many class="Vodovoz.Proxy" />
+    		<one-to-many class="Proxy" />
 		</bag>
  	</class>
 
@@ -268,13 +268,13 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="OperationTime" column="operation_time"/>
- 		<property name="DepositType" column="deposit_type" type="Vodovoz.DepositTypeStringType, Vodovoz"/>
+ 		<property name="DepositType" column="deposit_type" type="DepositTypeStringType, Vodovoz"/>
 		<property name="ReceivedDeposit" column="received_deposit"/>
 		<property name="RefundDeposit" column="refund_deposit"/>
-		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
-		<many-to-one name="Counterparty" class="Vodovoz.Counterparty" column="counterparty_id"/>
-		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
+		<many-to-one name="Order" class="Order" column="order_id"/>
+		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
+		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
 	</class>
 
 	<class name="Employee" lazy="false" table="employees">
@@ -284,7 +284,7 @@
 	 	<property name="Name" column="name" />
 	 	<property name="LastName" column="last_name" />
 	 	<property name="Patronymic" column="patronymic" />
-	 	<property name="Category" column="category" type="Vodovoz.EmployeeCategoryStringType, Vodovoz"/>
+	 	<property name="Category" column="category" type="EmployeeCategoryStringType, Vodovoz"/>
 	 	<property name="PassportSeria" column="passport_seria" />
 	 	<property name="PassportNumber" column="passport_number" />
 	 	<property name="DrivingNumber" column="driving_number" />
@@ -309,7 +309,7 @@
 		<property name="WarrantyEndDate" column="warranty_end_date" /> 
 		<property name="OnDuty" column="on_duty" />
 		<property name="Comment" column="comment" />
-		<many-to-one name="Nomenclature" class="Vodovoz.Nomenclature" column="nomenclature_id" />
+		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" />
  	</class>
 
  	<class name="FreeRentEquipment" lazy="false" table="free_rent_equipment">
@@ -318,8 +318,8 @@
  		</id>
  		<property name="Deposit" column="deposit" />
  		<property name="WaterAmount" column="water_amount" />
- 		<many-to-one name="FreeRentPackage" class="Vodovoz.FreeRentPackage" column="free_rent_package_id" />
- 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
+ 		<many-to-one name="FreeRentPackage" class="FreeRentPackage" column="free_rent_package_id" />
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  	</class>
 
  	<class name="FreeRentPackage" lazy="false" table="free_rent_packages">
@@ -339,13 +339,13 @@
  		</id>
  		<property name="OperationTime" column="operation_time"/>
  		<property name="Amount" column="amount"/>
-		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
-		<many-to-one name="WriteoffWarehouse" class="Vodovoz.Warehouse" column="writeoff_warehouse_id"/>
-		<many-to-one name="IncomingWarehouse" class="Vodovoz.Warehouse" column="incoming_warehouse_id"/>
-		<many-to-one name="WriteoffCounterparty" class="Vodovoz.Counterparty" column="writeoff_counterparty_id"/>
-		<many-to-one name="IncomingCounterparty" class="Vodovoz.Counterparty" column="incoming_counterparty_id"/>
-		<many-to-one name="WriteoffDeliveryPoint" class="Vodovoz.DeliveryPoint" column="writeoff_delivery_point_id"/>
-		<many-to-one name="IncomingDeliveryPoint" class="Vodovoz.DeliveryPoint" column="incoming_delivery_point_id"/>
+		<many-to-one name="Order" class="Order" column="order_id"/>
+		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="writeoff_warehouse_id"/>
+		<many-to-one name="IncomingWarehouse" class="Warehouse" column="incoming_warehouse_id"/>
+		<many-to-one name="WriteoffCounterparty" class="Counterparty" column="writeoff_counterparty_id"/>
+		<many-to-one name="IncomingCounterparty" class="Counterparty" column="incoming_counterparty_id"/>
+		<many-to-one name="WriteoffDeliveryPoint" class="DeliveryPoint" column="writeoff_delivery_point_id"/>
+		<many-to-one name="IncomingDeliveryPoint" class="DeliveryPoint" column="incoming_delivery_point_id"/>
 	</class>
 
 	<class name="IncomingInvoice" lazy="false" table="incoming_invoice">
@@ -353,11 +353,11 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="TimeStamp" column="time_stamp"/>
- 		<many-to-one name="Contractor" class="Vodovoz.Counterparty" column="counterparty_id"/>
-		<many-to-one name="Warehouse" class="Vodovoz.Warehouse" column="warehouse_id"/>
+ 		<many-to-one name="Contractor" class="Counterparty" column="counterparty_id"/>
+		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
 		<bag name="Items" inverse="false" cascade="all-delete-orphan" lazy="false" >
     		<key column="incoming_invoice_id"/>
-    		<one-to-many class="Vodovoz.IncomingInvoiceItem" />
+    		<one-to-many class="IncomingInvoiceItem" />
 		</bag>
  	</class>
 
@@ -377,7 +377,7 @@
  		</id>
  		<property name="TimeStamp" column="time_stamp"/>
  		<property name="Amount" column="amount"/>
- 		<many-to-one name="Warehouse" class="Vodovoz.Warehouse" column="warehouse_id"/>
+ 		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
  	</class>
 
 	<class name="MoneyMovementOperation" lazy="false" table="money_movement_operations">
@@ -388,12 +388,12 @@
  		<property name="Debt" column="debt"/>
 		<property name="Money" column="money"/>
 		<property name="Deposit" column="deposit"/>
-		<property name="DepositType" column="deposit_type" type="Vodovoz.DepositTypeStringType, Vodovoz"/>
-		<property name="PaymentType" column="payment_type" type="Vodovoz.PaymentTypeStringType, Vodovoz"/>
-		<many-to-one name="Order" class="Vodovoz.Order" column="order_id"/>
-		<many-to-one name="Counterparty" class="Vodovoz.Counterparty" column="counterparty_id"/>
-		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
+		<property name="DepositType" column="deposit_type" type="DepositTypeStringType, Vodovoz"/>
+		<property name="PaymentType" column="payment_type" type="PaymentTypeStringType, Vodovoz"/>
+		<many-to-one name="Order" class="Order" column="order_id"/>
+		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
+		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
 	</class>
 
 	<class name="MovementDocument" lazy="false" table="movement_document">
@@ -401,14 +401,14 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="TimeStamp" column="time_stamp"/>
- 		<property name="Category" column="category" type="Vodovoz.MovementDocumentCategoryStringType, Vodovoz"/>
-		<many-to-one name="ResponsiblePerson" class="Vodovoz.Employee" column="responsible_person_id"/>
-		<many-to-one name="FromDeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_from_id"/>
-		<many-to-one name="FromClient" class="Vodovoz.Counterparty" column="counterparty_from_id"/>
-		<many-to-one name="FromWarehouse" class="Vodovoz.Warehouse" column="warehouse_from_id"/>
-		<many-to-one name="ToDeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_to_id"/>
-		<many-to-one name="ToClient" class="Vodovoz.Counterparty" column="counterparty_to_id"/>
-		<many-to-one name="ToWarehouse" class="Vodovoz.Warehouse" column="warehouse_to_id"/>
+ 		<property name="Category" column="category" type="MovementDocumentCategoryStringType, Vodovoz"/>
+		<many-to-one name="ResponsiblePerson" class="Employee" column="responsible_person_id"/>
+		<many-to-one name="FromDeliveryPoint" class="DeliveryPoint" column="delivery_point_from_id"/>
+		<many-to-one name="FromClient" class="Counterparty" column="counterparty_from_id"/>
+		<many-to-one name="FromWarehouse" class="Warehouse" column="warehouse_from_id"/>
+		<many-to-one name="ToDeliveryPoint" class="DeliveryPoint" column="delivery_point_to_id"/>
+		<many-to-one name="ToClient" class="Counterparty" column="counterparty_to_id"/>
+		<many-to-one name="ToWarehouse" class="Warehouse" column="warehouse_to_id"/>
  	</class>
 
 	<class name="Nomenclature" lazy="false" table="nomenclature">
@@ -418,17 +418,17 @@
 	 	<property name="Name" column="name" />
 	 	<property name="Model" column="model" />
 	 	<property name="Weight" column="weight" />
-	 	<property name="VAT" column="vat" type="Vodovoz.VATStringType, Vodovoz"/>
+	 	<property name="VAT" column="vat" type="VATStringType, Vodovoz"/>
 	 	<property name="DoNotReserve" column="reserve" />
 	 	<property name="Serial" column="serial" />
 	 	<many-to-one name="Unit" class="MeasurementUnits" column="unit" />
-	 	<property name="Category" column="category" type="Vodovoz.NomenclatureCategoryStringType, Vodovoz"/>
+	 	<property name="Category" column="category" type="NomenclatureCategoryStringType, Vodovoz"/>
 	 	<many-to-one name="Color" class="EquipmentColors" column="color" />
 	 	<many-to-one name="Type" class="EquipmentType" column="type" />
 	 	<many-to-one name="Manufacturer" class="Manufacturer" column="manufacturer" />
 	 	<bag name="NomenclaturePrice" inverse="false" cascade="all-delete-orphan" lazy="false" >
     		<key column="nomenclature_id"/>
-    		<one-to-many class="Vodovoz.NomenclaturePrice" />
+    		<one-to-many class="NomenclaturePrice" />
 		</bag>
  	</class>
 
@@ -436,24 +436,24 @@
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
- 		<property name="OrderStatus" column="order_status" type="Vodovoz.OrderStatusStringType, Vodovoz"/>
- 		<property name="SignatureType" column="signature_type" type="Vodovoz.OrderSignatureTypeStringType, Vodovoz"/>
+ 		<property name="OrderStatus" column="order_status" type="OrderStatusStringType, Vodovoz"/>
+ 		<property name="SignatureType" column="signature_type" type="OrderSignatureTypeStringType, Vodovoz"/>
  		<property name="DeliveryDate" column="delivery_date"/>
  		<property name="SelfDelivery" column="self_delivery"/>
  		<property name="BottlesReturn" column="bottles_return"/>
  		<property name="SumToReceive" column="sum_to_receive"/>
  		<property name="Shipped" column="shipped"/>
- 		<many-to-one name="Client" class="Vodovoz.Counterparty" column="client_id"/>
- 		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
- 		<many-to-one name="DeliverySchedule" class="Vodovoz.DeliverySchedule" column="delivery_schedule_id"/>
- 		<many-to-one name="PreviousOrder" class="Vodovoz.Order" column="previous_order_id"/>
+ 		<many-to-one name="Client" class="Counterparty" column="client_id"/>
+ 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
+ 		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id"/>
+ 		<many-to-one name="PreviousOrder" class="Order" column="previous_order_id"/>
  		<bag name="OrderItems" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="order_id"/>
-    		<one-to-many class="Vodovoz.OrderItem"/>	
+    		<one-to-many class="OrderItem"/>	
 		</bag>
 		<bag name="OrderEquipments" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="order_id"/>
-    		<one-to-many class="Vodovoz.OrderEquipment"/>	
+    		<one-to-many class="OrderEquipment"/>	
 		</bag>
 	</class>
 
@@ -461,10 +461,10 @@
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
- 		<property name="Direction" column="direction" type="Vodovoz.DirectionStringType, Vodovoz"/>
- 		<property name="Reason" column="reason" type="Vodovoz.ReasonStringType, Vodovoz"/>
- 		<many-to-one name="OrderItem" class="Vodovoz.OrderItem" column="order_item_id"/>
- 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id"/>
+ 		<property name="Direction" column="direction" type="DirectionStringType, Vodovoz"/>
+ 		<property name="Reason" column="reason" type="ReasonStringType, Vodovoz"/>
+ 		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
 	</class>
 
 	<class name="OrderItem" lazy="false" table="order_items">
@@ -473,10 +473,10 @@
  		</id>
  		<property name="Price" column="price"/>
  		<property name="Count" column="count"/>
- 		<many-to-one name="AdditionalAgreement" class="Vodovoz.AdditionalAgreement" column="additional_agreement_id"/>
- 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id"/>
- 		<many-to-one name="Nomenclature" class="Vodovoz.Nomenclature" column="nomenclature_id"/>
- 		<many-to-one name="Units" class="Vodovoz.MeasurementUnits" column="units_id"/>
+ 		<many-to-one name="AdditionalAgreement" class="AdditionalAgreement" column="additional_agreement_id"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id"/>
+ 		<many-to-one name="Units" class="MeasurementUnits" column="units_id"/>
 	</class>
 
 	<class name="Organization" lazy="false" table="organizations">
@@ -510,8 +510,8 @@
  		</id>
  		<property name="Price" column="price" />
  		<property name="Deposit" column="deposit" />
- 		<many-to-one name="PaidRentPackage" class="Vodovoz.PaidRentPackage" column="paid_rent_package_id" />
- 		<many-to-one name="Equipment" class="Vodovoz.Equipment" column="equipment_id" />
+ 		<many-to-one name="PaidRentPackage" class="PaidRentPackage" column="paid_rent_package_id" />
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  	</class>
 
  	<class name="PaidRentPackage" lazy="false" table="paid_rent_packages">
@@ -536,7 +536,7 @@
 		<property name="IssueDate" column="issue_date" />
 		<property name="StartDate" column="start_date" /> 
 		<property name="ExpirationDate" column="expiration_date" />
-		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id" />
+		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id" />
 		<bag name="Persons" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_proxy_id"/>
     		<one-to-many class="QSContacts.Person" />
@@ -556,9 +556,9 @@
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="TimeStamp" column="time_stamp"/>
-	 	<many-to-one name="ResponsibleEmployee" class="Vodovoz.Employee" column="responsible_employee_id"/>
-		<many-to-one name="DeliveryPoint" class="Vodovoz.DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="Client" class="Vodovoz.Counterparty" column="counterparty_id"/>
-		<many-to-one name="WriteoffWarehouse" class="Vodovoz.Warehouse" column="warehouse_id"/>
+	 	<many-to-one name="ResponsibleEmployee" class="Employee" column="responsible_employee_id"/>
+		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="Client" class="Counterparty" column="counterparty_id"/>
+		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="warehouse_id"/>
  	</class>
 </hibernate-mapping>

@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.datatreeviewProxies.InheritedBoundaryDataSource = false;
 			this.datatreeviewProxies.InheritedDataSource = false;
 			this.datatreeviewProxies.InheritedBoundaryDataSource = false;
-			this.datatreeviewProxies.ColumnMappings = "{Vodovoz.Proxy} Number[Номер]; Start[Начало действия]; Expiration[Окончание действия];";
+			this.datatreeviewProxies.ColumnMappings = "{Vodovoz.Domain.Proxy} Number[Номер]; Start[Начало действия]; Expiration[Окончание действия];";
 			this.GtkScrolledWindow.Add (this.datatreeviewProxies);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

@@ -3,7 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Перемещения ТМЦ", ObjectName = "Документ перемещения")]
 	public class MovementDocument: Document

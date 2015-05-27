@@ -5,7 +5,7 @@ using NHibernate.Criterion;
 using System.Collections.Generic;
 using NHibernate;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Оборудование", ObjectName = "оборудование")]
 	public class Equipment: PropertyChangedBase, IDomainObject, IValidatableObject

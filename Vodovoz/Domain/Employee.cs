@@ -4,7 +4,7 @@ using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Сотрудники", ObjectName = "сотрудник")]
 	public class Employee : PropertyChangedBase, IDomainObject, IValidatableObject, ISpecialRowsRender

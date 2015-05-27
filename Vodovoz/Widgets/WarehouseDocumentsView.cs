@@ -1,11 +1,11 @@
 ﻿using System;
-using QSTDI;
-using NHibernate;
-using QSOrmProject;
-using QSOrmProject.Deletion;
 using System.Collections.Generic;
 using Gtk;
+using NHibernate;
 using NLog;
+using QSOrmProject;
+using QSTDI;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

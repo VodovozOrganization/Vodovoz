@@ -2,12 +2,13 @@
 using QSBanks;
 using QSContacts;
 using QSOrmProject.Deletion;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	partial class MainClass
 	{
-		static void ConfigureDeletion()
+		public static void ConfigureDeletion()
 		{
 			logger.Info("Настройка параметров удаления...");
 

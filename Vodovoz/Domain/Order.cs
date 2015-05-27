@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Collections.Generic;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Заказы", ObjectName = "заказ" )]
 	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject

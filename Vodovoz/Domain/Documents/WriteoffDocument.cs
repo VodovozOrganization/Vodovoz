@@ -3,7 +3,7 @@ using QSOrmProject;
 using System.Data.Bindings;
 using System;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Списания ТМЦ", ObjectName = "Акт списания")]
 	public class WriteoffDocument: Document

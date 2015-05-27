@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Единицы измерения", ObjectName = "единица измерения")]
 	public class MeasurementUnits : PropertyChangedBase, IDomainObject

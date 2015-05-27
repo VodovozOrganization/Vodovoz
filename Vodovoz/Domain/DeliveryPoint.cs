@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QSContacts;
 using System.Collections.Generic;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Точки доставки", ObjectName = "точка доставки")]
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject

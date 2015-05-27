@@ -5,7 +5,7 @@ using DataAnnotationsExtensions;
 using QSBanks;
 using QSOrmProject;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Организации", ObjectName = "организация")]
 	public class Organization : AccountOwnerBase, IDomainObject

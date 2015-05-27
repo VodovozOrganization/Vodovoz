@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Data.Bindings;
-using Gtk.DataBindings;
-using NLog;
-using NHibernate;
-using System.Data.Bindings.Collections.Generic;
-using System.Data.Bindings.Collections;
 using System.Collections.Generic;
+using System.Data.Bindings;
+using System.Data.Bindings.Collections.Generic;
 using Gtk;
-using QSOrmProject;
-using QSWidgetLib;
+using Gtk.DataBindings;
+using NHibernate;
+using NLog;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {

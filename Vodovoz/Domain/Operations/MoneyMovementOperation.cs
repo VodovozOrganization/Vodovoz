@@ -1,7 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject ("Передвижения денег")]
 	public class MoneyMovementOperation: OperationBase

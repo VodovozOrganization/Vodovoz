@@ -709,7 +709,6 @@ namespace Vodovoz
 			w47.BottomAttach = ((uint)(6));
 			w47.LeftAttach = ((uint)(1));
 			w47.RightAttach = ((uint)(2));
-			w47.XOptions = ((global::Gtk.AttachOptions)(4));
 			w47.YOptions = ((global::Gtk.AttachOptions)(4));
 			w6.Add (this.datatable1);
 			this.GtkScrolledWindow.Add (w6);

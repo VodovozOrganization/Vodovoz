@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QSContacts;
 using QSOrmProject;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Контакты", ObjectName = "контакт")]
 	public class Contact : PropertyChangedBase, IDomainObject

@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Цвета оборудования", ObjectName = "цвет оборудования")]
 	public class EquipmentColors : PropertyChangedBase, IDomainObject
