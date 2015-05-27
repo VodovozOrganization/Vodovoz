@@ -316,9 +316,9 @@
         <property name="Label" translatable="yes">ТМЦ</property>
         <property name="ShortLabel" translatable="yes">ТМЦ</property>
       </action>
-      <action id="Action1">
+      <action id="ActionMenuLogistic">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Справочники</property>
+        <property name="Label" translatable="yes">Логистика</property>
         <property name="ShortLabel" translatable="yes">Значимость контрагента</property>
       </action>
       <action id="ActionCounterparty1">
@@ -421,7 +421,7 @@
                   <node type="Menuitem" action="ActionStatus" />
                   <node type="Menuitem" action="ActionCounterpartyPost" />
                 </node>
-                <node type="Menu" action="Action1">
+                <node type="Menu" action="ActionMenuLogistic">
                   <node type="Menuitem" action="ActionDeliverySchedule" />
                   <node type="Menuitem" action="ActionLogisticsArea" />
                 </node>
