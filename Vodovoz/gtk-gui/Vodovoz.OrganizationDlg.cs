@@ -244,7 +244,7 @@ namespace Vodovoz
 			this.dataentryKPP.CanFocus = true;
 			this.dataentryKPP.Name = "dataentryKPP";
 			this.dataentryKPP.IsEditable = true;
-			this.dataentryKPP.MaxLength = 10;
+			this.dataentryKPP.MaxLength = 9;
 			this.dataentryKPP.InvisibleChar = '●';
 			this.dataentryKPP.InheritedDataSource = true;
 			this.dataentryKPP.Mappings = "KPP";
@@ -280,7 +280,7 @@ namespace Vodovoz
 			this.dataentryOGRN.CanFocus = true;
 			this.dataentryOGRN.Name = "dataentryOGRN";
 			this.dataentryOGRN.IsEditable = true;
-			this.dataentryOGRN.MaxLength = 15;
+			this.dataentryOGRN.MaxLength = 13;
 			this.dataentryOGRN.InvisibleChar = '●';
 			this.dataentryOGRN.InheritedDataSource = true;
 			this.dataentryOGRN.Mappings = "OGRN";

@@ -591,6 +591,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -742,7 +743,7 @@
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
-                            <property name="MaxLength">10</property>
+                            <property name="MaxLength">9</property>
                             <property name="InvisibleChar">●</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">KPP</property>
@@ -796,7 +797,7 @@
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
-                            <property name="MaxLength">15</property>
+                            <property name="MaxLength">13</property>
                             <property name="InvisibleChar">●</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">OGRN</property>
