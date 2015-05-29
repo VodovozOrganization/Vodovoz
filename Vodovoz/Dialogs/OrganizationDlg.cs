@@ -1,8 +1,6 @@
 ﻿using System;
 using QSTDI;
 using QSOrmProject;
-using QSBanks;
-using NHibernate;
 using System.Data.Bindings;
 using NLog;
 using System.Collections.Generic;
@@ -16,9 +14,8 @@ namespace Vodovoz
 	public partial class OrganizationDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		private ISession session;
+		IUnitOfWorkGeneric<Organization> uow;
 		private Adaptor adaptorOrg = new Adaptor ();
-		private Organization subject;
 
 		public ITdiTabParent TabParent { set; get; }
 
@@ -26,7 +23,7 @@ namespace Vodovoz
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
 
 		public bool HasChanges { 
-			get { return Session.IsDirty (); }
+			get { return uow.HasChanges; }
 		}
 
 		private string _tabName = "Новая организация";
@@ -43,51 +40,40 @@ namespace Vodovoz
 
 		}
 
-		public ISession Session {
+		public IUnitOfWork UoW {
 			get
 			{
-				if (session == null)
-					Session = OrmMain.OpenSession ();
-				return session;
+				return uow;
 			}
-			set { session = value; }
 		}
 
 		public object Subject {
-			get { return subject; }
-			set {
-				if (value is Organization)
-					subject = value as Organization;
-			}
+			get { return uow.Root; }
 		}
 
 		public OrganizationDlg ()
 		{
 			this.Build ();
-			subject = new Organization ();
-			Session.Persist (subject);
+			uow = UnitOfWorkFactory.CreateWithNewRoot<Organization>();
 			ConfigureDlg ();
 		}
 
 		public OrganizationDlg (int id)
 		{
 			this.Build ();
-			subject = Session.Load<Organization> (id);
-			TabName = subject.Name;
+			uow = UnitOfWorkFactory.CreateForRoot<Organization>(id);
+			TabName = uow.Root.Name;
 			ConfigureDlg ();
 		}
 
-		public OrganizationDlg (Organization sub)
+		public OrganizationDlg (Organization sub) : this(sub.Id)
 		{
-			this.Build ();
-			subject = Session.Load<Organization> (sub.Id);
-			TabName = subject.Name;
-			ConfigureDlg ();
-		}
+			
+		} 
 
 		private void ConfigureDlg ()
 		{
-			adaptorOrg.Target = subject;
+			adaptorOrg.Target = uow.Root;
 			datatableMain.DataSource = adaptorOrg;
 			dataentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
 			dataentryINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -99,21 +85,20 @@ namespace Vodovoz
 			referenceBuhgalter.SubjectType = typeof(Employee);
 			referenceLeader.SubjectType = typeof(Employee);
 			phonesview1.Session = Session;
-			if (subject.Phones == null)
-				subject.Phones = new List<Phone> ();
-			phonesview1.Phones = subject.Phones;
+			if (uow.Root.Phones == null)
+				uow.Root.Phones = new List<Phone> ();
+			phonesview1.Phones = uow.Root.Phones;
 		}
 
 		public bool Save ()
 		{
-			var valid = new QSValidator<Organization> (subject);
+			var valid = new QSValidator<Organization> (uow.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 			logger.Info ("Сохраняем организацию...");
 			try {
 				phonesview1.SaveChanges ();
-				Session.Flush ();
-				OrmMain.NotifyObjectUpdated (subject);
+				uow.Save();
 				return true;
 			} catch (Exception ex) {
 				string text = "Организация не сохранилась...";
@@ -125,7 +110,7 @@ namespace Vodovoz
 
 		public override void Destroy ()
 		{
-			Session.Close ();
+			uow.Dispose();
 			adaptorOrg.Disconnect ();
 			base.Destroy ();
 		}
