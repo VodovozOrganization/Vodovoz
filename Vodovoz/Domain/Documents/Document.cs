@@ -8,7 +8,7 @@ namespace Vodovoz.Domain
 	{
 		public virtual int Id { get; set; }
 
-		DateTime timeStamp;
+		DateTime timeStamp = DateTime.Now;
 
 		public virtual DateTime TimeStamp {
 			get { return timeStamp; }

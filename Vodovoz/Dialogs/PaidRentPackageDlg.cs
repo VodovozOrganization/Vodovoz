@@ -11,81 +11,32 @@ using Vodovoz.Domain;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class PaidRentPackageDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
+	public partial class PaidRentPackageDlg : OrmGtkDialogBase<PaidRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		private ISession session;
-		private Adaptor adaptor = new Adaptor ();
-		private PaidRentPackage subject;
-
-		public ITdiTabParent TabParent { set; get; }
-
-		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-
-		public bool HasChanges { 
-			get { return Session.IsDirty (); }
-		}
-
-		private string _tabName = "Новый пакет платных услуг";
-
-		public string TabName {
-			get { return _tabName; }
-			set {
-				if (_tabName == value)
-					return;
-				_tabName = value;
-				if (TabNameChanged != null)
-					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
-			}
-
-		}
-
-		public ISession Session {
-			get {
-				if (session == null)
-					Session = OrmMain.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		public object Subject {
-			get { return subject; }
-			set {
-				if (value is PaidRentPackage)
-					subject = value as PaidRentPackage;
-			}
-		}
 
 		public PaidRentPackageDlg ()
 		{
 			this.Build ();
-			subject = new PaidRentPackage ();
-			Session.Persist (subject);
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
+			TabName = "Новый пакет платной аренды";
 			ConfigureDlg ();
 		}
 
 		public PaidRentPackageDlg (int id)
 		{
 			this.Build ();
-			subject = Session.Load<PaidRentPackage> (id);
-			TabName = subject.Name;
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<PaidRentPackage> (id);
 			ConfigureDlg ();
 		}
 
-		public PaidRentPackageDlg (PaidRentPackage sub)
+		public PaidRentPackageDlg (PaidRentPackage sub) : this(sub.Id)
 		{
-			this.Build ();
-			subject = Session.Load<PaidRentPackage> (sub.Id);
-			TabName = subject.Name;
-			ConfigureDlg ();
 		}
 
 		private void ConfigureDlg ()
 		{
-			adaptor.Target = subject;
-			datatable1.DataSource = adaptor;
+			datatable1.DataSource = subjectAdaptor;
 			referenceDepositService.SubjectType = typeof(Nomenclature);
 			referenceDepositService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.deposit));
@@ -98,40 +49,14 @@ namespace Vodovoz
 			referenceEquipmentType.SubjectType = typeof(EquipmentType);
 		}
 
-		public bool Save ()
+		public override bool Save ()
 		{
-			var valid = new QSValidator<PaidRentPackage> (subject);
+			var valid = new QSValidator<PaidRentPackage> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 			logger.Info ("Сохраняем пакет платных услуг...");
-
-			Session.Flush ();
-			OrmMain.NotifyObjectUpdated (subject);
+			UoWGeneric.Save();
 			return true;
-		}
-
-		public override void Destroy ()
-		{
-			Session.Close ();
-			adaptor.Disconnect ();
-			base.Destroy ();
-		}
-
-		protected void OnButtonSaveClicked (object sender, EventArgs e)
-		{
-			if (!this.HasChanges || Save ())
-				OnCloseTab (false);
-		}
-
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
-		{
-			OnCloseTab (false);
-		}
-
-		protected void OnCloseTab (bool askSave)
-		{
-			if (CloseTab != null)
-				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 	}
 }

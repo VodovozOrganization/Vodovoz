@@ -1,120 +1,67 @@
 ﻿using System;
-using System.Data.Bindings;
-using NHibernate;
 using NLog;
 using QSOrmProject;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CarsDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
+	public partial class CarsDlg : OrmGtkDialogBase<Car>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		private ISession session;
-		private Adaptor adaptorCar = new Adaptor ();
-		private Car subject;
-		private bool NewItem = false;
 
-		public ITdiTabParent TabParent { set; get; }
-
-		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-
-		public bool HasChanges { 
-			get { return Session.IsDirty () || attachmentFiles.HasChanges; }
-		}
-
-		private string _tabName = "Новый автомобиль";
-
-		public string TabName {
-			get { return _tabName; }
-			set {
-				if (_tabName == value)
-					return;
-				_tabName = value;
-				if (TabNameChanged != null)
-					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
-			}
-
-		}
-
-		public ISession Session {
-			get
-			{
-				if (session == null)
-					Session = OrmMain.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		public object Subject {
-			get { return subject; }
-			set {
-				if (value is Car)
-					subject = value as Car;
-			}
+		public override bool HasChanges { 
+			get { return UoWGeneric.HasChanges || attachmentFiles.HasChanges; }
 		}
 
 		public CarsDlg ()
 		{
 			this.Build ();
-			NewItem = true;
-			subject = new Car ();
-			Session.Persist (subject);
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Car>();
+			TabName = "Новый автомобиль";
 			ConfigureDlg ();
 		}
 
 		public CarsDlg (int id)
 		{
 			this.Build ();
-			subject = Session.Load<Car> (id);
-			TabName = subject.Model + " - " + subject.RegistrationNumber;
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Car> (id);
 			ConfigureDlg ();
 		}
 
-		public CarsDlg (Car sub)
-		{
-			this.Build ();
-			subject = Session.Load<Car> (sub.Id);
-			TabName = subject.Model + " - " + subject.RegistrationNumber;
-			ConfigureDlg ();
-		}
+		public CarsDlg (Car sub) : this (sub.Id) {}
 
 		private void ConfigureDlg ()
 		{
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
-			adaptorCar.Target = subject;
-			tableCarData.DataSource = adaptorCar;
+			tableCarData.DataSource = subjectAdaptor;
 			dataentryModel.IsEditable = true;
 			dataentryRegNumber.IsEditable = true;
 			dataentryreferenceDriver.SubjectType = typeof(Employee);
 			radiobuttonMain.Active = true;
 
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));
-			if (!NewItem) {
-				attachmentFiles.ItemId = subject.Id;
+			if (!UoWGeneric.IsNew) {
+				attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				attachmentFiles.UpdateFileList ();
 			}
 			OnDataentryreferenceDriverChanged (null, null);
 			textDriverInfo.Selectable = true;
 		}
 
-		public bool Save ()
+		public override bool Save ()
 		{
-			var valid = new QSValidator<Car> (subject);
+			var valid = new QSValidator<Car> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
 			logger.Info ("Сохраняем автомобиль...");
 			try {
-				Session.Flush ();
-				if (NewItem) {
-					attachmentFiles.ItemId = subject.Id;
+				UoWGeneric.Save();
+				if (UoWGeneric.IsNew) {
+					attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				}
 				attachmentFiles.SaveChanges ();
 			} catch (Exception ex) {
@@ -122,23 +69,9 @@ namespace Vodovoz
 				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
 				return false;
 			}
-			OrmMain.NotifyObjectUpdated (subject);
 			logger.Info ("Ok");
 			return true;
 
-		}
-
-		public override void Destroy ()
-		{
-			Session.Close ();
-			adaptorCar.Disconnect ();
-			base.Destroy ();
-		}
-
-		protected void OnCloseTab (bool askSave)
-		{
-			if (CloseTab != null)
-				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 
 		protected void OnRadiobuttonFilesToggled (object sender, EventArgs e)
@@ -153,22 +86,11 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
-		{
-			OnCloseTab (false);
-		}
-
-		protected void OnButtonSaveClicked (object sender, EventArgs e)
-		{
-			if (!this.HasChanges || Save ())
-				OnCloseTab (false);
-		}
-
 		protected void OnDataentryreferenceDriverChanged (object sender, EventArgs e)
 		{
-			if (subject.Driver != null)
-				textDriverInfo.Text = "\tПаспорт: " + subject.Driver.PassportSeria + " № " + subject.Driver.PassportNumber +
-				"\n\tАдрес регистрации: " + subject.Driver.AddressRegistration;
+			if (UoWGeneric.Root.Driver != null)
+				textDriverInfo.Text = "\tПаспорт: " + UoWGeneric.Root.Driver.PassportSeria + " № " + UoWGeneric.Root.Driver.PassportNumber +
+					"\n\tАдрес регистрации: " + UoWGeneric.Root.Driver.AddressRegistration;
 		}
 	}
 }

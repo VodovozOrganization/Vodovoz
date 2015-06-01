@@ -1,143 +1,64 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
-using NHibernate;
 using NLog;
 using QSOrmProject;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class NomenclatureDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
+	public partial class NomenclatureDlg : OrmGtkDialogBase<Nomenclature>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		private ISession session;
-		private Adaptor adaptor = new Adaptor ();
-		private Nomenclature subject;
-
-		public ITdiTabParent TabParent { set; get; }
-
-		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-
-		public bool HasChanges { 
-			get { return Session.IsDirty (); }
-		}
-
-		private string _tabName = "Новая номенклатура";
-
-		public string TabName {
-			get { return _tabName; }
-			set {
-				if (_tabName == value)
-					return;
-				_tabName = value;
-				if (TabNameChanged != null)
-					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
-			}
-
-		}
-
-		public ISession Session {
-			get {
-				if (session == null)
-					Session = OrmMain.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		public object Subject {
-			get { return subject; }
-			set {
-				if (value is Nomenclature)
-					subject = value as Nomenclature;
-			}
-		}
 
 		public NomenclatureDlg ()
 		{
 			this.Build ();
-			subject = new Nomenclature ();
-			Session.Persist (subject);
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Nomenclature>();
+			TabName = "Новая номенклатура";
 			ConfigureDlg ();
 		}
 
 		public NomenclatureDlg (int id)
 		{
 			this.Build ();
-			subject = Session.Load<Nomenclature> (id);
-			TabName = subject.Name;
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Nomenclature> (id);
 			ConfigureDlg ();
 		}
 
-		public NomenclatureDlg (Nomenclature sub)
-		{
-			this.Build ();
-			subject = Session.Load<Nomenclature> (sub.Id);
-			TabName = subject.Name;
-			ConfigureDlg ();
-		}
+		public NomenclatureDlg (Nomenclature sub) : this (sub.Id){}
 
 		private void ConfigureDlg ()
 		{
 			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
 			entryName.IsEditable = true;
-			adaptor.Target = subject;
-			datatable1.DataSource = adaptor;
-			datatable2.DataSource = adaptor;
-			enumType.DataSource = adaptor;
-			enumVAT.DataSource = adaptor;
+			datatable1.DataSource = subjectAdaptor;
+			datatable2.DataSource = subjectAdaptor;
+			enumType.DataSource = subjectAdaptor;
+			enumVAT.DataSource = subjectAdaptor;
 			referenceUnit.SubjectType = typeof(MeasurementUnits);
 			referenceColor.SubjectType = typeof(EquipmentColors);
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceType.SubjectType = typeof(EquipmentType);
 			ConfigureInputs ((NomenclatureCategory)enumType.Active);
 			pricesView.Session = Session;
-			if (subject.NomenclaturePrice == null)
-				subject.NomenclaturePrice = new List<NomenclaturePrice> ();
-			pricesView.Prices = subject.NomenclaturePrice;
+			if (UoWGeneric.Root.NomenclaturePrice == null)
+				UoWGeneric.Root.NomenclaturePrice = new List<NomenclaturePrice> ();
+			pricesView.Prices = UoWGeneric.Root.NomenclaturePrice;
 			radioInfo.Active = true;
 		}
 
-		public bool Save ()
+		public override bool Save ()
 		{
-			var valid = new QSValidator<Nomenclature> (subject);
+			var valid = new QSValidator<Nomenclature> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 			logger.Info ("Сохраняем номенклатуру...");
 			pricesView.SaveChanges ();
-			Session.Flush ();
-			OrmMain.NotifyObjectUpdated (subject);
+			UoWGeneric.Save();
 			return true;
-		}
-
-		public override void Destroy ()
-		{
-			Session.Close ();
-			adaptor.Disconnect ();
-			base.Destroy ();
-		}
-
-		protected void OnButtonSaveClicked (object sender, EventArgs e)
-		{
-			if (!this.HasChanges || Save ())
-				OnCloseTab (false);
-		}
-
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
-		{
-			OnCloseTab (false);
-		}
-
-		protected void OnCloseTab (bool askSave)
-		{
-			if (CloseTab != null)
-				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 
 		protected void OnEnumTypeChanged (object sender, EventArgs e)

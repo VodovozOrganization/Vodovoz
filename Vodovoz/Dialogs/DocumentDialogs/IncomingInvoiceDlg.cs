@@ -1,54 +1,36 @@
 ﻿using System;
-using System.Data.Bindings;
-using NHibernate;
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class IncomingInvoiceDlg : Gtk.Bin, ITdiDialog, IOrmDialog
+	public partial class IncomingInvoiceDlg : OrmGtkDialogBase<IncomingInvoice>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
-		ISession session;
-		IncomingInvoice subject;
-		Adaptor adaptor = new Adaptor ();
-		bool isNew, isSaveButton;
 
 		public IncomingInvoiceDlg ()
 		{
 			this.Build ();
-			subject = new IncomingInvoice ();
-			Session.Persist (subject);
-			subject.TimeStamp = DateTime.Now;
-			isNew = true;
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingInvoice>();
 			ConfigureDlg ();
 		}
 
 		public IncomingInvoiceDlg (int id)
 		{
 			this.Build ();
-			subject = Session.Load<IncomingInvoice> (id);
-			TabName = subject.Number;
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingInvoice> (id);
 			ConfigureDlg ();
 		}
 
-		public IncomingInvoiceDlg (IncomingInvoice sub)
-		{
-			this.Build ();
-			subject = Session.Load<IncomingInvoice> (sub.Id);
-			TabName = subject.Number;
-			ConfigureDlg ();
-		}
+		public IncomingInvoiceDlg (IncomingInvoice sub) : this(sub.Id) {}
 
 		void ConfigureDlg ()
 		{
-			adaptor.Target = subject;
-			tableInvoice.DataSource = adaptor;
+			tableInvoice.DataSource = subjectAdaptor;
 			referenceContractor.SubjectType = typeof(Counterparty);
 			referenceWarehouse.SubjectType = typeof(Warehouse);
 			referenceContractor.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
@@ -56,99 +38,16 @@ namespace Vodovoz
 			incominginvoiceitemsview1.ParentReference = new OrmParentReference (Session, Subject, "Items");
 		}
 
-		#region ITdiTab implementation
-
-		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-
-		public ITdiTabParent TabParent { get ; set ; }
-
-		protected string _tabName = "Входящая накладная";
-
-		public string TabName {
-			get { return _tabName; }
-			set {
-				if (_tabName == value)
-					return;
-				_tabName = value;
-				if (TabNameChanged != null)
-					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
-			}
-		}
-
-		#endregion
-
-		#region ITdiDialog implementation
-
-		public bool Save ()
+		public override bool Save ()
 		{
-			isSaveButton = true;
-			var valid = new QSValidator<IncomingInvoice> (subject);
+			var valid = new QSValidator<IncomingInvoice> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
-				return (isSaveButton = false);
+				return false;
 
 			logger.Info ("Сохраняем входящую накладную...");
-			Session.Flush ();
+			UoWGeneric.Save();
 			logger.Info ("Ok.");
-			OrmMain.NotifyObjectUpdated (subject);
 			return true;
-		}
-
-		public bool HasChanges {
-			get { return Session.IsDirty (); }
-		}
-
-
-		#endregion
-
-		#region IOrmDialog implementation
-
-		public ISession Session {
-			get {
-				if (session == null)
-					session = OrmMain.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		public object Subject {
-			get { return subject; }
-			set {
-				if (value is IncomingInvoice)
-					subject = value as IncomingInvoice;
-			}
-		}
-
-		#endregion
-
-		protected void OnButtonSaveClicked (object sender, EventArgs e)
-		{
-			if (!HasChanges || Save ())
-				OnCloseTab (false);
-		}
-
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
-		{
-			OnCloseTab (false);
-		}
-
-		protected void OnCloseTab (bool askSave)
-		{
-			if (CloseTab != null)
-				CloseTab (this, new TdiTabCloseEventArgs (askSave));
-		}
-
-		public override void Destroy ()
-		{
-			if (isNew && !isSaveButton) {
-				Session.Delete (subject);
-				Session.Flush ();
-			}
-			Session.Close ();
-			adaptor.Disconnect ();
-			base.Destroy ();
 		}
 	}
 }
