@@ -55,6 +55,10 @@ namespace Vodovoz.Domain
 
 		#endregion
 
+		public virtual string Title { 
+			get { return String.Format("{0}({1})", Model, RegistrationNumber); } 
+		}
+
 		public string DriverInfo { get { return Driver == null ? String.Empty : Driver.FullName; } }
 
 		public Car ()
