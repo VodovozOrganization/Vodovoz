@@ -64,6 +64,10 @@ namespace Vodovoz.Domain
 
 		#endregion
 
+		public virtual string Title { 
+			get { return Nomenclature == null ? String.Empty : String.Format("{0}({1})", Nomenclature.Model, Serial); } 
+		}
+
 		public virtual string Type { get { return Nomenclature == null ? String.Empty : Nomenclature.Type.Name; } }
 
 		public virtual string NomenclatureName { get { return Nomenclature == null ? String.Empty : Nomenclature.Name; } }
