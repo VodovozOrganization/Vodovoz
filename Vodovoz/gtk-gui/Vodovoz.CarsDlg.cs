@@ -171,6 +171,7 @@ namespace Vodovoz
 			this.dataentryModel.CanFocus = true;
 			this.dataentryModel.Name = "dataentryModel";
 			this.dataentryModel.IsEditable = true;
+			this.dataentryModel.MaxLength = 50;
 			this.dataentryModel.InvisibleChar = '●';
 			this.dataentryModel.InheritedDataSource = true;
 			this.dataentryModel.Mappings = "Model";

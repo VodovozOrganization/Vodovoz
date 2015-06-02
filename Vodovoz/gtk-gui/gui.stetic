@@ -591,7 +591,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2108,7 +2107,7 @@
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="578 255">
+  <widget class="Gtk.Bin" id="Vodovoz.CarsDlg" design-size="578 294">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -2260,6 +2259,7 @@
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>
+                    <property name="MaxLength">50</property>
                     <property name="InvisibleChar">●</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">Model</property>
