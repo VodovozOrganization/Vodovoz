@@ -1,139 +1,50 @@
 ﻿using System;
-using System.Data.Bindings;
-using NLog;
 using QSOrmProject;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CounterpartyContractDlg : Gtk.Bin, ITdiDialog, IOrmSlaveDialog
+	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>
 	{
-		protected static Logger logger = LogManager.GetCurrentClassLogger ();
-		protected Adaptor adaptor = new Adaptor ();
+		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		protected IContractOwner ContractOwner;
-		protected bool isSaveButton;
-		protected CounterpartyContract subjectCopy;
 
-		public bool HasChanges {
-			get { return false; }
-		}
-
-		#region ITdiTab implementation
-
-		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-
-		public QSTDI.ITdiTabParent TabParent { get ; set ; }
-
-		protected string _tabName = "Новый договор с контрагентом";
-
-		public string TabName {
-			get { return _tabName; }
-			set {
-				if (_tabName == value)
-					return;
-				_tabName = value;
-				if (TabNameChanged != null)
-					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
-			}
-		}
-
-		#endregion
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null) {
-					if (!(parentReference.ParentObject is IContractOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IContractOwner)));
-					}
-					ContractOwner = (IContractOwner)parentReference.ParentObject;
-				}
-			}
-			get { return parentReference; }
-		}
-
-		protected void OnButtonSaveClicked (object sender, EventArgs e)
-		{
-			if (Save ()) {
-				isSaveButton = true;
-				OnCloseTab (false);
-			}
-		}
-
-		protected void OnCloseTab (bool askSave)
-		{
-			if (TabParent.CheckClosingSlaveTabs ((ITdiTab)this))
-				return;
-
-			if (CloseTab != null)
-				CloseTab (this, new TdiTabCloseEventArgs (askSave));
-		}
-
-		public override void Destroy ()
-		{
-			if (!isSaveButton) {
-				if (subject.IsNew)
-					(parentReference.ParentObject as IContractOwner).CounterpartyContracts.Remove (subject);
-				else {
-					ObjectCloner.FieldsCopy<CounterpartyContract> (subjectCopy, ref subject);
-					subject.FirePropertyChanged ();
-				}
-			}
-			adaptor.Disconnect ();
-			base.Destroy ();
-		}
-
-
-		private CounterpartyContract subject;
-
-		public object Subject {
-			get { return subject; }
-			set {
-				if (value is CounterpartyContract)
-					subject = value as CounterpartyContract;
-			}
-		}
-
-		public CounterpartyContractDlg (OrmParentReference parentReference, CounterpartyContract sub)
+		public CounterpartyContractDlg (Counterparty counterparty)
 		{
 			this.Build ();
-			ParentReference = parentReference;
-			subject = sub;
-			TabName = subject.Number;
+			UoWGeneric = CounterpartyContract.Create (counterparty);
+			TabName = "Новый договор";
 			ConfigureDlg ();
-			subjectCopy = ObjectCloner.Clone<CounterpartyContract> (sub);
+		}
+
+		public CounterpartyContractDlg (CounterpartyContract sub) : this (sub.Id) {}
+
+		public CounterpartyContractDlg (int id)
+		{
+			this.Build ();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CounterpartyContract> (id);
+			ConfigureDlg ();
 		}
 
 		private void ConfigureDlg ()
 		{
-			adaptor.Target = subject;
-			datatable5.DataSource = adaptor;
+			datatable5.DataSource = subjectAdaptor;
 			referenceOrganization.SubjectType = typeof(Organization);
-			additionalagreementsview1.ParentReference = new OrmParentReference (ParentReference.Session, (Subject as CounterpartyContract), "AdditionalAgreements");
-
+			additionalagreementsview1.ParentReference = new OrmParentReference (UoWGeneric.Session, (Subject as CounterpartyContract), "AdditionalAgreements");
 		}
 
-		public bool Save ()
+		public override bool Save ()
 		{
-			var valid = new QSValidator<CounterpartyContract> (subject);
+			var valid = new QSValidator<CounterpartyContract> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			subject.IsNew = false;
-			OrmMain.DelayedNotifyObjectUpdated (ParentReference.ParentObject, subject);
+			UoWGeneric.Save ();
 			return true;
 		}
 
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
-		{
-			OnCloseTab (false);
-		}
 	}
 }
 

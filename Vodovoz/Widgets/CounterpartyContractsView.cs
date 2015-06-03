@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
-using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
@@ -14,12 +13,6 @@ namespace Vodovoz
 	{
 		private IContractOwner contractOwner;
 		private GenericObservableList<CounterpartyContract> CounterpartyContracts;
-		private ISession session;
-
-		public ISession Session {
-			get { return session; }
-			set { session = value; }
-		}
 
 		public IContractOwner ContractOwner {
 			get { return contractOwner; }
@@ -34,22 +27,6 @@ namespace Vodovoz
 						col.SetCellDataFunc (col.Cells [0], new TreeCellDataFunc (RenderCell));
 				}
 			}
-		}
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null) {
-					Session = parentReference.Session;
-					if (!(parentReference.ParentObject is IContractOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IContractOwner)));
-					}
-					ContractOwner = (IContractOwner)parentReference.ParentObject;
-				}
-			}
-			get { return parentReference; }
 		}
 
 		public CounterpartyContractsView ()
@@ -70,13 +47,20 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			CounterpartyContract contract = new CounterpartyContract ();
-			contract.IsNew = true;
-			contract.Counterparty = contractOwner as Counterparty;
-			CounterpartyContracts.Add (contract);
+			var parentDlg = OrmMain.FindMyDialog (this);
+			if (parentDlg == null)
+				return;
 
-			ITdiDialog dlg = new CounterpartyContractDlg (ParentReference, contract);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			if(parentDlg.UoW.IsNew)
+			{
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.Subject.GetType (), typeof(CounterpartyContract))) {
+					parentDlg.UoW.Save ();
+				} else
+					return;
+			}
+
+			ITdiDialog dlg = new CounterpartyContractDlg (contractOwner as Counterparty);
+			mytab.TabParent.AddTab (dlg, mytab);
 		}
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
@@ -85,8 +69,8 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeCounterpartyContracts.GetSelectedObjects () [0]);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			ITdiDialog dlg = new CounterpartyContractDlg (treeCounterpartyContracts.GetSelectedObjects () [0] as CounterpartyContract);
+			mytab.TabParent.AddTab (dlg, mytab);
 		}
 
 		protected void OnTreeCounterpartyContractsRowActivated (object o, Gtk.RowActivatedArgs args)
@@ -96,11 +80,11 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
+			var contract = treeCounterpartyContracts.GetSelectedObjects () [0] as CounterpartyContract;
 
-			CounterpartyContracts.Remove (treeCounterpartyContracts.GetSelectedObjects () [0] as CounterpartyContract);
+			if (OrmMain.DeleteObject (contract)) {
+				CounterpartyContracts.Remove (contract);
+			}
 		}
 
 		private void RenderCell (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)

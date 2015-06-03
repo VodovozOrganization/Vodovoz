@@ -1,11 +1,18 @@
 ﻿using System;
-using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using QSOrmProject;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Договоры контрагента", ObjectName = "договор")]
+	[OrmSubject (
+		Gender = GrammaticalGender.Masculine,
+		NominativePlural = "договоры контрагента",
+		Nominative = "договор",
+		Genitive = " договора",
+		Accusative = "договор"
+	)]
 	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner, ISpecialRowsRender
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }
@@ -73,7 +80,7 @@ namespace Vodovoz.Domain
 		[Display(Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
-			set { SetField (ref counterparty, value, () => Counterparty); }
+			protected set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
 		#region ISpecialRowsRender implementation
@@ -101,6 +108,15 @@ namespace Vodovoz.Domain
 
 		public virtual string AdditionalAgreementsCount { 
 			get { return AdditionalAgreements != null ? AdditionalAgreements.Count.ToString () : "0"; }
+		}
+
+
+		//Конструкторы
+		public static IUnitOfWorkGeneric<CounterpartyContract> Create(Counterparty counterparty)
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<CounterpartyContract> ();
+			uow.Root.Counterparty = counterparty;
+			return uow;
 		}
 	}
 

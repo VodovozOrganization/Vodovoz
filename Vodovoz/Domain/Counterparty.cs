@@ -5,10 +5,16 @@ using System.Collections.Generic;
 using QSContacts;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Контрагенты", ObjectName = "котрагент")]
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
+		NominativePlural = "контрагенты",
+		Nominative = "контрагент",
+		Accusative = "контрагента",
+		Genitive = "контрагента"
+	)]
 	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContractOwner, IContactOwner, IProxyOwner, IDeliveryPointOwner
 	{
 		private IList<CounterpartyContract> counterpartyContracts;
