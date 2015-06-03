@@ -54,7 +54,6 @@ namespace Vodovoz
 			dataComment.Editable = dataWaybillComment.Editable = true;
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			validatedINN.MaxLength = validatedKPP.MaxLength = 12;
 			//Setting up fields sources
 			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = subjectAdaptor;
 			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = subjectAdaptor;

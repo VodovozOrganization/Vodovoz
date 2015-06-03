@@ -591,6 +591,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3350,6 +3351,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3485,7 +3487,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">6</property>
+            <property name="CurrentPage">2</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -4363,6 +4365,7 @@ MainPhoneString</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="IsEditable">True</property>
+                        <property name="MaxLength">12</property>
                         <property name="InvisibleChar">●</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">INN</property>
@@ -4386,6 +4389,7 @@ MainPhoneString</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="IsEditable">True</property>
+                        <property name="MaxLength">9</property>
                         <property name="InvisibleChar">●</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">KPP</property>

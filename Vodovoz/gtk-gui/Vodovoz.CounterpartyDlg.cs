@@ -313,7 +313,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 6;
+			this.notebook1.CurrentPage = 2;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -867,6 +867,7 @@ namespace Vodovoz
 			this.validatedINN.CanFocus = true;
 			this.validatedINN.Name = "validatedINN";
 			this.validatedINN.IsEditable = true;
+			this.validatedINN.MaxLength = 12;
 			this.validatedINN.InvisibleChar = '●';
 			this.validatedINN.InheritedDataSource = true;
 			this.validatedINN.Mappings = "INN";
@@ -881,6 +882,7 @@ namespace Vodovoz
 			this.validatedKPP.CanFocus = true;
 			this.validatedKPP.Name = "validatedKPP";
 			this.validatedKPP.IsEditable = true;
+			this.validatedKPP.MaxLength = 9;
 			this.validatedKPP.InvisibleChar = '●';
 			this.validatedKPP.InheritedDataSource = true;
 			this.validatedKPP.Mappings = "KPP";
