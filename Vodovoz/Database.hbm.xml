@@ -210,7 +210,7 @@
     		<key column="counterparty_id"/>
     		<one-to-many class="CounterpartyContract" />
 		</bag>
-		<bag name="Proxies" inverse="false" cascade="all-delete-orphan" lazy="true" >
+		<bag name="Proxies" inverse="true" cascade="none" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="Proxy" />
 		</bag>
@@ -532,6 +532,7 @@
  		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
+ 		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<property name="Number" column="number" />
 		<property name="IssueDate" column="issue_date" />
 		<property name="StartDate" column="start_date" /> 

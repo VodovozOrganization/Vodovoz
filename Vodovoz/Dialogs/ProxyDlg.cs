@@ -1,80 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
 using Gtk;
-using NHibernate;
 using NHibernate.Criterion;
 using NLog;
 using QSContacts;
 using QSOrmProject;
-using QSTDI;
 using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ProxyDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
+	public partial class ProxyDlg : OrmGtkDialogBase<Proxy>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		private ISession session;
-		private IProxyOwner proxyOwner;
-		private Adaptor adaptor = new Adaptor ();
-		private Proxy subject;
-		private bool isNew = false;
 
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null) {
-					Session = parentReference.Session;
-					if (!(parentReference.ParentObject is IProxyOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IProxyOwner)));
-					}
-					this.proxyOwner = (IProxyOwner)parentReference.ParentObject;
-				}
-			}
-			get { return parentReference; }
-		}
-
-		public ProxyDlg (OrmParentReference parentReference)
+		public ProxyDlg (Counterparty counterparty)
 		{
 			this.Build ();
-			ParentReference = parentReference;
-			subject = new Proxy ();
-			isNew = true;
+			UoWGeneric = Proxy.Create (counterparty);
 			ConfigureDlg ();
 		}
 
-		public ProxyDlg (OrmParentReference parenReferance, Proxy subject)
+		public ProxyDlg (Proxy sub) : this(sub.Id) {}
+
+		public ProxyDlg (int id)
 		{
 			this.Build ();
-			ParentReference = parenReferance;
-			this.subject = subject;
-			TabName = subject.Number;
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Proxy> (id);
 			ConfigureDlg ();
 		}
 
 		private void ConfigureDlg ()
 		{
 			entryNumber.IsEditable = true;
-			adaptor.Target = subject;
-			datatable1.DataSource = adaptor;
+			datatable1.DataSource = subjectAdaptor;
 			personsView.Session = Session;
-			if (subject.Persons == null)
-				subject.Persons = new List<Person> ();
-			personsView.Persons = subject.Persons;
-			datepickerExpiration.DataSource = adaptor;
-			datepickerStart.DataSource = adaptor;
-			datepickerIssue.DataSource = adaptor;
+			if (UoWGeneric.Root.Persons == null)
+				UoWGeneric.Root.Persons = new List<Person> ();
+			personsView.Persons = UoWGeneric.Root.Persons;
 			datepickerIssue.DateChanged += OnIssueDateChanged;
 			datepickerStart.DateChanged += OnStartDateChanged;
 			datepickerExpiration.DateChanged += OnExpirationDateChanged;
-			referenceDeliveryPoint.ParentReference = new OrmParentReference (Session, (ParentReference.ParentObject as Counterparty), "DeliveryPoints");
+			referenceDeliveryPoint.ParentReference = new OrmParentReference (Session, UoWGeneric.Root.Counterparty, "DeliveryPoints");
 
 			var identifiers = new List<object> ();
-			foreach (DeliveryPoint d in (parentReference.ParentObject as Counterparty).DeliveryPoints)
+			foreach (DeliveryPoint d in UoWGeneric.Root.Counterparty.DeliveryPoints)
 				identifiers.Add (d.Id);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
@@ -84,7 +54,7 @@ namespace Vodovoz
 		private void OnIssueDateChanged (object sender, EventArgs e)
 		{
 			if (datepickerIssue.Date != default(DateTime) &&
-			    subject.StartDate == default(DateTime) && datepickerStart.Date < datepickerIssue.Date)
+				UoWGeneric.Root.StartDate == default(DateTime) && datepickerStart.Date < datepickerIssue.Date)
 				datepickerStart.Date = datepickerIssue.Date;
 		}
 
@@ -118,78 +88,12 @@ namespace Vodovoz
 			}
 		}
 
-		#region ITdiTab implementation
-
-		public event EventHandler<QSTDI.TdiTabNameChangedEventArgs> TabNameChanged;
-		public event EventHandler<QSTDI.TdiTabCloseEventArgs> CloseTab;
-
-		private string _tabName = "Новая доверенность";
-
-		public string TabName {
-			get { return _tabName; }
-			set {
-				if (_tabName == value)
-					return;
-				_tabName = value;
-				if (TabNameChanged != null)
-					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
-			}
-
-		}
-
-		public QSTDI.ITdiTabParent TabParent { get ; set ; }
-
-		#endregion
-
-		#region ITdiDialog implementation
-
-		public bool Save ()
+		public override bool Save ()
 		{
 			logger.Info ("Сохраняем доверенность...");
-			if (isNew)
-				(parentReference.ParentObject as Counterparty).Proxies.Add (subject);
-			if (proxyOwner != null)
-				OrmMain.DelayedNotifyObjectUpdated (proxyOwner, subject);
+			UoWGeneric.Save ();
+			logger.Info ("Ok");
 			return true;
-		}
-
-		public bool HasChanges {
-			get { return Session.IsDirty (); }
-		}
-
-		#endregion
-
-		#region IOrmDialog implementation
-
-		public NHibernate.ISession Session {
-			get {
-				if (session == null)
-					Session = OrmMain.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
-
-		public object Subject {
-			get { return subject; }
-			set {
-				if (value is Proxy)
-					subject = value as Proxy;
-			}
-		}
-
-		#endregion
-
-		protected void OnButtonOkClicked (object sender, EventArgs e)
-		{
-			if (!this.HasChanges || Save ())
-				OnCloseTab (false);
-		}
-
-		protected void OnCloseTab (bool askSave)
-		{
-			if (CloseTab != null)
-				CloseTab (this, new TdiTabCloseEventArgs (askSave));
 		}
 	}
 }

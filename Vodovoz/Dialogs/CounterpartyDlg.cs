@@ -68,7 +68,7 @@ namespace Vodovoz
 			referenceMainCounterparty.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
 				.Add (Restrictions.Not (Restrictions.Eq ("id", UoWGeneric.Root.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
-			proxiesview1.ParentReference = new OrmParentReference (Session, Subject, "Proxies");
+			proxiesview1.ProxyOwner = UoWGeneric.Root;
 			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
 			//Setting Contacts

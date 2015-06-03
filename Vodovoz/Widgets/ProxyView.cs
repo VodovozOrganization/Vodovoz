@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
@@ -13,12 +12,6 @@ namespace Vodovoz
 	{
 		private IProxyOwner proxyOwner;
 		private GenericObservableList<Proxy> proxiesList;
-		private ISession session;
-
-		public ISession Session {
-			get { return session; }
-			set { session = value; }
-		}
 
 		public IProxyOwner ProxyOwner {
 			get { return proxyOwner; }
@@ -29,22 +22,6 @@ namespace Vodovoz
 				proxiesList = new GenericObservableList<Proxy> (ProxyOwner.Proxies);
 				datatreeviewProxies.ItemsDataSource = proxiesList;
 			}
-		}
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null) {
-					Session = parentReference.Session;
-					if (!(parentReference.ParentObject is IProxyOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IProxyOwner)));
-					}
-					ProxyOwner = (IProxyOwner)parentReference.ParentObject;
-				}
-			}
-			get { return parentReference; }
 		}
 
 		public ProxyView ()
@@ -65,8 +42,20 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ProxyDlg dlg = new ProxyDlg (ParentReference);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			var parentDlg = OrmMain.FindMyDialog (this);
+			if (parentDlg == null)
+				return;
+
+			if(parentDlg.UoW.IsNew)
+			{
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.Subject.GetType (), typeof(Proxy))) {
+					parentDlg.UoW.Save ();
+				} else
+					return;
+			}
+
+			ITdiDialog dlg = new ProxyDlg (ProxyOwner as Counterparty);
+			mytab.TabParent.AddTab (dlg, mytab);
 		}
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
@@ -75,8 +64,8 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ProxyDlg dlg = new ProxyDlg (ParentReference, datatreeviewProxies.GetSelectedObjects () [0] as Proxy);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			ITdiDialog dlg = new ProxyDlg (datatreeviewProxies.GetSelectedObjects () [0] as Proxy);
+			mytab.TabParent.AddTab (dlg, mytab);
 		}
 
 		protected void OnDatatreeviewProxiesRowActivated (object o, Gtk.RowActivatedArgs args)
@@ -86,11 +75,11 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
+			var proxy = datatreeviewProxies.GetSelectedObjects () [0] as Proxy;
 
-			proxiesList.Remove (datatreeviewProxies.GetSelectedObjects () [0] as Proxy);
+			if (OrmMain.DeleteObject (proxy)) {
+				proxiesList.Remove (proxy);
+			}
 		}
 	}
 }

@@ -7,11 +7,19 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject(JournalName = "Доверенности", ObjectName = "доверенность")]
+	[OrmSubject( Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "доверенности",
+		Nominative = "доверенность",
+		Genitive = "доверенности",
+		Accusative = "доверенность"
+	)]
 	public class Proxy : BaseNotifyPropertyChanged, IDomainObject
 	{
 		#region Свойства
 		public virtual int Id { get; set; }
+
+		[Display(Name = "Контрагент")]
+		public virtual Counterparty Counterparty { get; set; }
 
 		[Display(Name = "Номер")]
 		public virtual string Number { get; set; }
@@ -36,9 +44,22 @@ namespace Vodovoz.Domain
 		{
 			Number = String.Empty;
 		}
+
+		public virtual string Title { 
+			get { return String.Format ("Доверенность №{0} от {1:d}", Number, IssueDate); }
+		}
+
 		public string Issue { get { return IssueDate.ToShortDateString(); } } 
 		public string Start { get { return StartDate.ToShortDateString(); } } 
-		public string Expiration { get { return ExpirationDate.ToShortDateString(); } }  
+		public string Expiration { get { return ExpirationDate.ToShortDateString(); } }
+
+		//Конструкторы
+		public static IUnitOfWorkGeneric<Proxy> Create(Counterparty counterparty)
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<Proxy> ();
+			uow.Root.Counterparty = counterparty;
+			return uow;
+		}
 	}
 
 	public interface IProxyOwner

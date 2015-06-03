@@ -99,7 +99,7 @@ namespace Vodovoz.Domain
 		#endregion
 
 		public virtual string Title { 
-			get { return String.Format ("№{0} от {1}", Id, IssueDate.ToShortDateString ()); }
+			get { return String.Format ("Договор №{0} от {1:d}", Id, IssueDate); }
 		}
 
 		public virtual string OrganizationTitle { 
