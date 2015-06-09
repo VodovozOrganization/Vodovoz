@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Gtk;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -9,13 +8,13 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContractsVM : IRepresentationModel
+	public class ContractsVM : RepresentationModelBase
 	{
 		IUnitOfWorkGeneric<Counterparty> uow;
 
 		#region IRepresentationModel implementation
 
-		public void UpdateNodes ()
+		public override void UpdateNodes ()
 		{
 			NodeStore.Clear ();
 
@@ -47,23 +46,13 @@ namespace Vodovoz.ViewModel
 			foreach (var item in contractslist)
 				NodeStore.AddNode (item);
 		}
-
-		public NodeStore NodeStore { get; set;}
-
-		public Type NodeType {
+			
+		public override Type NodeType {
 			get { return typeof(ContractsVMNode);}
 		}
 
-		public Type ObjectType {
+		public override Type ObjectType {
 			get { return typeof(CounterpartyContract);}
-		}
-
-		private List<IColumnInfo> columns = new List<IColumnInfo> ();
-
-		public List<IColumnInfo> Columns {
-			get {
-				return columns;
-			}
 		}
 
 		#endregion
@@ -82,12 +71,6 @@ namespace Vodovoz.ViewModel
 				.SetDataProperty<ContractsVMNode> (node => node.AdditionalAgreements));
 
 			SetRowAttribute<ContractsVMNode> ("foreground", node => node.RowColor);
-		}
-
-		void SetRowAttribute<TVMNode> (string attibuteName, Expression<Func<TVMNode, object>> propertyRefExpr)
-		{
-			Columns.ConvertAll (c => (ColumnInfo) c)
-				.ForEach ((ColumnInfo column) => column.SetAttributeProperty(attibuteName, propertyRefExpr));
 		}
 	}
 

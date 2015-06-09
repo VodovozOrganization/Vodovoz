@@ -13,7 +13,7 @@ namespace Vodovoz.Domain
 		Genitive = " договора",
 		Accusative = "договор"
 	)]
-	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner, ISpecialRowsRender
+	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }
 
