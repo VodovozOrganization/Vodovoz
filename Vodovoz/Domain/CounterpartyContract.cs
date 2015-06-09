@@ -83,33 +83,9 @@ namespace Vodovoz.Domain
 			protected set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
-		#region ISpecialRowsRender implementation
-
-		public string TextColor {
-			get {
-				if (IsArchive)
-					return "grey";
-				if (OnCancellation)
-					return "blue";
-				return "black";
-					
-			}
-		}
-
-		#endregion
-
 		public virtual string Title { 
 			get { return String.Format ("Договор №{0} от {1:d}", Id, IssueDate); }
 		}
-
-		public virtual string OrganizationTitle { 
-			get { return Organization != null ? Organization.FullName : "Не указана"; }
-		}
-
-		public virtual string AdditionalAgreementsCount { 
-			get { return AdditionalAgreements != null ? AdditionalAgreements.Count.ToString () : "0"; }
-		}
-
 
 		//Конструкторы
 		public static IUnitOfWorkGeneric<CounterpartyContract> Create(Counterparty counterparty)

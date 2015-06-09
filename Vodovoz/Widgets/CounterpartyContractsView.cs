@@ -1,5 +1,4 @@
 ﻿using System;
-using Gtk;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
@@ -9,23 +8,6 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CounterpartyContractsView : Gtk.Bin
 	{
-
-		/*
-		public IContractOwner ContractOwner {
-			get { return contractOwner; }
-			set {
-				contractOwner = value;
-				if (ContractOwner.CounterpartyContracts == null)
-					ContractOwner.CounterpartyContracts = new List<CounterpartyContract> ();
-				CounterpartyContracts = new GenericObservableList<CounterpartyContract> (contractOwner.CounterpartyContracts);
-				//FIXME treeCounterpartyContracts.ItemsDataSource = CounterpartyContracts;
-				if (typeof(ISpecialRowsRender).IsAssignableFrom (typeof(CounterpartyContract))) {
-					foreach (TreeViewColumn col in treeCounterpartyContracts.Columns)
-						col.SetCellDataFunc (col.Cells [0], new TreeCellDataFunc (RenderCell));
-				}
-			}
-		} */
-
 		private IUnitOfWorkGeneric<Counterparty> counterpartyUoW;
 
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
@@ -96,13 +78,6 @@ namespace Vodovoz
 			{
 				treeCounterpartyContracts.RepresentationModel.UpdateNodes ();
 			}
-		}
-
-		private void RenderCell (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
-		{
-			object o = ((treeCounterpartyContracts.Model as TreeModelAdapter)
-				.Implementor as Gtk.DataBindings.MappingsImplementor).NodeFromIter (iter);
-			(cell as CellRendererText).Foreground = (o as ISpecialRowsRender).TextColor;
 		}
 	}
 }

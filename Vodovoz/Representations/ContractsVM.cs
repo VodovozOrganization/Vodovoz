@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using Gtk;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -23,7 +23,6 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			Organization organizationAlias = null;
 			ContractsVMNode resultAlias = null;
-			IList<AdditionalAgreement> agreementCollection = null;
 			AdditionalAgreement agreementAlias = null;
 
 			var subquery = NHibernate.Criterion.QueryOver.Of<AdditionalAgreement>(() => agreementAlias)
@@ -37,6 +36,8 @@ namespace Vodovoz.ViewModel
 				.SelectList(list => list
 					.Select(() => contractAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => contractAlias.IssueDate).WithAlias(() => resultAlias.IssueDate)
+					.Select(() => contractAlias.IsArchive).WithAlias(() => resultAlias.IsArchive)
+					.Select(() => contractAlias.OnCancellation).WithAlias(() => resultAlias.OnCancellation)
 					.Select(() => organizationAlias.Name).WithAlias(() => resultAlias.Organization)
 					.SelectSubQuery(subquery).WithAlias(() => resultAlias.AdditionalAgreements)
 				)
@@ -74,11 +75,19 @@ namespace Vodovoz.ViewModel
 			NodeStore = new NodeStore (NodeType);
 
 			Columns.Add (new ColumnInfo { Name = "Номер"}
-				.SetNodeProperty<ContractsVMNode> (node => node.Title));
+				.SetDataProperty<ContractsVMNode> (node => node.Title));
 			Columns.Add (new ColumnInfo { Name = "Организация" }
-				.SetNodeProperty<ContractsVMNode> (node => node.Organization));
+				.SetDataProperty<ContractsVMNode> (node => node.Organization));
 			Columns.Add (new ColumnInfo { Name = "Кол-во доп. соглашений" }
-				.SetNodeProperty<ContractsVMNode> (node => node.AdditionalAgreements));
+				.SetDataProperty<ContractsVMNode> (node => node.AdditionalAgreements));
+
+			SetRowAttribute<ContractsVMNode> ("foreground", node => node.RowColor);
+		}
+
+		void SetRowAttribute<TVMNode> (string attibuteName, Expression<Func<TVMNode, object>> propertyRefExpr)
+		{
+			Columns.ConvertAll (c => (ColumnInfo) c)
+				.ForEach ((ColumnInfo column) => column.SetAttributeProperty(attibuteName, propertyRefExpr));
 		}
 	}
 
@@ -90,6 +99,10 @@ namespace Vodovoz.ViewModel
 
 		public DateTime IssueDate{ get; set;}
 
+		public bool IsArchive{ get; set;}
+
+		public bool OnCancellation{ get; set;}
+
 		[TreeNodeValue(Column = 0)]
 		public string Title {
 			get { return String.Format ("{0} от {1:d}", Id, IssueDate); }
@@ -100,6 +113,19 @@ namespace Vodovoz.ViewModel
 
 		[TreeNodeValue(Column = 2)]
 		public int AdditionalAgreements { get; set;}
+
+		[TreeNodeValue(Column = 3)]
+		public string RowColor {
+			get {
+				if (IsArchive)
+					return "grey";
+				if (OnCancellation)
+					return "blue";
+				return "black";
+
+			}
+		}
+
 	}
 }
 
