@@ -61,7 +61,7 @@ namespace Vodovoz
 			//Setting subjects
 			accountsView.ParentReference = new OrmParentReference (Session, Subject, "Accounts");
 			deliveryPointView.ParentReference = new OrmParentReference (Session, Subject, "DeliveryPoints");
-			counterpartyContractsView.ContractOwner = UoWGeneric.Root;
+			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);

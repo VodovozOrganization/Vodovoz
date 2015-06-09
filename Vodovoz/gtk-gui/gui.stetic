@@ -10780,16 +10780,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeCounterpartyContracts">
+              <widget class="QSOrmProject.OrmTableView" id="treeCounterpartyContracts">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.CounterpartyContract} Title[Номер]; OrganizationTitle[Организация]; AdditionalAgreementsCount[Кол-во доп. соглашений];</property>
                 <signal name="RowActivated" handler="OnTreeCounterpartyContractsRowActivated" />
               </widget>
             </child>
