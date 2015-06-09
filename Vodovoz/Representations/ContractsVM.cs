@@ -8,7 +8,7 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContractsVM : RepresentationModelBase
+	public class ContractsVM : RepresentationModelBase<CounterpartyContract>
 	{
 		IUnitOfWorkGeneric<Counterparty> uow;
 
@@ -53,6 +53,15 @@ namespace Vodovoz.ViewModel
 
 		public override Type ObjectType {
 			get { return typeof(CounterpartyContract);}
+		}
+
+		#endregion
+
+		#region implemented abstract members of RepresentationModelBase
+
+		protected override bool NeedUpdateFunc (CounterpartyContract updatedSubject)
+		{
+			return uow.Root.Id == updatedSubject.Counterparty.Id;
 		}
 
 		#endregion
