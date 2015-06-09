@@ -31,7 +31,7 @@ namespace Vodovoz
 			treeDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
 			UpdateTable ();
-			OrmObjectMapping map = OrmMain.GetObjectDiscription (typeof(IncomingInvoice));
+			IOrmObjectMapping map = OrmMain.GetObjectDiscription (typeof(IncomingInvoice));
 			if (map != null)
 				map.ObjectUpdated += OnRefObjectUpdated;
 			map = OrmMain.GetObjectDiscription (typeof(IncomingWater));
