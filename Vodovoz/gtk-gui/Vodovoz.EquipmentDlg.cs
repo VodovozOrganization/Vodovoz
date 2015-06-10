@@ -221,7 +221,7 @@ namespace Vodovoz
 			this.entrySerialNumber = new global::Gtk.DataBindings.DataEntry ();
 			this.entrySerialNumber.CanFocus = true;
 			this.entrySerialNumber.Name = "entrySerialNumber";
-			this.entrySerialNumber.IsEditable = true;
+			this.entrySerialNumber.IsEditable = false;
 			this.entrySerialNumber.InvisibleChar = '●';
 			this.entrySerialNumber.InheritedDataSource = true;
 			this.entrySerialNumber.Mappings = "Serial";

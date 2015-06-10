@@ -26,12 +26,12 @@ namespace Vodovoz.Domain
 			set { SetField (ref onDuty, value, () => OnDuty); }
 		}
 
-		string serial;
+		//string serial;
 
 		[Display(Name = "Серийный номер")]
 		public virtual string Serial {
-			get { return serial; }
-			set { SetField (ref serial, value, () => Serial); }
+			get { return Id > 0 ? Id.ToString () : "не определён" ; }
+			//set { SetField (ref serial, value, () => Serial); }
 		}
 
 		string comment;
@@ -80,7 +80,7 @@ namespace Vodovoz.Domain
 
 		public Equipment ()
 		{
-			Serial = Comment = String.Empty;
+			Comment = String.Empty;
 		}
 
 		#region IValidatableObject implementation

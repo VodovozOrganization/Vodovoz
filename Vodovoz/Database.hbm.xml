@@ -304,7 +304,7 @@
  		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
- 		<property name="Serial" column="serial_number" />
+ 		<!--<property name="Serial" column="serial_number" />-->
  		<property name="LastServiceDate" column="last_service_date" />
 		<property name="WarrantyEndDate" column="warranty_end_date" /> 
 		<property name="OnDuty" column="on_duty" />
