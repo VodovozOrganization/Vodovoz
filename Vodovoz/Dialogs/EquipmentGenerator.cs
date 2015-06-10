@@ -1,16 +1,26 @@
 ﻿using System;
-using QSTDI;
+using System.Collections.Generic;
 using System.IO;
+using Gtk;
+using NHibernate.Criterion;
+using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class EquipmentGenerator : Gtk.Bin, ITdiDialog
 	{
+		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
+		bool isDupSet;
+
 		#region ITdiTab implementation
 
 		public ITdiTabParent TabParent { set; get; }
+
+		public List<Equipment> RegisteredEquipment {private set; get; }
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
@@ -38,7 +48,7 @@ namespace Vodovoz
 		}
 
 		public bool HasChanges {
-			get { return false; }
+			get { return RegisteredEquipment != null; }
 		}
 
 		#endregion
@@ -46,37 +56,99 @@ namespace Vodovoz
 		public EquipmentGenerator ()
 		{
 			this.Build ();
+
+			referenceNomenclature.SubjectType = typeof(Nomenclature);
+			referenceNomenclature.ItemsCriteria = uow.Session.CreateCriteria<Nomenclature> ()
+				.Add (Restrictions.Eq ("Category", NomenclatureCategory.equipment))
+				.Add (Restrictions.Eq ("Serial", true));
+		}
+
+		void PreparedReport()
+		{
+			isDupSet = printTwo.Active;
+			if (RegisteredEquipment == null)
+				return;
 			string ReportPath = System.IO.Path.Combine (Directory.GetCurrentDirectory (), "Reports", "Equipment" + ".rdl");
-			string Parameters = "dup=1&equipment_id=1,2,3";
-			reportviewer2.LoadReport (new Uri (ReportPath), Parameters, QSMain.ConnectionString);
+			DBWorks.SQLHelper Parameters = new DBWorks.SQLHelper ("dup={0}&equipment_id=", printTwo.Active ? 1 : 0);
+			Parameters.StartNewList ("", ",");
+			foreach(var equipment in RegisteredEquipment)
+			{
+				Parameters.AddAsList (equipment.Id.ToString ());
+			}
+
+			reportviewer2.LoadReport (new Uri (ReportPath), Parameters.Text, QSMain.ConnectionString);
 		}
 
-		protected void OnZoomInActionActivated (object sender, EventArgs e)
+		protected void OnReferenceNomenclatureChanged (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			labelModel.LabelProp = (referenceNomenclature.Subject as Nomenclature).Model;
+			TestCanRegister ();
 		}
 
-		protected void OnZoomOutActionActivated (object sender, EventArgs e)
+		void TestCanRegister()
 		{
-			throw new NotImplementedException ();
+			bool nomenclatureOk = referenceNomenclature.Subject != null;
+			bool countOk = spinAmount.ValueAsInt > 0;
+			bool warrantyOk = !dateWarrantyEnd.IsEmpty;
+
+			buttonCreate.Sensitive = nomenclatureOk && countOk && warrantyOk;
 		}
 
-
-		protected void OnPrintActionActivated (object sender, EventArgs e)
+		protected void OnSpinAmountValueChanged (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			TestCanRegister ();
 		}
 
-		protected void OnPdfActionActivated (object sender, EventArgs e)
+		protected void OnDateWarrantyEndDateChanged (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			TestCanRegister ();
 		}
 
-
-		protected void OnRefreshActionActivated (object sender, EventArgs e)
+		protected void OnButtonOkClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			string amount = RusNumber.FormatCase (spinAmount.ValueAsInt, 
+				                "Будет зарегистрирован {0} серийный номер для оборудования ",
+				                "Будет зарегистрировано {0} серийных номера для оборудования ",
+				                "Будет зарегистрировано {0} серийных номеров для оборудования "
+			                );
+			string Message = amount + String.Format ("({0}). Вы подтверждаете регистрацию?", 
+				(referenceNomenclature.Subject as Nomenclature).Name);
+			MessageDialog md = new MessageDialog ((Window)this.Toplevel, DialogFlags.Modal,
+				MessageType.Question, 
+				ButtonsType.YesNo,
+				Message);
+			bool result = md.Run () == (int)ResponseType.Yes;
+			md.Destroy ();
+
+			if(result)
+			{
+				RegisteredEquipment = new List<Equipment> ();
+				for(int count = 0; count < spinAmount.ValueAsInt; count++)
+				{
+					var newEquipment = new Equipment {
+						Nomenclature = (referenceNomenclature.Subject as Nomenclature),
+						WarrantyEndDate = dateWarrantyEnd.Date
+					};
+					uow.Save (newEquipment);
+					RegisteredEquipment.Add (newEquipment);
+				}
+				uow.Commit ();
+
+				//Деактивируем создание оборудования
+				referenceNomenclature.Sensitive = spinAmount.Sensitive = 
+					dateWarrantyEnd.Sensitive = buttonCreate.Sensitive = false;
+				PreparedReport ();
+				buttonAddAndClose.Sensitive = true;
+			}
 		}
+
+		protected void OnPrintTwoToggled (object sender, EventArgs e)
+		{
+			if (isDupSet != printTwo.Active)
+				PreparedReport ();
+		}
+
+
 	}
 }
 
