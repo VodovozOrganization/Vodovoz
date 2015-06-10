@@ -1,4 +1,5 @@
-﻿using Gtk;
+﻿using System;
+using Gtk;
 using NLog;
 using QSContacts;
 using QSOrmProject;
@@ -12,6 +13,7 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
 
+		[STAThread]
 		public static void Main (string[] args)
 		{
 			Application.Init ();
