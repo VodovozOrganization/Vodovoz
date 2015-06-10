@@ -199,7 +199,7 @@ namespace Vodovoz
 			this.buttonCreate = new global::Gtk.Button ();
 			this.buttonCreate.Sensitive = false;
 			this.buttonCreate.CanFocus = true;
-			this.buttonCreate.Name = "buttonOk";
+			this.buttonCreate.Name = "buttonCreate";
 			this.buttonCreate.UseUnderline = true;
 			this.buttonCreate.Label = global::Mono.Unix.Catalog.GetString ("Зарегистрировать оборудование");
 			global::Gtk.Image w14 = new global::Gtk.Image ();
@@ -240,18 +240,17 @@ namespace Vodovoz
 			this.hbox4.Spacing = 6;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.buttonAddAndClose = new global::Gtk.Button ();
+			this.buttonAddAndClose.Sensitive = false;
 			this.buttonAddAndClose.CanFocus = true;
-			this.buttonAddAndClose.Name = "buttonPrint";
+			this.buttonAddAndClose.Name = "buttonAddAndClose";
 			this.buttonAddAndClose.UseUnderline = true;
-			this.buttonAddAndClose.Label = global::Mono.Unix.Catalog.GetString ("Сформировать наклейки");
+			this.buttonAddAndClose.Label = global::Mono.Unix.Catalog.GetString ("Добавить в накладную и закрыть");
 			global::Gtk.Image w18 = new global::Gtk.Image ();
 			w18.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-ok", global::Gtk.IconSize.Menu);
 			this.buttonAddAndClose.Image = w18;
 			this.hbox4.Add (this.buttonAddAndClose);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.buttonAddAndClose]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
+			w19.Position = 0;
 			this.datavbox1.Add (this.hbox4);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.datavbox1 [this.hbox4]));
 			w20.Position = 6;
@@ -290,9 +289,11 @@ namespace Vodovoz
 			w1.SetUiManager (UIManager);
 			this.Hide ();
 			this.spinAmount.ValueChanged += new global::System.EventHandler (this.OnSpinAmountValueChanged);
+			this.referenceNomenclature.Changed += new global::System.EventHandler (this.OnReferenceNomenclatureChanged);
 			this.dateWarrantyEnd.DateChanged += new global::System.EventHandler (this.OnDateWarrantyEndDateChanged);
 			this.buttonCreate.Clicked += new global::System.EventHandler (this.OnButtonOkClicked);
 			this.printTwo.Toggled += new global::System.EventHandler (this.OnPrintTwoToggled);
+			this.buttonAddAndClose.Clicked += new global::System.EventHandler (this.OnButtonAddAndCloseClicked);
 		}
 	}
 }

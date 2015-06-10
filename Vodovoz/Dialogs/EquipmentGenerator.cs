@@ -16,6 +16,8 @@ namespace Vodovoz
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
 		bool isDupSet;
 
+		public event EventHandler<EquipmentCreatedEventArgs> EquipmentCreated;
+
 		#region ITdiTab implementation
 
 		public ITdiTabParent TabParent { set; get; }
@@ -44,7 +46,7 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
-			throw new NotImplementedException ();
+			buttonAddAndClose.Click ();
 		}
 
 		public bool HasChanges {
@@ -149,6 +151,32 @@ namespace Vodovoz
 		}
 
 
+		protected void OnButtonAddAndCloseClicked (object sender, EventArgs e)
+		{
+			if (EquipmentCreated != null) {
+				EquipmentCreated (this, new EquipmentCreatedEventArgs (
+					RegisteredEquipment.ToArray ()
+				));
+			}
+			OnCloseTab ();
+		}
+
+		protected void OnCloseTab ()
+		{
+			if (CloseTab != null)
+				CloseTab (this, new TdiTabCloseEventArgs (false));
+		}
 	}
+
+	public class EquipmentCreatedEventArgs : EventArgs
+	{
+		public Equipment[] Equipment { get; private set; }
+
+		public EquipmentCreatedEventArgs (Equipment[] equipment)
+		{
+			Equipment = equipment;
+		}
+	}
+
 }
 

@@ -14153,6 +14153,7 @@ Patronymic</property>
                     <property name="Icon">stock:gtk-ok Menu</property>
                     <property name="Label" translatable="yes">Добавить в накладную и закрыть</property>
                     <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonAddAndCloseClicked" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
