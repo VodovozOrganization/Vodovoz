@@ -7,7 +7,11 @@ using NHibernate;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Оборудование", ObjectName = "оборудование")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "оборудование",
+		Nominative = "оборудование",
+		Prepositional = "оборудовании"
+	)]
 	public class Equipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
