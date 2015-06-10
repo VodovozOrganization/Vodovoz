@@ -13528,9 +13528,7 @@ Patronymic</property>
             <child>
               <widget class="Gtk.Button" id="buttonAdd">
                 <property name="MemberName" />
-                <property name="Tooltip" translatable="yes">Добавить номенклатуру не имеющую посерийного 
-учета, или имеющуюся номенклатуру с посерийным 
-учетом, но не привязанную к складу.</property>
+                <property name="Tooltip" translatable="yes">Добавить номенклатуру в накладную.</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>
@@ -13559,7 +13557,7 @@ Patronymic</property>
             <child>
               <widget class="Gtk.Button" id="buttonCreate">
                 <property name="MemberName" />
-                <property name="Tooltip" translatable="yes">Создать и добавить новую номенклатуру с посерийным учетом</property>
+                <property name="Tooltip" translatable="yes">Создать серийные номера для оборудования и добавить в накладную.</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>

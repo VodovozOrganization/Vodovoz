@@ -47,6 +47,7 @@ namespace Vodovoz
 		public bool Save ()
 		{
 			buttonAddAndClose.Click ();
+			return true;
 		}
 
 		public bool HasChanges {
@@ -77,7 +78,7 @@ namespace Vodovoz
 			{
 				Parameters.AddAsList (equipment.Id.ToString ());
 			}
-
+				
 			reportviewer2.LoadReport (new Uri (ReportPath), Parameters.Text, QSMain.ConnectionString);
 		}
 
