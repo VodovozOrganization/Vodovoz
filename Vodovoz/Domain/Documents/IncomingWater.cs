@@ -33,7 +33,10 @@ namespace Vodovoz.Domain
 		}
 
 		new public virtual string Description {
-			get { return String.Format ("Количество: {0}; Склад поступления: {1};", Amount, Warehouse.Name); }
+			get { return String.Format ("Количество: {0}; Склад поступления: {1};", 
+				Amount,
+				Warehouse == null ? "не указан" : Warehouse.Name); 
+			}
 		}
 
 		#endregion
