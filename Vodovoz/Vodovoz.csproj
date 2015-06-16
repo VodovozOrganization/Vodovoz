@@ -212,6 +212,7 @@
     <Compile Include="Dialogs\EquipmentGenerator.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
+    <Compile Include="Representations\ProxiesVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

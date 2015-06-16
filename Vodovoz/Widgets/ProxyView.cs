@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
@@ -10,24 +8,27 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ProxyView : Gtk.Bin
 	{
-		private IProxyOwner proxyOwner;
-		private GenericObservableList<Proxy> proxiesList;
+		private IUnitOfWorkGeneric<Counterparty> counterpartyUoW;
 
-		public IProxyOwner ProxyOwner {
-			get { return proxyOwner; }
-			set {
-				proxyOwner = value;
-				if (ProxyOwner.Proxies == null)
-					ProxyOwner.Proxies = new List<Proxy> ();
-				proxiesList = new GenericObservableList<Proxy> (ProxyOwner.Proxies);
-				datatreeviewProxies.ItemsDataSource = proxiesList;
+		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
+			get {
+				return counterpartyUoW;
+			}
+			set {if (counterpartyUoW == value)
+				return;
+				counterpartyUoW = value;
+				datatreeviewProxies.RepresentationModel = new ViewModel.ProxiesVM(value);
+				datatreeviewProxies.RepresentationModel.UpdateNodes ();
 			}
 		}
+
 
 		public ProxyView ()
 		{
 			this.Build ();
 			datatreeviewProxies.Selection.Changed += OnSelectionChanged;
+
+
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
@@ -54,7 +55,7 @@ namespace Vodovoz
 					return;
 			}
 
-			ITdiDialog dlg = new ProxyDlg (ProxyOwner as Counterparty);
+			ITdiDialog dlg = new ProxyDlg (CounterpartyUoW.Root);
 			mytab.TabParent.AddTab (dlg, mytab);
 		}
 
@@ -64,7 +65,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ITdiDialog dlg = new ProxyDlg (datatreeviewProxies.GetSelectedObjects () [0] as Proxy);
+			ITdiDialog dlg = new ProxyDlg (datatreeviewProxies.GetSelectedId ());
 			mytab.TabParent.AddTab (dlg, mytab);
 		}
 
@@ -75,10 +76,10 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			var proxy = datatreeviewProxies.GetSelectedObjects () [0] as Proxy;
-
-			if (OrmMain.DeleteObject (proxy)) {
-				proxiesList.Remove (proxy);
+			if (OrmMain.DeleteObject (typeof(Proxy),
+				datatreeviewProxies.GetSelectedId())) 
+			{
+				datatreeviewProxies.RepresentationModel.UpdateNodes ();
 			}
 		}
 	}

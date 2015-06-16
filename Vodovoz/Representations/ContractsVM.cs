@@ -51,10 +51,6 @@ namespace Vodovoz.ViewModel
 			get { return typeof(ContractsVMNode);}
 		}
 
-		public override Type ObjectType {
-			get { return typeof(CounterpartyContract);}
-		}
-
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
