@@ -26,7 +26,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceEmployee;
 		
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.HBox hbox2;
 		
 		private global::Gtk.VBox vbox2;
 		
@@ -210,10 +210,10 @@ namespace Vodovoz
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox ();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.vbox2 = new global::Gtk.VBox ();
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
@@ -326,20 +326,18 @@ namespace Vodovoz
 			w20.Position = 1;
 			w20.Expand = false;
 			w20.Fill = false;
-			this.hbox1.Add (this.vbox2);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vbox2]));
+			this.hbox2.Add (this.vbox2);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
 			w21.Position = 0;
-			w21.Expand = false;
-			w21.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator ();
 			this.vseparator1.Name = "vseparator1";
-			this.hbox1.Add (this.vseparator1);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vseparator1]));
+			this.hbox2.Add (this.vseparator1);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vseparator1]));
 			w22.Position = 1;
 			w22.Expand = false;
 			w22.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.vbox4 = new global::Gtk.VBox ();
 			this.vbox4.Name = "vbox4";
 			this.vbox4.Spacing = 6;
@@ -452,13 +450,11 @@ namespace Vodovoz
 			w30.Position = 1;
 			w30.Expand = false;
 			w30.Fill = false;
-			this.hbox1.Add (this.vbox4);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vbox4]));
+			this.hbox2.Add (this.vbox4);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox4]));
 			w31.Position = 2;
-			w31.Expand = false;
-			w31.Fill = false;
-			this.vbox3.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.hbox1]));
+			this.vbox3.Add (this.hbox2);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.hbox2]));
 			w32.Position = 2;
 			w32.Expand = false;
 			w32.Fill = false;

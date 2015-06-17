@@ -1,19 +1,31 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
+using System.Linq;
+using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
 	[OrmSubject (JournalName = "Перемещения ТМЦ", ObjectName = "Документ перемещения")]
-	public class MovementDocument: Document
+	public class MovementDocument: Document, IValidatableObject
 	{
 		MovementDocumentCategory category;
 
 		[Display (Name = "Тип документа перемещения")]
 		public virtual MovementDocumentCategory Category {
 			get { return category; }
-			set { SetField (ref category, value, () => Category); }
+			set { SetField (ref category, value, () => Category);
+				switch (category) {
+				case MovementDocumentCategory.counterparty:
+					FromWarehouse = null;
+					ToWarehouse = null;
+					break;
+				case MovementDocumentCategory.warehouse:
+					FromClient = null;
+					ToClient = null;
+					break;
+				}
+			}
 		}
 		//TODO List of elements
 		Employee responsiblePerson;
@@ -30,7 +42,12 @@ namespace Vodovoz.Domain
 		[Display (Name = "Клиент отправки")]
 		public virtual Counterparty FromClient {
 			get { return fromClient; }
-			set { SetField (ref fromClient, value, () => FromClient); }
+			set { SetField (ref fromClient, value, () => FromClient);
+				if(FromClient == null || 
+					(FromDeliveryPoint != null && FromClient.DeliveryPoints.All (p => p.Id != FromDeliveryPoint.Id))) {
+					FromDeliveryPoint = null;
+				}
+			}
 		}
 
 		Counterparty toClient;
@@ -38,7 +55,12 @@ namespace Vodovoz.Domain
 		[Display (Name = "Клиент получения")]
 		public virtual Counterparty ToClient {
 			get { return toClient; }
-			set { SetField (ref toClient, value, () => ToClient); }
+			set { SetField (ref toClient, value, () => ToClient); 
+				if(ToClient == null || 
+					(ToDeliveryPoint != null && ToClient.DeliveryPoints.All (p => p.Id != ToDeliveryPoint.Id))) {
+					ToDeliveryPoint = null;
+				}
+			}
 		}
 
 		DeliveryPoint fromDeliveryPoint;
@@ -62,7 +84,7 @@ namespace Vodovoz.Domain
 		[Display (Name = "Склад отправки")]
 		public virtual Warehouse FromWarehouse {
 			get { return fromWarehouse; }
-			set { SetField (ref fromWarehouse, value, () => FromWarehouse); }
+			set { SetField (ref fromWarehouse, value, () => FromWarehouse);	}
 		}
 
 		Warehouse toWarehouse;
@@ -88,6 +110,35 @@ namespace Vodovoz.Domain
 				return String.Format ("{0} -> {1}",
 					FromWarehouse == null ? "" : FromWarehouse.Name,
 					ToWarehouse == null ? "" : ToWarehouse.Name); 
+			}
+		}
+
+		#endregion
+
+		#region IValidatableObject implementation
+
+		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if (Category == MovementDocumentCategory.warehouse && FromWarehouse == ToWarehouse)
+				yield return new ValidationResult ("Склады отправления и получения должны различатся.",
+					new[] { this.GetPropertyName (o => o.FromWarehouse), this.GetPropertyName (o => o.ToWarehouse) });
+			if (Category == MovementDocumentCategory.counterparty)
+			{
+				if(FromClient == null)
+					yield return new ValidationResult ("Клиент отправитель должен быть указан.",
+						new[] { this.GetPropertyName (o => o.FromClient)});
+				if(ToClient == null)
+					yield return new ValidationResult ("Клиент получатель должен быть указан.",
+						new[] { this.GetPropertyName (o => o.ToClient)});
+				if(FromDeliveryPoint == null)
+					yield return new ValidationResult ("Точка доставки отправителя должена быть указана.",
+						new[] { this.GetPropertyName (o => o.FromDeliveryPoint)});
+				if(ToDeliveryPoint == null)
+					yield return new ValidationResult ("Точка доставки получателя должена быть указана.",
+						new[] { this.GetPropertyName (o => o.ToDeliveryPoint)});
+				if(FromDeliveryPoint == ToDeliveryPoint)
+					yield return new ValidationResult ("Точки отправления и получения должны различатся.",
+						new[] { this.GetPropertyName (o => o.FromDeliveryPoint), this.GetPropertyName (o => o.ToDeliveryPoint) });
 			}
 		}
 

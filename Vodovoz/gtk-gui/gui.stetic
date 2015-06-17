@@ -12532,7 +12532,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.MovementDocumentDlg" design-size="684 274">
+  <widget class="Gtk.Bin" id="Vodovoz.MovementDocumentDlg" design-size="695 417">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -12742,7 +12742,7 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox1">
+          <widget class="Gtk.HBox" id="hbox2">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
@@ -12918,9 +12918,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
+                <property name="AutoSize">False</property>
               </packing>
             </child>
             <child>
@@ -13107,9 +13105,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">2</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
+                <property name="AutoSize">False</property>
               </packing>
             </child>
           </widget>
