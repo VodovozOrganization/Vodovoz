@@ -80,7 +80,7 @@ namespace Vodovoz.Domain
 
 		EquipmentColors color;
 
-		[Display(Name = "Цает оборудования")]
+		[Display(Name = "Цвет оборудования")]
 		public virtual EquipmentColors Color {
 			get { return color; }
 			set { SetField (ref color, value, () => Color); }
@@ -143,7 +143,8 @@ namespace Vodovoz.Domain
 		[ItemTitleAttribute ("Запчасти")] spare_parts,
 		[ItemTitleAttribute ("Оборудование")] equipment,
 		[ItemTitleAttribute ("Товары")] additional,
-		[ItemTitleAttribute ("Услуга")] service
+		[ItemTitleAttribute ("Услуга")] service,
+		[ItemTitleAttribute ("Тара")] bottle
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType
