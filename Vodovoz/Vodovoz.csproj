@@ -198,8 +198,6 @@
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentDlg.cs" />
     <Compile Include="ConfigureDeletion.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceItemsView.cs" />
-    <Compile Include="Dialogs\DocumentDialogs\AddInvoiceItemDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AddInvoiceItemDlg.cs" />
     <Compile Include="Dialogs\EquipmentGenerator.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
