@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gtk;
 using NHibernate.Criterion;
 using NLog;
 using QSContacts;
 using QSOrmProject;
 using Vodovoz.Domain;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -39,8 +39,6 @@ namespace Vodovoz
 				UoWGeneric.Root.Persons = new List<Person> ();
 			personsView.Persons = UoWGeneric.Root.Persons;
 			datepickerIssue.DateChanged += OnIssueDateChanged;
-			datepickerStart.DateChanged += OnStartDateChanged;
-			datepickerExpiration.DateChanged += OnExpirationDateChanged;
 			referenceDeliveryPoint.ParentReference = new OrmParentReference (Session, UoWGeneric.Root.Counterparty, "DeliveryPoints");
 
 			var identifiers = new List<object> ();
@@ -54,43 +52,18 @@ namespace Vodovoz
 		private void OnIssueDateChanged (object sender, EventArgs e)
 		{
 			if (datepickerIssue.Date != default(DateTime) &&
-				UoWGeneric.Root.StartDate == default(DateTime) && datepickerStart.Date < datepickerIssue.Date)
+				UoWGeneric.Root.StartDate == default(DateTime) || datepickerStart.Date < datepickerIssue.Date)
 				datepickerStart.Date = datepickerIssue.Date;
-		}
-
-		private void OnStartDateChanged (object sender, EventArgs e)
-		{
-			if (datepickerStart.Date < datepickerIssue.Date) {
-				datepickerStart.Date = datepickerIssue.Date;
-				string Message = "Нельзя установить дату начала действия доверенности раньше даты ее выдачи.";
-				MessageDialog md = new MessageDialog ((Window)this.Toplevel, DialogFlags.Modal,
-					                   MessageType.Warning, 
-					                   ButtonsType.Close,
-					                   Message);
-				md.Run ();
-				md.Destroy ();
-			}
-			if (datepickerStart.Date != default(DateTime) && datepickerExpiration.Date < datepickerStart.Date)
-				datepickerExpiration.Date = datepickerStart.Date;
-		}
-
-		private void OnExpirationDateChanged (object sender, EventArgs e)
-		{
-			if (datepickerExpiration.Date < datepickerStart.Date) {
-				datepickerExpiration.Date = datepickerStart.Date;
-				string Message = "Нельзя установить дату окончания действия доверенности раньше даты начала ее действия.";
-				MessageDialog md = new MessageDialog ((Window)this.Toplevel, DialogFlags.Modal,
-					                   MessageType.Warning, 
-					                   ButtonsType.Close,
-					                   Message);
-				md.Run ();
-				md.Destroy ();
-			}
 		}
 
 		public override bool Save ()
 		{
+			var valid = new QSValidator<Proxy> (UoWGeneric.Root);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
+
 			logger.Info ("Сохраняем доверенность...");
+			personsView.SaveChanges ();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;
