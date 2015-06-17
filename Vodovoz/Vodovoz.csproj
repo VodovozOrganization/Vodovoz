@@ -108,7 +108,6 @@
     <Compile Include="PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
     <Compile Include="Domain\NomenclaturePrice.cs" />
-    <Compile Include="Widgets\AdditionalAgreementsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementsView.cs" />
     <Compile Include="Domain\AdditionalAgreement.cs" />
     <Compile Include="Domain\CounterpartyContract.cs" />
@@ -127,18 +126,15 @@
     <Compile Include="Dialogs\PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackageDlg.cs" />
     <Compile Include="Domain\DeliveryPoint.cs" />
-    <Compile Include="Widgets\DeliveryPointView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
     <Compile Include="Dialogs\DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
     <Compile Include="Domain\Proxy.cs" />
-    <Compile Include="Widgets\ProxyView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
     <Compile Include="Dialogs\ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
     <Compile Include="ReferenceFilters\EmployeeFilter.cs" />
-    <Compile Include="Widgets\FreeRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
     <Compile Include="Domain\Equipment.cs" />
     <Compile Include="Dialogs\EquipmentDlg.cs" />
@@ -154,7 +150,6 @@
     <Compile Include="Domain\PaidRentEquipment.cs" />
     <Compile Include="Dialogs\PaidRentEquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentEquipmentDlg.cs" />
-    <Compile Include="Widgets\PaidRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackagesView.cs" />
     <Compile Include="Сrutches\TimeAsTimeSpanTypeClone.cs" />
     <Compile Include="Dialogs\AdditionalAgreementDailyRent.cs" />
@@ -180,12 +175,10 @@
     <Compile Include="Domain\BasicHandbooks\Warehouse.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
     <Compile Include="Dialogs\CounterpartyContractDlg.cs" />
-    <Compile Include="Widgets\CounterpartyContractsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
     <Compile Include="Domain\Contact.cs" />
     <Compile Include="Dialogs\ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
-    <Compile Include="Widgets\ContactsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
     <Compile Include="Domain\Documents\IncomingInvoice.cs" />
     <Compile Include="Domain\Documents\IncomingInvoiceItem.cs" />
@@ -194,7 +187,6 @@
     <Compile Include="Domain\Documents\MovementDocument.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Domain\Documents\Document.cs" />
-    <Compile Include="Widgets\WarehouseDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceDlg.cs" />
@@ -205,7 +197,6 @@
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentDlg.cs" />
     <Compile Include="ConfigureDeletion.cs" />
-    <Compile Include="Widgets\IncomingInvoiceItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\AddInvoiceItemDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.AddInvoiceItemDlg.cs" />
@@ -213,6 +204,15 @@
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
+    <Compile Include="ViewWidgets\AdditionalAgreementsView.cs" />
+    <Compile Include="ViewWidgets\DeliveryPointView.cs" />
+    <Compile Include="ViewWidgets\ProxyView.cs" />
+    <Compile Include="ViewWidgets\FreeRentPackagesView.cs" />
+    <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
+    <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
+    <Compile Include="ViewWidgets\ContactsView.cs" />
+    <Compile Include="ViewWidgets\WarehouseDocumentsView.cs" />
+    <Compile Include="ViewWidgets\IncomingInvoiceItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -281,7 +281,6 @@
     <Folder Include="toolbars\" />
     <Folder Include="Dialogs\" />
     <Folder Include="Domain\" />
-    <Folder Include="Widgets\" />
     <Folder Include="ReferenceFilters\" />
     <Folder Include="Сrutches\" />
     <Folder Include="Domain\Operations\" />
@@ -290,6 +289,7 @@
     <Folder Include="Dialogs\DocumentDialogs\" />
     <Folder Include="Reports\" />
     <Folder Include="Representations\" />
+    <Folder Include="ViewWidgets\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
