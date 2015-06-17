@@ -10,6 +10,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
+using Gtk.DataBindings;
 
 namespace Vodovoz
 {
@@ -17,6 +18,46 @@ namespace Vodovoz
 	public partial class IncomingInvoiceItemsView : Gtk.Bin
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		private IUnitOfWorkGeneric<IncomingInvoice> documentUoW;
+
+		public IUnitOfWorkGeneric<IncomingInvoice> DocumentUoW {
+			get {
+				return documentUoW;
+			}
+			set {if (documentUoW == value)
+				return;
+				documentUoW = value;
+				items = new GenericObservableList<IncomingInvoiceItem> (DocumentUoW.Root.Items);
+				items.ElementChanged += Items_ElementChanged; 
+				treeItemsList.ItemsDataSource = items;
+				var priceCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingInvoiceItem> (item => item.Price));
+				if (priceCol != null) {
+					CellRendererText cell = new CellRendererText ();
+					cell.Text = CurrencyWorks.CurrencyShortName;
+					priceCol.PackStart (cell, true);
+					//FIXME Обход проблемы с отображением decimal
+					priceCol.SetCellDataFunc (priceCol.CellRenderers [0], RenderPriceColumnFunc);
+				} else
+					logger.Warn ("Не найден столбец с ценой.");
+				var amountCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingInvoiceItem> (item => item.Amount));
+				if (amountCol != null) {
+					amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
+				}
+				var sumCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingInvoiceItem> (item => item.Sum));
+				if (sumCol != null) {
+					sumCol.SetCellDataFunc (sumCol.Cells [0], new TreeCellDataFunc (RenderSumColumnFunc));
+				}
+
+				treeItemsList.Columns.First (c => c.Title == "CanEditAmount").Visible = false;
+				CalculateTotal ();
+			}
+		}
+
+		void Items_ElementChanged (object aList, int[] aIdx)
+		{
+			CalculateTotal ();
+		}
 
 		public IncomingInvoiceItemsView ()
 		{
@@ -37,42 +78,6 @@ namespace Vodovoz
 			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
 		}
 
-		ISession session;
-
-		public ISession Session {
-			get { return session; }
-			set { session = value; }
-		}
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null)
-					Session = parentReference.Session;
-				if (!(ParentReference.ParentObject is IncomingInvoice))
-					throw new ArgumentException (String.Format ("Родительский объект в parentReference должен являться классом {0}", typeof(IncomingInvoice)));
-				items = new GenericObservableList<IncomingInvoiceItem> ((ParentReference.ParentObject as IncomingInvoice).Items);
-				treeItemsList.ItemsDataSource = items;
-				var priceCol = treeItemsList.Columns.First (c => c.Title == "Цена");
-				if (priceCol != null) {
-					CellRendererText cell = new CellRendererText ();
-					cell.Text = CurrencyWorks.CurrencyShortName;
-					priceCol.PackStart (cell, true);
-					//FIXME Обход проблемы с отображением decimal
-					priceCol.SetCellDataFunc (priceCol.CellRenderers [0], RenderPriceColumnFunc);
-				} else
-					logger.Warn ("Не найден столбец с ценой.");
-				var amountCol = treeItemsList.Columns.First (c => c.Title == "Количество");
-				if (amountCol != null) {
-					amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
-				}
-				treeItemsList.Columns.First (c => c.Title == "CanEditAmount").Visible = false;
-			}
-			get { return parentReference; }
-		}
-
 		GenericObservableList<IncomingInvoiceItem> items;
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
@@ -88,6 +93,14 @@ namespace Vodovoz
 				treeItemsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == aColumn)).ToString ();
 		}
 
+		private void RenderSumColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
+			Gtk.TreeModel aModel, Gtk.TreeIter aIter)
+		{
+			decimal sum = (((aModel as TreeModelAdapter).Implementor as MappingsImplementor).NodeFromIter (aIter) as IncomingInvoiceItem).Sum;
+
+			(aCell as CellRendererText).Text = CurrencyWorks.GetShortCurrencyString (sum);
+		}
+
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
@@ -96,10 +109,10 @@ namespace Vodovoz
 				return;
 			}
 
-			ICriteria ItemsCriteria = session.CreateCriteria (typeof(Nomenclature))
+			ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
 				.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
 
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), session, ItemsCriteria);
+			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), DocumentUoW.Session, ItemsCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
@@ -116,7 +129,7 @@ namespace Vodovoz
 					return;
 				}
 
-				var invoices = session.CreateCriteria (typeof(IncomingInvoice)).List<IncomingInvoice> ();
+				var invoices = DocumentUoW.Session.CreateCriteria (typeof(IncomingInvoice)).List<IncomingInvoice> ();
 				//TODO FIXME !IMPORTANT! В этот фильтр следует добавлять 
 				//все возможные списки с оборудованием, которые будут появляться.
 				//Чтобы исключить возможность добавления во входящую накладную
@@ -128,11 +141,11 @@ namespace Vodovoz
 							usedItems.Add (item.Equipment.Id);
 					}
 				}
-				ICriteria ItemsCriteria = session.CreateCriteria (typeof(Equipment))
+				ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Equipment))
 					.Add (Restrictions.Eq ("Nomenclature", e.Subject))
 					.Add (Restrictions.Not (Restrictions.In ("Id", usedItems)));
 
-				OrmReference SelectDialog = new OrmReference (typeof(Equipment), session, ItemsCriteria);
+				OrmReference SelectDialog = new OrmReference (typeof(Equipment), DocumentUoW.Session, ItemsCriteria);
 				SelectDialog.Mode = OrmReferenceMode.Select;
 				SelectDialog.ButtonMode = ReferenceButtonMode.TreatEditAsOpen | ReferenceButtonMode.CanEdit;
 
@@ -152,7 +165,6 @@ namespace Vodovoz
 					Equipment = null,
 					Amount = 1, Price = 0 
 				});
-
 		}
 
 		protected void OnButtonCreateClicked (object sender, EventArgs e)
@@ -164,6 +176,17 @@ namespace Vodovoz
 			}
 			EquipmentGenerator dlg = new EquipmentGenerator ();
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
+		}
+
+		void CalculateTotal()
+		{
+			decimal total = 0;
+			foreach(var item in documentUoW.Root.Items)
+			{
+				total += item.Sum;
+			}
+
+			labelSum.LabelProp = String.Format ("Итого: {0}", CurrencyWorks.GetShortCurrencyString (total));
 		}
 	}
 }

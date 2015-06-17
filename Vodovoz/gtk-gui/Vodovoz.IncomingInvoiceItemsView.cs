@@ -16,11 +16,11 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonAdd;
 		
-		private global::Gtk.VSeparator vseparator1;
-		
 		private global::Gtk.Button buttonCreate;
 		
 		private global::Gtk.Button buttonDelete;
+		
+		private global::Gtk.Label labelSum;
 
 		protected virtual void Build ()
 		{
@@ -55,7 +55,7 @@ namespace Vodovoz
 			this.treeItemsList.InheritedBoundaryDataSource = false;
 			this.treeItemsList.InheritedDataSource = false;
 			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.ColumnMappings = "{Vodovoz.Domain.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]<>; Price[Цена]<>; CanEditAmount[CanEditAmount];";
+			this.treeItemsList.ColumnMappings = "{Vodovoz.Domain.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]<>; Price[Цена закупки]<>; Sum[Сумма]; CanEditAmount[CanEditAmount];";
 			this.GtkScrolledWindow.Add (this.treeItemsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -66,7 +66,7 @@ namespace Vodovoz
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonAdd = new global::Gtk.Button ();
-			this.buttonAdd.TooltipMarkup = "Добавить номенклатуру не имеющую посерийного \nучета, или имеющуюся номенклатуру с посерийным \nучетом, но не привязанную к складу.";
+			this.buttonAdd.TooltipMarkup = "Добавить номенклатуру в накладную.";
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
@@ -80,39 +80,41 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.vseparator1 = new global::Gtk.VSeparator ();
-			this.vseparator1.Name = "vseparator1";
-			this.hbox1.Add (this.vseparator1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vseparator1]));
-			w6.Position = 1;
-			w6.Expand = false;
-			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonCreate = new global::Gtk.Button ();
-			this.buttonCreate.TooltipMarkup = "Создать и добавить новую номенклатуру с посерийным учетом";
+			this.buttonCreate.TooltipMarkup = "Создать серийные номера для оборудования и добавить в накладную.";
 			this.buttonCreate.CanFocus = true;
 			this.buttonCreate.Name = "buttonCreate";
 			this.buttonCreate.UseUnderline = true;
 			this.buttonCreate.Label = global::Mono.Unix.Catalog.GetString ("Новое оборудование");
-			global::Gtk.Image w7 = new global::Gtk.Image ();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonCreate.Image = w7;
+			global::Gtk.Image w6 = new global::Gtk.Image ();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonCreate.Image = w6;
 			this.hbox1.Add (this.buttonCreate);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonCreate]));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonCreate]));
+			w7.Position = 1;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonDelete = new global::Gtk.Button ();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;
 			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
-			global::Gtk.Image w9 = new global::Gtk.Image ();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.buttonDelete.Image = w9;
+			global::Gtk.Image w8 = new global::Gtk.Image ();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDelete.Image = w8;
 			this.hbox1.Add (this.buttonDelete);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDelete]));
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDelete]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.labelSum = new global::Gtk.Label ();
+			this.labelSum.Name = "labelSum";
+			this.labelSum.Xalign = 1F;
+			this.labelSum.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
+			this.hbox1.Add (this.labelSum);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelSum]));
 			w10.PackType = ((global::Gtk.PackType)(1));
 			w10.Position = 3;
 			w10.Expand = false;

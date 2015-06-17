@@ -591,6 +591,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -13505,7 +13506,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена закупки]&lt;&gt;; Sum[Сумма]; CanEditAmount[CanEditAmount];</property>
               </widget>
             </child>
           </widget>
@@ -13537,17 +13538,6 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VSeparator" id="vseparator1">
-                <property name="MemberName" />
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.Button" id="buttonCreate">
                 <property name="MemberName" />
                 <property name="Tooltip" translatable="yes">Создать серийные номера для оборудования и добавить в накладную.</property>
@@ -13559,7 +13549,7 @@ Patronymic</property>
                 <signal name="Clicked" handler="OnButtonCreateClicked" />
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -13576,9 +13566,22 @@ Patronymic</property>
                 <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelSum">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">label1</property>
+              </widget>
+              <packing>
                 <property name="PackType">End</property>
                 <property name="Position">3</property>
-                <property name="AutoSize">False</property>
+                <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>

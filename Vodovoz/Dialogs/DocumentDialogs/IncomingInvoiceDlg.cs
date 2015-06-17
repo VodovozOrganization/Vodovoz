@@ -35,7 +35,7 @@ namespace Vodovoz
 			referenceWarehouse.SubjectType = typeof(Warehouse);
 			referenceContractor.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
 				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.supplier));
-			incominginvoiceitemsview1.ParentReference = new OrmParentReference (Session, Subject, "Items");
+			incominginvoiceitemsview1.DocumentUoW = UoWGeneric;
 		}
 
 		public override bool Save ()

@@ -46,6 +46,10 @@ namespace Vodovoz.Domain
 			set { SetField (ref price, value, () => Price); }
 		}
 
+		public decimal Sum {
+			get {return Price * Amount;}
+		}
+
 		public virtual string Name {
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}
