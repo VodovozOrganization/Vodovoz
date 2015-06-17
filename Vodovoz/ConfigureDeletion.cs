@@ -3,6 +3,7 @@ using QSBanks;
 using QSContacts;
 using QSOrmProject.Deletion;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz
 {

@@ -3,7 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Operations
 {
 	public class OperationBase: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
