@@ -86,7 +86,7 @@ namespace Vodovoz
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата документа:");
 			this.tableWater.Add (this.label1);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableWater [this.label1]));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -95,7 +95,7 @@ namespace Vodovoz
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Количество:");
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Количество бутылей:");
 			this.tableWater.Add (this.label2);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableWater [this.label2]));
 			w7.TopAttach = ((uint)(1));
@@ -150,12 +150,13 @@ namespace Vodovoz
 			w10.XOptions = ((global::Gtk.AttachOptions)(4));
 			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.spinAmount = new global::Gtk.DataBindings.DataSpinButton (0, 100, 1);
+			this.spinAmount = new global::Gtk.DataBindings.DataSpinButton (1, 100, 1);
 			this.spinAmount.CanFocus = true;
 			this.spinAmount.Name = "spinAmount";
 			this.spinAmount.Adjustment.PageIncrement = 10;
 			this.spinAmount.ClimbRate = 1;
 			this.spinAmount.Numeric = true;
+			this.spinAmount.Value = 1;
 			this.spinAmount.InheritedDataSource = true;
 			this.spinAmount.Mappings = "Amount";
 			this.spinAmount.InheritedBoundaryDataSource = false;
