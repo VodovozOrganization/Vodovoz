@@ -75,11 +75,16 @@
     <EmbeddedResource Include="icons\menu\table.png" />
     <EmbeddedResource Include="toolbars\orders.xml" />
     <EmbeddedResource Include="toolbars\services.xml" />
-    <EmbeddedResource Include="Database.hbm.xml" />
     <EmbeddedResource Include="icons\insert-image.png" />
     <EmbeddedResource Include="icons\drive-harddisk.png" />
     <EmbeddedResource Include="toolbars\warehouse.xml">
       <LogicalName>warehouse.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HibernateMapping\Database.hbm.xml">
+      <LogicalName>Vodovoz.Database.hbm.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HibernateMapping\Operations.hbm.xml">
+      <LogicalName>Operations.hbm.xml</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +297,7 @@
     <Folder Include="ViewWidgets\DocumentItems\" />
     <Folder Include="Repositories\" />
     <Folder Include="Repositories\Registration\" />
+    <Folder Include="HibernateMapping\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

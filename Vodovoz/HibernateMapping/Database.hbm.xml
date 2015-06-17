@@ -114,19 +114,6 @@
         </subclass>
 	</class>
 
-	<class name="BottlesMovementOperation" lazy="false" table="bottles_movement_operations">
-		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
- 		<property name="OperationTime" column="operation_time"/>
- 		<property name="MovedTo" column="moved_to"/>
-		<property name="MovedFrom" column="moved_from"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
-		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
-		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
-	</class>
-
 	<class name="Car" lazy="false" table="cars">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
@@ -263,19 +250,7 @@
  		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
  	</class>
 
- 	<class name="DepositOperation" lazy="false" table="deposit_operations">
-		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
- 		<property name="OperationTime" column="operation_time"/>
- 		<property name="DepositType" column="deposit_type" type="DepositTypeStringType, Vodovoz"/>
-		<property name="ReceivedDeposit" column="received_deposit"/>
-		<property name="RefundDeposit" column="refund_deposit"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
-		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
-		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
-	</class>
+
 
 	<class name="Employee" lazy="false" table="employees">
 		<id name="Id" column="id">
@@ -333,21 +308,6 @@
 		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
 	</class>
 
-	<class name="GoodsMovementOperation" lazy="false" table="goods_movement_operations">
-		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
- 		<property name="OperationTime" column="operation_time"/>
- 		<property name="Amount" column="amount"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
-		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="writeoff_warehouse_id"/>
-		<many-to-one name="IncomingWarehouse" class="Warehouse" column="incoming_warehouse_id"/>
-		<many-to-one name="WriteoffCounterparty" class="Counterparty" column="writeoff_counterparty_id"/>
-		<many-to-one name="IncomingCounterparty" class="Counterparty" column="incoming_counterparty_id"/>
-		<many-to-one name="WriteoffDeliveryPoint" class="DeliveryPoint" column="writeoff_delivery_point_id"/>
-		<many-to-one name="IncomingDeliveryPoint" class="DeliveryPoint" column="incoming_delivery_point_id"/>
-	</class>
-
 	<class name="IncomingInvoice" lazy="false" table="incoming_invoice">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -379,22 +339,6 @@
  		<property name="Amount" column="amount"/>
  		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
  	</class>
-
-	<class name="MoneyMovementOperation" lazy="false" table="money_movement_operations">
-		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
- 		<property name="OperationTime" column="operation_time"/>
- 		<property name="Debt" column="debt"/>
-		<property name="Money" column="money"/>
-		<property name="Deposit" column="deposit"/>
-		<property name="DepositType" column="deposit_type" type="DepositTypeStringType, Vodovoz"/>
-		<property name="PaymentType" column="payment_type" type="PaymentTypeStringType, Vodovoz"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
-		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
-		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
-	</class>
 
 	<class name="MovementDocument" lazy="false" table="movement_document">
 		<id name="Id" column="id">
