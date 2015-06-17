@@ -212,7 +212,7 @@
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
     <Compile Include="ViewWidgets\WarehouseDocumentsView.cs" />
-    <Compile Include="ViewWidgets\IncomingInvoiceItemsView.cs" />
+    <Compile Include="ViewWidgets\DocumentItems\IncomingInvoiceItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -290,6 +290,7 @@
     <Folder Include="Reports\" />
     <Folder Include="Representations\" />
     <Folder Include="ViewWidgets\" />
+    <Folder Include="ViewWidgets\DocumentItems\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
