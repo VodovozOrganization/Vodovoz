@@ -175,7 +175,20 @@ namespace Vodovoz
 				return;
 			}
 			EquipmentGenerator dlg = new EquipmentGenerator ();
+			dlg.EquipmentCreated += OnSlaveDlgEquipmentCreated;
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
+		}
+
+		void OnSlaveDlgEquipmentCreated (object sender, EquipmentCreatedEventArgs e)
+		{
+			foreach(var equ in e.Equipment)
+			{
+				items.Add (new IncomingInvoiceItem{
+					Equipment = equ,
+					Nomenclature = equ.Nomenclature,
+					Amount = 1
+				});
+			}
 		}
 
 		void CalculateTotal()
