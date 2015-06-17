@@ -28,6 +28,8 @@ namespace Vodovoz
 			set {if (documentUoW == value)
 				return;
 				documentUoW = value;
+				if (DocumentUoW.Root.Items == null)
+					DocumentUoW.Root.Items = new List<IncomingInvoiceItem> ();
 				items = new GenericObservableList<IncomingInvoiceItem> (DocumentUoW.Root.Items);
 				items.ElementChanged += Items_ElementChanged; 
 				treeItemsList.ItemsDataSource = items;
@@ -83,6 +85,7 @@ namespace Vodovoz
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
 			items.Remove (treeItemsList.GetSelectedObjects () [0] as IncomingInvoiceItem);
+			CalculateTotal ();
 		}
 
 		private void RenderPriceColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
