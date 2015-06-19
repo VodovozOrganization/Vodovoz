@@ -5,7 +5,7 @@ using NHibernate;
 using NLog;
 using QSOrmProject;
 using QSTDI;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {

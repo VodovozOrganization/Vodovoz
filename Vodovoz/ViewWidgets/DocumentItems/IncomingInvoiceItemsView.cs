@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gtk;
+using Gtk.DataBindings;
 using NHibernate;
 using NHibernate.Criterion;
 using NLog;
@@ -10,7 +11,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {

@@ -4,7 +4,7 @@ using System.Data.Bindings;
 using System.Linq;
 using QSOrmProject;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (JournalName = "Перемещения ТМЦ", ObjectName = "Документ перемещения")]
 	public class MovementDocument: Document, IValidatableObject

@@ -5,6 +5,7 @@ using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {
@@ -75,10 +76,10 @@ namespace Vodovoz
 				new OrmObjectMapping<PaidRentEquipment> (typeof(PaidRentEquipmentDlg), "{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping<FreeRentEquipment> (typeof(FreeRentEquipmentDlg), "{Vodovoz.Domain.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping<DeliverySchedule> (typeof(DeliveryScheduleDlg), "{Vodovoz.Domain.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
-				new OrmObjectMapping<IncomingInvoice> (typeof(IncomingInvoiceDlg), "{Vodovoz.Domain.IncomingInvoice} Id[Номер];"),
-				new OrmObjectMapping<IncomingWater> (typeof(IncomingWaterDlg), "{Vodovoz.Domain.IncomingWater} Id[Номер];"),
-				new OrmObjectMapping<MovementDocument> (typeof(MovementDocumentDlg), "{Vodovoz.Domain.MovementDocument} Id[Номер];"),
-				new OrmObjectMapping<WriteoffDocument> (typeof(WriteoffDocumentDlg), "{Vodovoz.Domain.WriteoffDocument} Id[Номер];"),
+				new OrmObjectMapping<IncomingInvoice> (typeof(IncomingInvoiceDlg), "{Vodovoz.Domain.Documents.IncomingInvoice} Id[Номер];"),
+				new OrmObjectMapping<IncomingWater> (typeof(IncomingWaterDlg), "{Vodovoz.Domain.Documents.IncomingWater} Id[Номер];"),
+				new OrmObjectMapping<MovementDocument> (typeof(MovementDocumentDlg), "{Vodovoz.Domain.Documents.MovementDocument} Id[Номер];"),
+				new OrmObjectMapping<WriteoffDocument> (typeof(WriteoffDocumentDlg), "{Vodovoz.Domain.Documents.WriteoffDocument} Id[Номер];"),
 				//Справочники с фильтрами
 				new OrmObjectMapping<Nomenclature> (typeof(NomenclatureDlg), typeof(NomenclatureFilter), "{Vodovoz.Domain.Nomenclature} Id[Код]; Name[Название]; CategoryString[Тип];", new string[] { "Name", "CategoryString" }),
 				new OrmObjectMapping<Equipment> (typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Domain.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" }),

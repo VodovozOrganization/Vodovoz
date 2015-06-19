@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.Data.Bindings;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Documents
 {
 	public class Document : PropertyChangedBase, IDomainObject, IDocument
 	{

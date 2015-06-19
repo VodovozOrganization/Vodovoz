@@ -4,6 +4,7 @@ using QSContacts;
 using QSOrmProject.Deletion;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {

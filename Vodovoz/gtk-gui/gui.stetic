@@ -12075,7 +12075,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Document} Number[Номер]; DocType[Тип документа]; DateString[Дата]; Description[Детали];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.Documents.Document} Number[Номер]; DocType[Тип документа]; DateString[Дата]; Description[Детали];</property>
                 <signal name="RowActivated" handler="OnTreeDocumentsRowActivated" />
               </widget>
             </child>
@@ -12084,9 +12084,6 @@ Patronymic</property>
             <property name="Position">1</property>
             <property name="AutoSize">True</property>
           </packing>
-        </child>
-        <child>
-          <placeholder />
         </child>
       </widget>
     </child>
@@ -13504,7 +13501,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена закупки]&lt;&gt;; Sum[Сумма]; CanEditAmount[CanEditAmount];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.Documents.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена закупки]&lt;&gt;; Sum[Сумма]; CanEditAmount[CanEditAmount];</property>
               </widget>
             </child>
           </widget>

@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+ auto-import="true" assembly="Vodovoz" namespace="Vodovoz.Domain">
+
+ 	<class name="Vodovoz.Domain.Documents.IncomingInvoice" lazy="false" table="incoming_invoice">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="TimeStamp" column="time_stamp"/>
+ 		<many-to-one name="Contractor" class="Counterparty" column="counterparty_id"/>
+		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
+		<bag name="Items" inverse="false" cascade="all-delete-orphan" lazy="false" >
+    		<key column="incoming_invoice_id"/>
+    		<one-to-many class="Vodovoz.Domain.Documents.IncomingInvoiceItem" />
+		</bag>
+ 	</class>
+
+ 	<class name="Vodovoz.Domain.Documents.IncomingInvoiceItem" lazy="false" table="incoming_invoice_items">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Price" column="price"/>
+ 		<property name="Amount" column="amount"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id"/>
+ 	</class>
+
+ 	<class name="Vodovoz.Domain.Documents.IncomingWater" lazy="false" table="incoming_water">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="TimeStamp" column="time_stamp"/>
+ 		<property name="Amount" column="amount"/>
+ 		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
+ 	</class>
+
+	<class name="Vodovoz.Domain.Documents.MovementDocument" lazy="false" table="movement_document">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="TimeStamp" column="time_stamp"/>
+ 		<property name="Category" column="category" type="Vodovoz.Domain.Documents.MovementDocumentCategoryStringType, Vodovoz"/>
+		<many-to-one name="ResponsiblePerson" class="Employee" column="responsible_person_id"/>
+		<many-to-one name="FromDeliveryPoint" class="DeliveryPoint" column="delivery_point_from_id"/>
+		<many-to-one name="FromClient" class="Counterparty" column="counterparty_from_id"/>
+		<many-to-one name="FromWarehouse" class="Warehouse" column="warehouse_from_id"/>
+		<many-to-one name="ToDeliveryPoint" class="DeliveryPoint" column="delivery_point_to_id"/>
+		<many-to-one name="ToClient" class="Counterparty" column="counterparty_to_id"/>
+		<many-to-one name="ToWarehouse" class="Warehouse" column="warehouse_to_id"/>
+ 	</class>
+
+ 	<class name="Vodovoz.Domain.Documents.WriteoffDocument" lazy="false" table="writeoff_document">
+ 		<id name="Id" column="id">
+			<generator class="native"></generator>
+	 	</id>
+	 	<property name="TimeStamp" column="time_stamp"/>
+	 	<many-to-one name="ResponsibleEmployee" class="Employee" column="responsible_employee_id"/>
+		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
+		<many-to-one name="Client" class="Counterparty" column="counterparty_id"/>
+		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="warehouse_id"/>
+ 	</class>
+
+
+</hibernate-mapping>
