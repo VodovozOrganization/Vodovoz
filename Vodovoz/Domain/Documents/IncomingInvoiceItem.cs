@@ -1,15 +1,16 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
-using QSProjectsLib;
-using System;
+using Vodovoz.Domain.Operations;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (JournalName = "Строки накладной", ObjectName = "строка накладной")]
 	public class IncomingInvoiceItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
+
+		public virtual IncomingInvoice Document { get; set; }
 
 		Nomenclature nomenclature;
 
@@ -17,7 +18,10 @@ namespace Vodovoz.Domain
 		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField (ref nomenclature, value, () => Nomenclature); }
+			set { SetField (ref nomenclature, value, () => Nomenclature);
+				if (IncomeGoodsOperation.Nomenclature != nomenclature)
+					IncomeGoodsOperation.Nomenclature = nomenclature;
+			}
 		}
 
 		Equipment equipment;
@@ -25,7 +29,10 @@ namespace Vodovoz.Domain
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
-			set { SetField (ref equipment, value, () => Equipment); }
+			set { SetField (ref equipment, value, () => Equipment);
+				if (IncomeGoodsOperation.Equipment != equipment)
+					IncomeGoodsOperation.Equipment = equipment;
+			}
 		}
 
 		int amount;
@@ -34,7 +41,10 @@ namespace Vodovoz.Domain
 		[Display (Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }
-			set { SetField (ref amount, value, () => Amount); }
+			set { SetField (ref amount, value, () => Amount);
+				if (IncomeGoodsOperation.Amount != amount)
+					IncomeGoodsOperation.Amount = amount;
+			}
 		}
 
 		decimal price;
@@ -61,6 +71,14 @@ namespace Vodovoz.Domain
 		public virtual bool CanEditAmount { 
 			get { return Nomenclature == null ? false : Nomenclature.Category != NomenclatureCategory.equipment; }
 		}
+
+		GoodsMovementOperation incomeGoodsOperation = new GoodsMovementOperation ();
+
+		public GoodsMovementOperation IncomeGoodsOperation {
+			get { return incomeGoodsOperation; }
+			set { SetField (ref incomeGoodsOperation, value, () => IncomeGoodsOperation); }
+		}
+
 	}
 }
 

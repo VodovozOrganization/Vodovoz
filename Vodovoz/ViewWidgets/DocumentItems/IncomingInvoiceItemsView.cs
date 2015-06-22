@@ -31,7 +31,7 @@ namespace Vodovoz
 				documentUoW = value;
 				if (DocumentUoW.Root.Items == null)
 					DocumentUoW.Root.Items = new List<IncomingInvoiceItem> ();
-				items = new GenericObservableList<IncomingInvoiceItem> (DocumentUoW.Root.Items);
+				items = DocumentUoW.Root.ObservableItems;
 				items.ElementChanged += Items_ElementChanged; 
 				treeItemsList.ItemsDataSource = items;
 				var priceCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingInvoiceItem> (item => item.Price));
@@ -153,22 +153,22 @@ namespace Vodovoz
 				SelectDialog.Mode = OrmReferenceMode.Select;
 				SelectDialog.ButtonMode = ReferenceButtonMode.TreatEditAsOpen | ReferenceButtonMode.CanEdit;
 
-				SelectDialog.ObjectSelected += (s, ev) => {
-					items.Add (new IncomingInvoiceItem { 
-						Nomenclature = (ev.Subject as Equipment).Nomenclature, 
-						Equipment = ev.Subject as Equipment, 
-						Amount = 1, Price = 0
-					});
-				};
+				SelectDialog.ObjectSelected += (s, ev) => DocumentUoW.Root.AddItem (new IncomingInvoiceItem {
+					Nomenclature = (ev.Subject as Equipment).Nomenclature,
+					Equipment = ev.Subject as Equipment,
+					Amount = 1,
+					Price = 0
+				});
 
 				mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
 
-			} else
-				items.Add (new IncomingInvoiceItem { 
+			} else {
+				DocumentUoW.Root.AddItem (new IncomingInvoiceItem { 
 					Nomenclature = e.Subject as Nomenclature, 
 					Equipment = null,
 					Amount = 1, Price = 0 
 				});
+			}
 		}
 
 		protected void OnButtonCreateClicked (object sender, EventArgs e)
@@ -187,7 +187,7 @@ namespace Vodovoz
 		{
 			foreach(var equ in e.Equipment)
 			{
-				items.Add (new IncomingInvoiceItem{
+				DocumentUoW.Root.AddItem (new IncomingInvoiceItem{
 					Equipment = equ,
 					Nomenclature = equ.Nomenclature,
 					Amount = 1

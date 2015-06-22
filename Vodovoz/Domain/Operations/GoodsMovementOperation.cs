@@ -1,5 +1,6 @@
 ﻿using System;
 using QSOrmProject;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Operations
 {
@@ -51,6 +52,24 @@ namespace Vodovoz.Domain.Operations
 			get { return writeoffDeliveryPoint; }
 			set { SetField (ref writeoffDeliveryPoint, value, () => WriteoffDeliveryPoint); }
 		}
+
+		Nomenclature nomenclature;
+
+		[Required (ErrorMessage = "Номенклатура должна быть заполнена.")]
+		[Display (Name = "Номенклатура")]
+		public virtual Nomenclature Nomenclature {
+			get { return nomenclature; }
+			set { SetField (ref nomenclature, value, () => Nomenclature);}
+		}
+
+		Equipment equipment;
+
+		[Display (Name = "Оборудование")]
+		public virtual Equipment Equipment {
+			get { return equipment; }
+			set { SetField (ref equipment, value, () => Equipment); }
+		}
+
 
 		int amount;
 

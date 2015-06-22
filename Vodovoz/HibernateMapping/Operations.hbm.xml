@@ -35,7 +35,7 @@
  		</id>
  		<property name="OperationTime" column="operation_time"/>
  		<property name="Amount" column="amount"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
+<!--		<many-to-one name="Order" class="Order" column="order_id"/> -->
 		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="writeoff_warehouse_id"/>
 		<many-to-one name="IncomingWarehouse" class="Warehouse" column="incoming_warehouse_id"/>
 		<many-to-one name="WriteoffCounterparty" class="Counterparty" column="writeoff_counterparty_id"/>

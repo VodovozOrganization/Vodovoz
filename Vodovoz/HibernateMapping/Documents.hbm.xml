@@ -9,7 +9,7 @@
  		<property name="TimeStamp" column="time_stamp"/>
  		<many-to-one name="Contractor" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
-		<bag name="Items" inverse="false" cascade="all-delete-orphan" lazy="false" >
+		<bag name="Items" inverse="true" cascade="all-delete-orphan" lazy="false" >
     		<key column="incoming_invoice_id"/>
     		<one-to-many class="Vodovoz.Domain.Documents.IncomingInvoiceItem" />
 		</bag>
@@ -19,10 +19,12 @@
  		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
+ 		<many-to-one name="Document" class="Vodovoz.Domain.Documents.IncomingInvoice" column="incoming_invoice_id" not-null="true"/>
  		<property name="Price" column="price"/>
  		<property name="Amount" column="amount"/>
- 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
- 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
+ 		<many-to-one name="IncomeGoodsOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="good_move_operation_id" cascade="all-delete-orphan" not-null="true"/>
  	</class>
 
  	<class name="Vodovoz.Domain.Documents.IncomingWater" lazy="false" table="incoming_water">

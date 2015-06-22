@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
-using System;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -22,17 +23,34 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад")]
 		public virtual Warehouse Warehouse {
 			get { return warehouse; }
-			set { SetField (ref warehouse, value, () => Warehouse); }
+			set { SetField (ref warehouse, value, () => Warehouse); 
+				foreach(var item in Items)
+				{
+					if (item.IncomeGoodsOperation.IncomingWarehouse != warehouse)
+						item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
+				}
+			}
 		}
 
 		//TODO Map invoice item to database
 
-		IList<IncomingInvoiceItem> items;
+		IList<IncomingInvoiceItem> items = new List<IncomingInvoiceItem> ();
 
 		[Display (Name = "Строки")]
 		public virtual IList<IncomingInvoiceItem> Items {
 			get { return items; }
-			set { SetField (ref items, value, () => Items); }
+			set { SetField (ref items, value, () => Items);
+				observableItems = null;
+			}
+		}
+
+		GenericObservableList<IncomingInvoiceItem> observableItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<IncomingInvoiceItem> ObservableItems {
+			get {if (observableItems == null)
+					observableItems = new GenericObservableList<IncomingInvoiceItem> (Items);
+				return observableItems;
+			}
 		}
 
 		#region IDocument implementation
@@ -48,6 +66,13 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
+
+		public void AddItem(IncomingInvoiceItem item)
+		{
+			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
+			item.Document = this;
+			ObservableItems.Add (item);
+		}
 	}
 }
 
