@@ -10,6 +10,22 @@ namespace Vodovoz.Domain.Documents
 	[OrmSubject (JournalName = "Входящие накладные", ObjectName = "Входящая накладная")]
 	public class IncomingInvoice: Document
 	{
+		public override DateTime TimeStamp {
+			get
+			{
+				return base.TimeStamp;
+			}
+			set
+			{
+				base.TimeStamp = value;
+				foreach(var item in Items)
+				{
+					if (item.IncomeGoodsOperation.OperationTime != TimeStamp)
+						item.IncomeGoodsOperation.OperationTime = TimeStamp;
+				}
+			}
+		}
+
 		Counterparty contractor;
 
 		[Display (Name = "Контрагент")]
@@ -70,6 +86,7 @@ namespace Vodovoz.Domain.Documents
 		public void AddItem(IncomingInvoiceItem item)
 		{
 			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
+			item.IncomeGoodsOperation.OperationTime = TimeStamp;
 			item.Document = this;
 			ObservableItems.Add (item);
 		}

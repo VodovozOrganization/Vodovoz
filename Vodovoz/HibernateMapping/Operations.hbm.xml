@@ -33,7 +33,9 @@
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
- 		<property name="OperationTime" column="operation_time"/>
+ 		<property name="OperationTime" column="operation_time" not-null="true"/>
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  		<property name="Amount" column="amount"/>
 <!--		<many-to-one name="Order" class="Order" column="order_id"/> -->
 		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="writeoff_warehouse_id"/>
