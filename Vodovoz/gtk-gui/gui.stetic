@@ -12180,7 +12180,7 @@ Patronymic</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.Domain.DocumentType, Vodovoz</property>
+                <property name="ItemsEnumName">Vodovoz.Domain.Documents.DocumentType, Vodovoz</property>
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -13287,7 +13287,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.WriteoffDocumentDlg" design-size="365 300">
+  <widget class="Gtk.Bin" id="Vodovoz.WriteoffDocumentDlg" design-size="375 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
