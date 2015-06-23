@@ -3,6 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
@@ -101,7 +102,7 @@ namespace Vodovoz.Domain
 
 		bool shipped;
 
-		[Display (Name = "Доставлен")]
+		[Display (Name = "Отгружено по платежке")]
 		public virtual bool Shipped {
 			get { return shipped; }
 			set { SetField (ref shipped, value, () => Shipped); }
@@ -113,6 +114,16 @@ namespace Vodovoz.Domain
 		public virtual List<OrderItem> OrderItems {
 			get { return orderItems; }
 			set { SetField (ref orderItems, value, () => OrderItems); }
+		}
+
+		GenericObservableList<OrderItem> observableOrderItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<OrderItem> ObservableOrderItems {
+			get {
+				if (observableOrderItems == null)
+					observableOrderItems = new GenericObservableList<OrderItem> (orderItems);
+				return observableOrderItems;
+			}
 		}
 
 		List<OrderEquipment> orderEquipments;
