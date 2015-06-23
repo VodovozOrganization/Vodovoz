@@ -162,7 +162,6 @@
     <Compile Include="Dialogs\AdditionalAgreementDailyRent.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementDailyRent.cs" />
     <Compile Include="ReferenceFilters\NomenclatureFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Domain\Operations\DepositOperation.cs" />
     <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
     <Compile Include="Domain\Operations\GoodsMovementOperation.cs" />
@@ -226,6 +225,10 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
     <Compile Include="ViewDialogs\StockBalanceView.cs" />
     <Compile Include="Representations\StockBalanceVM.cs" />
+    <Compile Include="ReferenceFilters\StockBalanceFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
+    <Compile Include="Repositories\WarehouseRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gtk;
-using NHibernate;
 using NHibernate.Criterion;
-using NHibernate.Dialect.Function;
 using NHibernate.Transform;
-using QSContacts;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
@@ -18,6 +15,26 @@ namespace Vodovoz.ViewModel
 	{
 		IUnitOfWork uow;
 
+		StockBalanceFilter filter;
+
+		public StockBalanceFilter Filter {
+			get {
+				return filter;
+			}
+			set {
+				if(filter != null)
+					filter.Refiltered -= Filter_Refiltered;
+				filter = value;
+				if(filter != null)
+					filter.Refiltered += Filter_Refiltered;
+			}
+		}
+
+		void Filter_Refiltered (object sender, EventArgs e)
+		{
+			UpdateNodes ();
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -25,21 +42,23 @@ namespace Vodovoz.ViewModel
 			NodeStore.Clear ();
 
 			Nomenclature nomenclatureAlias = null;
-			Counterparty counterpartyAlias = null;
 			StockBalanceVMNode resultAlias = null;
 			GoodsMovementOperation operationAddAlias = null;
 			GoodsMovementOperation operationRemoveAlias = null;
-			Person personAlias = null;
 
 			var subqueryAdd = QueryOver.Of<GoodsMovementOperation>(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id && operationAddAlias.IncomingWarehouse != null)
+				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And ((filter == null || filter.RestrictWarehouse == null) 
+					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse)) 
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse), filter.RestrictWarehouse))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
 			var subqueryRemove = QueryOver.Of<GoodsMovementOperation>(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id && operationRemoveAlias.WriteoffWarehouse != null)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And ((filter == null || filter.RestrictWarehouse == null) 
+					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse)) 
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), filter.RestrictWarehouse))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
-
-
 
 			var stocklist = uow.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
 				.SelectList(list => list
@@ -79,14 +98,8 @@ namespace Vodovoz.ViewModel
 
 			Columns.Add (new ColumnInfo { Name = "Номенклатура"}
 				.SetDataProperty<StockBalanceVMNode> (node => node.NomenclatureName));
-/*			Columns.Add (new ColumnInfo { Name = "Начало действия" }
-				.SetDataProperty<StockBalanceVMNode> (node => node.Start));
-			Columns.Add (new ColumnInfo { Name = "Окончание действия" }
-				.SetDataProperty<StockBalanceVMNode> (node => node.End)); */
 			Columns.Add (new ColumnInfo { Name = "Кол-во" }
 				.SetDataProperty<StockBalanceVMNode> (node => node.CountText));
-
-			//SetRowAttribute<StockBalanceVMNode> ("foreground", node => node.RowColor);
 		}
 	}
 
@@ -108,21 +121,6 @@ namespace Vodovoz.ViewModel
 		[TreeNodeValue(Column = 1)]
 		public string CountText { get { return String.Format ("{0} {1}", Amount, Unit); }}
 
-		//[TreeNodeValue(Column = 2)]
-		//public string End { get { return String.Format ("{0:d}", EndDate); }}
-
-	/*	[TreeNodeValue(Column = 3)]
-		public string RowColor {
-			get {
-				if (DateTime.Today > EndDate)
-					return "grey";
-				if (DateTime.Today < StartDate)
-					return "blue";
-				return "black";
-			}
-		} */
-
-		//[TreeNodeValue(Column = 4)]
 		public int Amount { get { return Append - Removed; }}
 	}
 }

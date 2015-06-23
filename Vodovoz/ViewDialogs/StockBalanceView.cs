@@ -17,7 +17,10 @@ namespace Vodovoz
 			set {if (uow == value)
 				return;
 				uow = value;
-				datatreeviewBalance.RepresentationModel = new ViewModel.StockBalanceVM(value);
+				stockbalancefilter1.Uow = value;
+				var vm = new ViewModel.StockBalanceVM(value);
+				vm.Filter = stockbalancefilter1;
+				datatreeviewBalance.RepresentationModel = vm;
 				datatreeviewBalance.RepresentationModel.UpdateNodes ();
 			}
 		}
