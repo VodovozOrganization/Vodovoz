@@ -221,6 +221,8 @@
     <Compile Include="Repositories\Registration\GoodsRepository.cs" />
     <Compile Include="Repositories\NomenclatureRepository.cs" />
     <Compile Include="ViewDialogs\WarehouseDocumentsView.cs" />
+    <Compile Include="Dialogs\OrderDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

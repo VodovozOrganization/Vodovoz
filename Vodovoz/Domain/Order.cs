@@ -6,14 +6,14 @@ using System.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Заказы", ObjectName = "заказ" )]
+	[OrmSubject (JournalName = "Заказы", ObjectName = "заказ")]
 	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		OrderStatus orderStatus;
 
-		[Display(Name = "Статус заказа")]
+		[Display (Name = "Статус заказа")]
 		public virtual OrderStatus OrderStatus {
 			get { return orderStatus; }
 			set { SetField (ref orderStatus, value, () => OrderStatus); }
@@ -21,7 +21,7 @@ namespace Vodovoz.Domain
 
 		Counterparty client;
 
-		[Display(Name = "Клиент")]
+		[Display (Name = "Клиент")]
 		public virtual Counterparty Client {
 			get { return client; }
 			set { SetField (ref client, value, () => Client); }
@@ -29,7 +29,7 @@ namespace Vodovoz.Domain
 
 		DeliveryPoint deliveryPoint;
 
-		[Display(Name = "Точка доставки")]
+		[Display (Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
 			set { SetField (ref deliveryPoint, value, () => DeliveryPoint); }
@@ -37,7 +37,7 @@ namespace Vodovoz.Domain
 
 		DateTime deliveryDate;
 
-		[Display(Name = "Дата доставки")]
+		[Display (Name = "Дата доставки")]
 		public virtual DateTime DeliveryDate {
 			get { return deliveryDate; }
 			set { SetField (ref deliveryDate, value, () => DeliveryDate); }
@@ -45,7 +45,7 @@ namespace Vodovoz.Domain
 
 		DeliverySchedule deliverySchedule;
 
-		[Display(Name = "Время доставки")]
+		[Display (Name = "Время доставки")]
 		public virtual DeliverySchedule DeliverySchedule {
 			get { return deliverySchedule; }
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
@@ -53,7 +53,7 @@ namespace Vodovoz.Domain
 
 		bool selfDelivery;
 
-		[Display(Name = "Самовывоз")]
+		[Display (Name = "Самовывоз")]
 		public virtual bool SelfDelivery {
 			get { return selfDelivery; }
 			set { SetField (ref selfDelivery, value, () => SelfDelivery); }
@@ -61,6 +61,7 @@ namespace Vodovoz.Domain
 
 		Order previousOrder;
 
+		[Display (Name = "Предыдущий заказ")]
 		public virtual Order PreviousOrder {
 			get { return previousOrder; }
 			set { SetField (ref previousOrder, value, () => PreviousOrder); }
@@ -68,7 +69,7 @@ namespace Vodovoz.Domain
 
 		int bottlesReturn;
 
-		[Display(Name = "Бутылей на возврат")]
+		[Display (Name = "Бутылей на возврат")]
 		public virtual int BottlesReturn {
 			get { return bottlesReturn; }
 			set { SetField (ref bottlesReturn, value, () => BottlesReturn); }
@@ -76,7 +77,7 @@ namespace Vodovoz.Domain
 
 		string comment;
 
-		[Display(Name = "Комментарий")]
+		[Display (Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
@@ -84,7 +85,7 @@ namespace Vodovoz.Domain
 
 		OrderSignatureType signatureType;
 
-		[Display(Name = "Подписание документов")]
+		[Display (Name = "Подписание документов")]
 		public virtual OrderSignatureType SignatureType {
 			get { return signatureType; }
 			set { SetField (ref signatureType, value, () => SignatureType); }
@@ -92,6 +93,7 @@ namespace Vodovoz.Domain
 
 		Decimal sumToReceive;
 
+		[Display (Name = "Сумма к получению")]
 		public virtual Decimal SumToReceive {
 			get { return sumToReceive; }
 			set { SetField (ref sumToReceive, value, () => SumToReceive); }
@@ -99,13 +101,15 @@ namespace Vodovoz.Domain
 
 		bool shipped;
 
+		[Display (Name = "Доставлен")]
 		public virtual bool Shipped {
 			get { return shipped; }
 			set { SetField (ref shipped, value, () => Shipped); }
 		}
 
 		List<OrderItem> orderItems;
-		[Display(Name = "Строки заказа")]
+
+		[Display (Name = "Строки заказа")]
 		public virtual List<OrderItem> OrderItems {
 			get { return orderItems; }
 			set { SetField (ref orderItems, value, () => OrderItems); }
@@ -113,7 +117,7 @@ namespace Vodovoz.Domain
 
 		List<OrderEquipment> orderEquipments;
 
-		[Display(Name = "Список оборудования")]
+		[Display (Name = "Список оборудования")]
 		public virtual List<OrderEquipment> OrderEquipments {
 			get { return orderEquipments; }
 			set { SetField (ref orderEquipments, value, () => OrderEquipments); }
