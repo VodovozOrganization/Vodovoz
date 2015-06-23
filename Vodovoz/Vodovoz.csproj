@@ -138,7 +138,6 @@
     <Compile Include="Dialogs\DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
     <Compile Include="Domain\Proxy.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
     <Compile Include="Dialogs\ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
@@ -223,6 +222,10 @@
     <Compile Include="ViewDialogs\WarehouseDocumentsView.cs" />
     <Compile Include="Dialogs\OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.StockBalanceView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
+    <Compile Include="ViewDialogs\StockBalanceView.cs" />
+    <Compile Include="Representations\StockBalanceVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
