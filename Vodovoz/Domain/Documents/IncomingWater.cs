@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSOrmProject;
-using System;
+using Vodovoz.Domain.Operations;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (JournalName = "Производство воды", ObjectName = "Документ производства")]
 	public class IncomingWater: Document
@@ -40,6 +41,21 @@ namespace Vodovoz.Domain
 		}
 
 		#endregion
+
+		GoodsMovementOperation produceWaterOperation = new GoodsMovementOperation ();
+
+		public GoodsMovementOperation ProduceWaterOperation {
+			get { return produceWaterOperation; }
+			set { SetField (ref produceWaterOperation, value, () => ProduceWaterOperation); }
+		}
+
+		GoodsMovementOperation expenseBottlesOperation = new GoodsMovementOperation ();
+
+		public GoodsMovementOperation ExpenseBottlesOperation {
+			get { return expenseBottlesOperation; }
+			set { SetField (ref expenseBottlesOperation, value, () => ExpenseBottlesOperation); }
+		}
+
 	}
 }
 
