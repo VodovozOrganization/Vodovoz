@@ -18,6 +18,7 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument>();
 			ConfigureDlg ();
+			UoWGeneric.Root.ResponsibleEmployee = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 		}
 
 		public WriteoffDocumentDlg (int id)

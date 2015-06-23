@@ -19,6 +19,7 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument>();
 			ConfigureDlg ();
+			UoWGeneric.Root.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 		}
 
 		public MovementDocumentDlg (int id)
@@ -47,7 +48,6 @@ namespace Vodovoz
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceEmployee.SubjectType = typeof(Employee);
-
 		}
 
 		public override bool Save ()
