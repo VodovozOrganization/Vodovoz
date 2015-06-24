@@ -69,7 +69,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public virtual bool CanEditAmount { 
-			get { return Nomenclature == null ? false : Nomenclature.Category != NomenclatureCategory.equipment; }
+			get { return Nomenclature != null && !Nomenclature.Serial; }
 		}
 
 		GoodsMovementOperation incomeGoodsOperation = new GoodsMovementOperation ();
