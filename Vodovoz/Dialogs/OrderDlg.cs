@@ -36,7 +36,7 @@ namespace Vodovoz
 		public void ConfigureDlg ()
 		{
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
-				blockAll ();
+				BlockAll ();
 			if (UoWGeneric.Root.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
 //TODO Make it clickable.
@@ -100,7 +100,7 @@ namespace Vodovoz
 			labelDeliveryDate.Sensitive = labelDeliveryDate.Sensitive = !checkSelfDelivery.Active;
 		}
 
-		void blockAll ()
+		private void BlockAll ()
 		{
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
 				referenceClient.Sensitive = spinBottlesReturn.Sensitive = 

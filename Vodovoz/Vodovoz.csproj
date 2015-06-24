@@ -236,6 +236,8 @@
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
+    <Compile Include="ViewWidgets\DocumentItems\MovementDocumentItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.MovementDocumentItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
