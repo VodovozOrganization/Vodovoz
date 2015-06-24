@@ -230,6 +230,12 @@
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Repositories\WarehouseRepository.cs" />
     <Compile Include="Repositories\EmployeeRepository.cs" />
+    <Compile Include="Domain\ProductSpecification.cs" />
+    <Compile Include="Domain\ProductSpecificationMaterial.cs" />
+    <Compile Include="Dialogs\ProductSpecificationDlg.cs" />
+    <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

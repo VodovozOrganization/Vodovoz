@@ -120,6 +120,15 @@ namespace Vodovoz.Domain
 		}
 
 		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
+
+		#region statics
+
+		public static NomenclatureCategory[] GetCategoriesForProductMaterial()
+		{
+			return new [] { NomenclatureCategory.material, NomenclatureCategory.bottle };
+		}
+
+		#endregion
 	}
 
 	public enum VAT
@@ -144,7 +153,8 @@ namespace Vodovoz.Domain
 		[ItemTitleAttribute ("Оборудование")] equipment,
 		[ItemTitleAttribute ("Товары")] additional,
 		[ItemTitleAttribute ("Услуга")] service,
-		[ItemTitleAttribute ("Тара")] bottle
+		[ItemTitleAttribute ("Тара")] bottle,
+		[ItemTitleAttribute ("Сырьё")] material
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType

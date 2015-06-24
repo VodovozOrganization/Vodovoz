@@ -402,4 +402,13 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference (typeof(Warehouse), session, criteria);
 		tdiMain.AddTab (refWin);	
 	}
+
+	protected void OnActionProductSpecificationActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<ProductSpecification> ();
+
+		OrmReference refWin = new OrmReference (typeof(ProductSpecification), session, criteria);
+		tdiMain.AddTab (refWin);
+	}
 }

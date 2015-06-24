@@ -76,6 +76,8 @@ namespace Vodovoz
 				new OrmObjectMapping<PaidRentEquipment> (typeof(PaidRentEquipmentDlg), "{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping<FreeRentEquipment> (typeof(FreeRentEquipmentDlg), "{Vodovoz.Domain.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping<DeliverySchedule> (typeof(DeliveryScheduleDlg), "{Vodovoz.Domain.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
+				new OrmObjectMapping<ProductSpecification> (typeof(ProductSpecificationDlg), "{Vodovoz.Domain.ProductSpecification} Id[Код]; Name[Название];"),
+				// Документы
 				new OrmObjectMapping<IncomingInvoice> (typeof(IncomingInvoiceDlg), "{Vodovoz.Domain.Documents.IncomingInvoice} Id[Номер];"),
 				new OrmObjectMapping<IncomingWater> (typeof(IncomingWaterDlg), "{Vodovoz.Domain.Documents.IncomingWater} Id[Номер];"),
 				new OrmObjectMapping<MovementDocument> (typeof(MovementDocumentDlg), "{Vodovoz.Domain.Documents.MovementDocument} Id[Номер];"),
