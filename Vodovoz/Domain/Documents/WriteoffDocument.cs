@@ -2,6 +2,8 @@
 using QSOrmProject;
 using System.Data.Bindings;
 using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -41,6 +43,25 @@ namespace Vodovoz.Domain.Documents
 		public virtual Warehouse WriteoffWarehouse {
 			get { return writeoffWarehouse; }
 			set { writeoffWarehouse = value; }
+		}
+
+		IList<WriteoffDocumentItem> items = new List<WriteoffDocumentItem> ();
+
+		[Display (Name = "Строки")]
+		public virtual IList<WriteoffDocumentItem> Items {
+			get { return items; }
+			set { SetField (ref items, value, () => Items);
+				observableItems = null;
+			}
+		}
+
+		GenericObservableList<WriteoffDocumentItem> observableItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<WriteoffDocumentItem> ObservableItems {
+			get {if (observableItems == null)
+				observableItems = new GenericObservableList<WriteoffDocumentItem> (Items);
+				return observableItems;
+			}
 		}
 
 		#region IDocument implementation

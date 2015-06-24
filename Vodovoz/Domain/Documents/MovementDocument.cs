@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Linq;
 using QSOrmProject;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -27,7 +29,7 @@ namespace Vodovoz.Domain.Documents
 				}
 			}
 		}
-		//TODO List of elements
+
 		Employee responsiblePerson;
 
 		[Required (ErrorMessage = "Должен быть указан ответственнй за перемещение.")]
@@ -93,6 +95,25 @@ namespace Vodovoz.Domain.Documents
 		public virtual Warehouse ToWarehouse {
 			get { return toWarehouse; }
 			set { SetField (ref toWarehouse, value, () => ToWarehouse); }
+		}
+
+		IList<MovementDocumentItem> items = new List<MovementDocumentItem> ();
+
+		[Display (Name = "Строки")]
+		public virtual IList<MovementDocumentItem> Items {
+			get { return items; }
+			set { SetField (ref items, value, () => Items);
+				observableItems = null;
+			}
+		}
+
+		GenericObservableList<MovementDocumentItem> observableItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<MovementDocumentItem> ObservableItems {
+			get {if (observableItems == null)
+				observableItems = new GenericObservableList<MovementDocumentItem> (Items);
+				return observableItems;
+			}
 		}
 
 		#region IDocument implementation

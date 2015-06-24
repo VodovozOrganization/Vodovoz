@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -18,13 +20,22 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref amount, value, () => Amount); }
 		}
 
-		Warehouse warehouse;
+		Warehouse incomingWarehouse;
 
-		[Required (ErrorMessage = "Склад должен быть указан.")]
-		[Display (Name = "Склад")]
-		public virtual Warehouse Warehouse {
-			get { return warehouse; }
-			set { SetField (ref warehouse, value, () => Warehouse); }
+		[Required (ErrorMessage = "Склад поступления должен быть указан.")]
+		[Display (Name = "Склад поступления")]
+		public virtual Warehouse IncomingWarehouse {
+			get { return incomingWarehouse; }
+			set { SetField (ref incomingWarehouse, value, () => IncomingWarehouse); }
+		}
+
+		Warehouse writeOffWarehouse;
+
+		[Required (ErrorMessage = "Склад списания должен быть указан.")]
+		[Display (Name = "Склад списания")]
+		public virtual Warehouse WriteOffWarehouse {
+			get { return writeOffWarehouse; }
+			set { SetField (ref writeOffWarehouse, value, () => WriteOffWarehouse); }
 		}
 
 		#region IDocument implementation
@@ -36,24 +47,36 @@ namespace Vodovoz.Domain.Documents
 		new public virtual string Description {
 			get { return String.Format ("Количество: {0}; Склад поступления: {1};", 
 				Amount,
-				Warehouse == null ? "не указан" : Warehouse.Name); 
+				WriteOffWarehouse == null ? "не указан" : WriteOffWarehouse.Name); 
 			}
 		}
 
 		#endregion
 
-		GoodsMovementOperation produceWaterOperation = new GoodsMovementOperation ();
+		GoodsMovementOperation produceOperation = new GoodsMovementOperation ();
 
-		public GoodsMovementOperation ProduceWaterOperation {
-			get { return produceWaterOperation; }
-			set { SetField (ref produceWaterOperation, value, () => ProduceWaterOperation); }
+		public GoodsMovementOperation ProduceOperation {
+			get { return produceOperation; }
+			set { SetField (ref produceOperation, value, () => ProduceOperation); }
 		}
 
-		GoodsMovementOperation expenseBottlesOperation = new GoodsMovementOperation ();
+		IList<IncomingWaterMaterial> materials = new List<IncomingWaterMaterial> ();
 
-		public GoodsMovementOperation ExpenseBottlesOperation {
-			get { return expenseBottlesOperation; }
-			set { SetField (ref expenseBottlesOperation, value, () => ExpenseBottlesOperation); }
+		[Display (Name = "Строки")]
+		public virtual IList<IncomingWaterMaterial> Materials {
+			get { return materials; }
+			set { SetField (ref materials, value, () => Materials);
+				observableMaterials = null;
+			}
+		}
+
+		GenericObservableList<IncomingWaterMaterial> observableMaterials;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<IncomingWaterMaterial> ObservableMaterials {
+			get {if (observableMaterials == null)
+				observableMaterials = new GenericObservableList<IncomingWaterMaterial> (Materials);
+				return observableMaterials;
+			}
 		}
 
 	}
