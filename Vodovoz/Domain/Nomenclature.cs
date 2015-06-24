@@ -15,7 +15,7 @@ namespace Vodovoz.Domain
 
 		string name;
 
-		[Display(Name = "Название")]
+		[Display (Name = "Название")]
 		[Required (ErrorMessage = "Название номенклатуры должно быть заполнено.")]
 		public virtual string Name {
 			get { return name; }
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain
 
 		string model;
 
-		[Display(Name = "Модель оборудования")]
+		[Display (Name = "Модель оборудования")]
 		public virtual string Model {
 			get { return model; }
 			set { SetField (ref model, value, () => Model); }
@@ -32,7 +32,7 @@ namespace Vodovoz.Domain
 
 		double weight;
 
-		[Display(Name = "Вес")]
+		[Display (Name = "Вес")]
 		public virtual double Weight {
 			get { return weight; }
 			set { SetField (ref weight, value, () => Weight); }
@@ -40,7 +40,7 @@ namespace Vodovoz.Domain
 
 		VAT vAT;
 
-		[Display(Name = "НДС")]
+		[Display (Name = "НДС")]
 		public virtual VAT VAT {
 			get { return vAT; }
 			set { SetField (ref vAT, value, () => VAT); }
@@ -48,7 +48,7 @@ namespace Vodovoz.Domain
 
 		bool doNotReserve;
 
-		[Display(Name = "Не резервировать")]
+		[Display (Name = "Не резервировать")]
 		public virtual bool DoNotReserve {
 			get { return doNotReserve; }
 			set { SetField (ref doNotReserve, value, () => DoNotReserve); }
@@ -56,7 +56,7 @@ namespace Vodovoz.Domain
 
 		bool serial;
 
-		[Display(Name = "Серийный номер")]
+		[Display (Name = "Серийный номер")]
 		public virtual bool Serial {
 			get { return serial; }
 			set { SetField (ref serial, value, () => Serial); }
@@ -64,7 +64,7 @@ namespace Vodovoz.Domain
 
 		MeasurementUnits unit;
 
-		[Display(Name = "Единица измерения")]
+		[Display (Name = "Единица измерения")]
 		public virtual MeasurementUnits Unit {
 			get { return unit; }
 			set { SetField (ref unit, value, () => Unit); }
@@ -72,7 +72,7 @@ namespace Vodovoz.Domain
 
 		NomenclatureCategory category;
 
-		[Display(Name = "Категория")]
+		[Display (Name = "Категория")]
 		public virtual NomenclatureCategory Category {
 			get { return category; }
 			set { SetField (ref category, value, () => Category); }
@@ -80,7 +80,7 @@ namespace Vodovoz.Domain
 
 		EquipmentColors color;
 
-		[Display(Name = "Цвет оборудования")]
+		[Display (Name = "Цвет оборудования")]
 		public virtual EquipmentColors Color {
 			get { return color; }
 			set { SetField (ref color, value, () => Color); }
@@ -88,7 +88,7 @@ namespace Vodovoz.Domain
 
 		EquipmentType type;
 
-		[Display(Name = "Тип оборудования")]
+		[Display (Name = "Тип оборудования")]
 		public virtual EquipmentType Type {
 			get { return type; }
 			set { SetField (ref type, value, () => Type); }
@@ -96,15 +96,15 @@ namespace Vodovoz.Domain
 
 		Manufacturer manufacturer;
 
-		[Display(Name = "Производитель")]
+		[Display (Name = "Производитель")]
 		public virtual Manufacturer Manufacturer {
 			get { return manufacturer; }
 			set { SetField (ref manufacturer, value, () => Manufacturer); }
 		}
-			
+
 		IList<NomenclaturePrice> nomenclaturePrice;
 
-		[Display(Name = "Цены")]
+		[Display (Name = "Цены")]
 		public virtual IList<NomenclaturePrice> NomenclaturePrice {
 			get { return nomenclaturePrice; }
 			set { SetField (ref nomenclaturePrice, value, () => NomenclaturePrice); }
@@ -123,9 +123,17 @@ namespace Vodovoz.Domain
 
 		#region statics
 
-		public static NomenclatureCategory[] GetCategoriesForProductMaterial()
+		public static NomenclatureCategory[] GetCategoriesForProductMaterial ()
 		{
 			return new [] { NomenclatureCategory.material, NomenclatureCategory.bottle };
+		}
+
+		public static NomenclatureCategory[] GetCategoriesForGoods ()
+		{
+			return new [] { NomenclatureCategory.bottle, NomenclatureCategory.additional, 
+				NomenclatureCategory.equipment, NomenclatureCategory.material, 
+				NomenclatureCategory.spare_parts, NomenclatureCategory.water
+			};
 		}
 
 		#endregion
