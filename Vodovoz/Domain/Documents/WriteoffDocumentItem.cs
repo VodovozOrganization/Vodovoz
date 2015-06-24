@@ -5,12 +5,14 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (JournalName = "Строки накладной", ObjectName = "строка накладной")]
-	public class IncomingInvoiceItem: PropertyChangedBase, IDomainObject
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "строки списания",
+		Nominative = "строка списания")]
+	public class WriteoffDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
-		public virtual IncomingInvoice Document { get; set; }
+		public virtual WriteoffDocument Document { get; set; }
 
 		Nomenclature nomenclature;
 
@@ -19,8 +21,8 @@ namespace Vodovoz.Domain.Documents
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set { SetField (ref nomenclature, value, () => Nomenclature);
-				if (IncomeGoodsOperation.Nomenclature != nomenclature)
-					IncomeGoodsOperation.Nomenclature = nomenclature;
+				if (WriteOffGoodsOperation.Nomenclature != nomenclature)
+					WriteOffGoodsOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -30,8 +32,8 @@ namespace Vodovoz.Domain.Documents
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment);
-				if (IncomeGoodsOperation.Equipment != equipment)
-					IncomeGoodsOperation.Equipment = equipment;
+				if (WriteOffGoodsOperation.Equipment != equipment)
+					WriteOffGoodsOperation.Equipment = equipment;
 			}
 		}
 
@@ -42,22 +44,9 @@ namespace Vodovoz.Domain.Documents
 		public virtual int Amount {
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount);
-				if (IncomeGoodsOperation.Amount != amount)
-					IncomeGoodsOperation.Amount = amount;
+				if (WriteOffGoodsOperation.Amount != amount)
+					WriteOffGoodsOperation.Amount = amount;
 			}
-		}
-
-		decimal price;
-
-		[Min (0)]
-		[Display (Name = "Цена")]
-		public virtual decimal Price {
-			get { return price; }
-			set { SetField (ref price, value, () => Price); }
-		}
-
-		public decimal Sum {
-			get {return Price * Amount;}
 		}
 
 		public virtual string Name {
@@ -72,11 +61,11 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null && !Nomenclature.Serial; }
 		}
 
-		GoodsMovementOperation incomeGoodsOperation = new GoodsMovementOperation ();
+		GoodsMovementOperation writeoffGoodsOperation = new GoodsMovementOperation ();
 
-		public GoodsMovementOperation IncomeGoodsOperation {
-			get { return incomeGoodsOperation; }
-			set { SetField (ref incomeGoodsOperation, value, () => IncomeGoodsOperation); }
+		public GoodsMovementOperation WriteOffGoodsOperation {
+			get { return writeoffGoodsOperation; }
+			set { SetField (ref writeoffGoodsOperation, value, () => WriteOffGoodsOperation); }
 		}
 
 	}

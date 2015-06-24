@@ -31,9 +31,25 @@
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
- 		<property name="TimeStamp" column="time_stamp"/>
+ 		<property name="TimeStamp" column="time_stamp" not-null="true"/>
+ 		<property name="Amount" column="amount" not-null="true"/>
+ 		<many-to-one name="IncomingWarehouse" class="Warehouse" column="incoming_warehouse_id" not-null="true"/>
+ 		<many-to-one name="WriteOffWarehouse" class="Warehouse" column="writeoff_warehouse_id" not-null="true"/>
+ 		<many-to-one name="ProduceOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="produce_operation_id" not-null="true"/>
+ 		<bag name="Materials" inverse="true" cascade="all-delete-orphan" lazy="false" >
+    		<key column="incoming_water_id"/>
+    		<one-to-many class="Vodovoz.Domain.Documents.IncomingWaterMaterial" />
+		</bag>
+ 	</class>
+
+ 	<class name="Vodovoz.Domain.Documents.IncomingWaterMaterial" lazy="false" table="incoming_water_material">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<many-to-one name="Document" class="Vodovoz.Domain.Documents.IncomingWater" column="incoming_water_id" not-null="true"/>
  		<property name="Amount" column="amount"/>
- 		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
+ 		<many-to-one name="ConsumptionMaterialOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="consumption_material_id" cascade="all-delete-orphan" not-null="true"/>
  	</class>
 
 	<class name="Vodovoz.Domain.Documents.MovementDocument" lazy="false" table="movement_document">
@@ -49,6 +65,21 @@
 		<many-to-one name="ToDeliveryPoint" class="DeliveryPoint" column="delivery_point_to_id"/>
 		<many-to-one name="ToClient" class="Counterparty" column="counterparty_to_id"/>
 		<many-to-one name="ToWarehouse" class="Warehouse" column="warehouse_to_id"/>
+		<bag name="Items" inverse="true" cascade="all-delete-orphan" lazy="false" >
+    		<key column="movement_document_id"/>
+    		<one-to-many class="Vodovoz.Domain.Documents.MovementDocumentItem" />
+		</bag>
+ 	</class>
+
+ 	<class name="Vodovoz.Domain.Documents.MovementDocumentItem" lazy="false" table="movement_document_items">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<many-to-one name="Document" class="Vodovoz.Domain.Documents.MovementDocument" column="movement_document_id" not-null="true"/>
+ 		<property name="Amount" column="amount"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
+ 		<many-to-one name="MoveGoodsOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="goods_movement_operation_id" cascade="all-delete-orphan" not-null="true"/>
  	</class>
 
  	<class name="Vodovoz.Domain.Documents.WriteoffDocument" lazy="false" table="writeoff_document">
@@ -60,7 +91,21 @@
 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
 		<many-to-one name="Client" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="warehouse_id"/>
+		<bag name="Items" inverse="true" cascade="all-delete-orphan" lazy="false" >
+    		<key column="writeoff_document_id"/>
+    		<one-to-many class="Vodovoz.Domain.Documents.WriteoffDocumentItem" />
+		</bag>
  	</class>
 
+ 	<class name="Vodovoz.Domain.Documents.WriteoffDocumentItem" lazy="false" table="writeoff_document_items">
+ 		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<many-to-one name="Document" class="Vodovoz.Domain.Documents.WriteoffDocument" column="writeoff_document_id" not-null="true"/>
+ 		<property name="Amount" column="amount"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
+ 		<many-to-one name="WriteOffGoodsOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="writeoff_movement_operation_id" cascade="all-delete-orphan" not-null="true"/>
+ 	</class>
 
 </hibernate-mapping>
