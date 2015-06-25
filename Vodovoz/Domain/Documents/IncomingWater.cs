@@ -29,7 +29,10 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }
-			set { SetField (ref amount, value, () => Amount); }
+			set { SetField (ref amount, value, () => Amount);
+				if (ProduceOperation.Amount != Amount)
+					ProduceOperation.Amount = Amount;
+			}
 		}
 
 		Warehouse incomingWarehouse;
@@ -38,7 +41,10 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад поступления")]
 		public virtual Warehouse IncomingWarehouse {
 			get { return incomingWarehouse; }
-			set { SetField (ref incomingWarehouse, value, () => IncomingWarehouse); }
+			set { SetField (ref incomingWarehouse, value, () => IncomingWarehouse);
+				if (ProduceOperation.IncomingWarehouse != IncomingWarehouse)
+					ProduceOperation.IncomingWarehouse = IncomingWarehouse;
+			}
 		}
 
 		Warehouse writeOffWarehouse;
@@ -47,7 +53,12 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад списания")]
 		public virtual Warehouse WriteOffWarehouse {
 			get { return writeOffWarehouse; }
-			set { SetField (ref writeOffWarehouse, value, () => WriteOffWarehouse); }
+			set { SetField (ref writeOffWarehouse, value, () => WriteOffWarehouse); 
+				foreach (var item in Materials) {
+					if (item.ConsumptionMaterialOperation.WriteoffWarehouse != WriteOffWarehouse)
+						item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
+				}
+			}
 		}
 
 		#region IDocument implementation
@@ -91,10 +102,10 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public void AddItem(IncomingWaterMaterial item)
+		public void AddMaterial(IncomingWaterMaterial item)
 		{
-			//item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
-			//item.IncomeGoodsOperation.OperationTime = TimeStamp;
+			item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
+			item.ConsumptionMaterialOperation.OperationTime = TimeStamp;
 			item.Document = this;
 			ObservableMaterials.Add (item);
 		}

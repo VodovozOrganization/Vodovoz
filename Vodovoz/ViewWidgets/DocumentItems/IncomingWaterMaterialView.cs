@@ -115,7 +115,7 @@ namespace Vodovoz
 		void NomenclatureSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
-			DocumentUoW.Root.AddItem (new IncomingWaterMaterial { 
+			DocumentUoW.Root.AddMaterial (new IncomingWaterMaterial { 
 				Nomenclature = nomenctature,
 				Amount = 1
 				});
