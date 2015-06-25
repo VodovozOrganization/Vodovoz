@@ -21,7 +21,7 @@ namespace Vodovoz
 		public EmployeeDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee> ();
 			TabName = "Новый сотрудник";
 			ConfigureDlg ();
 		}
@@ -34,7 +34,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public EmployeeDlg (Employee sub) : this(sub.Id) {}
+		public EmployeeDlg (Employee sub) : this (sub.Id)
+		{
+		}
 
 		private void ConfigureDlg ()
 		{
@@ -79,7 +81,7 @@ namespace Vodovoz
 			phonesView.SaveChanges ();	
 			logger.Info ("Сохраняем сотрудника...");
 			try {
-				UoWGeneric.Save();
+				UoWGeneric.Save ();
 				if (UoWGeneric.IsNew) {
 					attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				}

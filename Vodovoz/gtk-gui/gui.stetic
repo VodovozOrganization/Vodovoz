@@ -606,7 +606,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14804,7 +14803,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">4</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -14915,7 +14914,6 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                     <child>
                       <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumStatus">
                         <property name="MemberName" />
-                        <property name="Sensitive">False</property>
                         <property name="IsTextCombo">False</property>
                         <property name="Items" translatable="yes" />
                         <property name="InheritedBoundaryDataSource">False</property>

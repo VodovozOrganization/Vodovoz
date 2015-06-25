@@ -16,7 +16,7 @@ namespace Vodovoz
 		public IncomingInvoiceDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingInvoice>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingInvoice> ();
 			ConfigureDlg ();
 		}
 
@@ -27,7 +27,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public IncomingInvoiceDlg (IncomingInvoice sub) : this(sub.Id) {}
+		public IncomingInvoiceDlg (IncomingInvoice sub) : this (sub.Id)
+		{
+		}
 
 		void ConfigureDlg ()
 		{
@@ -46,7 +48,7 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем входящую накладную...");
-			UoWGeneric.Save();
+			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
 		}

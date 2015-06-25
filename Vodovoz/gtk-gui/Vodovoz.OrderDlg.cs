@@ -217,7 +217,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 4;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -294,7 +294,6 @@ namespace Vodovoz
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.enumStatus = new global::Gtk.DataBindings.DataEnumComboBox ();
-			this.enumStatus.Sensitive = false;
 			this.enumStatus.Name = "enumStatus";
 			this.enumStatus.InheritedBoundaryDataSource = false;
 			this.enumStatus.InheritedDataSource = true;

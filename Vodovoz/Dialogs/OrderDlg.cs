@@ -45,6 +45,8 @@ namespace Vodovoz
 			subjectAdaptor.Target = UoWGeneric.Root;
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
+			enumStatus.DataSource = subjectAdaptor;
+			enumSignatureType.DataSource = subjectAdaptor;
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
 			referenceClient.SubjectType = typeof(Counterparty);
