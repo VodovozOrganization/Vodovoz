@@ -47,6 +47,7 @@ namespace Vodovoz
 			OrmMain.ConfigureOrm (QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts" });
 			OrmMain.ClassMappingList = new System.Collections.Generic.List<IOrmObjectMapping> {
 				//Простые справочники
+				new OrmObjectMapping<CullingCategory> (null, "{Vodovoz.Domain.CullingCategory} Name[Название];"),
 				new OrmObjectMapping<Nationality> (null, "{Vodovoz.Domain.Nationality} Name[Название];"),
 				new OrmObjectMapping<Manufacturer> (null, "{Vodovoz.Domain.Manufacturer} Name[Название];"),
 				new OrmObjectMapping<EquipmentType> (null, "{Vodovoz.Domain.EquipmentType} Name[Название];"),

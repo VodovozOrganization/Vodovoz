@@ -25,7 +25,7 @@ public partial class MainWindow: Gtk.Window
 		this.Title = MainSupport.GetTitle ();
 		QSMain.MakeNewStatusTargetForNlog ();
 
-        MainSupport.LoadBaseParameters();
+		MainSupport.LoadBaseParameters ();
 
 		MainSupport.TestVersion (this); //Проверяем версию базы
 		QSMain.CheckServer (this); // Проверяем настройки сервера
@@ -409,6 +409,15 @@ public partial class MainWindow: Gtk.Window
 		var criteria = session.CreateCriteria<ProductSpecification> ();
 
 		OrmReference refWin = new OrmReference (typeof(ProductSpecification), session, criteria);
+		tdiMain.AddTab (refWin);
+	}
+
+	protected void OnActionCullingCategoryActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<CullingCategory> ();
+
+		OrmReference refWin = new OrmReference (typeof(CullingCategory), session, criteria);
 		tdiMain.AddTab (refWin);
 	}
 }

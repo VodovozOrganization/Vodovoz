@@ -373,6 +373,12 @@
         <property name="ShortLabel" translatable="yes">Спецификация продукции</property>
         <signal name="Activated" handler="OnActionProductSpecificationActivated" />
       </action>
+      <action id="ActionCullingCategory">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Категории выбраковки</property>
+        <property name="ShortLabel" translatable="yes">Категории выбраковки</property>
+        <signal name="Activated" handler="OnActionCullingCategoryActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -414,6 +420,7 @@
                   <node type="Menuitem" action="ActionColors" />
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionProductSpecification" />
+                  <node type="Menuitem" action="ActionCullingCategory" />
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionFreeRentPackage" />
                   <node type="Menuitem" action="ActionPaidRentPackage" />
