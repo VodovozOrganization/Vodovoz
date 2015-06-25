@@ -14,15 +14,15 @@ namespace Vodovoz
 		
 		private global::Gtk.VSeparator vseparator1;
 		
-		private global::Gtk.ToggleButton toggleInformation;
+		private global::Gtk.RadioButton toggleInformation;
 		
-		private global::Gtk.ToggleButton toggleGoods;
+		private global::Gtk.RadioButton toggleGoods;
 		
-		private global::Gtk.ToggleButton toggleEquipment;
+		private global::Gtk.RadioButton toggleEquipment;
 		
-		private global::Gtk.ToggleButton toggleService;
+		private global::Gtk.RadioButton toggleService;
 		
-		private global::Gtk.ToggleButton toggleDocuments;
+		private global::Gtk.RadioButton toggleDocuments;
 		
 		private global::Gtk.Notebook notebook1;
 		
@@ -159,60 +159,55 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.toggleInformation = new global::Gtk.ToggleButton ();
+			this.toggleInformation = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Информация"));
 			this.toggleInformation.CanFocus = true;
 			this.toggleInformation.Name = "toggleInformation";
+			this.toggleInformation.DrawIndicator = false;
 			this.toggleInformation.UseUnderline = true;
-			this.toggleInformation.Label = global::Mono.Unix.Catalog.GetString ("Информация");
+			this.toggleInformation.Group = new global::GLib.SList (global::System.IntPtr.Zero);
 			this.hbox1.Add (this.toggleInformation);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.toggleInformation]));
 			w6.Position = 3;
-			w6.Expand = false;
-			w6.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.toggleGoods = new global::Gtk.ToggleButton ();
+			this.toggleGoods = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Товары"));
 			this.toggleGoods.CanFocus = true;
 			this.toggleGoods.Name = "toggleGoods";
+			this.toggleGoods.DrawIndicator = false;
 			this.toggleGoods.UseUnderline = true;
-			this.toggleGoods.Label = global::Mono.Unix.Catalog.GetString ("Товары");
+			this.toggleGoods.Group = this.toggleInformation.Group;
 			this.hbox1.Add (this.toggleGoods);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.toggleGoods]));
 			w7.Position = 4;
-			w7.Expand = false;
-			w7.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.toggleEquipment = new global::Gtk.ToggleButton ();
+			this.toggleEquipment = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Оборудование"));
 			this.toggleEquipment.CanFocus = true;
 			this.toggleEquipment.Name = "toggleEquipment";
+			this.toggleEquipment.DrawIndicator = false;
 			this.toggleEquipment.UseUnderline = true;
-			this.toggleEquipment.Label = global::Mono.Unix.Catalog.GetString ("Оборудование");
+			this.toggleEquipment.Group = this.toggleInformation.Group;
 			this.hbox1.Add (this.toggleEquipment);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.toggleEquipment]));
 			w8.Position = 5;
-			w8.Expand = false;
-			w8.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.toggleService = new global::Gtk.ToggleButton ();
+			this.toggleService = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Сервис"));
 			this.toggleService.CanFocus = true;
 			this.toggleService.Name = "toggleService";
+			this.toggleService.DrawIndicator = false;
 			this.toggleService.UseUnderline = true;
-			this.toggleService.Label = global::Mono.Unix.Catalog.GetString ("Сервис");
+			this.toggleService.Group = this.toggleInformation.Group;
 			this.hbox1.Add (this.toggleService);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.toggleService]));
 			w9.Position = 6;
-			w9.Expand = false;
-			w9.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.toggleDocuments = new global::Gtk.ToggleButton ();
+			this.toggleDocuments = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Документы"));
 			this.toggleDocuments.CanFocus = true;
 			this.toggleDocuments.Name = "toggleDocuments";
+			this.toggleDocuments.DrawIndicator = false;
 			this.toggleDocuments.UseUnderline = true;
-			this.toggleDocuments.Label = global::Mono.Unix.Catalog.GetString ("Документы");
+			this.toggleDocuments.Group = this.toggleInformation.Group;
 			this.hbox1.Add (this.toggleDocuments);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.toggleDocuments]));
 			w10.Position = 7;
-			w10.Expand = false;
-			w10.Fill = false;
 			this.vbox2.Add (this.hbox1);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox1]));
 			w11.Position = 0;
@@ -222,9 +217,10 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 1;
+			this.notebook1.CurrentPage = 4;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
+			this.vbox3.Name = "vbox3";
 			this.vbox3.Spacing = 6;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(11)), ((uint)(4)), false);
@@ -735,6 +731,11 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
+			this.toggleInformation.Toggled += new global::System.EventHandler (this.OnToggleInformationToggled);
+			this.toggleGoods.Toggled += new global::System.EventHandler (this.OnToggleGoodsToggled);
+			this.toggleEquipment.Toggled += new global::System.EventHandler (this.OnToggleEquipmentToggled);
+			this.toggleService.Toggled += new global::System.EventHandler (this.OnToggleServiceToggled);
+			this.toggleDocuments.Toggled += new global::System.EventHandler (this.OnToggleDocumentsToggled);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
 			this.buttonAddForRent.Clicked += new global::System.EventHandler (this.OnButtonAddForRentClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);

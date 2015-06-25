@@ -14655,7 +14655,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="623 414">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="645 414">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14712,78 +14712,84 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
               </packing>
             </child>
             <child>
-              <widget class="Gtk.ToggleButton" id="toggleInformation">
+              <widget class="Gtk.RadioButton" id="toggleInformation">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnToggleInformationToggled" />
               </widget>
               <packing>
                 <property name="Position">3</property>
                 <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.ToggleButton" id="toggleGoods">
+              <widget class="Gtk.RadioButton" id="toggleGoods">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Товары</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnToggleGoodsToggled" />
               </widget>
               <packing>
                 <property name="Position">4</property>
                 <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.ToggleButton" id="toggleEquipment">
+              <widget class="Gtk.RadioButton" id="toggleEquipment">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Оборудование</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnToggleEquipmentToggled" />
               </widget>
               <packing>
                 <property name="Position">5</property>
                 <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.ToggleButton" id="toggleService">
+              <widget class="Gtk.RadioButton" id="toggleService">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Сервис</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnToggleServiceToggled" />
               </widget>
               <packing>
                 <property name="Position">6</property>
                 <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.ToggleButton" id="toggleDocuments">
+              <widget class="Gtk.RadioButton" id="toggleDocuments">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Документы</property>
+                <property name="DrawIndicator">False</property>
+                <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
+                <property name="Group">group1</property>
+                <signal name="Toggled" handler="OnToggleDocumentsToggled" />
               </widget>
               <packing>
                 <property name="Position">7</property>
                 <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
             </child>
           </widget>
@@ -14798,7 +14804,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">4</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
