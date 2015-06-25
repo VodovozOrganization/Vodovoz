@@ -8,3 +8,6 @@ bin/
 obj/
 
 packages/*
+
+#Workbench Backup Files
+Base/Factory.mwb.bak
