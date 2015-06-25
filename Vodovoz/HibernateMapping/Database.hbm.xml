@@ -356,7 +356,7 @@
 	 	<property name="Amount" column="amount"/>
  	</class>
 
- 	<class name="Order" lazy="false" table="order">
+ 	<class name="Order" lazy="false" table="orders">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
@@ -381,7 +381,7 @@
 		</bag>
 	</class>
 
-	<class name="OrderEquipment" lazy="false" table="order">
+	<class name="OrderEquipment" lazy="false" table="order_equipment">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>

@@ -3,6 +3,7 @@ using NHibernate;
 using QSOrmProject;
 using Vodovoz;
 using System.Collections.Generic;
+using Vodovoz.Domain;
 
 public partial class MainWindow : Gtk.Window
 {
@@ -61,11 +62,17 @@ public partial class MainWindow : Gtk.Window
 
 	void ActionOrdersTableActivated (object sender, System.EventArgs e)
 	{
-		//ISession session = OrmMain.OpenSession ();
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<Order> ();
+
+		OrmReference refWin = new OrmReference (typeof(Order), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	void ActionNewOrderActivated (object sender, System.EventArgs e)
 	{
 		//ISession session = OrmMain.OpenSession ();
 	}
+
+
 }
