@@ -10,31 +10,31 @@ using System.Linq;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class MovementDocumentItemsView : Gtk.Bin
+	public partial class WriteoffDocumentItemsView : Gtk.Bin
 	{
-		GenericObservableList<MovementDocumentItem> items;
+		GenericObservableList<WriteoffDocumentItem> items;
 
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		public MovementDocumentItemsView ()
+		public WriteoffDocumentItemsView ()
 		{
 			this.Build ();
 			treeItemsList.Selection.Changed += OnSelectionChanged;
 		}
 
-		private IUnitOfWorkGeneric<MovementDocument> documentUoW;
+		private IUnitOfWorkGeneric<WriteoffDocument> documentUoW;
 
-		public IUnitOfWorkGeneric<MovementDocument> DocumentUoW {
+		public IUnitOfWorkGeneric<WriteoffDocument> DocumentUoW {
 			get { return documentUoW; }
 			set {
 				if (documentUoW == value)
 					return;
 				documentUoW = value;
 				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<MovementDocumentItem> ();
+					DocumentUoW.Root.Items = new List<WriteoffDocumentItem> ();
 				items = DocumentUoW.Root.ObservableItems;
 				treeItemsList.ItemsDataSource = items;
-				var amountCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<MovementDocumentItem> (item => item.Amount));
+				var amountCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<WriteoffDocumentItem> (item => item.Amount));
 				if (amountCol != null) {
 					amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
 				}
@@ -44,7 +44,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			items.Remove (treeItemsList.GetSelectedObjects () [0] as MovementDocumentItem);
+			items.Remove (treeItemsList.GetSelectedObjects () [0] as WriteoffDocumentItem);
 		}
 
 		void RenderAmountCol (TreeViewColumn tree_column, CellRenderer cell, TreeModel tree_model, TreeIter iter)

@@ -242,6 +242,8 @@
     <Compile Include="Domain\Documents\WriteoffDocumentItem.cs" />
     <Compile Include="Domain\Documents\IncomingWaterMaterial.cs" />
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
+    <Compile Include="ViewWidgets\DocumentItems\WriteoffDocumentItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
