@@ -95,7 +95,6 @@ namespace Vodovoz
 			this.labelSum = new global::Gtk.Label ();
 			this.labelSum.Name = "labelSum";
 			this.labelSum.Xalign = 1F;
-			this.labelSum.LabelProp = "";
 			this.hbox1.Add (this.labelSum);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelSum]));
 			w8.PackType = ((global::Gtk.PackType)(1));

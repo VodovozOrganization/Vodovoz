@@ -51,6 +51,7 @@ namespace Vodovoz
 			this.treeItemsList.InheritedBoundaryDataSource = false;
 			this.treeItemsList.InheritedDataSource = false;
 			this.treeItemsList.InheritedBoundaryDataSource = false;
+			this.treeItemsList.ColumnMappings = "{Vodovoz.Domain.Documents.MovementDocumentItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]<>; CanEditAmount[CanEditAmount];";
 			this.GtkScrolledWindow.Add (this.treeItemsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

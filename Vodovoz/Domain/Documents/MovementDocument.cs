@@ -211,6 +211,19 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
+
+		public void AddItem (MovementDocumentItem item)
+		{
+			item.MoveGoodsOperation.IncomingWarehouse = ToWarehouse;
+			item.MoveGoodsOperation.WriteoffWarehouse = FromWarehouse;
+			item.MoveGoodsOperation.IncomingCounterparty = ToClient;
+			item.MoveGoodsOperation.WriteoffCounterparty = FromClient;
+			item.MoveGoodsOperation.IncomingDeliveryPoint = ToDeliveryPoint;
+			item.MoveGoodsOperation.WriteoffDeliveryPoint = FromDeliveryPoint;
+			item.MoveGoodsOperation.OperationTime = TimeStamp;
+			item.Document = this;
+			ObservableItems.Add (item);
+		}
 	}
 
 	public enum MovementDocumentCategory

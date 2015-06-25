@@ -110,6 +110,16 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
+
+		public void AddItem (WriteoffDocumentItem item)
+		{
+			item.WriteOffGoodsOperation.WriteoffWarehouse = WriteoffWarehouse;
+			item.WriteOffGoodsOperation.WriteoffCounterparty = Client;
+			item.WriteOffGoodsOperation.WriteoffDeliveryPoint = DeliveryPoint;
+			item.WriteOffGoodsOperation.OperationTime = TimeStamp;
+			item.Document = this;
+			ObservableItems.Add (item);
+		}
 	}
 
 	public enum WriteoffType

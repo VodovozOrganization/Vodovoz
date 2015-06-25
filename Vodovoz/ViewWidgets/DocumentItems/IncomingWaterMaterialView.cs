@@ -21,11 +21,10 @@ namespace Vodovoz
 		private IUnitOfWorkGeneric<IncomingWater> documentUoW;
 
 		public IUnitOfWorkGeneric<IncomingWater> DocumentUoW {
-			get {
-				return documentUoW;
-			}
-			set {if (documentUoW == value)
-				return;
+			get { return documentUoW; }
+			set {
+				if (documentUoW == value)
+					return;
 				documentUoW = value;
 				if (DocumentUoW.Root.Materials == null)
 					DocumentUoW.Root.Materials = new List<IncomingWaterMaterial> ();
@@ -86,7 +85,7 @@ namespace Vodovoz
 		}
 
 		private void RenderSumColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
-			Gtk.TreeModel aModel, Gtk.TreeIter aIter)
+		                                  Gtk.TreeModel aModel, Gtk.TreeIter aIter)
 		{
 			decimal sum = (((aModel as TreeModelAdapter).Implementor as MappingsImplementor).NodeFromIter (aIter) as IncomingInvoiceItem).Sum;
 
@@ -104,7 +103,7 @@ namespace Vodovoz
 			//ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
 			//	.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.StockBalanceVM());
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM ());
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.None;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
@@ -118,17 +117,15 @@ namespace Vodovoz
 			DocumentUoW.Root.AddItem (new IncomingWaterMaterial { 
 				Nomenclature = nomenctature,
 				Amount = 1
-				});
+			});
 		}
 
-		void CalculateTotal()
+		void CalculateTotal ()
 		{
 			int total = 0;
-			foreach(var item in documentUoW.Root.Materials)
-			{
+			foreach (var item in documentUoW.Root.Materials) {
 				total += item.Amount;
 			}
-
 			labelSum.LabelProp = String.Format ("Всего: {0}", total);
 		}
 	}

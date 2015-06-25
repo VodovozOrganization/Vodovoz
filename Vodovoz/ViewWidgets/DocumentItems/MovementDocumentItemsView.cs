@@ -6,6 +6,8 @@ using Vodovoz.Domain.Documents;
 using Gtk;
 using System.Collections.Generic;
 using System.Linq;
+using QSTDI;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -62,7 +64,30 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			//TODO FIXME Adding Item logic here;
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null) {
+				logger.Warn ("Родительская вкладка не найдена.");
+				return;
+			}
+
+			//ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
+			//	.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
+
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM ());
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.None;
+			SelectDialog.ObjectSelected += NomenclatureSelected;
+
+			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+		}
+
+		void NomenclatureSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
+			DocumentUoW.Root.AddItem (new MovementDocumentItem { 
+				Nomenclature = nomenctature,
+				Amount = 1
+			});
 		}
 	}
 }
