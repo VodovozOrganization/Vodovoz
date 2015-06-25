@@ -11,6 +11,18 @@ namespace Vodovoz.Domain.Documents
 	[OrmSubject (JournalName = "Производство воды", ObjectName = "Документ производства")]
 	public class IncomingWater: Document
 	{
+		Nomenclature product;
+
+		[Required (ErrorMessage = "Продукт должн быть заполнен.")]
+		[Display (Name = "Продукт")]
+		public virtual Nomenclature Product {
+			get { return product; }
+			set { SetField (ref product, value, () => Product);
+				if (ProduceOperation.Nomenclature != product)
+					ProduceOperation.Nomenclature = product;
+			}
+		}
+
 		int amount;
 
 		[Min (1)]
@@ -77,6 +89,14 @@ namespace Vodovoz.Domain.Documents
 				observableMaterials = new GenericObservableList<IncomingWaterMaterial> (Materials);
 				return observableMaterials;
 			}
+		}
+
+		public void AddItem(IncomingWaterMaterial item)
+		{
+			//item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
+			//item.IncomeGoodsOperation.OperationTime = TimeStamp;
+			item.Document = this;
+			ObservableMaterials.Add (item);
 		}
 
 	}

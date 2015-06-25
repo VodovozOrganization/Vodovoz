@@ -32,7 +32,10 @@ namespace Vodovoz
 		void ConfigureDlg ()
 		{
 			tableWater.DataSource = subjectAdaptor;
-			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceProduct.SubjectType = typeof(Nomenclature);
+			referenceSrcWarehouse.SubjectType = typeof(Warehouse);
+			referenceDstWarehouse.SubjectType = typeof(Warehouse);
+			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 		}
 
 		public override bool Save ()

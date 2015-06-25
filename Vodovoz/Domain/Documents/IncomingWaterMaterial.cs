@@ -26,6 +26,16 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		int? oneProductAmount;
+
+		[Min (1)]
+		[Display (Name = "На один продукт")]
+		public virtual int? OneProductAmount {
+			get { return oneProductAmount; }
+			set { SetField (ref oneProductAmount, value, () => OneProductAmount);
+			}
+		}
+
 		int amount;
 
 		[Min (1)]

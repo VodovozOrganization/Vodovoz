@@ -90,6 +90,10 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
+		public StockBalanceVM () 
+			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
+		{}
+
 		public StockBalanceVM (IUnitOfWork uow)
 		{
 			this.uow = uow;

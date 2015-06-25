@@ -244,6 +244,8 @@
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
     <Compile Include="ViewWidgets\DocumentItems\WriteoffDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
+    <Compile Include="ViewWidgets\DocumentItems\IncomingWaterMaterialView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
