@@ -468,7 +468,7 @@
 		</bag>
 	</class>
 
-	<class name="RouteList" lazy="false" table="route_list">
+	<class name="RouteList" lazy="false" table="route_lists">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>

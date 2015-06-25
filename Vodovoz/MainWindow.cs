@@ -190,6 +190,16 @@ public partial class MainWindow: Gtk.Window
 		}
 	}
 
+	protected void OnActionLogisticsToggled (object sender, EventArgs e)
+	{
+		if (ActionLogistics.Active) {
+			uiIdServices = this.UIManager.AddUiFromResource ("logistics.xml");
+			this.UIManager.EnsureUpdate ();
+		} else if (uiIdServices > 0) {
+			this.UIManager.RemoveUi (uiIdServices);
+		}
+	}
+
 	protected void OnActionStockToggled (object sender, EventArgs e)
 	{
 		if (ActionStock.Active) {

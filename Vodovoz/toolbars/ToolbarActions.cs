@@ -12,6 +12,7 @@ public partial class MainWindow : Gtk.Window
 	Action ActionServiceTickets;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
+	Action ActionRouteListTable;
 
 	public void BuildToolbarActions ()
 	{
@@ -24,6 +25,8 @@ public partial class MainWindow : Gtk.Window
 		//Склад
 		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
 		ActionWarehouseStock = new Action ("ActionWarehouseStock", "Складские остатки", null, "table");
+		//Логистика
+		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
@@ -32,6 +35,7 @@ public partial class MainWindow : Gtk.Window
 		w1.Add (ActionServiceTickets, null);
 		w1.Add (ActionWarehouseDocuments, null);
 		w1.Add (ActionWarehouseStock, null);
+		w1.Add (ActionRouteListTable, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -40,7 +44,18 @@ public partial class MainWindow : Gtk.Window
 		ActionServiceTickets.Activated += ActionServiceTicketsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
+		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		#endregion
+	}
+
+	void ActionRouteListTable_Activated (object sender, System.EventArgs e)
+	{
+		//TODO FIXME Сделать нормальный вид.
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<RouteList> ();
+
+		OrmReference refWin = new OrmReference (typeof(RouteList), session, criteria);
+		tdiMain.AddTab (refWin);
 	}
 
 	void ActionWarehouseStock_Activated (object sender, System.EventArgs e)
@@ -62,6 +77,7 @@ public partial class MainWindow : Gtk.Window
 
 	void ActionOrdersTableActivated (object sender, System.EventArgs e)
 	{
+		//TODO FIXME Сделать нормальный вид.
 		ISession session = OrmMain.OpenSession ();
 		var criteria = session.CreateCriteria<Order> ();
 

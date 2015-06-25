@@ -89,6 +89,9 @@
     <EmbeddedResource Include="HibernateMapping\Documents.hbm.xml">
       <LogicalName>Documents.hbm.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="toolbars\logistics.xml">
+      <LogicalName>logistics.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

@@ -146,7 +146,12 @@ namespace Vodovoz.Domain
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			return null;
+			if (DeliveryPoint == null)
+				yield return new ValidationResult ("Необходимо заполнить точку доставки.",
+					new[] { this.GetPropertyName (o => o.DeliveryPoint) });
+			if (Client == null)
+				yield return new ValidationResult ("Необходимо заполнить поле \"клиент\".",
+					new[] { this.GetPropertyName (o => o.Client) });
 		}
 
 		#endregion
