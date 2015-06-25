@@ -53,6 +53,7 @@ namespace Vodovoz
 			comboType.Active = UoWGeneric.Root.Client != null ?
 				(int)WriteoffType.counterparty :
 				(int)WriteoffType.warehouse;
+			writeoffdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
 
 		public override bool Save ()

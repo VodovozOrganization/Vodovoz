@@ -50,6 +50,7 @@ namespace Vodovoz
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceEmployee.SubjectType = typeof(Employee);
+			movementdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
 
 		public override bool Save ()
