@@ -16,7 +16,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Тип документа перемещения")]
 		public virtual MovementDocumentCategory Category {
 			get { return category; }
-			set { SetField (ref category, value, () => Category);
+			set {
+				SetField (ref category, value, () => Category);
 				switch (category) {
 				case MovementDocumentCategory.counterparty:
 					FromWarehouse = null;
@@ -26,6 +27,17 @@ namespace Vodovoz.Domain.Documents
 					FromClient = null;
 					ToClient = null;
 					break;
+				}
+			}
+		}
+
+		public override DateTime TimeStamp {
+			get { return base.TimeStamp; }
+			set {
+				base.TimeStamp = value;
+				foreach (var item in Items) {
+					if (item.MoveGoodsOperation.OperationTime != TimeStamp)
+						item.MoveGoodsOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -44,10 +56,15 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Клиент отправки")]
 		public virtual Counterparty FromClient {
 			get { return fromClient; }
-			set { SetField (ref fromClient, value, () => FromClient);
-				if(FromClient == null || 
-					(FromDeliveryPoint != null && FromClient.DeliveryPoints.All (p => p.Id != FromDeliveryPoint.Id))) {
+			set {
+				SetField (ref fromClient, value, () => FromClient);
+				if (FromClient == null ||
+				    (FromDeliveryPoint != null && FromClient.DeliveryPoints.All (p => p.Id != FromDeliveryPoint.Id))) {
 					FromDeliveryPoint = null;
+				}
+				foreach (var item in Items) {
+					if (item.MoveGoodsOperation.WriteoffCounterparty != fromClient)
+						item.MoveGoodsOperation.WriteoffCounterparty = fromClient;
 				}
 			}
 		}
@@ -57,10 +74,15 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Клиент получения")]
 		public virtual Counterparty ToClient {
 			get { return toClient; }
-			set { SetField (ref toClient, value, () => ToClient); 
-				if(ToClient == null || 
-					(ToDeliveryPoint != null && ToClient.DeliveryPoints.All (p => p.Id != ToDeliveryPoint.Id))) {
+			set {
+				SetField (ref toClient, value, () => ToClient); 
+				if (ToClient == null ||
+				    (ToDeliveryPoint != null && ToClient.DeliveryPoints.All (p => p.Id != ToDeliveryPoint.Id))) {
 					ToDeliveryPoint = null;
+				}
+				foreach (var item in Items) {
+					if (item.MoveGoodsOperation.IncomingCounterparty != toClient)
+						item.MoveGoodsOperation.IncomingCounterparty = toClient;
 				}
 			}
 		}
@@ -70,7 +92,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Точка отправки")]
 		public virtual DeliveryPoint FromDeliveryPoint {
 			get { return fromDeliveryPoint; }
-			set { SetField (ref fromDeliveryPoint, value, () => FromDeliveryPoint); }
+			set {
+				SetField (ref fromDeliveryPoint, value, () => FromDeliveryPoint); 
+				foreach (var item in Items) {
+					if (item.MoveGoodsOperation.WriteoffDeliveryPoint != fromDeliveryPoint)
+						item.MoveGoodsOperation.WriteoffDeliveryPoint = fromDeliveryPoint;
+				}
+			}
 		}
 
 		DeliveryPoint toDeliveryPoint;
@@ -78,7 +106,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Точка получения")]
 		public virtual DeliveryPoint ToDeliveryPoint {
 			get { return toDeliveryPoint; }
-			set { SetField (ref toDeliveryPoint, value, () => ToDeliveryPoint); }
+			set {
+				SetField (ref toDeliveryPoint, value, () => ToDeliveryPoint); 
+				foreach (var item in Items) {
+					if (item.MoveGoodsOperation.IncomingDeliveryPoint != toDeliveryPoint)
+						item.MoveGoodsOperation.IncomingDeliveryPoint = toDeliveryPoint;
+				}
+			}
 		}
 
 		Warehouse fromWarehouse;
@@ -86,7 +120,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад отправки")]
 		public virtual Warehouse FromWarehouse {
 			get { return fromWarehouse; }
-			set { SetField (ref fromWarehouse, value, () => FromWarehouse);	}
+			set { 
+				SetField (ref fromWarehouse, value, () => FromWarehouse);	
+				foreach (var item in Items) {
+					if (item.MoveGoodsOperation.WriteoffWarehouse != fromWarehouse)
+						item.MoveGoodsOperation.WriteoffWarehouse = fromWarehouse;
+				}
+			}
 		}
 
 		Warehouse toWarehouse;
@@ -94,7 +134,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад получения")]
 		public virtual Warehouse ToWarehouse {
 			get { return toWarehouse; }
-			set { SetField (ref toWarehouse, value, () => ToWarehouse); }
+			set { 
+				SetField (ref toWarehouse, value, () => ToWarehouse); 
+				foreach (var item in Items) {
+					if (item.MoveGoodsOperation.IncomingWarehouse != toWarehouse)
+						item.MoveGoodsOperation.IncomingWarehouse = toWarehouse;
+				}
+			}
 		}
 
 		IList<MovementDocumentItem> items = new List<MovementDocumentItem> ();
@@ -102,7 +148,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Строки")]
 		public virtual IList<MovementDocumentItem> Items {
 			get { return items; }
-			set { SetField (ref items, value, () => Items);
+			set {
+				SetField (ref items, value, () => Items);
 				observableItems = null;
 			}
 		}
@@ -110,8 +157,9 @@ namespace Vodovoz.Domain.Documents
 		GenericObservableList<MovementDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public GenericObservableList<MovementDocumentItem> ObservableItems {
-			get {if (observableItems == null)
-				observableItems = new GenericObservableList<MovementDocumentItem> (Items);
+			get {
+				if (observableItems == null)
+					observableItems = new GenericObservableList<MovementDocumentItem> (Items);
 				return observableItems;
 			}
 		}
@@ -143,21 +191,20 @@ namespace Vodovoz.Domain.Documents
 			if (Category == MovementDocumentCategory.warehouse && FromWarehouse == ToWarehouse)
 				yield return new ValidationResult ("Склады отправления и получения должны различатся.",
 					new[] { this.GetPropertyName (o => o.FromWarehouse), this.GetPropertyName (o => o.ToWarehouse) });
-			if (Category == MovementDocumentCategory.counterparty)
-			{
-				if(FromClient == null)
+			if (Category == MovementDocumentCategory.counterparty) {
+				if (FromClient == null)
 					yield return new ValidationResult ("Клиент отправитель должен быть указан.",
-						new[] { this.GetPropertyName (o => o.FromClient)});
-				if(ToClient == null)
+						new[] { this.GetPropertyName (o => o.FromClient) });
+				if (ToClient == null)
 					yield return new ValidationResult ("Клиент получатель должен быть указан.",
-						new[] { this.GetPropertyName (o => o.ToClient)});
-				if(FromDeliveryPoint == null)
+						new[] { this.GetPropertyName (o => o.ToClient) });
+				if (FromDeliveryPoint == null)
 					yield return new ValidationResult ("Точка доставки отправителя должена быть указана.",
-						new[] { this.GetPropertyName (o => o.FromDeliveryPoint)});
-				if(ToDeliveryPoint == null)
+						new[] { this.GetPropertyName (o => o.FromDeliveryPoint) });
+				if (ToDeliveryPoint == null)
 					yield return new ValidationResult ("Точка доставки получателя должена быть указана.",
-						new[] { this.GetPropertyName (o => o.ToDeliveryPoint)});
-				if(FromDeliveryPoint == ToDeliveryPoint)
+						new[] { this.GetPropertyName (o => o.ToDeliveryPoint) });
+				if (FromDeliveryPoint == ToDeliveryPoint)
 					yield return new ValidationResult ("Точки отправления и получения должны различатся.",
 						new[] { this.GetPropertyName (o => o.FromDeliveryPoint), this.GetPropertyName (o => o.ToDeliveryPoint) });
 			}

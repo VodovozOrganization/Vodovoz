@@ -10,7 +10,16 @@ namespace Vodovoz.Domain.Documents
 	[OrmSubject (JournalName = "Списания ТМЦ", ObjectName = "Акт списания")]
 	public class WriteoffDocument: Document
 	{
-		//TODO List of elements
+		public override DateTime TimeStamp {
+			get { return base.TimeStamp; }
+			set {
+				base.TimeStamp = value;
+				foreach (var item in Items) {
+					if (item.WriteOffGoodsOperation.OperationTime != TimeStamp)
+						item.WriteOffGoodsOperation.OperationTime = TimeStamp;
+				}
+			}
+		}
 
 		Employee responsibleEmployee;
 
@@ -26,7 +35,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Клиент списания")]
 		public virtual Counterparty Client {
 			get { return client; }
-			set { client = value; }
+			set {
+				client = value; 
+				foreach (var item in Items) {
+					if (item.WriteOffGoodsOperation.WriteoffCounterparty != client)
+						item.WriteOffGoodsOperation.WriteoffCounterparty = client;
+				}
+			}
 		}
 
 		DeliveryPoint deliveryPoint;
@@ -34,7 +49,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Точка доставки списания")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
-			set { deliveryPoint = value; }
+			set { 
+				deliveryPoint = value; 
+				foreach (var item in Items) {
+					if (item.WriteOffGoodsOperation.WriteoffDeliveryPoint != deliveryPoint)
+						item.WriteOffGoodsOperation.WriteoffDeliveryPoint = deliveryPoint;
+				}
+			}
 		}
 
 		Warehouse writeoffWarehouse;
@@ -42,7 +63,13 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад списания")]
 		public virtual Warehouse WriteoffWarehouse {
 			get { return writeoffWarehouse; }
-			set { writeoffWarehouse = value; }
+			set {
+				writeoffWarehouse = value; 
+				foreach (var item in Items) {
+					if (item.WriteOffGoodsOperation.WriteoffWarehouse != writeoffWarehouse)
+						item.WriteOffGoodsOperation.WriteoffWarehouse = writeoffWarehouse;
+				}
+			}
 		}
 
 		IList<WriteoffDocumentItem> items = new List<WriteoffDocumentItem> ();
@@ -50,7 +77,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Строки")]
 		public virtual IList<WriteoffDocumentItem> Items {
 			get { return items; }
-			set { SetField (ref items, value, () => Items);
+			set {
+				SetField (ref items, value, () => Items);
 				observableItems = null;
 			}
 		}
@@ -58,8 +86,9 @@ namespace Vodovoz.Domain.Documents
 		GenericObservableList<WriteoffDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public GenericObservableList<WriteoffDocumentItem> ObservableItems {
-			get {if (observableItems == null)
-				observableItems = new GenericObservableList<WriteoffDocumentItem> (Items);
+			get {
+				if (observableItems == null)
+					observableItems = new GenericObservableList<WriteoffDocumentItem> (Items);
 				return observableItems;
 			}
 		}
