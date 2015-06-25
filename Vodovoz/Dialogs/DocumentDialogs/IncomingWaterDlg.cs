@@ -3,6 +3,8 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using QSTDI;
+using NHibernate;
 
 namespace Vodovoz
 {
@@ -48,6 +50,34 @@ namespace Vodovoz
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
+		}
+
+		protected void OnButtonFillClicked (object sender, EventArgs e)
+		{
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null) {
+				logger.Warn ("Родительская вкладка не найдена.");
+				return;
+			}
+
+			ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria<ProductSpecification> ();
+
+			OrmReference SelectDialog = new OrmReference (typeof(ProductSpecification), UoWGeneric.Session, ItemsCriteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
+
+			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+		}
+
+		void SelectDialog_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var spec = e.Subject as ProductSpecification;
+			UoWGeneric.Root.Product = spec.Product;
+			UoWGeneric.Root.ObservableMaterials.Clear ();
+			foreach(var material in spec.Materials)
+			{
+				UoWGeneric.Root.AddMaterial (new IncomingWaterMaterial(UoWGeneric.Root, material));
+			}
 		}
 	}
 }
