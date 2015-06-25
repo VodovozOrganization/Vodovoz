@@ -16,7 +16,7 @@ namespace Vodovoz
 		public WriteoffDocumentDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument> ();
 			ConfigureDlg ();
 			UoWGeneric.Root.ResponsibleEmployee = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 		}
@@ -28,7 +28,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public WriteoffDocumentDlg (WriteoffDocument sub) : this (sub.Id) {}
+		public WriteoffDocumentDlg (WriteoffDocument sub) : this (sub.Id)
+		{
+		}
 
 		void ConfigureDlg ()
 		{
@@ -66,7 +68,7 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем акт списания...");
-			UoWGeneric.Save();
+			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
 		}

@@ -17,7 +17,7 @@ namespace Vodovoz
 		public MovementDocumentDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument> ();
 			ConfigureDlg ();
 			UoWGeneric.Root.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 		}
@@ -29,7 +29,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public MovementDocumentDlg (MovementDocument sub) : this(sub.Id) {}
+		public MovementDocumentDlg (MovementDocument sub) : this (sub.Id)
+		{
+		}
 
 		void ConfigureDlg ()
 		{
@@ -57,7 +59,7 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем документ перемещения...");
-			UoWGeneric.Save();
+			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
 		}

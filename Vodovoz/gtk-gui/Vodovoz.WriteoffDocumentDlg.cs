@@ -37,6 +37,8 @@ namespace Vodovoz
 		private global::Gtk.DataBindings.DataEntryReference referenceEmployee;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceWarehouse;
+		
+		private global::Vodovoz.WriteoffDocumentItemsView writeoffdocumentitemsview1;
 
 		protected virtual void Build ()
 		{
@@ -272,6 +274,14 @@ namespace Vodovoz
 			w18.Position = 1;
 			w18.Expand = false;
 			w18.Fill = false;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.writeoffdocumentitemsview1 = new global::Vodovoz.WriteoffDocumentItemsView ();
+			this.writeoffdocumentitemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.writeoffdocumentitemsview1.Name = "writeoffdocumentitemsview1";
+			this.vbox4.Add (this.writeoffdocumentitemsview1);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.writeoffdocumentitemsview1]));
+			w19.PackType = ((global::Gtk.PackType)(1));
+			w19.Position = 2;
 			this.Add (this.vbox4);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

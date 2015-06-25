@@ -65,6 +65,8 @@ namespace Vodovoz
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPointTo;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceWarehouseTo;
+		
+		private global::Vodovoz.MovementDocumentItemsView movementdocumentitemsview1;
 
 		protected virtual void Build ()
 		{
@@ -458,6 +460,13 @@ namespace Vodovoz
 			w32.Position = 2;
 			w32.Expand = false;
 			w32.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
+			this.movementdocumentitemsview1 = new global::Vodovoz.MovementDocumentItemsView ();
+			this.movementdocumentitemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.movementdocumentitemsview1.Name = "movementdocumentitemsview1";
+			this.vbox3.Add (this.movementdocumentitemsview1);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.movementdocumentitemsview1]));
+			w33.Position = 3;
 			this.Add (this.vbox3);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

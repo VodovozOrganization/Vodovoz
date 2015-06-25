@@ -14,7 +14,7 @@ namespace Vodovoz
 		public IncomingWaterDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater> ();
 			ConfigureDlg ();
 		}
 
@@ -25,7 +25,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public IncomingWaterDlg (IncomingWater sub) : this(sub.Id) {}
+		public IncomingWaterDlg (IncomingWater sub) : this (sub.Id)
+		{
+		}
 
 		void ConfigureDlg ()
 		{
@@ -40,7 +42,7 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем документ производства...");
-			UoWGeneric.Save();
+			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
 		}
