@@ -33,6 +33,7 @@ namespace Vodovoz
 				treeMaterialsList.ItemsDataSource = items;
 				var OneProductCol = treeMaterialsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingWaterMaterial> (item => item.OneProductAmount));
 				if (OneProductCol != null) {
+					//(OneProductCol.CellRenderers[0] as CellRendererText).Edited += OnOneProductColumnEdited;
 					//OneProductCol.SetCellDataFunc (OneProductCol.Cells [0], new TreeCellDataFunc (RenderSumColumnFunc));
 				}
 				var amountCol = treeMaterialsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingWaterMaterial> (item => item.Amount));
@@ -42,6 +43,16 @@ namespace Vodovoz
 
 				CalculateTotal ();
 			}
+		}
+
+		void OnOneProductColumnEdited (object o, EditedArgs args)
+		{
+			var node = (((treeMaterialsList.Model as TreeModelAdapter).Implementor as MappingsImplementor).GetNodeAtPath(new TreePath(args.Path)) as IncomingWaterMaterial);
+			int amount;
+			if (int.TryParse (args.NewText, out amount)) {
+				node.OneProductAmount = amount;
+			} else
+				node.OneProductAmount = null;
 		}
 
 		void Items_ElementChanged (object aList, int[] aIdx)

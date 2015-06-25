@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.treeMaterialsList.InheritedBoundaryDataSource = false;
 			this.treeMaterialsList.InheritedDataSource = false;
 			this.treeMaterialsList.InheritedBoundaryDataSource = false;
-			this.treeMaterialsList.ColumnMappings = "{Vodovoz.Domain.Documents.IncomingWaterMaterial} Name[Наименование];\nOneProductAmount[На продукт]<>; Amount[Всего]<>;";
+			this.treeMaterialsList.ColumnMappings = "{Vodovoz.Domain.Documents.IncomingWaterMaterial} Name[Наименование];\nOneProductAmountEdited[На продукт]<>; Amount[Всего]<>;";
 			this.GtkScrolledWindow.Add (this.treeMaterialsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

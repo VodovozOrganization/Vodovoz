@@ -33,6 +33,7 @@
  		</id>
  		<property name="TimeStamp" column="time_stamp" not-null="true"/>
  		<property name="Amount" column="amount" not-null="true"/>
+ 		<many-to-one name="Product" class="Nomenclature" column="product_nomenclature_id" not-null="true"/>
  		<many-to-one name="IncomingWarehouse" class="Warehouse" column="incoming_warehouse_id" not-null="true"/>
  		<many-to-one name="WriteOffWarehouse" class="Warehouse" column="writeoff_warehouse_id" not-null="true"/>
  		<many-to-one name="ProduceOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="produce_operation_id" cascade="all-delete-orphan" not-null="true"/>
