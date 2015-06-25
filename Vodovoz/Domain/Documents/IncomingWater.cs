@@ -32,6 +32,10 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref amount, value, () => Amount);
 				if (ProduceOperation.Amount != Amount)
 					ProduceOperation.Amount = Amount;
+				foreach (var item in Materials) {
+					if (item.OneProductAmount.HasValue)
+						item.Amount = item.OneProductAmount.Value * Amount;
+				}
 			}
 		}
 

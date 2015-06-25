@@ -33,7 +33,17 @@ namespace Vodovoz.Domain.Documents
 		public virtual int? OneProductAmount {
 			get { return oneProductAmount; }
 			set { SetField (ref oneProductAmount, value, () => OneProductAmount);
+				if(oneProductAmount.HasValue)
+				{
+					Amount = OneProductAmount.Value * Document.Amount;
+				}
 			}
+		}
+
+		//FIXME Костыль пока не научим Gtk.Binding работать с нулабле типами
+		public virtual int OneProductAmountEdited {
+			get { return OneProductAmount.HasValue ? OneProductAmount.Value : 0; }
+			set { OneProductAmount = (value > 0) ? value : 0; }
 		}
 
 		int amount;

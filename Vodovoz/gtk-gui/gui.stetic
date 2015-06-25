@@ -14237,7 +14237,7 @@ Patronymic</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="ColumnMappings">{Vodovoz.Domain.Documents.IncomingWaterMaterial} Name[Наименование];
-OneProductAmount[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;</property>
+OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;</property>
               </widget>
             </child>
           </widget>
