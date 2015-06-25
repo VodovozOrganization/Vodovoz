@@ -20,7 +20,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField (ref nomenclature, value, () => Nomenclature);
+			set {
+				SetField (ref nomenclature, value, () => Nomenclature);
 				if (WriteOffGoodsOperation.Nomenclature != nomenclature)
 					WriteOffGoodsOperation.Nomenclature = nomenclature;
 			}
@@ -31,10 +32,19 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
-			set { SetField (ref equipment, value, () => Equipment);
+			set {
+				SetField (ref equipment, value, () => Equipment);
 				if (WriteOffGoodsOperation.Equipment != equipment)
 					WriteOffGoodsOperation.Equipment = equipment;
 			}
+		}
+
+		CullingCategory cullingCategory;
+
+		[Display (Name = "Оборудование")]
+		public virtual CullingCategory CullingCategory {
+			get { return cullingCategory; }
+			set { SetField (ref cullingCategory, value, () => CullingCategory); }
 		}
 
 		int amount;
@@ -43,7 +53,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }
-			set { SetField (ref amount, value, () => Amount);
+			set {
+				SetField (ref amount, value, () => Amount);
 				if (WriteOffGoodsOperation.Amount != amount)
 					WriteOffGoodsOperation.Amount = amount;
 			}
@@ -55,6 +66,10 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual string EquipmentString { 
 			get { return Equipment != null ? Equipment.Serial : "-"; } 
+		}
+
+		public virtual string CullingCategoryString {
+			get { return CullingCategory != null ? CullingCategory.Name : "-"; }
 		}
 
 		public virtual bool CanEditAmount { 

@@ -15462,7 +15462,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Documents.MovementDocumentItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.Documents.WriteoffDocumentItem} Name[Наименование]; EquipmentString [С/Н оборудования]; CullingCategoryString[Категория выбраковки]; Amount[Количество]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
               </widget>
             </child>
           </widget>

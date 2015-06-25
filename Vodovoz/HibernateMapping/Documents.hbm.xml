@@ -105,6 +105,7 @@
  		<property name="Amount" column="amount"/>
  		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
+ 		<many-to-one name="CullingCategory" class="CullingCategory" column="culling_category_id" />
  		<many-to-one name="WriteOffGoodsOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="writeoff_movement_operation_id" cascade="all-delete-orphan" not-null="true"/>
  	</class>
 
