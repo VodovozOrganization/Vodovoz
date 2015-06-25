@@ -35,7 +35,7 @@
  		<property name="Amount" column="amount" not-null="true"/>
  		<many-to-one name="IncomingWarehouse" class="Warehouse" column="incoming_warehouse_id" not-null="true"/>
  		<many-to-one name="WriteOffWarehouse" class="Warehouse" column="writeoff_warehouse_id" not-null="true"/>
- 		<many-to-one name="ProduceOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="produce_operation_id" not-null="true"/>
+ 		<many-to-one name="ProduceOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="produce_operation_id" cascade="all-delete-orphan" not-null="true"/>
  		<bag name="Materials" inverse="true" cascade="all-delete-orphan" lazy="false" >
     		<key column="incoming_water_id"/>
     		<one-to-many class="Vodovoz.Domain.Documents.IncomingWaterMaterial" />
@@ -47,6 +47,7 @@
  			<generator class="native"></generator>
  		</id>
  		<many-to-one name="Document" class="Vodovoz.Domain.Documents.IncomingWater" column="incoming_water_id" not-null="true"/>
+ 		<property name="OneProductAmount" column="amount_by_product"/>
  		<property name="Amount" column="amount"/>
  		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
  		<many-to-one name="ConsumptionMaterialOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="consumption_material_id" cascade="all-delete-orphan" not-null="true"/>
