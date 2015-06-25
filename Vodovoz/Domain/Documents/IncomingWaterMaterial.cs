@@ -28,7 +28,6 @@ namespace Vodovoz.Domain.Documents
 
 		int? oneProductAmount;
 
-		[Min (1)]
 		[Display (Name = "На один продукт")]
 		public virtual int? OneProductAmount {
 			get { return oneProductAmount; }
@@ -69,6 +68,14 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
 		}
 
+		public IncomingWaterMaterial() {}
+
+		public IncomingWaterMaterial(IncomingWater doc, ProductSpecificationMaterial specMaterial)
+		{
+			Document = doc;
+			Nomenclature = specMaterial.Material;
+			OneProductAmount = specMaterial.Amount;
+		}
 	}
 }
 

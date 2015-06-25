@@ -12785,7 +12785,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.IncomingWaterDlg" design-size="398 363">
+  <widget class="Gtk.Bin" id="Vodovoz.IncomingWaterDlg" design-size="425 363">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -12825,6 +12825,23 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonFill">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Заполнить по спецификации</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonFillClicked" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
