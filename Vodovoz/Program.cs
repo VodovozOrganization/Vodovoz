@@ -65,6 +65,8 @@ namespace Vodovoz
 				new OrmObjectMapping<Proxy> (typeof(ProxyDlg), "{Vodovoz.Domain.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] { "Number" }),
 				new OrmObjectMapping<Order> (typeof(OrderDlg), "{Vodovoz.Domain.Order} Id[Номер];"),
 				new OrmObjectMapping<DeliveryPoint> (typeof(DeliveryPointDlg), "{Vodovoz.Domain.DeliveryPoint} Name[Название];"),
+//TODO FIXME Добавить диалог для RouteList
+				new OrmObjectMapping<RouteList> (null, "{Vodovoz.Domain.RouteList} Id[Номер];"),
 				new OrmObjectMapping<PaidRentPackage> (typeof(PaidRentPackageDlg), "{Vodovoz.Domain.PaidRentPackage} Name[Название]; PriceDailyString[Цена в сутки]; PriceMonthlyString[Цена в месяц]; "),
 				new OrmObjectMapping<FreeRentPackage> (typeof(FreeRentPackageDlg), "{Vodovoz.Domain.FreeRentPackage} Name[Название];"),
 				new OrmObjectMapping<FreeRentAgreement> (typeof(AdditionalAgreementFreeRent), "{Vodovoz.Domain.FreeRentAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),

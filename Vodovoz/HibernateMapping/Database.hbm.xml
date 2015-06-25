@@ -468,6 +468,22 @@
 		</bag>
 	</class>
 
+	<class name="RouteList" lazy="false" table="route_list">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="PlannedDistance" column="planned_distance" />
+		<property name="ActualDistance" column="actual_distance" />
+		<property name="Date" column="date" />
+		<property name="Status" column="status" type="RouteListStatusStringType, Vodovoz"/>
+		<many-to-one name="Car" class="Car" column="car_id"/>
+		<many-to-one name="Driver" class="Employee" column="driver_id"/>
+		<bag name="Orders" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="route_list_id"/>
+    		<one-to-many class="Order"/>
+		</bag>
+	</class>
+
 	<class name="User" lazy="false" table="users">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
