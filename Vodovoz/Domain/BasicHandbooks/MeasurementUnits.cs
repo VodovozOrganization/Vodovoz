@@ -13,10 +13,19 @@ namespace Vodovoz.Domain
 
 		string name;
 		[Required (ErrorMessage = "Название должно быть заполнено.")]
+		[StringLength(10)]
 		[Display(Name = "Название")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
+		}
+
+		short digits;
+
+		[Display(Name = "Знаков после запятой")]
+		public virtual short Digits {
+			get { return digits; }
+			set { SetField (ref digits, value, () => Digits); }
 		}
 
 		#endregion

@@ -250,6 +250,8 @@
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="Domain\RouteList.cs" />
     <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
+    <Compile Include="Dialogs\MeasurementUnitsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.MeasurementUnitsDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -277,7 +279,7 @@
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
       <Project>{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}</Project>
       <Name>QSBanks</Name>
-    </ProjectReference>
+   </ProjectReference>
     <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
       <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
       <Name>System.Data.Bindings</Name>
