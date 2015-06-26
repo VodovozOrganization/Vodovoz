@@ -371,6 +371,7 @@
  		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
  		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id"/>
  		<many-to-one name="PreviousOrder" class="Order" column="previous_order_id"/>
+ 		<many-to-one name="RouteList" class="RouteList" column="route_list_id"/>
  		<bag name="OrderItems" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="order_id"/>
     		<one-to-many class="OrderItem"/>	

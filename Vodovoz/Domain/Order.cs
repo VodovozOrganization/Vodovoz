@@ -108,10 +108,10 @@ namespace Vodovoz.Domain
 			set { SetField (ref shipped, value, () => Shipped); }
 		}
 
-		List<OrderItem> orderItems;
+		IList<OrderItem> orderItems = new List<OrderItem> ();
 
 		[Display (Name = "Строки заказа")]
-		public virtual List<OrderItem> OrderItems {
+		public virtual IList<OrderItem> OrderItems {
 			get { return orderItems; }
 			set { SetField (ref orderItems, value, () => OrderItems); }
 		}
@@ -126,15 +126,31 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		List<OrderEquipment> orderEquipments;
+		IList<OrderEquipment> orderEquipments = new List<OrderEquipment> ();
 
 		[Display (Name = "Список оборудования")]
-		public virtual List<OrderEquipment> OrderEquipments {
+		public virtual IList<OrderEquipment> OrderEquipments {
 			get { return orderEquipments; }
 			set { SetField (ref orderEquipments, value, () => OrderEquipments); }
 		}
 
-		//TODO: ID маршрутного листа
+		GenericObservableList<OrderEquipment> observableOrderEquipments;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<OrderEquipment> ObservableOrderEquipments {
+			get {
+				if (observableOrderEquipments == null)
+					observableOrderEquipments = new GenericObservableList<OrderEquipment> (orderEquipments);
+				return observableOrderEquipments;
+			}
+		}
+
+		RouteList routeList;
+
+		[Display (Name = "Маршрутный лист")]
+		public virtual RouteList RouteList {
+			get { return routeList; }
+			set { SetField (ref routeList, value, () => RouteList); }
+		}
 
 		//TODO: Договор. Какой договор имеется в виду?
 
