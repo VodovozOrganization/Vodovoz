@@ -215,7 +215,6 @@
     <Compile Include="ViewWidgets\DeliveryPointView.cs" />
     <Compile Include="ViewWidgets\ProxyView.cs" />
     <Compile Include="ViewWidgets\FreeRentPackagesView.cs" />
-    <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
     <Compile Include="ViewWidgets\DocumentItems\IncomingInvoiceItemsView.cs" />
@@ -250,6 +249,7 @@
     <Compile Include="ViewWidgets\DocumentItems\IncomingWaterMaterialView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="Domain\RouteList.cs" />
+    <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

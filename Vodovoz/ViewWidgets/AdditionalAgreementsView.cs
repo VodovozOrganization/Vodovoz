@@ -70,12 +70,16 @@ namespace Vodovoz
 			ITdiDialog dlg;
 			switch (type) {
 			case AgreementType.FreeRent:
-				agreement = new FreeRentAgreement ();
-				dlg = new AdditionalAgreementFreeRent (ParentReference, agreement as FreeRentAgreement);
+				dlg = new AdditionalAgreementFreeRent (agreementOwner as CounterpartyContract);
 				break;
 			case AgreementType.NonfreeRent:
-				agreement = new NonfreeRentAgreement ();
-				dlg = new AdditionalAgreementNonFreeRent (ParentReference, agreement as NonfreeRentAgreement);
+				dlg = new AdditionalAgreementNonFreeRent (agreementOwner as CounterpartyContract);
+				break;
+			case AgreementType.WaterSales:
+				dlg = new AdditionalAgreementWater (agreementOwner as CounterpartyContract);
+				break;
+			case AgreementType.DailyRent:
+				dlg = new AdditionalAgreementDailyRent (agreementOwner as CounterpartyContract);
 				break;
 			case AgreementType.Repair:
 				foreach (AdditionalAgreement a in additionalAgreements)
@@ -92,40 +96,11 @@ namespace Vodovoz
 						md.Destroy ();
 						return;
 					}
-				agreement = new RepairAgreement ();
-				dlg = new AdditionalAgreementRepair (ParentReference, agreement as RepairAgreement);
-				break;
-			case AgreementType.WaterSales:
-				agreement = new WaterSalesAgreement ();
-				dlg = new AdditionalAgreementWater (ParentReference, agreement as WaterSalesAgreement);
-				break;
-			case AgreementType.DailyRent:
-				agreement = new DailyRentAgreement ();
-				dlg = new AdditionalAgreementDailyRent (ParentReference, agreement as DailyRentAgreement);
+				dlg = new AdditionalAgreementRepair (agreementOwner as CounterpartyContract);
 				break;
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));
 			}
-			agreement.Contract = (agreementOwner as CounterpartyContract);
-			additionalAgreements.Add (agreement);
-
-			//Вычисляем номер для нового соглашения.
-			var numbers = new List<int> ();
-			foreach (AdditionalAgreement a in additionalAgreements) {
-				int res;
-				if (Int32.TryParse (a.AgreementNumber, out res))
-					numbers.Add (res);
-			}
-			numbers.Sort ();
-			String number = "00";
-			if (numbers.Count > 0) {
-				number += (numbers [numbers.Count - 1] + 1).ToString ();
-				number = number.Substring (number.Length - 3, 3);
-			} else
-				number += "1";
-			agreement.AgreementNumber = number;
-			agreement.IsNew = true;
-
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
@@ -136,7 +111,7 @@ namespace Vodovoz
 				return;
 
 			if (treeAdditionalAgreements.GetSelectedObjects ().GetLength (0) > 0) {
-				ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeAdditionalAgreements.GetSelectedObjects () [0]);
+				ITdiDialog dlg = OrmMain.CreateObjectDialog (treeAdditionalAgreements.GetSelectedObjects () [0]);
 				mytab.TabParent.AddSlaveTab (mytab, dlg);
 			}
 		}
