@@ -6,7 +6,9 @@ using System.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Дополнительные соглашения", ObjectName = "дополнительное соглашение")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "дополнительные соглашения",
+		Nominative = "дополнительное соглашение")]
 	public class AdditionalAgreement : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
@@ -89,11 +91,14 @@ namespace Vodovoz.Domain
 		}
 	}
 
-	[OrmSubject (JournalName = "Дополнительные соглашения", ObjectName = "дополнительное соглашение")]
 	public class NonfreeRentAgreement : AdditionalAgreement, IPaidRentEquipmentOwner
 	{
 		[Display (Name = "Список оборудования")]
 		public virtual IList<PaidRentEquipment> Equipment { get; set; }
+
+		public virtual string Title { 
+			get { return String.Format ("Доп. соглашение платной аренды №{0} от {1:d}", Id, IssueDate); }
+		}
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
@@ -117,6 +122,10 @@ namespace Vodovoz.Domain
 		[Display (Name = "Количество дней аренды")]
 		public virtual int RentDays { get; set; }
 
+		public virtual string Title { 
+			get { return String.Format ("Доп. соглашение посуточной аренды №{0} от {1:d}", Id, IssueDate); }
+		}
+
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
@@ -138,6 +147,10 @@ namespace Vodovoz.Domain
 	{
 		[Display (Name = "Список оборудования")]
 		public virtual IList<FreeRentEquipment> Equipment { get; set; }
+
+		public virtual string Title { 
+			get { return String.Format ("Доп. соглашение бесплатной аренды №{0} от {1:d}", Id, IssueDate); }
+		}
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
@@ -162,6 +175,10 @@ namespace Vodovoz.Domain
 
 		[Display (Name = "Фиксированная стоимость воды")]
 		public virtual decimal FixedPrice { get; set; }
+
+		public virtual string Title { 
+			get { return String.Format ("Доп. соглашение продажи воды №{0} от {1:d}", Id, IssueDate); }
+		}
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
@@ -191,6 +208,10 @@ namespace Vodovoz.Domain
 
 	public class RepairAgreement : AdditionalAgreement
 	{
+		public virtual string Title { 
+			get { return String.Format ("Доп. соглашение сервиса №{0} от {1:d}", Id, IssueDate); }
+		}
+
 		public static IUnitOfWorkGeneric<RepairAgreement> Create (CounterpartyContract contract)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement> ();
