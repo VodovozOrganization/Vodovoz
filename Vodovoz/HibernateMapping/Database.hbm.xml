@@ -51,6 +51,7 @@
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="Name" column="name" />
+	 	<property name="Digits" column="digits" />
  	</class>
 
 	<class name="Nationality" lazy="false" table="nationality">

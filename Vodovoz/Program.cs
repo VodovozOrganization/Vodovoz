@@ -51,7 +51,6 @@ namespace Vodovoz
 				new OrmObjectMapping<Nationality> (null, "{Vodovoz.Domain.Nationality} Name[Название];"),
 				new OrmObjectMapping<Manufacturer> (null, "{Vodovoz.Domain.Manufacturer} Name[Название];"),
 				new OrmObjectMapping<EquipmentType> (null, "{Vodovoz.Domain.EquipmentType} Name[Название];"),
-				new OrmObjectMapping<MeasurementUnits> (null, "{Vodovoz.Domain.MeasurementUnits} Name[Название];"),
 				new OrmObjectMapping<EquipmentColors> (null, "{Vodovoz.Domain.EquipmentColors} Name[Название];"),
 				new OrmObjectMapping<Post> (null, "{QSContacts.Post} Name[Должность];"),
 				new OrmObjectMapping<CounterpartyStatus> (null, "{Vodovoz.Domain.CounterpartyStatus} Name[Название];"),
@@ -60,6 +59,7 @@ namespace Vodovoz
 				new OrmObjectMapping<LogisticsArea> (null, "{Vodovoz.Domain.LogisticsArea} Name[Название]"),
 				new OrmObjectMapping<Warehouse> (null, "{Vodovoz.Domain.Warehouse} Name[Название]"),
 				//Остальные справочники
+				new OrmObjectMapping<MeasurementUnits> (typeof(MeasurementUnitsDlg), "{Vodovoz.Domain.MeasurementUnits} Name[Название]; Digits[Точность];"),
 				new OrmObjectMapping<Contact> (typeof(ContactDlg), "{Vodovoz.Domain.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] { "Surname", "Name", "Lastname", "Post" }),
 				new OrmObjectMapping<Car> (typeof(CarsDlg), "{Vodovoz.Domain.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] { "Model", "RegistrationNumber", "DriverInfo" }),
 				new OrmObjectMapping<Proxy> (typeof(ProxyDlg), "{Vodovoz.Domain.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] { "Number" }),
