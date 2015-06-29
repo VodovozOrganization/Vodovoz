@@ -43,8 +43,7 @@ namespace Vodovoz
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - А";
 
-			paidrentpackagesview1.ParentReference = new OrmParentReference (Session, UoWGeneric.Root, "Equipment");
-			paidrentpackagesview1.DailyRent = false;
+			paidrentpackagesview1.AgreementUoW = UoWGeneric;
 		}
 
 		public override bool Save ()
@@ -54,7 +53,6 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем доп. соглашение...");
-			//personsView.SaveChanges ();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;

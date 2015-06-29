@@ -211,7 +211,6 @@ namespace Vodovoz
 			this.paidrentpackagesview1 = new global::Vodovoz.PaidRentPackagesView ();
 			this.paidrentpackagesview1.Events = ((global::Gdk.EventMask)(256));
 			this.paidrentpackagesview1.Name = "paidrentpackagesview1";
-			this.paidrentpackagesview1.DailyRent = false;
 			this.datatable1.Add (this.paidrentpackagesview1);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.paidrentpackagesview1]));
 			w15.TopAttach = ((uint)(4));

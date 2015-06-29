@@ -41,7 +41,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - Б";
-			freerentpackagesview1.ParentReference = new OrmParentReference (Session, UoWGeneric.Root, "Equipment");
+			freerentpackagesview1.AgreementUoW = UoWGeneric;
 		}
 
 		public override bool Save ()
@@ -51,7 +51,6 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем доп. соглашение...");
-			//personsView.SaveChanges ();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;

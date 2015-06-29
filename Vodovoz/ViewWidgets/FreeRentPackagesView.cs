@@ -6,117 +6,111 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
+using NLog;
+using Vodovoz.Repository;
+using System.Linq;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class FreeRentPackagesView : Gtk.Bin
 	{
-		private IFreeRentEquipmentOwner equipmentOwner;
-		private GenericObservableList<FreeRentEquipment> Equipments;
-		private ISession session;
+		static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		private GenericObservableList<FreeRentEquipment> equipment;
+
 		Decimal TotalDeposit = 0;
+
 		int TotalWaterAmount = 0;
 
-		public ISession Session {
-			get { return session; }
-			set { session = value; }
-		}
+		private IUnitOfWorkGeneric<FreeRentAgreement> agreementUoW;
 
-		public IFreeRentEquipmentOwner EquipmentOwner {
-			get { return equipmentOwner; }
+		public IUnitOfWorkGeneric<FreeRentAgreement> AgreementUoW {
+			get { return agreementUoW; }
 			set {
-				equipmentOwner = value;
-				if (equipmentOwner.Equipment == null)
-					equipmentOwner.Equipment = new List<FreeRentEquipment> ();
-				Equipments = new GenericObservableList<FreeRentEquipment> (EquipmentOwner.Equipment);
-				foreach (FreeRentEquipment eq in Equipments)
-					eq.PropertyChanged += EquimentPropertyChanged;
+				if (agreementUoW == value)
+					return;
+				agreementUoW = value;
+				if (AgreementUoW.Root.Equipment == null)
+					AgreementUoW.Root.Equipment = new List<FreeRentEquipment> ();
+				equipment = AgreementUoW.Root.ObservableEquipment;
+				equipment.ElementChanged += Equipment_ElementChanged; 
+				treeRentPackages.ItemsDataSource = equipment;
 				UpdateTotalLabels ();
-				treeRentPackages.ItemsDataSource = Equipments;
 			}
 		}
 
-		void EquimentPropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		void Equipment_ElementChanged (object aList, int[] aIdx)
 		{
 			UpdateTotalLabels ();
-		}
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null) {
-					Session = parentReference.Session;
-					if (!(parentReference.ParentObject is IFreeRentEquipmentOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IAdditionalAgreementOwner)));
-					}
-					EquipmentOwner = (IFreeRentEquipmentOwner)parentReference.ParentObject;
-				}
-			}
-			get { return parentReference; }
 		}
 
 		void UpdateTotalLabels ()
 		{
 			TotalDeposit = TotalWaterAmount = 0;
-			if (Equipments != null)
-				foreach (FreeRentEquipment eq in Equipments) {
+			if (equipment != null)
+				foreach (FreeRentEquipment eq in equipment) {
 					TotalDeposit += eq.Deposit;
 					TotalWaterAmount += eq.WaterAmount;
 				}
-			labelTotalWaterAmount.Text = String.Format ("{0} " + RusNumber.Case (TotalWaterAmount, "бутыль", "бутыли", "бутылей"), TotalWaterAmount);
-			labelTotalDeposit.Text = CurrencyWorks.GetShortCurrencyString (TotalDeposit);
+			if (AgreementUoW != null) {
+				labelTotalWaterAmount.Text = String.Format ("{0} " + RusNumber.Case (TotalWaterAmount, "бутыль", "бутыли", "бутылей"), TotalWaterAmount);
+				labelTotalDeposit.Text = CurrencyWorks.GetShortCurrencyString (TotalDeposit);
+			}
 		}
 
 		public FreeRentPackagesView ()
 		{
 			this.Build ();
 			treeRentPackages.Selection.Changed += OnSelectionChanged;
+			UpdateTotalLabels ();
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
 			bool selected = treeRentPackages.Selection.CountSelectedRows () > 0;
-			buttonEdit.Sensitive = buttonDelete.Sensitive = selected;
+			buttonDelete.Sensitive = selected;
 		}
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
+			if (mytab == null) {
+				logger.Warn ("Родительская вкладка не найдена.");
 				return;
-			FreeRentEquipment equipment = new FreeRentEquipment ();
-			equipment.IsNew = true;
-			Equipments.Add (equipment);
-			equipment.PropertyChanged += EquimentPropertyChanged;
-			ITdiDialog dlg = new FreeRentEquipmentDlg (ParentReference, equipment);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			}
+
+			var availableTypes = FreeRentPackageRepository.GetPresentEquipmentTypes (AgreementUoW);
+
+			//TODO FIXME Filter used equipment
+			var Query = EquipmentRepository.GetEquipmentWithTypesQuery (availableTypes);
+			OrmReference SelectDialog = new OrmReference (typeof(Equipment), 
+				                            AgreementUoW.Session, 
+				                            Query.GetExecutableQueryOver (AgreementUoW.Session).RootCriteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ObjectSelected += EquipmentSelected;
+
+			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
 		}
 
-		protected void OnButtonEditClicked (object sender, EventArgs e)
+		void EquipmentSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeRentPackages.GetSelectedObjects () [0]);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			FreeRentEquipment eq = new FreeRentEquipment ();
+			eq.Equipment = (Equipment)e.Subject;
+			var rentPackage = AgreementUoW.Session.CreateCriteria (typeof(FreeRentPackage))
+				.List<FreeRentPackage> ()
+				.First (p => p.EquipmentType == eq.Equipment.Nomenclature.Type);
+			eq.Deposit = rentPackage.Deposit;
+			eq.FreeRentPackage = rentPackage;
+			eq.WaterAmount = rentPackage.MinWaterAmount;
+			equipment.Add (eq);
+			UpdateTotalLabels ();
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
-			Equipments.Remove (treeRentPackages.GetSelectedObjects () [0] as FreeRentEquipment);
-		}
-
-		protected void OnTreeRentPackagesRowActivated (object o, Gtk.RowActivatedArgs args)
-		{
-			buttonEdit.Click ();
+			equipment.Remove (treeRentPackages.GetSelectedObjects () [0] as FreeRentEquipment);
 		}
 	}
 }

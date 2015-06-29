@@ -6,6 +6,7 @@ using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -65,8 +66,7 @@ namespace Vodovoz
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
 			if (mytab == null)
 				return;
-			AdditionalAgreement agreement;
-
+			
 			ITdiDialog dlg;
 			switch (type) {
 			case AgreementType.FreeRent:
@@ -82,20 +82,19 @@ namespace Vodovoz
 				dlg = new AdditionalAgreementDailyRent (agreementOwner as CounterpartyContract);
 				break;
 			case AgreementType.Repair:
-				foreach (AdditionalAgreement a in additionalAgreements)
-					if (a is RepairAgreement) {
-						MessageDialog md = new MessageDialog (null,
-							                   DialogFlags.Modal,
-							                   MessageType.Warning,
-							                   ButtonsType.Ok,
-							                   "Доп. соглашение на ремонт оборудования уже существует. " +
-							                   "Нельзя создать более одного доп. соглашения данного типа.");
-						md.SetPosition (WindowPosition.Center);
-						md.ShowAll ();
-						md.Run ();
-						md.Destroy ();
-						return;
-					}
+				if (additionalAgreements.Any (a => a.Type == AgreementType.Repair)) {
+					MessageDialog md = new MessageDialog (null,
+						                    DialogFlags.Modal,
+						                    MessageType.Warning,
+						                    ButtonsType.Ok,
+						                    "Доп. соглашение на ремонт оборудования уже существует. " +
+						                    "Нельзя создать более одного доп. соглашения данного типа.");
+					md.SetPosition (WindowPosition.Center);
+					md.ShowAll ();
+					md.Run ();
+					md.Destroy ();
+					return;
+				}
 				dlg = new AdditionalAgreementRepair (agreementOwner as CounterpartyContract);
 				break;
 			default:

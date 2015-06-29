@@ -152,14 +152,10 @@
     <Compile Include="ReferenceFilters\EquipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="Domain\FreeRentEquipment.cs" />
-    <Compile Include="Dialogs\FreeRentEquipmentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FreeRentEquipmentDlg.cs" />
     <Compile Include="Domain\DeliverySchedule.cs" />
     <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
     <Compile Include="Domain\PaidRentEquipment.cs" />
-    <Compile Include="Dialogs\PaidRentEquipmentDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.PaidRentEquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackagesView.cs" />
     <Compile Include="Сrutches\TimeAsTimeSpanTypeClone.cs" />
     <Compile Include="Dialogs\AdditionalAgreementDailyRent.cs" />
@@ -255,6 +251,10 @@
     <Compile Include="Repositories\PaidRentPackageRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\FreeRentPackageRepository.cs" />
+    <Compile Include="ViewWidgets\DailyRentPackagesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.DailyRentPackagesView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FreeRentEquipmentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.PaidRentEquipmentDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

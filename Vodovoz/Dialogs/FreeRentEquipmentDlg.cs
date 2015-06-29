@@ -19,7 +19,6 @@ namespace Vodovoz
 		Adaptor adaptor = new Adaptor ();
 		FreeRentEquipment subject;
 		bool loadFromPackage;
-		IFreeRentEquipmentOwner FreeRentOwner;
 		protected bool isSaveButton;
 
 		public ITdiTabParent TabParent { set; get; }
@@ -69,10 +68,10 @@ namespace Vodovoz
 				parentReference = value;
 				if (parentReference != null) {
 					Session = parentReference.Session;
-					if (!(parentReference.ParentObject is IFreeRentEquipmentOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IFreeRentEquipmentOwner)));
-					}
-					FreeRentOwner = (IFreeRentEquipmentOwner)parentReference.ParentObject;
+//					if (!(parentReference.ParentObject is IFreeRentEquipmentOwner)) {
+//						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IFreeRentEquipmentOwner)));
+//					}
+//					FreeRentOwner = (IFreeRentEquipmentOwner)parentReference.ParentObject;
 				}
 			}
 			get { return parentReference; }
@@ -115,12 +114,12 @@ namespace Vodovoz
 		public override void Destroy ()
 		{
 			if (!isSaveButton) {
-				if (subject.IsNew)
-					(parentReference.ParentObject as IFreeRentEquipmentOwner).Equipment.Remove (subject);
-				else {
-					ObjectCloner.FieldsCopy<FreeRentEquipment> (subjectCopy, ref subject);
-					subject.FirePropertyChanged ();
-				}
+//				if (subject.IsNew)
+//					(parentReference.ParentObject as IFreeRentEquipmentOwner).Equipment.Remove (subject);
+//				else {
+				ObjectCloner.FieldsCopy<FreeRentEquipment> (subjectCopy, ref subject);
+				subject.FirePropertyChanged ();
+//				}
 			}
 			adaptor.Disconnect ();
 			base.Destroy ();

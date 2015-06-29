@@ -16,7 +16,7 @@ namespace Vodovoz.Domain
 
 		string name;
 
-		[Display(Name = "Название")]
+		[Display (Name = "Название")]
 		[Required (ErrorMessage = "Необходимо заполнить название пакета платной аренды.")]
 		public virtual string Name {
 			get { return name; }
@@ -25,7 +25,7 @@ namespace Vodovoz.Domain
 
 		decimal priceDaily;
 
-		[Display(Name = "Стоимость дня")]
+		[Display (Name = "Стоимость дня")]
 		public virtual decimal PriceDaily {
 			get { return priceDaily; }
 			set { SetField (ref priceDaily, value, () => PriceDaily); }
@@ -33,7 +33,7 @@ namespace Vodovoz.Domain
 
 		Nomenclature rentServiceDaily;
 
-		[Display(Name = "Услуга КПА")]
+		[Display (Name = "Услуга КПА")]
 		public virtual Nomenclature RentServiceDaily {
 			get { return rentServiceDaily; }
 			set { SetField (ref rentServiceDaily, value, () => RentServiceDaily); }
@@ -41,7 +41,7 @@ namespace Vodovoz.Domain
 
 		decimal priceMonthly;
 
-		[Display(Name = "Стоимость месяца")]
+		[Display (Name = "Стоимость месяца")]
 		public virtual decimal PriceMonthly {
 			get { return priceMonthly; }
 			set { SetField (ref priceMonthly, value, () => PriceMonthly); }
@@ -49,7 +49,7 @@ namespace Vodovoz.Domain
 
 		Nomenclature rentServiceMonthly;
 
-		[Display(Name = "Услуга ДПА")]
+		[Display (Name = "Услуга ДПА")]
 		public virtual Nomenclature RentServiceMonthly {
 			get { return rentServiceMonthly; }
 			set { SetField (ref rentServiceMonthly, value, () => RentServiceMonthly); }
@@ -57,7 +57,7 @@ namespace Vodovoz.Domain
 
 		EquipmentType equipmentType;
 
-		[Display(Name = "Тип оборудования")]
+		[Display (Name = "Тип оборудования")]
 		public virtual EquipmentType EquipmentType {
 			get { return equipmentType; }
 			set { SetField (ref equipmentType, value, () => EquipmentType); }
@@ -65,7 +65,7 @@ namespace Vodovoz.Domain
 
 		decimal deposit;
 
-		[Display(Name = "Залог")]
+		[Display (Name = "Залог")]
 		public virtual decimal Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }
@@ -73,7 +73,7 @@ namespace Vodovoz.Domain
 
 		Nomenclature depositService;
 
-		[Display(Name = "Услуга залога")]
+		[Display (Name = "Услуга залога")]
 		public virtual Nomenclature DepositService {
 			get { return depositService; }
 			set { SetField (ref depositService, value, () => DepositService); }
@@ -91,10 +91,5 @@ namespace Vodovoz.Domain
 		public virtual string PriceMonthlyString { get { return CurrencyWorks.GetShortCurrencyString (PriceMonthly); } }
 
 
-	}
-
-	public interface IPaidRentEquipmentOwner
-	{
-		IList<PaidRentEquipment> Equipment { get; set; }
 	}
 }

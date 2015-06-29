@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Vodovoz.Domain;
 using QSOrmProject;
 using System.Linq;
 
-namespace Vodovoz
+namespace Vodovoz.Repository
 {
 	public static class FreeRentPackageRepository
 	{

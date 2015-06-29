@@ -47,8 +47,7 @@ namespace Vodovoz
 				.Add (Restrictions.In ("Id", identifiers));
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - А";
 
-			paidrentpackagesview1.ParentReference = new OrmParentReference (Session, UoWGeneric.Root, "Equipment");
-			paidrentpackagesview1.DailyRent = true;
+			dailyrentpackagesview1.AgreementUoW = UoWGeneric;
 
 			dateEnd.Date = UoWGeneric.Root.StartDate.AddDays (UoWGeneric.Root.RentDays);
 		}
@@ -60,7 +59,6 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем доп. соглашение...");
-			//personsView.SaveChanges ();
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;
@@ -68,7 +66,7 @@ namespace Vodovoz
 
 		protected void OnSpinRentDaysValueChanged (object sender, EventArgs e)
 		{
-			paidrentpackagesview1.UpdateTotalLabels ();
+			dailyrentpackagesview1.UpdateTotalLabels ();
 		}
 
 		protected void OnDateStartDateChanged (object sender, EventArgs e)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using NHibernate;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -14,15 +13,22 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class PaidRentPackagesView : Gtk.Bin
+	public partial class DailyRentPackagesView : Gtk.Bin
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		GenericObservableList<PaidRentEquipment> equipment;
 
-		private IUnitOfWorkGeneric<NonfreeRentAgreement> agreementUoW;
+		public DailyRentPackagesView ()
+		{
+			this.Build ();
+			treeRentPackages.Selection.Changed += OnSelectionChanged;
+			UpdateTotalLabels ();
+		}
 
-		public IUnitOfWorkGeneric<NonfreeRentAgreement> AgreementUoW {
+		private IUnitOfWorkGeneric<DailyRentAgreement> agreementUoW;
+
+		public IUnitOfWorkGeneric<DailyRentAgreement> AgreementUoW {
 			get { return agreementUoW; }
 			set {
 				if (agreementUoW == value)
@@ -52,16 +58,9 @@ namespace Vodovoz
 					TotalDeposit += eq.Deposit;
 				}
 			if (AgreementUoW != null) {
-				labelTotalPrice.Text = CurrencyWorks.GetShortCurrencyString (TotalPrice);
+				labelTotalPrice.Text = CurrencyWorks.GetShortCurrencyString (TotalPrice * AgreementUoW.Root.RentDays);
 				labelTotalDeposit.Text = CurrencyWorks.GetShortCurrencyString (TotalDeposit);
 			}
-		}
-
-		public PaidRentPackagesView ()
-		{
-			this.Build ();
-			treeRentPackages.Selection.Changed += OnSelectionChanged;
-			UpdateTotalLabels ();
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
@@ -101,7 +100,7 @@ namespace Vodovoz
 				.First (p => p.EquipmentType == eq.Equipment.Nomenclature.Type);
 			eq.Deposit = rentPackage.Deposit;
 			eq.PaidRentPackage = rentPackage;
-			eq.Price = rentPackage.PriceMonthly;
+			eq.Price = rentPackage.PriceDaily;
 			equipment.Add (eq);
 			UpdateTotalLabels ();
 		}

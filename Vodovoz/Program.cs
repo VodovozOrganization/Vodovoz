@@ -77,8 +77,8 @@ namespace Vodovoz
 				new OrmObjectMapping<Counterparty> (typeof(CounterpartyDlg), "{Vodovoz.Domain.Counterparty} Name[Наименование];"),
 				new OrmObjectMapping<CounterpartyContract> (typeof(CounterpartyContractDlg), "{Vodovoz.Domain.CounterpartyContract} Number[Номер договора];"),
 				new OrmObjectMapping<Organization> (typeof(OrganizationDlg), "{Vodovoz.Domain.Organization} Name[Название];"),
-				new OrmObjectMapping<PaidRentEquipment> (typeof(PaidRentEquipmentDlg), "{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
-				new OrmObjectMapping<FreeRentEquipment> (typeof(FreeRentEquipmentDlg), "{Vodovoz.Domain.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
+				new OrmObjectMapping<PaidRentEquipment> (null, "{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
+				new OrmObjectMapping<FreeRentEquipment> (null, "{Vodovoz.Domain.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Название];"),
 				new OrmObjectMapping<DeliverySchedule> (typeof(DeliveryScheduleDlg), "{Vodovoz.Domain.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
 				new OrmObjectMapping<ProductSpecification> (typeof(ProductSpecificationDlg), "{Vodovoz.Domain.ProductSpecification} Id[Код]; Name[Название];"),
 				// Документы

@@ -3,6 +3,7 @@ using QSOrmProject;
 using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
@@ -91,10 +92,25 @@ namespace Vodovoz.Domain
 		}
 	}
 
-	public class NonfreeRentAgreement : AdditionalAgreement, IPaidRentEquipmentOwner
+	public class NonfreeRentAgreement : AdditionalAgreement
 	{
+		IList<PaidRentEquipment> equipment = new List<PaidRentEquipment> ();
+
 		[Display (Name = "Список оборудования")]
-		public virtual IList<PaidRentEquipment> Equipment { get; set; }
+		public virtual IList<PaidRentEquipment> Equipment {
+			get { return equipment; }
+			set { SetField (ref equipment, value, () => Equipment); }
+		}
+
+		GenericObservableList<PaidRentEquipment> observableEquipment;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<PaidRentEquipment> ObservableEquipment {
+			get {
+				if (observableEquipment == null)
+					observableEquipment = new GenericObservableList<PaidRentEquipment> (Equipment);
+				return observableEquipment;
+			}
+		}
 
 		public virtual string Title { 
 			get { return String.Format ("Доп. соглашение платной аренды №{0} от {1:d}", Id, IssueDate); }
@@ -117,10 +133,28 @@ namespace Vodovoz.Domain
 		}
 	}
 
-	public class DailyRentAgreement : NonfreeRentAgreement
+	public class DailyRentAgreement : AdditionalAgreement
 	{
 		[Display (Name = "Количество дней аренды")]
 		public virtual int RentDays { get; set; }
+
+		IList<PaidRentEquipment> equipment = new List<PaidRentEquipment> ();
+
+		[Display (Name = "Список оборудования")]
+		public virtual IList<PaidRentEquipment> Equipment {
+			get { return equipment; }
+			set { SetField (ref equipment, value, () => Equipment); }
+		}
+
+		GenericObservableList<PaidRentEquipment> observableEquipment;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<PaidRentEquipment> ObservableEquipment {
+			get {
+				if (observableEquipment == null)
+					observableEquipment = new GenericObservableList<PaidRentEquipment> (Equipment);
+				return observableEquipment;
+			}
+		}
 
 		public virtual string Title { 
 			get { return String.Format ("Доп. соглашение посуточной аренды №{0} от {1:d}", Id, IssueDate); }
@@ -143,10 +177,25 @@ namespace Vodovoz.Domain
 		}
 	}
 
-	public class FreeRentAgreement : AdditionalAgreement, IFreeRentEquipmentOwner
+	public class FreeRentAgreement : AdditionalAgreement
 	{
+		IList<FreeRentEquipment> equipment = new List<FreeRentEquipment> ();
+
 		[Display (Name = "Список оборудования")]
-		public virtual IList<FreeRentEquipment> Equipment { get; set; }
+		public virtual IList<FreeRentEquipment> Equipment {
+			get { return equipment; }
+			set { SetField (ref equipment, value, () => Equipment); }
+		}
+
+		GenericObservableList<FreeRentEquipment> observableEquipment;
+		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<FreeRentEquipment> ObservableEquipment {
+			get {
+				if (observableEquipment == null)
+					observableEquipment = new GenericObservableList<FreeRentEquipment> (Equipment);
+				return observableEquipment;
+			}
+		}
 
 		public virtual string Title { 
 			get { return String.Format ("Доп. соглашение бесплатной аренды №{0} от {1:d}", Id, IssueDate); }

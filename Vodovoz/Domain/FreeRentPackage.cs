@@ -15,7 +15,7 @@ namespace Vodovoz.Domain
 
 		int minWaterAmount;
 
-		[Display(Name = "Минимальное количество")]
+		[Display (Name = "Минимальное количество")]
 		[Range (1, 200, ErrorMessage = "Минимальное количество воды в пакете аренды не может быть равно нулю.")]
 		public virtual int MinWaterAmount {
 			get { return minWaterAmount; }
@@ -24,7 +24,7 @@ namespace Vodovoz.Domain
 
 		string name;
 
-		[Display(Name = "Название")]
+		[Display (Name = "Название")]
 		[Required (ErrorMessage = "Необходимо заполнить название пакета.")]
 		public virtual string Name {
 			get { return name; }
@@ -33,7 +33,7 @@ namespace Vodovoz.Domain
 
 		decimal deposit;
 
-		[Display(Name = "Залог")]
+		[Display (Name = "Залог")]
 		public virtual decimal Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }
@@ -41,14 +41,15 @@ namespace Vodovoz.Domain
 
 		EquipmentType equipmentType;
 
-		[Display(Name = "Тип оборудования")]
+		[Display (Name = "Тип оборудования")]
 		public virtual EquipmentType EquipmentType {
 			get { return equipmentType; }
 			set { SetField (ref equipmentType, value, () => EquipmentType); }
 		}
 
 		Nomenclature depositService;
-		[Display(Name = "Услуга залога")]
+
+		[Display (Name = "Услуга залога")]
 		public virtual Nomenclature DepositService {
 			get { return depositService; }
 			set { SetField (ref depositService, value, () => DepositService); }
@@ -60,10 +61,5 @@ namespace Vodovoz.Domain
 		{
 			Name = String.Empty;
 		}
-	}
-
-	public interface IFreeRentEquipmentOwner
-	{
-		IList<FreeRentEquipment> Equipment { get; set; }
 	}
 }
