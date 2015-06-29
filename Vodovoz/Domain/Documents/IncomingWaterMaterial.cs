@@ -26,10 +26,10 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		int? oneProductAmount;
+		decimal? oneProductAmount;
 
 		[Display (Name = "На один продукт")]
-		public virtual int? OneProductAmount {
+		public virtual decimal? OneProductAmount {
 			get { return oneProductAmount; }
 			set { SetField (ref oneProductAmount, value, () => OneProductAmount);
 				if(oneProductAmount.HasValue)
@@ -40,16 +40,16 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		//FIXME Костыль пока не научим Gtk.Binding работать с нулабле типами
-		public virtual int OneProductAmountEdited {
+		public virtual decimal OneProductAmountEdited {
 			get { return OneProductAmount.HasValue ? OneProductAmount.Value : 0; }
 			set { OneProductAmount = (value > 0) ? value : 0; }
 		}
 
-		int amount;
+		decimal amount;
 
 		[Min (1)]
 		[Display (Name = "Количество")]
-		public virtual int Amount {
+		public virtual decimal Amount {
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount);
 				if (ConsumptionMaterialOperation.Amount != amount)

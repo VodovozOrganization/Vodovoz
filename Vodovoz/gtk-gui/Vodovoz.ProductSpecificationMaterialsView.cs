@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.treeMaterialsList.InheritedBoundaryDataSource = false;
 			this.treeMaterialsList.InheritedDataSource = false;
 			this.treeMaterialsList.InheritedBoundaryDataSource = false;
-			this.treeMaterialsList.ColumnMappings = "{Vodovoz.Domain.ProductSpecificationMaterial} NomenclatureName[Наименование]; Amount[Количество]<>;";
+			this.treeMaterialsList.ColumnMappings = "";
 			this.GtkScrolledWindow.Add (this.treeMaterialsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -94,7 +94,6 @@ namespace Vodovoz
 			this.labelSum = new global::Gtk.Label ();
 			this.labelSum.Name = "labelSum";
 			this.labelSum.Xalign = 1F;
-			this.labelSum.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
 			this.hbox1.Add (this.labelSum);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelSum]));
 			w8.PackType = ((global::Gtk.PackType)(1));

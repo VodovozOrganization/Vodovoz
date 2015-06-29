@@ -10901,7 +10901,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ProductSpecificationMaterialsView" design-size="322 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ProductSpecificationMaterialsView" design-size="322 295">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10935,7 +10935,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.ProductSpecificationMaterial} NomenclatureName[Наименование]; Amount[Количество]&lt;&gt;;</property>
+                <property name="ColumnMappings" />
               </widget>
             </child>
           </widget>
