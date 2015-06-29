@@ -5,6 +5,7 @@ using NLog;
 using QSValidation;
 using QSTDI;
 using NHibernate;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -46,7 +47,9 @@ namespace Vodovoz
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
+			enumStatus.Sensitive = false;
 			enumSignatureType.DataSource = subjectAdaptor;
+			enumPaymentType.DataSource = subjectAdaptor;
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
 			referenceClient.SubjectType = typeof(Counterparty);
@@ -112,68 +115,33 @@ namespace Vodovoz
 								enumSignatureType.Sensitive = enumStatus.Sensitive = false;
 		}
 
-		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
-		{			
-			ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria (typeof(Nomenclature))
-				.Add (NHibernate.Criterion.Restrictions.In ("Category", 
-				                          new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
-			OpenNomenclatureSelectDlg (ItemsCriteria);
-//TODO FIXME Добавить критерии для того оборудования что имеется в наличии.
-		}
-
-		protected void OnButtonAddForRentClicked (object sender, EventArgs e)
-		{
-			ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria (typeof(Nomenclature))
-				.Add (NHibernate.Criterion.Restrictions.Eq ("Category", NomenclatureCategory.equipment));
-			OpenNomenclatureSelectDlg (ItemsCriteria);
-//TODO FIXME Добавить критерии для того оборудования что имеется в наличии.
-		}
-
-		//TODO FIXME !IMPORTANT! Нужно придумать механизм, который скажет методу NomenclatureSelected
-		//с какой целью мы ее выбирали. Для аренды или для продажи.
-
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
 			throw new NotImplementedException ();
 		}
 
-		void OpenNomenclatureSelectDlg (ICriteria criteria)
-		{
-//TODO Получить количества.
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null) {
-				logger.Warn ("Родительская вкладка не найдена.");
-				return;
-			}
-
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric.Session, criteria);
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
-
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
+		{			
+			GetContract ();
 		}
 
-		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		protected void OnButtonAddForRentClicked (object sender, EventArgs e)
 		{
-			if ((e.Subject as Nomenclature).Category == NomenclatureCategory.equipment) {
-				ITdiTab mytab = TdiHelper.FindMyTab (this);
-				if (mytab == null) {
-					logger.Warn ("Родительская вкладка не найдена.");
-					return;
-				}
-
-				OrmReference SelectDialog = new OrmReference (typeof(Equipment), UoWGeneric.Session, null);
-				SelectDialog.Mode = OrmReferenceMode.Select;
-				SelectDialog.ButtonMode = ReferenceButtonMode.TreatEditAsOpen | ReferenceButtonMode.CanEdit;
-
-				SelectDialog.ObjectSelected += (s, ev) => {
-				};
-
-				mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
-
-			} else {
+			CounterpartyContract contract = GetContract ();
+			if (contract == null) {
+//TODO FIXME Вывод сообщения об ошибке.
 			}
+//TODO FIXME добавить выбор посуточной и долгосрочной аренды.
+//Пока только долгосрочная как временный вариант.
+
+			NonfreeRentAgreement.Create (contract);
+		}
+
+		CounterpartyContract GetContract ()
+		{
+			if (referenceClient.Data == null || referenceDeliveryPoint == null)
+				return null;
+			return CounterpartyRepository.GetCounterpartyContract (UoWGeneric);
 		}
 	}
 }

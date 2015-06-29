@@ -363,6 +363,7 @@
  		</id>
  		<property name="OrderStatus" column="order_status" type="OrderStatusStringType, Vodovoz"/>
  		<property name="SignatureType" column="signature_type" type="OrderSignatureTypeStringType, Vodovoz"/>
+ 		<property name="PaymentType" column="payment_type" type="PaymentStringType, Vodovoz"/>
  		<property name="DeliveryDate" column="delivery_date"/>
  		<property name="SelfDelivery" column="self_delivery"/>
  		<property name="BottlesReturn" column="bottles_return"/>

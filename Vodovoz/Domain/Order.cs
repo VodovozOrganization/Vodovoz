@@ -108,6 +108,14 @@ namespace Vodovoz.Domain
 			set { SetField (ref shipped, value, () => Shipped); }
 		}
 
+		Payment paymentType;
+
+		[Display (Name = "Форма оплаты")]
+		public virtual Payment PaymentType {
+			get { return paymentType; }
+			set { SetField (ref paymentType, value, () => PaymentType); }
+		}
+
 		IList<OrderItem> orderItems = new List<OrderItem> ();
 
 		[Display (Name = "Строки заказа")]

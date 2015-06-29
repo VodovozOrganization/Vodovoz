@@ -18,7 +18,6 @@ public partial class MainWindow : Gtk.Window
 	{
 		#region Creating actions
 		//Заказы
-		ActionNewOrder = new Action ("ActionNewOrder", "Новый заказ", null, "gtk-new");
 		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
 		//Сервис
 		ActionServiceTickets = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
@@ -30,7 +29,6 @@ public partial class MainWindow : Gtk.Window
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
-		w1.Add (ActionNewOrder, null);
 		w1.Add (ActionOrdersTable, null);
 		w1.Add (ActionServiceTickets, null);
 		w1.Add (ActionWarehouseDocuments, null);
@@ -39,7 +37,6 @@ public partial class MainWindow : Gtk.Window
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
-		ActionNewOrder.Activated += ActionNewOrderActivated;
 		ActionOrdersTable.Activated += ActionOrdersTableActivated;
 		ActionServiceTickets.Activated += ActionServiceTicketsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
@@ -84,11 +81,4 @@ public partial class MainWindow : Gtk.Window
 		OrmReference refWin = new OrmReference (typeof(Order), session, criteria);
 		tdiMain.AddTab (refWin);
 	}
-
-	void ActionNewOrderActivated (object sender, System.EventArgs e)
-	{
-		//ISession session = OrmMain.OpenSession ();
-	}
-
-
 }

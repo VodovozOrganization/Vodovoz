@@ -82,6 +82,7 @@ namespace Vodovoz
 		protected void RecalcRentPeriod ()
 		{
 			spinRentDays.Value = (dateEnd.Date.Date - dateStart.Date.Date).Days;
+			dailyrentpackagesview1.UpdateTotalLabels ();
 		}
 	}
 }

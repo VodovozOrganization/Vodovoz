@@ -8,14 +8,19 @@ namespace Vodovoz.Repository
 	{
 		public static CounterpartyContract GetCounterpartyContract (IUnitOfWork uow)
 		{
-			CounterpartyContract contract = null;
 			Order order = uow.RootObject as Order;
-			return null;
-			//return uow.Session.QueryOver<CounterpartyContract> ()
-			//	.Where (co => co.Counterparty == order.Client && !co.IsArchive && !co.OnCancellation);
+			Organization organization = 
+				(order.PaymentType == Payment.cash 
+				? OrganizationRepository.GetCashOrganization (uow)
+				: OrganizationRepository.GetCashlessOrganization (uow));
+
+			return uow.Session.QueryOver<CounterpartyContract> ()
+				.Where (co => (co.Counterparty.Id == order.Client.Id &&
+			!co.IsArchive &&
+			!co.OnCancellation &&
+			co.Organization.Id == organization.Id))
+				.SingleOrDefault ();
 		}
-
-
 	}
 }
 
