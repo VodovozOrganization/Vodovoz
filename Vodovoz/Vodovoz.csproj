@@ -253,6 +253,8 @@
     <Compile Include="Repositories\FreeRentPackageRepository.cs" />
     <Compile Include="ViewWidgets\DailyRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DailyRentPackagesView.cs" />
+    <Compile Include="Repositories\CounterpartyRepository.cs" />
+    <Compile Include="Repositories\OrganizationRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
