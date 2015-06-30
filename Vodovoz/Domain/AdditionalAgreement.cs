@@ -21,17 +21,16 @@ namespace Vodovoz.Domain
 		[Display (Name = "Тип доп. соглашения")]
 		public virtual AgreementType Type {
 			get {	 
-				if (this is DailyRentAgreement)		//Не менять Daily и Nonfree местами!
+				if (this is DailyRentAgreement)
 					return AgreementType.DailyRent;
-				if (this is NonfreeRentAgreement)	//Иначе из-за наследования тип будет определен некорректно.
+				if (this is NonfreeRentAgreement)
 					return AgreementType.NonfreeRent;
 				if (this is FreeRentAgreement)
 					return AgreementType.FreeRent;
 				if (this is WaterSalesAgreement)
 					return AgreementType.WaterSales;
 				return AgreementType.Repair;
-			}
-
+			}		
 		}
 
 		[Required (ErrorMessage = "Договор должен быть указан.")]
@@ -293,10 +292,25 @@ namespace Vodovoz.Domain
 
 	public enum PaidRentAgreementType
 	{
-		[ItemTitleAttribute ("Посуточная аренда")]
+		[ItemTitleAttribute ("Долгосрочная аренда")]
 		NonfreeRent,
 		[ItemTitleAttribute ("Посуточная аренда")]
 		DailyRent
+	}
+
+	public interface IAgreementSaved
+	{
+		event EventHandler<AgreementSavedEventArgs> AgreementSaved;
+	}
+
+	public class AgreementSavedEventArgs : EventArgs
+	{
+		public AdditionalAgreement Agreement { get; private set; }
+
+		public AgreementSavedEventArgs (AdditionalAgreement agreement)
+		{
+			Agreement = agreement;
+		}
 	}
 }
 

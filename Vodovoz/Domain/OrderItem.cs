@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
@@ -11,7 +12,7 @@ namespace Vodovoz.Domain
 
 		AdditionalAgreement additionalAgreement;
 
-		[Display(Name = "Дополнительное соглашения")]
+		[Display (Name = "Дополнительное соглашения")]
 		public virtual AdditionalAgreement AdditionalAgreement {
 			get { return additionalAgreement; }
 			set { SetField (ref additionalAgreement, value, () => AdditionalAgreement); }
@@ -19,7 +20,7 @@ namespace Vodovoz.Domain
 
 		Nomenclature nomenclature;
 
-		[Display(Name = "Номенклатура")]
+		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set { SetField (ref nomenclature, value, () => Nomenclature); }
@@ -27,7 +28,7 @@ namespace Vodovoz.Domain
 
 		Equipment equipment;
 
-		[Display(Name = "Оборудование")]
+		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment); }
@@ -35,7 +36,7 @@ namespace Vodovoz.Domain
 
 		MeasurementUnits units;
 
-		[Display(Name = "Единица изменения")]
+		[Display (Name = "Единица изменения")]
 		public virtual MeasurementUnits Units {
 			get { return units; }
 			set { SetField (ref units, value, () => Units); }
@@ -43,7 +44,7 @@ namespace Vodovoz.Domain
 
 		Decimal price;
 
-		[Display(Name = "Цена")]
+		[Display (Name = "Цена")]
 		public virtual Decimal Price {
 			get { return price; }
 			set { SetField (ref price, value, () => Price); }
@@ -51,10 +52,22 @@ namespace Vodovoz.Domain
 
 		int count;
 
-		[Display(Name = "Количество")]
+		[Display (Name = "Количество")]
 		public virtual int Count {
 			get { return count; }
 			set { SetField (ref count, value, () => Count); }
+		}
+
+		public virtual string NomenclatureString {
+			get { return Nomenclature != null ? Nomenclature.Name : ""; }
+		}
+
+		public virtual string PriceString {
+			get { return CurrencyWorks.GetShortCurrencyString (Price); }
+		}
+
+		public virtual string CountString {
+			get { return String.Format ("{0} шт.", Count.ToString ()); }
 		}
 
 		#region IValidatableObject implementation

@@ -5,14 +5,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName =  "Строки оборудования в заказе", ObjectName = "оборудование в заказе")]
+	[OrmSubject (JournalName = "Строки оборудования в заказе", ObjectName = "оборудование в заказе")]
 	public class OrderEquipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		Direction direction;
 
-		[Display(Name = "Направление")]
+		[Display (Name = "Направление")]
 		public virtual Direction Direction {
 			get { return direction; }
 			set { SetField (ref direction, value, () => Direction); }
@@ -20,7 +20,7 @@ namespace Vodovoz.Domain
 
 		OrderItem orderItem;
 
-		[Display(Name = "Связанная строка")]
+		[Display (Name = "Связанная строка")]
 		public virtual OrderItem OrderItem {
 			get { return orderItem; }
 			set { SetField (ref orderItem, value, () => OrderItem); }
@@ -28,7 +28,7 @@ namespace Vodovoz.Domain
 
 		Equipment equipment;
 
-		[Display(Name = "Оборудование")]
+		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment); }
@@ -36,11 +36,19 @@ namespace Vodovoz.Domain
 
 		Reason reason;
 
-		[Display(Name = "Причина")]
+		[Display (Name = "Причина")]
 		public virtual Reason Reason {
 			get { return reason; }
 			set { SetField (ref reason, value, () => Reason); }
 		}
+
+		public virtual string NameString {
+			get { return String.Format ("{0}", Equipment.Title); }
+		}
+
+		public virtual string DirectionString { get { return Direction.GetEnumTitle (); } }
+
+		public virtual string ReasonString { get { return Reason.GetEnumTitle (); } }
 
 		//TODO Номер заявки на обслуживание
 

@@ -254,6 +254,7 @@
     <Compile Include="Repositories\OrganizationRepository.cs" />
     <Compile Include="Repositories\CounterpartyContractRepository.cs" />
     <Compile Include="Repositories\EquipmentTypeRepository.cs" />
+    <Compile Include="Domain\OrderDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

@@ -4,12 +4,15 @@ using NLog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
+using System;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementNonFreeRent : OrmGtkDialogBase<NonfreeRentAgreement>
+	public partial class AdditionalAgreementNonFreeRent : OrmGtkDialogBase<NonfreeRentAgreement>, IAgreementSaved
 	{
+		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
+
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		public AdditionalAgreementNonFreeRent (CounterpartyContract contract)
@@ -17,6 +20,12 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = NonfreeRentAgreement.Create (contract);
 			ConfigureDlg ();
+		}
+
+		public AdditionalAgreementNonFreeRent (CounterpartyContract contract, DeliveryPoint point) : this (contract)
+		{
+			UoWGeneric.Root.DeliveryPoint = point;
+			referenceDeliveryPoint.Sensitive = false;
 		}
 
 		public AdditionalAgreementNonFreeRent (NonfreeRentAgreement sub) : this (sub.Id)
@@ -55,6 +64,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
+			AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
 	}

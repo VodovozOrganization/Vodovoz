@@ -258,8 +258,6 @@
  		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
  	</class>
 
-
-
 	<class name="Employee" lazy="false" table="employees">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
@@ -382,6 +380,24 @@
     		<key column="order_id"/>
     		<one-to-many class="OrderEquipment"/>	
 		</bag>
+		<bag name="OrderDocuments" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="order_id"/>
+    		<one-to-many class="OrderDocument"/>
+		</bag>
+	</class>
+
+	<class name="OrderDocument" lazy="false" table="order_documents">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<discriminator column="type" type="String"/>
+		<many-to-one name="Order" class="Order" column="order_id" />
+		<subclass name="OrderAgreement" discriminator-value="order_agreement">
+			<many-to-one name="AdditionalAgreement" class="AdditionalAgreement" column="agreement_id" />
+        </subclass>
+        <subclass name="OrderContract" discriminator-value="order_contract">
+			<many-to-one name="Contract" class="CounterpartyContract" column="contract_id" />
+        </subclass>
 	</class>
 
 	<class name="OrderEquipment" lazy="false" table="order_equipment">

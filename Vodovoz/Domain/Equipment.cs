@@ -20,7 +20,7 @@ namespace Vodovoz.Domain
 
 		bool onDuty;
 
-		[Display(Name = "Дежурный куллер")]
+		[Display (Name = "Дежурный куллер")]
 		public virtual bool OnDuty {
 			get { return onDuty; }
 			set { SetField (ref onDuty, value, () => OnDuty); }
@@ -28,15 +28,15 @@ namespace Vodovoz.Domain
 
 		//string serial;
 
-		[Display(Name = "Серийный номер")]
+		[Display (Name = "Серийный номер")]
 		public virtual string Serial {
-			get { return Id > 0 ? Id.ToString () : "не определён" ; }
+			get { return Id > 0 ? Id.ToString () : "не определён"; }
 			//set { SetField (ref serial, value, () => Serial); }
 		}
 
 		string comment;
 
-		[Display(Name = "Комментарий")]
+		[Display (Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
@@ -44,7 +44,7 @@ namespace Vodovoz.Domain
 
 		Nomenclature nomenclature;
 
-		[Display(Name = "Номенклатура")]
+		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set { SetField (ref nomenclature, value, () => Nomenclature); }
@@ -52,7 +52,7 @@ namespace Vodovoz.Domain
 
 		DateTime lastServiceDate;
 
-		[Display(Name = "Последняя сан. обработка")]
+		[Display (Name = "Последняя сан. обработка")]
 		public virtual DateTime LastServiceDate {
 			get { return lastServiceDate; }
 			set { SetField (ref lastServiceDate, value, () => LastServiceDate); }
@@ -60,7 +60,7 @@ namespace Vodovoz.Domain
 
 		DateTime warrantyEndDate;
 
-		[Display(Name = "Окончание гарантии")]
+		[Display (Name = "Окончание гарантии")]
 		public virtual DateTime WarrantyEndDate {
 			get { return warrantyEndDate; }
 			set { SetField (ref warrantyEndDate, value, () => WarrantyEndDate); }
@@ -69,7 +69,7 @@ namespace Vodovoz.Domain
 		#endregion
 
 		public virtual string Title { 
-			get { return Nomenclature == null ? String.Empty : String.Format("{0}({1})", Nomenclature.Model, Serial); } 
+			get { return Nomenclature == null ? String.Empty : String.Format ("{0} (с/н: {1})", Nomenclature.Model, Serial); } 
 		}
 
 		public virtual string Type { get { return Nomenclature == null ? String.Empty : Nomenclature.Type.Name; } }

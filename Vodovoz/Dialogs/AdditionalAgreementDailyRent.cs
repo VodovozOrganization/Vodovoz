@@ -9,8 +9,10 @@ using Vodovoz.Domain;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementDailyRent : OrmGtkDialogBase<DailyRentAgreement>
+	public partial class AdditionalAgreementDailyRent : OrmGtkDialogBase<DailyRentAgreement>, IAgreementSaved
 	{
+		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
+
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		public AdditionalAgreementDailyRent (CounterpartyContract contract)
@@ -18,6 +20,12 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = DailyRentAgreement.Create (contract);
 			ConfigureDlg ();
+		}
+
+		public AdditionalAgreementDailyRent (CounterpartyContract contract, DeliveryPoint point) : this (contract)
+		{
+			UoWGeneric.Root.DeliveryPoint = point;
+			referenceDeliveryPoint.Sensitive = false;
 		}
 
 		public AdditionalAgreementDailyRent (DailyRentAgreement sub) : this (sub.Id)
@@ -61,6 +69,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
+			AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
 

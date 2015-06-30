@@ -116,6 +116,24 @@ namespace Vodovoz.Domain
 			set { SetField (ref paymentType, value, () => PaymentType); }
 		}
 
+		IList<OrderDocument> orderDocuments = new List<OrderDocument> ();
+
+		[Display (Name = "Документы заказа")]
+		public virtual IList<OrderDocument> OrderDocuments {
+			get { return orderDocuments; }
+			set { SetField (ref orderDocuments, value, () => OrderDocuments); }
+		}
+
+		GenericObservableList<OrderDocument> observableOrderDocuments;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<OrderDocument> ObservableOrderDocuments {
+			get {
+				if (observableOrderDocuments == null)
+					observableOrderDocuments = new GenericObservableList<OrderDocument> (OrderDocuments);
+				return observableOrderDocuments;
+			}
+		}
+
 		IList<OrderItem> orderItems = new List<OrderItem> ();
 
 		[Display (Name = "Строки заказа")]
@@ -179,6 +197,10 @@ namespace Vodovoz.Domain
 		}
 
 		#endregion
+
+		public virtual string StatusString { get { return OrderStatus.GetEnumTitle (); } }
+
+		public virtual string ClientString { get { return Client.Name; } }
 
 		public Order ()
 		{

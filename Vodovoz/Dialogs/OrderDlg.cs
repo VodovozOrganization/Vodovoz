@@ -6,6 +6,9 @@ using QSValidation;
 using QSTDI;
 using NHibernate;
 using Vodovoz.Repository;
+using QSProjectsLib;
+using System.Linq;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -44,6 +47,9 @@ namespace Vodovoz
 			} else
 				labelPreviousOrder.Visible = false;
 			subjectAdaptor.Target = UoWGeneric.Root;
+			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
+			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
+			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
@@ -55,6 +61,7 @@ namespace Vodovoz
 			referenceClient.SubjectType = typeof(Counterparty);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
+			UpdateSum ();
 		}
 
 		public override bool Save ()
@@ -136,26 +143,151 @@ namespace Vodovoz
 
 		private void AddRentAgreement (PaidRentAgreementType type)
 		{
-			if (referenceClient.Data == null || referenceDeliveryPoint == null) {
+			if (UoWGeneric.Root.Client == null || UoWGeneric.Root.DeliveryPoint == null) {
+				MessageDialog md = new MessageDialog (null,
+					                   DialogFlags.Modal,
+					                   MessageType.Warning,
+					                   ButtonsType.Ok,
+					                   "Для добавления оборудования, пожалуйста, заполните следующие поля:" +
+					                   "\"Клиент\" и/или \"Точка доставки\".");
+				md.SetPosition (WindowPosition.Center);
+				md.ShowAll ();
+				md.Run ();
+				md.Destroy ();
 				return;
-				//TODO FIXME Вывод сообщения, что не все заполнено.
 			}
 			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric);
 			if (contract == null) {
+				MessageDialog md = new MessageDialog (null,
+					                   DialogFlags.Modal,
+					                   MessageType.Warning,
+					                   ButtonsType.Ok,
+					                   "Отсутствует договор с клиентом для выбранной формы оплаты. " +
+					                   "Возможность создать договор из данного диалога будет " +
+					                   "добавлена позднее. Приносим извинения за неудобство.");
+				md.SetPosition (WindowPosition.Center);
+				md.ShowAll ();
+				md.Run ();
+				md.Destroy ();
 				return;
-				//TODO FIXME Вывод сообщения об ошибке.
+				//TODO FIXME Предложение создать договор .
 			}
-			IUnitOfWork uow;
+
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null)
+				return;
+			ITdiDialog dlg;
+
 			switch (type) {
 			case PaidRentAgreementType.NonfreeRent:
-				uow = NonfreeRentAgreement.Create (contract);
+				dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
 				break;
 			default:
-				uow = DailyRentAgreement.Create (contract);
+				dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint);
 				break;
 			}
-			uow.Commit ();
+			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
+			mytab.TabParent.AddSlaveTab (mytab, dlg);
+		}
 
+		void AgreementSaved (object sender, AgreementSavedEventArgs e)
+		{
+			UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderAgreement { 
+				Order = UoWGeneric.Root,
+				AdditionalAgreement = e.Agreement
+			});
+			RefreshItemsAndEquipment (e.Agreement);
+		}
+
+		void RefreshItemsAndEquipment (AdditionalAgreement a)
+		{
+			
+			if (a.Type == AgreementType.DailyRent) {
+				DailyRentAgreement agreement = a as DailyRentAgreement;
+				foreach (PaidRentEquipment equipment in agreement.Equipment) {
+					//OrderItem item = null;
+					//if ((item = UoWGeneric.Root.ObservableOrderItems.First (i => 
+					//	i.AdditionalAgreement.Id == agreement.Id
+					//  && i.Equipment == null
+					//    && i.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id)) != null) {
+					//	item.Count++;
+					//} else {
+
+					//Добавляем номенклатуру залога
+					UoWGeneric.Root.ObservableOrderItems.Add (
+						new OrderItem {
+							AdditionalAgreement = agreement,
+							Count = 1,
+							Equipment = null,
+							Nomenclature = equipment.PaidRentPackage.DepositService,
+							Price = equipment.Deposit
+						}
+					);
+					//Добавляем услугу аренды
+					int itemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
+						             new OrderItem {
+							AdditionalAgreement = agreement,
+							Count = 1,
+							Equipment = null,
+							Nomenclature = equipment.PaidRentPackage.RentServiceDaily,
+							Price = equipment.Price * agreement.RentDays
+						}
+					             );
+					//Добавляем оборудование
+					UoWGeneric.Root.ObservableOrderEquipments.Add (
+						new OrderEquipment { 
+							Direction = Vodovoz.Domain.Direction.Deliver,
+							Equipment = equipment.Equipment,
+							Reason = Reason.Rent,
+							OrderItem = UoWGeneric.Root.ObservableOrderItems [itemId]
+						}
+					);
+				}
+			} else {
+				NonfreeRentAgreement agreement = a as NonfreeRentAgreement;
+				foreach (PaidRentEquipment equipment in agreement.Equipment) {
+					//Добавляем номенклатуру залога
+					int itemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
+						             new OrderItem {
+							AdditionalAgreement = agreement,
+							Count = 1,
+							Equipment = null,
+							Nomenclature = equipment.PaidRentPackage.RentServiceMonthly,
+							Price = equipment.Price
+						}
+					             );
+					//Добавляем услугу аренды
+					UoWGeneric.Root.ObservableOrderEquipments.Add (
+						new OrderEquipment { 
+							Direction = Vodovoz.Domain.Direction.Deliver,
+							Equipment = equipment.Equipment,
+							Reason = Reason.Rent,
+							OrderItem = UoWGeneric.Root.ObservableOrderItems [itemId]
+						}
+					);
+					//Добавляем оборудование
+					UoWGeneric.Root.ObservableOrderItems.Add (
+						new OrderItem {
+							AdditionalAgreement = agreement,
+							Count = 1,
+							Equipment = null,
+							Nomenclature = equipment.PaidRentPackage.DepositService,
+							Price = equipment.Deposit
+						}
+					);
+					UoWGeneric.Root.SumToReceive += equipment.Deposit + equipment.Price;
+				}
+			}
+			UpdateSum ();
+		}
+
+		void UpdateSum ()
+		{
+			Decimal sum = 0;
+			foreach (OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
+				sum += item.Price;
+			}
+			labelSum.Text = CurrencyWorks.GetShortCurrencyString (sum);
 		}
 	}
 }

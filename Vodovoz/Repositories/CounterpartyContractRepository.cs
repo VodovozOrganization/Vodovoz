@@ -14,11 +14,16 @@ namespace Vodovoz.Repository
 				? OrganizationRepository.GetCashOrganization (uow)
 				: OrganizationRepository.GetCashlessOrganization (uow));
 
+			Counterparty counterpartyAlias = null;
+			Organization organizationAlias = null;
+
 			return uow.Session.QueryOver<CounterpartyContract> ()
-				.Where (co => (co.Counterparty.Id == order.Client.Id &&
+				.JoinAlias (co => co.Counterparty, () => counterpartyAlias)
+				.JoinAlias (co => co.Organization, () => organizationAlias)
+				.Where (co => (counterpartyAlias.Id == order.Client.Id &&
 			!co.IsArchive &&
 			!co.OnCancellation &&
-			co.Organization.Id == organization.Id))
+			organizationAlias.Id == organization.Id))
 				.SingleOrDefault ();
 		}
 	}
