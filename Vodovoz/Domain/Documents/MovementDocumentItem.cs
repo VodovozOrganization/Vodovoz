@@ -37,11 +37,11 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		int amount;
+		decimal amount;
 
 		[Min (1)]
 		[Display (Name = "Количество")]
-		public virtual int Amount {
+		public virtual decimal Amount {
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount);
 				if (MoveGoodsOperation.Amount != amount)

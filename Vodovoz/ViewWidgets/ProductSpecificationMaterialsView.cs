@@ -5,6 +5,7 @@ using Gtk;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
+using Gtk.DataBindings;
 
 namespace Vodovoz
 {
@@ -27,7 +28,13 @@ namespace Vodovoz
 				if (specificationUoW.Root.Materials == null)
 					specificationUoW.Root.Materials = new List<ProductSpecificationMaterial> ();
 				items = new GenericObservableList<ProductSpecificationMaterial> (specificationUoW.Root.Materials);
-				items.ElementChanged += Items_ElementChanged; 
+				items.ElementChanged += Items_ElementChanged;
+
+				treeMaterialsList.ColumnMappingConfig = MappingConfigure<ProductSpecificationMaterial>.Create()
+					.AddColumn ("Наименование").SetDataProperty (p => p.NomenclatureName)
+					.AddColumn ("Количество").SetDataProperty(p => p.Amount).Editing ()
+					.Finish();
+				
 				treeMaterialsList.ItemsDataSource = items;
 				var amountCol = treeMaterialsList.GetColumnByMappedProp (PropertyUtil.GetName<ProductSpecificationMaterial> (item => item.Amount));
 				if (amountCol != null) {
@@ -95,7 +102,7 @@ namespace Vodovoz
 
 		void CalculateTotal()
 		{
-			int totalAmount = 0;
+			decimal totalAmount = 0;
 			foreach(var item in SpecificationUoW.Root.Materials)
 			{
 				totalAmount += item.Amount;

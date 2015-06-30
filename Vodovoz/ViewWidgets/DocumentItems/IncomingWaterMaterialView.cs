@@ -133,7 +133,7 @@ namespace Vodovoz
 
 		void CalculateTotal ()
 		{
-			int total = 0;
+			decimal total = 0;
 			foreach (var item in documentUoW.Root.Materials) {
 				total += item.Amount;
 			}
