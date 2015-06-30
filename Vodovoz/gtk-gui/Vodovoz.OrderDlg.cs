@@ -98,7 +98,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonAddForSale;
 		
-		private global::Gtk.Button buttonAddForRent;
+		private global::QSOrmProject.EnumMenuButton enumAddRentButton;
 		
 		private global::Gtk.VSeparator vseparator2;
 		
@@ -676,16 +676,18 @@ namespace Vodovoz
 			w45.Expand = false;
 			w45.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.buttonAddForRent = new global::Gtk.Button ();
-			this.buttonAddForRent.CanFocus = true;
-			this.buttonAddForRent.Name = "buttonAddForRent";
-			this.buttonAddForRent.UseUnderline = true;
-			this.buttonAddForRent.Label = global::Mono.Unix.Catalog.GetString ("В аренду");
+			this.enumAddRentButton = new global::QSOrmProject.EnumMenuButton ();
+			this.enumAddRentButton.CanFocus = true;
+			this.enumAddRentButton.Name = "enumAddRentButton";
+			this.enumAddRentButton.UseUnderline = true;
+			this.enumAddRentButton.UseMarkup = false;
+			this.enumAddRentButton.ItemsEnumName = "Vodovoz.Domain.PaidRentAgreementType, Vodovoz";
+			this.enumAddRentButton.Label = global::Mono.Unix.Catalog.GetString ("В аренду");
 			global::Gtk.Image w46 = new global::Gtk.Image ();
 			w46.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
-			this.buttonAddForRent.Image = w46;
-			this.hbox7.Add (this.buttonAddForRent);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.buttonAddForRent]));
+			this.enumAddRentButton.Image = w46;
+			this.hbox7.Add (this.enumAddRentButton);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.enumAddRentButton]));
 			w47.Position = 1;
 			w47.Expand = false;
 			w47.Fill = false;
@@ -767,8 +769,9 @@ namespace Vodovoz
 			this.toggleEquipment.Toggled += new global::System.EventHandler (this.OnToggleEquipmentToggled);
 			this.toggleService.Toggled += new global::System.EventHandler (this.OnToggleServiceToggled);
 			this.toggleDocuments.Toggled += new global::System.EventHandler (this.OnToggleDocumentsToggled);
+			this.referenceClient.Changed += new global::System.EventHandler (this.OnReferenceClientChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
-			this.buttonAddForRent.Clicked += new global::System.EventHandler (this.OnButtonAddForRentClicked);
+			this.enumAddRentButton.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnEnumAddRentButtonEnumItemClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 		}
 	}

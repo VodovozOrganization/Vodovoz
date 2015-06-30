@@ -77,7 +77,7 @@ namespace Vodovoz
 				return;
 			}
 
-			var availableTypes = PaidRentPackageRepository.GetPresentEquipmentTypes (AgreementUoW);
+			var availableTypes = EquipmentTypeRepository.GetPaidRentEquipmentTypes (AgreementUoW);
 
 			//TODO FIXME Filter used equipment
 			var Query = EquipmentRepository.GetEquipmentWithTypesQuery (availableTypes);

@@ -248,13 +248,12 @@
     <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
     <Compile Include="Dialogs\MeasurementUnitsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.MeasurementUnitsDlg.cs" />
-    <Compile Include="Repositories\PaidRentPackageRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
-    <Compile Include="Repositories\FreeRentPackageRepository.cs" />
     <Compile Include="ViewWidgets\DailyRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DailyRentPackagesView.cs" />
-    <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Repositories\OrganizationRepository.cs" />
+    <Compile Include="Repositories\CounterpartyContractRepository.cs" />
+    <Compile Include="Repositories\EquipmentTypeRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

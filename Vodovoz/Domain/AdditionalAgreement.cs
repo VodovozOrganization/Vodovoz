@@ -290,5 +290,13 @@ namespace Vodovoz.Domain
 		{
 		}
 	}
+
+	public enum PaidRentAgreementType
+	{
+		[ItemTitleAttribute ("Посуточная аренда")]
+		NonfreeRent,
+		[ItemTitleAttribute ("Посуточная аренда")]
+		DailyRent
+	}
 }
 

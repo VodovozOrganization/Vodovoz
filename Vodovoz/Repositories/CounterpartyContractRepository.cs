@@ -4,9 +4,9 @@ using Vodovoz.Domain;
 
 namespace Vodovoz.Repository
 {
-	public class CounterpartyRepository
+	public class CounterpartyContractRepository
 	{
-		public static CounterpartyContract GetCounterpartyContract (IUnitOfWork uow)
+		public static CounterpartyContract GetCounterpartyContract (IUnitOfWorkGeneric<Order> uow)
 		{
 			Order order = uow.RootObject as Order;
 			Organization organization = 

@@ -105,13 +105,18 @@ namespace Vodovoz
 			labelDeliveryDate.Sensitive = labelDeliveryDate.Sensitive = !checkSelfDelivery.Active;
 		}
 
+		protected void OnReferenceClientChanged (object sender, EventArgs e)
+		{
+			
+		}
+
 		private void BlockAll ()
 		{
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
 				referenceClient.Sensitive = spinBottlesReturn.Sensitive = 
 					spinSumToReceive.Sensitive = textComments.Sensitive = 
 						checkDelivered.Sensitive = checkSelfDelivery.Sensitive = 
-							buttonAddForRent.Sensitive = buttonAddForSale.Sensitive = 
+							enumAddRentButton.Sensitive = buttonAddForSale.Sensitive = 
 								enumSignatureType.Sensitive = enumStatus.Sensitive = false;
 		}
 
@@ -122,26 +127,35 @@ namespace Vodovoz
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
 		{			
-			GetContract ();
 		}
 
-		protected void OnButtonAddForRentClicked (object sender, EventArgs e)
+		protected void OnEnumAddRentButtonEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			CounterpartyContract contract = GetContract ();
-			if (contract == null) {
-//TODO FIXME Вывод сообщения об ошибке.
+			AddRentAgreement ((PaidRentAgreementType)e.ItemEnum);
+		}
+
+		private void AddRentAgreement (PaidRentAgreementType type)
+		{
+			if (referenceClient.Data == null || referenceDeliveryPoint == null) {
+				return;
+				//TODO FIXME Вывод сообщения, что не все заполнено.
 			}
-//TODO FIXME добавить выбор посуточной и долгосрочной аренды.
-//Пока только долгосрочная как временный вариант.
+			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric);
+			if (contract == null) {
+				return;
+				//TODO FIXME Вывод сообщения об ошибке.
+			}
+			IUnitOfWork uow;
+			switch (type) {
+			case PaidRentAgreementType.NonfreeRent:
+				uow = NonfreeRentAgreement.Create (contract);
+				break;
+			default:
+				uow = DailyRentAgreement.Create (contract);
+				break;
+			}
+			uow.Commit ();
 
-			NonfreeRentAgreement.Create (contract);
-		}
-
-		CounterpartyContract GetContract ()
-		{
-			if (referenceClient.Data == null || referenceDeliveryPoint == null)
-				return null;
-			return CounterpartyRepository.GetCounterpartyContract (UoWGeneric);
 		}
 	}
 }

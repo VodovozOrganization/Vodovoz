@@ -14820,6 +14820,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                         <property name="Mappings">Client</property>
                         <property name="InheritedBoundaryDataSource">False</property>
                         <property name="CursorPointsEveryType">False</property>
+                        <signal name="Changed" handler="OnReferenceClientChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">2</property>
@@ -15081,14 +15082,16 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Button" id="buttonAddForRent">
+                      <widget class="QSOrmProject.EnumMenuButton" id="enumAddRentButton">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Type">TextAndIcon</property>
                         <property name="Icon">stock:gtk-add Menu</property>
                         <property name="Label" translatable="yes">В аренду</property>
                         <property name="UseUnderline">True</property>
-                        <signal name="Clicked" handler="OnButtonAddForRentClicked" />
+                        <property name="UseMarkup">False</property>
+                        <property name="ItemsEnumName">Vodovoz.Domain.PaidRentAgreementType, Vodovoz</property>
+                        <signal name="EnumItemClicked" handler="OnEnumAddRentButtonEnumItemClicked" />
                       </widget>
                       <packing>
                         <property name="Position">1</property>
