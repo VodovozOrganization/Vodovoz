@@ -137,12 +137,52 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			
+			//TODO FIXME
 		}
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
-		{	
-			
+		{
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null)
+				return;
+
+			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric.Session, 
+				                            NomenclatureRepository.NomenclatureForSaleQuery ()
+				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ObjectSelected += NomenclatureSelected;
+			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+		}
+
+		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			Nomenclature nomenclature = e.Subject as Nomenclature;
+			if (nomenclature.Category == NomenclatureCategory.additional) {
+				UoWGeneric.Root.ObservableOrderItems.Add (new OrderItem {
+					AdditionalAgreement = null,
+					Count = 1,
+					Equipment = null,
+					Nomenclature = nomenclature,
+					Price = nomenclature.NomenclaturePrice [0].Price //FIXME
+				});
+			} else if (nomenclature.Category == NomenclatureCategory.equipment) {
+				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoWGeneric, nomenclature);
+				int ItemId;
+				ItemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (new OrderItem {
+					AdditionalAgreement = null,
+					Count = 1,
+					Equipment = eq,
+					Nomenclature = nomenclature,
+					Price = nomenclature.NomenclaturePrice [0].Price //FIXME
+				});
+				UoWGeneric.Root.ObservableOrderEquipments.Add (new OrderEquipment {
+					Direction = Vodovoz.Domain.Direction.Deliver,
+					Equipment = eq,
+					OrderItem = UoWGeneric.Root.ObservableOrderItems [ItemId],
+					Reason = Reason.Rent	//TODO FIXME Добавить причину - продажа.
+				});
+			}
 		}
 
 		protected void OnEnumAddRentButtonEnumItemClicked (object sender, EnumItemClickedEventArgs e)

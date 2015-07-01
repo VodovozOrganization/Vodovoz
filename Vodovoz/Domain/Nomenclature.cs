@@ -128,6 +128,11 @@ namespace Vodovoz.Domain
 			return new [] { NomenclatureCategory.material, NomenclatureCategory.bottle };
 		}
 
+		public static NomenclatureCategory[] GetCategoriesForSale ()
+		{
+			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment };
+		}
+
 		public static NomenclatureCategory[] GetCategoriesForGoods ()
 		{
 			return new [] { NomenclatureCategory.bottle, NomenclatureCategory.additional, 

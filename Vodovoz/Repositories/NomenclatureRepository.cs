@@ -16,6 +16,12 @@ namespace Vodovoz.Repository
 			return QueryOver.Of<Nomenclature> ()
 				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForProductMaterial ()));
 		}
+
+		public static QueryOver<Nomenclature> NomenclatureForSaleQuery ()
+		{
+			return QueryOver.Of<Nomenclature> ()
+				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForSale ()));
+		}
 	}
 }
 

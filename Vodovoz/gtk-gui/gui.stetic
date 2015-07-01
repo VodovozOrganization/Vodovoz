@@ -14281,6 +14281,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14368,7 +14369,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
