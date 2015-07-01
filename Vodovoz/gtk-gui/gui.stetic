@@ -607,6 +607,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -10976,6 +10977,7 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-delete Menu</property>
                 <property name="Label" translatable="yes">Удалить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -13680,7 +13682,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Documents.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; Price[Цена закупки]&lt;&gt;; Sum[Сумма]; CanEditAmount[CanEditAmount];</property>
+                <property name="ColumnMappings" />
               </widget>
             </child>
           </widget>

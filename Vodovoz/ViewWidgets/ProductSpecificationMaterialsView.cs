@@ -29,20 +29,24 @@ namespace Vodovoz
 					specificationUoW.Root.Materials = new List<ProductSpecificationMaterial> ();
 				items = new GenericObservableList<ProductSpecificationMaterial> (specificationUoW.Root.Materials);
 				items.ElementChanged += Items_ElementChanged;
+				items.ElementAdded += Items_ElementAdded;
 
-				treeMaterialsList.ColumnMappingConfig = MappingConfigure<ProductSpecificationMaterial>.Create()
-					.AddColumn ("Наименование").SetDataProperty (p => p.NomenclatureName)
-					.AddColumn ("Количество").SetDataProperty(p => p.Amount).Editing ()
+				treeMaterialsList.ColumnMappingConfig = MappingConfig<ProductSpecificationMaterial>.Create()
+					.AddColumn ("Наименование").AddTextRenderer(p => p.NomenclatureName)
+					.AddColumn ("Количество").AddNumericRenderer (p => p.Amount).Editing ()
+					.AddSetter((c, p) => c.Digits = (uint)p.Material.Unit.Digits)
+					.Adjustment (new Adjustment(0, 0, 1000000, 1, 100,0))
+					.AddTextRenderer (p => p.Material.Unit.Name, false)
 					.Finish();
 				
 				treeMaterialsList.ItemsDataSource = items;
-				var amountCol = treeMaterialsList.GetColumnByMappedProp (PropertyUtil.GetName<ProductSpecificationMaterial> (item => item.Amount));
-				if (amountCol != null) {
-					//amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
-				}
-					
 				CalculateTotal ();
 			}
+		}
+
+		void Items_ElementAdded (object aList, int[] aIdx)
+		{
+			CalculateTotal ();
 		}
 
 		public ProductSpecificationMaterialsView ()
@@ -55,14 +59,6 @@ namespace Vodovoz
 		{
 			CalculateTotal ();
 		}
-
-	/*	void RenderAmountCol (TreeViewColumn tree_column, CellRenderer cell, TreeModel tree_model, TreeIter iter)
-		{
-			var col = treeItemsList.Columns.First (c => c.Title == "CanEditAmount");
-			(cell as CellRendererText).Editable = (bool)tree_model.GetValue (
-				iter, 
-				treeItemsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == col));
-		} */
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
@@ -80,7 +76,6 @@ namespace Vodovoz
 
 			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), SpecificationUoW.Session, Repository.NomenclatureRepository.NomenclatureForProductMaterialsQuery ().GetExecutableQueryOver (SpecificationUoW.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			//SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 
 			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);

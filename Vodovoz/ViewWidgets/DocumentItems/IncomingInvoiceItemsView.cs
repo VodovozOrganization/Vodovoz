@@ -32,27 +32,24 @@ namespace Vodovoz
 				if (DocumentUoW.Root.Items == null)
 					DocumentUoW.Root.Items = new List<IncomingInvoiceItem> ();
 				items = DocumentUoW.Root.ObservableItems;
-				items.ElementChanged += Items_ElementChanged; 
-				treeItemsList.ItemsDataSource = items;
-				var priceCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingInvoiceItem> (item => item.Price));
-				if (priceCol != null) {
-					CellRendererText cell = new CellRendererText ();
-					cell.Text = CurrencyWorks.CurrencyShortName;
-					priceCol.PackStart (cell, true);
-					//FIXME Обход проблемы с отображением decimal
-					priceCol.SetCellDataFunc (priceCol.CellRenderers [0], RenderPriceColumnFunc);
-				} else
-					logger.Warn ("Не найден столбец с ценой.");
-				var amountCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingInvoiceItem> (item => item.Amount));
-				if (amountCol != null) {
-					amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
-				}
-				var sumCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingInvoiceItem> (item => item.Sum));
-				if (sumCol != null) {
-					sumCol.SetCellDataFunc (sumCol.Cells [0], new TreeCellDataFunc (RenderSumColumnFunc));
-				}
+				items.ElementChanged += Items_ElementChanged;
 
-				treeItemsList.Columns.First (c => c.Title == "CanEditAmount").Visible = false;
+				treeItemsList.ColumnMappingConfig = MappingConfig<IncomingInvoiceItem>.Create ()
+					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
+					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
+					.AddColumn ("Количество")
+						.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
+						.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+						.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
+						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+						.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddColumn ("Цена закупки").AddNumericRenderer (i => i.Price).Digits (2).Editing ()
+						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+						.AddTextRenderer (i => CurrencyWorks.CurrencyShortName, false)
+					.AddColumn ("Сумма").AddTextRenderer (i => CurrencyWorks.GetShortCurrencyString (i.Sum))
+					.Finish ();
+
+				treeItemsList.ItemsDataSource = items;
 				CalculateTotal ();
 			}
 		}
@@ -68,14 +65,6 @@ namespace Vodovoz
 			treeItemsList.Selection.Changed += OnSelectionChanged;
 		}
 
-		void RenderAmountCol (TreeViewColumn tree_column, CellRenderer cell, TreeModel tree_model, TreeIter iter)
-		{
-			var col = treeItemsList.Columns.First (c => c.Title == "CanEditAmount");
-			(cell as CellRendererText).Editable = (bool)tree_model.GetValue (
-				iter, 
-				treeItemsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == col));
-		}
-
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
 			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
@@ -87,22 +76,6 @@ namespace Vodovoz
 		{
 			items.Remove (treeItemsList.GetSelectedObjects () [0] as IncomingInvoiceItem);
 			CalculateTotal ();
-		}
-
-		private void RenderPriceColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
-		                                    Gtk.TreeModel aModel, Gtk.TreeIter aIter)
-		{
-			(aCell as CellRendererText).Text = aModel.GetValue (
-				aIter,
-				treeItemsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == aColumn)).ToString ();
-		}
-
-		private void RenderSumColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
-			Gtk.TreeModel aModel, Gtk.TreeIter aIter)
-		{
-			decimal sum = (((aModel as TreeModelAdapter).Implementor as MappingsImplementor).NodeFromIter (aIter) as IncomingInvoiceItem).Sum;
-
-			(aCell as CellRendererText).Text = CurrencyWorks.GetShortCurrencyString (sum);
 		}
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
