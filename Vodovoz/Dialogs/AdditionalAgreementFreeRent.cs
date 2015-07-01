@@ -8,11 +8,22 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementFreeRent : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved
+	public partial class AdditionalAgreementFreeRent : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved, IEditable
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value;
+				buttonSave.Sensitive = entryAgreementNumber.Sensitive = 
+					dateStart.Sensitive = freerentpackagesview1.IsEditable = value;
+			} 
+		}
 
 		public AdditionalAgreementFreeRent (CounterpartyContract contract)
 		{
@@ -24,7 +35,6 @@ namespace Vodovoz
 		public AdditionalAgreementFreeRent (CounterpartyContract contract, DeliveryPoint point) : this (contract)
 		{
 			UoWGeneric.Root.DeliveryPoint = point;
-			referenceDeliveryPoint.Sensitive = false;
 		}
 
 		public AdditionalAgreementFreeRent (FreeRentAgreement sub) : this (sub.Id)
@@ -42,6 +52,8 @@ namespace Vodovoz
 		{
 			datatable1.DataSource = subjectAdaptor;
 			entryAgreementNumber.IsEditable = true;
+			referenceDeliveryPoint.Sensitive = false;
+			dateIssue.Sensitive = false;
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
 				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)

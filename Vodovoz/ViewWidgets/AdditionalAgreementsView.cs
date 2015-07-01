@@ -22,6 +22,17 @@ namespace Vodovoz
 			set { session = value; }
 		}
 
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value; 
+				buttonAdd.Sensitive = buttonDelete.Sensitive = 
+					treeAdditionalAgreements.Sensitive = buttonEdit.Sensitive = value;
+			}
+		}
+
 		public IAdditionalAgreementOwner AgreementOwner {
 			get { return agreementOwner; }
 			set {
@@ -84,11 +95,11 @@ namespace Vodovoz
 			case AgreementType.Repair:
 				if (additionalAgreements.Any (a => a.Type == AgreementType.Repair)) {
 					MessageDialog md = new MessageDialog (null,
-						                    DialogFlags.Modal,
-						                    MessageType.Warning,
-						                    ButtonsType.Ok,
-						                    "Доп. соглашение на ремонт оборудования уже существует. " +
-						                    "Нельзя создать более одного доп. соглашения данного типа.");
+						                   DialogFlags.Modal,
+						                   MessageType.Warning,
+						                   ButtonsType.Ok,
+						                   "Доп. соглашение на ремонт оборудования уже существует. " +
+						                   "Нельзя создать более одного доп. соглашения данного типа.");
 					md.SetPosition (WindowPosition.Center);
 					md.ShowAll ();
 					md.Run ();

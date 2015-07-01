@@ -26,6 +26,16 @@ namespace Vodovoz
 			UpdateTotalLabels ();
 		}
 
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value;
+				buttonAdd.Sensitive = buttonDelete.Sensitive = treeRentPackages.Sensitive = value;
+			} 
+		}
+
 		private IUnitOfWorkGeneric<DailyRentAgreement> agreementUoW;
 
 		public IUnitOfWorkGeneric<DailyRentAgreement> AgreementUoW {

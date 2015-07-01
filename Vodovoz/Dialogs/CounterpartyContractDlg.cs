@@ -6,10 +6,23 @@ using Vodovoz.Domain;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>
+	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>, IEditable
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		protected IContractOwner ContractOwner;
+
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value; 
+				buttonSave.Sensitive = entryNumber.Sensitive = dateIssue.Sensitive = 
+					referenceOrganization.Sensitive = checkArchive.Sensitive = 
+						checkOnCancellation.Sensitive = spinDelay.Sensitive = 
+							additionalagreementsview1.IsEditable = value;
+			}
+		}
 
 		public CounterpartyContractDlg (Counterparty counterparty)
 		{
@@ -19,7 +32,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public CounterpartyContractDlg (CounterpartyContract sub) : this (sub.Id) {}
+		public CounterpartyContractDlg (CounterpartyContract sub) : this (sub.Id)
+		{
+		}
 
 		public CounterpartyContractDlg (int id)
 		{

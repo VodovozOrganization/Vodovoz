@@ -5009,6 +5009,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="HeightRequest">200</property>
                 <property name="Events">ButtonPressMask</property>
+                <property name="IsEditable">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -9682,6 +9683,7 @@ Patronymic</property>
               <widget class="Vodovoz.PaidRentPackagesView" id="paidrentpackagesview1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="IsEditable">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -9802,6 +9804,7 @@ Patronymic</property>
               <widget class="Vodovoz.DailyRentPackagesView" id="dailyrentpackagesview1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="IsEditable">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -14281,7 +14284,6 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14369,7 +14371,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">4</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -15243,26 +15245,69 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
+                      <widget class="Gtk.VBox" id="vbox1">
                         <property name="MemberName" />
-                        <property name="ShadowType">In</property>
+                        <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.DataBindings.DataTreeView" id="treeDocuments">
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
                             <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="ShowScrollbars">True</property>
-                            <property name="CursorPointsEveryType">False</property>
-                            <property name="InheritedDataSource">False</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">False</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="ColumnMappings">{Vodovoz.Domain.OrderDocument} Name[Документ];</property>
+                            <property name="ShadowType">In</property>
+                            <child>
+                              <widget class="Gtk.DataBindings.DataTreeView" id="treeDocuments">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="ShowScrollbars">True</property>
+                                <property name="CursorPointsEveryType">False</property>
+                                <property name="InheritedDataSource">False</property>
+                                <property name="InheritedBoundaryDataSource">False</property>
+                                <property name="InheritedDataSource">False</property>
+                                <property name="InheritedBoundaryDataSource">False</property>
+                                <property name="ColumnMappings">{Vodovoz.Domain.OrderDocument} Name[Документ];</property>
+                                <signal name="RowActivated" handler="OnTreeDocumentsRowActivated" />
+                              </widget>
+                            </child>
                           </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.HBox" id="hbox6">
+                            <property name="MemberName" />
+                            <property name="Spacing">6</property>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonViewDocument">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-find Menu</property>
+                                <property name="Label" translatable="yes">Посмотреть документ</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonViewDocumentClicked" />
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder />
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
                         </child>
                       </widget>
                       <packing>
                         <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                       </packing>
                     </child>
                   </widget>

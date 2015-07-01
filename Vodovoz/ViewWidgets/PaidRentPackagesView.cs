@@ -22,6 +22,16 @@ namespace Vodovoz
 
 		private IUnitOfWorkGeneric<NonfreeRentAgreement> agreementUoW;
 
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value;
+				buttonAdd.Sensitive = buttonDelete.Sensitive = treeRentPackages.Sensitive = value;
+			} 
+		}
+
 		public IUnitOfWorkGeneric<NonfreeRentAgreement> AgreementUoW {
 			get { return agreementUoW; }
 			set {

@@ -8,11 +8,23 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementDailyRent : OrmGtkDialogBase<DailyRentAgreement>, IAgreementSaved
+	public partial class AdditionalAgreementDailyRent : OrmGtkDialogBase<DailyRentAgreement>, IAgreementSaved, IEditable
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value;
+				buttonSave.Sensitive = entryAgreementNumber.Sensitive = 
+					dateEnd.Sensitive = dateStart.Sensitive = 
+						dailyrentpackagesview1.IsEditable = value;
+			} 
+		}
 
 		public AdditionalAgreementDailyRent (CounterpartyContract contract)
 		{
@@ -24,7 +36,6 @@ namespace Vodovoz
 		public AdditionalAgreementDailyRent (CounterpartyContract contract, DeliveryPoint point) : this (contract)
 		{
 			UoWGeneric.Root.DeliveryPoint = point;
-			referenceDeliveryPoint.Sensitive = false;
 		}
 
 		public AdditionalAgreementDailyRent (DailyRentAgreement sub) : this (sub.Id)

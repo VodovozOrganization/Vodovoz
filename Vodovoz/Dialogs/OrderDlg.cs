@@ -62,7 +62,14 @@ namespace Vodovoz
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			referenceDeliveryPoint.Sensitive = UoWGeneric.Root.Client != null;
 			buttonDelete.Sensitive = false;
+			treeDocuments.Selection.Changed += TreeDocuments_Selection_Changed;
+			buttonViewDocument.Sensitive = false;
 			UpdateSum ();
+		}
+
+		void TreeDocuments_Selection_Changed (object sender, EventArgs e)
+		{
+			buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows () > 0;
 		}
 
 		public override bool Save ()
@@ -333,6 +340,35 @@ namespace Vodovoz
 			}
 			labelSum.Text = CurrencyWorks.GetShortCurrencyString (sum);
 			UoWGeneric.Root.SumToReceive = sum;
+		}
+
+		protected void OnTreeDocumentsRowActivated (object o, RowActivatedArgs args)
+		{
+			buttonViewDocument.Click ();
+		}
+
+		protected void OnButtonViewDocumentClicked (object sender, EventArgs e)
+		{
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null)
+				return;
+
+			if (treeDocuments.GetSelectedObjects ().GetLength (0) > 0) {
+				ITdiDialog dlg = null;
+				if (treeDocuments.GetSelectedObjects () [0] is OrderAgreement) {
+					var agreement = (treeDocuments.GetSelectedObjects () [0] as OrderAgreement).AdditionalAgreement;
+					dlg = OrmMain.CreateObjectDialog (agreement);
+
+				} else if (treeDocuments.GetSelectedObjects () [0] is OrderContract) {
+					var contract = (treeDocuments.GetSelectedObjects () [0] as OrderContract).Contract;
+					dlg = OrmMain.CreateObjectDialog (contract);
+				}
+
+				if (dlg != null) {
+					(dlg as IEditable).IsEditable = false;
+					mytab.TabParent.AddSlaveTab (mytab, dlg);
+				}
+			}
 		}
 	}
 }
