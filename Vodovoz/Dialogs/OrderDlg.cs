@@ -4,11 +4,10 @@ using Vodovoz.Domain;
 using NLog;
 using QSValidation;
 using QSTDI;
-using NHibernate;
 using Vodovoz.Repository;
 using QSProjectsLib;
-using System.Linq;
 using Gtk;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -61,6 +60,8 @@ namespace Vodovoz
 			referenceClient.SubjectType = typeof(Counterparty);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
+			referenceDeliveryPoint.Sensitive = UoWGeneric.Root.Client != null;
+			buttonDelete.Sensitive = false;
 			UpdateSum ();
 		}
 
@@ -114,7 +115,14 @@ namespace Vodovoz
 
 		protected void OnReferenceClientChanged (object sender, EventArgs e)
 		{
-			
+			if (UoWGeneric.Root.Client != null) {
+				referenceDeliveryPoint.ItemsCriteria = 
+					DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Client)
+						.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
+				referenceDeliveryPoint.Sensitive = true;
+			} else {
+				referenceDeliveryPoint.Sensitive = false;
+			}
 		}
 
 		private void BlockAll ()
@@ -129,19 +137,20 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			
 		}
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
-		{			
+		{	
+			
 		}
 
 		protected void OnEnumAddRentButtonEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			AddRentAgreement ((PaidRentAgreementType)e.ItemEnum);
+			AddRentAgreement ((OrderAgreementType)e.ItemEnum);
 		}
 
-		private void AddRentAgreement (PaidRentAgreementType type)
+		private void AddRentAgreement (OrderAgreementType type)
 		{
 			if (UoWGeneric.Root.Client == null || UoWGeneric.Root.DeliveryPoint == null) {
 				MessageDialog md = new MessageDialog (null,
@@ -179,11 +188,14 @@ namespace Vodovoz
 			ITdiDialog dlg;
 
 			switch (type) {
-			case PaidRentAgreementType.NonfreeRent:
+			case OrderAgreementType.NonfreeRent:
 				dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
 				break;
-			default:
+			case OrderAgreementType.DailyRent:
 				dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint);
+				break;
+			default: 
+				dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
 				break;
 			}
 			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
@@ -201,22 +213,23 @@ namespace Vodovoz
 
 		void RefreshItemsAndEquipment (AdditionalAgreement a)
 		{
-			
-			if (a.Type == AgreementType.DailyRent) {
-				DailyRentAgreement agreement = a as DailyRentAgreement;
-				foreach (PaidRentEquipment equipment in agreement.Equipment) {
-					//OrderItem item = null;
-					//if ((item = UoWGeneric.Root.ObservableOrderItems.First (i => 
-					//	i.AdditionalAgreement.Id == agreement.Id
-					//  && i.Equipment == null
-					//    && i.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id)) != null) {
-					//	item.Count++;
-					//} else {
+			if (a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 
+				IList<PaidRentEquipment> EquipmentList;
+				bool IsDaily = false;
+
+				if (a.Type == AgreementType.DailyRent) {
+					EquipmentList = (a as DailyRentAgreement).Equipment;
+					IsDaily = true;
+				} else
+					EquipmentList = (a as NonfreeRentAgreement).Equipment;
+
+				foreach (PaidRentEquipment equipment in EquipmentList) {
+					int ItemId;
 					//Добавляем номенклатуру залога
 					UoWGeneric.Root.ObservableOrderItems.Add (
 						new OrderItem {
-							AdditionalAgreement = agreement,
+							AdditionalAgreement = a,
 							Count = 1,
 							Equipment = null,
 							Nomenclature = equipment.PaidRentPackage.DepositService,
@@ -224,58 +237,49 @@ namespace Vodovoz
 						}
 					);
 					//Добавляем услугу аренды
-					int itemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
-						             new OrderItem {
-							AdditionalAgreement = agreement,
+					ItemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
+						new OrderItem {
+							AdditionalAgreement = a,
 							Count = 1,
 							Equipment = null,
-							Nomenclature = equipment.PaidRentPackage.RentServiceDaily,
-							Price = equipment.Price * agreement.RentDays
+							Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
+							Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1)
 						}
-					             );
+					);
 					//Добавляем оборудование
 					UoWGeneric.Root.ObservableOrderEquipments.Add (
 						new OrderEquipment { 
 							Direction = Vodovoz.Domain.Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
-							OrderItem = UoWGeneric.Root.ObservableOrderItems [itemId]
+							OrderItem = UoWGeneric.Root.ObservableOrderItems [ItemId]
 						}
 					);
+					UoWGeneric.Root.SumToReceive += equipment.Deposit + equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1);
 				}
-			} else {
-				NonfreeRentAgreement agreement = a as NonfreeRentAgreement;
-				foreach (PaidRentEquipment equipment in agreement.Equipment) {
-					//Добавляем номенклатуру залога
-					int itemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
-						             new OrderItem {
+			} else if (a.Type == AgreementType.FreeRent) {
+				FreeRentAgreement agreement = a as FreeRentAgreement;
+				foreach (FreeRentEquipment equipment in agreement.Equipment) {
+					int ItemId;
+					//Добавляем номенклатуру залога.
+					ItemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
+						new OrderItem {
 							AdditionalAgreement = agreement,
 							Count = 1,
 							Equipment = null,
-							Nomenclature = equipment.PaidRentPackage.RentServiceMonthly,
-							Price = equipment.Price
+							Nomenclature = equipment.FreeRentPackage.DepositService,
+							Price = equipment.Deposit
 						}
-					             );
-					//Добавляем услугу аренды
+					);
+					//Добавляем оборудование.
 					UoWGeneric.Root.ObservableOrderEquipments.Add (
 						new OrderEquipment { 
 							Direction = Vodovoz.Domain.Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
-							OrderItem = UoWGeneric.Root.ObservableOrderItems [itemId]
+							OrderItem = UoWGeneric.Root.ObservableOrderItems [ItemId]
 						}
 					);
-					//Добавляем оборудование
-					UoWGeneric.Root.ObservableOrderItems.Add (
-						new OrderItem {
-							AdditionalAgreement = agreement,
-							Count = 1,
-							Equipment = null,
-							Nomenclature = equipment.PaidRentPackage.DepositService,
-							Price = equipment.Deposit
-						}
-					);
-					UoWGeneric.Root.SumToReceive += equipment.Deposit + equipment.Price;
 				}
 			}
 			UpdateSum ();
@@ -288,6 +292,7 @@ namespace Vodovoz
 				sum += item.Price;
 			}
 			labelSum.Text = CurrencyWorks.GetShortCurrencyString (sum);
+			UoWGeneric.Root.SumToReceive = sum;
 		}
 	}
 }

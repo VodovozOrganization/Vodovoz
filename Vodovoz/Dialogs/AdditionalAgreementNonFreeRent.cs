@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using NHibernate.Criterion;
+﻿using System;
 using NLog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
-using System;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -43,13 +42,10 @@ namespace Vodovoz
 		{
 			datatable1.DataSource = subjectAdaptor;
 			entryAgreementNumber.IsEditable = true;
-
-			var identifiers = new List<object> ();
-			foreach (DeliveryPoint d in UoWGeneric.Root.Contract.Counterparty.DeliveryPoints)
-				identifiers.Add (d.Id);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
-				.Add (Restrictions.In ("Id", identifiers));
+			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
+				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)
+				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - А";
 
 			paidrentpackagesview1.AgreementUoW = UoWGeneric;

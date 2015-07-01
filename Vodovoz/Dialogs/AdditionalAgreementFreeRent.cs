@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
-using NHibernate.Criterion;
+﻿using System;
 using NLog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementFreeRent : OrmGtkDialogBase<FreeRentAgreement>
+	public partial class AdditionalAgreementFreeRent : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved
 	{
+		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
+
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		public AdditionalAgreementFreeRent (CounterpartyContract contract)
@@ -17,6 +19,12 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = FreeRentAgreement.Create (contract);
 			ConfigureDlg ();
+		}
+
+		public AdditionalAgreementFreeRent (CounterpartyContract contract, DeliveryPoint point) : this (contract)
+		{
+			UoWGeneric.Root.DeliveryPoint = point;
+			referenceDeliveryPoint.Sensitive = false;
 		}
 
 		public AdditionalAgreementFreeRent (FreeRentAgreement sub) : this (sub.Id)
@@ -34,12 +42,10 @@ namespace Vodovoz
 		{
 			datatable1.DataSource = subjectAdaptor;
 			entryAgreementNumber.IsEditable = true;
-			var identifiers = new List<object> ();
-			foreach (DeliveryPoint d in UoWGeneric.Root.Contract.Counterparty.DeliveryPoints)
-				identifiers.Add (d.Id);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
-				.Add (Restrictions.In ("Id", identifiers));
+			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
+				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)
+				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - Б";
 			freerentpackagesview1.AgreementUoW = UoWGeneric;
 		}
@@ -53,6 +59,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
+			AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
 	}

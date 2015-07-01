@@ -290,12 +290,14 @@ namespace Vodovoz.Domain
 		}
 	}
 
-	public enum PaidRentAgreementType
+	public enum OrderAgreementType
 	{
 		[ItemTitleAttribute ("Долгосрочная аренда")]
 		NonfreeRent,
 		[ItemTitleAttribute ("Посуточная аренда")]
-		DailyRent
+		DailyRent,
+		[ItemTitleAttribute ("Бесплатная аренда")]
+		FreeRent
 	}
 
 	public interface IAgreementSaved

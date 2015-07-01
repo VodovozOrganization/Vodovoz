@@ -14281,7 +14281,6 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14369,7 +14368,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -15131,7 +15130,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                         <property name="Label" translatable="yes">В аренду</property>
                         <property name="UseUnderline">True</property>
                         <property name="UseMarkup">False</property>
-                        <property name="ItemsEnumName">Vodovoz.Domain.PaidRentAgreementType, Vodovoz</property>
+                        <property name="ItemsEnumName">Vodovoz.Domain.OrderAgreementType, Vodovoz</property>
                         <signal name="EnumItemClicked" handler="OnEnumAddRentButtonEnumItemClicked" />
                       </widget>
                       <packing>
