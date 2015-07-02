@@ -13,12 +13,14 @@ public partial class MainWindow : Gtk.Window
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionRouteListTable;
+	Action ActionAddOrder;
 
 	public void BuildToolbarActions ()
 	{
 		#region Creating actions
 		//Заказы
 		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
+		ActionAddOrder = new Action ("ActionAddOrder", "Новый заказ", null, "table");
 		//Сервис
 		ActionServiceTickets = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
@@ -30,6 +32,7 @@ public partial class MainWindow : Gtk.Window
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
 		w1.Add (ActionOrdersTable, null);
+		w1.Add (ActionAddOrder, null);
 		w1.Add (ActionServiceTickets, null);
 		w1.Add (ActionWarehouseDocuments, null);
 		w1.Add (ActionWarehouseStock, null);
@@ -38,6 +41,7 @@ public partial class MainWindow : Gtk.Window
 		#endregion
 		#region Creating events
 		ActionOrdersTable.Activated += ActionOrdersTableActivated;
+		ActionAddOrder.Activated += ActionAddOrder_Activated;
 		ActionServiceTickets.Activated += ActionServiceTicketsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
@@ -53,6 +57,12 @@ public partial class MainWindow : Gtk.Window
 
 		OrmReference refWin = new OrmReference (typeof(RouteList), session, criteria);
 		tdiMain.AddTab (refWin);
+	}
+
+	void ActionAddOrder_Activated (object sender, System.EventArgs e)
+	{
+		var tab = new OrderDlg ();
+		tdiMain.AddTab (tab);
 	}
 
 	void ActionWarehouseStock_Activated (object sender, System.EventArgs e)
