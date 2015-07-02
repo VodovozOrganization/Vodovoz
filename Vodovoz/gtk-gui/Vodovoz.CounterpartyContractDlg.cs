@@ -104,6 +104,7 @@ namespace Vodovoz
 			this.additionalagreementsview1.HeightRequest = 150;
 			this.additionalagreementsview1.Events = ((global::Gdk.EventMask)(256));
 			this.additionalagreementsview1.Name = "additionalagreementsview1";
+			this.additionalagreementsview1.IsEditable = false;
 			this.datatable5.Add (this.additionalagreementsview1);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable5 [this.additionalagreementsview1]));
 			w6.TopAttach = ((uint)(4));

@@ -607,7 +607,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -10320,6 +10319,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="HeightRequest">150</property>
                 <property name="Events">ButtonPressMask</property>
+                <property name="IsEditable">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>

@@ -15,13 +15,13 @@ namespace Vodovoz.Domain
 		Accusative = "контрагента",
 		Genitive = "контрагента"
 	)]
-	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContractOwner, IContactOwner, IProxyOwner, IDeliveryPointOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContactOwner, IProxyOwner, IDeliveryPointOwner
 	{
 		private IList<CounterpartyContract> counterpartyContracts;
 
 		#region IContractOwner implementation
 
-		[Display(Name = "Договоры")]
+		[Display (Name = "Договоры")]
 		public IList<CounterpartyContract> CounterpartyContracts {
 			get { return counterpartyContracts; }
 			set { SetField (ref counterpartyContracts, value, () => CounterpartyContracts); }
@@ -33,7 +33,7 @@ namespace Vodovoz.Domain
 
 		#region IDeliveryPointOwner implementation
 
-		[Display(Name = "Точки доставки")]
+		[Display (Name = "Точки доставки")]
 		public IList<DeliveryPoint> DeliveryPoints {
 			get { return deliveryPoints; }
 			set { SetField (ref deliveryPoints, value, () => DeliveryPoints); }
@@ -45,7 +45,7 @@ namespace Vodovoz.Domain
 
 		#region IContact implementation
 
-		[Display(Name = "Контактные лица")]
+		[Display (Name = "Контактные лица")]
 		public virtual IList<Contact> Contacts {
 			get { return contact; }
 			set { SetField (ref contact, value, () => Contacts); }
@@ -57,7 +57,7 @@ namespace Vodovoz.Domain
 
 		#region IProxyOwner implementation
 
-		[Display(Name = "Доверенности")]
+		[Display (Name = "Доверенности")]
 		public virtual IList<Proxy> Proxies {
 			get { return proxies; }
 			set { SetField (ref proxies, value, () => Proxies); }
@@ -71,7 +71,7 @@ namespace Vodovoz.Domain
 
 		decimal maxCredit;
 
-		[Display(Name = "Максимальный кредит")]
+		[Display (Name = "Максимальный кредит")]
 		public virtual decimal MaxCredit {
 			get { return maxCredit; }
 			set { SetField (ref maxCredit, value, () => MaxCredit); }
@@ -80,28 +80,31 @@ namespace Vodovoz.Domain
 		string name;
 
 		[Required (ErrorMessage = "Название контрагента должно быть заполнено.")]
-		[Display(Name = "Название")]
+		[Display (Name = "Название")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
 		}
 
 		string fullName;
-		[Display(Name = "Полное название")]
+
+		[Display (Name = "Полное название")]
 		public virtual string FullName {
 			get { return fullName; }
 			set { SetField (ref fullName, value, () => FullName); }
 		}
 
 		string comment;
-		[Display(Name = "Комментарий")]
+
+		[Display (Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
 		string waybillComment;
-		[Display(Name = "Комментарий для накладной")]
+
+		[Display (Name = "Комментарий для накладной")]
 		public virtual string WaybillComment {
 			get { return waybillComment; }
 			set { SetField (ref waybillComment, value, () => WaybillComment); }
@@ -111,7 +114,7 @@ namespace Vodovoz.Domain
 
 		[Digits (ErrorMessage = "ИНН может содержать только цифры.")]
 		[StringLength (12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
-		[Display(Name = "ИНН")]
+		[Display (Name = "ИНН")]
 		public virtual string INN {
 			get { return iNN; }
 			set { SetField (ref iNN, value, () => INN); }
@@ -119,7 +122,7 @@ namespace Vodovoz.Domain
 
 		string kPP;
 
-		[Display(Name = "КПП")]
+		[Display (Name = "КПП")]
 		[Digits (ErrorMessage = "КПП может содержать только цифры.")]
 		[StringLength (9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
 		public virtual string KPP {
@@ -128,14 +131,16 @@ namespace Vodovoz.Domain
 		}
 
 		string jurAddress;
-		[Display(Name = "Юридический адрес")]
+
+		[Display (Name = "Юридический адрес")]
 		public virtual string JurAddress {
 			get { return jurAddress; }
 			set { SetField (ref jurAddress, value, () => JurAddress); }
 		}
 
 		Payment paymentMethod;
-		[Display(Name = "Вид оплаты")]
+
+		[Display (Name = "Вид оплаты")]
 		public virtual Payment PaymentMethod {
 			get { return paymentMethod; }
 			set { SetField (ref paymentMethod, value, () => PaymentMethod); }
@@ -143,7 +148,7 @@ namespace Vodovoz.Domain
 
 		PersonType personType;
 
-		[Display(Name = "Форма контрагента")]
+		[Display (Name = "Форма контрагента")]
 		public virtual PersonType PersonType {
 			get { return personType; }
 			set { SetField (ref personType, value, () => PersonType); }
@@ -151,7 +156,7 @@ namespace Vodovoz.Domain
 
 		Significance significance;
 
-		[Display(Name = "Значимость")]
+		[Display (Name = "Значимость")]
 		public virtual Significance Significance {
 			get { return significance; }
 			set { SetField (ref significance, value, () => Significance); }
@@ -159,56 +164,63 @@ namespace Vodovoz.Domain
 
 		Counterparty mainCounterparty;
 
-		[Display(Name = "Головная организация")]
+		[Display (Name = "Головная организация")]
 		public virtual Counterparty MainCounterparty {
 			get { return mainCounterparty; }
 			set { SetField (ref mainCounterparty, value, () => MainCounterparty); }
 		}
 
 		CounterpartyType counterpartyType;
-		[Display(Name = "Тип контрагента")]
+
+		[Display (Name = "Тип контрагента")]
 		public virtual CounterpartyType CounterpartyType {
 			get { return counterpartyType; }
 			set { SetField (ref counterpartyType, value, () => CounterpartyType); }
 		}
 
 		CounterpartyStatus status;
-		[Display(Name = "Статус")]
+
+		[Display (Name = "Статус")]
 		public virtual CounterpartyStatus Status {
 			get { return status; }
 			set { SetField (ref status, value, () => Status); }
 		}
 
 		IList<Phone> phones;
-		[Display(Name = "Телефоны")]
+
+		[Display (Name = "Телефоны")]
 		public virtual IList<Phone> Phones {
 			get { return phones; }
 			set { SetField (ref phones, value, () => Phones); }
 		}
 
 		IList<Email> emails;
-		[Display(Name = "E-mail адреса")]
+
+		[Display (Name = "E-mail адреса")]
 		public virtual IList<Email> Emails {
 			get { return emails; }
 			set { SetField (ref emails, value, () => Emails); }
 		}
 
 		Employee accountant;
-		[Display(Name = "Бухгалтер")]
+
+		[Display (Name = "Бухгалтер")]
 		public virtual Employee Accountant {
 			get { return accountant; }
 			set { SetField (ref accountant, value, () => Accountant); }
 		}
 
 		Employee salesManager;
-		[Display(Name = "Менеджер по продажам")]
+
+		[Display (Name = "Менеджер по продажам")]
 		public virtual Employee SalesManager {
 			get { return salesManager; }
 			set { SetField (ref salesManager, value, () => SalesManager); }
 		}
 
 		Employee bottlesManager;
-		[Display(Name = "Менеджер по бутылям")]
+
+		[Display (Name = "Менеджер по бутылям")]
 		public virtual Employee BottlesManager {
 			get { return bottlesManager; }
 			set { SetField (ref bottlesManager, value, () => BottlesManager); }
@@ -216,7 +228,7 @@ namespace Vodovoz.Domain
 
 		Contact mainContact;
 
-		[Display(Name = "Главное контактное лицо")]
+		[Display (Name = "Главное контактное лицо")]
 		public virtual Contact MainContact {
 			get { return mainContact; }
 			set { SetField (ref mainContact, value, () => MainContact); }
@@ -224,7 +236,7 @@ namespace Vodovoz.Domain
 
 		Contact financialContact;
 
-		[Display(Name = "Контакт по финансовым вопросам")]
+		[Display (Name = "Контакт по финансовым вопросам")]
 		public virtual Contact FinancialContact {
 			get { return financialContact; }
 			set { SetField (ref financialContact, value, () => FinancialContact); }
@@ -289,11 +301,6 @@ namespace Vodovoz.Domain
 		public CounterpartyTypeStringType () : base (typeof(CounterpartyType))
 		{
 		}
-	}
-
-	public interface IContractOwner
-	{
-		IList<CounterpartyContract> CounterpartyContracts { get; set; }
 	}
 }
 

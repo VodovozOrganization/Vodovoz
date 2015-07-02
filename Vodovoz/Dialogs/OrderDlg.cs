@@ -199,13 +199,18 @@ namespace Vodovoz
 
 		private void AddRentAgreement (OrderAgreementType type)
 		{
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null)
+				return;
+			ITdiDialog dlg;
+
 			if (UoWGeneric.Root.Client == null || UoWGeneric.Root.DeliveryPoint == null) {
 				MessageDialog md = new MessageDialog (null,
 					                   DialogFlags.Modal,
 					                   MessageType.Warning,
 					                   ButtonsType.Ok,
-					                   "Для добавления оборудования, пожалуйста, заполните следующие поля:" +
-					                   "\"Клиент\" и/или \"Точка доставки\".");
+					                   "Для добавления оборудования должны быть заполнены следующие поля:" +
+					                   "\"Клиент\" и \"Точка доставки\".");
 				md.SetPosition (WindowPosition.Center);
 				md.ShowAll ();
 				md.Run ();
@@ -216,37 +221,46 @@ namespace Vodovoz
 			if (contract == null) {
 				MessageDialog md = new MessageDialog (null,
 					                   DialogFlags.Modal,
-					                   MessageType.Warning,
-					                   ButtonsType.Ok,
-					                   "Отсутствует договор с клиентом для выбранной формы оплаты. " +
-					                   "Возможность создать договор из данного диалога будет " +
-					                   "добавлена позднее. Приносим извинения за неудобство.");
+					                   MessageType.Question,
+					                   ButtonsType.YesNo,
+					                   "Отсутствует договор с клиентом для выбранного типа оплаты. " +
+					                   "Создать?");
 				md.SetPosition (WindowPosition.Center);
 				md.ShowAll ();
-				md.Run ();
+				bool result = md.Run () == (int)ResponseType.Yes;
 				md.Destroy ();
-				return;
-				//TODO FIXME Предложение создать договор .
+				if (result) {
+					dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
+						(UoWGeneric.Root.PaymentType == Payment.cash ?
+						OrganizationRepository.GetCashOrganization (UoWGeneric) :
+						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
+					(dlg as IContractSaved).ContractSaved += ContractSaved;
+				} else {
+					return;
+				}
+			} else {
+				switch (type) {
+				case OrderAgreementType.NonfreeRent:
+					dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
+					break;
+				case OrderAgreementType.DailyRent:
+					dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint);
+					break;
+				default: 
+					dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
+					break;
+				}
+				(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			}
-
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-			ITdiDialog dlg;
-
-			switch (type) {
-			case OrderAgreementType.NonfreeRent:
-				dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
-				break;
-			case OrderAgreementType.DailyRent:
-				dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint);
-				break;
-			default: 
-				dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
-				break;
-			}
-			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
+		}
+
+		void ContractSaved (object sender, ContractSavedEventArgs e)
+		{
+			UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderContract { 
+				Order = UoWGeneric.Root,
+				Contract = e.Contract
+			});
 		}
 
 		void AgreementSaved (object sender, AgreementSavedEventArgs e)
@@ -365,7 +379,7 @@ namespace Vodovoz
 				}
 
 				if (dlg != null) {
-					(dlg as IEditable).IsEditable = false;
+					(dlg as IEditableDialog).IsEditable = false;
 					mytab.TabParent.AddSlaveTab (mytab, dlg);
 				}
 			}

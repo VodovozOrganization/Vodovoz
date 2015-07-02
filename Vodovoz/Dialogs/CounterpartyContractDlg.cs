@@ -6,10 +6,11 @@ using Vodovoz.Domain;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>, IEditableDialog
+	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>, IEditableDialog, IContractSaved
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		protected IContractOwner ContractOwner;
+
+		public event EventHandler<ContractSavedEventArgs> ContractSaved;
 
 		bool isEditable = true;
 
@@ -35,6 +36,7 @@ namespace Vodovoz
 		public CounterpartyContractDlg (Counterparty counterparty, Organization organization) : this (counterparty)
 		{
 			UoWGeneric.Root.Organization = organization;
+			referenceOrganization.Sensitive = false;
 		}
 
 		public CounterpartyContractDlg (CounterpartyContract sub) : this (sub.Id)
@@ -52,7 +54,7 @@ namespace Vodovoz
 		{
 			datatable5.DataSource = subjectAdaptor;
 			referenceOrganization.SubjectType = typeof(Organization);
-			additionalagreementsview1.ParentReference = new OrmParentReference (UoWGeneric.Session, (Subject as CounterpartyContract), "AdditionalAgreements");
+			additionalagreementsview1.ParentReference = new OrmParentReference (UoWGeneric.Session, Subject, "AdditionalAgreements");
 		}
 
 		public override bool Save ()
@@ -62,6 +64,7 @@ namespace Vodovoz
 				return false;
 
 			UoWGeneric.Save ();
+			ContractSaved (this, new ContractSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
 

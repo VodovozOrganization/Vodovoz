@@ -9,7 +9,6 @@ namespace Vodovoz
 	public partial class ProductSpecificationDlg : OrmGtkDialogBase<ProductSpecification>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		protected IContractOwner ContractOwner;
 
 		public ProductSpecificationDlg ()
 		{
@@ -18,7 +17,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public ProductSpecificationDlg (ProductSpecification sub) : this (sub.Id) {}
+		public ProductSpecificationDlg (ProductSpecification sub) : this (sub.Id)
+		{
+		}
 
 		public ProductSpecificationDlg (int id)
 		{
