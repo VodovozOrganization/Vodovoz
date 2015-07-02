@@ -8,7 +8,7 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementFreeRent : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved, IEditable
+	public partial class AdditionalAgreementFreeRent : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 

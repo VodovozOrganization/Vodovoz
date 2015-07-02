@@ -6,7 +6,7 @@ using Vodovoz.Domain;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>, IEditable
+	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>, IEditableDialog
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		protected IContractOwner ContractOwner;
@@ -30,6 +30,11 @@ namespace Vodovoz
 			UoWGeneric = CounterpartyContract.Create (counterparty);
 			TabName = "Новый договор";
 			ConfigureDlg ();
+		}
+
+		public CounterpartyContractDlg (Counterparty counterparty, Organization organization) : this (counterparty)
+		{
+			UoWGeneric.Root.Organization = organization;
 		}
 
 		public CounterpartyContractDlg (CounterpartyContract sub) : this (sub.Id)
