@@ -13806,8 +13806,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Documents.IncomingWaterMaterial} Name[Наименование];
-OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;</property>
+                <property name="ColumnMappings" />
               </widget>
             </child>
           </widget>
@@ -15375,7 +15374,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Documents.MovementDocumentItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
+                <property name="ColumnMappings" />
               </widget>
             </child>
           </widget>
@@ -15467,7 +15466,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Documents.WriteoffDocumentItem} Name[Наименование]; EquipmentString [С/Н оборудования]; CullingCategoryString[Категория выбраковки]; Amount[Количество]&lt;&gt;; CanEditAmount[CanEditAmount];</property>
+                <property name="ColumnMappings" />
               </widget>
             </child>
           </widget>

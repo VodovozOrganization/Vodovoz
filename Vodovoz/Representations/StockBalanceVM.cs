@@ -113,9 +113,9 @@ namespace Vodovoz.ViewModel
 
 		public int Id{ get; set;}
 
-		public int Append{ get; set;}
+		public decimal Append{ get; set;}
 
-		public int Removed{ get; set;}
+		public decimal Removed{ get; set;}
 
 		public string Unit{ get; set;}
 
@@ -125,7 +125,7 @@ namespace Vodovoz.ViewModel
 		[TreeNodeValue(Column = 1)]
 		public string CountText { get { return String.Format ("{0} {1}", Amount, Unit); }}
 
-		public int Amount { get { return Append - Removed; }}
+		public decimal Amount { get { return Append - Removed; }}
 	}
 }
 
