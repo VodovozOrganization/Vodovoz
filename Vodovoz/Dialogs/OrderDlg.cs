@@ -149,17 +149,13 @@ namespace Vodovoz
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
 			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric.Session, 
 				                            NomenclatureRepository.NomenclatureForSaleQuery ()
 				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+			TabParent.AddSlaveTab (this, SelectDialog);
 		}
 
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
@@ -199,9 +195,6 @@ namespace Vodovoz
 
 		private void AddRentAgreement (OrderAgreementType type)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
 			ITdiDialog dlg;
 
 			if (UoWGeneric.Root.Client == null || UoWGeneric.Root.DeliveryPoint == null) {
@@ -252,7 +245,7 @@ namespace Vodovoz
 				}
 				(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			}
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			TabParent.AddSlaveTab (this, dlg);
 		}
 
 		void ContractSaved (object sender, ContractSavedEventArgs e)
@@ -363,10 +356,6 @@ namespace Vodovoz
 
 		protected void OnButtonViewDocumentClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
 			if (treeDocuments.GetSelectedObjects ().GetLength (0) > 0) {
 				ITdiDialog dlg = null;
 				if (treeDocuments.GetSelectedObjects () [0] is OrderAgreement) {
@@ -380,7 +369,7 @@ namespace Vodovoz
 
 				if (dlg != null) {
 					(dlg as IEditableDialog).IsEditable = false;
-					mytab.TabParent.AddSlaveTab (mytab, dlg);
+					TabParent.AddSlaveTab (this, dlg);
 				}
 			}
 		}

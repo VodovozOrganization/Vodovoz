@@ -54,19 +54,13 @@ namespace Vodovoz
 
 		protected void OnButtonFillClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null) {
-				logger.Warn ("Родительская вкладка не найдена.");
-				return;
-			}
-
 			ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria<ProductSpecification> ();
 
 			OrmReference SelectDialog = new OrmReference (typeof(ProductSpecification), UoWGeneric.Session, ItemsCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
 
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+			TabParent.AddSlaveTab (this, SelectDialog);
 		}
 
 		void SelectDialog_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
@@ -74,9 +68,8 @@ namespace Vodovoz
 			var spec = e.Subject as ProductSpecification;
 			UoWGeneric.Root.Product = spec.Product;
 			UoWGeneric.Root.ObservableMaterials.Clear ();
-			foreach(var material in spec.Materials)
-			{
-				UoWGeneric.Root.AddMaterial (new IncomingWaterMaterial(UoWGeneric.Root, material));
+			foreach (var material in spec.Materials) {
+				UoWGeneric.Root.AddMaterial (new IncomingWaterMaterial (UoWGeneric.Root, material));
 			}
 		}
 	}
