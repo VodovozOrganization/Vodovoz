@@ -4,6 +4,7 @@ using Gtk;
 using NHibernate;
 using NLog;
 using QSOrmProject;
+using QSOrmProject.UpdateNotification;
 using QSTDI;
 using Vodovoz.Domain.Documents;
 
