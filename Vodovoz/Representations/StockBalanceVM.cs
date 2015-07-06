@@ -90,7 +90,7 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc (object updatedSubject)
 		{
 			//FIXME Пока простая проверка.
-			return (updatedSubject is Nomenclature || updatedSubject is GoodsMovementOperation);
+			return true; //(updatedSubject is Nomenclature || updatedSubject is GoodsMovementOperation);
 		}
 
 		#endregion
@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModel
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
-		public StockBalanceVM (IUnitOfWork uow)
+		public StockBalanceVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(GoodsMovementOperation))
 		{
 			this.uow = uow;
 
