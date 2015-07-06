@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gtk;
 using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
-using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
@@ -29,17 +27,22 @@ namespace Vodovoz
 				if (DocumentUoW.Root.Materials == null)
 					DocumentUoW.Root.Materials = new List<IncomingWaterMaterial> ();
 				items = DocumentUoW.Root.ObservableMaterials;
-				items.ElementChanged += Items_ElementChanged; 
+				items.ElementChanged += Items_ElementChanged;
+				treeMaterialsList.ColumnMappingConfig = MappingConfig<IncomingWaterMaterial>.Create ()
+					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
+					.AddColumn ("На продукт")
+					.AddNumericRenderer (i => i.OneProductAmountEdited).Editing ().WidthChars (10)
+					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddColumn ("Всего")
+					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
+					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.Finish ();
+
 				treeMaterialsList.ItemsDataSource = items;
-				var OneProductCol = treeMaterialsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingWaterMaterial> (item => item.OneProductAmount));
-				if (OneProductCol != null) {
-					//(OneProductCol.CellRenderers[0] as CellRendererText).Edited += OnOneProductColumnEdited;
-					//OneProductCol.SetCellDataFunc (OneProductCol.Cells [0], new TreeCellDataFunc (RenderSumColumnFunc));
-				}
-				var amountCol = treeMaterialsList.GetColumnByMappedProp (PropertyUtil.GetName<IncomingWaterMaterial> (item => item.Amount));
-				if (amountCol != null) {
-					//amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
-				}
 
 				CalculateTotal ();
 			}
@@ -66,14 +69,6 @@ namespace Vodovoz
 			treeMaterialsList.Selection.Changed += OnSelectionChanged;
 		}
 
-		void RenderAmountCol (TreeViewColumn tree_column, CellRenderer cell, TreeModel tree_model, TreeIter iter)
-		{
-			var col = treeMaterialsList.Columns.First (c => c.Title == "CanEditAmount");
-			(cell as CellRendererText).Editable = (bool)tree_model.GetValue (
-				iter, 
-				treeMaterialsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == col));
-		}
-
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
 			buttonDelete.Sensitive = treeMaterialsList.Selection.CountSelectedRows () > 0;
@@ -85,22 +80,6 @@ namespace Vodovoz
 		{
 			items.Remove (treeMaterialsList.GetSelectedObjects () [0] as IncomingWaterMaterial);
 			CalculateTotal ();
-		}
-
-		private void RenderPriceColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
-		                                    Gtk.TreeModel aModel, Gtk.TreeIter aIter)
-		{
-			(aCell as CellRendererText).Text = aModel.GetValue (
-				aIter,
-				treeMaterialsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == aColumn)).ToString ();
-		}
-
-		private void RenderSumColumnFunc (Gtk.TreeViewColumn aColumn, Gtk.CellRenderer aCell, 
-		                                  Gtk.TreeModel aModel, Gtk.TreeIter aIter)
-		{
-			decimal sum = (((aModel as TreeModelAdapter).Implementor as MappingsImplementor).NodeFromIter (aIter) as IncomingInvoiceItem).Sum;
-
-			(aCell as CellRendererText).Text = CurrencyWorks.GetShortCurrencyString (sum);
 		}
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)

@@ -4,6 +4,7 @@ using Gtk;
 using NHibernate;
 using NLog;
 using QSOrmProject;
+using QSOrmProject.UpdateNotification;
 using QSTDI;
 using Vodovoz.Domain.Documents;
 
@@ -75,13 +76,6 @@ namespace Vodovoz
 				return;
 			TabParent.AddTab (OrmMain.CreateObjectDialog (document.GetType ()), this);
 		}
-
-		#region ITdiJournal implementation
-
-		public event EventHandler<TdiOpenObjDialogEventArgs> OpenObjDialog;
-		public event EventHandler<TdiOpenObjDialogEventArgs> DeleteObj;
-
-		#endregion
 
 		#region ITdiTab implementation
 

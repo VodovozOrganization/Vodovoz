@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModel
 			NodeStore.Clear ();
 
 			Nomenclature nomenclatureAlias = null;
+			MeasurementUnits unitAlias = null;
 			StockBalanceVMNode resultAlias = null;
 			GoodsMovementOperation operationAddAlias = null;
 			GoodsMovementOperation operationRemoveAlias = null;
@@ -61,9 +62,12 @@ namespace Vodovoz.ViewModel
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
 			var stocklist = uow.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
+				.JoinQueryOver(n => n.Unit, () => unitAlias)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
+					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
+					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
 					.SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
 					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
 				)
@@ -84,8 +88,13 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (Nomenclature updatedSubject)
 		{
-			//return uow.Root.Id == updatedSubject.Counterparty.Id;
-			return false;
+			throw new NotImplementedException ();
+		}
+
+		protected override bool NeedUpdateFunc (object updatedSubject)
+		{
+			//FIXME Пока простая проверка.
+			return true; //(updatedSubject is Nomenclature || updatedSubject is GoodsMovementOperation);
 		}
 
 		#endregion
@@ -94,7 +103,7 @@ namespace Vodovoz.ViewModel
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
-		public StockBalanceVM (IUnitOfWork uow)
+		public StockBalanceVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(GoodsMovementOperation))
 		{
 			this.uow = uow;
 
@@ -113,19 +122,24 @@ namespace Vodovoz.ViewModel
 
 		public int Id{ get; set;}
 
-		public int Append{ get; set;}
+		public decimal Append{ get; set;}
 
-		public int Removed{ get; set;}
+		public decimal Removed{ get; set;}
 
-		public string Unit{ get; set;}
+		public string UnitName{ get; set;}
+
+		public short UnitDigits{ get; set;}
 
 		[TreeNodeValue(Column = 0)]
 		public string NomenclatureName { get; set;}
 
 		[TreeNodeValue(Column = 1)]
-		public string CountText { get { return String.Format ("{0} {1}", Amount, Unit); }}
+		public string CountText { get { return String.Format ("{0:" + String.Format ("F{0}", UnitDigits) + "} {1}", 
+			Amount,
+			UnitName);
+		}}
 
-		public int Amount { get { return Append - Removed; }}
+		public decimal Amount { get { return Append - Removed; }}
 	}
 }
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QSTDI;
 using Vodovoz.Domain;
+using Gtk.DataBindings;
 
 namespace Vodovoz
 {
@@ -35,26 +36,24 @@ namespace Vodovoz
 				if (DocumentUoW.Root.Items == null)
 					DocumentUoW.Root.Items = new List<WriteoffDocumentItem> ();
 				items = DocumentUoW.Root.ObservableItems;
+				treeItemsList.ColumnMappingConfig = MappingConfig<WriteoffDocumentItem>.Create ()
+					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
+					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
+					.AddColumn ("Количество")
+					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
+					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
+					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.Finish ();
+
 				treeItemsList.ItemsDataSource = items;
-				var amountCol = treeItemsList.GetColumnByMappedProp (PropertyUtil.GetName<WriteoffDocumentItem> (item => item.Amount));
-				if (amountCol != null) {
-					amountCol.SetCellDataFunc (amountCol.Cells [0], new TreeCellDataFunc (RenderAmountCol));
-				}
-				treeItemsList.Columns.First (c => c.Title == "CanEditAmount").Visible = false;
 			}
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
 			items.Remove (treeItemsList.GetSelectedObjects () [0] as WriteoffDocumentItem);
-		}
-
-		void RenderAmountCol (TreeViewColumn tree_column, CellRenderer cell, TreeModel tree_model, TreeIter iter)
-		{
-			var col = treeItemsList.Columns.First (c => c.Title == "CanEditAmount");
-			(cell as CellRendererText).Editable = (bool)tree_model.GetValue (
-				iter, 
-				treeItemsList.Columns.ToList<TreeViewColumn> ().FindIndex (m => m == col));
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)

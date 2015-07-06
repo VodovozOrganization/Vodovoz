@@ -45,14 +45,6 @@ namespace Vodovoz
 			buttonEdit.Click ();
 		}
 
-		#region ITdiJournal implementation
-
-		public event EventHandler<TdiOpenObjDialogEventArgs> OpenObjDialog;
-
-		public event EventHandler<TdiOpenObjDialogEventArgs> DeleteObj;
-
-		#endregion
-
 		#region ITdiTab implementation
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;

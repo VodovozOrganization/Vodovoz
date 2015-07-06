@@ -164,6 +164,10 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		public virtual string Title { 
+			get { return String.Format ("Перемещение ТМЦ №{0} от {1:d}", Id, TimeStamp); }
+		}
+
 		#region IDocument implementation
 
 		new public virtual string DocType {
