@@ -130,7 +130,7 @@ namespace Vodovoz.Domain
 
 		public static NomenclatureCategory[] GetCategoriesForSale ()
 		{
-			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment };
+			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water };
 		}
 
 		public static NomenclatureCategory[] GetCategoriesForGoods ()

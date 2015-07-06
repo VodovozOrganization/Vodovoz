@@ -54,7 +54,7 @@ namespace Vodovoz
 		{
 			datatable5.DataSource = subjectAdaptor;
 			referenceOrganization.SubjectType = typeof(Organization);
-			additionalagreementsview1.ParentReference = new OrmParentReference (UoWGeneric.Session, Subject, "AdditionalAgreements");
+			additionalagreementsview1.AgreementUoW = UoWGeneric;
 		}
 
 		public override bool Save ()

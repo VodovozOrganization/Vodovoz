@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using QSProjectsLib;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Domain
 {
@@ -13,7 +15,7 @@ namespace Vodovoz.Domain
 		Genitive = " договора",
 		Accusative = "договор"
 	)]
-	public class CounterpartyContract : PropertyChangedBase, IDomainObject, IAdditionalAgreementOwner
+	public class CounterpartyContract : PropertyChangedBase, IDomainObject
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }
 
@@ -23,6 +25,16 @@ namespace Vodovoz.Domain
 		public virtual IList<AdditionalAgreement> AdditionalAgreements {
 			get { return agreements; }
 			set { agreements = value; }
+		}
+
+		GenericObservableList<AdditionalAgreement> observableAdditionalAgreements;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<AdditionalAgreement> ObservableAdditionalAgreements {
+			get {
+				if (observableAdditionalAgreements == null)
+					observableAdditionalAgreements = new GenericObservableList<AdditionalAgreement> (AdditionalAgreements);
+				return observableAdditionalAgreements;
+			}
 		}
 
 		#endregion
@@ -93,11 +105,59 @@ namespace Vodovoz.Domain
 			uow.Root.Counterparty = counterparty;
 			return uow;
 		}
-	}
 
-	public interface IAdditionalAgreementOwner
-	{
-		IList<AdditionalAgreement> AdditionalAgreements { get; set; }
+		/// <summary>
+		/// Проверяет, не создано ли уже подобное доп. соглашение.
+		/// </summary>
+		/// <returns><c>true</c>, если такое доп. соглашение уже существует, <c>false</c> иначе.</returns>
+		/// <param name="id">Id доп. соглашения, для исключения совпадения с самим собой.</param>
+		/// <param name="deliveryPoint">Точка доставки.</param>
+		public bool CheckWaterSalesAgreementExists (int id, DeliveryPoint deliveryPoint)
+		{
+			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
+				return false;
+			}
+			if (deliveryPoint != null) {
+				return AdditionalAgreements.Any (
+					a => a.Id != id &&
+					a.DeliveryPoint != null &&
+					a.DeliveryPoint.Id == deliveryPoint.Id &&
+					a.Type == AgreementType.WaterSales &&
+					!a.IsCancelled);
+			}
+			return AdditionalAgreements.Any (
+				a => a.Id != id &&
+				a.DeliveryPoint == null &&
+				a.Type == AgreementType.WaterSales &&
+				!a.IsCancelled);
+		}
+
+		public WaterSalesAgreement GetWaterSalesAgreement (DeliveryPoint deliveryPoint)
+		{
+			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
+				return null;
+			}
+			AdditionalAgreement agreement = null;
+			agreement = AdditionalAgreements.FirstOrDefault (a => 
+				a.DeliveryPoint != null &&
+			a.DeliveryPoint.Id == deliveryPoint.Id &&
+			a.Type == AgreementType.WaterSales &&
+			!a.IsCancelled);
+			if (agreement == null) {
+				agreement = AdditionalAgreements.FirstOrDefault (a => 
+					a.DeliveryPoint == null &&
+				a.Type == AgreementType.WaterSales &&
+				!a.IsCancelled);
+			}
+			return agreement != null ? agreement as WaterSalesAgreement : null;
+		}
+
+		public bool CheckRepairAgreementExists ()
+		{
+			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1)
+				return false;
+			return AdditionalAgreements.Any (a => a.Type == AgreementType.Repair && !a.IsCancelled);
+		}
 	}
 
 	public interface IContractSaved

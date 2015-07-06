@@ -11,15 +11,23 @@ using System.Linq;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementsView : Gtk.Bin
+	public partial class AdditionalAgreementsView : Bin, IEditableDialog
 	{
-		private IAdditionalAgreementOwner agreementOwner;
-		private GenericObservableList<AdditionalAgreement> additionalAgreements;
-		private ISession session;
+		GenericObservableList<AdditionalAgreement> additionalAgreements;
 
-		public ISession Session {
-			get { return session; }
-			set { session = value; }
+		IUnitOfWorkGeneric<CounterpartyContract> agreementUoW;
+
+		public IUnitOfWorkGeneric<CounterpartyContract> AgreementUoW {
+			get { return agreementUoW; }
+			set {
+				if (agreementUoW == value)
+					return;
+				agreementUoW = value;
+				if (AgreementUoW.Root.AdditionalAgreements == null)
+					AgreementUoW.Root.AdditionalAgreements = new List<AdditionalAgreement> ();
+				additionalAgreements = AgreementUoW.Root.ObservableAdditionalAgreements;
+				treeAdditionalAgreements.ItemsDataSource = additionalAgreements;
+			}
 		}
 
 		bool isEditable = true;
@@ -31,33 +39,6 @@ namespace Vodovoz
 				buttonAdd.Sensitive = buttonDelete.Sensitive = 
 					treeAdditionalAgreements.Sensitive = buttonEdit.Sensitive = value;
 			}
-		}
-
-		public IAdditionalAgreementOwner AgreementOwner {
-			get { return agreementOwner; }
-			set {
-				agreementOwner = value;
-				if (agreementOwner.AdditionalAgreements == null)
-					AgreementOwner.AdditionalAgreements = new List<AdditionalAgreement> ();
-				additionalAgreements = new GenericObservableList<AdditionalAgreement> (AgreementOwner.AdditionalAgreements);
-				treeAdditionalAgreements.ItemsDataSource = additionalAgreements;
-			}
-		}
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null) {
-					Session = parentReference.Session;
-					if (!(parentReference.ParentObject is IAdditionalAgreementOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IAdditionalAgreementOwner)));
-					}
-					AgreementOwner = (IAdditionalAgreementOwner)parentReference.ParentObject;
-				}
-			}
-			get { return parentReference; }
 		}
 
 		public AdditionalAgreementsView ()
@@ -81,19 +62,19 @@ namespace Vodovoz
 			ITdiDialog dlg;
 			switch (type) {
 			case AgreementType.FreeRent:
-				dlg = new AdditionalAgreementFreeRent (agreementOwner as CounterpartyContract);
+				dlg = new AdditionalAgreementFreeRent (AgreementUoW.Root);
 				break;
 			case AgreementType.NonfreeRent:
-				dlg = new AdditionalAgreementNonFreeRent (agreementOwner as CounterpartyContract);
+				dlg = new AdditionalAgreementNonFreeRent (AgreementUoW.Root);
 				break;
 			case AgreementType.WaterSales:
-				dlg = new AdditionalAgreementWater (agreementOwner as CounterpartyContract);
+				dlg = new AdditionalAgreementWater (AgreementUoW.Root);
 				break;
 			case AgreementType.DailyRent:
-				dlg = new AdditionalAgreementDailyRent (agreementOwner as CounterpartyContract);
+				dlg = new AdditionalAgreementDailyRent (AgreementUoW.Root);
 				break;
 			case AgreementType.Repair:
-				if (additionalAgreements.Any (a => a.Type == AgreementType.Repair)) {
+				if (AgreementUoW.Root.CheckRepairAgreementExists ()) {
 					MessageDialog md = new MessageDialog (null,
 						                   DialogFlags.Modal,
 						                   MessageType.Warning,
@@ -106,7 +87,7 @@ namespace Vodovoz
 					md.Destroy ();
 					return;
 				}
-				dlg = new AdditionalAgreementRepair (agreementOwner as CounterpartyContract);
+				dlg = new AdditionalAgreementRepair (AgreementUoW.Root);
 				break;
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));
@@ -126,7 +107,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnTreeAdditionalAgreementsRowActivated (object o, Gtk.RowActivatedArgs args)
+		protected void OnTreeAdditionalAgreementsRowActivated (object o, RowActivatedArgs args)
 		{
 			buttonEdit.Click ();
 		}
@@ -144,6 +125,20 @@ namespace Vodovoz
 		{
 			OnButtonAddClicked ((AgreementType)e.ItemEnum);
 		}
+
+		protected void OnButtonDeactivateClicked (object sender, EventArgs e)
+		{
+			MessageDialog md = new MessageDialog (null, 
+				                   DialogFlags.Modal,
+				                   MessageType.Question,
+				                   ButtonsType.YesNo,
+				                   "Вы действительно хотите закрыть данное доп. соглашение?");
+			md.SetPosition (WindowPosition.Center);
+			md.ShowAll ();
+			if (md.Run () == (int)ResponseType.Yes)
+				(treeAdditionalAgreements.GetSelectedObjects () [0] as AdditionalAgreement).IsCancelled = true;
+			md.Destroy ();
+			//TODO Скрыть из выборки
+		}
 	}
 }
-

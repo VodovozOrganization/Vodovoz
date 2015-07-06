@@ -8,9 +8,23 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementWater : OrmGtkDialogBase<WaterSalesAgreement>
+	public partial class AdditionalAgreementWater : OrmGtkDialogBase<WaterSalesAgreement>, IAgreementSaved, IEditableDialog
 	{
+		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
+
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value;
+				buttonSave.Sensitive = entryAgreementNumber.Sensitive = 
+					referenceDeliveryPoint.Sensitive = dateIssue.Sensitive = dateStart.Sensitive = 
+						checkIsFixedPrice.Sensitive = spinFixedPrice.Sensitive = value;
+			} 
+		}
 
 		public AdditionalAgreementWater (CounterpartyContract contract)
 		{
@@ -51,6 +65,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
+			AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
 

@@ -3501,7 +3501,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">7</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -4775,7 +4775,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementsView" design-size="313 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementsView" design-size="491 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -4872,6 +4872,24 @@ Patronymic</property>
               <packing>
                 <property name="Position">2</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonDeactivate">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-stop Menu</property>
+                <property name="Label" translatable="yes">Закрыть доп. соглашение</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonDeactivateClicked" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">3</property>
+                <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -10319,7 +10337,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="HeightRequest">150</property>
                 <property name="Events">ButtonPressMask</property>
-                <property name="IsEditable">False</property>
+                <property name="IsEditable">True</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -14373,7 +14391,7 @@ OneProductAmountEdited[На продукт]&lt;&gt;; Amount[Всего]&lt;&gt;;
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">4</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />

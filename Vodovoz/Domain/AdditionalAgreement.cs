@@ -48,11 +48,12 @@ namespace Vodovoz.Domain
 		[Display (Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint { get; set; }
 
+		[Display (Name = "Закрыто")]
+		public virtual bool IsCancelled { get; set; }
+
 		public virtual string AgreementDeliveryPoint { get { return DeliveryPoint != null ? DeliveryPoint.Point : "Не указана"; } }
 
 		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
-
-		public virtual bool IsNew { get; set; }
 
 		public AdditionalAgreement ()
 		{
@@ -232,16 +233,13 @@ namespace Vodovoz.Domain
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
 				yield return result;
-			var agreements = new List<AdditionalAgreement> ();
-			foreach (AdditionalAgreement agreement in Contract.AdditionalAgreements)
-				if (agreement is WaterSalesAgreement)
-					agreements.Add (agreement);
-			if (agreements.FindAll (m => m.DeliveryPoint == this.DeliveryPoint).Count > 1) {
+			if (Contract.CheckWaterSalesAgreementExists (Id, DeliveryPoint)) {
 				if (DeliveryPoint != null)
-					yield return new ValidationResult ("Доп. соглашение для данной точки доставки уже существует.", new[] { "DeliveryPoint" });
+					yield return new ValidationResult ("Доп. соглашение для данной точки доставки уже существует. " +
+					"Пожалуйста, закройте действующее соглашение для создания нового.", new[] { "DeliveryPoint" });
 				else
 					yield return new ValidationResult ("Общее доп. соглашение по продаже воды уже существует. " +
-					"Пожалуйста, укажите точку доставки или перейдите к существующему соглашению.", new[] { "DeliveryPoint" });
+					"Пожалуйста, закройте действующее соглашение для создания нового.", new[] { "DeliveryPoint" });
 			}
 		}
 

@@ -19,6 +19,8 @@ namespace Vodovoz
 		private global::Gtk.Button buttonEdit;
 		
 		private global::Gtk.Button buttonDelete;
+		
+		private global::Gtk.Button buttonDeactivate;
 
 		protected virtual void Build ()
 		{
@@ -106,11 +108,26 @@ namespace Vodovoz
 			w9.Position = 2;
 			w9.Expand = false;
 			w9.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonDeactivate = new global::Gtk.Button ();
+			this.buttonDeactivate.CanFocus = true;
+			this.buttonDeactivate.Name = "buttonDeactivate";
+			this.buttonDeactivate.UseUnderline = true;
+			this.buttonDeactivate.Label = global::Mono.Unix.Catalog.GetString ("Закрыть доп. соглашение");
+			global::Gtk.Image w10 = new global::Gtk.Image ();
+			w10.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-stop", global::Gtk.IconSize.Menu);
+			this.buttonDeactivate.Image = w10;
+			this.hbox1.Add (this.buttonDeactivate);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDeactivate]));
+			w11.PackType = ((global::Gtk.PackType)(1));
+			w11.Position = 3;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -120,6 +137,7 @@ namespace Vodovoz
 			this.buttonAdd.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnButtonAddEnumItemClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler (this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
+			this.buttonDeactivate.Clicked += new global::System.EventHandler (this.OnButtonDeactivateClicked);
 		}
 	}
 }

@@ -8,6 +8,7 @@ using Vodovoz.Repository;
 using QSProjectsLib;
 using Gtk;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -127,6 +128,9 @@ namespace Vodovoz
 					DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Client)
 						.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
 				referenceDeliveryPoint.Sensitive = true;
+				if (UoWGeneric.Root.DeliveryPoint != null && !UoWGeneric.Root.Client.DeliveryPoints.Any (d => d.Id == UoWGeneric.Root.DeliveryPoint.Id)) {
+					UoWGeneric.Root.DeliveryPoint = null;
+				}
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}
@@ -185,6 +189,35 @@ namespace Vodovoz
 					OrderItem = UoWGeneric.Root.ObservableOrderItems [ItemId],
 					Reason = Reason.Rent	//TODO FIXME Добавить причину - продажа.
 				});
+			} else if (nomenclature.Category == NomenclatureCategory.water) {
+				WaterSalesAgreement wsa = CounterpartyContractRepository.
+				GetCounterpartyContract (UoWGeneric).
+				GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
+				if (wsa == null) {
+					MessageDialog md = new MessageDialog (null,
+						                   DialogFlags.Modal,
+						                   MessageType.Question,
+						                   ButtonsType.YesNo,
+						                   "Отсутствует доп. соглашение с клиентом для продажи воды. Создать?");
+					md.SetPosition (WindowPosition.Center);
+					md.ShowAll ();
+					bool result = md.Run () == (int)ResponseType.Yes;
+					md.Destroy ();
+					if (result) {
+						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric));
+						(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
+						TabParent.AddSlaveTab (this, dlg);
+					} else {
+						return;
+					}
+				}
+				UoWGeneric.Root.ObservableOrderItems.Add (new OrderItem {
+					AdditionalAgreement = wsa,
+					Count = 1,
+					Equipment = null,
+					Nomenclature = nomenclature,
+					Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.NomenclaturePrice [0].Price //FIXME
+				});
 			}
 		}
 
@@ -202,8 +235,7 @@ namespace Vodovoz
 					                   DialogFlags.Modal,
 					                   MessageType.Warning,
 					                   ButtonsType.Ok,
-					                   "Для добавления оборудования должны быть заполнены следующие поля:" +
-					                   "\"Клиент\" и \"Точка доставки\".");
+					                   "Для добавления оборудования должна быть выбрана точка доставки.");
 				md.SetPosition (WindowPosition.Center);
 				md.ShowAll ();
 				md.Run ();
@@ -216,8 +248,9 @@ namespace Vodovoz
 					                   DialogFlags.Modal,
 					                   MessageType.Question,
 					                   ButtonsType.YesNo,
-					                   "Отсутствует договор с клиентом для выбранного типа оплаты. " +
-					                   "Создать?");
+					                   "Отсутствует договор с клиентом для " +
+					                   (UoWGeneric.Root.PaymentType == Payment.cash ? "наличной" : "безналичной") +
+					                   " формы оплаты. Создать?");
 				md.SetPosition (WindowPosition.Center);
 				md.ShowAll ();
 				bool result = md.Run () == (int)ResponseType.Yes;
@@ -263,6 +296,7 @@ namespace Vodovoz
 				AdditionalAgreement = e.Agreement
 			});
 			RefreshItemsAndEquipment (e.Agreement);
+			CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric).AdditionalAgreements.Add (e.Agreement);
 		}
 
 		void RefreshItemsAndEquipment (AdditionalAgreement a)
