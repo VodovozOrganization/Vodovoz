@@ -8,7 +8,7 @@ using System.Data.Bindings.Collections.Generic;
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (JournalName = "Списания ТМЦ", ObjectName = "Акт списания")]
-	public class WriteoffDocument: Document
+	public class WriteoffDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Documents
 
 		Employee responsibleEmployee;
 
-		[Required (ErrorMessage = "Должен быть указан ответственнй за перемещение.")]
+		[Required (ErrorMessage = "Должен быть указан ответственнй за списание.")]
 		[Display (Name = "Ответственный")]
 		public virtual Employee ResponsibleEmployee {
 			get { return responsibleEmployee; }
@@ -36,7 +36,11 @@ namespace Vodovoz.Domain.Documents
 		public virtual Counterparty Client {
 			get { return client; }
 			set {
-				client = value; 
+				client = value;
+				if (Client != null)
+					WriteoffWarehouse = null;
+				if (Client == null || !Client.DeliveryPoints.Contains (DeliveryPoint))
+					DeliveryPoint = null;
 				foreach (var item in Items) {
 					if (item.WriteOffGoodsOperation.WriteoffCounterparty != client)
 						item.WriteOffGoodsOperation.WriteoffCounterparty = client;
@@ -64,7 +68,10 @@ namespace Vodovoz.Domain.Documents
 		public virtual Warehouse WriteoffWarehouse {
 			get { return writeoffWarehouse; }
 			set {
-				writeoffWarehouse = value; 
+				writeoffWarehouse = value;
+				if(WriteoffWarehouse != null)
+					Client = null;
+				
 				foreach (var item in Items) {
 					if (item.WriteOffGoodsOperation.WriteoffWarehouse != writeoffWarehouse)
 						item.WriteOffGoodsOperation.WriteoffWarehouse = writeoffWarehouse;
@@ -124,6 +131,15 @@ namespace Vodovoz.Domain.Documents
 			item.Document = this;
 			ObservableItems.Add (item);
 		}
+
+		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if (WriteoffWarehouse == null && Client == null)
+				yield return new ValidationResult ("Склад списания или контрагент должны быть заполнены.");
+			if (Client != null && DeliveryPoint == null)
+				yield return new ValidationResult ("Точка доставки должна быть указана.");
+		}
+
 	}
 
 	public enum WriteoffType

@@ -58,12 +58,6 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			if (comboType.Active == (int)WriteoffType.counterparty) {
-				UoWGeneric.Root.WriteoffWarehouse = null;
-			} else {
-				UoWGeneric.Root.Client = null;
-				UoWGeneric.Root.DeliveryPoint = null;
-			}
 			var valid = new QSValidator<WriteoffDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
