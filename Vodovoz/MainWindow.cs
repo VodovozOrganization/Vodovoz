@@ -48,9 +48,6 @@ public partial class MainWindow: Gtk.Window
 		UsersAction.Sensitive = QSMain.User.admin;
 		labelUser.LabelProp = QSMain.User.Name;
 
-		//Настраиваем виджет вкладок
-		tdiMain.CreateDialogWidget += OnCreateDialogWidget;
-
 		BanksUpdater.Update (false);
 	}
 
@@ -117,17 +114,6 @@ public partial class MainWindow: Gtk.Window
 			(w as Editable).PasteClipboard ();
 		else if (w is TextView)
 			(w as TextView).Buffer.PasteClipboard (clipboard);
-	}
-
-	void OnCreateDialogWidget (object sender, QSTDI.TdiOpenObjDialogEventArgs e)
-	{
-		if (e.NewObject) {
-			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass);
-		} else if (e.ObjectVar != null) {
-			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass, e.ObjectVar);
-		} else {
-			e.ResultDialogWidget = OrmMain.CreateObjectDialog (e.ObjectClass, e.ObjectId);		
-		}
 	}
 
 	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
