@@ -64,7 +64,8 @@ namespace Vodovoz
 				return false;
 
 			UoWGeneric.Save ();
-			ContractSaved (this, new ContractSavedEventArgs (UoWGeneric.Root));
+			if (ContractSaved != null)
+				ContractSaved (this, new ContractSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
 
