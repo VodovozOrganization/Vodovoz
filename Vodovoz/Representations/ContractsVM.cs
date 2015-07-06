@@ -59,6 +59,11 @@ namespace Vodovoz.ViewModel
 		{
 			return uow.Root.Id == updatedSubject.Counterparty.Id;
 		}
+			
+		protected override bool NeedUpdateFunc (object updatedSubject)
+		{
+			throw new NotImplementedException ();
+		}
 
 		#endregion
 

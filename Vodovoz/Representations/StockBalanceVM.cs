@@ -84,8 +84,13 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (Nomenclature updatedSubject)
 		{
-			//return uow.Root.Id == updatedSubject.Counterparty.Id;
-			return false;
+			throw new NotImplementedException ();
+		}
+
+		protected override bool NeedUpdateFunc (object updatedSubject)
+		{
+			//FIXME Пока простая проверка.
+			return (updatedSubject is Nomenclature || updatedSubject is GoodsMovementOperation);
 		}
 
 		#endregion
