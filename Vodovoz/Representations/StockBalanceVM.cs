@@ -15,24 +15,12 @@ namespace Vodovoz.ViewModel
 	{
 		IUnitOfWork uow;
 
-		StockBalanceFilter filter;
-
 		public StockBalanceFilter Filter {
 			get {
-				return filter;
+				return RepresentationFilter as StockBalanceFilter;
 			}
-			set {
-				if(filter != null)
-					filter.Refiltered -= Filter_Refiltered;
-				filter = value;
-				if(filter != null)
-					filter.Refiltered += Filter_Refiltered;
+			set { RepresentationFilter = value as IRepresentationFilter;
 			}
-		}
-
-		void Filter_Refiltered (object sender, EventArgs e)
-		{
-			UpdateNodes ();
 		}
 
 		#region IRepresentationModel implementation
@@ -49,16 +37,16 @@ namespace Vodovoz.ViewModel
 
 			var subqueryAdd = QueryOver.Of<GoodsMovementOperation>(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And ((filter == null || filter.RestrictWarehouse == null) 
+				.And ((Filter == null || Filter.RestrictWarehouse == null) 
 					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse), filter.RestrictWarehouse))
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse), Filter.RestrictWarehouse))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
 			var subqueryRemove = QueryOver.Of<GoodsMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And ((filter == null || filter.RestrictWarehouse == null) 
+				.And ((Filter == null || Filter.RestrictWarehouse == null) 
 					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), filter.RestrictWarehouse))
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictWarehouse))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
 			var stocklist = uow.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
@@ -72,7 +60,7 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
 				)
 				.TransformUsing(Transformers.AliasToBean<StockBalanceVMNode>())
-				.List<StockBalanceVMNode>().Where(r => r.Amount > 0);
+				.List<StockBalanceVMNode>().Where(r => r.Amount != 0);
 
 			foreach (var item in stocklist)
 				NodeStore.AddNode (item);
@@ -99,6 +87,11 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
+		public StockBalanceVM (StockBalanceFilter filter) : this(filter.UoW)
+		{
+			Filter = filter;
+		}
+
 		public StockBalanceVM () 
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
@@ -113,6 +106,8 @@ namespace Vodovoz.ViewModel
 				.SetDataProperty<StockBalanceVMNode> (node => node.NomenclatureName));
 			Columns.Add (new ColumnInfo { Name = "Кол-во" }
 				.SetDataProperty<StockBalanceVMNode> (node => node.CountText));
+
+			SetRowAttribute<StockBalanceVMNode> ("foreground", node => node.RowColor);
 		}
 	}
 
@@ -140,6 +135,16 @@ namespace Vodovoz.ViewModel
 		}}
 
 		public decimal Amount { get { return Append - Removed; }}
+
+		[TreeNodeValue(Column = 2)]
+		public string RowColor {
+			get {
+				if (Amount < 0)
+					return "red";
+				else
+					return "black";
+			}
+		}
 	}
 }
 
