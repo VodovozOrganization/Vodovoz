@@ -21,6 +21,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		string comment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
+
 		Employee responsibleEmployee;
 
 		[Required (ErrorMessage = "Должен быть указан ответственнй за списание.")]
@@ -69,7 +77,7 @@ namespace Vodovoz.Domain.Documents
 			get { return writeoffWarehouse; }
 			set {
 				writeoffWarehouse = value;
-				if(WriteoffWarehouse != null)
+				if (WriteoffWarehouse != null)
 					Client = null;
 				
 				foreach (var item in Items) {

@@ -59,6 +59,7 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="TimeStamp" column="time_stamp"/>
+ 		<property name="Comment" column="comment"/>
  		<property name="Category" column="category" type="Vodovoz.Domain.Documents.MovementDocumentCategoryStringType, Vodovoz"/>
 		<many-to-one name="ResponsiblePerson" class="Employee" column="responsible_person_id"/>
 		<many-to-one name="FromDeliveryPoint" class="DeliveryPoint" column="delivery_point_from_id"/>
@@ -89,6 +90,7 @@
 			<generator class="native"></generator>
 	 	</id>
 	 	<property name="TimeStamp" column="time_stamp"/>
+	 	<property name="Comment" column="comment"/>
 	 	<many-to-one name="ResponsibleEmployee" class="Employee" column="responsible_employee_id"/>
 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
 		<many-to-one name="Client" class="Counterparty" column="counterparty_id"/>

@@ -42,6 +42,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		string comment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
+
 		Employee responsiblePerson;
 
 		[Required (ErrorMessage = "Должен быть указан ответственнй за перемещение.")]
