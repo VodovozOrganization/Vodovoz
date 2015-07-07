@@ -12,42 +12,23 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class DeliveryPointView : Gtk.Bin
 	{
-		private IDeliveryPointOwner deliveryPointOwner;
-		private GenericObservableList<DeliveryPoint> DeliveryPoints;
-		private ISession session;
+		GenericObservableList<DeliveryPoint> deliveryPoints;
 
-		public ISession Session {
-			get { return session; }
-			set { session = value; }
-		}
+		IUnitOfWorkGeneric<Counterparty> deliveryPointUoW;
 
-		public IDeliveryPointOwner DeliveryPointOwner {
-			get { return deliveryPointOwner; }
+		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW {
+			get { return deliveryPointUoW; }
 			set {
-				deliveryPointOwner = value;
-				if (deliveryPointOwner.DeliveryPoints == null)
-					DeliveryPointOwner.DeliveryPoints = new List<DeliveryPoint> ();
-				DeliveryPoints = new GenericObservableList<DeliveryPoint> (DeliveryPointOwner.DeliveryPoints);
-				treeDeliveryPoints.ItemsDataSource = DeliveryPoints;
+				if (deliveryPointUoW == value)
+					return;
+				deliveryPointUoW = value;
+				if (DeliveryPointUoW.Root.DeliveryPoints == null)
+					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint> ();
+				deliveryPoints = DeliveryPointUoW.Root.ObservableDeliveryPoints;
+				treeDeliveryPoints.ItemsDataSource = deliveryPoints;
 				treeDeliveryPoints.Columns [0].SetCellDataFunc (treeDeliveryPoints.Columns [0].Cells [0], new TreeCellDataFunc (RenderDeliveryPoint));
 				treeDeliveryPoints.Columns [1].Visible = false;
 			}
-		}
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
-			set {
-				parentReference = value;
-				if (parentReference != null) {
-					Session = parentReference.Session;
-					if (!(parentReference.ParentObject is IDeliveryPointOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IDeliveryPointOwner)));
-					}
-					DeliveryPointOwner = (IDeliveryPointOwner)parentReference.ParentObject;
-				}
-			}
-			get { return parentReference; }
 		}
 
 		public DeliveryPointView ()
@@ -68,7 +49,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ITdiDialog dlg = new DeliveryPointDlg (ParentReference);
+			ITdiDialog dlg = new DeliveryPointDlg (DeliveryPointUoW.Root);
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
@@ -78,7 +59,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (ParentReference, treeDeliveryPoints.GetSelectedObjects () [0]);
+			ITdiDialog dlg = OrmMain.CreateObjectDialog (treeDeliveryPoints.GetSelectedObjects () [0]);
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
@@ -93,7 +74,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			DeliveryPoints.Remove (treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPoint);
+			deliveryPoints.Remove (treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPoint);
 		}
 
 		private void RenderDeliveryPoint (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)

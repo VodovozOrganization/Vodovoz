@@ -20,7 +20,7 @@ namespace Vodovoz
 		public CounterpartyDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty> ();
 			TabName = "Новый контрагент";
 			ConfigureDlg ();
 		}
@@ -32,7 +32,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public CounterpartyDlg (Counterparty sub) : this (sub.Id) {}
+		public CounterpartyDlg (Counterparty sub) : this (sub.Id)
+		{
+		}
 
 		private void ConfigureDlg ()
 		{
@@ -60,7 +62,7 @@ namespace Vodovoz
 			validatedINN.DataSource = validatedKPP.DataSource = subjectAdaptor;
 			//Setting subjects
 			accountsView.ParentReference = new OrmParentReference (Session, Subject, "Accounts");
-			deliveryPointView.ParentReference = new OrmParentReference (Session, Subject, "DeliveryPoints");
+			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
@@ -88,7 +90,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем контрагента...");
 			phonesView.SaveChanges ();
 			emailsView.SaveChanges ();
-			UoWGeneric.Save();
+			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
 		}

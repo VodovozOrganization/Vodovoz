@@ -68,7 +68,6 @@ namespace Vodovoz
 				ContractSaved (this, new ContractSavedEventArgs (UoWGeneric.Root));
 			return true;
 		}
-
 	}
 }
 

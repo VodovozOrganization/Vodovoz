@@ -252,6 +252,7 @@
 		<property name="IsActive" column="is_active" />
 		<property name="Phone" column="phone" />
 		<many-to-one name="Contact" class="Contact" column="contact_person_id" />
+		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="LogisticsArea" class="LogisticsArea" column="logistic_area_id" />
 		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id" />
 	</class>

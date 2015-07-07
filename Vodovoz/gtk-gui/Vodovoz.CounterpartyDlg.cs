@@ -313,7 +313,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 2;
+			this.notebook1.CurrentPage = 7;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -357,10 +357,10 @@ namespace Vodovoz
 			this.entryName.IsEditable = true;
 			this.entryName.InvisibleChar = '●';
 			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
+			this.entryName.Mappings = "";
 			this.entryName.InheritedBoundaryDataSource = false;
 			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
+			this.entryName.Mappings = "";
 			this.entryName.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.entryName);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));

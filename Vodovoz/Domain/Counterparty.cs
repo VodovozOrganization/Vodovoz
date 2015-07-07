@@ -6,6 +6,7 @@ using QSContacts;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSProjectsLib;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.Domain
 		Accusative = "контрагента",
 		Genitive = "контрагента"
 	)]
-	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContactOwner, IProxyOwner, IDeliveryPointOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContactOwner, IProxyOwner
 	{
 		private IList<CounterpartyContract> counterpartyContracts;
 
@@ -37,6 +38,16 @@ namespace Vodovoz.Domain
 		public IList<DeliveryPoint> DeliveryPoints {
 			get { return deliveryPoints; }
 			set { SetField (ref deliveryPoints, value, () => DeliveryPoints); }
+		}
+
+		GenericObservableList<DeliveryPoint> observableDeliveryPoints;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<DeliveryPoint> ObservableDeliveryPoints {
+			get {
+				if (observableDeliveryPoints == null)
+					observableDeliveryPoints = new GenericObservableList<DeliveryPoint> (DeliveryPoints);
+				return observableDeliveryPoints;
+			}
 		}
 
 		#endregion
