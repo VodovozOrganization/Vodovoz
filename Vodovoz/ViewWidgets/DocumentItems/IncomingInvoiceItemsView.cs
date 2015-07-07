@@ -33,7 +33,7 @@ namespace Vodovoz
 				items = DocumentUoW.Root.ObservableItems;
 				items.ElementChanged += Items_ElementChanged;
 
-				treeItemsList.ColumnMappingConfig = MappingConfig<IncomingInvoiceItem>.Create ()
+				treeItemsList.ColumnMappingConfig = FluentMappingConfig<IncomingInvoiceItem>.Create ()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
 					.AddColumn ("Количество")

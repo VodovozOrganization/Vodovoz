@@ -31,7 +31,7 @@ namespace Vodovoz
 				items.ElementChanged += Items_ElementChanged;
 				items.ElementAdded += Items_ElementAdded;
 
-				treeMaterialsList.ColumnMappingConfig = MappingConfig<ProductSpecificationMaterial>.Create()
+				treeMaterialsList.ColumnMappingConfig = FluentMappingConfig<ProductSpecificationMaterial>.Create()
 					.AddColumn ("Наименование").AddTextRenderer(p => p.NomenclatureName)
 					.AddColumn ("Количество").AddNumericRenderer (p => p.Amount).Editing ()
 					.AddSetter((c, p) => c.Digits = (uint)p.Material.Unit.Digits)
