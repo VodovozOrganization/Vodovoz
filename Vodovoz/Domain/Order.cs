@@ -41,7 +41,16 @@ namespace Vodovoz.Domain
 		[Display (Name = "Дата доставки")]
 		public virtual DateTime DeliveryDate {
 			get { return deliveryDate; }
-			set { SetField (ref deliveryDate, value, () => DeliveryDate); }
+			set { 
+				SetField (ref deliveryDate, value, () => DeliveryDate); 
+				foreach (OrderDocument document in OrderDocuments) {
+					if (document.Type == OrderDocumentType.AdditionalAgreement) {
+						(document as OrderAgreement).AdditionalAgreement.IssueDate = value;
+						(document as OrderAgreement).AdditionalAgreement.StartDate = value;
+					}
+					//TODO FIXME Когда сделаю добавление документов для печати - фильтровать их сдесь и не менять им дату.
+				}
+			}
 		}
 
 		DeliverySchedule deliverySchedule;
@@ -206,6 +215,7 @@ namespace Vodovoz.Domain
 		{
 			Comment = String.Empty;
 			OrderStatus = OrderStatus.NewOrder;
+			DeliveryDate = DateTime.Now;
 		}
 	}
 

@@ -55,6 +55,8 @@ namespace Vodovoz.Domain
 
 		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
 
+		public virtual string DocumentDate { get { return String.Format ("От {0}", StartDate.ToShortDateString ()); } }
+
 		public AdditionalAgreement ()
 		{
 			AgreementNumber = String.Empty;
@@ -158,6 +160,10 @@ namespace Vodovoz.Domain
 
 		public virtual string Title { 
 			get { return String.Format ("Доп. соглашение посуточной аренды №{0} от {1:d}", Id, IssueDate); }
+		}
+
+		public override string DocumentDate {
+			get { return String.Format ("От {0} до {1}", StartDate.ToShortDateString (), StartDate.AddDays (RentDays).ToShortDateString ()); }
 		}
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

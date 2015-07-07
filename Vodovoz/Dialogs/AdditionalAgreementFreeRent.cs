@@ -32,9 +32,10 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public AdditionalAgreementFreeRent (CounterpartyContract contract, DeliveryPoint point) : this (contract)
+		public AdditionalAgreementFreeRent (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
 		{
 			UoWGeneric.Root.DeliveryPoint = point;
+			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate;
 		}
 
 		public AdditionalAgreementFreeRent (FreeRentAgreement sub) : this (sub.Id)
@@ -53,7 +54,7 @@ namespace Vodovoz
 			datatable1.DataSource = subjectAdaptor;
 			entryAgreementNumber.IsEditable = true;
 			referenceDeliveryPoint.Sensitive = false;
-			dateIssue.Sensitive = false;
+			dateIssue.Sensitive = dateStart.Sensitive = false;
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
 				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)

@@ -852,7 +852,7 @@ namespace Vodovoz
 			this.treeDocuments.InheritedBoundaryDataSource = false;
 			this.treeDocuments.InheritedDataSource = false;
 			this.treeDocuments.InheritedBoundaryDataSource = false;
-			this.treeDocuments.ColumnMappings = "{Vodovoz.Domain.OrderDocument} Name[Документ];";
+			this.treeDocuments.ColumnMappings = "{Vodovoz.Domain.OrderDocument} Name[Документ]; DocumentDate[Дата];";
 			this.GtkScrolledWindow2.Add (this.treeDocuments);
 			this.vbox1.Add (this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w61 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow2]));

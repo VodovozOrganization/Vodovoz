@@ -28,6 +28,8 @@ namespace Vodovoz.Domain
 		}
 
 		public virtual string Name { get { return "Не указан"; } }
+
+		public virtual string DocumentDate { get { return "Не указано"; } }
 	}
 
 	public class OrderAgreement : OrderDocument
@@ -45,6 +47,10 @@ namespace Vodovoz.Domain
 				additionalAgreement.AgreementTypeTitle, 
 				additionalAgreement.AgreementNumber); }
 		}
+
+		public override string DocumentDate {
+			get { return AdditionalAgreement.DocumentDate; }
+		}
 	}
 
 	public class OrderContract : OrderDocument
@@ -59,6 +65,10 @@ namespace Vodovoz.Domain
 
 		public override string Name {
 			get { return String.Format ("Договор №{0}", contract.Number); }
+		}
+
+		public override string DocumentDate {
+			get { return String.Format ("От {0}", Contract.IssueDate.ToShortDateString ()); }
 		}
 	}
 

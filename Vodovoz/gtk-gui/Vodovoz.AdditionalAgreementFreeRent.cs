@@ -132,6 +132,7 @@ namespace Vodovoz
 			this.freerentpackagesview1.HeightRequest = 200;
 			this.freerentpackagesview1.Events = ((global::Gdk.EventMask)(256));
 			this.freerentpackagesview1.Name = "freerentpackagesview1";
+			this.freerentpackagesview1.IsEditable = false;
 			this.datatable1.Add (this.freerentpackagesview1);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.freerentpackagesview1]));
 			w8.TopAttach = ((uint)(4));

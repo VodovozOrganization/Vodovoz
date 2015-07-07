@@ -33,9 +33,10 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public AdditionalAgreementDailyRent (CounterpartyContract contract, DeliveryPoint point) : this (contract)
+		public AdditionalAgreementDailyRent (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
 		{
 			UoWGeneric.Root.DeliveryPoint = point;
+			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate;
 		}
 
 		public AdditionalAgreementDailyRent (DailyRentAgreement sub) : this (sub.Id)
@@ -55,7 +56,7 @@ namespace Vodovoz
 			entryAgreementNumber.IsEditable = true;
 			spinRentDays.Sensitive = false;
 			referenceDeliveryPoint.Sensitive = false;
-			dateIssue.Sensitive = false;
+			dateIssue.Sensitive = dateStart.Sensitive = false;
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
 				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)

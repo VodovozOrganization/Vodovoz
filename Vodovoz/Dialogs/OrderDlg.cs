@@ -204,7 +204,7 @@ namespace Vodovoz
 					bool result = md.Run () == (int)ResponseType.Yes;
 					md.Destroy ();
 					if (result) {
-						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric));
+						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric), UoWGeneric.Root.DeliveryDate);
 						(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 						TabParent.AddSlaveTab (this, dlg);
 					} else {
@@ -267,13 +267,13 @@ namespace Vodovoz
 			} else {
 				switch (type) {
 				case OrderAgreementType.NonfreeRent:
-					dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
+					dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 					break;
 				case OrderAgreementType.DailyRent:
-					dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint);
+					dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 					break;
 				default: 
-					dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint);
+					dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 					break;
 				}
 				(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
@@ -426,4 +426,3 @@ namespace Vodovoz
 		}
 	}
 }
-

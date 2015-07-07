@@ -4823,7 +4823,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип]; AgreementDeliveryPoint[Точка доставки];</property>
+                <property name="ColumnMappings">{Vodovoz.Domain.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип]; AgreementDeliveryPoint[Точка доставки]; DocumentDate[Дата];</property>
                 <signal name="RowActivated" handler="OnTreeAdditionalAgreementsRowActivated" />
               </widget>
             </child>
@@ -15324,7 +15324,7 @@ Patronymic</property>
                                 <property name="InheritedBoundaryDataSource">False</property>
                                 <property name="InheritedDataSource">False</property>
                                 <property name="InheritedBoundaryDataSource">False</property>
-                                <property name="ColumnMappings">{Vodovoz.Domain.OrderDocument} Name[Документ];</property>
+                                <property name="ColumnMappings">{Vodovoz.Domain.OrderDocument} Name[Документ]; DocumentDate[Дата];</property>
                                 <signal name="RowActivated" handler="OnTreeDocumentsRowActivated" />
                               </widget>
                             </child>

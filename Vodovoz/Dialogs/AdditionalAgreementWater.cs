@@ -33,6 +33,11 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
+		public AdditionalAgreementWater (CounterpartyContract contract, DateTime date) : this (contract)
+		{
+			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = date;
+		}
+
 		public AdditionalAgreementWater (WaterSalesAgreement sub) : this (sub.Id)
 		{
 		}
