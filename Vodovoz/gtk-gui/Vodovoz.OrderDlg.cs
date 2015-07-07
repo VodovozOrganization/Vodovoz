@@ -62,13 +62,13 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label4;
 		
-		private global::Gtk.Label label9;
-		
 		private global::Gtk.Label labelDeliveryDate;
 		
 		private global::Gtk.Label labelDeliverySchedule;
 		
 		private global::Gtk.Label labelPreviousOrder;
+		
+		private global::Gtk.Label labelSignatureType;
 		
 		private global::QSOrmProject.DataDatePicker pickerDeliveryDate;
 		
@@ -470,51 +470,51 @@ namespace Vodovoz
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label9 = new global::Gtk.Label ();
-			this.label9.Name = "label9";
-			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString ("Подписание документов:");
-			this.datatable1.Add (this.label9);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label9]));
-			w28.TopAttach = ((uint)(9));
-			w28.BottomAttach = ((uint)(10));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
-			w28.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
 			this.labelDeliveryDate = new global::Gtk.Label ();
 			this.labelDeliveryDate.WidthRequest = 160;
 			this.labelDeliveryDate.Name = "labelDeliveryDate";
 			this.labelDeliveryDate.Xalign = 1F;
 			this.labelDeliveryDate.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата доставки:");
 			this.datatable1.Add (this.labelDeliveryDate);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelDeliveryDate]));
-			w29.TopAttach = ((uint)(7));
-			w29.BottomAttach = ((uint)(8));
-			w29.XOptions = ((global::Gtk.AttachOptions)(4));
-			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelDeliveryDate]));
+			w28.TopAttach = ((uint)(7));
+			w28.BottomAttach = ((uint)(8));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.labelDeliverySchedule = new global::Gtk.Label ();
 			this.labelDeliverySchedule.Name = "labelDeliverySchedule";
 			this.labelDeliverySchedule.Xalign = 1F;
 			this.labelDeliverySchedule.LabelProp = global::Mono.Unix.Catalog.GetString ("Время доставки:");
 			this.datatable1.Add (this.labelDeliverySchedule);
-			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelDeliverySchedule]));
-			w30.TopAttach = ((uint)(7));
-			w30.BottomAttach = ((uint)(8));
-			w30.LeftAttach = ((uint)(2));
-			w30.RightAttach = ((uint)(3));
-			w30.XOptions = ((global::Gtk.AttachOptions)(4));
-			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelDeliverySchedule]));
+			w29.TopAttach = ((uint)(7));
+			w29.BottomAttach = ((uint)(8));
+			w29.LeftAttach = ((uint)(2));
+			w29.RightAttach = ((uint)(3));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.labelPreviousOrder = new global::Gtk.Label ();
 			this.labelPreviousOrder.Name = "labelPreviousOrder";
 			this.labelPreviousOrder.LabelProp = global::Mono.Unix.Catalog.GetString ("Предыдущий заказ.");
 			this.labelPreviousOrder.UseMarkup = true;
 			this.datatable1.Add (this.labelPreviousOrder);
-			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelPreviousOrder]));
-			w31.TopAttach = ((uint)(1));
-			w31.BottomAttach = ((uint)(2));
-			w31.RightAttach = ((uint)(4));
-			w31.YOptions = ((global::Gtk.AttachOptions)(2));
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelPreviousOrder]));
+			w30.TopAttach = ((uint)(1));
+			w30.BottomAttach = ((uint)(2));
+			w30.RightAttach = ((uint)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(2));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.labelSignatureType = new global::Gtk.Label ();
+			this.labelSignatureType.Name = "labelSignatureType";
+			this.labelSignatureType.LabelProp = global::Mono.Unix.Catalog.GetString ("Подписание документов:");
+			this.datatable1.Add (this.labelSignatureType);
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelSignatureType]));
+			w31.TopAttach = ((uint)(9));
+			w31.BottomAttach = ((uint)(10));
+			w31.XOptions = ((global::Gtk.AttachOptions)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.pickerDeliveryDate = new global::QSOrmProject.DataDatePicker ();
 			this.pickerDeliveryDate.Events = ((global::Gdk.EventMask)(256));
@@ -912,6 +912,7 @@ namespace Vodovoz
 			this.toggleDocuments.Toggled += new global::System.EventHandler (this.OnToggleDocumentsToggled);
 			this.referenceClient.Changed += new global::System.EventHandler (this.OnReferenceClientChanged);
 			this.buttonFillComment.Clicked += new global::System.EventHandler (this.OnButtonFillCommentClicked);
+			this.checkSelfDelivery.Toggled += new global::System.EventHandler (this.OnCheckSelfDeliveryToggled);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
 			this.enumAddRentButton.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnEnumAddRentButtonEnumItemClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);

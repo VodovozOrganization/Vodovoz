@@ -14470,6 +14470,7 @@ Patronymic</property>
                         <property name="InheritedBoundaryDataSource">False</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">SelfDelivery</property>
+                        <signal name="Toggled" handler="OnCheckSelfDeliveryToggled" />
                       </widget>
                       <packing>
                         <property name="TopAttach">6</property>
@@ -14767,25 +14768,6 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.Label" id="label9">
-                        <property name="MemberName" />
-                        <property name="LabelProp" translatable="yes">Подписание документов:</property>
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">9</property>
-                        <property name="BottomAttach">10</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
                       <widget class="Gtk.Label" id="labelDeliveryDate">
                         <property name="MemberName" />
                         <property name="WidthRequest">160</property>
@@ -14846,6 +14828,25 @@ Patronymic</property>
                         <property name="YExpand">False</property>
                         <property name="YFill">False</property>
                         <property name="YShrink">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="labelSignatureType">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Подписание документов:</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">9</property>
+                        <property name="BottomAttach">10</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
                       </packing>
                     </child>
                     <child>

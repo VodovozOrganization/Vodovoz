@@ -131,6 +131,8 @@ namespace Vodovoz
 				if (UoWGeneric.Root.DeliveryPoint != null && !UoWGeneric.Root.Client.DeliveryPoints.Any (d => d.Id == UoWGeneric.Root.DeliveryPoint.Id)) {
 					UoWGeneric.Root.DeliveryPoint = null;
 				}
+				enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
+					(UoWGeneric.Root.Client.PersonType == PersonType.legal);
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}
