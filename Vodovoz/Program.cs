@@ -59,6 +59,7 @@ namespace Vodovoz
 				new OrmObjectMapping<LogisticsArea> (null, "{Vodovoz.Domain.LogisticsArea} Name[Название]"),
 				new OrmObjectMapping<Warehouse> (null, "{Vodovoz.Domain.Warehouse} Name[Название]"),
 				//Остальные справочники
+				new OrmObjectMapping<CommentTemplate> (typeof(CommentTemplateDlg), "{Vodovoz.Domain.CommentTemplate} Comment[Шаблон комментария];", new string[] { "Comment" }),
 				new OrmObjectMapping<MeasurementUnits> (typeof(MeasurementUnitsDlg), "{Vodovoz.Domain.MeasurementUnits} Name[Название]; Digits[Точность];"),
 				new OrmObjectMapping<Contact> (typeof(ContactDlg), "{Vodovoz.Domain.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] { "Surname", "Name", "Lastname", "Post" }),
 				new OrmObjectMapping<Car> (typeof(CarsDlg), "{Vodovoz.Domain.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] { "Model", "RegistrationNumber", "DriverInfo" }),

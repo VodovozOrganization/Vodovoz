@@ -416,4 +416,13 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference (typeof(CullingCategory), session, criteria);
 		tdiMain.AddTab (refWin);
 	}
+
+	protected void OnActionCommentTemplatesActivated (object sender, EventArgs e)
+	{
+		ISession session = OrmMain.OpenSession ();
+		var criteria = session.CreateCriteria<CommentTemplate> ();
+
+		OrmReference refWin = new OrmReference (typeof(CommentTemplate), session, criteria);
+		tdiMain.AddTab (refWin);
+	}
 }

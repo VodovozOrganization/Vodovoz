@@ -133,6 +133,13 @@
 	 	<property name="IsArchive" column="is_archive"/>
  	</class>
 
+ 	<class name="CommentTemplate" lazy="false" table="comment_templates">
+ 		<id name="Id" column="id">
+ 			<generator class="native"/>
+ 		</id>
+ 		<property name="Comment" column="comment" />
+ 	</class>
+
  	<class name="Contact" lazy="false" table="counterparty_contacts">
  		<id name="Id" column="id">
  			<generator class="native"></generator>

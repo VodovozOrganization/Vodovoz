@@ -380,6 +380,17 @@
         <property name="ShortLabel" translatable="yes">Категории выбраковки</property>
         <signal name="Activated" handler="OnActionCullingCategoryActivated" />
       </action>
+      <action id="Action12">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Помощники</property>
+        <property name="ShortLabel" translatable="yes">Помощники</property>
+      </action>
+      <action id="ActionCommentTemplates">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Шаблоны комментариев</property>
+        <property name="ShortLabel" translatable="yes">Шаблоны комментариев</property>
+        <signal name="Activated" handler="OnActionCommentTemplatesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -441,6 +452,9 @@
                 <node type="Menu" action="ActionMenuLogistic">
                   <node type="Menuitem" action="ActionDeliverySchedule" />
                   <node type="Menuitem" action="ActionLogisticsArea" />
+                </node>
+                <node type="Menu" action="Action12">
+                  <node type="Menuitem" action="ActionCommentTemplates" />
                 </node>
               </node>
               <node type="Menu" action="ActionAbout">
@@ -607,6 +621,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -15858,6 +15873,87 @@ Patronymic</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.CommentTemplateDlg" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <property name="BorderWidth">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Button" id="buttonSave">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-floppy Menu</property>
+                <property name="Label" translatable="yes">Сохранить</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonSaveClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonCancel">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-close Menu</property>
+                <property name="Label" translatable="yes">Отменить</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+            <property name="MemberName" />
+            <property name="ShadowType">In</property>
+            <child>
+              <widget class="Gtk.DataBindings.DataTextView" id="textComment">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="ShowScrollbars">True</property>
+                <property name="Text" translatable="yes" />
+                <property name="InheritedDataSource">False</property>
+                <property name="Mappings">Comment</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="InheritedDataSource">False</property>
+                <property name="Mappings">Comment</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
           </packing>
         </child>
       </widget>
