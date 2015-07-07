@@ -72,7 +72,10 @@ namespace Vodovoz
 			//ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
 			//	.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM ());
+			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
+			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
+
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.None;
 			SelectDialog.ObjectSelected += NomenclatureSelected;

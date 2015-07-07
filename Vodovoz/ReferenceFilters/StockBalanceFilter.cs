@@ -1,18 +1,17 @@
 ﻿using System;
-using NHibernate;
-using NHibernate.Criterion;
 using QSOrmProject;
+using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered (false)]
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class StockBalanceFilter : Gtk.Bin, IReferenceFilter
+	public partial class StockBalanceFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;
 
-		public IUnitOfWork Uow {
+		public IUnitOfWork UoW {
 			get {
 				return uow;
 			}
@@ -22,9 +21,9 @@ namespace Vodovoz
 			}
 		}
 
-		public StockBalanceFilter (IUnitOfWork uow) : base()
+		public StockBalanceFilter (IUnitOfWork uow) : this()
 		{
-			Uow = uow;
+			UoW = uow;
 		}
 
 		public StockBalanceFilter ()
@@ -36,21 +35,6 @@ namespace Vodovoz
 		#region IReferenceFilter implementation
 
 		public event EventHandler Refiltered;
-
-		public ISession Session { get; set; }
-
-		public ICriteria BaseCriteria { get; set; }
-
-		ICriteria filtredCriteria;
-
-		public ICriteria FiltredCriteria {
-			private set { filtredCriteria = value; }
-			get {
-				if (filtredCriteria == null)
-					UpdateCreteria ();
-				return filtredCriteria;
-			}		
-		}
 
 		void OnRefiltered ()
 		{
@@ -89,6 +73,10 @@ namespace Vodovoz
 				else
 					return null;
 			}
+			set { speccomboStock.SelectedItem = value;
+				speccomboStock.Sensitive = false;
+			}
+		
 		}
 
 		protected void OnSpeccomboStockItemSelected (object sender, EnumItemClickedEventArgs e)
