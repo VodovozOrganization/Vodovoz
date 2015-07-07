@@ -366,6 +366,7 @@
 		<id name="Id" column="id">
  			<generator class="native"></generator>
  		</id>
+ 		<property name="Comment" column="comment"/>
  		<property name="OrderStatus" column="order_status" type="OrderStatusStringType, Vodovoz"/>
  		<property name="SignatureType" column="signature_type" type="OrderSignatureTypeStringType, Vodovoz"/>
  		<property name="PaymentType" column="payment_type" type="PaymentStringType, Vodovoz"/>

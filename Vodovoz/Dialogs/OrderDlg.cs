@@ -407,6 +407,23 @@ namespace Vodovoz
 				}
 			}
 		}
+
+		protected void OnButtonFillCommentClicked (object sender, EventArgs e)
+		{
+			var criteria = UoWGeneric.Session.CreateCriteria<CommentTemplate> ();
+			OrmReference SelectDialog = new OrmReference (typeof(CommentTemplate), UoWGeneric.Session, criteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ObjectSelected += CommentSelected;
+			TabParent.AddSlaveTab (this, SelectDialog);
+		}
+
+		void CommentSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			if (e.Subject != null) {
+				UoWGeneric.Root.Comment = (e.Subject as CommentTemplate).Comment;
+			}
+		}
 	}
 }
 

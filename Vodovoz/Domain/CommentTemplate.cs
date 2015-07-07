@@ -27,8 +27,6 @@ namespace Vodovoz.Domain
 
 		#region IValidatableObject implementation
 
-		public virtual string Marker { get { return ""; } }
-
 		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (String.IsNullOrEmpty (Comment))

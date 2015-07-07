@@ -621,7 +621,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14257,7 +14256,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="658 452">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="658 464">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14318,6 +14317,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14405,11 +14405,12 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
+                <property name="BorderWidth">6</property>
                 <child>
                   <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                     <property name="MemberName" />
@@ -14567,22 +14568,50 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                      <widget class="Gtk.HBox" id="hbox10">
                         <property name="MemberName" />
-                        <property name="ShadowType">In</property>
+                        <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.DataBindings.DataTextView" id="textComments">
+                          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+                            <property name="MemberName" />
+                            <property name="ShadowType">In</property>
+                            <child>
+                              <widget class="Gtk.DataBindings.DataTextView" id="textComments">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="ShowScrollbars">True</property>
+                                <property name="Text" translatable="yes" />
+                                <property name="WrapMode">Word</property>
+                                <property name="InheritedDataSource">True</property>
+                                <property name="Mappings">Comment</property>
+                                <property name="InheritedBoundaryDataSource">False</property>
+                                <property name="InheritedDataSource">True</property>
+                                <property name="Mappings">Comment</property>
+                                <property name="InheritedBoundaryDataSource">False</property>
+                              </widget>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.Button" id="buttonFillComment">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
-                            <property name="ShowScrollbars">True</property>
-                            <property name="Text" translatable="yes" />
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Comment</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Comment</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
+                            <property name="Type">TextOnly</property>
+                            <property name="Label" translatable="yes">Заполнить
+из шаблона</property>
+                            <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonFillCommentClicked" />
                           </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">False</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
                         </child>
                       </widget>
                       <packing>
@@ -14590,10 +14619,9 @@ Patronymic</property>
                         <property name="BottomAttach">11</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
+                        <property name="AutoSize">False</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
+                        <property name="XExpand">True</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
