@@ -148,6 +148,11 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult ("Точка доставки должна быть указана.");
 		}
 
+		public WriteoffDocument ()
+		{
+			Comment = String.Empty;
+		}
+
 	}
 
 	public enum WriteoffType

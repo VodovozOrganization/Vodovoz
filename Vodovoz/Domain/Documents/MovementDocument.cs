@@ -236,6 +236,11 @@ namespace Vodovoz.Domain.Documents
 			item.Document = this;
 			ObservableItems.Add (item);
 		}
+
+		public MovementDocument ()
+		{
+			Comment = String.Empty;
+		}
 	}
 
 	public enum MovementDocumentCategory
