@@ -26,8 +26,8 @@ namespace Vodovoz
 					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint> ();
 				deliveryPoints = DeliveryPointUoW.Root.ObservableDeliveryPoints;
 				treeDeliveryPoints.ItemsDataSource = deliveryPoints;
-				treeDeliveryPoints.Columns [0].SetCellDataFunc (treeDeliveryPoints.Columns [0].Cells [0], new TreeCellDataFunc (RenderDeliveryPoint));
-				treeDeliveryPoints.Columns [1].Visible = false;
+				treeDeliveryPoints.RepresentationModel = new ViewModel.DeliveryPointsVM (value);
+				treeDeliveryPoints.RepresentationModel.UpdateNodes ();
 			}
 		}
 

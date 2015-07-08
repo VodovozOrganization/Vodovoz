@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView treeDeliveryPoints;
+		private global::QSOrmProject.OrmTableView treeDeliveryPoints;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -45,7 +45,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeDeliveryPoints = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeDeliveryPoints = new global::QSOrmProject.OrmTableView ();
 			this.treeDeliveryPoints.CanFocus = true;
 			this.treeDeliveryPoints.Name = "treeDeliveryPoints";
 			this.treeDeliveryPoints.CursorPointsEveryType = false;
@@ -53,7 +53,7 @@ namespace Vodovoz
 			this.treeDeliveryPoints.InheritedBoundaryDataSource = false;
 			this.treeDeliveryPoints.InheritedDataSource = false;
 			this.treeDeliveryPoints.InheritedBoundaryDataSource = false;
-			this.treeDeliveryPoints.ColumnMappings = "{Vodovoz.Domain.DeliveryPoint} Point[Название]; IsActive[Активна];";
+			this.treeDeliveryPoints.ColumnMappings = "";
 			this.GtkScrolledWindow.Add (this.treeDeliveryPoints);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
