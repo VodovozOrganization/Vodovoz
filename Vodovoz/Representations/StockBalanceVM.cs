@@ -106,7 +106,7 @@ namespace Vodovoz.ViewModel
 		}
 	}
 		
-	public class StockBalanceVMNode : TreeNode
+	public class StockBalanceVMNode
 	{
 
 		public int Id{ get; set;}
