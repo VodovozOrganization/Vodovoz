@@ -40,10 +40,6 @@ namespace Vodovoz.ViewModel
 
 			SetItemsSource (proxieslist);
 		}
-			
-		public override Type NodeType {
-			get { return typeof(ProxiesVMNode);}
-		}
 
 		IMappingConfig treeViewConfig = FluentMappingConfig<ProxiesVMNode>.Create ()
 			.AddColumn("Номер").SetDataProperty (node => node.Title)

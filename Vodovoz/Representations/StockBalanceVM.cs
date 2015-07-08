@@ -63,10 +63,6 @@ namespace Vodovoz.ViewModel
 
 			SetItemsSource (stocklist);
 		}
-			
-		public override Type NodeType {
-			get { return typeof(StockBalanceVMNode);}
-		}
 
 		IMappingConfig treeViewConfig = FluentMappingConfig<StockBalanceVMNode>.Create ()
 			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)

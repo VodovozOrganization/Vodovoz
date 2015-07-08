@@ -6,7 +6,6 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Gtk.DataBindings;
-using System.Data.Bindings;
 
 namespace Vodovoz.ViewModel
 {
@@ -56,10 +55,6 @@ namespace Vodovoz.ViewModel
 
 		public override IMappingConfig TreeViewConfig {
 			get { return treeViewConfig;}
-		}
-			
-		public override Type NodeType {
-			get { return typeof(ContractsVMNode);}
 		}
 
 		#endregion
