@@ -7,6 +7,8 @@
  			<generator class="native"></generator>
  		</id>
  		<property name="TimeStamp" column="time_stamp"/>
+ 		<property name="InvoiceNumber" column="invoice_number"/>
+ 		<property name="WaybillNumber" column="waybill_number"/>
  		<many-to-one name="Contractor" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="Warehouse" class="Warehouse" column="warehouse_id"/>
 		<bag name="Items" inverse="true" cascade="all-delete-orphan" lazy="false" >
@@ -22,6 +24,7 @@
  		<many-to-one name="Document" class="Vodovoz.Domain.Documents.IncomingInvoice" column="incoming_invoice_id" not-null="true"/>
  		<property name="Price" column="price"/>
  		<property name="Amount" column="amount"/>
+ 		<property name="VAT" column="vat" type="Vodovoz.Domain.Documents.VATStringType, Vodovoz" />
  		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
  		<many-to-one name="IncomeGoodsOperation" class="Vodovoz.Domain.Operations.GoodsMovementOperation" column="good_move_operation_id" cascade="all-delete-orphan" not-null="true"/>

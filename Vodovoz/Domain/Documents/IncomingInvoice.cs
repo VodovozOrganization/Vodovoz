@@ -11,19 +11,30 @@ namespace Vodovoz.Domain.Documents
 	public class IncomingInvoice: Document
 	{
 		public override DateTime TimeStamp {
-			get
-			{
-				return base.TimeStamp;
-			}
-			set
-			{
+			get { return base.TimeStamp; }
+			set {
 				base.TimeStamp = value;
-				foreach(var item in Items)
-				{
+				foreach (var item in Items) {
 					if (item.IncomeGoodsOperation.OperationTime != TimeStamp)
 						item.IncomeGoodsOperation.OperationTime = TimeStamp;
 				}
 			}
+		}
+
+		string invoiceNumber;
+
+		[Display (Name = "Номер счета-фактуры")]
+		public virtual string InvoiceNumber {
+			get { return invoiceNumber; }
+			set { SetField (ref invoiceNumber, value, () => InvoiceNumber); }
+		}
+
+		string waybillNumber;
+
+		[Display (Name = "Номер входящей накладной")]
+		public virtual string WaybillNumber {
+			get { return waybillNumber; }
+			set { SetField (ref waybillNumber, value, () => WaybillNumber); }
 		}
 
 		Counterparty contractor;
@@ -39,9 +50,9 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад")]
 		public virtual Warehouse Warehouse {
 			get { return warehouse; }
-			set { SetField (ref warehouse, value, () => Warehouse); 
-				foreach(var item in Items)
-				{
+			set {
+				SetField (ref warehouse, value, () => Warehouse); 
+				foreach (var item in Items) {
 					if (item.IncomeGoodsOperation.IncomingWarehouse != warehouse)
 						item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
 				}
@@ -55,7 +66,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Строки")]
 		public virtual IList<IncomingInvoiceItem> Items {
 			get { return items; }
-			set { SetField (ref items, value, () => Items);
+			set {
+				SetField (ref items, value, () => Items);
 				observableItems = null;
 			}
 		}
@@ -63,7 +75,8 @@ namespace Vodovoz.Domain.Documents
 		GenericObservableList<IncomingInvoiceItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public GenericObservableList<IncomingInvoiceItem> ObservableItems {
-			get {if (observableItems == null)
+			get {
+				if (observableItems == null)
 					observableItems = new GenericObservableList<IncomingInvoiceItem> (Items);
 				return observableItems;
 			}
@@ -87,12 +100,18 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		public void AddItem(IncomingInvoiceItem item)
+		public void AddItem (IncomingInvoiceItem item)
 		{
 			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
 			item.IncomeGoodsOperation.OperationTime = TimeStamp;
 			item.Document = this;
 			ObservableItems.Add (item);
+		}
+
+		public IncomingInvoice ()
+		{
+			WaybillNumber = String.Empty;
+			InvoiceNumber = String.Empty;
 		}
 	}
 }

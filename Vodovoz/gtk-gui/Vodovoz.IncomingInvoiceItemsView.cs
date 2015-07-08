@@ -55,7 +55,7 @@ namespace Vodovoz
 			this.treeItemsList.InheritedBoundaryDataSource = false;
 			this.treeItemsList.InheritedDataSource = false;
 			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.ColumnMappings = "{Vodovoz.Domain.Documents.IncomingInvoiceItem} Name[Наименование]; EquipmentString [С/Н оборудования]; Amount[Количество]<>; Price[Цена закупки]<>; Sum[Сумма]; CanEditAmount[CanEditAmount];";
+			this.treeItemsList.ColumnMappings = "";
 			this.GtkScrolledWindow.Add (this.treeItemsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -112,7 +112,6 @@ namespace Vodovoz
 			this.labelSum = new global::Gtk.Label ();
 			this.labelSum.Name = "labelSum";
 			this.labelSum.Xalign = 1F;
-			this.labelSum.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
 			this.hbox1.Add (this.labelSum);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelSum]));
 			w10.PackType = ((global::Gtk.PackType)(1));

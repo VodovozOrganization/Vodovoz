@@ -23,11 +23,10 @@ namespace Vodovoz
 		private IUnitOfWorkGeneric<IncomingInvoice> documentUoW;
 
 		public IUnitOfWorkGeneric<IncomingInvoice> DocumentUoW {
-			get {
-				return documentUoW;
-			}
-			set {if (documentUoW == value)
-				return;
+			get { return documentUoW; }
+			set {
+				if (documentUoW == value)
+					return;
 				documentUoW = value;
 				if (DocumentUoW.Root.Items == null)
 					DocumentUoW.Root.Items = new List<IncomingInvoiceItem> ();
@@ -158,9 +157,8 @@ namespace Vodovoz
 
 		void OnSlaveDlgEquipmentCreated (object sender, EquipmentCreatedEventArgs e)
 		{
-			foreach(var equ in e.Equipment)
-			{
-				DocumentUoW.Root.AddItem (new IncomingInvoiceItem{
+			foreach (var equ in e.Equipment) {
+				DocumentUoW.Root.AddItem (new IncomingInvoiceItem {
 					Equipment = equ,
 					Nomenclature = equ.Nomenclature,
 					Amount = 1
@@ -168,11 +166,10 @@ namespace Vodovoz
 			}
 		}
 
-		void CalculateTotal()
+		void CalculateTotal ()
 		{
 			decimal total = 0;
-			foreach(var item in documentUoW.Root.Items)
-			{
+			foreach (var item in documentUoW.Root.Items) {
 				total += item.Sum;
 			}
 

@@ -2,6 +2,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using Vodovoz.Domain.Operations;
+using System.Data.Bindings;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -18,7 +19,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField (ref nomenclature, value, () => Nomenclature);
+			set {
+				SetField (ref nomenclature, value, () => Nomenclature);
 				if (IncomeGoodsOperation.Nomenclature != nomenclature)
 					IncomeGoodsOperation.Nomenclature = nomenclature;
 			}
@@ -29,7 +31,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
-			set { SetField (ref equipment, value, () => Equipment);
+			set {
+				SetField (ref equipment, value, () => Equipment);
 				if (IncomeGoodsOperation.Equipment != equipment)
 					IncomeGoodsOperation.Equipment = equipment;
 			}
@@ -41,7 +44,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
-			set { SetField (ref amount, value, () => Amount);
+			set {
+				SetField (ref amount, value, () => Amount);
 				if (IncomeGoodsOperation.Amount != amount)
 					IncomeGoodsOperation.Amount = amount;
 			}
@@ -56,8 +60,15 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref price, value, () => Price); }
 		}
 
+		VAT vat;
+
+		public virtual VAT VAT {
+			get { return vat; }
+			set { SetField (ref vat, value, () => VAT); }
+		}
+
 		public decimal Sum {
-			get {return Price * Amount;}
+			get { return Price * Amount; }
 		}
 
 		public virtual string Name {
@@ -79,6 +90,23 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref incomeGoodsOperation, value, () => IncomeGoodsOperation); }
 		}
 
+	}
+
+	public enum VAT
+	{
+		[ItemTitleAttribute ("Без НДС")]
+		No,
+		[ItemTitleAttribute ("НДС 10%")]
+		Vat10,
+		[ItemTitleAttribute ("НДС 18%")]
+		Vat18
+	}
+
+	public class VATStringType : NHibernate.Type.EnumStringType
+	{
+		public VATStringType () : base (typeof(VAT))
+		{
+		}
 	}
 }
 
