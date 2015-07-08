@@ -8,10 +8,11 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Operations;
+using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class StockBalanceVM : RepresentationModelBase<Nomenclature>
+	public class StockBalanceVM : RepresentationModelBase<Nomenclature, StockBalanceVMNode>
 	{
 		IUnitOfWork uow;
 
@@ -27,8 +28,6 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes ()
 		{
-			NodeStore.Clear ();
-
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
 			StockBalanceVMNode resultAlias = null;
@@ -60,14 +59,19 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
 				)
 				.TransformUsing(Transformers.AliasToBean<StockBalanceVMNode>())
-				.List<StockBalanceVMNode>().Where(r => r.Amount != 0);
+				.List<StockBalanceVMNode>().Where(r => r.Amount != 0).ToList ();
 
-			foreach (var item in stocklist)
-				NodeStore.AddNode (item);
+			SetItemsSource (stocklist);
 		}
-			
-		public override Type NodeType {
-			get { return typeof(StockBalanceVMNode);}
+
+		IMappingConfig treeViewConfig = FluentMappingConfig<StockBalanceVMNode>.Create ()
+			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)
+			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
+			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
+			.Finish ();
+
+		public override IMappingConfig TreeViewConfig {
+			get { return treeViewConfig;}
 		}
 
 		#endregion
@@ -99,19 +103,9 @@ namespace Vodovoz.ViewModel
 		public StockBalanceVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(GoodsMovementOperation))
 		{
 			this.uow = uow;
-
-			NodeStore = new NodeStore (NodeType);
-
-			Columns.Add (new ColumnInfo { Name = "Номенклатура"}
-				.SetDataProperty<StockBalanceVMNode> (node => node.NomenclatureName));
-			Columns.Add (new ColumnInfo { Name = "Кол-во" }
-				.SetDataProperty<StockBalanceVMNode> (node => node.CountText));
-
-			SetRowAttribute<StockBalanceVMNode> ("foreground", node => node.RowColor);
 		}
 	}
-
-	[Gtk.TreeNode (ListOnly=true)]
+		
 	public class StockBalanceVMNode : TreeNode
 	{
 
@@ -125,10 +119,9 @@ namespace Vodovoz.ViewModel
 
 		public short UnitDigits{ get; set;}
 
-		[TreeNodeValue(Column = 0)]
+		[UseForSearch]
 		public string NomenclatureName { get; set;}
 
-		[TreeNodeValue(Column = 1)]
 		public string CountText { get { return String.Format ("{0:" + String.Format ("F{0}", UnitDigits) + "} {1}", 
 			Amount,
 			UnitName);
@@ -136,7 +129,6 @@ namespace Vodovoz.ViewModel
 
 		public decimal Amount { get { return Append - Removed; }}
 
-		[TreeNodeValue(Column = 2)]
 		public string RowColor {
 			get {
 				if (Amount < 0)

@@ -28,7 +28,7 @@ namespace Vodovoz
 					DocumentUoW.Root.Materials = new List<IncomingWaterMaterial> ();
 				items = DocumentUoW.Root.ObservableMaterials;
 				items.ElementChanged += Items_ElementChanged;
-				treeMaterialsList.ColumnMappingConfig = MappingConfig<IncomingWaterMaterial>.Create ()
+				treeMaterialsList.ColumnMappingConfig = FluentMappingConfig<IncomingWaterMaterial>.Create ()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("На продукт")
 					.AddNumericRenderer (i => i.OneProductAmountEdited).Editing ().WidthChars (10)

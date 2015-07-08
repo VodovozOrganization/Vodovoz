@@ -37,7 +37,7 @@ namespace Vodovoz
 					DocumentUoW.Root.Items = new List<MovementDocumentItem> ();
 				items = DocumentUoW.Root.ObservableItems;
 
-				treeItemsList.ColumnMappingConfig = MappingConfig<MovementDocumentItem>.Create ()
+				treeItemsList.ColumnMappingConfig = FluentMappingConfig<MovementDocumentItem>.Create ()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
 					.AddColumn ("Количество")

@@ -5,10 +5,11 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
+using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContractsVM : RepresentationModelBase<CounterpartyContract>
+	public class ContractsVM : RepresentationModelBase<CounterpartyContract, ContractsVMNode>
 	{
 		IUnitOfWorkGeneric<Counterparty> uow;
 
@@ -16,7 +17,6 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes ()
 		{
-			NodeStore.Clear ();
 
 			CounterpartyContract contractAlias = null;
 			Counterparty counterpartyAlias = null;
@@ -43,12 +43,18 @@ namespace Vodovoz.ViewModel
 				.TransformUsing(Transformers.AliasToBean<ContractsVMNode>())
 				.List<ContractsVMNode>();
 
-			foreach (var item in contractslist)
-				NodeStore.AddNode (item);
+			SetItemsSource (contractslist);
 		}
-			
-		public override Type NodeType {
-			get { return typeof(ContractsVMNode);}
+
+		IMappingConfig treeViewConfig = FluentMappingConfig<ContractsVMNode>.Create ()
+			.AddColumn("Номер").SetDataProperty (node => node.Title)
+			.AddColumn ("Организация").SetDataProperty (node => node.Organization)
+			.AddColumn ("Кол-во доп. соглашений").SetDataProperty (node => node.AdditionalAgreements)
+			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
+			.Finish ();
+
+		public override IMappingConfig TreeViewConfig {
+			get { return treeViewConfig;}
 		}
 
 		#endregion
@@ -70,21 +76,9 @@ namespace Vodovoz.ViewModel
 		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
 			this.uow = uow;
-
-			NodeStore = new NodeStore (NodeType);
-
-			Columns.Add (new ColumnInfo { Name = "Номер"}
-				.SetDataProperty<ContractsVMNode> (node => node.Title));
-			Columns.Add (new ColumnInfo { Name = "Организация" }
-				.SetDataProperty<ContractsVMNode> (node => node.Organization));
-			Columns.Add (new ColumnInfo { Name = "Кол-во доп. соглашений" }
-				.SetDataProperty<ContractsVMNode> (node => node.AdditionalAgreements));
-
-			SetRowAttribute<ContractsVMNode> ("foreground", node => node.RowColor);
 		}
 	}
-
-	[Gtk.TreeNode (ListOnly=true)]
+		
 	public class ContractsVMNode : TreeNode
 	{
 
@@ -96,18 +90,14 @@ namespace Vodovoz.ViewModel
 
 		public bool OnCancellation{ get; set;}
 
-		[TreeNodeValue(Column = 0)]
 		public string Title {
 			get { return String.Format ("{0} от {1:d}", Id, IssueDate); }
 		}
-
-		[TreeNodeValue(Column = 1)]
+			
 		public string Organization { get; set;}
 
-		[TreeNodeValue(Column = 2)]
 		public int AdditionalAgreements { get; set;}
 
-		[TreeNodeValue(Column = 3)]
 		public string RowColor {
 			get {
 				if (IsArchive)
@@ -118,7 +108,6 @@ namespace Vodovoz.ViewModel
 
 			}
 		}
-
 	}
 }
 
