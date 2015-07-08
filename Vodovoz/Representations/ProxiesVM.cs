@@ -6,10 +6,11 @@ using QSContacts;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
+using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class ProxiesVM : RepresentationModelBase<Proxy>
+	public class ProxiesVM : RepresentationModelBase<Proxy, ProxiesVMNode>
 	{
 		IUnitOfWorkGeneric<Counterparty> uow;
 
@@ -17,8 +18,6 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes ()
 		{
-			NodeStore.Clear ();
-
 			Proxy proxyAlias = null;
 			Counterparty counterpartyAlias = null;
 			ProxiesVMNode resultAlias = null;
@@ -39,12 +38,23 @@ namespace Vodovoz.ViewModel
 				.TransformUsing(Transformers.AliasToBean<ProxiesVMNode>())
 				.List<ProxiesVMNode>();
 
-			foreach (var item in proxieslist)
-				NodeStore.AddNode (item);
+			SetItemsSource (proxieslist);
 		}
 			
 		public override Type NodeType {
 			get { return typeof(ProxiesVMNode);}
+		}
+
+		IMappingConfig treeViewConfig = FluentMappingConfig<ProxiesVMNode>.Create ()
+			.AddColumn("Номер").SetDataProperty (node => node.Title)
+			.AddColumn ("Начало действия").SetDataProperty (node => node.Start)
+			.AddColumn ("Окончание действия").SetDataProperty (node => node.End)
+			.AddColumn ("Кол-во лиц").SetDataProperty (node => node.PeopleCount)
+			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
+			.Finish ();
+
+		public override IMappingConfig TreeViewConfig {
+			get { return treeViewConfig;}
 		}
 
 		#endregion
@@ -66,26 +76,11 @@ namespace Vodovoz.ViewModel
 		public ProxiesVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
 			this.uow = uow;
-
-			NodeStore = new NodeStore (NodeType);
-
-			Columns.Add (new ColumnInfo { Name = "Номер"}
-				.SetDataProperty<ProxiesVMNode> (node => node.Title));
-			Columns.Add (new ColumnInfo { Name = "Начало действия" }
-				.SetDataProperty<ProxiesVMNode> (node => node.Start));
-			Columns.Add (new ColumnInfo { Name = "Окончание действия" }
-				.SetDataProperty<ProxiesVMNode> (node => node.End));
-			Columns.Add (new ColumnInfo { Name = "Кол-во лиц" }
-				.SetDataProperty<ProxiesVMNode> (node => node.PeopleCount));
-
-			SetRowAttribute<ProxiesVMNode> ("foreground", node => node.RowColor);
 		}
 	}
-
-	[Gtk.TreeNode (ListOnly=true)]
-	public class ProxiesVMNode : TreeNode
+		
+	public class ProxiesVMNode
 	{
-
 		public int Id{ get; set;}
 
 		public string Number{ get; set;}
@@ -96,18 +91,14 @@ namespace Vodovoz.ViewModel
 
 		public DateTime EndDate{ get; set;}
 
-		[TreeNodeValue(Column = 0)]
 		public string Title {
 			get { return String.Format ("{0} от {1:d}", Number, IssueDate); }
 		}
-
-		[TreeNodeValue(Column = 1)]
+			
 		public string Start { get { return String.Format ("{0:d}", StartDate); }}
 
-		[TreeNodeValue(Column = 2)]
 		public string End { get { return String.Format ("{0:d}", EndDate); }}
 
-		[TreeNodeValue(Column = 3)]
 		public string RowColor {
 			get {
 				if (DateTime.Today > EndDate)
@@ -117,8 +108,7 @@ namespace Vodovoz.ViewModel
 				return "black";
 			}
 		}
-
-		[TreeNodeValue(Column = 4)]
+			
 		public int PeopleCount{ get; set;}
 	}
 }
