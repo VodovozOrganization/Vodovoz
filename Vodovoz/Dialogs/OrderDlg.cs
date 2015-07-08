@@ -90,6 +90,8 @@ namespace Vodovoz
 			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons (UoWGeneric);
 			dataSumDifferenceReason.Completion.TextColumn = 0;
 
+			spinSumDifference.Value = (double)(UoWGeneric.Root.SumToReceive - UoWGeneric.Root.TotalSum);
+
 			UpdateSum ();
 		}
 
@@ -146,9 +148,6 @@ namespace Vodovoz
 					DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Client)
 						.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
 				referenceDeliveryPoint.Sensitive = true;
-				if (UoWGeneric.Root.DeliveryPoint != null && !UoWGeneric.Root.Client.DeliveryPoints.Any (d => d.Id == UoWGeneric.Root.DeliveryPoint.Id)) {
-					UoWGeneric.Root.DeliveryPoint = null;
-				}
 				enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 					(UoWGeneric.Root.Client.PersonType == PersonType.legal);
 			} else {
@@ -160,7 +159,7 @@ namespace Vodovoz
 		{
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
 				referenceClient.Sensitive = spinBottlesReturn.Sensitive = 
-					spinSumToReceive.Sensitive = textComments.Sensitive = 
+					spinSumDifference.Sensitive = textComments.Sensitive = 
 						checkDelivered.Sensitive = checkSelfDelivery.Sensitive = 
 							enumAddRentButton.Sensitive = buttonAddForSale.Sensitive = 
 								enumSignatureType.Sensitive = enumStatus.Sensitive = false;
@@ -193,17 +192,16 @@ namespace Vodovoz
 				WaterSalesAgreement wsa = CounterpartyContractRepository.
 					GetCounterpartyContract (UoWGeneric).
 					GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
-				if (wsa == null) {	//Если нет доп. соглашения продажи воды.
+				if (wsa == null) {	
+					//Если нет доп. соглашения продажи воды.
 					if (MessageDialogWorks.RunQuestionDialog ("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
 						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric), UoWGeneric.Root.DeliveryDate);
 						(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 						TabParent.AddSlaveTab (this, dlg);
-					} else {
+					} else
 						return;
-					}
-				} else {
+				} else
 					UoWGeneric.Root.AddWaterForSale (nomenclature, wsa);
-				}
 			}
 		}
 
@@ -264,12 +262,10 @@ namespace Vodovoz
 
 		void UpdateSum ()
 		{
-			Decimal sum = 0;
-			foreach (OrderItem item in UoWGeneric.Root.ObservableOrderItems) {
-				sum += item.Price;
-			}
+			Decimal sum = UoWGeneric.Root.TotalSum;
 			labelSum.Text = CurrencyWorks.GetShortCurrencyString (sum);
-			UoWGeneric.Root.SumToReceive = sum;
+			UoWGeneric.Root.SumToReceive = sum + (Decimal)spinSumDifference.Value;
+			labelSumTotal.Text = CurrencyWorks.GetShortCurrencyString (UoWGeneric.Root.SumToReceive);
 		}
 
 		protected void OnButtonViewDocumentClicked (object sender, EventArgs e)
@@ -303,6 +299,19 @@ namespace Vodovoz
 				}
 			};
 			TabParent.AddSlaveTab (this, SelectDialog);
+		}
+
+		protected void OnSpinSumDifferenceValueChanged (object sender, EventArgs e)
+		{
+			UpdateSum ();
+			string text;
+			if (spinSumDifference.Value > 0)
+				text = "Сумма <b>преплаты</b>/недоплаты:";
+			else if (spinSumDifference.Value < 0)
+				text = "Сумма преплаты/<b>недоплаты</b>:";
+			else
+				text = "Сумма преплаты/недоплаты:";
+			labelSumDifference.Markup = text;
 		}
 	}
 }

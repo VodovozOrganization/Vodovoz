@@ -7,6 +7,7 @@ using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Repository;
 using Gtk;
 using QSTDI;
+using System.Linq;
 
 namespace Vodovoz.Domain
 {
@@ -28,7 +29,12 @@ namespace Vodovoz.Domain
 		[Display (Name = "Клиент")]
 		public virtual Counterparty Client {
 			get { return client; }
-			set { SetField (ref client, value, () => Client); }
+			set {
+				SetField (ref client, value, () => Client); 
+				if (DeliveryPoint != null && Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
+					DeliveryPoint = null;
+				}
+			}
 		}
 
 		DeliveryPoint deliveryPoint;
@@ -226,6 +232,15 @@ namespace Vodovoz.Domain
 		public virtual string StatusString { get { return OrderStatus.GetEnumTitle (); } }
 
 		public virtual string ClientString { get { return Client.Name; } }
+
+		public virtual decimal TotalSum {
+			get {
+				Decimal sum = 0;
+				foreach (OrderItem item in ObservableOrderItems) {
+					sum += item.Price;
+				}
+				return sum;}
+		}
 
 		public Order ()
 		{
