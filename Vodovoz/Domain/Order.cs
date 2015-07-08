@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Repository;
+using Gtk;
+using QSTDI;
 
 namespace Vodovoz.Domain
 {
@@ -33,7 +36,12 @@ namespace Vodovoz.Domain
 		[Display (Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
-			set { SetField (ref deliveryPoint, value, () => DeliveryPoint); }
+			set {
+				SetField (ref deliveryPoint, value, () => DeliveryPoint); 
+				if (value != null && DeliverySchedule == null) {
+					DeliverySchedule = value.DeliverySchedule;
+				}
+			}
 		}
 
 		DateTime deliveryDate;
@@ -107,6 +115,14 @@ namespace Vodovoz.Domain
 		public virtual Decimal SumToReceive {
 			get { return sumToReceive; }
 			set { SetField (ref sumToReceive, value, () => SumToReceive); }
+		}
+
+		string sumDifferenceReason;
+
+		[Display (Name = "Причина переплаты/недоплаты")]
+		public virtual string SumDifferenceReason {
+			get { return sumDifferenceReason; }
+			set { SetField (ref sumDifferenceReason, value, () => SumDifferenceReason); }
 		}
 
 		bool shipped;
@@ -216,6 +232,127 @@ namespace Vodovoz.Domain
 			Comment = String.Empty;
 			OrderStatus = OrderStatus.NewOrder;
 			DeliveryDate = DateTime.Now;
+			SumDifferenceReason = String.Empty;
+			DeliveryDate = DateTime.Now.AddDays (1);
+		}
+
+		public void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)
+		{
+			if (nomenclature.Category != NomenclatureCategory.equipment)
+				return;
+			Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoW, nomenclature);
+			int ItemId;
+			ItemId = ObservableOrderItems.AddWithReturn (new OrderItem {
+				AdditionalAgreement = null,
+				Count = 1,
+				Equipment = eq,
+				Nomenclature = nomenclature,
+				Price = nomenclature.NomenclaturePrice [0].Price //FIXME
+			});
+			ObservableOrderEquipments.Add (new OrderEquipment {
+				Direction = Vodovoz.Domain.Direction.Deliver,
+				Equipment = eq,
+				OrderItem = ObservableOrderItems [ItemId],
+				Reason = Reason.Rent	//TODO FIXME Добавить причину - продажа.
+			});
+		}
+
+		public void AddAdditionalNomenclatureForSale (Nomenclature nomenclature)
+		{
+			if (nomenclature.Category != NomenclatureCategory.additional)
+				return;
+			ObservableOrderItems.Add (new OrderItem {
+				AdditionalAgreement = null,
+				Count = 1,
+				Equipment = null,
+				Nomenclature = nomenclature,
+				Price = nomenclature.NomenclaturePrice [0].Price //FIXME
+			});
+		}
+
+		public void AddWaterForSale (Nomenclature nomenclature, WaterSalesAgreement wsa)
+		{
+			if (nomenclature.Category != NomenclatureCategory.water)
+				return;
+			ObservableOrderItems.Add (new OrderItem {
+				AdditionalAgreement = wsa,
+				Count = 1,
+				Equipment = null,
+				Nomenclature = nomenclature,
+				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.NomenclaturePrice [0].Price //FIXME
+			});
+		}
+
+		public void FillItemsFromAgreement (AdditionalAgreement a)
+		{
+			if (a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
+				IList<PaidRentEquipment> EquipmentList;
+				bool IsDaily = false;
+
+				if (a.Type == AgreementType.DailyRent) {
+					EquipmentList = (a as DailyRentAgreement).Equipment;
+					IsDaily = true;
+				} else
+					EquipmentList = (a as NonfreeRentAgreement).Equipment;
+
+				foreach (PaidRentEquipment equipment in EquipmentList) {
+					int ItemId;
+					//Добавляем номенклатуру залога
+					ObservableOrderItems.Add (
+						new OrderItem {
+							AdditionalAgreement = a,
+							Count = 1,
+							Equipment = null,
+							Nomenclature = equipment.PaidRentPackage.DepositService,
+							Price = equipment.Deposit
+						}
+					);
+					//Добавляем услугу аренды
+					ItemId = ObservableOrderItems.AddWithReturn (
+						new OrderItem {
+							AdditionalAgreement = a,
+							Count = 1,
+							Equipment = null,
+							Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
+							Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1)
+						}
+					);
+					//Добавляем оборудование
+					ObservableOrderEquipments.Add (
+						new OrderEquipment { 
+							Direction = Vodovoz.Domain.Direction.Deliver,
+							Equipment = equipment.Equipment,
+							Reason = Reason.Rent,
+							OrderItem = ObservableOrderItems [ItemId]
+						}
+					);
+					SumToReceive += equipment.Deposit + equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1);
+				}
+			} else if (a.Type == AgreementType.FreeRent) {
+				FreeRentAgreement agreement = a as FreeRentAgreement;
+				foreach (FreeRentEquipment equipment in agreement.Equipment) {
+					int ItemId;
+					//Добавляем номенклатуру залога.
+					ItemId = ObservableOrderItems.AddWithReturn (
+						new OrderItem {
+							AdditionalAgreement = agreement,
+							Count = 1,
+							Equipment = null,
+							Nomenclature = equipment.FreeRentPackage.DepositService,
+							Price = equipment.Deposit
+						}
+					);
+					//Добавляем оборудование.
+					ObservableOrderEquipments.Add (
+						new OrderEquipment { 
+							Direction = Vodovoz.Domain.Direction.Deliver,
+							Equipment = equipment.Equipment,
+							Reason = Reason.Rent,
+							OrderItem = ObservableOrderItems [ItemId]
+						}
+					);
+				}
+			}
 		}
 	}
 

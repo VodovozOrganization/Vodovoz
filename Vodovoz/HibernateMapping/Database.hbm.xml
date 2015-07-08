@@ -376,6 +376,7 @@
  		<property name="BottlesReturn" column="bottles_return"/>
  		<property name="SumToReceive" column="sum_to_receive"/>
  		<property name="Shipped" column="shipped"/>
+ 		<property name="SumDifferenceReason" column="sum_difference_reason" />
  		<many-to-one name="Client" class="Counterparty" column="client_id"/>
  		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
  		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id"/>

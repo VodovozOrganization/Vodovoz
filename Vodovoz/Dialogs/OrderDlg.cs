@@ -46,31 +46,51 @@ namespace Vodovoz
 //TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
+
 			subjectAdaptor.Target = UoWGeneric.Root;
+
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
+
+			enumSignatureType.DataSource = subjectAdaptor;
+			enumPaymentType.DataSource = subjectAdaptor;
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
+
+			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);
+			buttonViewDocument.Sensitive = false;
+			buttonDelete.Sensitive = false;
 			enumStatus.Sensitive = false;
-			enumSignatureType.DataSource = subjectAdaptor;
-			enumPaymentType.DataSource = subjectAdaptor;
-			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
+			notebook1.Page = 0;
+
 			referenceClient.SubjectType = typeof(Counterparty);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
-			referenceDeliveryPoint.Sensitive = UoWGeneric.Root.Client != null;
-			buttonDelete.Sensitive = false;
-			treeDocuments.Selection.Changed += TreeDocuments_Selection_Changed;
-			buttonViewDocument.Sensitive = false;
-			UpdateSum ();
-		}
 
-		void TreeDocuments_Selection_Changed (object sender, EventArgs e)
-		{
-			buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows () > 0;
+			treeDocuments.Selection.Changed += (sender, e) => {
+				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows () > 0;
+			};
+
+			treeDocuments.RowActivated += (o, args) => {
+				buttonViewDocument.Click ();
+			};
+
+			enumAddRentButton.EnumItemClicked += (sender, e) => {
+				AddRentAgreement ((OrderAgreementType)e.ItemEnum);
+			};
+				
+			checkSelfDelivery.Toggled += (sender, e) => {
+				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
+			};
+
+			dataSumDifferenceReason.Completion = new Gtk.EntryCompletion ();
+			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons (UoWGeneric);
+			dataSumDifferenceReason.Completion.TextColumn = 0;
+
+			UpdateSum ();
 		}
 
 		public override bool Save ()
@@ -84,6 +104,8 @@ namespace Vodovoz
 			logger.Info ("Ok.");
 			return true;
 		}
+
+		#region Toggle buttons
 
 		protected void OnToggleInformationToggled (object sender, EventArgs e)
 		{
@@ -115,11 +137,7 @@ namespace Vodovoz
 				notebook1.CurrentPage = 4;
 		}
 
-		protected void OnCheckSelfDeliveryToggled (object sender, EventArgs e)
-		{
-			pickerDeliveryDate.Sensitive = referenceDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
-			labelDeliveryDate.Sensitive = labelDeliveryDate.Sensitive = !checkSelfDelivery.Active;
-		}
+		#endregion
 
 		protected void OnReferenceClientChanged (object sender, EventArgs e)
 		{
@@ -168,64 +186,25 @@ namespace Vodovoz
 		{
 			Nomenclature nomenclature = e.Subject as Nomenclature;
 			if (nomenclature.Category == NomenclatureCategory.additional) {
-				UoWGeneric.Root.ObservableOrderItems.Add (new OrderItem {
-					AdditionalAgreement = null,
-					Count = 1,
-					Equipment = null,
-					Nomenclature = nomenclature,
-					Price = nomenclature.NomenclaturePrice [0].Price //FIXME
-				});
+				UoWGeneric.Root.AddAdditionalNomenclatureForSale (nomenclature);
 			} else if (nomenclature.Category == NomenclatureCategory.equipment) {
-				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoWGeneric, nomenclature);
-				int ItemId;
-				ItemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (new OrderItem {
-					AdditionalAgreement = null,
-					Count = 1,
-					Equipment = eq,
-					Nomenclature = nomenclature,
-					Price = nomenclature.NomenclaturePrice [0].Price //FIXME
-				});
-				UoWGeneric.Root.ObservableOrderEquipments.Add (new OrderEquipment {
-					Direction = Vodovoz.Domain.Direction.Deliver,
-					Equipment = eq,
-					OrderItem = UoWGeneric.Root.ObservableOrderItems [ItemId],
-					Reason = Reason.Rent	//TODO FIXME Добавить причину - продажа.
-				});
+				UoWGeneric.Root.AddEquipmentNomenclatureForSale (nomenclature, UoWGeneric);
 			} else if (nomenclature.Category == NomenclatureCategory.water) {
 				WaterSalesAgreement wsa = CounterpartyContractRepository.
-				GetCounterpartyContract (UoWGeneric).
-				GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
-				if (wsa == null) {
-					MessageDialog md = new MessageDialog (null,
-						                   DialogFlags.Modal,
-						                   MessageType.Question,
-						                   ButtonsType.YesNo,
-						                   "Отсутствует доп. соглашение с клиентом для продажи воды. Создать?");
-					md.SetPosition (WindowPosition.Center);
-					md.ShowAll ();
-					bool result = md.Run () == (int)ResponseType.Yes;
-					md.Destroy ();
-					if (result) {
+					GetCounterpartyContract (UoWGeneric).
+					GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
+				if (wsa == null) {	//Если нет доп. соглашения продажи воды.
+					if (MessageDialogWorks.RunQuestionDialog ("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
 						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric), UoWGeneric.Root.DeliveryDate);
 						(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 						TabParent.AddSlaveTab (this, dlg);
 					} else {
 						return;
 					}
+				} else {
+					UoWGeneric.Root.AddWaterForSale (nomenclature, wsa);
 				}
-				UoWGeneric.Root.ObservableOrderItems.Add (new OrderItem {
-					AdditionalAgreement = wsa,
-					Count = 1,
-					Equipment = null,
-					Nomenclature = nomenclature,
-					Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.NomenclaturePrice [0].Price //FIXME
-				});
 			}
-		}
-
-		protected void OnEnumAddRentButtonEnumItemClicked (object sender, EnumItemClickedEventArgs e)
-		{
-			AddRentAgreement ((OrderAgreementType)e.ItemEnum);
 		}
 
 		private void AddRentAgreement (OrderAgreementType type)
@@ -233,36 +212,25 @@ namespace Vodovoz
 			ITdiDialog dlg;
 
 			if (UoWGeneric.Root.Client == null || UoWGeneric.Root.DeliveryPoint == null) {
-				MessageDialog md = new MessageDialog (null,
-					                   DialogFlags.Modal,
-					                   MessageType.Warning,
-					                   ButtonsType.Ok,
-					                   "Для добавления оборудования должна быть выбрана точка доставки.");
-				md.SetPosition (WindowPosition.Center);
-				md.ShowAll ();
-				md.Run ();
-				md.Destroy ();
+				MessageDialogWorks.RunWarningDialog ("Для добавления оборудования должна быть выбрана точка доставки.");
 				return;
 			}
 			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric);
 			if (contract == null) {
-				MessageDialog md = new MessageDialog (null,
-					                   DialogFlags.Modal,
-					                   MessageType.Question,
-					                   ButtonsType.YesNo,
-					                   "Отсутствует договор с клиентом для " +
-					                   (UoWGeneric.Root.PaymentType == Payment.cash ? "наличной" : "безналичной") +
-					                   " формы оплаты. Создать?");
-				md.SetPosition (WindowPosition.Center);
-				md.ShowAll ();
-				bool result = md.Run () == (int)ResponseType.Yes;
-				md.Destroy ();
-				if (result) {
+				string question = "Отсутствует договор с клиентом для " +
+				                  (UoWGeneric.Root.PaymentType == Payment.cash ? "наличной" : "безналичной") +
+				                  " формы оплаты. Создать?";
+				if (MessageDialogWorks.RunQuestionDialog (question)) {
 					dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
 						(UoWGeneric.Root.PaymentType == Payment.cash ?
 						OrganizationRepository.GetCashOrganization (UoWGeneric) :
 						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
-					(dlg as IContractSaved).ContractSaved += ContractSaved;
+					(dlg as IContractSaved).ContractSaved += (sender, e) => {
+						UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderContract { 
+							Order = UoWGeneric.Root,
+							Contract = e.Contract
+						});
+					};
 				} else {
 					return;
 				}
@@ -283,96 +251,15 @@ namespace Vodovoz
 			TabParent.AddSlaveTab (this, dlg);
 		}
 
-		void ContractSaved (object sender, ContractSavedEventArgs e)
-		{
-			UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderContract { 
-				Order = UoWGeneric.Root,
-				Contract = e.Contract
-			});
-		}
-
 		void AgreementSaved (object sender, AgreementSavedEventArgs e)
 		{
 			UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderAgreement { 
 				Order = UoWGeneric.Root,
 				AdditionalAgreement = e.Agreement
 			});
-			RefreshItemsAndEquipment (e.Agreement);
-			CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric).AdditionalAgreements.Add (e.Agreement);
-		}
-
-		void RefreshItemsAndEquipment (AdditionalAgreement a)
-		{
-			if (a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
-
-				IList<PaidRentEquipment> EquipmentList;
-				bool IsDaily = false;
-
-				if (a.Type == AgreementType.DailyRent) {
-					EquipmentList = (a as DailyRentAgreement).Equipment;
-					IsDaily = true;
-				} else
-					EquipmentList = (a as NonfreeRentAgreement).Equipment;
-
-				foreach (PaidRentEquipment equipment in EquipmentList) {
-					int ItemId;
-					//Добавляем номенклатуру залога
-					UoWGeneric.Root.ObservableOrderItems.Add (
-						new OrderItem {
-							AdditionalAgreement = a,
-							Count = 1,
-							Equipment = null,
-							Nomenclature = equipment.PaidRentPackage.DepositService,
-							Price = equipment.Deposit
-						}
-					);
-					//Добавляем услугу аренды
-					ItemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
-						new OrderItem {
-							AdditionalAgreement = a,
-							Count = 1,
-							Equipment = null,
-							Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
-							Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1)
-						}
-					);
-					//Добавляем оборудование
-					UoWGeneric.Root.ObservableOrderEquipments.Add (
-						new OrderEquipment { 
-							Direction = Vodovoz.Domain.Direction.Deliver,
-							Equipment = equipment.Equipment,
-							Reason = Reason.Rent,
-							OrderItem = UoWGeneric.Root.ObservableOrderItems [ItemId]
-						}
-					);
-					UoWGeneric.Root.SumToReceive += equipment.Deposit + equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1);
-				}
-			} else if (a.Type == AgreementType.FreeRent) {
-				FreeRentAgreement agreement = a as FreeRentAgreement;
-				foreach (FreeRentEquipment equipment in agreement.Equipment) {
-					int ItemId;
-					//Добавляем номенклатуру залога.
-					ItemId = UoWGeneric.Root.ObservableOrderItems.AddWithReturn (
-						new OrderItem {
-							AdditionalAgreement = agreement,
-							Count = 1,
-							Equipment = null,
-							Nomenclature = equipment.FreeRentPackage.DepositService,
-							Price = equipment.Deposit
-						}
-					);
-					//Добавляем оборудование.
-					UoWGeneric.Root.ObservableOrderEquipments.Add (
-						new OrderEquipment { 
-							Direction = Vodovoz.Domain.Direction.Deliver,
-							Equipment = equipment.Equipment,
-							Reason = Reason.Rent,
-							OrderItem = UoWGeneric.Root.ObservableOrderItems [ItemId]
-						}
-					);
-				}
-			}
+			UoWGeneric.Root.FillItemsFromAgreement (e.Agreement);
 			UpdateSum ();
+			CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric).AdditionalAgreements.Add (e.Agreement);
 		}
 
 		void UpdateSum ()
@@ -385,11 +272,6 @@ namespace Vodovoz
 			UoWGeneric.Root.SumToReceive = sum;
 		}
 
-		protected void OnTreeDocumentsRowActivated (object o, RowActivatedArgs args)
-		{
-			buttonViewDocument.Click ();
-		}
-
 		protected void OnButtonViewDocumentClicked (object sender, EventArgs e)
 		{
 			if (treeDocuments.GetSelectedObjects ().GetLength (0) > 0) {
@@ -397,7 +279,6 @@ namespace Vodovoz
 				if (treeDocuments.GetSelectedObjects () [0] is OrderAgreement) {
 					var agreement = (treeDocuments.GetSelectedObjects () [0] as OrderAgreement).AdditionalAgreement;
 					dlg = OrmMain.CreateObjectDialog (agreement);
-
 				} else if (treeDocuments.GetSelectedObjects () [0] is OrderContract) {
 					var contract = (treeDocuments.GetSelectedObjects () [0] as OrderContract).Contract;
 					dlg = OrmMain.CreateObjectDialog (contract);
@@ -416,15 +297,12 @@ namespace Vodovoz
 			OrmReference SelectDialog = new OrmReference (typeof(CommentTemplate), UoWGeneric.Session, criteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
-			SelectDialog.ObjectSelected += CommentSelected;
+			SelectDialog.ObjectSelected += (s, ea) => {
+				if (ea.Subject != null) {
+					UoWGeneric.Root.Comment = (ea.Subject as CommentTemplate).Comment;
+				}
+			};
 			TabParent.AddSlaveTab (this, SelectDialog);
-		}
-
-		void CommentSelected (object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			if (e.Subject != null) {
-				UoWGeneric.Root.Comment = (e.Subject as CommentTemplate).Comment;
-			}
 		}
 	}
 }
