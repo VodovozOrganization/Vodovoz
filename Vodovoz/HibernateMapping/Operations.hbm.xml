@@ -37,7 +37,7 @@
  		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id" not-null="true"/>
  		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  		<property name="Amount" column="amount"/>
-<!--		<many-to-one name="Order" class="Order" column="order_id"/> -->
+ 		<property name="Sale" column="sale"/>
 		<many-to-one name="WriteoffWarehouse" class="Warehouse" column="writeoff_warehouse_id"/>
 		<many-to-one name="IncomingWarehouse" class="Warehouse" column="incoming_warehouse_id"/>
 		<many-to-one name="WriteoffCounterparty" class="Counterparty" column="writeoff_counterparty_id"/>

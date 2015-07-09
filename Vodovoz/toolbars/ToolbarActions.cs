@@ -4,14 +4,15 @@ using QSOrmProject;
 using Vodovoz;
 using System.Collections.Generic;
 using Vodovoz.Domain;
+using Vodovoz.ViewModel;
 
 public partial class MainWindow : Gtk.Window
 {
-	Action ActionNewOrder;
 	Action ActionOrdersTable;
 	Action ActionServiceTickets;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
+	Action ActionClientBalance;
 	Action ActionRouteListTable;
 	Action ActionAddOrder;
 
@@ -26,6 +27,7 @@ public partial class MainWindow : Gtk.Window
 		//Склад
 		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
 		ActionWarehouseStock = new Action ("ActionWarehouseStock", "Складские остатки", null, "table");
+		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
 		#endregion
@@ -36,6 +38,7 @@ public partial class MainWindow : Gtk.Window
 		w1.Add (ActionServiceTickets, null);
 		w1.Add (ActionWarehouseDocuments, null);
 		w1.Add (ActionWarehouseStock, null);
+		w1.Add (ActionClientBalance, null);
 		w1.Add (ActionRouteListTable, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
@@ -45,6 +48,7 @@ public partial class MainWindow : Gtk.Window
 		ActionServiceTickets.Activated += ActionServiceTicketsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
+		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		#endregion
 	}
@@ -56,6 +60,12 @@ public partial class MainWindow : Gtk.Window
 		var criteria = session.CreateCriteria<RouteList> ();
 
 		OrmReference refWin = new OrmReference (typeof(RouteList), session, criteria);
+		tdiMain.AddTab (refWin);
+	}
+
+	void ActionClientBalance_Activated (object sender, System.EventArgs e)
+	{
+		var refWin = new ReferenceRepresentation(new ClientBalanceVM());
 		tdiMain.AddTab (refWin);
 	}
 

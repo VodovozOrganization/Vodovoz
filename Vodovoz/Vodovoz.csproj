@@ -262,6 +262,11 @@
     <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Representations\AdditionalAgreementsVM.cs" />
+    <Compile Include="Representations\ClientBalanceVM.cs" />
+    <Compile Include="ReferenceFilters\ClientBalanceFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
+    <Compile Include="Repositories\CounterpartyRepository.cs" />
+    <Compile Include="Representations\CounterpartyVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

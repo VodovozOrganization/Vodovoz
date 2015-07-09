@@ -68,10 +68,7 @@ namespace Vodovoz
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;
 			}
-
-			//ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
-			//	.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
-
+				
 			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
 			filter.RestrictWarehouse = DocumentUoW.Root.WriteoffWarehouse;
 

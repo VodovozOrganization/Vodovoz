@@ -79,7 +79,7 @@ namespace Vodovoz.ViewModel
 		}
 	}
 		
-	public class ContractsVMNode : TreeNode
+	public class ContractsVMNode
 	{
 
 		public int Id{ get; set;}

@@ -12,13 +12,13 @@ using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class StockBalanceVM : RepresentationModelBase<Nomenclature, StockBalanceVMNode>
+	public class ClientBalanceVM : RepresentationModelBase<Nomenclature, ClientBalanceVMNode>
 	{
 		IUnitOfWork uow;
 
-		public StockBalanceFilter Filter {
+		public ClientBalanceFilter Filter {
 			get {
-				return RepresentationFilter as StockBalanceFilter;
+				return RepresentationFilter as ClientBalanceFilter;
 			}
 			set { RepresentationFilter = value as IRepresentationFilter;
 			}
@@ -30,22 +30,22 @@ namespace Vodovoz.ViewModel
 		{
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
-			StockBalanceVMNode resultAlias = null;
+			ClientBalanceVMNode resultAlias = null;
 			GoodsMovementOperation operationAddAlias = null;
 			GoodsMovementOperation operationRemoveAlias = null;
 
 			var subqueryAdd = QueryOver.Of<GoodsMovementOperation>(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And ((Filter == null || Filter.RestrictWarehouse == null) 
+				.And ((Filter == null || Filter.RestrictCounterparty == null) 
 					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse), Filter.RestrictWarehouse))
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse), Filter.RestrictCounterparty))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
 			var subqueryRemove = QueryOver.Of<GoodsMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And ((Filter == null || Filter.RestrictWarehouse == null) 
+				.And ((Filter == null || Filter.RestrictCounterparty == null) 
 					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictWarehouse))
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictCounterparty))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
 			var stocklist = uow.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
@@ -58,13 +58,13 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
 					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
 				)
-				.TransformUsing(Transformers.AliasToBean<StockBalanceVMNode>())
-				.List<StockBalanceVMNode>().Where(r => r.Amount != 0).ToList ();
+				.TransformUsing(Transformers.AliasToBean<ClientBalanceVMNode>())
+				.List<ClientBalanceVMNode>().Where(r => r.Amount != 0).ToList ();
 
 			SetItemsSource (stocklist);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<StockBalanceVMNode>.Create ()
+		IMappingConfig treeViewConfig = FluentMappingConfig<ClientBalanceVMNode>.Create ()
 			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)
 			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
@@ -91,22 +91,24 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public StockBalanceVM (StockBalanceFilter filter) : this(filter.UoW)
+		public ClientBalanceVM (ClientBalanceFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
 		}
 
-		public StockBalanceVM () 
+		public ClientBalanceVM () 
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
-		{}
+		{
+			Filter = new ClientBalanceFilter (UoW);
+		}
 
-		public StockBalanceVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(GoodsMovementOperation))
+		public ClientBalanceVM (IUnitOfWork uow) : base(typeof(Counterparty), typeof(GoodsMovementOperation))
 		{
 			this.uow = uow;
 		}
 	}
 		
-	public class StockBalanceVMNode
+	public class ClientBalanceVMNode
 	{
 
 		public int Id{ get; set;}

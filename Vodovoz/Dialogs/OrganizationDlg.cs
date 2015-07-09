@@ -31,7 +31,7 @@ namespace Vodovoz
 		public OrganizationDlg (Organization sub) : this(sub.Id)
 		{
 			
-		} 
+		}
 
 		private void ConfigureDlg ()
 		{

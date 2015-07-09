@@ -69,13 +69,19 @@ namespace Vodovoz.Domain.Operations
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
-
-
+			
 		decimal amount;
 
 		public virtual decimal Amount {
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount); }
+		}
+
+		bool sale;
+
+		public virtual bool Sale {
+			get { return sale; }
+			set { SetField (ref sale, value, () => Sale); }
 		}
 	}
 }
