@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModel
 		}
 	}
 
-	public class DeliveryPointVMNode : TreeNode
+	public class DeliveryPointVMNode
 	{
 
 		public int Id { get; set; }

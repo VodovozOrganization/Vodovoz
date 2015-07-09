@@ -15,7 +15,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<CommentTemplate> ();
-			TabName = "Новый шаблон комментария";
 			ConfigureDlg ();
 		}
 

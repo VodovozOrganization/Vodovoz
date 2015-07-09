@@ -5,8 +5,6 @@ using System.Data.Bindings;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Repository;
-using Gtk;
-using QSTDI;
 using System.Linq;
 
 namespace Vodovoz.Domain

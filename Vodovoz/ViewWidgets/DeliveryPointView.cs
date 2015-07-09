@@ -25,7 +25,6 @@ namespace Vodovoz
 				if (DeliveryPointUoW.Root.DeliveryPoints == null)
 					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint> ();
 				deliveryPoints = DeliveryPointUoW.Root.ObservableDeliveryPoints;
-				treeDeliveryPoints.ItemsDataSource = deliveryPoints;
 				treeDeliveryPoints.RepresentationModel = new ViewModel.DeliveryPointsVM (value);
 				treeDeliveryPoints.RepresentationModel.UpdateNodes ();
 			}
@@ -75,14 +74,6 @@ namespace Vodovoz
 				return;
 
 			deliveryPoints.Remove (treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPoint);
-		}
-
-		private void RenderDeliveryPoint (TreeViewColumn column, CellRenderer cell, TreeModel model, TreeIter iter)
-		{
-			if ((bool)model.GetValue (iter, 1) == false)
-				(cell as CellRendererText).Foreground = "grey";
-			else
-				(cell as CellRendererText).Foreground = "black";
 		}
 	}
 }
