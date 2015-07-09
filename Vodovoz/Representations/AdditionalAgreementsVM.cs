@@ -5,6 +5,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Gtk.DataBindings;
+using NHibernate.Criterion;
 
 namespace Vodovoz.ViewModel
 {
@@ -19,28 +20,34 @@ namespace Vodovoz.ViewModel
 			AdditionalAgreement additionalAgreementAlias = null;
 			CounterpartyContract counterpartyContractAlias = null;
 			AdditionalAgreementVMNode resultAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
 
 			var additionalAgreementsList = uow.Session.QueryOver<AdditionalAgreement> (() => additionalAgreementAlias)
 				.JoinAlias (c => c.Contract, () => counterpartyContractAlias)
+				.JoinAlias (c => c.DeliveryPoint, () => deliveryPointAlias)
 				.Where (() => counterpartyContractAlias.Id == uow.Root.Id)
 				.SelectList (list => list
 					.Select (() => additionalAgreementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => additionalAgreementAlias.AgreementNumber).WithAlias (() => resultAlias.Number)
-					//.Select (() => additionalAgreementAlias.AgreementTypeTitle).WithAlias (() => resultAlias.Type)
-					//.Select (() => additionalAgreementAlias.IsActive).WithAlias (() => resultAlias.IsActive)
-					//.Select (() => additionalAgreementAlias.Name).WithAlias (() => resultAlias.Name)
-					//.Select (() => additionalAgreementAlias.Street).WithAlias (() => resultAlias.Street)
-					//.Select (() => additionalAgreementAlias.Room).WithAlias (() => resultAlias.Room)
-			                               )
+					.Select (() => additionalAgreementAlias.IssueDate).WithAlias (() => resultAlias.IssueDate)
+					.Select (Projections.Property ("additionalAgreementAlias.class")).WithAlias (() => resultAlias.Type)
+//TODO FIXME Найти способ написать это лямбдой а не строкой
+					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
+					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
+					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
+					.Select (() => deliveryPointAlias.Name).WithAlias (() => resultAlias.Name)
+					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
+					.Select (() => deliveryPointAlias.Room).WithAlias (() => resultAlias.Room))
 				.TransformUsing (Transformers.AliasToBean<AdditionalAgreementVMNode> ())
 				.List<AdditionalAgreementVMNode> ();
-
 			SetItemsSource (additionalAgreementsList);
 		}
 
 		IMappingConfig treeViewConfig = FluentMappingConfig<AdditionalAgreementVMNode>.Create ()
-			.AddColumn ("Номер").SetDataProperty (node => node.Number)
-		                                //.AddColumn ("Тип").SetDataProperty (node => node.Type)
+			.AddColumn ("Номер").SetDataProperty (node => node.NumberString)
+			.AddColumn ("Дата").SetDataProperty (node => node.IssueDateString)
+			.AddColumn ("Тип").SetDataProperty (node => node.TypeString)
+			.AddColumn ("Точка доставки").SetDataProperty (node => node.Point)
 			.Finish ();
 
 		public override IMappingConfig TreeViewConfig {
@@ -81,11 +88,68 @@ namespace Vodovoz.ViewModel
 
 		public string Number { get; set; }
 
-		//public string Type { get; set; }
+		public string NumberString { 
+			get {
+				switch (Type) {
+				case "DailyRent":
+					return String.Format ("{0} - А", Number);
+				case "NonfreeRent":
+					return String.Format ("{0} - А", Number);
+				case "FreeRent":
+					return String.Format ("{0} - Б", Number);
+				case "WaterSales":
+					return String.Format ("{0} - В", Number);
+				case "Repair":
+					return String.Format ("{0} - Т", Number);
+				default:
+					return Number;
+				}
+			}
+		}
 
-		//public string DeliveryPoint { get; set; }
+		public DateTime IssueDate { get; set; }
 
-		//public string Date { get; set; }
+		public string IssueDateString { get { return String.Format ("От {0}", IssueDate.ToShortDateString ()); } }
+
+		public string Type { get; set; }
+
+		public string TypeString {
+			get {
+				switch (Type) {
+				case "DailyRent":
+					return "Посуточная аренда";
+				case "NonfreeRent":
+					return "Долгосрочная аренда";
+				case "FreeRent":
+					return "Бесплатная аренда";
+				case "WaterSales":
+					return "Продажа воды";
+				case "Repair":
+					return "Сервис";
+				default:
+					return "Тип не определен";
+				}
+			}
+		}
+
+		public string Name { get; set; }
+
+		public string City { get; set; }
+
+		public string Street { get; set; }
+
+		public string Building { get; set; }
+
+		public string Room { get; set; }
+
+		public bool IsActive { get; set; }
+
+		public string RowColor { get { return IsActive ? "black" : "grey"; } }
+
+		public string Point { 
+			get { return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
+				(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room); } 
+		}
 	}
 }
 

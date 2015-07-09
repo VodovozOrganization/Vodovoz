@@ -122,10 +122,6 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Доп. соглашение платной аренды №{0} от {1:d}", Id, IssueDate); }
-		}
-
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
@@ -169,14 +165,6 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Доп. соглашение посуточной аренды №{0} от {1:d}", Id, IssueDate); }
-		}
-
-		public override string DocumentDate {
-			get { return String.Format ("От {0} до {1}", StartDate.ToShortDateString (), StartDate.AddDays (RentDays).ToShortDateString ()); }
-		}
-
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
@@ -217,10 +205,6 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		public virtual string Title { 
-			get { return String.Format ("Доп. соглашение бесплатной аренды №{0} от {1:d}", Id, IssueDate); }
-		}
-
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
@@ -247,10 +231,6 @@ namespace Vodovoz.Domain
 
 		[Display (Name = "Фиксированная стоимость воды")]
 		public virtual decimal FixedPrice { get; set; }
-
-		public virtual string Title { 
-			get { return String.Format ("Доп. соглашение продажи воды №{0} от {1:d}", Id, IssueDate); }
-		}
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
@@ -280,10 +260,6 @@ namespace Vodovoz.Domain
 		Nominative = "доп. соглашение сервиса")]
 	public class RepairAgreement : AdditionalAgreement
 	{
-		public virtual string Title { 
-			get { return String.Format ("Доп. соглашение сервиса №{0} от {1:d}", Id, IssueDate); }
-		}
-
 		public static IUnitOfWorkGeneric<RepairAgreement> Create (CounterpartyContract contract)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement> ();
