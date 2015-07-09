@@ -14,9 +14,14 @@ namespace Vodovoz.Domain
 	{
 		public virtual int Id { get; set; }
 
+		string agreementNumber;
+
 		[Required (ErrorMessage = "Номер доп. соглашения должен быть заполнен.")]
 		[Display (Name = "Номер")]
-		public virtual string AgreementNumber { get; set; }
+		public virtual string AgreementNumber { 
+			get { return agreementNumber; } 
+			set { SetField (ref agreementNumber, value, () => AgreementNumber); }
+		}
 
 		[Display (Name = "Тип доп. соглашения")]
 		public virtual AgreementType Type {

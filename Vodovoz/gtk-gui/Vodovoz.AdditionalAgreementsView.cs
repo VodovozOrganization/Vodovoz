@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView treeAdditionalAgreements;
+		private global::QSOrmProject.OrmTableView treeAdditionalAgreements;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -47,7 +47,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeAdditionalAgreements = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeAdditionalAgreements = new global::QSOrmProject.OrmTableView ();
 			this.treeAdditionalAgreements.CanFocus = true;
 			this.treeAdditionalAgreements.Name = "treeAdditionalAgreements";
 			this.treeAdditionalAgreements.CursorPointsEveryType = false;
@@ -55,7 +55,7 @@ namespace Vodovoz
 			this.treeAdditionalAgreements.InheritedBoundaryDataSource = false;
 			this.treeAdditionalAgreements.InheritedDataSource = false;
 			this.treeAdditionalAgreements.InheritedBoundaryDataSource = false;
-			this.treeAdditionalAgreements.ColumnMappings = "{Vodovoz.Domain.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип]; AgreementDeliveryPoint[Точка доставки]; DocumentDate[Дата];";
+			this.treeAdditionalAgreements.ColumnMappings = "";
 			this.GtkScrolledWindow.Add (this.treeAdditionalAgreements);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

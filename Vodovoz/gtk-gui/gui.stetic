@@ -3517,7 +3517,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">4</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -3574,10 +3574,10 @@ Patronymic</property>
                             <property name="IsEditable">True</property>
                             <property name="InvisibleChar">●</property>
                             <property name="InheritedDataSource">True</property>
-                            <property name="Mappings" />
+                            <property name="Mappings">Name</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                             <property name="InheritedDataSource">True</property>
-                            <property name="Mappings" />
+                            <property name="Mappings">Name</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
@@ -4816,7 +4816,7 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeAdditionalAgreements">
+              <widget class="QSOrmProject.OrmTableView" id="treeAdditionalAgreements">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
@@ -4825,7 +4825,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.AdditionalAgreement} AgreementNumber[Номер]; AgreementTypeTitle[Тип]; AgreementDeliveryPoint[Точка доставки]; DocumentDate[Дата];</property>
+                <property name="ColumnMappings" />
                 <signal name="RowActivated" handler="OnTreeAdditionalAgreementsRowActivated" />
               </widget>
             </child>

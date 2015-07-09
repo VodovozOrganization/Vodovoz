@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
-using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
-using System.Linq;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -26,7 +25,8 @@ namespace Vodovoz
 				if (AgreementUoW.Root.AdditionalAgreements == null)
 					AgreementUoW.Root.AdditionalAgreements = new List<AdditionalAgreement> ();
 				additionalAgreements = AgreementUoW.Root.ObservableAdditionalAgreements;
-				treeAdditionalAgreements.ItemsDataSource = additionalAgreements;
+				treeAdditionalAgreements.RepresentationModel = new ViewModel.AdditionalAgreementsVM (value);
+				treeAdditionalAgreements.RepresentationModel.UpdateNodes ();
 			}
 		}
 
@@ -75,16 +75,8 @@ namespace Vodovoz
 				break;
 			case AgreementType.Repair:
 				if (AgreementUoW.Root.CheckRepairAgreementExists ()) {
-					MessageDialog md = new MessageDialog (null,
-						                   DialogFlags.Modal,
-						                   MessageType.Warning,
-						                   ButtonsType.Ok,
-						                   "Доп. соглашение на ремонт оборудования уже существует. " +
-						                   "Нельзя создать более одного доп. соглашения данного типа.");
-					md.SetPosition (WindowPosition.Center);
-					md.ShowAll ();
-					md.Run ();
-					md.Destroy ();
+					MessageDialogWorks.RunWarningDialog ("Доп. соглашение на ремонт оборудования уже существует. " +
+					"Нельзя создать более одного доп. соглашения данного типа.");
 					return;
 				}
 				dlg = new AdditionalAgreementRepair (AgreementUoW.Root);
@@ -128,16 +120,8 @@ namespace Vodovoz
 
 		protected void OnButtonDeactivateClicked (object sender, EventArgs e)
 		{
-			MessageDialog md = new MessageDialog (null, 
-				                   DialogFlags.Modal,
-				                   MessageType.Question,
-				                   ButtonsType.YesNo,
-				                   "Вы действительно хотите закрыть данное доп. соглашение?");
-			md.SetPosition (WindowPosition.Center);
-			md.ShowAll ();
-			if (md.Run () == (int)ResponseType.Yes)
+			if (MessageDialogWorks.RunQuestionDialog ("Вы действительно хотите закрыть данное доп. соглашение?"))
 				(treeAdditionalAgreements.GetSelectedObjects () [0] as AdditionalAgreement).IsCancelled = true;
-			md.Destroy ();
 			//TODO Скрыть из выборки
 		}
 	}

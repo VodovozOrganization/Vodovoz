@@ -261,6 +261,7 @@
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
     <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Representations\DeliveryPointsVM.cs" />
+    <Compile Include="Representations\AdditionalAgreementsVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
