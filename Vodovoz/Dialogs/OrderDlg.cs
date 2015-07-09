@@ -7,7 +7,7 @@ using QSTDI;
 using Vodovoz.Repository;
 using QSProjectsLib;
 using Gtk;
-using System.Collections.Generic;
+using Gtk.DataBindings;
 using System.Linq;
 
 namespace Vodovoz
@@ -74,32 +74,48 @@ namespace Vodovoz
 				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows () > 0;
 			};
 
-			treeDocuments.RowActivated += (o, args) => {
-				buttonViewDocument.Click ();
-			};
+			treeDocuments.RowActivated += (o, args) => buttonViewDocument.Click ();
 
-			enumAddRentButton.EnumItemClicked += (sender, e) => {
-				AddRentAgreement ((OrderAgreementType)e.ItemEnum);
-			};
+			enumAddRentButton.EnumItemClicked += (sender, e) => AddRentAgreement ((OrderAgreementType)e.ItemEnum);
 				
 			checkSelfDelivery.Toggled += (sender, e) => {
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 			};
 
-			dataSumDifferenceReason.Completion = new Gtk.EntryCompletion ();
+			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => UpdateSum ();
+
+			dataSumDifferenceReason.Completion = new EntryCompletion ();
 			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons (UoWGeneric);
 			dataSumDifferenceReason.Completion.TextColumn = 0;
 
 			spinSumDifference.Value = (double)(UoWGeneric.Root.SumToReceive - UoWGeneric.Root.TotalSum);
 
+			treeItems.ColumnMappingConfig = FluentMappingConfig<OrderItem>.Create ()
+				.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureString)
+				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
+				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
+				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+				.AddSetter ((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
+				.AddSetter ((c, node) => c.Editable = node.CanEditAmount)
+				.WidthChars (5)
+				.AddTextRenderer (node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
+				.Finish ();
+			
 			UpdateSum ();
 		}
 
 		public override bool Save ()
 		{
 			var valid = new QSValidator<Order> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 				return false;
+
+			if (UoWGeneric.Root.ObservableOrderItems.Any (item => item.Count < 1)) {
+				if (!MessageDialogWorks.RunQuestionDialog ("В заказе присутствуют позиции с нулевым количеством. Вы действительно хотите продолжить?"))
+					return false;
+			}
 
 			logger.Info ("Сохраняем заказ...");
 			UoWGeneric.Save ();
@@ -207,6 +223,7 @@ namespace Vodovoz
 				} else
 					UoWGeneric.Root.AddWaterForSale (nomenclature, wsa);
 			}
+			UpdateSum ();
 		}
 
 		private void AddRentAgreement (OrderAgreementType type)

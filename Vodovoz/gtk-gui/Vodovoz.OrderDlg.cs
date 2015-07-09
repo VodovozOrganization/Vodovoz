@@ -261,7 +261,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -642,7 +642,7 @@ namespace Vodovoz
 			this.treeItems.InheritedBoundaryDataSource = false;
 			this.treeItems.InheritedDataSource = false;
 			this.treeItems.InheritedBoundaryDataSource = false;
-			this.treeItems.ColumnMappings = "{Vodovoz.Domain.OrderItem} NomenclatureString[Номенклатура]; PriceString[Стоимость]; CountString[Количество];";
+			this.treeItems.ColumnMappings = "";
 			this.GtkScrolledWindow1.Add (this.treeItems);
 			this.hbox8.Add (this.GtkScrolledWindow1);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.GtkScrolledWindow1]));

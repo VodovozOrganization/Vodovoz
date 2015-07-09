@@ -58,16 +58,16 @@ namespace Vodovoz.Domain
 			set { SetField (ref count, value, () => Count); }
 		}
 
+		public virtual bool CanEditAmount {
+			get { return AdditionalAgreement == null || AdditionalAgreement.Type == AgreementType.WaterSales; }
+		}
+
 		public virtual string NomenclatureString {
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}
 
-		public virtual string PriceString {
-			get { return CurrencyWorks.GetShortCurrencyString (Price); }
-		}
-
-		public virtual string CountString {
-			get { return String.Format ("{0} шт.", Count.ToString ()); }
+		public virtual string AgreementString {
+			get { return AdditionalAgreement == null ? String.Empty : String.Format ("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.AgreementNumber); }
 		}
 
 		#region IValidatableObject implementation

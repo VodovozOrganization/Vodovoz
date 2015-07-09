@@ -276,7 +276,7 @@ namespace Vodovoz.Domain
 				return;
 			ObservableOrderItems.Add (new OrderItem {
 				AdditionalAgreement = null,
-				Count = 1,
+				Count = 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.NomenclaturePrice [0].Price //FIXME
@@ -289,7 +289,7 @@ namespace Vodovoz.Domain
 				return;
 			ObservableOrderItems.Add (new OrderItem {
 				AdditionalAgreement = wsa,
-				Count = 1,
+				Count = 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.NomenclaturePrice [0].Price //FIXME
