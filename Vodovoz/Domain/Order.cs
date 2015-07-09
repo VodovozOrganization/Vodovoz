@@ -29,7 +29,7 @@ namespace Vodovoz.Domain
 			get { return client; }
 			set {
 				SetField (ref client, value, () => Client); 
-				if (DeliveryPoint != null && Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
+				if (DeliveryPoint != null && !Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
 					DeliveryPoint = null;
 				}
 			}
@@ -235,7 +235,7 @@ namespace Vodovoz.Domain
 			get {
 				Decimal sum = 0;
 				foreach (OrderItem item in ObservableOrderItems) {
-					sum += item.Price;
+					sum += item.Price * item.Count;
 				}
 				return sum;}
 		}
@@ -311,25 +311,42 @@ namespace Vodovoz.Domain
 				foreach (PaidRentEquipment equipment in EquipmentList) {
 					int ItemId;
 					//Добавляем номенклатуру залога
-					ObservableOrderItems.Add (
-						new OrderItem {
-							AdditionalAgreement = a,
-							Count = 1,
-							Equipment = null,
-							Nomenclature = equipment.PaidRentPackage.DepositService,
-							Price = equipment.Deposit
-						}
-					);
+					OrderItem orderItem = null;
+					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem> (
+						    item => item.AdditionalAgreement.Id == a.Id &&
+						    item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
+						    item.Price == equipment.Deposit)) != null)
+						orderItem.Count++;
+					else {
+						ObservableOrderItems.Add (
+							new OrderItem {
+								AdditionalAgreement = a,
+								Count = 1,
+								Equipment = null,
+								Nomenclature = equipment.PaidRentPackage.DepositService,
+								Price = equipment.Deposit
+							}
+						);
+					}
 					//Добавляем услугу аренды
-					ItemId = ObservableOrderItems.AddWithReturn (
-						new OrderItem {
-							AdditionalAgreement = a,
-							Count = 1,
-							Equipment = null,
-							Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
-							Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1)
-						}
-					);
+					orderItem = null;
+					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem> (
+						    item => item.AdditionalAgreement.Id == a.Id &&
+						    item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
+						    item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1))) != null) {
+						orderItem.Count++;
+						ItemId = ObservableOrderItems.IndexOf (orderItem);
+					} else {
+						ItemId = ObservableOrderItems.AddWithReturn (
+							new OrderItem {
+								AdditionalAgreement = a,
+								Count = 1,
+								Equipment = null,
+								Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
+								Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1)
+							}
+						);
+					}
 					//Добавляем оборудование
 					ObservableOrderEquipments.Add (
 						new OrderEquipment { 
