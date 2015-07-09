@@ -621,7 +621,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14546,6 +14545,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14633,7 +14633,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -14836,6 +14836,7 @@ Patronymic</property>
                             <property name="Label" translatable="yes">Заполнить
 из шаблона</property>
                             <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonFillCommentClicked" />
                           </widget>
                           <packing>
                             <property name="Position">1</property>
@@ -15687,6 +15688,7 @@ Patronymic</property>
                                 <property name="Icon">stock:gtk-find Menu</property>
                                 <property name="Label" translatable="yes">Посмотреть документ</property>
                                 <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonViewDocumentClicked" />
                               </widget>
                               <packing>
                                 <property name="Position">0</property>
