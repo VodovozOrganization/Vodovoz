@@ -12,8 +12,6 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementsView : Bin, IEditableDialog
 	{
-		GenericObservableList<AdditionalAgreement> additionalAgreements;
-
 		IUnitOfWorkGeneric<CounterpartyContract> agreementUoW;
 
 		public IUnitOfWorkGeneric<CounterpartyContract> AgreementUoW {
@@ -24,7 +22,6 @@ namespace Vodovoz
 				agreementUoW = value;
 				if (AgreementUoW.Root.AdditionalAgreements == null)
 					AgreementUoW.Root.AdditionalAgreements = new List<AdditionalAgreement> ();
-				additionalAgreements = AgreementUoW.Root.ObservableAdditionalAgreements;
 				treeAdditionalAgreements.RepresentationModel = new ViewModel.AdditionalAgreementsVM (value);
 				treeAdditionalAgreements.RepresentationModel.UpdateNodes ();
 			}
@@ -94,7 +91,9 @@ namespace Vodovoz
 				return;
 
 			if (treeAdditionalAgreements.GetSelectedObjects ().GetLength (0) > 0) {
-				ITdiDialog dlg = OrmMain.CreateObjectDialog (treeAdditionalAgreements.GetSelectedObjects () [0]);
+				int id = (treeAdditionalAgreements.GetSelectedObjects () [0] as ViewModel.AdditionalAgreementVMNode).Id;
+				var agreement = AgreementUoW.GetById<AdditionalAgreement> (id);
+				ITdiDialog dlg = OrmMain.CreateObjectDialog (agreement);
 				mytab.TabParent.AddSlaveTab (mytab, dlg);
 			}
 		}
@@ -110,7 +109,8 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			additionalAgreements.Remove (treeAdditionalAgreements.GetSelectedObjects () [0] as AdditionalAgreement);
+			OrmMain.DeleteObject (typeof(AdditionalAgreement), (treeAdditionalAgreements.GetSelectedObjects () [0] as ViewModel.AdditionalAgreementVMNode).Id);
+			treeAdditionalAgreements.RepresentationModel.ItemsList.Remove (treeAdditionalAgreements.GetSelectedObjects () [0]);
 		}
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)

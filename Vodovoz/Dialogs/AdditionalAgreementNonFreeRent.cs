@@ -53,6 +53,7 @@ namespace Vodovoz
 		{
 			datatable1.DataSource = subjectAdaptor;
 			entryAgreementNumber.IsEditable = true;
+			paidrentpackagesview1.IsEditable = true;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);

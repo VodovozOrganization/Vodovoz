@@ -54,6 +54,7 @@ namespace Vodovoz
 		{
 			datatable1.DataSource = subjectAdaptor;
 			entryAgreementNumber.IsEditable = true;
+			dailyrentpackagesview1.IsEditable = true;
 			spinRentDays.Sensitive = false;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;

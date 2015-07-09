@@ -138,11 +138,13 @@ namespace Vodovoz.Domain
 				return null;
 			}
 			AdditionalAgreement agreement = null;
-			agreement = AdditionalAgreements.FirstOrDefault (a => 
+			if (deliveryPoint != null) {
+				agreement = AdditionalAgreements.FirstOrDefault (a => 
 				a.DeliveryPoint != null &&
-			a.DeliveryPoint.Id == deliveryPoint.Id &&
-			a.Type == AgreementType.WaterSales &&
-			!a.IsCancelled);
+				a.DeliveryPoint.Id == deliveryPoint.Id &&
+				a.Type == AgreementType.WaterSales &&
+				!a.IsCancelled);
+			}
 			if (agreement == null) {
 				agreement = AdditionalAgreements.FirstOrDefault (a => 
 					a.DeliveryPoint == null &&

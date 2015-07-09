@@ -1,16 +1,17 @@
 ﻿using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Operations;
+using NHibernate;
 
 
 namespace Vodovoz.Repository
 {
 	public class CounterpartyContractRepository
 	{
-		public static CounterpartyContract GetCounterpartyContract (IUnitOfWorkGeneric<Order> uow)
+		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, Payment paymentType)
 		{
-			Order order = uow.RootObject as Order;
 			Organization organization = 
-				(order.PaymentType == Payment.cash 
+				(paymentType == Payment.cash 
 				? OrganizationRepository.GetCashOrganization (uow)
 				: OrganizationRepository.GetCashlessOrganization (uow));
 
@@ -20,7 +21,7 @@ namespace Vodovoz.Repository
 			return uow.Session.QueryOver<CounterpartyContract> ()
 				.JoinAlias (co => co.Counterparty, () => counterpartyAlias)
 				.JoinAlias (co => co.Organization, () => organizationAlias)
-				.Where (co => (counterpartyAlias.Id == order.Client.Id &&
+				.Where (co => (counterpartyAlias.Id == counterparty.Id &&
 			!co.IsArchive &&
 			!co.OnCancellation &&
 			organizationAlias.Id == organization.Id))

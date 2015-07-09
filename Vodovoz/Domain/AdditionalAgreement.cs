@@ -99,6 +99,9 @@ namespace Vodovoz.Domain
 		}
 	}
 
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "доп. соглашения платной аренды",
+		Nominative = "доп. соглашение платной аренды")]
 	public class NonfreeRentAgreement : AdditionalAgreement
 	{
 		IList<PaidRentEquipment> equipment = new List<PaidRentEquipment> ();
@@ -140,6 +143,9 @@ namespace Vodovoz.Domain
 		}
 	}
 
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "доп. соглашения посуточной аренды",
+		Nominative = "доп. соглашение посуточной аренды")]
 	public class DailyRentAgreement : AdditionalAgreement
 	{
 		[Display (Name = "Количество дней аренды")]
@@ -188,6 +194,9 @@ namespace Vodovoz.Domain
 		}
 	}
 
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "доп. соглашения бесплатной аренды",
+		Nominative = "доп. соглашение бесплатной аренды")]
 	public class FreeRentAgreement : AdditionalAgreement
 	{
 		IList<FreeRentEquipment> equipment = new List<FreeRentEquipment> ();
@@ -229,6 +238,9 @@ namespace Vodovoz.Domain
 		}
 	}
 
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "доп. соглашения продажи воды",
+		Nominative = "доп. соглашение продажи воды")]
 	public class WaterSalesAgreement : AdditionalAgreement
 	{
 		public virtual bool IsFixedPrice { get; set; }
@@ -263,6 +275,9 @@ namespace Vodovoz.Domain
 		}
 	}
 
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "доп. соглашения сервиса",
+		Nominative = "доп. соглашение сервиса")]
 	public class RepairAgreement : AdditionalAgreement
 	{
 		public virtual string Title { 

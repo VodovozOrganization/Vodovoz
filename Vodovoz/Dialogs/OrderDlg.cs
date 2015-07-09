@@ -189,13 +189,17 @@ namespace Vodovoz
 			} else if (nomenclature.Category == NomenclatureCategory.equipment) {
 				UoWGeneric.Root.AddEquipmentNomenclatureForSale (nomenclature, UoWGeneric);
 			} else if (nomenclature.Category == NomenclatureCategory.water) {
-				WaterSalesAgreement wsa = CounterpartyContractRepository.
-					GetCounterpartyContract (UoWGeneric).
-					GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
+				CounterpartyContract contract = CounterpartyContractRepository.
+					GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
+				if (contract == null) {
+					RunContractCreateDialog ();
+					return;
+				}
+				WaterSalesAgreement wsa = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
 				if (wsa == null) {	
 					//Если нет доп. соглашения продажи воды.
 					if (MessageDialogWorks.RunQuestionDialog ("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric), UoWGeneric.Root.DeliveryDate);
+						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryDate);
 						(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 						TabParent.AddSlaveTab (this, dlg);
 					} else
@@ -213,39 +217,23 @@ namespace Vodovoz
 				MessageDialogWorks.RunWarningDialog ("Для добавления оборудования должна быть выбрана точка доставки.");
 				return;
 			}
-			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric);
+			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
 			if (contract == null) {
-				string question = "Отсутствует договор с клиентом для " +
-				                  (UoWGeneric.Root.PaymentType == Payment.cash ? "наличной" : "безналичной") +
-				                  " формы оплаты. Создать?";
-				if (MessageDialogWorks.RunQuestionDialog (question)) {
-					dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
-						(UoWGeneric.Root.PaymentType == Payment.cash ?
-						OrganizationRepository.GetCashOrganization (UoWGeneric) :
-						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
-					(dlg as IContractSaved).ContractSaved += (sender, e) => {
-						UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderContract { 
-							Order = UoWGeneric.Root,
-							Contract = e.Contract
-						});
-					};
-				} else {
-					return;
-				}
-			} else {
-				switch (type) {
-				case OrderAgreementType.NonfreeRent:
-					dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
-					break;
-				case OrderAgreementType.DailyRent:
-					dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
-					break;
-				default: 
-					dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
-					break;
-				}
-				(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
+				RunContractCreateDialog ();
+				return;
+			} 
+			switch (type) {
+			case OrderAgreementType.NonfreeRent:
+				dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+				break;
+			case OrderAgreementType.DailyRent:
+				dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+				break;
+			default: 
+				dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+				break;
 			}
+			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			TabParent.AddSlaveTab (this, dlg);
 		}
 
@@ -257,7 +245,7 @@ namespace Vodovoz
 			});
 			UoWGeneric.Root.FillItemsFromAgreement (e.Agreement);
 			UpdateSum ();
-			CounterpartyContractRepository.GetCounterpartyContract (UoWGeneric).AdditionalAgreements.Add (e.Agreement);
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType).AdditionalAgreements.Add (e.Agreement);
 		}
 
 		void UpdateSum ()
@@ -312,6 +300,26 @@ namespace Vodovoz
 			else
 				text = "Сумма преплаты/недоплаты:";
 			labelSumDifference.Markup = text;
+		}
+
+		void RunContractCreateDialog ()
+		{
+			ITdiTab dlg;
+			string question = "Отсутствует договор с клиентом для " +
+			                  (UoWGeneric.Root.PaymentType == Payment.cash ? "наличной" : "безналичной") +
+			                  " формы оплаты. Создать?";
+			if (MessageDialogWorks.RunQuestionDialog (question)) {
+				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
+					(UoWGeneric.Root.PaymentType == Payment.cash ?
+						OrganizationRepository.GetCashOrganization (UoWGeneric) :
+						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
+				(dlg as IContractSaved).ContractSaved += (sender, e) => {
+					UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderContract { 
+						Order = UoWGeneric.Root,
+						Contract = e.Contract
+					});
+				};
+			}
 		}
 	}
 }

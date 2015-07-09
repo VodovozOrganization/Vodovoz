@@ -109,7 +109,7 @@ namespace Vodovoz
 			this.dailyrentpackagesview1 = new global::Vodovoz.DailyRentPackagesView ();
 			this.dailyrentpackagesview1.Events = ((global::Gdk.EventMask)(256));
 			this.dailyrentpackagesview1.Name = "dailyrentpackagesview1";
-			this.dailyrentpackagesview1.IsEditable = false;
+			this.dailyrentpackagesview1.IsEditable = true;
 			this.datatable1.Add (this.dailyrentpackagesview1);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.dailyrentpackagesview1]));
 			w6.TopAttach = ((uint)(4));
