@@ -11,7 +11,11 @@ namespace Vodovoz.ViewModel
 {
 	public class DeliveryPointsVM : RepresentationModelBase<DeliveryPoint, DeliveryPointVMNode>
 	{
-		IUnitOfWorkGeneric<Counterparty> uow;
+		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
+			get {
+				return UoW as IUnitOfWorkGeneric<Counterparty>;
+			}
+		}
 
 		#region IRepresentationModel implementation
 
@@ -21,9 +25,9 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			DeliveryPointVMNode resultAlias = null;
 
-			var deliveryPointslist = uow.Session.QueryOver<DeliveryPoint> (() => deliveryPointAlias)
+			var deliveryPointslist = UoW.Session.QueryOver<DeliveryPoint> (() => deliveryPointAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
-				.Where (() => counterpartyAlias.Id == uow.Root.Id)
+				.Where (() => counterpartyAlias.Id == CounterpartyUoW.Root.Id)
 				.SelectList (list => list
 					.Select (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
@@ -54,7 +58,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (DeliveryPoint updatedSubject)
 		{
-			return uow.Root.Id == updatedSubject.Counterparty.Id;
+			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
@@ -66,7 +70,7 @@ namespace Vodovoz.ViewModel
 
 		public DeliveryPointsVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
-			this.uow = uow;
+			this.UoW = uow;
 		}
 	}
 
