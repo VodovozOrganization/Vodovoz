@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -11,7 +11,11 @@ namespace Vodovoz.ViewModel
 {
 	public class AdditionalAgreementsVM : RepresentationModelBase<AdditionalAgreement, AdditionalAgreementVMNode>
 	{
-		IUnitOfWorkGeneric<CounterpartyContract> uow;
+		public IUnitOfWorkGeneric<CounterpartyContract> CounterpartyUoW {
+			get {
+				return UoW as IUnitOfWorkGeneric<CounterpartyContract>;
+			}
+		}
 
 		#region IRepresentationModel implementation
 
@@ -22,10 +26,10 @@ namespace Vodovoz.ViewModel
 			AdditionalAgreementVMNode resultAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 
-			var additionalAgreementsList = uow.Session.QueryOver<AdditionalAgreement> (() => additionalAgreementAlias)
+			var additionalAgreementsList = UoW.Session.QueryOver<AdditionalAgreement> (() => additionalAgreementAlias)
 				.JoinAlias (c => c.Contract, () => counterpartyContractAlias)
 				.JoinAlias (c => c.DeliveryPoint, () => deliveryPointAlias)
-				.Where (() => counterpartyContractAlias.Id == uow.Root.Id)
+				.Where (() => counterpartyContractAlias.Id == CounterpartyUoW.Root.Id)
 				.SelectList (list => list
 					.Select (() => additionalAgreementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => additionalAgreementAlias.AgreementNumber).WithAlias (() => resultAlias.Number)
@@ -60,12 +64,12 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (AdditionalAgreement updatedSubject)
 		{
-			return uow.Root.Id == updatedSubject.Contract.Id;
+			return CounterpartyUoW.Root.Id == updatedSubject.Contract.Id;
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
 		{
-			return (updatedSubject as AdditionalAgreement).Contract.Id == uow.Root.Id;
+			return (updatedSubject as AdditionalAgreement).Contract.Id == CounterpartyUoW.Root.Id;
 		}
 
 		#endregion
@@ -77,7 +81,7 @@ namespace Vodovoz.ViewModel
 				typeof(AdditionalAgreementRepair),
 				typeof(AdditionalAgreementWater))
 		{
-			this.uow = uow;
+			this.UoW = uow;
 		}
 	}
 

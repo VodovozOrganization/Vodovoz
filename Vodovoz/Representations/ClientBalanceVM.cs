@@ -14,8 +14,6 @@ namespace Vodovoz.ViewModel
 {
 	public class ClientBalanceVM : RepresentationModelBase<Nomenclature, ClientBalanceVMNode>
 	{
-		IUnitOfWork uow;
-
 		public ClientBalanceFilter Filter {
 			get {
 				return RepresentationFilter as ClientBalanceFilter;
@@ -48,7 +46,7 @@ namespace Vodovoz.ViewModel
 					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictCounterparty))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
-			var stocklist = uow.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
+			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
 				.JoinQueryOver(n => n.Unit, () => unitAlias)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
@@ -99,12 +97,12 @@ namespace Vodovoz.ViewModel
 		public ClientBalanceVM () 
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{
-			Filter = new ClientBalanceFilter (UoW);
+			CreateRepresentationFilter = () => new ClientBalanceFilter(UoW);
 		}
 
 		public ClientBalanceVM (IUnitOfWork uow) : base(typeof(Counterparty), typeof(GoodsMovementOperation))
 		{
-			this.uow = uow;
+			this.UoW = uow;
 		}
 	}
 		

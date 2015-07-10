@@ -11,7 +11,11 @@ namespace Vodovoz.ViewModel
 {
 	public class ContractsVM : RepresentationModelBase<CounterpartyContract, ContractsVMNode>
 	{
-		IUnitOfWorkGeneric<Counterparty> uow;
+		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
+			get {
+				return UoW as IUnitOfWorkGeneric<Counterparty>;
+			}
+		}
 
 		#region IRepresentationModel implementation
 
@@ -28,10 +32,10 @@ namespace Vodovoz.ViewModel
 				.Where(() => agreementAlias.Contract.Id == contractAlias.Id)
 				.ToRowCountQuery();
 
-			var contractslist = uow.Session.QueryOver<CounterpartyContract> (() => contractAlias)
+			var contractslist = UoW.Session.QueryOver<CounterpartyContract> (() => contractAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
 				.JoinAlias (c => c.Organization, () => organizationAlias)
-				.Where (() => counterpartyAlias.Id == uow.Root.Id)
+				.Where (() => counterpartyAlias.Id == CounterpartyUoW.Root.Id)
 				.SelectList(list => list
 					.Select(() => contractAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => contractAlias.IssueDate).WithAlias(() => resultAlias.IssueDate)
@@ -63,7 +67,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (CounterpartyContract updatedSubject)
 		{
-			return uow.Root.Id == updatedSubject.Counterparty.Id;
+			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
 		}
 			
 		protected override bool NeedUpdateFunc (object updatedSubject)
@@ -75,7 +79,7 @@ namespace Vodovoz.ViewModel
 
 		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
-			this.uow = uow;
+			this.UoW = uow;
 		}
 	}
 		

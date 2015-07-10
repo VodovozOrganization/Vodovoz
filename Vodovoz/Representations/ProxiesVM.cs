@@ -12,7 +12,11 @@ namespace Vodovoz.ViewModel
 {
 	public class ProxiesVM : RepresentationModelBase<Proxy, ProxiesVMNode>
 	{
-		IUnitOfWorkGeneric<Counterparty> uow;
+		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
+			get {
+				return UoW as IUnitOfWorkGeneric<Counterparty>;
+			}
+		}
 
 		#region IRepresentationModel implementation
 
@@ -23,10 +27,10 @@ namespace Vodovoz.ViewModel
 			ProxiesVMNode resultAlias = null;
 			Person personAlias = null;
 
-			var proxieslist = uow.Session.QueryOver<Proxy> (() => proxyAlias)
+			var proxieslist = UoW.Session.QueryOver<Proxy> (() => proxyAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
 				.JoinAlias (c => c.Persons, () => personAlias)
-				.Where (() => counterpartyAlias.Id == uow.Root.Id)
+				.Where (() => counterpartyAlias.Id == CounterpartyUoW.Root.Id)
 				.SelectList(list => list
 					.SelectGroup(() => proxyAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => proxyAlias.Number).WithAlias(() => resultAlias.Number)
@@ -59,7 +63,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (Proxy updatedSubject)
 		{
-			return uow.Root.Id == updatedSubject.Counterparty.Id;
+			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
@@ -71,7 +75,7 @@ namespace Vodovoz.ViewModel
 
 		public ProxiesVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
-			this.uow = uow;
+			this.UoW = uow;
 		}
 	}
 		

@@ -14,8 +14,6 @@ namespace Vodovoz.ViewModel
 {
 	public class StockBalanceVM : RepresentationModelBase<Nomenclature, StockBalanceVMNode>
 	{
-		IUnitOfWork uow;
-
 		public StockBalanceFilter Filter {
 			get {
 				return RepresentationFilter as StockBalanceFilter;
@@ -48,7 +46,7 @@ namespace Vodovoz.ViewModel
 					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictWarehouse))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
-			var stocklist = uow.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
+			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
 				.JoinQueryOver(n => n.Unit, () => unitAlias)
 				.SelectList(list => list
 					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
@@ -102,7 +100,7 @@ namespace Vodovoz.ViewModel
 
 		public StockBalanceVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(GoodsMovementOperation))
 		{
-			this.uow = uow;
+			this.UoW = uow;
 		}
 	}
 		

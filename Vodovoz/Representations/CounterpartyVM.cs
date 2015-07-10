@@ -10,8 +10,6 @@ namespace Vodovoz.ViewModel
 {
 	public class CounterpartyVM : RepresentationModelBase<Counterparty, CounterpartyVMNode>
 	{
-		IUnitOfWork uow;
-
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -19,7 +17,7 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			CounterpartyVMNode resultAlias = null;
 
-			var counterpartylist = Repository.CounterpartyRepository.ActiveClientsQuery ().GetExecutableQueryOver (uow.Session)
+			var counterpartylist = Repository.CounterpartyRepository.ActiveClientsQuery ().GetExecutableQueryOver (UoW.Session)
 				.SelectList(list => list
 					.Select(c => c.Id).WithAlias(() => resultAlias.Id)
 					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
@@ -60,7 +58,7 @@ namespace Vodovoz.ViewModel
 
 		public CounterpartyVM (IUnitOfWork uow)
 		{
-			this.uow = uow;
+			this.UoW = uow;
 		}
 	}
 		
