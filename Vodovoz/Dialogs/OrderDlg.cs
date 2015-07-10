@@ -188,7 +188,7 @@ namespace Vodovoz
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
 		{
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric.Session, 
+			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric, 
 				                            NomenclatureRepository.NomenclatureForSaleQuery ()
 				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
@@ -294,8 +294,7 @@ namespace Vodovoz
 
 		protected void OnButtonFillCommentClicked (object sender, EventArgs e)
 		{
-			var criteria = UoWGeneric.Session.CreateCriteria<CommentTemplate> ();
-			OrmReference SelectDialog = new OrmReference (typeof(CommentTemplate), UoWGeneric.Session, criteria);
+			OrmReference SelectDialog = new OrmReference (typeof(CommentTemplate), UoWGeneric);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += (s, ea) => {

@@ -74,7 +74,11 @@ namespace Vodovoz
 				return;
 			}
 
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), SpecificationUoW.Session, Repository.NomenclatureRepository.NomenclatureForProductMaterialsQuery ().GetExecutableQueryOver (SpecificationUoW.Session).RootCriteria);
+			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature),
+				SpecificationUoW,
+				Repository.NomenclatureRepository.NomenclatureForProductMaterialsQuery ()
+				.GetExecutableQueryOver (SpecificationUoW.Session).RootCriteria
+			);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 

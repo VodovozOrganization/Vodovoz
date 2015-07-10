@@ -56,10 +56,7 @@ public partial class MainWindow : Gtk.Window
 	void ActionRouteListTable_Activated (object sender, System.EventArgs e)
 	{
 		//TODO FIXME Сделать нормальный вид.
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<RouteList> ();
-
-		OrmReference refWin = new OrmReference (typeof(RouteList), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(RouteList));
 		tdiMain.AddTab (refWin);
 	}
 
@@ -95,10 +92,7 @@ public partial class MainWindow : Gtk.Window
 	void ActionOrdersTableActivated (object sender, System.EventArgs e)
 	{
 		//TODO FIXME Сделать нормальный вид.
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Order> ();
-
-		OrmReference refWin = new OrmReference (typeof(Order), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Order));
 		tdiMain.AddTab (refWin);
 	}
 }

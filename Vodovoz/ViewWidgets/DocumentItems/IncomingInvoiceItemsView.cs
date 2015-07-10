@@ -88,7 +88,7 @@ namespace Vodovoz
 			ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
 				.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
 
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), DocumentUoW.Session, ItemsCriteria);
+			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), DocumentUoW, ItemsCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
@@ -121,7 +121,7 @@ namespace Vodovoz
 					.Add (Restrictions.Eq ("Nomenclature", e.Subject))
 					.Add (Restrictions.Not (Restrictions.In ("Id", usedItems)));
 
-				OrmReference SelectDialog = new OrmReference (typeof(Equipment), DocumentUoW.Session, ItemsCriteria);
+				OrmReference SelectDialog = new OrmReference (typeof(Equipment), DocumentUoW, ItemsCriteria);
 				SelectDialog.Mode = OrmReferenceMode.Select;
 				SelectDialog.ButtonMode = ReferenceButtonMode.TreatEditAsOpen | ReferenceButtonMode.CanEdit;
 

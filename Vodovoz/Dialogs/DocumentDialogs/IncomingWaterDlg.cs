@@ -54,9 +54,7 @@ namespace Vodovoz
 
 		protected void OnButtonFillClicked (object sender, EventArgs e)
 		{
-			ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria<ProductSpecification> ();
-
-			OrmReference SelectDialog = new OrmReference (typeof(ProductSpecification), UoWGeneric.Session, ItemsCriteria);
+			OrmReference SelectDialog = new OrmReference (typeof(ProductSpecification), UoWGeneric);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ObjectSelected += SelectDialog_ObjectSelected;
 

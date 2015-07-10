@@ -95,7 +95,7 @@ namespace Vodovoz
 			//TODO FIXME Filter used equipment
 			var Query = EquipmentRepository.GetEquipmentWithTypesQuery (availableTypes);
 			OrmReference SelectDialog = new OrmReference (typeof(Equipment), 
-				                            AgreementUoW.Session, 
+				                            AgreementUoW, 
 				                            Query.GetExecutableQueryOver (AgreementUoW.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;

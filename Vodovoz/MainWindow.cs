@@ -198,190 +198,127 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionOrganizationsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var orgs = session.CreateCriteria<Organization> ();
-
-		OrmReference refWin = new OrmReference (typeof(Organization), session, orgs);
+		OrmReference refWin = new OrmReference (typeof(Organization));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionBanksRFActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Bank> ();
-
-		OrmReference refWin = new OrmReference (typeof(Bank), session, criteria, "{QSBanks.Bank} Bik[БИК]; Name[Название]; City[Город];");
+		OrmReference refWin = new OrmReference (typeof(Bank));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionNationalityActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Nationality> ();
-
-		OrmReference refWin = new OrmReference (typeof(Nationality), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Nationality));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionEmploeyActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Employee> ();
-
-		OrmReference refWin = new OrmReference (typeof(Employee), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Employee));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionCarsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Car> ();
-
-		OrmReference refWin = new OrmReference (typeof(Car), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Car));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionUnitsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<MeasurementUnits> ();
-
-		OrmReference refWin = new OrmReference (typeof(MeasurementUnits), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(MeasurementUnits));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionColorsActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<EquipmentColors> ();
-
-		OrmReference refWin = new OrmReference (typeof(EquipmentColors), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(EquipmentColors));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionManufacturersActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Manufacturer> ();
-
-		OrmReference refWin = new OrmReference (typeof(Manufacturer), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Manufacturer));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionEquipmentTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<EquipmentType> ();
-
-		OrmReference refWin = new OrmReference (typeof(EquipmentType), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(EquipmentType));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionNomenclatureActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Nomenclature> ();
-
-		OrmReference refWin = new OrmReference (typeof(Nomenclature), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Nomenclature));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionPhoneTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<PhoneType> ();
-
-		OrmReference refWin = new OrmReference (typeof(PhoneType), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(PhoneType));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionCounterpartyHandbookActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Counterparty> ();
-
-		OrmReference refWin = new OrmReference (typeof(Counterparty), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Counterparty));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionSignificanceActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Significance> ();
-
-		OrmReference refWin = new OrmReference (typeof(Significance), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Significance));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionStatusActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<CounterpartyStatus> ();
-
-		OrmReference refWin = new OrmReference (typeof(CounterpartyStatus), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(CounterpartyStatus));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionEMailTypesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<EmailType> ();
-
-		OrmReference refWin = new OrmReference (typeof(EmailType), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(EmailType));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionCounterpartyPostActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Post> ();
-
-		OrmReference refWin = new OrmReference (typeof(Post), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Post));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionFreeRentPackageActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<FreeRentPackage> ();
-
-		OrmReference refWin = new OrmReference (typeof(FreeRentPackage), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(FreeRentPackage));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionPaidRentPackageActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<PaidRentPackage> ();
-
-		OrmReference refWin = new OrmReference (typeof(PaidRentPackage), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(PaidRentPackage));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionEquipmentActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Equipment> ();
-
-		OrmReference refWin = new OrmReference (typeof(Equipment), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Equipment));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionDeliveryScheduleActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<DeliverySchedule> ();
-
-		OrmReference refWin = new OrmReference (typeof(DeliverySchedule), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(DeliverySchedule));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionLogisticsAreaActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<LogisticsArea> ();
-
-		OrmReference refWin = new OrmReference (typeof(LogisticsArea), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(LogisticsArea));
 		tdiMain.AddTab (refWin);	
 	}
 
@@ -392,37 +329,25 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionWarehousesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<Warehouse> ();
-
-		OrmReference refWin = new OrmReference (typeof(Warehouse), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(Warehouse));
 		tdiMain.AddTab (refWin);	
 	}
 
 	protected void OnActionProductSpecificationActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<ProductSpecification> ();
-
-		OrmReference refWin = new OrmReference (typeof(ProductSpecification), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(ProductSpecification));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionCullingCategoryActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<CullingCategory> ();
-
-		OrmReference refWin = new OrmReference (typeof(CullingCategory), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(CullingCategory));
 		tdiMain.AddTab (refWin);
 	}
 
 	protected void OnActionCommentTemplatesActivated (object sender, EventArgs e)
 	{
-		ISession session = OrmMain.OpenSession ();
-		var criteria = session.CreateCriteria<CommentTemplate> ();
-
-		OrmReference refWin = new OrmReference (typeof(CommentTemplate), session, criteria);
+		OrmReference refWin = new OrmReference (typeof(CommentTemplate));
 		tdiMain.AddTab (refWin);
 	}
 }
