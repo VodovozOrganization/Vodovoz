@@ -145,6 +145,24 @@ namespace Vodovoz.Domain
 			set { SetField (ref paymentType, value, () => PaymentType); }
 		}
 
+		IList<OrderDepositRefundItem> orderDepositRefundItem = new List<OrderDepositRefundItem> ();
+
+		[Display (Name = "Залоги заказа")]
+		public virtual IList<OrderDepositRefundItem> OrderDepositRefundItem {
+			get { return orderDepositRefundItem; }
+			set { SetField (ref orderDepositRefundItem, value, () => OrderDepositRefundItem); }
+		}
+
+		GenericObservableList<OrderDepositRefundItem> observableOrderDepositRefundItem;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<OrderDepositRefundItem> ObservableOrderDepositRefundItem {
+			get {
+				if (observableOrderDepositRefundItem == null)
+					observableOrderDepositRefundItem = new GenericObservableList<OrderDepositRefundItem> (OrderDepositRefundItem);
+				return observableOrderDepositRefundItem;
+			}
+		}
+
 		IList<OrderDocument> orderDocuments = new List<OrderDocument> ();
 
 		[Display (Name = "Документы заказа")]
@@ -213,6 +231,15 @@ namespace Vodovoz.Domain
 
 		//TODO: Сервисное обслуживание.
 
+		public Order ()
+		{
+			Comment = String.Empty;
+			OrderStatus = OrderStatus.NewOrder;
+			DeliveryDate = DateTime.Now;
+			SumDifferenceReason = String.Empty;
+			DeliveryDate = DateTime.Now.AddDays (1);
+		}
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -223,6 +250,9 @@ namespace Vodovoz.Domain
 			if (Client == null)
 				yield return new ValidationResult ("Необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName (o => o.Client) });
+			if (ObservableOrderItems.Any (item => item.Count < 1))
+				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 
+					new[] { this.GetPropertyName (o => o.OrderItems) });
 		}
 
 		#endregion
@@ -238,15 +268,6 @@ namespace Vodovoz.Domain
 					sum += item.Price * item.Count;
 				}
 				return sum;}
-		}
-
-		public Order ()
-		{
-			Comment = String.Empty;
-			OrderStatus = OrderStatus.NewOrder;
-			DeliveryDate = DateTime.Now;
-			SumDifferenceReason = String.Empty;
-			DeliveryDate = DateTime.Now.AddDays (1);
 		}
 
 		public void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)

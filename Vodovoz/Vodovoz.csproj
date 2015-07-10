@@ -267,6 +267,7 @@
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Representations\CounterpartyVM.cs" />
+    <Compile Include="Domain\OrderDepositRefundItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

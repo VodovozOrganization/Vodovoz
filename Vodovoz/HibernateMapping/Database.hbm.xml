@@ -396,6 +396,18 @@
 		</bag>
 	</class>
 
+	<class name="OrderDepositRefundItem" lazy="false" table="order_deposit_refund_item">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="RefundDeposit" column="refund_deposit"/>
+ 		<property name="DepositType" column="deposit_type" type="Vodovoz.Domain.Operations.DepositTypeStringType, Vodovoz"/>
+		<many-to-one name="Order" class="Order" column="order_id"/>
+ 		<many-to-one name="DepositOperation" class="Vodovoz.Domain.Operations.DepositOperation" column="deposit_operation_id"/>
+ 		<many-to-one name="PaidRentItem" class="PaidRentEquipment" column="paid_rent_equipment_id"/>
+ 		<many-to-one name="FreeRentItem" class="FreeRentEquipment" column="free_rent_equipment_id"/>
+	</class>
+
 	<class name="OrderDocument" lazy="false" table="order_documents">
 		<id name="Id" column="id">
  			<generator class="native"></generator>
