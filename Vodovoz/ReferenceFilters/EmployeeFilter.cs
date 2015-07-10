@@ -9,7 +9,7 @@ namespace Vodovoz
 	[OrmDefaultIsFiltered(true)]
 	public partial class EmployeeFilter : Gtk.Bin, IReferenceFilter
 	{
-		public ISession Session { set; get;}
+		public IUnitOfWork UoW { set; get;}
 		public ICriteria BaseCriteria { set; get;}
 		public event EventHandler Refiltered;
 
@@ -27,9 +27,10 @@ namespace Vodovoz
 			}
 		}
 
-		public EmployeeFilter (ISession session)
+		public EmployeeFilter (IUnitOfWork uow)
 		{
 			this.Build ();
+			UoW = uow;
 			IsFiltred = false;
 			enumcomboCategory.ItemsEnum = typeof(EmployeeCategory);
 		}

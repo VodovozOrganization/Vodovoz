@@ -8,9 +8,10 @@ namespace Vodovoz
 	[OrmDefaultIsFiltered (true)]
 	public partial class EquipmentFilter : Gtk.Bin, IReferenceFilter
 	{
-		public EquipmentFilter (ISession session)
+		public EquipmentFilter (IUnitOfWork uow)
 		{
 			this.Build ();
+			UoW = uow;
 			IsFiltred = false;
 		}
 
@@ -18,7 +19,7 @@ namespace Vodovoz
 
 		public event EventHandler Refiltered;
 
-		public ISession Session { get; set; }
+		public IUnitOfWork UoW { set; get;}
 
 		public ICriteria BaseCriteria { get; set; }
 
