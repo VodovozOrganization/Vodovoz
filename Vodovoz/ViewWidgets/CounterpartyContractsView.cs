@@ -46,7 +46,7 @@ namespace Vodovoz
 
 			if(parentDlg.UoW.IsNew)
 			{
-				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.Subject.GetType (), typeof(CounterpartyContract))) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.EntityObject.GetType (), typeof(CounterpartyContract))) {
 					parentDlg.UoW.Save ();
 				} else
 					return;

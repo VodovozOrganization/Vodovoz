@@ -61,7 +61,7 @@ namespace Vodovoz
 			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = subjectAdaptor;
 			validatedINN.DataSource = validatedKPP.DataSource = subjectAdaptor;
 			//Setting subjects
-			accountsView.ParentReference = new OrmParentReference (Session, Subject, "Accounts");
+			accountsView.ParentReference = new OrmParentReference (Session, EntityObject, "Accounts");
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			referenceSignificance.SubjectType = typeof(Significance);
@@ -71,10 +71,10 @@ namespace Vodovoz
 				.Add (Restrictions.Not (Restrictions.Eq ("id", UoWGeneric.Root.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
-			dataentryMainContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
-			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			dataentryMainContact.ParentReference = new OrmParentReference (Session, EntityObject, "Contacts");
+			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, EntityObject, "Contacts");
 			//Setting Contacts
-			contactsview1.ParentReference = new OrmParentReference (Session, Subject, "Contacts");
+			contactsview1.ParentReference = new OrmParentReference (Session, EntityObject, "Contacts");
 			//Setting permissions
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
 			entryName.Changed += EntryName_Changed;

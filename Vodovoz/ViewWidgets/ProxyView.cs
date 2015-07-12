@@ -49,7 +49,7 @@ namespace Vodovoz
 
 			if(parentDlg.UoW.IsNew)
 			{
-				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.Subject.GetType (), typeof(Proxy))) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.EntityObject.GetType (), typeof(Proxy))) {
 					parentDlg.UoW.Save ();
 				} else
 					return;
