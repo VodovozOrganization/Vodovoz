@@ -93,6 +93,14 @@ namespace Vodovoz
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
 
+			//Настройка ParentReference
+			ParentReferenceConfig.AddActions (new ParentReferenceActions<Organization, QSBanks.Account> {
+				AddNewChild = (o, a) => o.AddAccount (a)
+			});
+			ParentReferenceConfig.AddActions (new ParentReferenceActions<Counterparty, QSBanks.Account> {
+				AddNewChild = (c, a) => c.AddAccount (a)
+			});
+
 			//Настрока удаления
 			ConfigureDeletion ();
 

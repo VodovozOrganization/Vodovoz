@@ -39,7 +39,7 @@ namespace Vodovoz
 				UoWGeneric.Root.Persons = new List<Person> ();
 			personsView.Persons = UoWGeneric.Root.Persons;
 			datepickerIssue.DateChanged += OnIssueDateChanged;
-			referenceDeliveryPoint.ParentReference = new OrmParentReference (Session, UoWGeneric.Root.Counterparty, "DeliveryPoints");
+			referenceDeliveryPoint.ParentReference = new OrmParentReference (UoWGeneric, UoWGeneric.Root.Counterparty, "DeliveryPoints");
 
 			var identifiers = new List<object> ();
 			foreach (DeliveryPoint d in UoWGeneric.Root.Counterparty.DeliveryPoints)

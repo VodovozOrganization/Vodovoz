@@ -37,7 +37,7 @@ namespace Vodovoz
 			set {
 				parentReference = value;
 				if (parentReference != null) {
-					Session = parentReference.Session;
+					Session = parentReference.UoW.Session;
 					if (!(parentReference.ParentObject is IContactOwner)) {
 						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IContactOwner)));
 					}

@@ -8,6 +8,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
+using QSBanks;
 
 namespace Vodovoz
 {
@@ -61,7 +62,7 @@ namespace Vodovoz
 			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = subjectAdaptor;
 			validatedINN.DataSource = validatedKPP.DataSource = subjectAdaptor;
 			//Setting subjects
-			accountsView.ParentReference = new OrmParentReference (Session, EntityObject, "Accounts");
+			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			referenceSignificance.SubjectType = typeof(Significance);
@@ -71,10 +72,10 @@ namespace Vodovoz
 				.Add (Restrictions.Not (Restrictions.Eq ("id", UoWGeneric.Root.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
-			dataentryMainContact.ParentReference = new OrmParentReference (Session, EntityObject, "Contacts");
-			dataentryFinancialContact.ParentReference = new OrmParentReference (Session, EntityObject, "Contacts");
+			dataentryMainContact.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
+			dataentryFinancialContact.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
 			//Setting Contacts
-			contactsview1.ParentReference = new OrmParentReference (Session, EntityObject, "Contacts");
+			contactsview1.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
 			//Setting permissions
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
 			entryName.Changed += EntryName_Changed;
