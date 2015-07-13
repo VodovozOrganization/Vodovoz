@@ -10249,6 +10249,7 @@ Patronymic</property>
           <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
+            <signal name="Changed" handler="OnEntryreferenceClientChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">1</property>
@@ -10264,8 +10265,9 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReference" id="entryreferencePoint">
+          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferencePoint">
             <property name="MemberName" />
+            <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
           </widget>
           <packing>
@@ -14567,7 +14569,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="635 620">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="660 439">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14628,6 +14630,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -15318,7 +15321,7 @@ Patronymic</property>
                         <child>
                           <widget class="Gtk.DataBindings.DataTreeView" id="treeItems">
                             <property name="MemberName" />
-                            <property name="HeightRequest">250</property>
+                            <property name="HeightRequest">100</property>
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
                             <property name="CursorPointsEveryType">False</property>

@@ -652,7 +652,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
 			this.treeItems = new global::Gtk.DataBindings.DataTreeView ();
-			this.treeItems.HeightRequest = 250;
+			this.treeItems.HeightRequest = 100;
 			this.treeItems.CanFocus = true;
 			this.treeItems.Name = "treeItems";
 			this.treeItems.CursorPointsEveryType = false;
