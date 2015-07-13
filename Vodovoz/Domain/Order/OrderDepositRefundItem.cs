@@ -43,6 +43,19 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref depositType, value, () => DepositType); }
 		}
 
+		public virtual string DepositTypeString {
+			get { 
+				switch (DepositType) {
+				case DepositType.Bottles:
+					return "Возврат залога за бутыли";
+				case DepositType.Equipment:
+					return "Возврат залога за оборудования";
+				default:
+					return "Не определено";
+				}
+			} 
+		}
+
 		Decimal refundDeposit;
 
 		public virtual Decimal RefundDeposit {

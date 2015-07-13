@@ -1049,7 +1049,6 @@ namespace Vodovoz
 			this.buttonFillComment.Clicked += new global::System.EventHandler (this.OnButtonFillCommentClicked);
 			this.spinSumDifference.ValueChanged += new global::System.EventHandler (this.OnSpinSumDifferenceValueChanged);
 			this.spinBottlesReturn.ValueChanged += new global::System.EventHandler (this.OnSpinBottlesReturnValueChanged);
-			this.spinBottlesReturn.ChangeValue += new global::Gtk.ChangeValueHandler (this.OnSpinBottlesReturnChangeValue);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 			this.buttonViewDocument.Clicked += new global::System.EventHandler (this.OnButtonViewDocumentClicked);

@@ -53,6 +53,7 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
+			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositRefundItem;
 
 			enumSignatureType.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
@@ -85,8 +86,11 @@ namespace Vodovoz
 
 			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => { 
 				OrderItem item = UoWGeneric.Root.ObservableOrderItems[aIdx[0]];
-				if (item.Nomenclature.Category == NomenclatureCategory.water && (item.AdditionalAgreement as WaterSalesAgreement).IsFixedPrice) {
-					return;
+				if (item.Nomenclature.Category == NomenclatureCategory.water){
+					UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
+					if ((item.AdditionalAgreement as WaterSalesAgreement).IsFixedPrice) {
+						return;
+					}
 				}
 				item.Price = item.Nomenclature.GetPrice (item.Count);
 				UpdateSum (); 
@@ -122,6 +126,11 @@ namespace Vodovoz
 				.AddColumn ("Дата").SetDataProperty (node => node.DocumentDate)
 				.Finish ();
 
+			treeDepositRefundItems.ColumnMappingConfig = FluentMappingConfig<OrderDepositRefundItem>.Create ()
+				.AddColumn ("Тип").SetDataProperty (node => node.DepositTypeString)
+				.AddColumn ("Сумма").AddNumericRenderer (node => node.RefundDeposit)
+				.Finish ();
+			
 			UpdateSum ();
 		}
 
@@ -239,8 +248,10 @@ namespace Vodovoz
 						TabParent.AddSlaveTab (this, dlg);
 					} else
 						return;
-				} else
+				} else {
 					UoWGeneric.Root.AddWaterForSale (nomenclature, wsa);
+					UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
+				}
 			}
 			UpdateSum ();
 		}
@@ -354,18 +365,13 @@ namespace Vodovoz
 						Contract = e.Contract
 					});
 				};
+				TabParent.AddSlaveTab (this, dlg);
 			}
 		}
 
 		protected void OnSpinBottlesReturnValueChanged (object sender, EventArgs e)
 		{
-			
-			
-		}
-
-		protected void OnSpinBottlesReturnChangeValue (object o, ChangeValueArgs args)
-		{
-			
+			UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
 		}
 	}
 }
