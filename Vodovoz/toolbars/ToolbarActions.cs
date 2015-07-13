@@ -5,6 +5,7 @@ using Vodovoz;
 using System.Collections.Generic;
 using Vodovoz.Domain;
 using Vodovoz.ViewModel;
+using Vodovoz.Domain.Orders;
 
 public partial class MainWindow : Gtk.Window
 {

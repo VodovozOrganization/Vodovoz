@@ -9,6 +9,7 @@ using QSProjectsLib;
 using Gtk;
 using Gtk.DataBindings;
 using System.Linq;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
 {

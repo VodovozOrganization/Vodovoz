@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Operations;
 using QSOrmProject;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Orders
 {
 	public class OrderDepositRefundItem : PropertyChangedBase, IDomainObject
 	{

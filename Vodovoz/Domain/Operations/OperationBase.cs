@@ -2,6 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {

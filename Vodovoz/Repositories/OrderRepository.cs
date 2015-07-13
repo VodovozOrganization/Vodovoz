@@ -11,9 +11,9 @@ namespace Vodovoz.Repository
 	{
 		public static ListStore GetListStoreSumDifferenceReasons (IUnitOfWork uow)
 		{
-			Vodovoz.Domain.Order order = null;
+			Vodovoz.Domain.Orders.Order order = null;
 
-			var reasons = uow.Session.QueryOver<Vodovoz.Domain.Order> (() => order)
+			var reasons = uow.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => order)
 				.Select (Projections.Distinct (Projections.Property (() => order.SumDifferenceReason)))
 				.List<string> ();
 

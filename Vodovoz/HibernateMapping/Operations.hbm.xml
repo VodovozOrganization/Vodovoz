@@ -10,10 +10,10 @@
  		<property name="DepositType" column="deposit_type" type="Vodovoz.Domain.Operations.DepositTypeStringType, Vodovoz"/>
 		<property name="ReceivedDeposit" column="received_deposit"/>
 		<property name="RefundDeposit" column="refund_deposit"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
+		<many-to-one name="Order" class="Vodovoz.Domain.Orders.Order" column="order_id"/>
 		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
+		<many-to-one name="OrderItem" class="Vodovoz.Domain.Orders.OrderItem" column="order_item_id"/>
 	</class>
 
 	<class name="Vodovoz.Domain.Operations.BottlesMovementOperation" lazy="false" table="bottles_movement_operations">
@@ -23,10 +23,10 @@
  		<property name="OperationTime" column="operation_time"/>
  		<property name="MovedTo" column="moved_to"/>
 		<property name="MovedFrom" column="moved_from"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
+		<many-to-one name="Order" class="Vodovoz.Domain.Orders.Order" column="order_id"/>
 		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
+		<many-to-one name="OrderItem" class="Vodovoz.Domain.Orders.OrderItem" column="order_item_id"/>
 	</class>
 
 	<class name="Vodovoz.Domain.Operations.GoodsMovementOperation" lazy="false" table="goods_movement_operations">
@@ -56,9 +56,9 @@
 		<property name="Deposit" column="deposit"/>
 		<property name="DepositType" column="deposit_type" type="Vodovoz.Domain.Operations.DepositTypeStringType, Vodovoz"/>
 		<property name="PaymentType" column="payment_type" type="Vodovoz.Domain.Operations.PaymentTypeStringType, Vodovoz"/>
-		<many-to-one name="Order" class="Order" column="order_id"/>
+		<many-to-one name="Order" class="Vodovoz.Domain.Orders.Order" column="order_id"/>
 		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
-		<many-to-one name="OrderItem" class="OrderItem" column="order_item_id"/>
+		<many-to-one name="OrderItem" class="Vodovoz.Domain.Orders.OrderItem" column="order_item_id"/>
 	</class>
 </hibernate-mapping>

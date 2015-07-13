@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain
 {

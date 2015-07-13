@@ -7,7 +7,7 @@ using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Repository;
 using System.Linq;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Orders
 {
 	[OrmSubject (JournalName = "Заказы", ObjectName = "заказ")]
 	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject
@@ -284,7 +284,7 @@ namespace Vodovoz.Domain
 				Price = nomenclature.NomenclaturePrice [0].Price //FIXME
 			});
 			ObservableOrderEquipments.Add (new OrderEquipment {
-				Direction = Vodovoz.Domain.Direction.Deliver,
+				Direction = Vodovoz.Domain.Orders.Direction.Deliver,
 				Equipment = eq,
 				OrderItem = ObservableOrderItems [ItemId],
 				Reason = Reason.Rent	//TODO FIXME Добавить причину - продажа.
@@ -371,7 +371,7 @@ namespace Vodovoz.Domain
 					//Добавляем оборудование
 					ObservableOrderEquipments.Add (
 						new OrderEquipment { 
-							Direction = Vodovoz.Domain.Direction.Deliver,
+							Direction = Vodovoz.Domain.Orders.Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems [ItemId]
@@ -396,7 +396,7 @@ namespace Vodovoz.Domain
 					//Добавляем оборудование.
 					ObservableOrderEquipments.Add (
 						new OrderEquipment { 
-							Direction = Vodovoz.Domain.Direction.Deliver,
+							Direction = Vodovoz.Domain.Orders.Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems [ItemId]

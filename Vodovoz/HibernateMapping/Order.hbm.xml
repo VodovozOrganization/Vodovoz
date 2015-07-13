@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+ auto-import="true" assembly="Vodovoz" namespace="Vodovoz.Domain">
+
+<class name="Vodovoz.Domain.Orders.Order" lazy="false" table="orders">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Comment" column="comment"/>
+ 		<property name="OrderStatus" column="order_status" type="Vodovoz.Domain.Orders.OrderStatusStringType, Vodovoz"/>
+ 		<property name="SignatureType" column="signature_type" type="Vodovoz.Domain.Orders.OrderSignatureTypeStringType, Vodovoz"/>
+ 		<property name="PaymentType" column="payment_type" type="PaymentStringType, Vodovoz"/>
+ 		<property name="DeliveryDate" column="delivery_date"/>
+ 		<property name="SelfDelivery" column="self_delivery"/>
+ 		<property name="BottlesReturn" column="bottles_return"/>
+ 		<property name="SumToReceive" column="sum_to_receive"/>
+ 		<property name="Shipped" column="shipped"/>
+ 		<property name="SumDifferenceReason" column="sum_difference_reason" />
+ 		<many-to-one name="Client" class="Counterparty" column="client_id"/>
+ 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>
+ 		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id"/>
+ 		<many-to-one name="PreviousOrder" class="Vodovoz.Domain.Orders.Order" column="previous_order_id"/>
+ 		<many-to-one name="RouteList" class="RouteList" column="route_list_id"/>
+ 		<bag name="OrderItems" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="order_id"/>
+    		<one-to-many class="Vodovoz.Domain.Orders.OrderItem"/>	
+		</bag>
+		<bag name="OrderEquipments" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="order_id"/>
+    		<one-to-many class="Vodovoz.Domain.Orders.OrderEquipment"/>	
+		</bag>
+		<bag name="OrderDocuments" inverse="false" cascade="all-delete-orphan" lazy="true" >
+    		<key column="order_id"/>
+    		<one-to-many class="Vodovoz.Domain.Orders.OrderDocument"/>
+		</bag>
+	</class>
+
+	<class name="Vodovoz.Domain.Orders.OrderDepositRefundItem" lazy="false" table="order_deposit_refund_item">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="RefundDeposit" column="refund_deposit"/>
+ 		<property name="DepositType" column="deposit_type" type="Vodovoz.Domain.Operations.DepositTypeStringType, Vodovoz"/>
+		<many-to-one name="Order" class="Vodovoz.Domain.Orders.Order" column="order_id"/>
+ 		<many-to-one name="DepositOperation" class="Vodovoz.Domain.Operations.DepositOperation" column="deposit_operation_id"/>
+ 		<many-to-one name="PaidRentItem" class="PaidRentEquipment" column="paid_rent_equipment_id"/>
+ 		<many-to-one name="FreeRentItem" class="FreeRentEquipment" column="free_rent_equipment_id"/>
+	</class>
+
+	<class name="Vodovoz.Domain.Orders.OrderDocument" lazy="false" table="order_documents">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+		<discriminator column="type" type="String"/>
+		<many-to-one name="Order" class="Vodovoz.Domain.Orders.Order" column="order_id" />
+		<subclass name="Vodovoz.Domain.Orders.OrderAgreement" discriminator-value="order_agreement">
+			<many-to-one name="AdditionalAgreement" class="AdditionalAgreement" column="agreement_id" />
+        </subclass>
+        <subclass name="Vodovoz.Domain.Orders.OrderContract" discriminator-value="order_contract">
+			<many-to-one name="Contract" class="CounterpartyContract" column="contract_id" />
+        </subclass>
+	</class>
+
+	<class name="Vodovoz.Domain.Orders.OrderEquipment" lazy="false" table="order_equipment">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Direction" column="direction" type="Vodovoz.Domain.Orders.DirectionStringType, Vodovoz"/>
+ 		<property name="Reason" column="reason" type="Vodovoz.Domain.Orders.ReasonStringType, Vodovoz"/>
+ 		<many-to-one name="OrderItem" class="Vodovoz.Domain.Orders.OrderItem" column="order_item_id"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
+	</class>
+
+	<class name="Vodovoz.Domain.Orders.OrderItem" lazy="false" table="order_items">
+		<id name="Id" column="id">
+ 			<generator class="native"></generator>
+ 		</id>
+ 		<property name="Price" column="price"/>
+ 		<property name="Count" column="count"/>
+ 		<many-to-one name="AdditionalAgreement" class="AdditionalAgreement" column="additional_agreement_id"/>
+ 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
+ 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id"/>
+ 		<many-to-one name="Units" class="MeasurementUnits" column="units_id"/>
+	</class>
+
+</hibernate-mapping>

@@ -1,5 +1,6 @@
 ﻿using System;
 using QSOrmProject;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {
