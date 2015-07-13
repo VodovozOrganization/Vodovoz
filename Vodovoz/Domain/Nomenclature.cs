@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Data.Bindings;
-using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
+using System.Linq;
+using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
@@ -121,19 +122,12 @@ namespace Vodovoz.Domain
 
 		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 
-		public decimal GetPrice (int ItemsCount) 
+		public decimal GetPrice (int itemsCount) 
 		{
-			if (NomenclaturePrice.Count < 1)
-				return 0;
-			decimal price = 0;
-			int minCount = 0;
-			foreach (NomenclaturePrice p in NomenclaturePrice) {
-				if (p.MinCount <= ItemsCount && p.MinCount > minCount) {
-					price = p.Price;
-					minCount = p.MinCount;
-				}
-			}
-			return price;
+			var price = NomenclaturePrice
+				.OrderByDescending (p => p.MinCount).FirstOrDefault (p => (p.MinCount <= itemsCount));
+
+			return price != null ? price.Price : 0m;
 		}
 
 		#region statics
