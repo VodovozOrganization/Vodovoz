@@ -194,6 +194,7 @@ namespace Vodovoz
 				referenceDeliveryPoint.Sensitive = true;
 				enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 					(UoWGeneric.Root.Client.PersonType == PersonType.legal);
+				Entity.PaymentType = Entity.Client.PaymentMethod;
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}
