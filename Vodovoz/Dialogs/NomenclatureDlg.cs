@@ -75,7 +75,6 @@ namespace Vodovoz
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
-			radioPrice.Sensitive = !(selected == NomenclatureCategory.deposit || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.service || selected == NomenclatureCategory.bottle);
 		}
 
 		protected void OnRadioPriceToggled (object sender, EventArgs e)

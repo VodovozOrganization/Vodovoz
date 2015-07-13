@@ -83,7 +83,14 @@ namespace Vodovoz
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 			};
 
-			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => UpdateSum ();
+			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => { 
+				OrderItem item = UoWGeneric.Root.ObservableOrderItems[aIdx[0]];
+				if (item.Nomenclature.Category == NomenclatureCategory.water && (item.AdditionalAgreement as WaterSalesAgreement).IsFixedPrice) {
+					return;
+				}
+				item.Price = item.Nomenclature.GetPrice (item.Count);
+				UpdateSum (); 
+			};
 
 			dataSumDifferenceReason.Completion = new EntryCompletion ();
 			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons (UoWGeneric);
@@ -99,11 +106,22 @@ namespace Vodovoz
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 				.AddSetter ((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddSetter ((c, node) => c.Editable = node.CanEditAmount)
-				.WidthChars (5)
+				.WidthChars (10)
 				.AddTextRenderer (node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();
-			
+
+			treeEquipment.ColumnMappingConfig = FluentMappingConfig<OrderEquipment>.Create ()
+				.AddColumn ("Наименование").SetDataProperty (node => node.NameString)
+				.AddColumn ("Направление").SetDataProperty (node => node.DirectionString)
+				.AddColumn ("Причина").SetDataProperty (node => node.ReasonString)
+				.Finish ();
+
+			treeDocuments.ColumnMappingConfig = FluentMappingConfig<OrderDocument>.Create ()
+				.AddColumn ("Документ").SetDataProperty (node => node.Name)
+				.AddColumn ("Дата").SetDataProperty (node => node.DocumentDate)
+				.Finish ();
+
 			UpdateSum ();
 		}
 
@@ -113,8 +131,8 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 				return false;
 
-			if (UoWGeneric.Root.ObservableOrderItems.Any (item => item.Count < 1)) {
-				if (!MessageDialogWorks.RunQuestionDialog ("В заказе присутствуют позиции с нулевым количеством. Вы действительно хотите продолжить?"))
+			if (UoWGeneric.Root.BottlesReturn == 0) {
+				if (!MessageDialogWorks.RunQuestionDialog ("Указано нулевое количество бутылей на возврат. Вы действительно хотите продолжить?"))
 					return false;
 			}
 
@@ -337,6 +355,17 @@ namespace Vodovoz
 					});
 				};
 			}
+		}
+
+		protected void OnSpinBottlesReturnValueChanged (object sender, EventArgs e)
+		{
+			
+			
+		}
+
+		protected void OnSpinBottlesReturnChangeValue (object o, ChangeValueArgs args)
+		{
+			
 		}
 	}
 }

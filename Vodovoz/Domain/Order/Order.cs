@@ -281,7 +281,7 @@ namespace Vodovoz.Domain.Orders
 				Count = 1,
 				Equipment = eq,
 				Nomenclature = nomenclature,
-				Price = nomenclature.NomenclaturePrice [0].Price //FIXME
+				Price = nomenclature.GetPrice(1)
 			});
 			ObservableOrderEquipments.Add (new OrderEquipment {
 				Direction = Vodovoz.Domain.Orders.Direction.Deliver,
@@ -300,7 +300,7 @@ namespace Vodovoz.Domain.Orders
 				Count = 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = nomenclature.NomenclaturePrice [0].Price //FIXME
+				Price = nomenclature.GetPrice(1)
 			});
 		}
 
@@ -308,13 +308,22 @@ namespace Vodovoz.Domain.Orders
 		{
 			if (nomenclature.Category != NomenclatureCategory.water)
 				return;
+			if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
+				item.AdditionalAgreement.Id == wsa.Id))
+				return;
 			ObservableOrderItems.Add (new OrderItem {
 				AdditionalAgreement = wsa,
 				Count = 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.NomenclaturePrice [0].Price //FIXME
+				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.GetPrice(1)
 			});
+			//Добавляем залог за бутыль.
+			//ObservableOrderItems.Add (new OrderItem {
+		}
+
+		public void RecalcBottlesDeposits() {
+			var waterDeposits = ObservableOrderItems.All (item => item.Nomenclature.Category == NomenclatureCategory.water);
 		}
 
 		public void FillItemsFromAgreement (AdditionalAgreement a)
@@ -336,9 +345,10 @@ namespace Vodovoz.Domain.Orders
 					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem> (
 						    item => item.AdditionalAgreement.Id == a.Id &&
 						    item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
-						    item.Price == equipment.Deposit)) != null)
+						    item.Price == equipment.Deposit)) != null) {
 						orderItem.Count++;
-					else {
+						orderItem.Price = orderItem.Nomenclature.GetPrice (orderItem.Count);
+					} else {
 						ObservableOrderItems.Add (
 							new OrderItem {
 								AdditionalAgreement = a,
@@ -356,6 +366,7 @@ namespace Vodovoz.Domain.Orders
 						    item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
 						    item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1))) != null) {
 						orderItem.Count++;
+						orderItem.Price = orderItem.Nomenclature.GetPrice (orderItem.Count);
 						ItemId = ObservableOrderItems.IndexOf (orderItem);
 					} else {
 						ItemId = ObservableOrderItems.AddWithReturn (

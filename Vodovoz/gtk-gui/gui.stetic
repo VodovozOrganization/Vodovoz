@@ -14567,7 +14567,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="635 439">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="635 620">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -15297,6 +15297,18 @@ Patronymic</property>
                 <property name="Spacing">6</property>
                 <property name="BorderWidth">6</property>
                 <child>
+                  <widget class="Gtk.Label" id="label9">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">Товары</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gtk.HBox" id="hbox8">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
@@ -15307,6 +15319,7 @@ Patronymic</property>
                         <child>
                           <widget class="Gtk.DataBindings.DataTreeView" id="treeItems">
                             <property name="MemberName" />
+                            <property name="HeightRequest">250</property>
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
                             <property name="CursorPointsEveryType">False</property>
@@ -15320,12 +15333,46 @@ Patronymic</property>
                       </widget>
                       <packing>
                         <property name="Position">0</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                       </packing>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">0</property>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Label" id="label8">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">Возврат залогов</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
+                    <property name="MemberName" />
+                    <property name="ShadowType">In</property>
+                    <child>
+                      <widget class="Gtk.DataBindings.DataTreeView" id="treeDepositRefundItems">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="ShowScrollbars">True</property>
+                        <property name="CursorPointsEveryType">False</property>
+                        <property name="InheritedDataSource">False</property>
+                        <property name="InheritedBoundaryDataSource">False</property>
+                        <property name="InheritedDataSource">False</property>
+                        <property name="InheritedBoundaryDataSource">False</property>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">3</property>
                     <property name="AutoSize">True</property>
                   </packing>
                 </child>
@@ -15541,6 +15588,8 @@ Patronymic</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">BottlesReturn</property>
                         <property name="InheritedBoundaryDataSource">False</property>
+                        <signal name="ValueChanged" handler="OnSpinBottlesReturnValueChanged" />
+                        <signal name="ChangeValue" handler="OnSpinBottlesReturnChangeValue" />
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
@@ -15586,7 +15635,7 @@ Patronymic</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">1</property>
+                    <property name="Position">4</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -15661,7 +15710,7 @@ Patronymic</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">2</property>
+                    <property name="Position">5</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -15695,7 +15744,7 @@ Patronymic</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="InheritedDataSource">False</property>
                     <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="ColumnMappings">{Vodovoz.Domain.OrderEquipment} NameString[Наименование]; DirectionString[Направление]; ReasonString[Причина];</property>
+                    <property name="ColumnMappings" />
                   </widget>
                 </child>
               </widget>
@@ -15750,7 +15799,7 @@ Patronymic</property>
                                 <property name="InheritedBoundaryDataSource">False</property>
                                 <property name="InheritedDataSource">False</property>
                                 <property name="InheritedBoundaryDataSource">False</property>
-                                <property name="ColumnMappings">{Vodovoz.Domain.OrderDocument} Name[Документ]; DocumentDate[Дата];</property>
+                                <property name="ColumnMappings" />
                               </widget>
                             </child>
                           </widget>

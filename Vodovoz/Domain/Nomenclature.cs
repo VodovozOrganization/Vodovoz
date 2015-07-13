@@ -121,6 +121,21 @@ namespace Vodovoz.Domain
 
 		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 
+		public decimal GetPrice (int ItemsCount) 
+		{
+			if (NomenclaturePrice.Count < 1)
+				return 0;
+			decimal price = 0;
+			int minCount = 0;
+			foreach (NomenclaturePrice p in NomenclaturePrice) {
+				if (p.MinCount <= ItemsCount && p.MinCount > minCount) {
+					price = p.Price;
+					minCount = p.MinCount;
+				}
+			}
+			return price;
+		}
+
 		#region statics
 
 		public static NomenclatureCategory[] GetCategoriesForProductMaterial ()
@@ -140,7 +155,6 @@ namespace Vodovoz.Domain
 				NomenclatureCategory.spare_parts, NomenclatureCategory.water
 			};
 		}
-
 		#endregion
 	}
 
