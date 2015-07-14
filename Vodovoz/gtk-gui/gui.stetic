@@ -10269,6 +10269,7 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
+            <signal name="Changed" handler="OnEntryreferencePointChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">3</property>
@@ -14630,7 +14631,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14718,7 +14718,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
