@@ -23,6 +23,12 @@ namespace Vodovoz.Repository
 				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForSale ()));
 		}
 
+		public static QueryOver<Nomenclature> NomenclatureOfGoodsOnlyQuery ()
+		{
+			return QueryOver.Of<Nomenclature> ()
+				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForGoods ()));
+		}
+
 		public static Nomenclature GetBottleDeposit (IUnitOfWork uow)
 		{
 			return uow.GetById<Nomenclature> (40);
