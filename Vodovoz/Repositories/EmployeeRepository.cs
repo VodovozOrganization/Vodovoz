@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Repository
 {
 	public static class EmployeeRepository
 	{
-		public static Employee GetEmployeeForCurrentUser(IUnitOfWork uow)
+		public static Employee GetEmployeeForCurrentUser (IUnitOfWork uow)
 		{
-			User userAlians = null;
+			User userAlias = null;
 
 			return uow.Session.QueryOver<Employee> ()
-				.JoinAlias (e => e.User, () => userAlians)
-				.Where (() => userAlians.Id == QSProjectsLib.QSMain.User.id)
+				.JoinAlias (e => e.User, () => userAlias)
+				.Where (() => userAlias.Id == QSProjectsLib.QSMain.User.id)
 				.SingleOrDefault ();
 		}
 	}
