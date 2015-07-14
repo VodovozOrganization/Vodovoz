@@ -159,6 +159,10 @@ namespace Vodovoz
 		private global::Gtk.Button buttonViewDocument;
 		
 		private global::Gtk.Label label18;
+		
+		private global::Gtk.DataBindings.DataHBox datahbox2;
+		
+		private global::Gtk.Button buttonAccept;
 
 		protected virtual void Build ()
 		{
@@ -168,7 +172,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.OrderDlg";
 			// Container child Vodovoz.OrderDlg.Gtk.Container+ContainerChild
 			this.vbox2 = new global::Gtk.VBox ();
-			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
@@ -269,7 +272,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 1;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -1033,6 +1036,32 @@ namespace Vodovoz
 			this.vbox2.Add (this.notebook1);
 			global::Gtk.Box.BoxChild w79 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.notebook1]));
 			w79.Position = 1;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.datahbox2 = new global::Gtk.DataBindings.DataHBox ();
+			this.datahbox2.Name = "datahbox2";
+			this.datahbox2.Spacing = 6;
+			this.datahbox2.InheritedDataSource = false;
+			this.datahbox2.InheritedBoundaryDataSource = false;
+			this.datahbox2.InheritedDataSource = false;
+			this.datahbox2.InheritedBoundaryDataSource = false;
+			// Container child datahbox2.Gtk.Box+BoxChild
+			this.buttonAccept = new global::Gtk.Button ();
+			this.buttonAccept.CanFocus = true;
+			this.buttonAccept.Name = "buttonAccept";
+			this.buttonAccept.UseUnderline = true;
+			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Принять");
+			global::Gtk.Image w80 = new global::Gtk.Image ();
+			w80.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w80;
+			this.datahbox2.Add (this.buttonAccept);
+			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.buttonAccept]));
+			w81.Position = 0;
+			w81.Fill = false;
+			this.vbox2.Add (this.datahbox2);
+			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.datahbox2]));
+			w82.Position = 2;
+			w82.Expand = false;
+			w82.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -1052,6 +1081,7 @@ namespace Vodovoz
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 			this.buttonViewDocument.Clicked += new global::System.EventHandler (this.OnButtonViewDocumentClicked);
+			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
 		}
 	}
 }

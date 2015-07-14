@@ -26,7 +26,11 @@ namespace Vodovoz.Domain
 		[Display (Name = "Машина")]
 		public virtual Car Car {
 			get { return car; }
-			set { SetField (ref car, value, () => Car); }
+			set { 
+				SetField (ref car, value, () => Car); 
+				if (value.Driver != null)
+					Driver = value.Driver;
+			}
 		}
 
 		DateTime date;
@@ -54,17 +58,17 @@ namespace Vodovoz.Domain
 		}
 
 		RouteListStatus status;
-
+		
 		[Display (Name = "Статус")]
 		public virtual RouteListStatus Status {
 			get { return status; }
 			set { SetField (ref status, value, () => Status); }
 		}
 
-		List<Order> orders;
+		IList<Order> orders;
 
 		[Display (Name = "Заказы")]
-		public virtual List<Order> Orders {
+		public virtual IList<Order> Orders {
 			get { return orders; }
 			set { SetField (ref orders, value, () => Orders); }
 		}
@@ -79,11 +83,16 @@ namespace Vodovoz.Domain
 			}
 		}
 
+		public virtual string Number { get { return Id.ToString (); } }
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			return null;
+			if (Driver == null)
+				yield return new ValidationResult ("Не заполнен водитель.");
+			if (Car == null)
+				yield return new ValidationResult ("На заполнен автомобиль.");
 		}
 
 		#endregion

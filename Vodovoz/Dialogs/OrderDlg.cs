@@ -41,13 +41,20 @@ namespace Vodovoz
 		public void ConfigureDlg ()
 		{
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
-				BlockAll ();
+				IsEditable ();
 			if (UoWGeneric.Root.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
 //TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
-
+			buttonAccept.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder || UoWGeneric.Root.OrderStatus == OrderStatus.Accepted);
+			if (UoWGeneric.Root.OrderStatus == OrderStatus.Accepted) {
+				var icon = new Gtk.Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonAccept.Label = "Редактировать";
+				return;
+			}
 			subjectAdaptor.Target = UoWGeneric.Root;
 
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
@@ -200,14 +207,16 @@ namespace Vodovoz
 			}
 		}
 
-		private void BlockAll ()
+		private void IsEditable (bool val = false)
 		{
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
-				referenceClient.Sensitive = spinBottlesReturn.Sensitive = 
-					spinSumDifference.Sensitive = textComments.Sensitive = 
-						checkDelivered.Sensitive = checkSelfDelivery.Sensitive = 
-							enumAddRentButton.Sensitive = buttonAddForSale.Sensitive = 
-								enumSignatureType.Sensitive = enumStatus.Sensitive = false;
+				referenceClient.Sensitive = spinBottlesReturn.Sensitive = val;
+			spinSumDifference.Sensitive = textComments.Sensitive = 
+				checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
+			enumAddRentButton.Sensitive = buttonAddForSale.Sensitive = 
+				enumSignatureType.Sensitive = enumStatus.Sensitive = val;
+			enumPaymentType.Sensitive = pickerDeliveryDate.Sensitive = buttonFillComment.Sensitive =
+				dataSumDifferenceReason.Sensitive = val;
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
@@ -373,6 +382,28 @@ namespace Vodovoz
 		protected void OnSpinBottlesReturnValueChanged (object sender, EventArgs e)
 		{
 			UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
+		}
+
+		protected void OnButtonAcceptClicked (object sender, EventArgs e)
+		{
+			if (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
+				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
+				IsEditable ();
+				var icon = new Gtk.Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonAccept.Label = "Редактировать";
+				return;
+			}
+			if (UoWGeneric.Root.OrderStatus == OrderStatus.Accepted) {
+				UoWGeneric.Root.OrderStatus = OrderStatus.NewOrder;
+				IsEditable (true);
+				var icon = new Gtk.Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonAccept.Label = "Принять";
+				return;
+			}
 		}
 	}
 }

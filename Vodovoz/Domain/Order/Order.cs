@@ -223,7 +223,12 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Маршрутный лист")]
 		public virtual RouteList RouteList {
 			get { return routeList; }
-			set { SetField (ref routeList, value, () => RouteList); }
+			set { 
+				SetField (ref routeList, value, () => RouteList); 
+				if (value != null && OrderStatus == OrderStatus.Accepted) {
+					OrderStatus = OrderStatus.InTravelList;
+				}
+			}
 		}
 
 		//TODO: Договор. Какой договор имеется в виду?
