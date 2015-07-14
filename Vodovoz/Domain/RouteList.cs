@@ -65,12 +65,15 @@ namespace Vodovoz.Domain
 			set { SetField (ref status, value, () => Status); }
 		}
 
-		IList<Order> orders;
+		IList<Order> orders = new List<Order>();
 
 		[Display (Name = "Заказы")]
 		public virtual IList<Order> Orders {
 			get { return orders; }
-			set { SetField (ref orders, value, () => Orders); }
+			set { 
+				SetField (ref orders, value, () => Orders); 
+				observableOrders = null;
+			}
 		}
 
 		GenericObservableList<Order> observableOrders;
@@ -84,6 +87,12 @@ namespace Vodovoz.Domain
 		}
 
 		public virtual string Number { get { return Id.ToString (); } }
+
+		public void AddOrder (Order order) 
+		{
+			ObservableOrders.Add (order);
+			order.RouteList = this;
+		}
 
 		#region IValidatableObject implementation
 

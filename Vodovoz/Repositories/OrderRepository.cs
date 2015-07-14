@@ -23,6 +23,13 @@ namespace Vodovoz.Repository
 			}
 			return store;
 		}
+
+		public static QueryOver<Vodovoz.Domain.Orders.Order> GetAcceptedOrdersForDateQueryOver (DateTime date)
+		{
+			return QueryOver.Of<Vodovoz.Domain.Orders.Order> ()
+				.Where (order => order.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted
+					&& order.DeliveryDate.Date == date.Date);
+		}
 	}
 }
 

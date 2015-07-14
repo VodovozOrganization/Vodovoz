@@ -53,7 +53,6 @@ namespace Vodovoz
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
-				return;
 			}
 			subjectAdaptor.Target = UoWGeneric.Root;
 

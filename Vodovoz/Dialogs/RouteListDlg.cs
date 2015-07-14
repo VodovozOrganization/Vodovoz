@@ -4,6 +4,7 @@ using QSOrmProject;
 using NLog;
 using QSValidation;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
 {
@@ -54,7 +55,18 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			OrmReference SelectDialog = new OrmReference (typeof(Order), 
+				UoWGeneric, 
+				OrderRepository.GetAcceptedOrdersForDateQueryOver(UoWGeneric.Root.Date)
+					.GetExecutableQueryOver(UoWGeneric.Session).RootCriteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
+			SelectDialog.ObjectSelected += (s, ea) => {
+				if (ea.Subject != null) {
+					UoWGeneric.Root.AddOrder (ea.Subject as Order);
+				}
+			};
+			TabParent.AddSlaveTab (this, SelectDialog);
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
