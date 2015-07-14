@@ -8,7 +8,7 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.EntryReferenceVM entryreferenceClient;
 		
-		private global::QSOrmProject.EntryReference entryreferencePoint;
+		private global::QSOrmProject.EntryReferenceVM entryreferencePoint;
 		
 		private global::Gtk.Label label1;
 		
@@ -35,7 +35,8 @@ namespace Vodovoz
 			w1.RightAttach = ((uint)(2));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferencePoint = new global::QSOrmProject.EntryReference ();
+			this.entryreferencePoint = new global::QSOrmProject.EntryReferenceVM ();
+			this.entryreferencePoint.Sensitive = false;
 			this.entryreferencePoint.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferencePoint.Name = "entryreferencePoint";
 			this.table1.Add (this.entryreferencePoint);
@@ -66,6 +67,8 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.entryreferencePoint.Changed += new global::System.EventHandler (this.OnEntryreferencePointChanged);
+			this.entryreferenceClient.Changed += new global::System.EventHandler (this.OnEntryreferenceClientChanged);
 		}
 	}
 }

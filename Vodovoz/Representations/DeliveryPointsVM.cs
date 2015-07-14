@@ -17,6 +17,18 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
+		int counterpartyId;
+		public int CounterpartyId {
+			get {if (CounterpartyUoW != null)
+					return CounterpartyUoW.Root.Id;
+			else
+				return counterpartyId;
+			}
+			private set {
+				counterpartyId = value;
+			}
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -27,7 +39,7 @@ namespace Vodovoz.ViewModel
 
 			var deliveryPointslist = UoW.Session.QueryOver<DeliveryPoint> (() => deliveryPointAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
-				.Where (() => counterpartyAlias.Id == CounterpartyUoW.Root.Id)
+				.Where (() => counterpartyAlias.Id == CounterpartyId)
 				.SelectList (list => list
 					.Select (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
@@ -71,6 +83,12 @@ namespace Vodovoz.ViewModel
 		public DeliveryPointsVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
 			this.UoW = uow;
+		}
+
+		public DeliveryPointsVM (IUnitOfWork uow, int counterpartyId)
+		{
+			this.UoW = uow;
+			CounterpartyId = counterpartyId;
 		}
 	}
 

@@ -57,6 +57,17 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		decimal amountOnSource = 10000000; //FIXME пока не реализуем способ загружать количество на складе на конкретный день
+
+		[Display (Name = "Имеется на складе")]
+		public decimal AmountOnSource {
+			get { return amountOnSource; }
+			set {
+				SetField (ref amountOnSource, value, () => AmountOnSource);
+			}
+		}
+
+
 		public virtual string Name {
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}

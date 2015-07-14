@@ -60,6 +60,16 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		decimal amountOnStock = 10000000; //FIXME пока не реализуем способ загружать количество на складе на конкретный день
+
+		[Display (Name = "Имеется на складе")]
+		public virtual decimal AmountOnStock {
+			get { return amountOnStock; }
+			set {
+				SetField (ref amountOnStock, value, () => AmountOnStock);
+			}
+		}
+
 		public virtual string Name {
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}

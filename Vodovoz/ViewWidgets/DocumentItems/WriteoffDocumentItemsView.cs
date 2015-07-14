@@ -43,6 +43,7 @@ namespace Vodovoz
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
 					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
+					.AddSetter ((c, i) => c.Adjustment.Upper = (double)i.AmountOnStock)
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
 					.Finish ();
@@ -85,7 +86,8 @@ namespace Vodovoz
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
 			DocumentUoW.Root.AddItem (new WriteoffDocumentItem { 
 				Nomenclature = nomenctature,
-				Amount = 1
+				AmountOnStock = (e.VMNode as ViewModel.StockBalanceVMNode).Amount,
+				Amount = 0
 			});
 		}
 	}

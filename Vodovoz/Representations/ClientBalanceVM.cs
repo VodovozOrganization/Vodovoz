@@ -33,17 +33,19 @@ namespace Vodovoz.ViewModel
 			GoodsMovementOperation operationRemoveAlias = null;
 
 			var subqueryAdd = QueryOver.Of<GoodsMovementOperation>(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id && operationAddAlias.Sale == false)
 				.And ((Filter == null || Filter.RestrictCounterparty == null) 
-					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse), Filter.RestrictCounterparty))
+					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.IncomingCounterparty)) 
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingCounterparty), Filter.RestrictCounterparty))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
+
+			//FIXME Возможно некорректная выборка вернувшихся куллеров. Надо смотреть на то как они будут возвращатся.
 
 			var subqueryRemove = QueryOver.Of<GoodsMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.And ((Filter == null || Filter.RestrictCounterparty == null) 
-					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictCounterparty))
+					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.WriteoffCounterparty)) 
+					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffCounterparty), Filter.RestrictCounterparty))
 				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
 
 			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
@@ -100,7 +102,7 @@ namespace Vodovoz.ViewModel
 			CreateRepresentationFilter = () => new ClientBalanceFilter(UoW);
 		}
 
-		public ClientBalanceVM (IUnitOfWork uow) : base(typeof(Counterparty), typeof(GoodsMovementOperation))
+		public ClientBalanceVM (IUnitOfWork uow) : base(typeof(GoodsMovementOperation))
 		{
 			this.UoW = uow;
 		}

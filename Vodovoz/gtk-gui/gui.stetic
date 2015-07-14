@@ -10250,6 +10250,7 @@ Patronymic</property>
           <widget class="QSOrmProject.EntryReferenceVM" id="entryreferenceClient">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
+            <signal name="Changed" handler="OnEntryreferenceClientChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">1</property>
@@ -10265,9 +10266,11 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EntryReference" id="entryreferencePoint">
+          <widget class="QSOrmProject.EntryReferenceVM" id="entryreferencePoint">
             <property name="MemberName" />
+            <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
+            <signal name="Changed" handler="OnEntryreferencePointChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">3</property>
@@ -14567,7 +14570,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="635 620">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="660 439">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14715,7 +14718,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -15318,7 +15321,7 @@ Patronymic</property>
                         <child>
                           <widget class="Gtk.DataBindings.DataTreeView" id="treeItems">
                             <property name="MemberName" />
-                            <property name="HeightRequest">250</property>
+                            <property name="HeightRequest">100</property>
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
                             <property name="CursorPointsEveryType">False</property>

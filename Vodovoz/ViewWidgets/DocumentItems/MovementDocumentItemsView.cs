@@ -44,6 +44,7 @@ namespace Vodovoz
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
 					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
 					.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
+					.AddSetter ((c, i) => c.Adjustment.Upper = (double)i.AmountOnSource)
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
 					.Finish ();
@@ -64,16 +65,19 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
+			if (DocumentUoW.Root.FromWarehouse == null)
+				throw new NotImplementedException ();
+
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
 			if (mytab == null) {
 				logger.Warn ("Родительская вкладка не найдена.");
 				return;
 			}
 
-			//ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
-			//	.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
+			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
+			filter.RestrictWarehouse = DocumentUoW.Root.FromWarehouse;
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM ());
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.None;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
@@ -86,6 +90,7 @@ namespace Vodovoz
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
 			DocumentUoW.Root.AddItem (new MovementDocumentItem { 
 				Nomenclature = nomenctature,
+				AmountOnSource = (e.VMNode as ViewModel.StockBalanceVMNode).Amount,
 				Amount = 1
 			});
 		}
