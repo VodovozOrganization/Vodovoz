@@ -6,6 +6,7 @@ using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -58,7 +59,7 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ITdiDialog dlg = OrmMain.CreateObjectDialog (treeDeliveryPoints.GetSelectedObjects () [0]);
+			ITdiDialog dlg = new DeliveryPointDlg((treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPointVMNode).Id);
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 

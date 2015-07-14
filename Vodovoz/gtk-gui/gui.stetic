@@ -621,6 +621,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -12222,11 +12223,11 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeDocuments">
+              <widget class="QSOrmProject.OrmTableView" id="tableDocuments">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
@@ -12235,8 +12236,7 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Documents.Document} Number[Номер]; DocType[Тип документа]; DateString[Дата]; Description[Детали];</property>
-                <signal name="RowActivated" handler="OnTreeDocumentsRowActivated" />
+                <signal name="RowActivated" handler="OnTableDocumentsRowActivated" />
               </widget>
             </child>
           </widget>

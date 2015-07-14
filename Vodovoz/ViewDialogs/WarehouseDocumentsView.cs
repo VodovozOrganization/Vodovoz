@@ -7,6 +7,7 @@ using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using QSTDI;
 using Vodovoz.Domain.Documents;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -14,27 +15,17 @@ namespace Vodovoz
 	public partial class WarehouseDocumentsView : Gtk.Bin, ITdiJournal
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
-		List<Document> documents;
-		ISession session;
-
-		public ISession Session {
-			get { 
-				if (session == null)
-					Session = OrmMain.OpenSession ();
-				return session;
-			}
-			set { session = value; }
-		}
 
 		public WarehouseDocumentsView ()
 		{
 			this.Build ();
-			treeDocuments.Selection.Changed += OnSelectionChanged;
+			tableDocuments.RepresentationModel = new DocumentsVM ();
+			tableDocuments.RepresentationModel.UpdateNodes ();
+			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
-			UpdateTable ();
 			IOrmObjectMapping map = OrmMain.GetObjectDiscription (typeof(IncomingInvoice));
 			if (map != null)
-				map.ObjectUpdated += OnRefObjectUpdated;
+				map.ObjectUpdated += OnRefObjectUpdated;;
 			map = OrmMain.GetObjectDiscription (typeof(IncomingWater));
 			if (map != null)
 				map.ObjectUpdated += OnRefObjectUpdated;
@@ -46,9 +37,15 @@ namespace Vodovoz
 				map.ObjectUpdated += OnRefObjectUpdated;
 		}
 
+		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
+		{
+			tableDocuments.RepresentationModel.UpdateNodes ();
+
+		}
+
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonEdit.Sensitive = buttonDelete.Sensitive = treeDocuments.Selection.CountSelectedRows () > 0;
+			buttonEdit.Sensitive = buttonDelete.Sensitive = tableDocuments.Selection.CountSelectedRows () > 0;
 		}
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
@@ -97,40 +94,41 @@ namespace Vodovoz
 					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 		}
-
-		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
-		{
-			logger.Info ("Получаем таблицу справочника<{0}>...", typeof(Document).Name);
-			UpdateTable ();
-			logger.Info ("Ok.");
-		}
-
-		void UpdateTable ()
-		{
-			documents = new List<Document> ();
-			Session.Clear ();
-			documents.AddRange (Session.CreateCriteria<WriteoffDocument> ().List<WriteoffDocument> ());
-			documents.AddRange (Session.CreateCriteria<IncomingInvoice> ().List<IncomingInvoice> ());
-			documents.AddRange (Session.CreateCriteria<IncomingWater> ().List<IncomingWater> ());
-			documents.AddRange (Session.CreateCriteria<MovementDocument> ().List<MovementDocument> ());
-			treeDocuments.ItemsDataSource = documents;
-		}
-
-		protected void OnTreeDocumentsRowActivated (object o, RowActivatedArgs args)
+			
+		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
 		{
 			buttonEdit.Click ();
 		}
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
 		{
-			if (TabParent.BeforeCreateNewTab ((object)null, null).HasFlag (TdiBeforeCreateResultFlag.Canceled))
-				return;
-			TabParent.AddTab (OrmMain.CreateObjectDialog (treeDocuments.GetSelectedObjects () [0]), this);
+			if (tableDocuments.GetSelectedObjects ().GetLength (0) > 0) {
+				int id = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).Id;
+				string DocType = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).DocType;
+				ITdiDialog dlg;
+				switch (DocType) {
+				case "Входящая накладная":
+					dlg = new IncomingInvoiceDlg (id);
+					break;
+				case "Документ производства":
+					dlg = new IncomingWaterDlg (id);
+					break;
+				case "Документ перемещения": 
+					dlg = new MovementDocumentDlg (id);
+					break;
+				case "Акт списания":
+					dlg = new WriteoffDocumentDlg (id);
+					break;
+				default:
+					return;
+				}
+				TabParent.AddTab (dlg, this);
+			}
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			OrmMain.DeleteObject(treeDocuments.GetSelectedObjects () [0]);
+			OrmMain.DeleteObject(tableDocuments.GetSelectedObjects () [0]);
 		}
 
 		#endregion

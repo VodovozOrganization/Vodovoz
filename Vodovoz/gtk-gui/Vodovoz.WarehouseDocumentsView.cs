@@ -12,9 +12,9 @@ namespace Vodovoz {
 		
 		private global::Gtk.Button buttonDelete;
 		
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
-		private global::Gtk.DataBindings.DataTreeView treeDocuments;
+		private global::QSOrmProject.OrmTableView tableDocuments;
 		
 		protected virtual void Build() {
 			global::Stetic.Gui.Initialize(this);
@@ -79,22 +79,21 @@ namespace Vodovoz {
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeDocuments = new global::Gtk.DataBindings.DataTreeView();
-			this.treeDocuments.CanFocus = true;
-			this.treeDocuments.Name = "treeDocuments";
-			this.treeDocuments.CursorPointsEveryType = false;
-			this.treeDocuments.InheritedDataSource = false;
-			this.treeDocuments.InheritedBoundaryDataSource = false;
-			this.treeDocuments.InheritedDataSource = false;
-			this.treeDocuments.InheritedBoundaryDataSource = false;
-			this.treeDocuments.ColumnMappings = "{Vodovoz.Domain.Documents.Document} Number[Номер]; DocType[Тип документа]; DateString[Дата]; Description[Детали];";
-			this.GtkScrolledWindow.Add(this.treeDocuments);
-			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.tableDocuments = new global::QSOrmProject.OrmTableView();
+			this.tableDocuments.CanFocus = true;
+			this.tableDocuments.Name = "tableDocuments";
+			this.tableDocuments.CursorPointsEveryType = false;
+			this.tableDocuments.InheritedDataSource = false;
+			this.tableDocuments.InheritedBoundaryDataSource = false;
+			this.tableDocuments.InheritedDataSource = false;
+			this.tableDocuments.InheritedBoundaryDataSource = false;
+			this.GtkScrolledWindow1.Add(this.tableDocuments);
+			this.vbox1.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
 			w9.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null)) {
@@ -104,7 +103,7 @@ namespace Vodovoz {
 			this.buttonAdd.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs>(this.OnButtonAddEnumItemClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
-			this.treeDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTreeDocumentsRowActivated);
+			this.tableDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTableDocumentsRowActivated);
 		}
 	}
 }
