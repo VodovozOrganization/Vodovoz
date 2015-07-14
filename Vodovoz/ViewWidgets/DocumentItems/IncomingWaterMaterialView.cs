@@ -38,6 +38,7 @@ namespace Vodovoz
 					.AddColumn ("Всего")
 					.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
 					.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
+					.AddSetter ((c, i) => c.Adjustment.Upper = (double)i.AmountOnSource)
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
 					.Finish ();
@@ -90,10 +91,11 @@ namespace Vodovoz
 				return;
 			}
 
-			//ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
-			//	.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
+			var filter = new StockBalanceFilter (UnitOfWorkFactory.CreateWithoutRoot ());
+			filter.RestrictWarehouse = DocumentUoW.Root.WriteOffWarehouse;
+			//FIXME возможно нужно добавить ограничение на типы номенклатур.
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM ());
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.StockBalanceVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.None;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
@@ -106,6 +108,7 @@ namespace Vodovoz
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
 			DocumentUoW.Root.AddMaterial (new IncomingWaterMaterial { 
 				Nomenclature = nomenctature,
+				AmountOnSource = (e.VMNode as ViewModel.StockBalanceVMNode).Amount,
 				Amount = 1
 			});
 		}
