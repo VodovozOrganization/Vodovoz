@@ -272,6 +272,7 @@
     <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="Dialogs\RouteListDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDlg.cs" />
+    <Compile Include="Domain\CommonEnums.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

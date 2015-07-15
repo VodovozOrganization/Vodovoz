@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gtk;
 using Gtk.DataBindings;
 using NHibernate;
@@ -85,10 +84,7 @@ namespace Vodovoz
 				return;
 			}
 
-			ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Nomenclature))
-				.Add (Restrictions.In ("Category", new[] { NomenclatureCategory.additional, NomenclatureCategory.equipment }));
-
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), DocumentUoW, ItemsCriteria);
+			OrmReference SelectDialog = new OrmReference (DocumentUoW, Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery ());
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
