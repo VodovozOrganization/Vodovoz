@@ -23,18 +23,6 @@ namespace Vodovoz
 			tableDocuments.RepresentationModel.UpdateNodes ();
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
-			IOrmObjectMapping map = OrmMain.GetObjectDiscription (typeof(IncomingInvoice));
-			if (map != null)
-				map.ObjectUpdated += OnRefObjectUpdated;;
-			map = OrmMain.GetObjectDiscription (typeof(IncomingWater));
-			if (map != null)
-				map.ObjectUpdated += OnRefObjectUpdated;
-			map = OrmMain.GetObjectDiscription (typeof(MovementDocument));
-			if (map != null)
-				map.ObjectUpdated += OnRefObjectUpdated;
-			map = OrmMain.GetObjectDiscription (typeof(WriteoffDocument));
-			if (map != null)
-				map.ObjectUpdated += OnRefObjectUpdated;
 		}
 
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
