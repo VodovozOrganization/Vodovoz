@@ -49,7 +49,13 @@ namespace Vodovoz.Domain.Documents
 		MovementDocument,
 		[ItemTitleAttribute ("Акт списания")]
 		WriteoffDocument
+	}
 
+	public class DocumentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DocumentTypeStringType () : base (typeof(DocumentType))
+		{
+		}
 	}
 }
 

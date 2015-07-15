@@ -92,19 +92,19 @@ namespace Vodovoz
 		{
 			if (tableDocuments.GetSelectedObjects ().GetLength (0) > 0) {
 				int id = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).Id;
-				string DocType = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).DocType;
+				DocumentType DocType = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).DocTypeEnum;
 				ITdiDialog dlg;
 				switch (DocType) {
-				case "Входящая накладная":
+				case DocumentType.IncomingInvoice:
 					dlg = new IncomingInvoiceDlg (id);
 					break;
-				case "Документ производства":
+				case DocumentType.IncomingWater:
 					dlg = new IncomingWaterDlg (id);
 					break;
-				case "Документ перемещения": 
+				case DocumentType.MovementDocument: 
 					dlg = new MovementDocumentDlg (id);
 					break;
-				case "Акт списания":
+				case DocumentType.WriteoffDocument:
 					dlg = new WriteoffDocumentDlg (id);
 					break;
 				default:
