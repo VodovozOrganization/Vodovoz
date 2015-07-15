@@ -88,6 +88,12 @@ namespace Vodovoz.Domain
 
 		public virtual string Number { get { return Id.ToString (); } }
 
+		public virtual string DateString { get { return Date.ToShortDateString (); } }
+
+		public virtual string StatusString { get { return Status.GetEnumTitle (); } }
+
+		public virtual string DriverInfo { get { return String.Format ("{0} - {1}", Driver.FullName, Car.Title); } }
+
 		public void AddOrder (Order order) 
 		{
 			ObservableOrders.Add (order);
