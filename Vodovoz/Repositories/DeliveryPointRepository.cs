@@ -8,11 +8,8 @@ namespace Vodovoz.Repository
 	{
 		public static QueryOver<DeliveryPoint> DeliveryPointsForCounterpartyQuery (Counterparty counterparty)
 		{
-			var identifiers = new List<object> ();
-			foreach (DeliveryPoint d in counterparty.DeliveryPoints)
-				identifiers.Add (d.Id);
 			return QueryOver.Of<DeliveryPoint> ()
-				.Where (dp => dp.Id.IsIn (identifiers));
+				.Where (dp => dp.Counterparty.Id == counterparty.Id);
 		}
 	}
 }
