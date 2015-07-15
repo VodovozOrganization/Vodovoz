@@ -7,6 +7,7 @@ using Vodovoz.Repository;
 using Vodovoz.Domain.Orders;
 using System.Data.Bindings;
 using Gtk.DataBindings;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -47,11 +48,16 @@ namespace Vodovoz
 			referenceDriver.Sensitive = false;
 			entryNumber.Sensitive = false;
 			buttonDelete.Sensitive = false;
+			enumStatus.Sensitive = false;
 
 			treeOrders.ColumnMappingConfig = FluentMappingConfig<Order>.Create ()
 				.AddColumn ("Номер").SetDataProperty (node => node.Id)
 				.AddColumn ("Клиент").SetDataProperty (node => node.Client.Name)
 				.AddColumn ("Адрес").SetDataProperty (node => node.DeliveryPoint.Point)
+				.AddColumn ("Логистический район").SetDataProperty (node => node.DeliveryPoint.LogisticsArea == null ? 
+					"Не указан" : 
+					node.DeliveryPoint.LogisticsArea.Name)
+				.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 				.Finish ();
 
 			treeOrders.Selection.Changed += (sender, e) => {

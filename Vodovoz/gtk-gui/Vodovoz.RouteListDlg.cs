@@ -64,6 +64,7 @@ namespace Vodovoz
 			this.Name = "Vodovoz.RouteListDlg";
 			// Container child Vodovoz.RouteListDlg.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
@@ -104,7 +105,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.dataRouteList = new global::Gtk.DataBindings.DataTable (((uint)(7)), ((uint)(4)), false);
+			this.dataRouteList = new global::Gtk.DataBindings.DataTable (((uint)(6)), ((uint)(4)), false);
 			this.dataRouteList.Name = "dataRouteList";
 			this.dataRouteList.RowSpacing = ((uint)(6));
 			this.dataRouteList.ColumnSpacing = ((uint)(6));
@@ -167,8 +168,8 @@ namespace Vodovoz
 			this.hseparator1.Name = "hseparator1";
 			this.dataRouteList.Add (this.hseparator1);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.hseparator1]));
-			w9.TopAttach = ((uint)(4));
-			w9.BottomAttach = ((uint)(5));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
 			w9.RightAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -203,8 +204,10 @@ namespace Vodovoz
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Водитель:");
 			this.dataRouteList.Add (this.label3);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.label3]));
-			w12.TopAttach = ((uint)(3));
-			w12.BottomAttach = ((uint)(4));
+			w12.TopAttach = ((uint)(2));
+			w12.BottomAttach = ((uint)(3));
+			w12.LeftAttach = ((uint)(2));
+			w12.RightAttach = ((uint)(3));
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
@@ -234,8 +237,8 @@ namespace Vodovoz
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Планируемое:");
 			this.dataRouteList.Add (this.label6);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.label6]));
-			w15.TopAttach = ((uint)(6));
-			w15.BottomAttach = ((uint)(7));
+			w15.TopAttach = ((uint)(5));
+			w15.BottomAttach = ((uint)(6));
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
@@ -245,8 +248,8 @@ namespace Vodovoz
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Фактическое:");
 			this.dataRouteList.Add (this.label7);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.label7]));
-			w16.TopAttach = ((uint)(6));
-			w16.BottomAttach = ((uint)(7));
+			w16.TopAttach = ((uint)(5));
+			w16.BottomAttach = ((uint)(6));
 			w16.LeftAttach = ((uint)(2));
 			w16.RightAttach = ((uint)(3));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -257,8 +260,8 @@ namespace Vodovoz
 			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString ("Расстояние");
 			this.dataRouteList.Add (this.label8);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.label8]));
-			w17.TopAttach = ((uint)(5));
-			w17.BottomAttach = ((uint)(6));
+			w17.TopAttach = ((uint)(4));
+			w17.BottomAttach = ((uint)(5));
 			w17.RightAttach = ((uint)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
@@ -279,7 +282,7 @@ namespace Vodovoz
 			w18.TopAttach = ((uint)(2));
 			w18.BottomAttach = ((uint)(3));
 			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(4));
+			w18.RightAttach = ((uint)(2));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
@@ -298,9 +301,9 @@ namespace Vodovoz
 			this.referenceDriver.CursorPointsEveryType = false;
 			this.dataRouteList.Add (this.referenceDriver);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.referenceDriver]));
-			w19.TopAttach = ((uint)(3));
-			w19.BottomAttach = ((uint)(4));
-			w19.LeftAttach = ((uint)(1));
+			w19.TopAttach = ((uint)(2));
+			w19.BottomAttach = ((uint)(3));
+			w19.LeftAttach = ((uint)(3));
 			w19.RightAttach = ((uint)(4));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -320,8 +323,8 @@ namespace Vodovoz
 			this.spinActualDistance.InheritedBoundaryDataSource = false;
 			this.dataRouteList.Add (this.spinActualDistance);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.spinActualDistance]));
-			w20.TopAttach = ((uint)(6));
-			w20.BottomAttach = ((uint)(7));
+			w20.TopAttach = ((uint)(5));
+			w20.BottomAttach = ((uint)(6));
 			w20.LeftAttach = ((uint)(3));
 			w20.RightAttach = ((uint)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -341,8 +344,8 @@ namespace Vodovoz
 			this.spinPlannedDistance.InheritedBoundaryDataSource = false;
 			this.dataRouteList.Add (this.spinPlannedDistance);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.spinPlannedDistance]));
-			w21.TopAttach = ((uint)(6));
-			w21.BottomAttach = ((uint)(7));
+			w21.TopAttach = ((uint)(5));
+			w21.BottomAttach = ((uint)(6));
 			w21.LeftAttach = ((uint)(1));
 			w21.RightAttach = ((uint)(2));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -358,6 +361,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.treeOrders = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeOrders.WidthRequest = 700;
 			this.treeOrders.HeightRequest = 100;
 			this.treeOrders.CanFocus = true;
 			this.treeOrders.Name = "treeOrders";

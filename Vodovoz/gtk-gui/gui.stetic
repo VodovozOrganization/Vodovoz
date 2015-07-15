@@ -621,7 +621,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14631,7 +14630,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -16495,7 +16493,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListDlg" design-size="675 426">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListDlg" design-size="729 426">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -16552,7 +16550,7 @@ Patronymic</property>
         <child>
           <widget class="Gtk.DataBindings.DataTable" id="dataRouteList">
             <property name="MemberName" />
-            <property name="NRows">7</property>
+            <property name="NRows">6</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
@@ -16644,8 +16642,8 @@ Patronymic</property>
                 <property name="MemberName" />
               </widget>
               <packing>
-                <property name="TopAttach">4</property>
-                <property name="BottomAttach">5</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
@@ -16707,8 +16705,10 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Водитель:</property>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">2</property>
+                <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -16765,8 +16765,8 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Планируемое:</property>
               </widget>
               <packing>
-                <property name="TopAttach">6</property>
-                <property name="BottomAttach">7</property>
+                <property name="TopAttach">5</property>
+                <property name="BottomAttach">6</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -16785,8 +16785,8 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Фактическое:</property>
               </widget>
               <packing>
-                <property name="TopAttach">6</property>
-                <property name="BottomAttach">7</property>
+                <property name="TopAttach">5</property>
+                <property name="BottomAttach">6</property>
                 <property name="LeftAttach">2</property>
                 <property name="RightAttach">3</property>
                 <property name="AutoSize">False</property>
@@ -16806,8 +16806,8 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Расстояние</property>
               </widget>
               <packing>
-                <property name="TopAttach">5</property>
-                <property name="BottomAttach">6</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">False</property>
                 <property name="YOptions">Fill</property>
@@ -16835,7 +16835,7 @@ RegistrationNumber</property>
                 <property name="TopAttach">2</property>
                 <property name="BottomAttach">3</property>
                 <property name="LeftAttach">1</property>
-                <property name="RightAttach">4</property>
+                <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -16861,9 +16861,9 @@ Patronymic</property>
                 <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
-                <property name="TopAttach">3</property>
-                <property name="BottomAttach">4</property>
-                <property name="LeftAttach">1</property>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
@@ -16894,8 +16894,8 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
-                <property name="TopAttach">6</property>
-                <property name="BottomAttach">7</property>
+                <property name="TopAttach">5</property>
+                <property name="BottomAttach">6</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">False</property>
@@ -16926,8 +16926,8 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
-                <property name="TopAttach">6</property>
-                <property name="BottomAttach">7</property>
+                <property name="TopAttach">5</property>
+                <property name="BottomAttach">6</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
@@ -16956,6 +16956,7 @@ Patronymic</property>
             <child>
               <widget class="Gtk.DataBindings.DataTreeView" id="treeOrders">
                 <property name="MemberName" />
+                <property name="WidthRequest">700</property>
                 <property name="HeightRequest">100</property>
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>

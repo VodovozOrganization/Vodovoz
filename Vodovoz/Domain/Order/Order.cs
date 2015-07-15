@@ -269,6 +269,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string ClientString { get { return Client.Name; } }
 
+		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
+
 		public virtual decimal TotalSum {
 			get {
 				Decimal sum = 0;
