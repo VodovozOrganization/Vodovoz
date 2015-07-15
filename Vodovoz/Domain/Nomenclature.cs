@@ -152,19 +152,6 @@ namespace Vodovoz.Domain
 		#endregion
 	}
 
-	public enum VAT
-	{
-		[ItemTitleAttribute ("Без НДС")] excluded,
-		[ItemTitleAttribute ("НДС 18%")] included
-	}
-
-	public class VATStringType : NHibernate.Type.EnumStringType
-	{
-		public VATStringType () : base (typeof(VAT))
-		{
-		}
-	}
-
 	public enum NomenclatureCategory
 	{
 		[ItemTitleAttribute ("Аренда")] rent,
