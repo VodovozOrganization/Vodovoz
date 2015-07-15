@@ -35,6 +35,7 @@ namespace Vodovoz
 				treeItemsList.ColumnMappingConfig = FluentMappingConfig<IncomingInvoiceItem>.Create ()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
+					.AddColumn ("% НДС").AddEnumRenderer (i => i.VAT).Editing ()
 					.AddColumn ("Количество")
 						.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
 						.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
