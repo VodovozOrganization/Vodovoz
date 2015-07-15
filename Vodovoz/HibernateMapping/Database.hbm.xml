@@ -438,7 +438,7 @@
 		<property name="Status" column="status" type="RouteListStatusStringType, Vodovoz"/>
 		<many-to-one name="Car" class="Car" column="car_id"/>
 		<many-to-one name="Driver" class="Employee" column="driver_id"/>
-		<bag name="Orders" inverse="false" cascade="all-delete-orphan" lazy="true" >
+		<bag name="Orders" inverse="true" cascade="save-update" lazy="true" >
     		<key column="route_list_id"/>
     		<one-to-many class="Vodovoz.Domain.Orders.Order"/>
 		</bag>

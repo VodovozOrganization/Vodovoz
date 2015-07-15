@@ -58,14 +58,14 @@ namespace Vodovoz.Domain
 		}
 
 		RouteListStatus status;
-		
+
 		[Display (Name = "Статус")]
 		public virtual RouteListStatus Status {
 			get { return status; }
 			set { SetField (ref status, value, () => Status); }
 		}
 
-		IList<Order> orders = new List<Order>();
+		IList<Order> orders = new List<Order> ();
 
 		[Display (Name = "Заказы")]
 		public virtual IList<Order> Orders {
@@ -94,10 +94,16 @@ namespace Vodovoz.Domain
 
 		public virtual string DriverInfo { get { return String.Format ("{0} - {1}", Driver.FullName, Car.Title); } }
 
-		public void AddOrder (Order order) 
+		public void AddOrder (Order order)
 		{
 			ObservableOrders.Add (order);
 			order.RouteList = this;
+		}
+
+		public void RemoveOrder (Order order)
+		{
+			ObservableOrders.Remove (order);
+			order.RouteList = null;
 		}
 
 		#region IValidatableObject implementation

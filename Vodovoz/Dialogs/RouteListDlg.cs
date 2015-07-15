@@ -22,7 +22,9 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public RouteListDlg (RouteList sub) : this(sub.Id) {}
+		public RouteListDlg (RouteList sub) : this (sub.Id)
+		{
+		}
 
 		public RouteListDlg (int id)
 		{
@@ -42,7 +44,6 @@ namespace Vodovoz
 			referenceCar.SubjectType = typeof(Car);
 			referenceDriver.SubjectType = typeof(Employee);
 
-			//TODO Сделать удаление
 			referenceDriver.Sensitive = false;
 			entryNumber.Sensitive = false;
 			buttonDelete.Sensitive = false;
@@ -52,9 +53,14 @@ namespace Vodovoz
 				.AddColumn ("Клиент").SetDataProperty (node => node.Client.Name)
 				.AddColumn ("Адрес").SetDataProperty (node => node.DeliveryPoint.Point)
 				.Finish ();
+
+			treeOrders.Selection.Changed += (sender, e) => {
+				buttonDelete.Sensitive = treeOrders.Selection.CountSelectedRows () > 0;
+			};
 		}
 
-		public override bool Save() {
+		public override bool Save ()
+		{
 			var valid = new QSValidator<RouteList> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -67,7 +73,7 @@ namespace Vodovoz
 
 		protected void AddOrder ()
 		{
-			OrmReference SelectDialog = new OrmReference (UoWGeneric, OrderRepository.GetAcceptedOrdersForDateQueryOver(UoWGeneric.Root.Date));
+			OrmReference SelectDialog = new OrmReference (UoWGeneric, OrderRepository.GetAcceptedOrdersForDateQueryOver (UoWGeneric.Root.Date));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
 			SelectDialog.ObjectSelected += (s, ea) => {
@@ -94,12 +100,12 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			UoWGeneric.Root.RemoveOrder (treeOrders.GetSelectedObjects () [0] as Order);
 		}
 
 		protected void OnEnumbuttonAddOrderEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			AddOrderEnum  choice = (AddOrderEnum)e.ItemEnum;
+			AddOrderEnum choice = (AddOrderEnum)e.ItemEnum;
 			switch (choice) {
 			case AddOrderEnum.AddOne:
 				AddOrder ();
@@ -113,9 +119,10 @@ namespace Vodovoz
 		}
 	}
 
-	public enum AddOrderEnum {
-		[ItemTitleAttribute("Один заказ")] AddOne,
-		[ItemTitleAttribute("Все заказы для логистического района")]AddAllForRegion
+	public enum AddOrderEnum
+	{
+		[ItemTitleAttribute ("Один заказ")] AddOne,
+		[ItemTitleAttribute ("Все заказы для логистического района")]AddAllForRegion
 	}
 }
 

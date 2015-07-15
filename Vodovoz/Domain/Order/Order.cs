@@ -227,6 +227,8 @@ namespace Vodovoz.Domain.Orders
 				SetField (ref routeList, value, () => RouteList); 
 				if (value != null && OrderStatus == OrderStatus.Accepted) {
 					OrderStatus = OrderStatus.InTravelList;
+				} else if (value == null && OrderStatus == OrderStatus.InTravelList) {
+					OrderStatus = OrderStatus.Accepted;
 				}
 			}
 		}
@@ -273,7 +275,8 @@ namespace Vodovoz.Domain.Orders
 				foreach (OrderItem item in ObservableOrderItems) {
 					sum += item.Price * item.Count;
 				}
-				return sum;}
+				return sum;
+			}
 		}
 
 		public void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)
@@ -287,7 +290,7 @@ namespace Vodovoz.Domain.Orders
 				Count = 1,
 				Equipment = eq,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1)
+				Price = nomenclature.GetPrice (1)
 			});
 			ObservableOrderEquipments.Add (new OrderEquipment {
 				Direction = Vodovoz.Domain.Orders.Direction.Deliver,
@@ -306,7 +309,7 @@ namespace Vodovoz.Domain.Orders
 				Count = 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice(1)
+				Price = nomenclature.GetPrice (1)
 			});
 		}
 
@@ -315,25 +318,26 @@ namespace Vodovoz.Domain.Orders
 			if (nomenclature.Category != NomenclatureCategory.water)
 				return;
 			if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
-				item.AdditionalAgreement.Id == wsa.Id))
+			    item.AdditionalAgreement.Id == wsa.Id))
 				return;
 			ObservableOrderItems.Add (new OrderItem {
 				AdditionalAgreement = wsa,
 				Count = 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.GetPrice(1)
+				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.GetPrice (1)
 			});
 		}
 
-		public void RecalcBottlesDeposits(IUnitOfWork uow) {
+		public void RecalcBottlesDeposits (IUnitOfWork uow)
+		{
 			if (Client.PersonType == PersonType.legal)
 				return;
 			var waterItemsCount = ObservableOrderItems.Select (item => item)
-				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.Sum(item => item.Count);
+				.Where (item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum (item => item.Count);
 			
-			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == NomenclatureRepository.GetBottleDeposit(uow).Id);
+			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == NomenclatureRepository.GetBottleDeposit (uow).Id);
 			var depositRefundItem = ObservableOrderDepositRefundItem.FirstOrDefault (item => item.DepositType == Vodovoz.Domain.Operations.DepositType.Bottles);
 
 			//Надо создать услугу залога
@@ -347,8 +351,8 @@ namespace Vodovoz.Domain.Orders
 						AdditionalAgreement = null,
 						Count = waterItemsCount - BottlesReturn,
 						Equipment = null,
-						Nomenclature = NomenclatureRepository.GetBottleDeposit(uow),
-						Price = NomenclatureRepository.GetBottleDeposit(uow).GetPrice (waterItemsCount - BottlesReturn)
+						Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
+						Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (waterItemsCount - BottlesReturn)
 					});
 				return;
 			}
@@ -356,20 +360,20 @@ namespace Vodovoz.Domain.Orders
 				if (depositRefundItem != null)
 					ObservableOrderDepositRefundItem.Remove (depositRefundItem);
 				if (depositPaymentItem != null)
-					ObservableOrderItems.Remove(depositPaymentItem);
+					ObservableOrderItems.Remove (depositPaymentItem);
 				return;
 			}
 			if (BottlesReturn > waterItemsCount) {
 				if (depositPaymentItem != null)
-					ObservableOrderItems.Remove(depositPaymentItem);
+					ObservableOrderItems.Remove (depositPaymentItem);
 				if (depositRefundItem != null)
-					depositRefundItem.RefundDeposit = NomenclatureRepository.GetBottleDeposit(uow).GetPrice (BottlesReturn - waterItemsCount) * (BottlesReturn - waterItemsCount);
+					depositRefundItem.RefundDeposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount) * (BottlesReturn - waterItemsCount);
 				else
 					ObservableOrderDepositRefundItem.Add (new OrderDepositRefundItem {
 						Order = this,
 						DepositOperation = null,
 						DepositType = DepositType.Bottles,
-						RefundDeposit = NomenclatureRepository.GetBottleDeposit(uow).GetPrice (BottlesReturn - waterItemsCount),
+						RefundDeposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount),
 						PaidRentItem = null,
 						FreeRentItem = null
 					});
