@@ -1,10 +1,11 @@
-﻿using System;
-using QSOrmProject;
+﻿using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Цены", ObjectName = "цена")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "цены",
+		Nominative = "цена")]
 	public partial class NomenclaturePrice: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -13,7 +14,7 @@ namespace Vodovoz.Domain
 
 		int minCount;
 
-		[Display(Name = "Минимальное количество")]
+		[Display (Name = "Минимальное количество")]
 		public virtual int MinCount {
 			get { return minCount; }
 			set { SetField (ref minCount, value, () => MinCount); }
@@ -21,17 +22,13 @@ namespace Vodovoz.Domain
 
 		decimal price;
 
-		[Display(Name = "Стоимость")]
+		[Display (Name = "Стоимость")]
 		public virtual decimal Price {
 			get { return price; }
 			set { SetField (ref price, value, () => Price); }
 		}
 
 		#endregion
-
-		public NomenclaturePrice ()
-		{
-		}
 	}
 }
 

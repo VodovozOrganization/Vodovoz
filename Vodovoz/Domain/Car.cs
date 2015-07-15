@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Автомобили", ObjectName = "автомобиль")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "автомобили",
+		Nominative = "автомобиль")]
 	public class Car : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -56,7 +58,7 @@ namespace Vodovoz.Domain
 		#endregion
 
 		public virtual string Title { 
-			get { return String.Format("{0} ({1})", Model, RegistrationNumber); } 
+			get { return String.Format ("{0} ({1})", Model, RegistrationNumber); } 
 		}
 
 		public string DriverInfo { get { return Driver == null ? String.Empty : Driver.FullName; } }

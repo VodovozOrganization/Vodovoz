@@ -10,7 +10,10 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (JournalName = "Заказы", ObjectName = "заказ")]
+
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "заказы",
+		Nominative = "заказ")]
 	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

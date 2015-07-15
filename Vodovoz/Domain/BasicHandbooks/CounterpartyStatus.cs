@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Статусы контрагента", ObjectName = "статус контагента")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "статусы контрагента",
+		Nominative = "статус контрагента")]
 	public class CounterpartyStatus : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -14,7 +16,7 @@ namespace Vodovoz.Domain
 		string name;
 
 		[Required (ErrorMessage = "Название статуса должно быть заполнено.")]
-		[Display(Name = "Название")]
+		[Display (Name = "Название")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }

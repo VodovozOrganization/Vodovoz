@@ -8,7 +8,9 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Маршрутные листы", ObjectName = "маршрутный лист")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "маршрутные листы",
+		Nominative = "маршрутный лист")]
 	public class RouteList: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

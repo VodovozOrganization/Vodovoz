@@ -7,7 +7,9 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Номенклатура", ObjectName = "номенклатура")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "номенклатуры",
+		Nominative = "номенклатура")]
 	public class Nomenclature: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -122,7 +124,7 @@ namespace Vodovoz.Domain
 
 		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 
-		public decimal GetPrice (int itemsCount) 
+		public decimal GetPrice (int itemsCount)
 		{
 			var price = NomenclaturePrice
 				.OrderByDescending (p => p.MinCount).FirstOrDefault (p => (p.MinCount <= itemsCount));
@@ -149,6 +151,7 @@ namespace Vodovoz.Domain
 				NomenclatureCategory.spare_parts, NomenclatureCategory.water
 			};
 		}
+
 		#endregion
 	}
 

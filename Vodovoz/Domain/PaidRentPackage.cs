@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Data.Bindings;
 using QSOrmProject;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Пакеты платной аренды", ObjectName = "пакет платной аренды")]
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
+		NominativePlural = "пакеты платной аренды",
+		Nominative = "пакет платной аренды")]
 	public class PaidRentPackage: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

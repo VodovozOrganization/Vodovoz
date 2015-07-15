@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Шаблоны комментариев", ObjectName = "шаблон комментария")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "шаблоны комментариев",
+		Nominative = "шаблон комментария")]
 	public class CommentTemplate : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства

@@ -4,7 +4,9 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Склады", ObjectName = "склад")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "склады",
+		Nominative = "склад")]
 	public class Warehouse : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -12,8 +14,9 @@ namespace Vodovoz.Domain
 		public virtual int Id { get; set; }
 
 		string name;
+
 		[Required (ErrorMessage = "Название статуса должно быть заполнено.")]
-		[Display(Name = "Название")]
+		[Display (Name = "Название")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }

@@ -8,7 +8,9 @@ using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (JournalName = "Перемещения ТМЦ", ObjectName = "Документ перемещения")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "документы перемещения ТМЦ",
+		Nominative = "документ перемещения ТМЦ")]
 	public class MovementDocument: Document, IValidatableObject
 	{
 		MovementDocumentCategory category;

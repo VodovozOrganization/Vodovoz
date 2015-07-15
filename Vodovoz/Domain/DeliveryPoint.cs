@@ -1,12 +1,12 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
-using QSContacts;
-using System.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Точки доставки", ObjectName = "точка доставки")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "точки доставки",
+		Nominative = "точка доставки")]
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -180,8 +180,10 @@ namespace Vodovoz.Domain
 		}
 
 		public string Point { 
-			get { return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
-				(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room); } 
+			get {
+				return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
+					(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room);
+			} 
 		}
 
 		public static IUnitOfWorkGeneric<DeliveryPoint> Create (Counterparty counterparty)

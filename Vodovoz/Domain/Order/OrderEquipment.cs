@@ -5,7 +5,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (JournalName = "Строки оборудования в заказе", ObjectName = "оборудование в заказе")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "строки оборудования в заказе",
+		Nominative = "строка оборудования в заказе")]
 	public class OrderEquipment: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

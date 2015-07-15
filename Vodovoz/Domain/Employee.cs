@@ -6,7 +6,9 @@ using System.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Сотрудники", ObjectName = "сотрудник")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "сотрудники",
+		Nominative = "сотрудник")]
 	public class Employee : PropertyChangedBase, IDomainObject, IValidatableObject, ISpecialRowsRender
 	{
 		#region Свойства
@@ -15,7 +17,7 @@ namespace Vodovoz.Domain
 
 		string name;
 
-		[Display(Name = "Имя")]
+		[Display (Name = "Имя")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
@@ -23,7 +25,7 @@ namespace Vodovoz.Domain
 
 		string lastName;
 
-		[Display(Name = "Фамилия")]
+		[Display (Name = "Фамилия")]
 		public virtual string LastName {
 			get { return lastName; }
 			set { SetField (ref lastName, value, () => LastName); }
@@ -31,28 +33,31 @@ namespace Vodovoz.Domain
 
 		string patronymic;
 
-		[Display(Name = "Отчество")]
+		[Display (Name = "Отчество")]
 		public virtual string Patronymic {
 			get { return patronymic; }
 			set { SetField (ref patronymic, value, () => Patronymic); }
 		}
 
 		EmployeeCategory category;
-		[Display(Name = "Категория")]
+
+		[Display (Name = "Категория")]
 		public virtual EmployeeCategory Category {
 			get { return category; }
 			set { SetField (ref category, value, () => Category); }
 		}
 
 		string passportSeria;
-		[Display(Name = "Серия паспорта")]
+
+		[Display (Name = "Серия паспорта")]
 		public virtual string PassportSeria {
 			get { return passportSeria; }
 			set { SetField (ref passportSeria, value, () => PassportSeria); }
 		}
 
 		string passportNumber;
-		[Display(Name = "Номер паспорта")]
+
+		[Display (Name = "Номер паспорта")]
 		public virtual string PassportNumber {
 			get { return passportNumber; }
 			set { SetField (ref passportNumber, value, () => PassportNumber); }
@@ -60,7 +65,7 @@ namespace Vodovoz.Domain
 
 		string drivingNumber;
 
-		[Display(Name = "Водительское удостоверение")]
+		[Display (Name = "Водительское удостоверение")]
 		public virtual string DrivingNumber {
 			get { return drivingNumber; }
 			set { SetField (ref drivingNumber, value, () => DrivingNumber); }
@@ -68,7 +73,7 @@ namespace Vodovoz.Domain
 
 		string addressRegistration;
 
-		[Display(Name = "Адрес регистрации")]
+		[Display (Name = "Адрес регистрации")]
 		public virtual string AddressRegistration {
 			get { return addressRegistration; }
 			set { SetField (ref addressRegistration, value, () => AddressRegistration); }
@@ -76,7 +81,7 @@ namespace Vodovoz.Domain
 
 		string addressCurrent;
 
-		[Display(Name = "Фактический адрес")]
+		[Display (Name = "Фактический адрес")]
 		public virtual string AddressCurrent {
 			get { return addressCurrent; }
 			set { SetField (ref addressCurrent, value, () => AddressCurrent); }
@@ -84,7 +89,7 @@ namespace Vodovoz.Domain
 
 		bool isFired;
 
-		[Display(Name = "Сотрудник уволен")]
+		[Display (Name = "Сотрудник уволен")]
 		public virtual bool IsFired {
 			get { return isFired; }
 			set { SetField (ref isFired, value, () => IsFired); }
@@ -92,7 +97,7 @@ namespace Vodovoz.Domain
 
 		IList<QSContacts.Phone> phones;
 
-		[Display(Name = "Телефоны")]
+		[Display (Name = "Телефоны")]
 		public virtual IList<QSContacts.Phone> Phones {
 			get { return phones; }
 			set { SetField (ref phones, value, () => Phones); }
@@ -100,7 +105,7 @@ namespace Vodovoz.Domain
 
 		Nationality nationality;
 
-		[Display(Name = "Национальность")]
+		[Display (Name = "Национальность")]
 		public virtual Nationality Nationality {
 			get { return nationality; }
 			set { SetField (ref nationality, value, () => Nationality); }
@@ -108,7 +113,7 @@ namespace Vodovoz.Domain
 
 		User user;
 
-		[Display(Name = "Пользователь")]
+		[Display (Name = "Пользователь")]
 		public virtual User User {
 			get { return user; }
 			set { SetField (ref user, value, () => User); }
@@ -116,7 +121,7 @@ namespace Vodovoz.Domain
 
 		byte[] photo;
 
-		[Display(Name = "Фотография")]
+		[Display (Name = "Фотография")]
 		public virtual byte[] Photo {
 			get { return photo; }
 			set { SetField (ref photo, value, () => Photo); }

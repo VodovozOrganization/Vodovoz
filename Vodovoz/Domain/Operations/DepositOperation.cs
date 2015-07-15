@@ -4,7 +4,9 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject ("Изменения залогов")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "изменения залогов",
+		Nominative = "изменение залогов")]
 	public class DepositOperation: OperationBase
 	{
 		OrderItem orderItem;

@@ -6,8 +6,9 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Documents
 {
-
-	[OrmSubject (JournalName = "Входящие накладные", ObjectName = "Входящая накладная")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "входящие накладные",
+		Nominative = "входящая накладная")]
 	public class IncomingInvoice: Document
 	{
 		public override DateTime TimeStamp {
@@ -93,9 +94,11 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		new public virtual string Description {
-			get { return String.Format ("Поставщик: {0}; Склад поступления: {1};", 
-				Contractor != null ? Contractor.Name : "Не указан",
-				Warehouse != null ? Warehouse.Name : "Не указан"); }
+			get {
+				return String.Format ("Поставщик: {0}; Склад поступления: {1};", 
+					Contractor != null ? Contractor.Name : "Не указан",
+					Warehouse != null ? Warehouse.Name : "Не указан");
+			}
 		}
 
 		#endregion

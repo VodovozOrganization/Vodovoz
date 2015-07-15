@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Категории выбраковки", ObjectName = "категория выбраковки")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "категории выбраковки",
+		Nominative = "категория выбраковки")]
 	public class CullingCategory : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

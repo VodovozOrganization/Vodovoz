@@ -1,11 +1,12 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
-using QSProjectsLib;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (JournalName = "Строки заказа", ObjectName = "строка заказа")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "строки заказа",
+		Nominative = "строка заказа")]
 	public class OrderItem: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

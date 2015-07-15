@@ -1,10 +1,11 @@
-﻿using System;
-using QSOrmProject;
+﻿using QSOrmProject;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject ("Передвижения бутылей")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "передвижения бутылей",
+		Nominative = "передвижение бутылей")]
 	public class BottlesMovementOperation: OperationBase
 	{
 		//TODO ID Документа перемещения

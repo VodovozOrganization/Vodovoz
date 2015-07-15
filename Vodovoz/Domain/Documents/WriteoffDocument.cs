@@ -7,7 +7,9 @@ using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (JournalName = "Списания ТМЦ", ObjectName = "Акт списания")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "акты списания ТМЦ",
+		Nominative = "акт списания ТМЦ")]
 	public class WriteoffDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {

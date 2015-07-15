@@ -8,7 +8,9 @@ using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (JournalName = "Производство воды", ObjectName = "Документ производства")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "документы производства",
+		Nominative = "документ производства")]
 	public class IncomingWater: Document
 	{
 		Nomenclature product;
@@ -17,7 +19,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Продукт")]
 		public virtual Nomenclature Product {
 			get { return product; }
-			set { SetField (ref product, value, () => Product);
+			set {
+				SetField (ref product, value, () => Product);
 				if (ProduceOperation.Nomenclature != product)
 					ProduceOperation.Nomenclature = product;
 			}
@@ -29,7 +32,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Количество")]
 		public virtual int Amount {
 			get { return amount; }
-			set { SetField (ref amount, value, () => Amount);
+			set {
+				SetField (ref amount, value, () => Amount);
 				if (ProduceOperation.Amount != Amount)
 					ProduceOperation.Amount = Amount;
 				foreach (var item in Materials) {
@@ -45,7 +49,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад поступления")]
 		public virtual Warehouse IncomingWarehouse {
 			get { return incomingWarehouse; }
-			set { SetField (ref incomingWarehouse, value, () => IncomingWarehouse);
+			set {
+				SetField (ref incomingWarehouse, value, () => IncomingWarehouse);
 				if (ProduceOperation.IncomingWarehouse != IncomingWarehouse)
 					ProduceOperation.IncomingWarehouse = IncomingWarehouse;
 			}
@@ -57,7 +62,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Склад списания")]
 		public virtual Warehouse WriteOffWarehouse {
 			get { return writeOffWarehouse; }
-			set { SetField (ref writeOffWarehouse, value, () => WriteOffWarehouse); 
+			set {
+				SetField (ref writeOffWarehouse, value, () => WriteOffWarehouse); 
 				foreach (var item in Materials) {
 					if (item.ConsumptionMaterialOperation.WriteoffWarehouse != WriteOffWarehouse)
 						item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
@@ -76,9 +82,10 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		new public virtual string Description {
-			get { return String.Format ("Количество: {0}; Склад поступления: {1};", 
-				Amount,
-				WriteOffWarehouse == null ? "не указан" : WriteOffWarehouse.Name); 
+			get {
+				return String.Format ("Количество: {0}; Склад поступления: {1};", 
+					Amount,
+					WriteOffWarehouse == null ? "не указан" : WriteOffWarehouse.Name); 
 			}
 		}
 
@@ -96,7 +103,8 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Строки")]
 		public virtual IList<IncomingWaterMaterial> Materials {
 			get { return materials; }
-			set { SetField (ref materials, value, () => Materials);
+			set {
+				SetField (ref materials, value, () => Materials);
 				observableMaterials = null;
 			}
 		}
@@ -104,13 +112,14 @@ namespace Vodovoz.Domain.Documents
 		GenericObservableList<IncomingWaterMaterial> observableMaterials;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public GenericObservableList<IncomingWaterMaterial> ObservableMaterials {
-			get {if (observableMaterials == null)
-				observableMaterials = new GenericObservableList<IncomingWaterMaterial> (Materials);
+			get {
+				if (observableMaterials == null)
+					observableMaterials = new GenericObservableList<IncomingWaterMaterial> (Materials);
 				return observableMaterials;
 			}
 		}
 
-		public void AddMaterial(IncomingWaterMaterial item)
+		public void AddMaterial (IncomingWaterMaterial item)
 		{
 			item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
 			item.ConsumptionMaterialOperation.OperationTime = TimeStamp;

@@ -2,11 +2,12 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using Vodovoz.Domain.Operations;
-using System.Data.Bindings;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (JournalName = "Строки накладной", ObjectName = "строка накладной")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "строки накладной",
+		Nominative = "строка накладной")]
 	public class IncomingInvoiceItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

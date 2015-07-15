@@ -6,14 +6,16 @@ using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Строки ПА соглашения", ObjectName = "строка ПА соглашения" )]
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
+		NominativePlural = "строки ПА соглашения",
+		Nominative = "строка ПА соглашения")]
 	public class PaidRentEquipment : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
 		PaidRentPackage paidRentPackage;
 
-		[Display(Name = "Пакет платной аренды")]
+		[Display (Name = "Пакет платной аренды")]
 		public virtual PaidRentPackage PaidRentPackage {
 			get { return paidRentPackage; }
 			set { SetField (ref paidRentPackage, value, () => PaidRentPackage); }
@@ -21,7 +23,7 @@ namespace Vodovoz.Domain
 
 		Equipment equipment;
 
-		[Display(Name = "Оборудование")]
+		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment); }
@@ -29,7 +31,7 @@ namespace Vodovoz.Domain
 
 		Decimal price;
 
-		[Display(Name = "Цена")]
+		[Display (Name = "Цена")]
 		public virtual Decimal Price {
 			get { return price; }
 			set { SetField (ref price, value, () => Price); }
@@ -37,7 +39,7 @@ namespace Vodovoz.Domain
 
 		Decimal deposit;
 
-		[Display(Name = "Залог")]
+		[Display (Name = "Залог")]
 		public virtual Decimal Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }

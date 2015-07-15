@@ -4,7 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Единицы измерения", ObjectName = "единица измерения")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "единицы измерения",
+		Nominative = "единица измерения")]
 	public class MeasurementUnits : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
@@ -12,9 +14,10 @@ namespace Vodovoz.Domain
 		public virtual int Id { get; set; }
 
 		string name;
+
 		[Required (ErrorMessage = "Название должно быть заполнено.")]
-		[StringLength(10)]
-		[Display(Name = "Название")]
+		[StringLength (10)]
+		[Display (Name = "Название")]
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
@@ -22,7 +25,7 @@ namespace Vodovoz.Domain
 
 		short digits;
 
-		[Display(Name = "Знаков после запятой")]
+		[Display (Name = "Знаков после запятой")]
 		public virtual short Digits {
 			get { return digits; }
 			set { SetField (ref digits, value, () => Digits); }

@@ -5,7 +5,9 @@ using System.Data.Bindings;
 
 namespace Vodovoz.Domain.Orders
 {
-	[OrmSubject (JournalName = "Документ заказа", ObjectName = "документы заказа")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "документы заказа",
+		Nominative = "документ заказа")]
 	public class OrderDocument : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -43,9 +45,11 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public override string Name {
-			get { return String.Format ("Доп. соглашение {0} №{1}", 
-				additionalAgreement.AgreementTypeTitle, 
-				additionalAgreement.AgreementNumber); }
+			get {
+				return String.Format ("Доп. соглашение {0} №{1}", 
+					additionalAgreement.AgreementTypeTitle, 
+					additionalAgreement.AgreementNumber);
+			}
 		}
 
 		public override string DocumentDate {

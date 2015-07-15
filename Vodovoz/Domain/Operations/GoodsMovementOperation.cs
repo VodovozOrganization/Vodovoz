@@ -1,10 +1,11 @@
-﻿using System;
-using QSOrmProject;
+﻿using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Operations
 {
-	[OrmSubject ("Передвижения товаров")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+		NominativePlural = "передвижения товаров",
+		Nominative = "передвижение товаров")]
 	public class GoodsMovementOperation: OperationBase
 	{
 		//TODO ID Документа перемещения
@@ -59,7 +60,7 @@ namespace Vodovoz.Domain.Operations
 		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField (ref nomenclature, value, () => Nomenclature);}
+			set { SetField (ref nomenclature, value, () => Nomenclature); }
 		}
 
 		Equipment equipment;
@@ -69,7 +70,7 @@ namespace Vodovoz.Domain.Operations
 			get { return equipment; }
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
-			
+
 		decimal amount;
 
 		public virtual decimal Amount {

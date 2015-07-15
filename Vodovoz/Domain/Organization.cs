@@ -7,7 +7,9 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (JournalName = "Организации", ObjectName = "организация")]
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "организации",
+		Nominative = "организация")]
 	public class Organization : AccountOwnerBase, IDomainObject
 	{
 
@@ -17,7 +19,7 @@ namespace Vodovoz.Domain
 
 		string name;
 
-		[Display(Name = "Название")]
+		[Display (Name = "Название")]
 		[Required (ErrorMessage = "Название организации должно быть заполнено.")]
 		public virtual string Name {
 			get { return name; }
@@ -26,7 +28,7 @@ namespace Vodovoz.Domain
 
 		string fullName;
 
-		[Display(Name = "Полное название")]
+		[Display (Name = "Полное название")]
 		public virtual string FullName {
 			get { return fullName; }
 			set { SetField (ref fullName, value, () => FullName); }
@@ -34,7 +36,7 @@ namespace Vodovoz.Domain
 
 		string iNN;
 
-		[Display(Name = "ИНН")]
+		[Display (Name = "ИНН")]
 		[Digits (ErrorMessage = "ИНН может содержать только цифры.")]
 		[StringLength (12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
 		public virtual string INN {
@@ -44,7 +46,7 @@ namespace Vodovoz.Domain
 
 		string kPP;
 
-		[Display(Name = "КПП")]
+		[Display (Name = "КПП")]
 		[Digits (ErrorMessage = "КПП может содержать только цифры.")]
 		[StringLength (9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
 		public virtual string KPP {
@@ -54,7 +56,7 @@ namespace Vodovoz.Domain
 
 		string oGRN;
 
-		[Display(Name = "ОГРН")]
+		[Display (Name = "ОГРН")]
 		[Digits (ErrorMessage = "ОГРН может содержать только цифры.")]
 		[StringLength (13, MinimumLength = 0, ErrorMessage = "Номер ОГРН не должен превышать 13 цифр.")]
 		public virtual string OGRN {
@@ -64,7 +66,7 @@ namespace Vodovoz.Domain
 
 		IList<QSContacts.Phone> phones;
 
-		[Display(Name = "Телефоны")]
+		[Display (Name = "Телефоны")]
 		public virtual IList<QSContacts.Phone> Phones {
 			get { return phones; }
 			set { SetField (ref phones, value, () => Phones); }
@@ -72,7 +74,7 @@ namespace Vodovoz.Domain
 
 		string email;
 
-		[Display(Name = "E-mail адреса")]
+		[Display (Name = "E-mail адреса")]
 		public virtual string Email {
 			get { return email; }
 			set { SetField (ref email, value, () => Email); }
@@ -80,7 +82,7 @@ namespace Vodovoz.Domain
 
 		string address;
 
-		[Display(Name = "Фактический адрес")]
+		[Display (Name = "Фактический адрес")]
 		public virtual string Address {
 			get { return address; }
 			set { SetField (ref address, value, () => Address); }
@@ -88,7 +90,7 @@ namespace Vodovoz.Domain
 
 		string jurAddress;
 
-		[Display(Name = "Юридический адрес")]
+		[Display (Name = "Юридический адрес")]
 		public virtual string JurAddress {
 			get { return jurAddress; }
 			set { SetField (ref jurAddress, value, () => JurAddress); }
@@ -96,7 +98,7 @@ namespace Vodovoz.Domain
 
 		Employee leader;
 
-		[Display(Name = "Руководитель")]
+		[Display (Name = "Руководитель")]
 		public virtual Employee Leader {
 			get { return leader; }
 			set { SetField (ref leader, value, () => Leader); }
@@ -104,7 +106,7 @@ namespace Vodovoz.Domain
 
 		Employee buhgalter;
 
-		[Display(Name = "Бухгалтер")]
+		[Display (Name = "Бухгалтер")]
 		public virtual Employee Buhgalter {
 			get { return buhgalter; }
 			set { SetField (ref buhgalter, value, () => Buhgalter); }
