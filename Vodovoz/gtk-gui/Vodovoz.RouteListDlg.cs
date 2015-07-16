@@ -55,6 +55,10 @@ namespace Vodovoz
 		private global::QSOrmProject.EnumMenuButton enumbuttonAddOrder;
 		
 		private global::Gtk.Button buttonDelete;
+		
+		private global::Gtk.HBox hbox5;
+		
+		private global::Gtk.Button buttonAccept;
 
 		protected virtual void Build ()
 		{
@@ -417,6 +421,28 @@ namespace Vodovoz
 			w29.Position = 3;
 			w29.Expand = false;
 			w29.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox5 = new global::Gtk.HBox ();
+			this.hbox5.Name = "hbox5";
+			this.hbox5.Spacing = 6;
+			// Container child hbox5.Gtk.Box+BoxChild
+			this.buttonAccept = new global::Gtk.Button ();
+			this.buttonAccept.CanFocus = true;
+			this.buttonAccept.Name = "buttonAccept";
+			this.buttonAccept.UseUnderline = true;
+			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
+			global::Gtk.Image w30 = new global::Gtk.Image ();
+			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w30;
+			this.hbox5.Add (this.buttonAccept);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.buttonAccept]));
+			w31.Position = 0;
+			w31.Fill = false;
+			this.vbox1.Add (this.hbox5);
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox5]));
+			w32.Position = 4;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -424,8 +450,10 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
+			this.treeOrders.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeOrdersRowActivated);
 			this.enumbuttonAddOrder.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnEnumbuttonAddOrderEnumItemClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
+			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
 		}
 	}
 }

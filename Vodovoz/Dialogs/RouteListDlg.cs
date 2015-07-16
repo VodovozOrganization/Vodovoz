@@ -8,6 +8,7 @@ using Vodovoz.Domain.Orders;
 using System.Data.Bindings;
 using Gtk.DataBindings;
 using Gtk;
+using QSTDI;
 
 namespace Vodovoz
 {
@@ -50,6 +51,14 @@ namespace Vodovoz
 			buttonDelete.Sensitive = false;
 			enumStatus.Sensitive = false;
 
+			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.Ready);
+			if (UoWGeneric.Root.Status == RouteListStatus.Ready) {
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonAccept.Label = "Редактировать";
+				IsEditable ();
+			}
 			treeOrders.ColumnMappingConfig = FluentMappingConfig<Order>.Create ()
 				.AddColumn ("Номер").SetDataProperty (node => node.Id)
 				.AddColumn ("Клиент").SetDataProperty (node => node.Client.Name)
@@ -121,6 +130,46 @@ namespace Vodovoz
 				break;
 			default:
 				break;
+			}
+		}
+
+		private void IsEditable (bool val = false)
+		{
+			enumStatus.Sensitive = entryNumber.Sensitive = val;
+			datepickerDate.Sensitive = referenceCar.Sensitive = val;
+			spinPlannedDistance.Sensitive = spinPlannedDistance.Sensitive = val;
+			enumbuttonAddOrder.Sensitive = buttonDelete.Sensitive = val;
+		}
+
+		protected void OnButtonAcceptClicked (object sender, EventArgs e)
+		{
+
+			if (UoWGeneric.Root.Status == RouteListStatus.New) {
+				UoWGeneric.Root.Status = RouteListStatus.Ready;
+				IsEditable ();
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonAccept.Label = "Редактировать";
+				return;
+			}
+			if (UoWGeneric.Root.Status == RouteListStatus.Ready) {
+				UoWGeneric.Root.Status = RouteListStatus.New;
+				IsEditable (true);
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonAccept.Label = "Подтвердить";
+				return;
+			}
+		}
+
+		protected void OnTreeOrdersRowActivated (object o, RowActivatedArgs args)
+		{
+			if (treeOrders.GetSelectedObjects ().GetLength (0) > 0) {
+				ITdiDialog dlg = null;
+				dlg = OrmMain.CreateObjectDialog (treeOrders.GetSelectedObjects () [0] as Order);
+				TabParent.AddSlaveTab (this, dlg);
 			}
 		}
 	}

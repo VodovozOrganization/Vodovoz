@@ -40,8 +40,6 @@ namespace Vodovoz
 
 		public void ConfigureDlg ()
 		{
-			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
-				IsEditable ();
 			if (UoWGeneric.Root.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
 //TODO Make it clickable.
@@ -49,8 +47,8 @@ namespace Vodovoz
 				labelPreviousOrder.Visible = false;
 			buttonAccept.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder || UoWGeneric.Root.OrderStatus == OrderStatus.Accepted);
 			if (UoWGeneric.Root.OrderStatus == OrderStatus.Accepted) {
-				var icon = new Gtk.Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 			}
@@ -91,8 +89,8 @@ namespace Vodovoz
 			};
 
 			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => { 
-				OrderItem item = UoWGeneric.Root.ObservableOrderItems[aIdx[0]];
-				if (item.Nomenclature.Category == NomenclatureCategory.water){
+				OrderItem item = UoWGeneric.Root.ObservableOrderItems [aIdx [0]];
+				if (item.Nomenclature.Category == NomenclatureCategory.water) {
 					UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
 					if ((item.AdditionalAgreement as WaterSalesAgreement).IsFixedPrice) {
 						return;
@@ -138,6 +136,9 @@ namespace Vodovoz
 				.Finish ();
 			
 			UpdateSum ();
+
+			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
+				IsEditable ();
 		}
 
 		public override bool Save ()
@@ -388,8 +389,8 @@ namespace Vodovoz
 			if (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
 				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
 				IsEditable ();
-				var icon = new Gtk.Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 				return;
@@ -397,10 +398,10 @@ namespace Vodovoz
 			if (UoWGeneric.Root.OrderStatus == OrderStatus.Accepted) {
 				UoWGeneric.Root.OrderStatus = OrderStatus.NewOrder;
 				IsEditable (true);
-				var icon = new Gtk.Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
-				buttonAccept.Label = "Принять";
+				buttonAccept.Label = "Подтвердить";
 				return;
 			}
 		}

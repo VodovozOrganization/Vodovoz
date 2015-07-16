@@ -172,6 +172,7 @@ namespace Vodovoz
 			this.Name = "Vodovoz.OrderDlg";
 			// Container child Vodovoz.OrderDlg.Gtk.Container+ContainerChild
 			this.vbox2 = new global::Gtk.VBox ();
+			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
@@ -272,7 +273,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -1049,7 +1050,7 @@ namespace Vodovoz
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
-			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Принять");
+			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
 			global::Gtk.Image w80 = new global::Gtk.Image ();
 			w80.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
 			this.buttonAccept.Image = w80;
