@@ -198,7 +198,7 @@ namespace Vodovoz
 				referenceDeliveryPoint.ItemsCriteria = 
 					DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Client)
 						.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
-				referenceDeliveryPoint.Sensitive = true;
+				referenceDeliveryPoint.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
 				enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 					(UoWGeneric.Root.Client.PersonType == PersonType.legal);
 				Entity.PaymentType = Entity.Client.PaymentMethod;
