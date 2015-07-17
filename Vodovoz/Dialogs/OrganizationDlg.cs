@@ -65,7 +65,7 @@ namespace Vodovoz
 				return true;
 			} catch (Exception ex) {
 				string text = "Организация не сохранилась...";
-				logger.ErrorException (text, ex);
+				logger.Error (ex, text);
 				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex, text);
 				return false;
 			}

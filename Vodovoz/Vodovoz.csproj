@@ -55,7 +55,7 @@
       <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.3.2.1\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\..\QSProjects\packages\NLog.4.0.1\lib\net40\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
