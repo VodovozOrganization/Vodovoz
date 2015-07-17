@@ -87,7 +87,7 @@ namespace Vodovoz
 				}
 				attachmentFiles.SaveChanges ();
 			} catch (Exception ex) {
-				logger.ErrorException ("Не удалось записать сотрудника.", ex);
+				logger.Error (ex, "Не удалось записать сотрудника.");
 				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
 				return false;
 			}
