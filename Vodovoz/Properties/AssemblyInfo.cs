@@ -7,6 +7,7 @@ using QSProjectsLib;
 
 [assembly: AssemblyTitle("QS: Доставка воды")]
 [assembly: AssemblyDescription("Информационная система для организации службы доставки воды.")]
+[assembly: AssemblyBetaBuild]
 [assembly: AssemblyEdition("gpl")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Quality Solution")]
