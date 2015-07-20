@@ -67,11 +67,12 @@ namespace Vodovoz
 
 		protected void OnEnumMovementTypeChanged (object sender, EventArgs e)
 		{
-			var selected = (MovementDocumentCategory)enumMovementType.Active;
-			referenceWarehouseTo.Sensitive = referenceWarehouseFrom.Sensitive = 
-				(selected == MovementDocumentCategory.warehouse);
-			referenceCounterpartyTo.Sensitive = referenceCounterpartyFrom.Sensitive =
-				(selected == MovementDocumentCategory.counterparty);
+			var selected = Entity.Category;
+			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible 
+				= (selected == MovementDocumentCategory.warehouse);
+			referenceCounterpartyTo.Visible = referenceCounterpartyFrom.Visible = labelClientFrom.Visible = labelClientTo.Visible
+				= referenceDeliveryPointFrom.Visible = referenceDeliveryPointTo.Visible = labelPointFrom.Visible = labelPointTo.Visible
+				= (selected == MovementDocumentCategory.counterparty);
 			referenceDeliveryPointFrom.Sensitive = (referenceCounterpartyFrom.Subject != null && selected == MovementDocumentCategory.counterparty);
 			referenceDeliveryPointTo.Sensitive = (referenceCounterpartyTo.Subject != null && selected == MovementDocumentCategory.counterparty);
 		}
