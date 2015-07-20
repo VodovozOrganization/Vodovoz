@@ -46,6 +46,9 @@ namespace Vodovoz
 					.AddSetter ((c, i) => c.Adjustment.Upper = (double)i.AmountOnStock)
 					.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 					.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
+					.AddColumn ("Пичина выбраковки").AddComboRenderer (i => i.CullingCategory)
+					.SetDisplayFunc (DomainHelper.GetObjectTilte).Editing ()
+					.FillItems (Repository.CullingCategoryRepository.All (DocumentUoW))
 					.Finish ();
 
 				treeItemsList.ItemsDataSource = items;

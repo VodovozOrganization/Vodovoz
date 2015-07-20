@@ -273,6 +273,7 @@
     <Compile Include="Dialogs\RouteListDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListDlg.cs" />
     <Compile Include="Domain\CommonEnums.cs" />
+    <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -356,6 +357,7 @@
     <Folder Include="HibernateMapping\" />
     <Folder Include="ViewDialogs\" />
     <Folder Include="Domain\Order\" />
+    <Folder Include="Repositories\BasicHandbooks\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
