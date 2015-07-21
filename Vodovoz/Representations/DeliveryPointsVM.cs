@@ -9,7 +9,7 @@ using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class DeliveryPointsVM : RepresentationModelBase<DeliveryPoint, DeliveryPointVMNode>
+	public class DeliveryPointsVM : RepresentationModelBase<DeliveryPoint, DeliveryPointVMNode>, IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -17,17 +17,26 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
-		int counterpartyId;
-		public int CounterpartyId {
+		Counterparty counterparty;
+		public Counterparty Counterparty {
 			get {if (CounterpartyUoW != null)
-					return CounterpartyUoW.Root.Id;
+					return CounterpartyUoW.Root;
 			else
-				return counterpartyId;
+				return counterparty;
 			}
 			private set {
-				counterpartyId = value;
+				counterparty = value;
 			}
 		}
+
+		#region IRepresentationModelWithParent implementation
+
+		public object GetParent {
+			get { return Counterparty;
+			}
+		}
+
+		#endregion
 
 		#region IRepresentationModel implementation
 
@@ -39,7 +48,7 @@ namespace Vodovoz.ViewModel
 
 			var deliveryPointslist = UoW.Session.QueryOver<DeliveryPoint> (() => deliveryPointAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
-				.Where (() => counterpartyAlias.Id == CounterpartyId)
+				.Where (() => counterpartyAlias.Id == Counterparty.Id)
 				.SelectList (list => list
 					.Select (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
@@ -70,7 +79,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (DeliveryPoint updatedSubject)
 		{
-			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
+			return Counterparty.Id == updatedSubject.Counterparty.Id;
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
@@ -85,10 +94,10 @@ namespace Vodovoz.ViewModel
 			this.UoW = uow;
 		}
 
-		public DeliveryPointsVM (IUnitOfWork uow, int counterpartyId)
+		public DeliveryPointsVM (IUnitOfWork uow, Counterparty counterparty)
 		{
 			this.UoW = uow;
-			CounterpartyId = counterpartyId;
+			Counterparty = counterparty;
 		}
 	}
 

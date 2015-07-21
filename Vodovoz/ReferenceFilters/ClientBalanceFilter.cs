@@ -80,7 +80,7 @@ namespace Vodovoz
 			else
 			{
 				entryreferencePoint.Subject = null;
-				entryreferencePoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, RestrictCounterparty.Id);
+				entryreferencePoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, RestrictCounterparty);
 			}
 			OnRefiltered ();
 		}

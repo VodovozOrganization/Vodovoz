@@ -195,9 +195,7 @@ namespace Vodovoz
 		protected void OnReferenceClientChanged (object sender, EventArgs e)
 		{
 			if (UoWGeneric.Root.Client != null) {
-				referenceDeliveryPoint.ItemsCriteria = 
-					DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Client)
-						.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
+				referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
 				enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 					(UoWGeneric.Root.Client.PersonType == PersonType.legal);

@@ -626,7 +626,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14766,6 +14765,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14853,7 +14853,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -15357,11 +15357,9 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
+                      <widget class="Gtk.DataBindings.DataEntryReferenceVM" id="referenceDeliveryPoint">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Name</property>
-                        <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">DeliveryPoint</property>
                         <property name="InheritedBoundaryDataSource">False</property>
