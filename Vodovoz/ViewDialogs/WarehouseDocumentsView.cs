@@ -20,6 +20,8 @@ namespace Vodovoz
 		{
 			this.Build ();
 			tableDocuments.RepresentationModel = new DocumentsVM ();
+			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
+			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
 			tableDocuments.RepresentationModel.UpdateNodes ();
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
@@ -82,6 +84,8 @@ namespace Vodovoz
 					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
 			}
 		}
+
+		#endregion
 			
 		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
 		{
@@ -119,7 +123,11 @@ namespace Vodovoz
 			OrmMain.DeleteObject(tableDocuments.GetSelectedObjects () [0]);
 		}
 
-		#endregion
+		protected void OnButtonFilterToggled (object sender, EventArgs e)
+		{
+			hboxFilter.Visible = buttonFilter.Active;
+		}
+
 	}
 }
 

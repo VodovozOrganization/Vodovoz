@@ -93,6 +93,9 @@
       <LogicalName>logistics.xml</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="HibernateMapping\Order.hbm.xml" />
+    <EmbeddedResource Include="icons\buttons\view-filter.png">
+      <LogicalName>view-filter.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -274,6 +277,8 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListDlg.cs" />
     <Compile Include="Domain\CommonEnums.cs" />
     <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
+    <Compile Include="ReferenceFilters\StockDocumentsFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

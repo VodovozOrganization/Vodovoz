@@ -12,6 +12,10 @@ namespace Vodovoz {
 		
 		private global::Gtk.Button buttonDelete;
 		
+		private global::Gtk.CheckButton buttonFilter;
+		
+		private global::Gtk.HBox hboxFilter;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
 		private global::QSOrmProject.OrmTableView tableDocuments;
@@ -73,11 +77,31 @@ namespace Vodovoz {
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w7.Position = 0;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonFilter = new global::Gtk.CheckButton();
+			this.buttonFilter.CanFocus = true;
+			this.buttonFilter.Name = "buttonFilter";
+			this.buttonFilter.Label = global::Mono.Unix.Catalog.GetString("Фильтр");
+			this.buttonFilter.DrawIndicator = false;
+			this.buttonFilter.UseUnderline = true;
+			this.hbox1.Add(this.buttonFilter);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonFilter]));
+			w7.PackType = ((global::Gtk.PackType)(1));
+			w7.Position = 4;
 			w7.Expand = false;
-			w7.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hboxFilter = new global::Gtk.HBox();
+			this.hboxFilter.Name = "hboxFilter";
+			this.hboxFilter.Spacing = 6;
+			this.vbox1.Add(this.hboxFilter);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxFilter]));
+			w9.Position = 1;
+			w9.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -93,16 +117,18 @@ namespace Vodovoz {
 			this.tableDocuments.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow1.Add(this.tableDocuments);
 			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w9.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
+			w11.Position = 2;
 			this.Add(this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll();
 			}
+			this.hboxFilter.Hide();
 			this.Hide();
 			this.buttonAdd.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs>(this.OnButtonAddEnumItemClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
+			this.buttonFilter.Toggled += new global::System.EventHandler(this.OnButtonFilterToggled);
 			this.tableDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTableDocumentsRowActivated);
 		}
 	}

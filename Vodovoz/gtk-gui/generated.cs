@@ -31,6 +31,8 @@ namespace Stetic
 				w1.Add ("logistic", w10);
 				global::Gtk.IconSet w11 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.menu.table.png"));
 				w1.Add ("table", w11);
+				global::Gtk.IconSet w12 = new global::Gtk.IconSet (global::Gdk.Pixbuf.LoadFromResource ("view-filter.png"));
+				w1.Add ("view-filter", w12);
 				w1.AddDefault ();
 			}
 		}

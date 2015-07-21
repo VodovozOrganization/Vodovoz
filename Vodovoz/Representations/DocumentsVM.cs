@@ -15,6 +15,14 @@ namespace Vodovoz.ViewModel
 {
 	public class DocumentsVM : RepresentationModelBase<Document, DocumentVMNode>
 	{
+		public StockDocumentsFilter Filter {
+			get {
+				return RepresentationFilter as StockDocumentsFilter;
+			}
+			set { RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -29,99 +37,111 @@ namespace Vodovoz.ViewModel
 			Warehouse warehouseAlias = null;
 			Warehouse secondWarehouseAlias = null;
 
-			var invoiceList = UoW.Session.QueryOver<IncomingInvoice> (() => invoiceAlias)
-				.JoinQueryOver(() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			List<DocumentVMNode> result = new List<DocumentVMNode> ();
+
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingInvoice) {
+				var invoiceList = UoW.Session.QueryOver<IncomingInvoice> (() => invoiceAlias)
+				.JoinQueryOver (() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinQueryOver (() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => invoiceAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => invoiceAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 					.Select (() => DocumentType.IncomingInvoice).WithAlias (() => resultAlias.DocTypeEnum)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => counterpartyAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => counterpartyAlias.Name)))
+					.Select (Projections.Conditional (
+					                 Restrictions.Where (() => counterpartyAlias.Name == null),
+					                 Projections.Constant ("Не указан", NHibernateUtil.String),
+					                 Projections.Property (() => counterpartyAlias.Name)))
 					.WithAlias (() => resultAlias.Counterparty)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => warehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => warehouseAlias.Name)))
+					.Select (Projections.Conditional (
+					                 Restrictions.Where (() => warehouseAlias.Name == null),
+					                 Projections.Constant ("Не указан", NHibernateUtil.String),
+					                 Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse))
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
+
+				result.AddRange (invoiceList);
+			}
 		
-			var waterList = UoW.Session.QueryOver<IncomingWater> (() => waterAlias)
-				.JoinQueryOver(() => waterAlias.WriteOffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingWater) {
+				var waterList = UoW.Session.QueryOver<IncomingWater> (() => waterAlias)
+				.JoinQueryOver (() => waterAlias.WriteOffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => waterAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => waterAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 					.Select (() => DocumentType.IncomingWater).WithAlias (() => resultAlias.DocTypeEnum)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => warehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => warehouseAlias.Name)))
+					.Select (Projections.Conditional (
+					               Restrictions.Where (() => warehouseAlias.Name == null),
+					               Projections.Constant ("Не указан", NHibernateUtil.String),
+					               Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
 					.Select (() => waterAlias.Amount).WithAlias (() => resultAlias.Amount))
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
 
-			var movementList = UoW.Session.QueryOver<MovementDocument> (() => movementAlias)
-				.JoinQueryOver(() => movementAlias.FromClient, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => movementAlias.FromWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => movementAlias.ToClient, () => secondCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => movementAlias.ToWarehouse, () => secondWarehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				result.AddRange (waterList);
+			}
+
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.MovementDocument) {
+				var movementList = UoW.Session.QueryOver<MovementDocument> (() => movementAlias)
+				.JoinQueryOver (() => movementAlias.FromClient, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinQueryOver (() => movementAlias.FromWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinQueryOver (() => movementAlias.ToClient, () => secondCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinQueryOver (() => movementAlias.ToWarehouse, () => secondWarehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => movementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => movementAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 					.Select (() => DocumentType.MovementDocument).WithAlias (() => resultAlias.DocTypeEnum)
 					.Select (() => movementAlias.Category).WithAlias (() => resultAlias.MDCategory)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => counterpartyAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => counterpartyAlias.Name)))
+					.Select (Projections.Conditional (
+					                  Restrictions.Where (() => counterpartyAlias.Name == null),
+					                  Projections.Constant ("Не указан", NHibernateUtil.String),
+					                  Projections.Property (() => counterpartyAlias.Name)))
 					.WithAlias (() => resultAlias.Counterparty)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => warehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => warehouseAlias.Name)))
+					.Select (Projections.Conditional (
+					                  Restrictions.Where (() => warehouseAlias.Name == null),
+					                  Projections.Constant ("Не указан", NHibernateUtil.String),
+					                  Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => secondCounterpartyAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => secondCounterpartyAlias.Name)))
+					.Select (Projections.Conditional (
+					                  Restrictions.Where (() => secondCounterpartyAlias.Name == null),
+					                  Projections.Constant ("Не указан", NHibernateUtil.String),
+					                  Projections.Property (() => secondCounterpartyAlias.Name)))
 					.WithAlias (() => resultAlias.SecondCounterparty)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => secondWarehouseAlias.Name == null),
-						Projections.Constant("Не указан", NHibernateUtil.String),
-						Projections.Property(() => secondWarehouseAlias.Name)))
+					.Select (Projections.Conditional (
+					                  Restrictions.Where (() => secondWarehouseAlias.Name == null),
+					                  Projections.Constant ("Не указан", NHibernateUtil.String),
+					                  Projections.Property (() => secondWarehouseAlias.Name)))
 					.WithAlias (() => resultAlias.SecondWarehouse))
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
-			
-			var writeoffList = UoW.Session.QueryOver<WriteoffDocument> (() => writeoffAlias)
-				.JoinQueryOver(() => writeoffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver(() => writeoffAlias.WriteoffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+
+				result.AddRange (movementList);
+			}
+
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.WriteoffDocument) {
+				var writeoffList = UoW.Session.QueryOver<WriteoffDocument> (() => writeoffAlias)
+				.JoinQueryOver (() => writeoffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinQueryOver (() => writeoffAlias.WriteoffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => writeoffAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => writeoffAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 					.Select (() => DocumentType.WriteoffDocument).WithAlias (() => resultAlias.DocTypeEnum)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => counterpartyAlias.Name == null),
-						Projections.Constant(String.Empty, NHibernateUtil.String),
-						Projections.Property(() => counterpartyAlias.Name)))
+					.Select (Projections.Conditional (
+					                  Restrictions.Where (() => counterpartyAlias.Name == null),
+					                  Projections.Constant (String.Empty, NHibernateUtil.String),
+					                  Projections.Property (() => counterpartyAlias.Name)))
 					.WithAlias (() => resultAlias.Counterparty)
-					.Select(Projections.Conditional(
-						Restrictions.Where(() => warehouseAlias.Name == null),
-						Projections.Constant(String.Empty, NHibernateUtil.String),
-						Projections.Property(() => warehouseAlias.Name)))
+					.Select (Projections.Conditional (
+					                  Restrictions.Where (() => warehouseAlias.Name == null),
+					                  Projections.Constant (String.Empty, NHibernateUtil.String),
+					                  Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse))
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
 
-			List<DocumentVMNode> result = new List<DocumentVMNode> ();
-			result.AddRange (invoiceList);
-			result.AddRange (waterList);
-			result.AddRange (movementList);
-			result.AddRange (writeoffList);
+				result.AddRange (writeoffList);
+			}
 
 			result.Sort ((x, y) => { 
 				if (x.Date > y.Date)
@@ -161,9 +181,14 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
+		public DocumentsVM (StockDocumentsFilter filter) : this(filter.UoW)
+		{
+			Filter = filter;
+		}
+
 		public DocumentsVM () : this(UnitOfWorkFactory.CreateWithoutRoot ())
 		{
-			
+			CreateRepresentationFilter = () => new StockDocumentsFilter(UoW);
 		}
 
 		public DocumentsVM (IUnitOfWork uow) : base (
@@ -187,7 +212,7 @@ namespace Vodovoz.ViewModel
 
 		public DateTime Date { get; set; }
 
-		public string DateString { get { return Date.ToShortDateString () + " " + Date.ToShortTimeString (); } }
+		public string DateString { get { return  Date.ToShortDateString () + " " + Date.ToShortTimeString (); } }
 
 		public string Description { 
 			get {
