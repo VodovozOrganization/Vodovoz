@@ -108,14 +108,15 @@ namespace Vodovoz
 
 			treeItems.ColumnMappingConfig = FluentMappingConfig<OrderItem>.Create ()
 				.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureString)
-				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
-				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 				.AddSetter ((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 				.AddSetter ((c, node) => c.Editable = node.CanEditAmount)
 				.WidthChars (10)
 				.AddTextRenderer (node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
+				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Price * node.Count))
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();
 
