@@ -10,6 +10,7 @@ using Gtk;
 using Gtk.DataBindings;
 using System.Linq;
 using Vodovoz.Domain.Orders;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -397,6 +398,13 @@ namespace Vodovoz
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
 			if (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
+				var valid = new QSValidator<Order> (UoWGeneric.Root, 
+					new Dictionary<object, object> {
+						{"NewStatus", OrderStatus.Accepted}
+					});
+				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+					return;
+				
 				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
 				IsEditable ();
 				var icon = new Image ();

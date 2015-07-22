@@ -255,7 +255,21 @@ namespace Vodovoz.Domain.Orders
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (DeliveryPoint == null)
+			if(validationContext.Items.ContainsKey ("NewStatus"))
+			{
+				OrderStatus newStatus = (OrderStatus)validationContext.Items ["NewStatus"];
+				if(newStatus == OrderStatus.Accepted)
+				{
+					if(DeliveryDate == default(DateTime))
+						yield return new ValidationResult ("Не указана дата доставки.",
+							new[] { this.GetPropertyName (o => o.DeliveryDate) });
+					if(!SelfDelivery && DeliverySchedule == null)
+						yield return new ValidationResult ("Не указано время доставки.",
+							new[] { this.GetPropertyName (o => o.DeliverySchedule) });
+				}
+			}
+
+			if (!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult ("Необходимо заполнить точку доставки.",
 					new[] { this.GetPropertyName (o => o.DeliveryPoint) });
 			if (Client == null)
@@ -270,7 +284,8 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual string StatusString { get { return OrderStatus.GetEnumTitle (); } }
 
-		public virtual string ClientString { get { return Client.Name; } }
+		//TODO Убрать когда сделаем VM для заказов
+		public virtual string ClientString { get { return Client == null ? String.Empty : Client.Name; } }
 
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
