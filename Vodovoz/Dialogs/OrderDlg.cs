@@ -216,6 +216,7 @@ namespace Vodovoz
 				enumSignatureType.Sensitive = enumStatus.Sensitive = val;
 			enumPaymentType.Sensitive = pickerDeliveryDate.Sensitive = buttonFillComment.Sensitive =
 				dataSumDifferenceReason.Sensitive = val;
+			treeItems.Sensitive = val;
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
