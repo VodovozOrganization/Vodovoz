@@ -14704,7 +14704,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="660 483">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="660 491">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14862,7 +14862,7 @@ Patronymic</property>
                 <child>
                   <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                     <property name="MemberName" />
-                    <property name="NRows">11</property>
+                    <property name="NRows">12</property>
                     <property name="NColumns">4</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
@@ -14870,6 +14870,9 @@ Patronymic</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="InheritedDataSource">False</property>
                     <property name="InheritedBoundaryDataSource">False</property>
+                    <child>
+                      <placeholder />
+                    </child>
                     <child>
                       <placeholder />
                     </child>
@@ -14978,6 +14981,7 @@ Patronymic</property>
                         <property name="InheritedBoundaryDataSource">False</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">SignatureType</property>
+                        <signal name="Changed" handler="OnEnumSignatureTypeChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">9</property>
@@ -15067,8 +15071,8 @@ Patronymic</property>
                         </child>
                       </widget>
                       <packing>
-                        <property name="TopAttach">10</property>
-                        <property name="BottomAttach">11</property>
+                        <property name="TopAttach">11</property>
+                        <property name="BottomAttach">12</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">False</property>
@@ -15145,8 +15149,8 @@ Patronymic</property>
                         <property name="LabelProp" translatable="yes">Комментарий:</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">10</property>
-                        <property name="BottomAttach">11</property>
+                        <property name="TopAttach">11</property>
+                        <property name="BottomAttach">12</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -15283,6 +15287,29 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gtk.Label" id="labelProxyInfo">
+                        <property name="MemberName" />
+                        <property name="Visible">False</property>
+                        <property name="LabelProp" translatable="yes">&lt;span foreground="red"&gt;Нет активной доверенности&lt;/span&gt;</property>
+                        <property name="UseMarkup">True</property>
+                        <property name="Justify">Fill</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">10</property>
+                        <property name="BottomAttach">11</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">4</property>
+                        <property name="AutoSize">False</property>
+                        <property name="YOptions">Shrink, Fill</property>
+                        <property name="XExpand">True</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">True</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gtk.Label" id="labelSignatureType">
                         <property name="MemberName" />
                         <property name="Xalign">1</property>
@@ -15364,6 +15391,7 @@ Patronymic</property>
                         <property name="Mappings">DeliveryPoint</property>
                         <property name="InheritedBoundaryDataSource">False</property>
                         <property name="CursorPointsEveryType">False</property>
+                        <signal name="Changed" handler="OnReferenceDeliveryPointChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">3</property>

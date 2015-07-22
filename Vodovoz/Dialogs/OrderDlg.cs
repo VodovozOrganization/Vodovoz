@@ -203,6 +203,7 @@ namespace Vodovoz
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}
+			UpdateProxyInfo ();
 		}
 
 		private void IsEditable (bool val = false)
@@ -402,6 +403,41 @@ namespace Vodovoz
 				buttonAccept.Label = "Подтвердить";
 				return;
 			}
+		}
+
+		protected void OnEnumSignatureTypeChanged (object sender, EventArgs e)
+		{
+			UpdateProxyInfo ();
+		}
+
+		void UpdateProxyInfo()
+		{
+			labelProxyInfo.Visible = Entity.SignatureType == OrderSignatureType.ByProxy;
+			if (Entity.SignatureType != OrderSignatureType.ByProxy)
+				return;
+			DBWorks.SQLHelper text = new DBWorks.SQLHelper("");
+			if (Entity.Client != null) {
+				var proxies = Entity.Client.Proxies.Where (p => p.IsActiveProxy (Entity.DeliveryDate) && (p.DeliveryPoint == null || p.DeliveryPoint == Entity.DeliveryPoint));
+				foreach (var proxy in proxies) {
+					if (!String.IsNullOrWhiteSpace (text.Text))
+						text.Add ("\n");
+					text.Add (String.Format ("Доверенность{2} №{0} от {1:d}", proxy.Number, proxy.IssueDate, 
+						proxy.DeliveryPoint == null ? "(общая)" : ""));
+					text.StartNewList (": ");
+					foreach (var pers in proxy.Persons) {
+						text.AddAsList (pers.NameWithInitials);
+					}
+				}
+			}
+			if(String.IsNullOrWhiteSpace (text.Text))
+				labelProxyInfo.Markup = "<span foreground=\"red\">Нет активной доверенности</span>";
+			else
+				labelProxyInfo.LabelProp = text.Text;
+		}
+
+		protected void OnReferenceDeliveryPointChanged (object sender, EventArgs e)
+		{
+			UpdateProxyInfo ();
 		}
 	}
 }

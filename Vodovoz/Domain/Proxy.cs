@@ -53,6 +53,11 @@ namespace Vodovoz.Domain
 			get { return String.Format ("Доверенность №{0} от {1:d}", Number, IssueDate); }
 		}
 
+		public bool IsActiveProxy(DateTime onDate)
+		{
+			return (onDate >= StartDate && onDate <= ExpirationDate);
+		}
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
