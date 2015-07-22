@@ -119,6 +119,8 @@ namespace Vodovoz
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();
 
+			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+
 			treeEquipment.ColumnMappingConfig = FluentMappingConfig<OrderEquipment>.Create ()
 				.AddColumn ("Наименование").SetDataProperty (node => node.NameString)
 				.AddColumn ("Направление").SetDataProperty (node => node.DirectionString)
@@ -139,6 +141,13 @@ namespace Vodovoz
 
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable ();
+		}
+
+		void TreeItems_Selection_Changed (object sender, EventArgs e)
+		{
+			object[] items = treeItems.GetSelectedObjects ();
+
+			buttonDelete.Sensitive = items.Length > 0 && (items [0] as OrderItem).AdditionalAgreement == null;
 		}
 
 		public override bool Save ()
@@ -221,7 +230,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			//TODO FIXME
+			Entity.RemoveItem (treeItems.GetSelectedObject () as OrderItem);
 		}
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)

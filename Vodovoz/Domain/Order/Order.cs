@@ -467,13 +467,21 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем оборудование.
 					ObservableOrderEquipments.Add (
 						new OrderEquipment { 
-							Direction = Vodovoz.Domain.Orders.Direction.Deliver,
+							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems [ItemId]
 						}
 					);
 				}
+			}
+		}
+
+		public void RemoveItem(OrderItem item)
+		{
+			ObservableOrderItems.Remove (item);
+			foreach (var equip in ObservableOrderEquipments.Where (e => e.OrderItem == item).ToList ()) {
+				ObservableOrderEquipments.Remove (equip);
 			}
 		}
 	}		
