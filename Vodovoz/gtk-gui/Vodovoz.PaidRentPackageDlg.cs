@@ -137,11 +137,12 @@ namespace Vodovoz
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.spinPriceDaily = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
+			this.spinPriceDaily = new global::Gtk.DataBindings.DataSpinButton (0, 9000000, 1);
 			this.spinPriceDaily.CanFocus = true;
 			this.spinPriceDaily.Name = "spinPriceDaily";
 			this.spinPriceDaily.Adjustment.PageIncrement = 10;
 			this.spinPriceDaily.ClimbRate = 1;
+			this.spinPriceDaily.Digits = ((uint)(2));
 			this.spinPriceDaily.Numeric = true;
 			this.spinPriceDaily.InheritedDataSource = true;
 			this.spinPriceDaily.Mappings = "PriceDaily";
@@ -174,11 +175,12 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.spinPriceMonthly = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
+			this.spinPriceMonthly = new global::Gtk.DataBindings.DataSpinButton (0, 9000000, 1);
 			this.spinPriceMonthly.CanFocus = true;
 			this.spinPriceMonthly.Name = "spinPriceMonthly";
 			this.spinPriceMonthly.Adjustment.PageIncrement = 10;
 			this.spinPriceMonthly.ClimbRate = 1;
+			this.spinPriceMonthly.Digits = ((uint)(2));
 			this.spinPriceMonthly.Numeric = true;
 			this.spinPriceMonthly.InheritedDataSource = true;
 			this.spinPriceMonthly.Mappings = "PriceMonthly";
@@ -211,11 +213,12 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.spinDeposit = new global::Gtk.DataBindings.DataSpinButton (0, 100000, 1);
+			this.spinDeposit = new global::Gtk.DataBindings.DataSpinButton (0, 9000000, 1);
 			this.spinDeposit.CanFocus = true;
 			this.spinDeposit.Name = "spinDeposit";
 			this.spinDeposit.Adjustment.PageIncrement = 10;
 			this.spinDeposit.ClimbRate = 1;
+			this.spinDeposit.Digits = ((uint)(2));
 			this.spinDeposit.Numeric = true;
 			this.spinDeposit.InheritedDataSource = true;
 			this.spinDeposit.Mappings = "Deposit";
