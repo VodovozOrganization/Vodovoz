@@ -169,6 +169,7 @@
  			<generator class="native"></generator>
  		</id>
 		<property name="Name" column="name" />
+		<property name="Code1c" column="code_1c" />
 		<property name="MaxCredit" column="max_credit" />
 		<property name="FullName" column="full_name" /> 
 		<property name="Comment" column="comment" /> 

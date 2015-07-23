@@ -105,6 +105,13 @@ namespace Vodovoz.Domain
 			set { SetField (ref fullName, value, () => FullName); }
 		}
 
+		string? code1c;
+
+		public virtual string? Code1c {
+			get { return code1c; }
+			set { SetField (ref code1c, value, () => Code1c); }
+		}
+
 		string comment;
 
 		[Display (Name = "Комментарий")]
