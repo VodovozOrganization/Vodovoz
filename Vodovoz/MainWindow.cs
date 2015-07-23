@@ -354,7 +354,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionLoad1cActivated (object sender, EventArgs e)
 	{
-		var win = new LoadFrom1c ();
+		var win = new LoadFrom1cDlg ();
 		tdiMain.AddTab (win);
 	}
 }
