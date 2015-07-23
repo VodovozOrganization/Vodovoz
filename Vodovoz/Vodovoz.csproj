@@ -57,6 +57,7 @@
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.0.1\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -280,6 +281,8 @@
     <Compile Include="ReferenceFilters\StockDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Domain\Order\OrderEnums.cs" />
+    <Compile Include="ServiceDialogs\LoadFrom1c.cs" />
+    <Compile Include="gtk-gui\Vodovoz.LoadFrom1c.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -364,6 +367,7 @@
     <Folder Include="ViewDialogs\" />
     <Folder Include="Domain\Order\" />
     <Folder Include="Repositories\BasicHandbooks\" />
+    <Folder Include="ServiceDialogs\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

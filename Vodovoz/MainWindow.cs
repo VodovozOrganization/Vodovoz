@@ -8,6 +8,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz.Domain;
+using Vodovoz;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -349,5 +350,11 @@ public partial class MainWindow: Gtk.Window
 	{
 		OrmReference refWin = new OrmReference (typeof(CommentTemplate));
 		tdiMain.AddTab (refWin);
+	}
+
+	protected void OnActionLoad1cActivated (object sender, EventArgs e)
+	{
+		var win = new LoadFrom1c ();
+		tdiMain.AddTab (win);
 	}
 }
