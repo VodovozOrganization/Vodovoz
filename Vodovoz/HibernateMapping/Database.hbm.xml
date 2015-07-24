@@ -177,6 +177,7 @@
 		<property name="INN" column="inn" /> 
 		<property name="KPP" column="kpp" /> 
 		<property name="JurAddress" column="jur_address" /> 
+		<property name="Address" column="address" /> 
 		<property name="PaymentMethod" column="payment_method" type="PaymentStringType, Vodovoz"/>
 		<property name="PersonType" column="person_type" type="PersonTypeStringType, Vodovoz"/>
 		<property name="CounterpartyType" column="counterparty_type" type="CounterpartyTypeStringType, Vodovoz"/>

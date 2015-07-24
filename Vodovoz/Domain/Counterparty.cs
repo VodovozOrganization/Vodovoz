@@ -156,6 +156,14 @@ namespace Vodovoz.Domain
 			set { SetField (ref jurAddress, value, () => JurAddress); }
 		}
 
+		string address;
+
+		[Display (Name = "Фактический адрес")]
+		public virtual string Address {
+			get { return address; }
+			set { SetField (ref address, value, () => Address); }
+		}
+
 		Payment paymentMethod;
 
 		[Display (Name = "Вид оплаты")]
