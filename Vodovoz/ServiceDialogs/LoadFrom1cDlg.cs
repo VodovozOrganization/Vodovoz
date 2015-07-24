@@ -283,6 +283,13 @@ namespace Vodovoz
 				{
 					counterparty.KPP = KPPNode.InnerText;
 				}
+					
+				string[] InnSplited = counterparty.INN.Split ('/');
+				if(InnSplited.Length > 1)
+				{
+					counterparty.INN = InnSplited [0];
+					counterparty.KPP = InnSplited [1];
+				}
 
 				var MainNode = node.SelectSingleNode ("Свойство[@Имя='ГоловнойКонтрагент']/Значение");
 				if (MainNode != null)
