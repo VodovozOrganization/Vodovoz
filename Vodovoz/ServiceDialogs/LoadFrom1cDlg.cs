@@ -63,6 +63,20 @@ namespace Vodovoz
 			}
 		}
 
+		int savedCounterparty = 0;
+
+		public int SavedCounterparty {
+			get {
+				return savedCounterparty;
+			}
+			set {
+				savedCounterparty = value;
+				labelSaved.LabelProp = SavedCounterparty.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
+
 		int readedAccounts = 0;
 
 		public int ReadedAccounts {
@@ -149,6 +163,9 @@ namespace Vodovoz
 			logger.Info ("Читаем XML файл...");
 			progressbar.Text = "Читаем XML файл...";
 			TotalCounterparty = SkipedCounterparty = ReadedAccounts = LinkedAccounts = InactiveAccounts = ReadedBanks = InactiveBanks = 0;
+			CounterpatiesList.Clear ();
+			AccountsList.Clear ();
+			Banks1cList.Clear ();
 			XmlDocument content = new XmlDocument ();
 			content.Load (filechooserXML.Filename);
 
@@ -194,6 +211,7 @@ namespace Vodovoz
 			}
 
 			progressbar.Text = "Выполнено";
+			buttonSave.Sensitive = checkRewrite.Sensitive = CounterpatiesList.Count > 0;
 		}
 
 		void ParseCounterparty(XmlNode node)
@@ -386,7 +404,44 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			progressbar.Text = "Загружаем таблицу существующих контрагентов.";
+			QSMain.WaitRedraw ();
+			var ExistCouterpaties = Repository.CounterpartyRepository.All (UoW);
+
+			progressbar.Text = "Сверяем контрагентов..";
+			progressbar.Adjustment.Value = 0;
+			progressbar.Adjustment.Value = CounterpatiesList.Count;
+			QSMain.WaitRedraw ();
+
+			foreach(var loaded in CounterpatiesList)
+			{
+				progressbar.Adjustment.Value++;
+				QSMain.WaitRedraw ();
+
+				var exist = ExistCouterpaties.FirstOrDefault (c => c.Code1c == loaded.Code1c);
+				//TODO подумать про проверку по ИНН если надо.
+
+				if (exist != null && !checkRewrite.Active)
+					continue;
+
+				if(exist != null)
+				{
+					loaded.Id = exist.Id;
+					foreach(var loadedAcc in  loaded.Accounts)
+					{
+						var existAcc = exist.Accounts.FirstOrDefault (a => a.Code1c == loadedAcc.Code1c);
+						if (existAcc != null)
+							loadedAcc.Id = existAcc.Id;
+					}
+				}
+
+				UoW.Save (loaded);
+				SavedCounterparty++;
+			}
+
+			progressbar.Text = "Записывам в базу..";
+			UoW.Commit ();
+			progressbar.Text = "Выполнено";
 		}
 	}
 }
