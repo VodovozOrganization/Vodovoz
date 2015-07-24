@@ -257,7 +257,8 @@ namespace Vodovoz
 				if(accountNode != null)
 				{
 					var ac1c = AccountsList.Find (a => a.DomainAccount.Code1c == accountNode.InnerText);
-					counterparty.DefaultAccount = ac1c.DomainAccount;
+					if(!ac1c.DomainAccount.Inactive)
+						counterparty.DefaultAccount = ac1c.DomainAccount;
 				}
 
 				var commentNode = node.SelectSingleNode ("Свойство[@Имя='Комментарий']/Значение");
@@ -417,7 +418,7 @@ namespace Vodovoz
 
 			progressbar.Text = "Сверяем контрагентов..";
 			progressbar.Adjustment.Value = 0;
-			progressbar.Adjustment.Value = CounterpatiesList.Count;
+			progressbar.Adjustment.Upper = CounterpatiesList.Count;
 			QSMain.WaitRedraw ();
 
 			foreach(var loaded in CounterpatiesList)
@@ -441,6 +442,9 @@ namespace Vodovoz
 							loadedAcc.Id = existAcc.Id;
 					}
 				}
+
+				if (loaded.DefaultAccount != null && !loaded.Accounts.Contains (loaded.DefaultAccount))
+					loaded.AddAccount (loaded.DefaultAccount);
 
 				UoW.Save (loaded);
 				SavedCounterparty++;
