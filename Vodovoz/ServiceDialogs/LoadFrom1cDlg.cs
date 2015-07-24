@@ -76,6 +76,19 @@ namespace Vodovoz
 			}
 		}
 
+		int linkAccounts = 0;
+
+		public int LinkedAccounts {
+			get {
+				return linkAccounts;
+			}
+			set {
+				linkAccounts = value;
+				labelLinkedAccount.LabelProp = LinkedAccounts.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
 		int inactiveAccounts = 0;
 
 		public int InactiveAccounts {
@@ -134,10 +147,12 @@ namespace Vodovoz
 		protected void OnButtonLoadClicked (object sender, EventArgs e)
 		{
 			logger.Info ("Читаем XML файл...");
-			TotalCounterparty = SkipedCounterparty = ReadedAccounts = InactiveAccounts = ReadedBanks = InactiveBanks = 0;
+			progressbar.Text = "Читаем XML файл...";
+			TotalCounterparty = SkipedCounterparty = ReadedAccounts = LinkedAccounts = InactiveAccounts = ReadedBanks = InactiveBanks = 0;
 			XmlDocument content = new XmlDocument ();
 			content.Load (filechooserXML.Filename);
 
+			progressbar.Text = "Разбор данных в файле...";
 			foreach(XmlNode node in content.SelectNodes ("/ФайлОбмена/Объект"))
 			{
 				string ruleName = node.Attributes ["ИмяПравила"].Value;
@@ -152,15 +167,37 @@ namespace Vodovoz
 				case "Банки":
 					ParseBank (node);
 					break;
-
+				case "КонтактнаяИнформация":
+					ParseContactInfo (node);
+					break;
 				}
+			}
+			progressbar.Text = "Сопопоставляем расчетные счета с владельщами.";
+			progressbar.Adjustment.Value = 0;
+			progressbar.Adjustment.Upper = AccountsList.Count;
 
-			} 
+			foreach(var ac1c in AccountsList)
+			{
+				progressbar.Adjustment.Value++;
+				QSMain.WaitRedraw ();
+
+				if (ac1c.DomainAccount.Inactive)
+					continue;
+
+				var counterparty = CounterpatiesList.Find (c => c.Code1c == ac1c.OwnerCode1c);
+
+				if(counterparty != null)
+				{
+					counterparty.AddAccount (ac1c.DomainAccount);
+					LinkedAccounts++;
+				}
+			}
+
+			progressbar.Text = "Выполнено";
 		}
 
 		void ParseCounterparty(XmlNode node)
 		{
-
 			var parrentNode = node.SelectSingleNode ("Свойство[@Имя='Родитель']/Ссылка/Свойство[@Имя='Код']/Значение");
 
 			if(parrentNode == null || !IncludeParents.Contains (parrentNode.InnerText))
@@ -187,21 +224,54 @@ namespace Vodovoz
 			}
 			else
 			{
-				var couterparty = new Counterparty ();
+				var counterparty = new Counterparty ();
 
 				var nameNode = node.SelectSingleNode ("Свойство[@Имя='Наименование']/Значение");
-				couterparty.Name = nameNode.InnerText;
-				logger.Debug ("Читаем контрагента <{0}>", couterparty.Name);
+				counterparty.Name = nameNode.InnerText;
+				logger.Debug ("Читаем контрагента <{0}>", counterparty.Name);
 
-				couterparty.Code1c = codeNode.InnerText;
+				counterparty.Code1c = codeNode.InnerText;
 
 				var jurNode = node.SelectSingleNode ("Свойство[@Имя='ЮрФизЛицо']/Значение");
-				couterparty.PersonType = jurNode.InnerText == "ЮрЛицо" ? PersonType.legal : PersonType.natural;
+				counterparty.PersonType = jurNode.InnerText == "ЮрЛицо" ? PersonType.legal : PersonType.natural;
 
-				//TODO подумат про основной счет
+				var accountNode = node.SelectSingleNode ("Свойство[@Имя='ОсновнойБанковскийСчет']/Ссылка/Свойство[@Имя='Код']/Значение");
+				if(accountNode != null)
+				{
+					var ac1c = AccountsList.Find (a => a.DomainAccount.Code1c == accountNode.InnerText);
+					counterparty.DefaultAccount = ac1c.DomainAccount;
+				}
+
+				var commentNode = node.SelectSingleNode ("Свойство[@Имя='Комментарий']/Значение");
+				if(commentNode != null)
+				{
+					counterparty.Comment = commentNode.InnerText;
+				}
+
+				var fullnameNode = node.SelectSingleNode ("Свойство[@Имя='НаименованиеПолное']/Значение");
+				if(fullnameNode != null)
+				{
+					counterparty.FullName = fullnameNode.InnerText;
+				}
+
+				var INNNode = node.SelectSingleNode ("Свойство[@Имя='ИНН']/Значение");
+				if(INNNode != null)
+				{
+					counterparty.INN = INNNode.InnerText;
+				}
+
+				var KPPNode = node.SelectSingleNode ("Свойство[@Имя='КПП']/Значение");
+				if(KPPNode != null)
+				{
+					counterparty.KPP = KPPNode.InnerText;
+				}
+
+				var MainNode = node.SelectSingleNode ("Свойство[@Имя='ГоловнойКонтрагент']/Значение");
+				if (MainNode != null)
+					logger.Warn ("ГоловнойКонтрагент не пустой");
 
 				TotalCounterparty++;
-				CounterpatiesList.Add (couterparty);
+				CounterpatiesList.Add (counterparty);
 			}
 
 		}
@@ -262,7 +332,7 @@ namespace Vodovoz
 
 			if (codeNode == null)
 			{
-				logger.Warn ("Нет кода!!! Пропускаем...");
+				logger.Warn ("В банке нет  кода!!! Пропускаем...");
 				return;
 			}
 			
@@ -277,6 +347,36 @@ namespace Vodovoz
 
 			Banks1cList.Add (bank1c);
 			ReadedBanks++;
+		}
+
+		void ParseContactInfo(XmlNode node)
+		{
+			var typeNode = node.SelectSingleNode ("Свойство[@Имя='Вид']/Значение");
+			var objectNode = node.SelectSingleNode ("Свойство[@Имя='Объект']/Ссылка/Свойство[@Имя='Код']/Значение");
+
+			var counterparty = CounterpatiesList.Find (c => c.Code1c == objectNode.InnerText);
+			if(counterparty == null)
+			{
+				logger.Debug ("Контактная информация видемо для пропущеного контаргента. Идем дальше...");
+				return;
+			}
+			var presentationNode = node.SelectSingleNode ("Свойство[@Имя='Представление']/Значение");
+
+			switch(typeNode.InnerText)
+			{
+			case "ЮрАдресКонтрагента":
+				counterparty.JurAddress = presentationNode.InnerText;
+				break;
+			case "ФактАдресКонтрагента":
+				counterparty.Address = presentationNode.InnerText;
+				break;
+			case "ТелефонКонтрагента":
+				counterparty.Comment = String.Format ("Телефоны импортированные из 1с 7.7: {0}\n{1}", presentationNode.InnerText, counterparty.Comment);
+				break;
+			default:
+				logger.Warn ("Неизвестный тип контактной информации ({0})", typeNode.InnerText);
+				break;
+			}
 		}
 
 		protected void OnFilechooserXMLSelectionChanged (object sender, EventArgs e)
