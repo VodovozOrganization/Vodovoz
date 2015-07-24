@@ -214,26 +214,42 @@ namespace Vodovoz
 			account.Code1c = codeNode.InnerText;
 
 			var ownerNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='Владелец']/Ссылка/Свойство[@Имя='Код']/Значение");
-			account1c.OwnerCode1c = ownerNode.InnerText;
+			if (ownerNode != null)
+				account1c.OwnerCode1c = ownerNode.InnerText;
+			else
+				logger.Warn ("Счет с кодом {0}, без владельца.", codeNode.InnerText);
 
 			var nameNode = node.SelectSingleNode ("Свойство[@Имя='Наименование']/Значение");
 			account.Name = nameNode.InnerText;
 
 			var bankNode = node.SelectSingleNode ("Свойство[@Имя='Банк']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			var readedBank = Banks1cList.Find (b => b.Code1c == bankNode.InnerText);
-			if(readedBank.IsDead)
+			if (bankNode != null)
 			{
-				account.Inactive = true;
-				InactiveAccounts++;
+				var readedBank = Banks1cList.Find (b => b.Code1c == bankNode.InnerText);
+				if(readedBank.IsDead)
+				{
+					account.Inactive = true;
+					InactiveAccounts++;
+				}
+				else
+				{
+					account.InBank = readedBank.DomainBank;
+				}
 			}
 			else
-			{
-				account.InBank = readedBank.DomainBank;
-			}
+				logger.Warn ("Счет с кодом {0}, без банка.", codeNode.InnerText);
 
 			var numberNode = node.SelectSingleNode ("Свойство[@Имя='НомерСчета']/Значение");
-			account.Number = numberNode.InnerText;
+			if (numberNode == null)
+			{
+				logger.Warn ("Пустой номер счета.");
+				if(!account.Inactive)
+					InactiveAccounts++;
+				account.Inactive = true;
+			}
+			else
+				account.Number = numberNode.InnerText;
 
 			AccountsList.Add (account1c);
 			ReadedAccounts++;
@@ -243,6 +259,13 @@ namespace Vodovoz
 		{
 			var bank1c = new Bank1c ();
 			var codeNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='Код']/Значение");
+
+			if (codeNode == null)
+			{
+				logger.Warn ("Нет кода!!! Пропускаем...");
+				return;
+			}
+			
 			bank1c.Code1c = codeNode.InnerText;
 
 			var domainBank = Banks.FirstOrDefault (b => b.Bik == bank1c.Code1c);
