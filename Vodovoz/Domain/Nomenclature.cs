@@ -132,7 +132,7 @@ namespace Vodovoz.Domain
 
 		public virtual string CategoryString { get { return Category.GetEnumTitle (); } }
 
-		public decimal GetPrice (int itemsCount)
+		public virtual decimal GetPrice (int itemsCount)
 		{
 			var price = NomenclaturePrice
 				.OrderByDescending (p => p.MinCount).FirstOrDefault (p => (p.MinCount <= itemsCount));

@@ -324,27 +324,6 @@
 		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
 	</class>
 
-	<class name="Nomenclature" lazy="false" table="nomenclature">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
-	 	<property name="Model" column="model" />
-	 	<property name="Weight" column="weight" />
-	 	<property name="VAT" column="vat" type="VATStringType, Vodovoz"/>
-	 	<property name="DoNotReserve" column="reserve" />
-	 	<property name="Serial" column="serial" />
-	 	<many-to-one name="Unit" class="MeasurementUnits" column="unit" />
-	 	<property name="Category" column="category" type="NomenclatureCategoryStringType, Vodovoz"/>
-	 	<many-to-one name="Color" class="EquipmentColors" column="color" />
-	 	<many-to-one name="Type" class="EquipmentType" column="type" />
-	 	<many-to-one name="Manufacturer" class="Manufacturer" column="manufacturer" />
-	 	<bag name="NomenclaturePrice" inverse="false" cascade="all-delete-orphan" lazy="false" >
-    		<key column="nomenclature_id"/>
-    		<one-to-many class="NomenclaturePrice" />
-		</bag>
- 	</class>
-
 	<class name="ProductSpecification" lazy="false" table="specification_production">
 		<id name="Id" column="id">
 			<generator class="native"></generator>

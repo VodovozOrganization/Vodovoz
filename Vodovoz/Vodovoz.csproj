@@ -290,6 +290,7 @@
     <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
     <Compile Include="Domain\Logistic\RouteColumn.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
+    <Compile Include="HibernateMapping\NomenclatureMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
