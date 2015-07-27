@@ -294,6 +294,8 @@
     <Compile Include="gtk-gui\Vodovoz.CreateRouteListDlg.cs" />
     <Compile Include="Domain\Logistic\RouteListItem.cs" />
     <Compile Include="Domain\Logistic\RouteList.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

@@ -67,24 +67,24 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref status, value, () => Status); }
 		}
 
-		IList<Order> orders = new List<Order> ();
+		IList<RouteListItem> addresses = new List<RouteListItem> ();
 
-		[Display (Name = "Заказы")]
-		public virtual IList<Order> Orders {
-			get { return orders; }
+		[Display (Name = "Адреса в маршрутном листе")]
+		public virtual IList<RouteListItem> Addresses {
+			get { return addresses; }
 			set { 
-				SetField (ref orders, value, () => Orders); 
-				observableOrders = null;
+				SetField (ref addresses, value, () => Addresses); 
+				observableAddresses = null;
 			}
 		}
 
-		GenericObservableList<Order> observableOrders;
+		GenericObservableList<RouteListItem> observableAddresses;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<Order> ObservableOrders {
+		public GenericObservableList<RouteListItem> ObservableAddresses {
 			get {
-				if (observableOrders == null)
-					observableOrders = new GenericObservableList<Order> (orders);
-				return observableOrders;
+				if (observableAddresses == null)
+					observableAddresses = new GenericObservableList<RouteListItem> (addresses);
+				return observableAddresses;
 			}
 		}
 
@@ -96,16 +96,17 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string DriverInfo { get { return String.Format ("{0} - {1}", Driver.FullName, Car.Title); } }
 
-		public void AddOrder (Order order)
+		public RouteListItem AddAddressFromOrder (Order order)
 		{
-			ObservableOrders.Add (order);
-			order.RouteList = this;
+			var item = new RouteListItem (this, order);
+			ObservableAddresses.Add (item);
+			return item;
 		}
 
-		public void RemoveOrder (Order order)
+		public void RemoveAddress (RouteListItem address)
 		{
-			ObservableOrders.Remove (order);
-			order.RouteList = null;
+			ObservableAddresses.Remove (address);
+			address.RemovedFromRoute ();
 		}
 
 		#region IValidatableObject implementation

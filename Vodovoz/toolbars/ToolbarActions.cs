@@ -57,7 +57,7 @@ public partial class MainWindow : Gtk.Window
 	void ActionRouteListTable_Activated (object sender, System.EventArgs e)
 	{
 		//TODO FIXME Сделать нормальный вид.
-		OrmReference refWin = new OrmReference (typeof(RouteList));
+		OrmReference refWin = new OrmReference (typeof(Vodovoz.Domain.Logistic.RouteList));
 		tdiMain.AddTab (refWin);
 	}
 

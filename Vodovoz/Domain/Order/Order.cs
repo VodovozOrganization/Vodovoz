@@ -221,21 +221,6 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		RouteList routeList;
-
-		[Display (Name = "Маршрутный лист")]
-		public virtual RouteList RouteList {
-			get { return routeList; }
-			set { 
-				SetField (ref routeList, value, () => RouteList); 
-				if (value != null && OrderStatus == OrderStatus.Accepted) {
-					OrderStatus = OrderStatus.InTravelList;
-				} else if (value == null && OrderStatus == OrderStatus.InTravelList) {
-					OrderStatus = OrderStatus.Accepted;
-				}
-			}
-		}
-
 		//TODO: Договор. Какой договор имеется в виду?
 
 		//TODO: Печатаемые документы
