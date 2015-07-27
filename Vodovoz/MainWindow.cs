@@ -1,14 +1,14 @@
 ﻿using System;
 using Gtk;
-using NHibernate;
 using NLog;
 using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
-using Vodovoz.Domain;
 using Vodovoz;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Logistic;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -356,5 +356,11 @@ public partial class MainWindow: Gtk.Window
 	{
 		var win = new LoadFrom1cDlg ();
 		tdiMain.AddTab (win);
+	}
+
+	protected void OnActionRouteColumnsActivated (object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference (typeof(RouteColumn));
+		tdiMain.AddTab (refWin);
 	}
 }

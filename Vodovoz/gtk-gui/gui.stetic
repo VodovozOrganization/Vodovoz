@@ -402,6 +402,12 @@
         <property name="ShortLabel" translatable="yes">Загрузить из 1с 7.7</property>
         <signal name="Activated" handler="OnActionLoad1cActivated" />
       </action>
+      <action id="ActionRouteColumns">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Колонки номенклатуры</property>
+        <property name="ShortLabel" translatable="yes">Колонки номенклатуры</property>
+        <signal name="Activated" handler="OnActionRouteColumnsActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -465,6 +471,7 @@
                 <node type="Menu" action="ActionMenuLogistic">
                   <node type="Menuitem" action="ActionDeliverySchedule" />
                   <node type="Menuitem" action="ActionLogisticsArea" />
+                  <node type="Menuitem" action="ActionRouteColumns" />
                 </node>
                 <node type="Menu" action="Action12">
                   <node type="Menuitem" action="ActionCommentTemplates" />

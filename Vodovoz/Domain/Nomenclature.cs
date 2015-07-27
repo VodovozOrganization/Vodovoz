@@ -105,6 +105,14 @@ namespace Vodovoz.Domain
 			set { SetField (ref manufacturer, value, () => Manufacturer); }
 		}
 
+		Logistic.RouteColumn routeListColumn;
+
+		[Display (Name = "Производитель")]
+		public virtual Logistic.RouteColumn RouteListColumn {
+			get { return routeListColumn; }
+			set { SetField (ref routeListColumn, value, () => RouteListColumn); }
+		}
+
 		IList<NomenclaturePrice> nomenclaturePrice;
 
 		[Display (Name = "Цены")]

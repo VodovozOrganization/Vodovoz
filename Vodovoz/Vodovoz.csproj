@@ -285,6 +285,7 @@
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
+    <Compile Include="Domain\Logistic\RouteColumn.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -371,6 +372,7 @@
     <Folder Include="Repositories\BasicHandbooks\" />
     <Folder Include="ServiceDialogs\" />
     <Folder Include="ServiceDialogs\LoadFrom1c\" />
+    <Folder Include="Domain\Logistic\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
