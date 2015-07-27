@@ -207,7 +207,6 @@
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentDlg.cs" />
     <Compile Include="ConfigureDeletion.cs" />
-    <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceItemsView.cs" />
     <Compile Include="Dialogs\EquipmentGenerator.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
@@ -249,7 +248,6 @@
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
     <Compile Include="ViewWidgets\DocumentItems\IncomingWaterMaterialView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
-    <Compile Include="Domain\RouteList.cs" />
     <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
     <Compile Include="Dialogs\MeasurementUnitsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.MeasurementUnitsDlg.cs" />
@@ -277,8 +275,6 @@
     <Compile Include="Domain\Order\OrderEquipment.cs" />
     <Compile Include="Domain\Order\OrderItem.cs" />
     <Compile Include="Representations\DocumentsVM.cs" />
-    <Compile Include="Dialogs\RouteListDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListDlg.cs" />
     <Compile Include="Domain\CommonEnums.cs" />
     <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
     <Compile Include="ReferenceFilters\StockDocumentsFilter.cs" />
@@ -291,6 +287,13 @@
     <Compile Include="Domain\Logistic\RouteColumn.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
     <Compile Include="HibernateMapping\NomenclatureMap.cs" />
+    <Compile Include="ViewWidgets\Logistics\CreateRouteListItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CreateRouteListItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceItemsView.cs" />
+    <Compile Include="Dialogs\CreateRouteListDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CreateRouteListDlg.cs" />
+    <Compile Include="Domain\Logistic\RouteListItem.cs" />
+    <Compile Include="Domain\Logistic\RouteList.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -379,6 +382,7 @@
     <Folder Include="ServiceDialogs\LoadFrom1c\" />
     <Folder Include="Domain\Logistic\" />
     <Folder Include="HibernateMapping\Logistic\" />
+    <Folder Include="ViewWidgets\Logistics\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -9,14 +9,15 @@ using System.Data.Bindings;
 using Gtk.DataBindings;
 using Gtk;
 using QSTDI;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	public partial class RouteListDlg : OrmGtkDialogBase<RouteList>
+	public partial class CreateRouteListDlg : OrmGtkDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		public RouteListDlg ()
+		public CreateRouteListDlg ()
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
@@ -24,11 +25,11 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public RouteListDlg (RouteList sub) : this (sub.Id)
+		public CreateRouteListDlg (RouteList sub) : this (sub.Id)
 		{
 		}
 
-		public RouteListDlg (int id)
+		public CreateRouteListDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList> (id);
@@ -174,10 +175,5 @@ namespace Vodovoz
 		}
 	}
 
-	public enum AddOrderEnum
-	{
-		[ItemTitleAttribute ("Один заказ")] AddOne,
-		[ItemTitleAttribute ("Все заказы для логистического района")]AddAllForRegion
-	}
 }
 

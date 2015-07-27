@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Orders;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Logistic
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "маршрутные листы",
