@@ -43,7 +43,7 @@ namespace Vodovoz
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceType.SubjectType = typeof(EquipmentType);
 			ConfigureInputs ((NomenclatureCategory)enumType.Active);
-			pricesView.Session = Session;
+			pricesView.UoWGeneric = UoWGeneric;
 			if (UoWGeneric.Root.NomenclaturePrice == null)
 				UoWGeneric.Root.NomenclaturePrice = new List<NomenclaturePrice> ();
 			pricesView.Prices = UoWGeneric.Root.NomenclaturePrice;

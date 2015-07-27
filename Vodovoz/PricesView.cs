@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gtk;
 using Gtk.DataBindings;
-using NHibernate;
 using NLog;
+using QSOrmProject;
 using Vodovoz.Domain;
 
 namespace Vodovoz
@@ -14,16 +15,19 @@ namespace Vodovoz
 	public partial class PricesView : Gtk.Bin
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
-		private ISession session;
 		private GenericObservableList<NomenclaturePrice> PricesList;
 
-		public ISession Session
-		{
-			get {
-				return session;
+		private IUnitOfWorkGeneric<Nomenclature> uowGeneric;
+
+		public IUnitOfWorkGeneric<Nomenclature> UoWGeneric {
+			get
+			{
+				return uowGeneric;
 			}
-			set {
-				session = value;
+			set
+			{
+				uowGeneric = value;
+				Prices = UoWGeneric.Root.NomenclaturePrice;
 			}
 		}
 
@@ -104,7 +108,7 @@ namespace Vodovoz
 			Gtk.Label textFromLabel = new Gtk.Label ("от (шт.)");
 			datatablePrices.Attach (textFromLabel, (uint)0, (uint)1, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
-			DataSpinButton countDataEntry = new DataSpinButton(1, 9999, 1);
+			DataSpinButton countDataEntry = new DataSpinButton(0, 9999, 1);
 			countDataEntry.DataSource = rowAdaptor;
 			countDataEntry.Mappings = "MinCount";
 			datatablePrices.Attach (countDataEntry, (uint)1, (uint)2, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
@@ -190,9 +194,10 @@ namespace Vodovoz
 
 		public void SaveChanges()
 		{
-			foreach(NomenclaturePrice price in PricesList)
+			foreach(NomenclaturePrice price in PricesList.ToList())
 			{
-					Session.SaveOrUpdate(price);
+				if (price.Price == 0 && price.MinCount <= 1)
+					PricesList.Remove (price);
 			}
 		}
 	}
