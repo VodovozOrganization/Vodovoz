@@ -42,6 +42,7 @@ namespace Vodovoz
 			referenceColor.SubjectType = typeof(EquipmentColors);
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceType.SubjectType = typeof(EquipmentType);
+			entryreferenceRouteColumn.PropertyMapping<Nomenclature> (n => n.RouteListColumn);
 			ConfigureInputs ((NomenclatureCategory)enumType.Active);
 			pricesView.UoWGeneric = UoWGeneric;
 			if (UoWGeneric.Root.NomenclaturePrice == null)

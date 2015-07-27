@@ -641,7 +641,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2651,6 +2650,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2717,7 +2717,7 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                         <property name="MemberName" />
                         <property name="ShowScrollbars">True</property>
-                        <property name="NRows">11</property>
+                        <property name="NRows">12</property>
                         <property name="NColumns">2</property>
                         <property name="RowSpacing">6</property>
                         <property name="ColumnSpacing">6</property>
@@ -2744,8 +2744,8 @@ Patronymic</property>
                             <property name="Mappings">DoNotReserve</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">9</property>
-                            <property name="BottomAttach">10</property>
+                            <property name="TopAttach">10</property>
+                            <property name="BottomAttach">11</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -2777,8 +2777,8 @@ Patronymic</property>
                             <property name="Mappings">Serial</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">10</property>
-                            <property name="BottomAttach">11</property>
+                            <property name="TopAttach">11</property>
+                            <property name="BottomAttach">12</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -2848,6 +2848,30 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
+                          <widget class="Gtk.DataBindings.DataEntryReference" id="entryreferenceRouteColumn">
+                            <property name="MemberName" />
+                            <property name="Events">ButtonPressMask</property>
+                            <property name="InheritedDataSource">False</property>
+                            <property name="InheritedBoundaryDataSource">False</property>
+                            <property name="CursorPointsEveryType">False</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">8</property>
+                            <property name="BottomAttach">9</property>
+                            <property name="LeftAttach">1</property>
+                            <property name="RightAttach">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumType">
                             <property name="MemberName" />
                             <property name="IsTextCombo">False</property>
@@ -2889,10 +2913,30 @@ Patronymic</property>
                             <property name="Mappings">VAT</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">8</property>
-                            <property name="BottomAttach">9</property>
+                            <property name="TopAttach">9</property>
+                            <property name="BottomAttach">10</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.Label" id="label3">
+                            <property name="MemberName" />
+                            <property name="Xalign">1</property>
+                            <property name="LabelProp" translatable="yes">Колонка маршрутного листа:</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">8</property>
+                            <property name="BottomAttach">9</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -3009,8 +3053,8 @@ Patronymic</property>
                             <property name="LabelProp" translatable="yes">Не резервировать:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">9</property>
-                            <property name="BottomAttach">10</property>
+                            <property name="TopAttach">10</property>
+                            <property name="BottomAttach">11</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -3029,8 +3073,8 @@ Patronymic</property>
                             <property name="LabelProp" translatable="yes">Посерийный учет:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">10</property>
-                            <property name="BottomAttach">11</property>
+                            <property name="TopAttach">11</property>
+                            <property name="BottomAttach">12</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -3089,8 +3133,8 @@ Patronymic</property>
                             <property name="LabelProp" translatable="yes">НДС:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">8</property>
-                            <property name="BottomAttach">9</property>
+                            <property name="TopAttach">9</property>
+                            <property name="BottomAttach">10</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
