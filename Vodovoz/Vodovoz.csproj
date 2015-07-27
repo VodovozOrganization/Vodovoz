@@ -58,6 +58,9 @@
       <HintPath>..\..\QSProjects\packages\NLog.4.0.1\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.1.0\lib\net40\FluentNHibernate.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -286,6 +289,7 @@
     <Compile Include="ServiceDialogs\LoadFrom1cDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
     <Compile Include="Domain\Logistic\RouteColumn.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -373,6 +377,7 @@
     <Folder Include="ServiceDialogs\" />
     <Folder Include="ServiceDialogs\LoadFrom1c\" />
     <Folder Include="Domain\Logistic\" />
+    <Folder Include="HibernateMapping\Logistic\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

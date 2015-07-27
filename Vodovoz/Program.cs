@@ -46,7 +46,11 @@ namespace Vodovoz
 
 			LoginDialog.Destroy ();
 			// Настройка ORM
-			OrmMain.ConfigureOrm (QSMain.ConnectionString, new string[]{ "Vodovoz", "QSBanks", "QSContacts" });
+			OrmMain.ConfigureOrm (QSMain.ConnectionString, new System.Reflection.Assembly[] {
+				System.Reflection.Assembly.GetAssembly (typeof(MainClass)),
+				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
+				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
+			});
 			OrmMain.ClassMappingList = new System.Collections.Generic.List<IOrmObjectMapping> {
 				//Простые справочники
 				new OrmObjectMapping<CullingCategory> (null, "{Vodovoz.Domain.CullingCategory} Name[Название];"),
