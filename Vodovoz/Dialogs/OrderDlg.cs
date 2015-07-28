@@ -158,11 +158,6 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 				return false;
 
-			if (UoWGeneric.Root.BottlesReturn == 0) {
-				if (!MessageDialogWorks.RunQuestionDialog ("Указано нулевое количество бутылей на возврат. Вы действительно хотите продолжить?"))
-					return false;
-			}
-
 			logger.Info ("Сохраняем заказ...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
@@ -404,6 +399,11 @@ namespace Vodovoz
 					});
 				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 					return;
+
+				if (UoWGeneric.Root.BottlesReturn == 0 && Entity.OrderItems.Any (i => i.Nomenclature.Category == NomenclatureCategory.water)) {
+					if (!MessageDialogWorks.RunQuestionDialog ("Указано нулевое количество бутылей на возврат. Вы действительно хотите продолжить?"))
+						return;
+				}
 				
 				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
 				IsEditable ();
