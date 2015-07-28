@@ -46,11 +46,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataSpinButton spinPlannedDistance;
 		
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-		
-		private global::Gtk.DataBindings.DataTreeView treeOrders;
-		
-		private global::Gtk.DataBindings.DataHBox datahbox1;
+		private global::Vodovoz.CreateRouteListItemsView createroutelistitemsview1;
 		
 		private global::Gtk.HBox hbox5;
 		
@@ -356,35 +352,12 @@ namespace Vodovoz
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeOrders = new global::Gtk.DataBindings.DataTreeView ();
-			this.treeOrders.WidthRequest = 700;
-			this.treeOrders.HeightRequest = 100;
-			this.treeOrders.CanFocus = true;
-			this.treeOrders.Name = "treeOrders";
-			this.treeOrders.CursorPointsEveryType = false;
-			this.treeOrders.InheritedDataSource = false;
-			this.treeOrders.InheritedBoundaryDataSource = false;
-			this.treeOrders.InheritedDataSource = false;
-			this.treeOrders.InheritedBoundaryDataSource = false;
-			this.GtkScrolledWindow.Add (this.treeOrders);
-			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w24.Position = 2;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.datahbox1 = new global::Gtk.DataBindings.DataHBox ();
-			this.datahbox1.Name = "datahbox1";
-			this.datahbox1.Spacing = 6;
-			this.datahbox1.InheritedDataSource = false;
-			this.datahbox1.InheritedBoundaryDataSource = false;
-			this.datahbox1.InheritedDataSource = false;
-			this.datahbox1.InheritedBoundaryDataSource = false;
-			this.vbox1.Add (this.datahbox1);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datahbox1]));
-			w25.Position = 3;
+			this.createroutelistitemsview1 = new global::Vodovoz.CreateRouteListItemsView ();
+			this.createroutelistitemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.createroutelistitemsview1.Name = "createroutelistitemsview1";
+			this.vbox1.Add (this.createroutelistitemsview1);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.createroutelistitemsview1]));
+			w23.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox5 = new global::Gtk.HBox ();
 			this.hbox5.Name = "hbox5";
@@ -395,18 +368,18 @@ namespace Vodovoz
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
-			global::Gtk.Image w26 = new global::Gtk.Image ();
-			w26.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w26;
+			global::Gtk.Image w24 = new global::Gtk.Image ();
+			w24.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w24;
 			this.hbox5.Add (this.buttonAccept);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.buttonAccept]));
-			w27.Position = 0;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.buttonAccept]));
+			w25.Position = 0;
+			w25.Fill = false;
 			this.vbox1.Add (this.hbox5);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox5]));
-			w28.Position = 4;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox5]));
+			w26.Position = 3;
+			w26.Expand = false;
+			w26.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -414,7 +387,6 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
-			this.treeOrders.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeOrdersRowActivated);
 			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
 		}
 	}

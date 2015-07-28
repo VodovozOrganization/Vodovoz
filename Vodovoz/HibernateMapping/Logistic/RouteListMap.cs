@@ -9,6 +9,7 @@ namespace Vodovoz.HMap
 		public RouteListMap ()
 		{
 			Table("route_lists");
+			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.PlannedDistance).Column ("planned_distance");

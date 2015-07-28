@@ -9,6 +9,7 @@ namespace Vodovoz.HMap
 		public NomenclatureMap ()
 		{
 			Table("nomenclature");
+			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");

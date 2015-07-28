@@ -641,6 +641,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14336,6 +14337,7 @@ Patronymic</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="ColumnMappings" />
+                <signal name="RowActivated" handler="OnTreeItemsListRowActivated" />
               </widget>
             </child>
           </widget>
@@ -14358,6 +14360,7 @@ Patronymic</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
                 <property name="ItemsEnumName">Vodovoz.AddOrderEnum, Vodovoz</property>
+                <signal name="EnumItemClicked" handler="OnEnumbuttonAddOrderEnumItemClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -14367,11 +14370,9 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <placeholder />
-            </child>
-            <child>
               <widget class="Gtk.Button" id="buttonDelete">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-delete Menu</property>
@@ -14380,11 +14381,14 @@ Patronymic</property>
                 <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
-                <property name="Position">2</property>
-                <property name="AutoSize">False</property>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
+            </child>
+            <child>
+              <placeholder />
             </child>
             <child>
               <widget class="Gtk.Label" id="labelSum">
@@ -17269,47 +17273,12 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+          <widget class="Vodovoz.CreateRouteListItemsView" id="createroutelistitemsview1">
             <property name="MemberName" />
-            <property name="ShadowType">In</property>
-            <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeOrders">
-                <property name="MemberName" />
-                <property name="WidthRequest">700</property>
-                <property name="HeightRequest">100</property>
-                <property name="CanFocus">True</property>
-                <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <signal name="RowActivated" handler="OnTreeOrdersRowActivated" />
-              </widget>
-            </child>
+            <property name="Events">ButtonPressMask</property>
           </widget>
           <packing>
             <property name="Position">2</property>
-            <property name="AutoSize">True</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.DataBindings.DataHBox" id="datahbox1">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">3</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
@@ -17335,7 +17304,7 @@ Patronymic</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">4</property>
+            <property name="Position">3</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

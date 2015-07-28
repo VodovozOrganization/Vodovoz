@@ -1,57 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
 using Gtk.DataBindings;
-using NHibernate;
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
-using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Documents;
-using System.Data.Bindings;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CreateRouteListItemsView : Gtk.Bin
+	public partial class CreateRouteListItemsView : WidgetOnTdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		private IUnitOfWorkGeneric<RouteList> documentUoW;
+		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
-		public IUnitOfWorkGeneric<RouteList> DocumentUoW {
-			get { return documentUoW; }
+		public IUnitOfWorkGeneric<RouteList> RouteListUoW {
+			get { return routeListUoW; }
 			set {
-				if (documentUoW == value)
+				if (routeListUoW == value)
 					return;
-				documentUoW = value;
-				if (DocumentUoW.Root.Items == null)
-					DocumentUoW.Root.Items = new List<IncomingInvoiceItem> ();
-				items = DocumentUoW.Root.ObservableItems;
+				routeListUoW = value;
+				if (RouteListUoW.Root.Addresses == null)
+					RouteListUoW.Root.Addresses = new List<RouteListItem> ();
+				items = RouteListUoW.Root.ObservableAddresses;
 				items.ElementChanged += Items_ElementChanged;
 
-				treeItemsList.ColumnMappingConfig = FluentMappingConfig<IncomingInvoiceItem>.Create ()
-					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
-					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
-					.AddColumn ("% НДС").AddEnumRenderer (i => i.VAT).Editing ()
-					.AddColumn ("Количество")
-						.AddNumericRenderer (i => i.Amount).Editing ().WidthChars (10)
-						.AddSetter ((c, i) => c.Digits = (uint)i.Nomenclature.Unit.Digits)
-						.AddSetter ((c, i) => c.Editable = i.CanEditAmount)
-						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-						.AddTextRenderer (i => i.Nomenclature.Unit.Name, false)
-					.AddColumn ("Цена закупки").AddNumericRenderer (i => i.Price).Digits (2).Editing ()
-						.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
-						.AddTextRenderer (i => CurrencyWorks.CurrencyShortName, false)
-					.AddColumn ("Сумма").AddTextRenderer (i => CurrencyWorks.GetShortCurrencyString (i.Sum))
+				treeItemsList.ColumnMappingConfig = FluentMappingConfig<RouteListItem>.Create ()
+					.AddColumn ("Заказ").SetDataProperty (node => node.Order.Id)
+					.AddColumn ("Адрес").SetDataProperty (node => node.Order.DeliveryPoint.Point)
+					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
+						"Не указан" : 
+						node.Order.DeliveryPoint.LogisticsArea.Name)
+					.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 					.Finish ();
 
 				treeItemsList.ItemsDataSource = items;
 				CalculateTotal ();
 			}
+		}
+
+		public void IsEditable (bool val = false)
+		{
+			enumbuttonAddOrder.Sensitive = buttonDelete.Sensitive = val;
 		}
 
 		void Items_ElementChanged (object aList, int[] aIdx)
@@ -70,110 +67,75 @@ namespace Vodovoz
 			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
 		}
 
-		GenericObservableList<IncomingInvoiceItem> items;
+		GenericObservableList<RouteListItem> items;
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			items.Remove (treeItemsList.GetSelectedObjects () [0] as IncomingInvoiceItem);
+			RouteListUoW.Root.RemoveAddress (treeItemsList.GetSelectedObject () as RouteListItem);
 			CalculateTotal ();
 		}
 
-		protected void OnButtonAddClicked (object sender, EventArgs e)
+		protected void OnEnumbuttonAddOrderEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null) {
-				logger.Warn ("Родительская вкладка не найдена.");
-				return;
+			AddOrderEnum choice = (AddOrderEnum)e.ItemEnum;
+			switch (choice) {
+			case AddOrderEnum.AddOne:
+				AddOrder ();
+				break;
+			case AddOrderEnum.AddAllForRegion:
+				AddOrdersFromRegion ();
+				break;
+			default:
+				break;
 			}
+		}
 
-			OrmReference SelectDialog = new OrmReference (DocumentUoW, Repository.NomenclatureRepository.NomenclatureOfGoodsOnlyQuery ());
+		protected void AddOrder ()
+		{
+			OrmReference SelectDialog = new OrmReference (RouteListUoW, OrderRepository.GetAcceptedOrdersForDateQueryOver (RouteListUoW.Root.Date));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
-
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
-		}
-
-		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
-		{
-			if ((e.Subject as Nomenclature).Serial) {
-				ITdiTab mytab = TdiHelper.FindMyTab (this);
-				if (mytab == null) {
-					logger.Warn ("Родительская вкладка не найдена.");
-					return;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
+			SelectDialog.ObjectSelected += (s, ea) => {
+				if (ea.Subject != null) {
+					RouteListUoW.Root.AddAddressFromOrder (ea.Subject as Domain.Orders.Order);
 				}
+			};
+			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
+		}
 
-				var invoices = DocumentUoW.Session.CreateCriteria (typeof(IncomingInvoice)).List<IncomingInvoice> ();
-				//TODO FIXME !IMPORTANT! В этот фильтр следует добавлять 
-				//все возможные списки с оборудованием, которые будут появляться.
-				//Чтобы исключить возможность добавления во входящую накладную
-				//уже использующегося и зачисленного на предприятие оборудования.
-				List<int> usedItems = new List<int> ();
-				foreach (IncomingInvoice i in invoices) {
-					foreach (IncomingInvoiceItem item in i.Items) {
-						if (item.Equipment != null)
-							usedItems.Add (item.Equipment.Id);
-					}
+		protected void AddOrdersFromRegion ()
+		{
+			OrmReference SelectDialog = new OrmReference (typeof(LogisticsArea), RouteListUoW);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
+			SelectDialog.ObjectSelected += (s, ea) => {
+				if (ea.Subject != null) {
+					foreach (var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as LogisticsArea))
+						RouteListUoW.Root.AddAddressFromOrder (order);
 				}
-				ICriteria ItemsCriteria = DocumentUoW.Session.CreateCriteria (typeof(Equipment))
-					.Add (Restrictions.Eq ("Nomenclature", e.Subject))
-					.Add (Restrictions.Not (Restrictions.In ("Id", usedItems)));
-
-				OrmReference SelectDialog = new OrmReference (typeof(Equipment), DocumentUoW, ItemsCriteria);
-				SelectDialog.Mode = OrmReferenceMode.Select;
-				SelectDialog.ButtonMode = ReferenceButtonMode.TreatEditAsOpen | ReferenceButtonMode.CanEdit;
-
-				SelectDialog.ObjectSelected += (s, ev) => DocumentUoW.Root.AddItem (new IncomingInvoiceItem {
-					Nomenclature = (ev.Subject as Equipment).Nomenclature,
-					Equipment = ev.Subject as Equipment,
-					Amount = 1,
-					Price = 0
-				});
-
-				mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
-
-			} else {
-				DocumentUoW.Root.AddItem (new IncomingInvoiceItem { 
-					Nomenclature = e.Subject as Nomenclature, 
-					Equipment = null,
-					Amount = 1, Price = 0 
-				});
-			}
+			};
+			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
 		}
-
-		protected void OnButtonCreateClicked (object sender, EventArgs e)
-		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null) {
-				logger.Warn ("Родительская вкладка не найдена.");
-				return;
-			}
-			EquipmentGenerator dlg = new EquipmentGenerator ();
-			dlg.EquipmentCreated += OnSlaveDlgEquipmentCreated;
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
-		}
-
-		void OnSlaveDlgEquipmentCreated (object sender, EquipmentCreatedEventArgs e)
-		{
-			foreach (var equ in e.Equipment) {
-				DocumentUoW.Root.AddItem (new IncomingInvoiceItem {
-					Equipment = equ,
-					Nomenclature = equ.Nomenclature,
-					Amount = 1
-				});
-			}
-		}
-
+			
 		void CalculateTotal ()
 		{
-			decimal total = 0;
-			foreach (var item in documentUoW.Root.Items) {
+/*			decimal total = 0;
+			foreach (var item in routeListUoW.Root.Items) {
 				total += item.Sum;
 			}
 
 			labelSum.LabelProp = String.Format ("Итого: {0}", CurrencyWorks.GetShortCurrencyString (total));
-		}
+*/		}
 			
+		protected void OnTreeItemsListRowActivated (object o, RowActivatedArgs args)
+		{
+			var selected = treeItemsList.GetSelectedObject ();
+			if (selected != null) {
+				ITdiDialog dlg = null;
+				dlg = OrmMain.CreateObjectDialog ((selected as RouteListItem).Order);
+				MyTab.TabParent.AddSlaveTab (MyTab, dlg);
+			}
+		}
 	}
 
 	public enum AddOrderEnum
