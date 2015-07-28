@@ -149,7 +149,7 @@ namespace Vodovoz
 		{
 			object[] items = treeItems.GetSelectedObjects ();
 
-			buttonDelete.Sensitive = items.Length > 0 && (items [0] as OrderItem).AdditionalAgreement == null;
+			buttonDelete.Sensitive = items.Length > 0 && ((items [0] as OrderItem).AdditionalAgreement == null || (items [0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water);
 		}
 
 		public override bool Save ()
