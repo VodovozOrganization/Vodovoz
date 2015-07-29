@@ -98,7 +98,7 @@ namespace Vodovoz.ViewModel
 	{
 		public int Id { get; set; }
 
-		public DocumentType StatusEnum { get; set; }
+		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
 
