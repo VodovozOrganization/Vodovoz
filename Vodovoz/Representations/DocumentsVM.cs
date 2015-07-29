@@ -171,7 +171,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (Document updatedSubject)
 		{
-			return true;
+			throw new InvalidCastException ();
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
@@ -192,10 +192,10 @@ namespace Vodovoz.ViewModel
 		}
 
 		public DocumentsVM (IUnitOfWork uow) : base (
-			typeof(IncomingInvoiceDlg),
-			typeof(IncomingWaterDlg),
-			typeof(MovementDocumentDlg),
-			typeof(WriteoffDocumentDlg))
+			typeof(IncomingInvoice),
+			typeof(IncomingWater),
+			typeof(MovementDocument),
+			typeof(WriteoffDocument))
 		{
 			this.UoW = uow;
 		}
