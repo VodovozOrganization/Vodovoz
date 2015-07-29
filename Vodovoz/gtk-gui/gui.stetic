@@ -641,7 +641,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2651,6 +2650,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2851,7 +2851,7 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="entryreferenceRouteColumn">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="InheritedDataSource">False</property>
+                            <property name="InheritedDataSource">True</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                             <property name="CursorPointsEveryType">False</property>
                           </widget>
@@ -14364,7 +14364,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
