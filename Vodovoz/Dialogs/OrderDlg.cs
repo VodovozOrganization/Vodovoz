@@ -458,5 +458,17 @@ namespace Vodovoz
 		{
 			UpdateProxyInfo ();
 		}
+
+		protected void OnButtonPrintUPDClicked (object sender, EventArgs e)
+		{
+			var report = new QSReport.ReportViewDlg (new QSReport.ReportInfo {
+				Title = String.Format ("УПД {0} от {1:d}", Entity.Id, Entity.DeliveryDate),
+				Identifier = "UPD",
+				Parameters = new Dictionary<string, object>{
+					{"order_id", Entity.Id}
+				}
+			});
+			TabParent.AddTab (report, this, false);
+		}
 	}
 }

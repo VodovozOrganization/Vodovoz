@@ -4,13 +4,13 @@ using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
 using Gtk.DataBindings;
-using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -18,6 +18,18 @@ namespace Vodovoz
 	public partial class CreateRouteListItemsView : WidgetOnTdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		private int goodsColumnsCount = -1;
+
+		private IList<RouteColumn> _columnsInfo;
+
+		private IList<RouteColumn> columnsInfo{
+			get{
+				if (_columnsInfo == null)
+					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns (RouteListUoW);
+				return _columnsInfo;
+			}
+		}
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
@@ -31,19 +43,45 @@ namespace Vodovoz
 					RouteListUoW.Root.Addresses = new List<RouteListItem> ();
 				items = RouteListUoW.Root.ObservableAddresses;
 				items.ElementChanged += Items_ElementChanged;
+				items.ListChanged += Items_ListChanged;
 
-				treeItemsList.ColumnMappingConfig = FluentMappingConfig<RouteListItem>.Create ()
-					.AddColumn ("Заказ").SetDataProperty (node => node.Order.Id)
-					.AddColumn ("Адрес").SetDataProperty (node => node.Order.DeliveryPoint.Point)
-					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
-						"Не указан" : 
-						node.Order.DeliveryPoint.LogisticsArea.Name)
-					.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
-					.Finish ();
+				UpdateColumns ();
 
 				treeItemsList.ItemsDataSource = items;
 				CalculateTotal ();
 			}
+		}
+
+		void Items_ListChanged (object aList)
+		{
+			UpdateColumns ();
+		}
+
+		private void UpdateColumns()
+		{
+			var goodsColumns = items.SelectMany (i => i.GoodsByRouteColumns.Keys).Distinct ().ToArray ();
+			if (goodsColumnsCount == goodsColumns.Length)
+				return;
+
+			goodsColumnsCount = goodsColumns.Length;
+
+			var config = FluentMappingConfig<RouteListItem>.Create ()
+				.AddColumn ("Заказ").SetDataProperty (node => node.Order.Id)
+				.AddColumn ("Адрес").AddTextRenderer (node => String.Format ("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+				.AddColumn ("Время").AddTextRenderer (node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
+			foreach(var column in columnsInfo)
+			{
+				if (!goodsColumns.Contains (column.Id))
+					continue;
+				int id = column.Id;
+				config = config.AddColumn (column.Name).AddTextRenderer (a => a.GoodsByRouteColumns[id].ToString ());
+			}
+				//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
+				//						"Не указан" : 
+				//						node.Order.DeliveryPoint.LogisticsArea.Name)
+			treeItemsList.ColumnMappingConfig = 
+				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
+				.Finish ();
 		}
 
 		public void IsEditable (bool val = false)
