@@ -296,6 +296,7 @@
     <Compile Include="Domain\Logistic\RouteList.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListItemMap.cs" />
+    <Compile Include="Repositories\Logistics\RouteColumnRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -385,6 +386,7 @@
     <Folder Include="Domain\Logistic\" />
     <Folder Include="HibernateMapping\Logistic\" />
     <Folder Include="ViewWidgets\Logistics\" />
+    <Folder Include="Repositories\Logistics\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
