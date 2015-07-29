@@ -92,8 +92,7 @@ public partial class MainWindow : Gtk.Window
 
 	void ActionOrdersTableActivated (object sender, System.EventArgs e)
 	{
-		//TODO FIXME Сделать нормальный вид.
-		OrmReference refWin = new OrmReference (typeof(Order));
+		ReferenceRepresentation refWin = new ReferenceRepresentation (new OrdersVM());
 		tdiMain.AddTab (refWin);
 	}
 }

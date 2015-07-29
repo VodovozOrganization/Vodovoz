@@ -266,7 +266,7 @@ namespace Vodovoz
 			this.entryreferenceRouteColumn = new global::Gtk.DataBindings.DataEntryReference ();
 			this.entryreferenceRouteColumn.Events = ((global::Gdk.EventMask)(256));
 			this.entryreferenceRouteColumn.Name = "entryreferenceRouteColumn";
-			this.entryreferenceRouteColumn.InheritedDataSource = false;
+			this.entryreferenceRouteColumn.InheritedDataSource = true;
 			this.entryreferenceRouteColumn.InheritedBoundaryDataSource = false;
 			this.entryreferenceRouteColumn.CursorPointsEveryType = false;
 			this.datatable1.Add (this.entryreferenceRouteColumn);

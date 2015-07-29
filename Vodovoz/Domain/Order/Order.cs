@@ -267,11 +267,6 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual string StatusString { get { return OrderStatus.GetEnumTitle (); } }
-
-		//TODO Убрать когда сделаем VM для заказов
-		public virtual string ClientString { get { return Client == null ? String.Empty : Client.Name; } }
-
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
 		public virtual decimal TotalSum {

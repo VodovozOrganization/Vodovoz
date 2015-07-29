@@ -297,6 +297,9 @@
     <Compile Include="HibernateMapping\Logistic\RouteListMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListItemMap.cs" />
     <Compile Include="Repositories\Logistics\RouteColumnRepository.cs" />
+    <Compile Include="Representations\OrdersVM.cs" />
+    <Compile Include="ReferenceFilters\OrdersFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.OrdersFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
