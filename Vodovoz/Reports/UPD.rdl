@@ -13,13 +13,13 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>
         </DataSourceName>
         <CommandText>
         </CommandText>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Number">
           <Value>1</Value>
           <TypeName>System.Int32</TypeName>
@@ -90,6 +90,7 @@
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox2">
@@ -103,6 +104,7 @@
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox3">
@@ -111,7 +113,7 @@
             <Value>1</Value>
             <ZIndex>1</ZIndex>
             <Left>68.3pt</Left>
-            <Top>51.7pt</Top>
+            <Top>50.9pt</Top>
             <Style>
               <BorderStyle>
                 <Default>Solid</Default>
@@ -130,6 +132,7 @@
               </BorderWidth>
               <TextAlign>Center</TextAlign>
               <VerticalAlign>Middle</VerticalAlign>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox4">
@@ -150,10 +153,10 @@
         </ReportItems>
       </List>
       <List Name="List2">
-        <Height>205.45pt</Height>
-        <Width>656.46pt</Width>
+        <Height>371.15pt</Height>
+        <Width>661.77pt</Width>
         <Left>145.80pt</Left>
-        <Top>12.40pt</Top>
+        <Top>8.40pt</Top>
         <ReportItems>
           <Textbox Name="Textbox5">
             <Height>12.00pt</Height>
@@ -166,6 +169,7 @@
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox6">
@@ -173,12 +177,13 @@
             <Width>81.27pt</Width>
             <Value>Исправление №</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>18.0pt</Top>
+            <Left>0.0pt</Left>
+            <Top>15.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox7">
@@ -187,12 +192,13 @@
             <Value>Продавец:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>38pt</Top>
+            <Top>35.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox8">
@@ -201,11 +207,12 @@
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>52.0pt</Top>
+            <Top>48.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox9">
@@ -214,11 +221,12 @@
             <Value>ИНН/КПП продавца:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>66pt</Top>
+            <Top>62.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox10">
@@ -226,12 +234,13 @@
             <Width>151.77pt</Width>
             <Value>Грузоотправитель и его адрес:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>80.0pt</Top>
+            <Left>0.0pt</Left>
+            <Top>75.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox11">
@@ -240,11 +249,12 @@
             <Value>К платежно-расчетному документу №</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>108pt</Top>
+            <Top>102.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox12">
@@ -253,12 +263,13 @@
             <Value>Покупатель:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>122pt</Top>
+            <Top>115.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox13">
@@ -267,11 +278,12 @@
             <Value>ИНН/КПП покупателя:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>150pt</Top>
+            <Top>142.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox14">
@@ -280,11 +292,12 @@
             <Value>Валюта: наименование, код</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>164pt</Top>
+            <Top>156.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox16">
@@ -293,11 +306,12 @@
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>136pt</Top>
+            <Top>129.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox15">
@@ -305,28 +319,29 @@
             <Width>148.02pt</Width>
             <Value>Грузополучатель и его адрес:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>94.0pt</Top>
+            <Left>0.0pt</Left>
+            <Top>89.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <List Name="List3">
             <Height>152.08pt</Height>
             <Width>485.56pt</Width>
-            <Left>183.70pt</Left>
-            <Top>38.00pt</Top>
+            <Left>0.00pt</Left>
+            <Top>33.20pt</Top>
             <ReportItems>
               <Textbox Name="Textbox17">
                 <Height>12.00pt</Height>
-                <Width>440pt</Width>
+                <Width>440.00pt</Width>
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.00pt</Left>
-                <Top>0.00pt</Top>
+                <Left>176.0pt</Left>
+                <Top>0.0pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -342,8 +357,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>14pt</Top>
+                <Left>176.0pt</Left>
+                <Top>14.0pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -358,8 +373,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>28pt</Top>
+                <Left>176.0pt</Left>
+                <Top>27.2pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -374,8 +389,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>42pt</Top>
+                <Left>176.0pt</Left>
+                <Top>40.4pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -390,8 +405,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>56pt</Top>
+                <Left>176.0pt</Left>
+                <Top>54.4pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -406,8 +421,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.00pt</Left>
-                <Top>70.00pt</Top>
+                <Left>176.0pt</Left>
+                <Top>67.6pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -422,8 +437,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>84pt</Top>
+                <Left>176.0pt</Left>
+                <Top>80.8pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -438,8 +453,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>98pt</Top>
+                <Left>176.0pt</Left>
+                <Top>94.8pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -454,8 +469,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>112pt</Top>
+                <Left>176.0pt</Left>
+                <Top>108.0pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -470,8 +485,8 @@
                 <Value>
                 </Value>
                 <ZIndex>1</ZIndex>
-                <Left>0.0pt</Left>
-                <Top>126pt</Top>
+                <Left>176.0pt</Left>
+                <Top>121.6pt</Top>
                 <Style>
                   <BorderStyle>
                     <Bottom>Solid</Bottom>
@@ -485,12 +500,13 @@
                 <Width>21.27pt</Width>
                 <Value>(2)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443.00pt</Left>
-                <Top>0.00pt</Top>
+                <Left>618.2pt</Left>
+                <Top>1.6pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox28">
@@ -498,12 +514,13 @@
                 <Width>23.52pt</Width>
                 <Value>(2а)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>14pt</Top>
+                <Left>618.2pt</Left>
+                <Top>14.8pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox29">
@@ -511,12 +528,13 @@
                 <Width>23.52pt</Width>
                 <Value>(2б)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>28pt</Top>
+                <Left>618.2pt</Left>
+                <Top>28.8pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox30">
@@ -524,12 +542,13 @@
                 <Width>23.52pt</Width>
                 <Value>(3)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>42pt</Top>
+                <Left>618.2pt</Left>
+                <Top>42.0pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox31">
@@ -537,12 +556,13 @@
                 <Width>23.52pt</Width>
                 <Value>(4)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>56pt</Top>
+                <Left>618.2pt</Left>
+                <Top>56.0pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox32">
@@ -550,12 +570,13 @@
                 <Width>23.52pt</Width>
                 <Value>(5)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>70pt</Top>
+                <Left>618.2pt</Left>
+                <Top>69.2pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox33">
@@ -563,12 +584,13 @@
                 <Width>23.52pt</Width>
                 <Value>(6)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>84pt</Top>
+                <Left>618.2pt</Left>
+                <Top>82.4pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox34">
@@ -576,12 +598,13 @@
                 <Width>23.52pt</Width>
                 <Value>(6а)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>98pt</Top>
+                <Left>618.2pt</Left>
+                <Top>96.4pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox35">
@@ -589,12 +612,13 @@
                 <Width>23.52pt</Width>
                 <Value>(6б)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>112pt</Top>
+                <Left>618.2pt</Left>
+                <Top>109.6pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
               <Textbox Name="Textbox36">
@@ -602,12 +626,13 @@
                 <Width>23.52pt</Width>
                 <Value>(7)</Value>
                 <ZIndex>1</ZIndex>
-                <Left>443pt</Left>
-                <Top>126pt</Top>
+                <Left>618.2pt</Left>
+                <Top>122.8pt</Top>
                 <Style>
                   <BorderStyle />
                   <BorderColor />
                   <BorderWidth />
+                  <FontSize>9pt</FontSize>
                 </Style>
               </Textbox>
             </ReportItems>
@@ -623,8 +648,8 @@
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>97.1pt</Left>
-            <Top>2.5pt</Top>
+            <Left>96.3pt</Left>
+            <Top>0.1pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -638,12 +663,13 @@
             <Width>18.27pt</Width>
             <Value>от</Value>
             <ZIndex>1</ZIndex>
-            <Left>176.50pt</Left>
-            <Top>2.50pt</Top>
+            <Left>175.7pt</Left>
+            <Top>2.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox39">
@@ -652,8 +678,8 @@
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>196.9pt</Left>
-            <Top>2.5pt</Top>
+            <Left>196.1pt</Left>
+            <Top>0.1pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -667,12 +693,13 @@
             <Width>16.02pt</Width>
             <Value>(1)</Value>
             <ZIndex>1</ZIndex>
-            <Left>274.5pt</Left>
+            <Left>273.7pt</Left>
             <Top>2.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox41">
@@ -681,8 +708,8 @@
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>97.1pt</Left>
-            <Top>18pt</Top>
+            <Left>96.3pt</Left>
+            <Top>13.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -696,12 +723,13 @@
             <Width>18.27pt</Width>
             <Value>от</Value>
             <ZIndex>1</ZIndex>
-            <Left>176.5pt</Left>
-            <Top>18pt</Top>
+            <Left>175.7pt</Left>
+            <Top>15.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox43">
@@ -710,8 +738,8 @@
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>196.9pt</Left>
-            <Top>18pt</Top>
+            <Left>196.1pt</Left>
+            <Top>13.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -725,12 +753,235 @@
             <Width>22.77pt</Width>
             <Value>(1а)</Value>
             <ZIndex>1</ZIndex>
-            <Left>274.50pt</Left>
-            <Top>18.00pt</Top>
+            <Left>273.7pt</Left>
+            <Top>15.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize>9pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox65">
+            <Height>22.59pt</Height>
+            <Width>157.25pt</Width>
+            <Value>Руководитель организации 
+или иное уполномоченное лицо</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>310.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>9pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox66">
+            <Height>14.27pt</Height>
+            <Width>178.38pt</Width>
+            <Value>Индивидуальный предприниматель</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>341.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>9pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox70">
+            <Height>12.78pt</Height>
+            <Width>110.65pt</Width>
+            <Value>Сосновцев С.С.</Value>
+            <ZIndex>1</ZIndex>
+            <Left>244.1pt</Left>
+            <Top>317.9pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextDecoration>None</TextDecoration>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox78">
+            <Height>23.32pt</Height>
+            <Width>140.02pt</Width>
+            <Value>Главный бухгалтер или
+иное уполномоченное лицо</Value>
+            <ZIndex>1</ZIndex>
+            <Left>360.1pt</Left>
+            <Top>310.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>9pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox120">
+            <Height>14.25pt</Height>
+            <Width>82.83pt</Width>
+            <Value>Сосновцев С.С.</Value>
+            <ZIndex>1</ZIndex>
+            <Left>577.7pt</Left>
+            <Top>317.6pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextDecoration>None</TextDecoration>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox121">
+            <Height>12.00pt</Height>
+            <Width>79.04pt</Width>
+            <Value>(подпись)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>157.3pt</Left>
+            <Top>330.8pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox124">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>(ф.и.о.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>275.7pt</Left>
+            <Top>331.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+            </Style>
+          </Textbox>
+          <Table Name="Table2">
+            <DataSetName>Goods</DataSetName>
+            <NoRows>Query returned no rows!</NoRows>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+            </Style>
+            <TableColumns>
+              <TableColumn>
+                <Width>5in</Width>
+              </TableColumn>
+            </TableColumns>
+            <Details>
+              <TableRows>
+                <TableRow>
+                  <Height>12 pt</Height>
+                  <Visibility>
+                    <Hidden>=Iif(Fields!Amount.Value = Nothing, true, false)</Hidden>
+                  </Visibility>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox129">
+                          <Value>
+                          </Value>
+                          <Style>
+                            <BorderStyle>
+                              <Default>None</Default>
+                            </BorderStyle>
+                            <Format>html</Format>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+                <TableRow>
+                  <Height>12 pt</Height>
+                  <Visibility>
+                    <Hidden>=Iif(Fields!MeasurementCode.Value = Nothing, true, false)</Hidden>
+                  </Visibility>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox130">
+                          <Value>
+                          </Value>
+                          <Style>
+                            <BorderStyle>
+                              <Default>None</Default>
+                            </BorderStyle>
+                            <Format>html</Format>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Details>
+            <Left>557.87pt</Left>
+            <Top>86.5pt</Top>
+          </Table>
+          <Textbox Name="Textbox67" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.00pt</Height>
+            <Width>79.04pt</Width>
+            <Value>(подпись)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>157.6pt</Left>
+            <Top>352.2pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox109" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.00pt</Height>
+            <Width>79.04pt</Width>
+            <Value>(подпись)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>489.3pt</Left>
+            <Top>331.3pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox119" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.26pt</Height>
+            <Width>128.04pt</Width>
+            <Value>(ф.и.о.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>245.5pt</Left>
+            <Top>352.2pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
             </Style>
           </Textbox>
         </ReportItems>
@@ -748,7 +999,7 @@
 от 26 декабря 2011 г. № 1137</Value>
         <ZIndex>1</ZIndex>
         <Left>561.9pt</Left>
-        <Top>14.6pt</Top>
+        <Top>9.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -770,40 +1021,52 @@
             <Width>23.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.5pt</Width>
+            <Width>82.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>138.6pt</Width>
+            <Width>89.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>23.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>45.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>43.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>56.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>75.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>37.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>59.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>43.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>74.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>39.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>38.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>83.5pt</Height>
+              <Height>34.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -813,6 +1076,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -824,11 +1088,12 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox76">
-                      <Value>Код товара/работ, услуг</Value>
+                      <Value>Код товара/ работ, услуг</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -840,23 +1105,26 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox73">
-                      <Value>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права</Value>
+                      <Value>Наименование товара (описание</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <ZIndex>0</ZIndex>
+                      <CanGrow>false</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>MeasurementCode</Value>
+                      <Value>Единица измерения</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -868,17 +1136,21 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>MeasurementUnit</Value>
+                      <Value>Количество (объем)</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -886,13 +1158,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>Amount</Value>
+                      <Value>Цена (тариф) за</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -900,13 +1175,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
-                      <Value>Price</Value>
+                      <Value>Стоимость товаров (работ, услуг)</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -914,13 +1192,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
-                      <Value>TotalPriceWithoutVAT</Value>
+                      <Value>В том числе сумма</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -928,13 +1209,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>VAT</Value>
+                      <Value>Налоговая ставка</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -942,13 +1226,16 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value>VATPrice</Value>
+                      <Value>Сумма налога, предъя</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -956,13 +1243,313 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>PriceTotal</Value>
+                      <Value>Стоимость товаров (работ, услуг)</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox110">
+                      <Value>Страна происхождения товара</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox118">
+                      <Value>Номер таможенной де</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>70.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox94">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox95">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox96">
+                      <Value>выполненных работ, оказанных услуг), имущественного права</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Visibility>
+                        <Hidden>true</Hidden>
+                      </Visibility>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox97">
+                      <Value>код</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox98">
+                      <Value>условное обозначение (национальное)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox99">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox100">
+                      <Value>единицу измерения</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox101">
+                      <Value>имущественных прав без налога - всего</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox102">
+                      <Value>акциза</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox103">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox104">
+                      <Value>вляемая покупателю</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox105">
+                      <Value>имущественных прав с налогом - всего</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox111">
+                      <Value>цифровой код</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox106">
+                      <Value>краткое наименование</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox90">
+                      <Value>кларации</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1007,8 +1594,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox81">
-                      <Value>
-                      </Value>
+                      <Value>1</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1024,8 +1610,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox82">
-                      <Value>
-                      </Value>
+                      <Value>2</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1040,15 +1625,32 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox91">
+                      <Value>2а</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox83">
-                      <Value>
-                      </Value>
+                      <Value>3</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1056,14 +1658,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox84">
-                      <Value>
-                      </Value>
+                      <Value>4</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1071,14 +1674,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox85">
-                      <Value>
-                      </Value>
+                      <Value>5</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1086,14 +1690,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox86">
-                      <Value>
-                      </Value>
+                      <Value>6</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1101,14 +1706,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox87">
-                      <Value>
-                      </Value>
+                      <Value>7</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1116,14 +1722,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox88">
-                      <Value>
-                      </Value>
+                      <Value>8</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1131,14 +1738,63 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox89">
-                      <Value>
-                      </Value>
+                      <Value>9</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox112">
+                      <Value>10</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox107">
+                      <Value>10а</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox115">
+                      <Value>11</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1156,12 +1812,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>=Fields!Number.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1195,9 +1854,25 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>=Fields!MeasurementCode.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox92">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -1208,12 +1883,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>=Fields!MeasurementUnit.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1221,12 +1899,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=Fields!Amount.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1234,12 +1915,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Fields!Price.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1247,12 +1931,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>=Fields!TotalPriceWithoutVAT.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1260,12 +1947,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>=Fields!VAT.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1273,9 +1963,41 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Fields!VATPrice.Value</Value>
+                      <Value>
+                      </Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>
+                      </Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox113">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -1285,10 +2007,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox63">
-                      <Value>=Fields!PriceTotal.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox108">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox116">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -1318,74 +2053,23 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox78">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value>
-                      </Value>
+                      <Value>Всего к оплате</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox65">
-                      <Value>
-                      </Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox66">
-                      <Value>
-                      </Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox67">
-                      <Value>
-                      </Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1404,30 +2088,20 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
-                      <Value>
-                      </Value>
+                      <Value>Х</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox70">
-                      <Value>
-                      </Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -1457,13 +2131,837 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox114">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>3</ColSpan>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Footer>
         <Left>9.3pt</Left>
-        <Top>198.0pt</Top>
+        <Top>176.4pt</Top>
       </Table>
+      <Line Name="Line1">
+        <Height>375.70pt</Height>
+        <Width>0.00pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+          </BorderWidth>
+        </Style>
+        <Left>115.7pt</Left>
+        <Top>1.6pt</Top>
+      </Line>
+      <Line Name="Line2">
+        <Height>-0.01pt</Height>
+        <Width>700.12pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+          </BorderWidth>
+        </Style>
+        <Left>115.8pt</Left>
+        <Top>376.0pt</Top>
+      </Line>
+      <Textbox Name="Textbox126">
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>(ф.и.о.)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>749.0pt</Left>
+        <Top>343.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>7pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox127">
+        <Height>14.25pt</Height>
+        <Width>280.05pt</Width>
+        <Value>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</Value>
+        <ZIndex>1</ZIndex>
+        <Left>526.5pt</Left>
+        <Top>360.2pt</Top>
+        <Style>
+          <BorderStyle>
+            <Top >Solid</Top>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>6pt</FontSize>
+          <TextAlign >Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox128">
+        <Height>45.11pt</Height>
+        <Width>95.55pt</Width>
+        <Value>= 'Документ составлен на ' + {@TotalPages} + ' листе'</Value>
+        <ZIndex>1</ZIndex>
+        <Left>9.00pt</Left>
+        <Top>322.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <List Name="List4">
+        <Height>194.98pt</Height>
+        <Width>812.30pt</Width>
+        <Left>1.31pt</Left>
+        <Top>380.21pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox131">
+            <Height>15.03pt</Height>
+            <Width>255.18pt</Width>
+            <Value>Основание передачи (сдачи) / получения (приемки)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>6.9pt</Left>
+            <Top>0.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox133">
+            <Height>12.79pt</Height>
+            <Width>238.60pt</Width>
+            <Value>Данные о транспортировке и грузе</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.2pt</Left>
+            <Top>17.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox134">
+            <Height>9.03pt</Height>
+            <Width>523.29pt</Width>
+            <Value>(договор; доверенность и др.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>254.10pt</Left>
+            <Top>11.10pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox135">
+            <Height>14.28pt</Height>
+            <Width>298.85pt</Width>
+            <Value>Товар (груз) передал / услуги, результаты работ, права сдал</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.7pt</Left>
+            <Top>36.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox136">
+            <Height>17.30pt</Height>
+            <Width>30.87pt</Width>
+            <Value>[8]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>781.1pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox137">
+            <Height>12.79pt</Height>
+            <Width>203.96pt</Width>
+            <Value>Иные сведения об отгрузке, передаче</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.2pt</Left>
+            <Top>79.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox138">
+            <Height>16.51pt</Height>
+            <Width>17.30pt</Width>
+            <Value>[9]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>781.3pt</Left>
+            <Top>17.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox139">
+            <Height>9.78pt</Height>
+            <Width>603.77pt</Width>
+            <Value>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто / брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>173.3pt</Left>
+            <Top>29.3pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>6pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Line Name="Line3">
+            <Height>159.54pt</Height>
+            <Width>0.00pt</Width>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth>
+                <Default>3pt</Default>
+              </BorderWidth>
+            </Style>
+            <Left>401.6pt</Left>
+            <Top>36.9pt</Top>
+          </Line>
+          <Textbox Name="Textbox142">
+            <Height>13.49pt</Height>
+            <Width>24.07pt</Width>
+            <Value>[10]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>376.70pt</Left>
+            <Top>48.50pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox143">
+            <Height>10.62pt</Height>
+            <Width>97.06pt</Width>
+            <Value>(должность)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>9.1pt</Left>
+            <Top>59.8pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox144">
+            <Height>11.25pt</Height>
+            <Width>151.35pt</Width>
+            <Value>«     »                                  года</Value>
+            <ZIndex>1</ZIndex>
+            <Left>166.3pt</Left>
+            <Top>68.4pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox145">
+            <Height>14.26pt</Height>
+            <Width>24.09pt</Width>
+            <Value>[11]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>377.3pt</Left>
+            <Top>68.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox146">
+            <Height>13.50pt</Height>
+            <Width>163.39pt</Width>
+            <Value>Дата отгрузки, передачи (сдачи)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>6.9pt</Left>
+            <Top>67.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox152">
+            <Height>10.50pt</Height>
+            <Width>365.16pt</Width>
+            <Value>(ссылки на неотъемлемые приложения, сопутствующие документы, иные документы и т.п.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>9.1pt</Left>
+            <Top>100.6pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox154">
+            <Height>12.75pt</Height>
+            <Width>24.84pt</Width>
+            <Value>[12]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>376.9pt</Left>
+            <Top>89.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox155">
+            <Height>15.01pt</Height>
+            <Width>21.07pt</Width>
+            <Value>[13]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>378.0pt</Left>
+            <Top>117.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox156">
+            <Height>12.75pt</Height>
+            <Width>21.07pt</Width>
+            <Value>[14]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>378.0pt</Left>
+            <Top>145.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox158">
+            <Height>13.51pt</Height>
+            <Width>396.75pt</Width>
+            <Value>Наименование экономического субъекта - составителя документа (в т.ч. комиссионера / агента)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.2pt</Left>
+            <Top>136.4pt</Top>
+            <Style>
+              <FontFamily>Arial</FontFamily>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8.5pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox159">
+            <Height>14.27pt</Height>
+            <Width>387.69pt</Width>
+            <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.3pt</Left>
+            <Top>108.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox164" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.01pt</Height>
+            <Width>143.05pt</Width>
+            <Value>(ф.и.о.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>230.40pt</Left>
+            <Top>59.69pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox165">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>М.П.</Value>
+            <ZIndex>1</ZIndex>
+            <Left>27.5pt</Left>
+            <Top>166.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox166">
+            <Height>12.15pt</Height>
+            <Width>364.37pt</Width>
+            <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>9.7pt</Left>
+            <Top>156.2pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox167" >
+            <Height>13.54pt</Height>
+            <Width>179.18pt</Width>
+            <Value>Количество сданной пустой тары</Value>
+            <ZIndex>1</ZIndex>
+            <Left>412.10pt</Left>
+            <Top>36.80pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox171" >
+            <Height>12.00pt</Height>
+            <Width>197.89pt</Width>
+            <Value>
+            </Value>
+            <ZIndex>1</ZIndex>
+            <Left>579.80pt</Left>
+            <Top>36.80pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox147" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.01pt</Height>
+            <Width>143.05pt</Width>
+            <Value>(ф.и.о.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>231.1pt</Left>
+            <Top>128.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox117" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>109.16pt</Width>
+            <Value>(подпись)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>114.1pt</Left>
+            <Top>59.5pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox122" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>109.16pt</Width>
+            <Value>(подпись)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>114.8pt</Left>
+            <Top>128.5pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox123" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>10.62pt</Height>
+            <Width>97.06pt</Width>
+            <Value>(должность)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>10.0pt</Left>
+            <Top>128.6pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox93" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.28pt</Height>
+            <Width>298.85pt</Width>
+            <Value>Товар (груз) получил / услуги, результаты работ, права принял</Value>
+            <ZIndex>1</ZIndex>
+            <Left>411.4pt</Left>
+            <Top>51.5pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox125" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.79pt</Height>
+            <Width>203.96pt</Width>
+            <Value>Иные сведения о получении, приемке</Value>
+            <ZIndex>1</ZIndex>
+            <Left>410.9pt</Left>
+            <Top>93.9pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox132" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>13.49pt</Height>
+            <Width>24.07pt</Width>
+            <Value>[15]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>780.4pt</Left>
+            <Top>63.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox140" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>10.62pt</Height>
+            <Width>97.06pt</Width>
+            <Value>(должность)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>412.8pt</Left>
+            <Top>74.7pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox141" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>151.35pt</Width>
+            <Value>«     »                                  года</Value>
+            <ZIndex>1</ZIndex>
+            <Left>570.0pt</Left>
+            <Top>83.3pt</Top>
+            <Style>
+              <BorderStyle>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox148" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.26pt</Height>
+            <Width>24.09pt</Width>
+            <Value>[16]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>781.0pt</Left>
+            <Top>83.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox149" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>13.50pt</Height>
+            <Width>163.39pt</Width>
+            <Value>Дата получения (приемки)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>410.6pt</Left>
+            <Top>82.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox150" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>10.50pt</Height>
+            <Width>365.16pt</Width>
+            <Value>(информация о наличии/отсутствии претензии; ссылки на неотъемлимые приложения, и другие документы и т.п.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>412.8pt</Left>
+            <Top>115.5pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>6.5pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox151" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.75pt</Height>
+            <Width>24.84pt</Width>
+            <Value>[17]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>780.6pt</Left>
+            <Top>104.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox153" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15.01pt</Height>
+            <Width>21.07pt</Width>
+            <Value>[18]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>781.7pt</Left>
+            <Top>132.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox157" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.75pt</Height>
+            <Width>21.07pt</Width>
+            <Value>[19]</Value>
+            <ZIndex>1</ZIndex>
+            <Left>781.7pt</Left>
+            <Top>160.1pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox160" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>13.51pt</Height>
+            <Width>396.75pt</Width>
+            <Value>Наименование экономического субъекта - составителя документа</Value>
+            <ZIndex>1</ZIndex>
+            <Left>410.9pt</Left>
+            <Top>151.3pt</Top>
+            <Style>
+              <FontFamily>Arial</FontFamily>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8.5pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox161" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.27pt</Height>
+            <Width>387.69pt</Width>
+            <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
+            <ZIndex>1</ZIndex>
+            <Left>411.0pt</Left>
+            <Top>123.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox162" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.01pt</Height>
+            <Width>143.05pt</Width>
+            <Value>(ф.и.о.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>634.1pt</Left>
+            <Top>74.6pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox163" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12pt</Height>
+            <Width>1in</Width>
+            <Value>М.П.</Value>
+            <ZIndex>1</ZIndex>
+            <Left>431.2pt</Left>
+            <Top>181.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox168" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.15pt</Height>
+            <Width>364.37pt</Width>
+            <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>413.4pt</Left>
+            <Top>171.1pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox169" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>12.01pt</Height>
+            <Width>143.05pt</Width>
+            <Value>(ф.и.о.)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>634.8pt</Left>
+            <Top>143.0pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox170" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>109.16pt</Width>
+            <Value>(подпись)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>517.8pt</Left>
+            <Top>74.4pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox172" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>11.25pt</Height>
+            <Width>109.16pt</Width>
+            <Value>(подпись)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>518.5pt</Left>
+            <Top>143.4pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox173" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>10.62pt</Height>
+            <Width>97.06pt</Width>
+            <Value>(должность)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>413.7pt</Left>
+            <Top>143.5pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top >Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>7pt</FontSize>
+              <TextAlign >Center</TextAlign>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>
