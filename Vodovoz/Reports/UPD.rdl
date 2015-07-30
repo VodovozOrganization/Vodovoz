@@ -62,15 +62,19 @@ WHERE order_items.order_id = @order_id;</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET lc_time_names = 'ru_RU';
-SELECT orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d %M %Yг.') AS order_date, counterparty.full_name AS client_name, counterparty.address AS client_address, counterparty.inn AS client_inn, counterparty.kpp AS client_kpp, organizations.full_name AS org_name, organizations.address as org_address, organizations.INN AS org_inn, organizations.KPP AS org_kpp,
+SELECT 
+orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d %M %Yг.') AS order_date,
+counterparty_contract.number AS contract_number, DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
+counterparty.full_name AS client_name, counterparty.address AS client_address, counterparty.inn AS client_inn, counterparty.kpp AS client_kpp, organizations.full_name AS org_name, organizations.address as org_address, organizations.INN AS org_inn, organizations.KPP AS org_kpp,
 buhgalter.last_name AS buh_last_name, LEFT(buhgalter.name, 1) AS buh_name, LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
 leader.last_name AS leader_last_name, LEFT(leader.name, 1) AS leader_name, LEFT(leader.patronymic, 1) AS leader_patronymic
 FROM orders 
 LEFT JOIN counterparty ON orders.client_id = counterparty.id
 LEFT JOIN organizations ON organizations.id = (SELECT IF(orders.payment_type = 'cash', 12, 11)  FROM orders WHERE id = @order_id)
+LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND counterparty_contract.organization_id = organizations.id
 LEFT JOIN employees leader ON leader.id = organizations.leader_id 
 LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id 
-WHERE orders.id = @order_id;
+WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !counterparty_contract.is_archive;
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -141,6 +145,14 @@ WHERE orders.id = @order_id;
         </Field>
         <Field Name="order_date">
           <DataField>order_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1975,8 +1987,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
-                        <PaddingLeft >3pt</PaddingLeft>
-                        <PaddingRight >3pt</PaddingRight>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2011,8 +2023,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -2029,8 +2041,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
-                        <PaddingLeft >2pt</PaddingLeft>
-                        <PaddingRight >2pt</PaddingRight>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -3004,6 +3016,19 @@ WHERE orders.id = @order_id;
             <Left>86.7pt</Left>
             <Top>0.0pt</Top>
           </Line>
+          <Textbox Name="Textbox128">
+            <Height>11.25pt</Height>
+            <Width>326.90pt</Width>
+            <Value>=Fields!contract_number.Value + ' от ' + Fields!contract_date.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>258.70pt</Left>
+            <Top>70.50pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
