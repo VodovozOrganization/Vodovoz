@@ -344,7 +344,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <TextAlign>Left</TextAlign>
+              <TextAlign>Center</TextAlign>
             </Style>
           </Textbox>
           <Textbox Name="Textbox38">
@@ -782,52 +782,52 @@ WHERE orders.id = @order_id;
             <Width>23.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.9pt</Width>
+            <Width>53.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>105.3pt</Width>
+            <Width>113.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>23.8pt</Width>
+            <Width>19.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.6pt</Width>
+            <Width>64.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.7pt</Width>
+            <Width>49.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>56.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>75.4pt</Width>
+            <Width>65.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.9pt</Width>
+            <Width>48.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.5pt</Width>
+            <Width>44.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.4pt</Width>
+            <Width>65.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>74.7pt</Width>
+            <Width>66.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.6pt</Width>
+            <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>38.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.9pt</Width>
+            <Width>52.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>31.7pt</Height>
+              <Height>27.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -839,10 +839,10 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -857,10 +857,10 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -868,17 +868,20 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox73">
-                      <Value>Наименование товара (описание выполненных </Value>
+                      <Value>Наименование товара (описание выполненных работ, оказанных услуг),</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>3pt</PaddingLeft>
                       </Style>
                       <ZIndex>0</ZIndex>
                       <CanGrow>false</CanGrow>
@@ -894,10 +897,11 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -913,10 +917,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -924,17 +929,18 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
-                      <Value>Цена (тариф) за единицу</Value>
+                      <Value>Цена (тариф) за единицу измерения</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -949,10 +955,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -967,10 +974,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -985,10 +993,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -996,17 +1005,18 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value>Сумма налога, предъя</Value>
+                      <Value>Сумма налога, предъявляемая покупателю</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1021,10 +1031,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1038,10 +1049,11 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1050,17 +1062,18 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox118">
-                      <Value>Номер таможенной де</Value>
+                      <Value>Номер таможенной декларации</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Bottom>None</Bottom>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1068,7 +1081,7 @@ WHERE orders.id = @order_id;
               </TableCells>
             </TableRow>
             <TableRow>
-              <Height>62.5pt</Height>
+              <Height>30.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1081,10 +1094,10 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1100,10 +1113,10 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1111,20 +1124,21 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox96">
-                      <Value>работ, оказанных услуг), имущественного права</Value>
+                      <Value>имущественного права</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
+                        <FontSize>8pt</FontSize>
                       </Style>
                       <Visibility>
-                        <Hidden>true</Hidden>
                       </Visibility>
                     </Textbox>
                   </ReportItems>
@@ -1138,10 +1152,11 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1155,10 +1170,11 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1174,10 +1190,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1185,17 +1202,19 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox100">
-                      <Value>измерения</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1210,10 +1229,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1228,10 +1248,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1247,10 +1268,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1258,17 +1280,19 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox104">
-                      <Value>вляемая покупателю</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1283,10 +1307,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1300,10 +1325,11 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1311,16 +1337,17 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox106">
-                      <Value>краткое наименование</Value>
+                      <Value>краткое наимено вание</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1328,17 +1355,19 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox90">
-                      <Value>кларации</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Top>None</Top>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize>9 pt</FontSize>
+                        <FontSize>8pt</FontSize>
+                        <PaddingLeft>1pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1357,9 +1386,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1373,9 +1403,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1389,9 +1420,12 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1405,9 +1439,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1421,9 +1456,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1437,9 +1473,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1453,9 +1490,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1469,9 +1507,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1485,9 +1524,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1501,9 +1541,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1517,9 +1558,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1533,9 +1575,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1549,9 +1592,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1565,9 +1609,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1581,9 +1626,10 @@ WHERE orders.id = @order_id;
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
+                        <FontWeight>Normal</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1610,6 +1656,7 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <PaddingRight>3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1626,6 +1673,7 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <TextAlign>Left</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>3pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1639,9 +1687,14 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1658,6 +1711,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1673,6 +1728,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1690,6 +1747,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <Format># ##0.000</Format>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1707,6 +1766,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <Format># ##0.00</Format>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1724,6 +1785,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <Format># ##0.00</Format>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1740,6 +1803,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1757,6 +1822,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1774,6 +1841,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <Format># ##0.00</Format>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1791,6 +1860,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <Format># ##0.00</Format>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1807,6 +1878,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1823,6 +1896,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1839,6 +1914,8 @@ WHERE orders.id = @order_id;
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <FontSize>8pt</FontSize>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <PaddingRight>2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1876,8 +1953,11 @@ WHERE orders.id = @order_id;
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
-                        <BorderWidth />
+                        <BorderWidth>
+                          <Left>3pt</Left>
+                        </BorderWidth>
                         <FontWeight>Bold</FontWeight>
+                        <PaddingLeft>3pt</PaddingLeft>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1895,6 +1975,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
+                        <PaddingLeft >3pt</PaddingLeft>
+                        <PaddingRight >3pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1929,6 +2011,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1945,6 +2029,8 @@ WHERE orders.id = @order_id;
                         <BorderColor />
                         <BorderWidth />
                         <Format># ##0.00</Format>
+                        <PaddingLeft >2pt</PaddingLeft>
+                        <PaddingRight >2pt</PaddingRight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1967,14 +2053,14 @@ WHERE orders.id = @order_id;
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>5.3pt</Left>
+        <Left>11.7pt</Left>
         <Top>183.6pt</Top>
       </Table>
       <List Name="List4">
-        <Height>257.50pt</Height>
+        <Height>271.79pt</Height>
         <Width>811.01pt</Width>
         <Left>2.30pt</Left>
-        <Top>319.30pt</Top>
+        <Top>278.70pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -1982,7 +2068,7 @@ WHERE orders.id = @order_id;
             <Value>Основание передачи (сдачи) / получения (приемки)</Value>
             <ZIndex>1</ZIndex>
             <Left>6.9pt</Left>
-            <Top>59.3pt</Top>
+            <Top>70.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1995,7 +2081,7 @@ WHERE orders.id = @order_id;
             <Value>Данные о транспортировке и грузе</Value>
             <ZIndex>1</ZIndex>
             <Left>7.2pt</Left>
-            <Top>76.3pt</Top>
+            <Top>87.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2008,7 +2094,7 @@ WHERE orders.id = @order_id;
             <Value>(договор; доверенность и др.)</Value>
             <ZIndex>1</ZIndex>
             <Left>254.1pt</Left>
-            <Top>70.3pt</Top>
+            <Top>81.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2024,8 +2110,8 @@ WHERE orders.id = @order_id;
             <Width>322.95pt</Width>
             <Value>Товар (груз) передал / услуги, результаты работ, права сдал</Value>
             <ZIndex>1</ZIndex>
-            <Left>7.70pt</Left>
-            <Top>95.80pt</Top>
+            <Left>7.7pt</Left>
+            <Top>107.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2038,7 +2124,7 @@ WHERE orders.id = @order_id;
             <Value>[8]</Value>
             <ZIndex>1</ZIndex>
             <Left>781.1pt</Left>
-            <Top>59.2pt</Top>
+            <Top>70.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2051,7 +2137,7 @@ WHERE orders.id = @order_id;
             <Value>Иные сведения об отгрузке, передаче</Value>
             <ZIndex>1</ZIndex>
             <Left>7.2pt</Left>
-            <Top>138.2pt</Top>
+            <Top>149.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2064,7 +2150,7 @@ WHERE orders.id = @order_id;
             <Value>[9]</Value>
             <ZIndex>1</ZIndex>
             <Left>781.3pt</Left>
-            <Top>77.1pt</Top>
+            <Top>88.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2077,7 +2163,7 @@ WHERE orders.id = @order_id;
             <Value>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто / брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</Value>
             <ZIndex>1</ZIndex>
             <Left>173.3pt</Left>
-            <Top>88.5pt</Top>
+            <Top>99.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2101,7 +2187,7 @@ WHERE orders.id = @order_id;
               </BorderWidth>
             </Style>
             <Left>401.6pt</Left>
-            <Top>96.1pt</Top>
+            <Top>107.3pt</Top>
           </Line>
           <Textbox Name="Textbox142">
             <Height>13.49pt</Height>
@@ -2109,7 +2195,7 @@ WHERE orders.id = @order_id;
             <Value>[10]</Value>
             <ZIndex>1</ZIndex>
             <Left>375.9pt</Left>
-            <Top>107.7pt</Top>
+            <Top>118.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2122,7 +2208,7 @@ WHERE orders.id = @order_id;
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.1pt</Left>
-            <Top>119.0pt</Top>
+            <Top>130.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2139,7 +2225,7 @@ WHERE orders.id = @order_id;
             <Value>«     »                                  года</Value>
             <ZIndex>1</ZIndex>
             <Left>180.7pt</Left>
-            <Top>127.6pt</Top>
+            <Top>138.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2154,7 +2240,7 @@ WHERE orders.id = @order_id;
             <Value>[11]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.5pt</Left>
-            <Top>127.5pt</Top>
+            <Top>138.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2166,8 +2252,8 @@ WHERE orders.id = @order_id;
             <Width>184.47pt</Width>
             <Value>Дата отгрузки, передачи (сдачи)</Value>
             <ZIndex>1</ZIndex>
-            <Left>6.90pt</Left>
-            <Top>127.00pt</Top>
+            <Left>6.9pt</Left>
+            <Top>138.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2180,7 +2266,7 @@ WHERE orders.id = @order_id;
             <Value>(ссылки на неотъемлемые приложения, сопутствующие документы, иные документы и т.п.)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.1pt</Left>
-            <Top>159.8pt</Top>
+            <Top>171.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2197,7 +2283,7 @@ WHERE orders.id = @order_id;
             <Value>[12]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.1pt</Left>
-            <Top>148.3pt</Top>
+            <Top>159.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2210,7 +2296,7 @@ WHERE orders.id = @order_id;
             <Value>[13]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.4pt</Left>
-            <Top>176.4pt</Top>
+            <Top>187.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2223,7 +2309,7 @@ WHERE orders.id = @order_id;
             <Value>[14]</Value>
             <ZIndex>1</ZIndex>
             <Left>375.6pt</Left>
-            <Top>205.2pt</Top>
+            <Top>216.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2236,7 +2322,7 @@ WHERE orders.id = @order_id;
             <Value>Наименование экономического субъекта - составителя документа (в т.ч. комиссионера / агента)</Value>
             <ZIndex>1</ZIndex>
             <Left>4.0pt</Left>
-            <Top>195.6pt</Top>
+            <Top>206.8pt</Top>
             <Style>
               <FontFamily>Arial</FontFamily>
               <BorderStyle />
@@ -2251,7 +2337,7 @@ WHERE orders.id = @order_id;
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
             <Left>7.3pt</Left>
-            <Top>167.5pt</Top>
+            <Top>178.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2264,7 +2350,7 @@ WHERE orders.id = @order_id;
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>230.4pt</Left>
-            <Top>118.8pt</Top>
+            <Top>130.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2281,7 +2367,7 @@ WHERE orders.id = @order_id;
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>27.5pt</Left>
-            <Top>225.6pt</Top>
+            <Top>236.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2294,7 +2380,7 @@ WHERE orders.id = @order_id;
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.7pt</Left>
-            <Top>215.4pt</Top>
+            <Top>226.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2310,8 +2396,8 @@ WHERE orders.id = @order_id;
             <Width>185.19pt</Width>
             <Value>Количество сданной пустой тары</Value>
             <ZIndex>1</ZIndex>
-            <Left>412.10pt</Left>
-            <Top>96.00pt</Top>
+            <Left>412.1pt</Left>
+            <Top>107.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2325,8 +2411,8 @@ WHERE orders.id = @order_id;
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
-            <Left>597.40pt</Left>
-            <Top>96.00pt</Top>
+            <Left>597.4pt</Left>
+            <Top>107.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2341,7 +2427,7 @@ WHERE orders.id = @order_id;
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>231.1pt</Left>
-            <Top>187.3pt</Top>
+            <Top>198.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2358,7 +2444,7 @@ WHERE orders.id = @order_id;
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>114.1pt</Left>
-            <Top>118.7pt</Top>
+            <Top>129.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2375,7 +2461,7 @@ WHERE orders.id = @order_id;
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>114.8pt</Left>
-            <Top>187.7pt</Top>
+            <Top>198.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2392,7 +2478,7 @@ WHERE orders.id = @order_id;
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>10.0pt</Left>
-            <Top>187.8pt</Top>
+            <Top>199.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2408,8 +2494,8 @@ WHERE orders.id = @order_id;
             <Width>338.00pt</Width>
             <Value>Товар (груз) получил / услуги, результаты работ, права принял</Value>
             <ZIndex>1</ZIndex>
-            <Left>411.40pt</Left>
-            <Top>110.70pt</Top>
+            <Left>411.4pt</Left>
+            <Top>121.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2422,7 +2508,7 @@ WHERE orders.id = @order_id;
             <Value>Иные сведения о получении, приемке</Value>
             <ZIndex>1</ZIndex>
             <Left>410.9pt</Left>
-            <Top>153.1pt</Top>
+            <Top>164.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2435,7 +2521,7 @@ WHERE orders.id = @order_id;
             <Value>[15]</Value>
             <ZIndex>1</ZIndex>
             <Left>780.4pt</Left>
-            <Top>122.6pt</Top>
+            <Top>133.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2448,7 +2534,7 @@ WHERE orders.id = @order_id;
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>412.8pt</Left>
-            <Top>133.9pt</Top>
+            <Top>145.1pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2465,7 +2551,7 @@ WHERE orders.id = @order_id;
             <Value>«     »                                  года</Value>
             <ZIndex>1</ZIndex>
             <Left>570.0pt</Left>
-            <Top>142.5pt</Top>
+            <Top>153.7pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2480,7 +2566,7 @@ WHERE orders.id = @order_id;
             <Value>[16]</Value>
             <ZIndex>1</ZIndex>
             <Left>781.0pt</Left>
-            <Top>142.4pt</Top>
+            <Top>153.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2493,7 +2579,7 @@ WHERE orders.id = @order_id;
             <Value>Дата получения (приемки)</Value>
             <ZIndex>1</ZIndex>
             <Left>410.6pt</Left>
-            <Top>141.9pt</Top>
+            <Top>153.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2506,7 +2592,7 @@ WHERE orders.id = @order_id;
             <Value>(информация о наличии/отсутствии претензии; ссылки на неотъемлимые приложения, и другие документы и т.п.)</Value>
             <ZIndex>1</ZIndex>
             <Left>412.8pt</Left>
-            <Top>174.7pt</Top>
+            <Top>185.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2523,7 +2609,7 @@ WHERE orders.id = @order_id;
             <Value>[17]</Value>
             <ZIndex>1</ZIndex>
             <Left>780.6pt</Left>
-            <Top>163.2pt</Top>
+            <Top>174.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2536,7 +2622,7 @@ WHERE orders.id = @order_id;
             <Value>[18]</Value>
             <ZIndex>1</ZIndex>
             <Left>780.9pt</Left>
-            <Top>191.3pt</Top>
+            <Top>202.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2549,7 +2635,7 @@ WHERE orders.id = @order_id;
             <Value>[19]</Value>
             <ZIndex>1</ZIndex>
             <Left>780.9pt</Left>
-            <Top>219.3pt</Top>
+            <Top>230.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2562,7 +2648,7 @@ WHERE orders.id = @order_id;
             <Value>Наименование экономического субъекта - составителя документа</Value>
             <ZIndex>1</ZIndex>
             <Left>410.9pt</Left>
-            <Top>210.5pt</Top>
+            <Top>221.7pt</Top>
             <Style>
               <FontFamily>Arial</FontFamily>
               <BorderStyle />
@@ -2577,7 +2663,7 @@ WHERE orders.id = @order_id;
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
             <Left>411.0pt</Left>
-            <Top>182.4pt</Top>
+            <Top>193.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2590,7 +2676,7 @@ WHERE orders.id = @order_id;
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>634.1pt</Left>
-            <Top>133.8pt</Top>
+            <Top>145.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2607,7 +2693,7 @@ WHERE orders.id = @order_id;
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>431.2pt</Left>
-            <Top>240.5pt</Top>
+            <Top>251.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2620,7 +2706,7 @@ WHERE orders.id = @order_id;
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
             <ZIndex>1</ZIndex>
             <Left>413.4pt</Left>
-            <Top>230.3pt</Top>
+            <Top>241.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2637,7 +2723,7 @@ WHERE orders.id = @order_id;
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>634.8pt</Left>
-            <Top>202.2pt</Top>
+            <Top>213.4pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2654,7 +2740,7 @@ WHERE orders.id = @order_id;
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>517.8pt</Left>
-            <Top>133.6pt</Top>
+            <Top>144.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2671,7 +2757,7 @@ WHERE orders.id = @order_id;
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>518.5pt</Left>
-            <Top>202.6pt</Top>
+            <Top>213.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2688,7 +2774,7 @@ WHERE orders.id = @order_id;
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>413.7pt</Left>
-            <Top>202.7pt</Top>
+            <Top>213.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2705,8 +2791,8 @@ WHERE orders.id = @order_id;
             <Value>Руководитель организации 
 или иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
-            <Left>131.9pt</Left>
-            <Top>0.0pt</Top>
+            <Left>131.90pt</Left>
+            <Top>11.20pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2720,7 +2806,7 @@ WHERE orders.id = @order_id;
             <Value>Индивидуальный предприниматель</Value>
             <ZIndex>1</ZIndex>
             <Left>131.9pt</Left>
-            <Top>32.0pt</Top>
+            <Top>43.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2734,7 +2820,7 @@ WHERE orders.id = @order_id;
             <Value>=Fields!leader_last_name.Value + ' ' + Fields!leader_name + '.' + Fields!leader_patronymic + '.'</Value>
             <ZIndex>1</ZIndex>
             <Left>361.8pt</Left>
-            <Top>6.0pt</Top>
+            <Top>17.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2751,7 +2837,7 @@ WHERE orders.id = @order_id;
 иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
             <Left>473.4pt</Left>
-            <Top>0.0pt</Top>
+            <Top>11.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2765,7 +2851,7 @@ WHERE orders.id = @order_id;
             <Value>=Fields!buh_last_name.Value + ' ' + Fields!buh_name + '.' + Fields!buh_patronymic + '.'</Value>
             <ZIndex>1</ZIndex>
             <Left>686.2pt</Left>
-            <Top>5.5pt</Top>
+            <Top>16.7pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2781,7 +2867,7 @@ WHERE orders.id = @order_id;
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>276.7pt</Left>
-            <Top>18.7pt</Top>
+            <Top>29.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2798,7 +2884,7 @@ WHERE orders.id = @order_id;
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>392.2pt</Left>
-            <Top>19.6pt</Top>
+            <Top>30.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2812,7 +2898,7 @@ WHERE orders.id = @order_id;
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>292.7pt</Left>
-            <Top>42.5pt</Top>
+            <Top>53.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2829,7 +2915,7 @@ WHERE orders.id = @order_id;
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>598.6pt</Left>
-            <Top>20.0pt</Top>
+            <Top>31.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2846,7 +2932,7 @@ WHERE orders.id = @order_id;
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>381.2pt</Left>
-            <Top>42.5pt</Top>
+            <Top>53.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2863,7 +2949,7 @@ WHERE orders.id = @order_id;
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>717.5pt</Left>
-            <Top>20.8pt</Top>
+            <Top>32.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2877,7 +2963,7 @@ WHERE orders.id = @order_id;
             <Value>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</Value>
             <ZIndex>1</ZIndex>
             <Left>516.6pt</Left>
-            <Top>42.5pt</Top>
+            <Top>53.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2889,8 +2975,8 @@ WHERE orders.id = @order_id;
             </Style>
           </Textbox>
           <Line Name="Line1">
-            <Height>0.01pt</Height>
-            <Width>701.59pt</Width>
+            <Height>0.02pt</Height>
+            <Width>756.44pt</Width>
             <Style>
               <BorderStyle>
                 <Default>Solid</Default>
@@ -2900,8 +2986,23 @@ WHERE orders.id = @order_id;
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>113.42pt</Left>
-            <Top>53.39pt</Top>
+            <Left>85.90pt</Left>
+            <Top>65.30pt</Top>
+          </Line>
+          <Line Name="Line2">
+            <Height>66.31pt</Height>
+            <Width>-0.01pt</Width>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth>
+                <Default>3pt</Default>
+              </BorderWidth>
+            </Style>
+            <Left>86.7pt</Left>
+            <Top>0.0pt</Top>
           </Line>
         </ReportItems>
         <Style>
@@ -2916,7 +3017,7 @@ WHERE orders.id = @order_id;
         <Width>79.76pt</Width>
         <Value>Универсальный передаточный документ</Value>
         <ZIndex>1</ZIndex>
-        <Left>7.6pt</Left>
+        <Left>5.2pt</Left>
         <Top>17.1pt</Top>
         <Style>
           <BorderStyle />
@@ -2930,7 +3031,7 @@ WHERE orders.id = @order_id;
         <Width>39.27pt</Width>
         <Value>Статус:</Value>
         <ZIndex>1</ZIndex>
-        <Left>25.9pt</Left>
+        <Left>23.5pt</Left>
         <Top>63.1pt</Top>
         <Style>
           <BorderStyle />
@@ -2944,7 +3045,7 @@ WHERE orders.id = @order_id;
         <Width>13pt</Width>
         <Value>1</Value>
         <ZIndex>1</ZIndex>
-        <Left>67.9pt</Left>
+        <Left>65.5pt</Left>
         <Top>62.7pt</Top>
         <Style>
           <BorderStyle>
@@ -2968,20 +3069,35 @@ WHERE orders.id = @order_id;
         </Style>
       </Textbox>
       <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>48.20pt</Height>
-        <Width>97.11pt</Width>
+        <Height>54.23pt</Height>
+        <Width>70.73pt</Width>
         <Value>1 - счет-фактура и передаточный документ (акт)
 2 - передаточный документ (акт)</Value>
         <ZIndex>1</ZIndex>
-        <Left>7.6pt</Left>
-        <Top>92.4pt</Top>
+        <Left>5.20pt</Left>
+        <Top>92.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>8pt</FontSize>
+          <FontSize>7pt</FontSize>
         </Style>
       </Textbox>
+      <Line Name="Line4">
+        <Height>185.98pt</Height>
+        <Width>-0.03pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>3pt</Default>
+          </BorderWidth>
+        </Style>
+        <Left>88.6pt</Left>
+        <Top>0.0pt</Top>
+      </Line>
     </ReportItems>
   </Body>
   <PageFooter>
