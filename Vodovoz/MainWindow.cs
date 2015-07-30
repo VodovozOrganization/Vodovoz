@@ -14,7 +14,7 @@ public partial class MainWindow: Gtk.Window
 {
 	private static Gtk.Clipboard clipboard = Gtk.Clipboard.Get (Gdk.Atom.Intern ("CLIPBOARD", false));
 	private static Logger logger = LogManager.GetCurrentClassLogger ();
-	uint uiIdOrders, uiIdServices;
+	uint LastUiId;
 
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
@@ -154,12 +154,19 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionOrdersToggled (object sender, EventArgs e)
 	{
-		if (ActionOrders.Active) {
-			uiIdOrders = this.UIManager.AddUiFromResource ("Vodovoz.toolbars.orders.xml");
-			this.UIManager.EnsureUpdate ();
-		} else if (uiIdOrders > 0) {
-			this.UIManager.RemoveUi (uiIdOrders);
+		if (ActionOrders.Active)
+			SwitchToUI ("Vodovoz.toolbars.orders.xml");
+	}
+
+	private void SwitchToUI(string uiResource)
+	{
+		if(LastUiId > 0)
+		{
+			this.UIManager.RemoveUi (LastUiId);
+			LastUiId = 0;
 		}
+		LastUiId = this.UIManager.AddUiFromResource (uiResource);
+		this.UIManager.EnsureUpdate ();
 	}
 
 	protected void OnActionNewOrderActivated (object sender, EventArgs e)
@@ -169,32 +176,20 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionServicesToggled (object sender, EventArgs e)
 	{
-		if (ActionServices.Active) {
-			uiIdServices = this.UIManager.AddUiFromResource ("Vodovoz.toolbars.services.xml");
-			this.UIManager.EnsureUpdate ();
-		} else if (uiIdServices > 0) {
-			this.UIManager.RemoveUi (uiIdServices);
-		}
+		if (ActionServices.Active)
+			SwitchToUI ("Vodovoz.toolbars.services.xml");
 	}
 
 	protected void OnActionLogisticsToggled (object sender, EventArgs e)
 	{
-		if (ActionLogistics.Active) {
-			uiIdServices = this.UIManager.AddUiFromResource ("logistics.xml");
-			this.UIManager.EnsureUpdate ();
-		} else if (uiIdServices > 0) {
-			this.UIManager.RemoveUi (uiIdServices);
-		}
+		if (ActionLogistics.Active)
+			SwitchToUI ("logistics.xml");
 	}
 
 	protected void OnActionStockToggled (object sender, EventArgs e)
 	{
-		if (ActionStock.Active) {
-			uiIdServices = this.UIManager.AddUiFromResource ("warehouse.xml");
-			this.UIManager.EnsureUpdate ();
-		} else if (uiIdServices > 0) {
-			this.UIManager.RemoveUi (uiIdServices);
-		}
+		if (ActionStock.Active)
+			SwitchToUI ("warehouse.xml");
 	}
 
 	protected void OnActionOrganizationsActivated (object sender, EventArgs e)
