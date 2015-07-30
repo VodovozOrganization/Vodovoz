@@ -1,6 +1,8 @@
 ﻿using System;
-using QSOrmProject;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using QSOrmProject;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
@@ -28,6 +30,20 @@ namespace Vodovoz.Domain.Logistic
 			get { return routeList; }
 			set { 
 				SetField (ref routeList, value, () => RouteList); 
+			}
+		}
+
+		private Dictionary<int, int> goodsByRouteColumns;
+
+		public Dictionary<int, int> GoodsByRouteColumns{
+			get {
+				if(goodsByRouteColumns == null)
+				{
+					goodsByRouteColumns = Order.OrderItems.Where (i => i.Nomenclature.RouteListColumn != null)
+						.GroupBy (i => i.Nomenclature.RouteListColumn.Id, i => i.Count)
+						.ToDictionary (g => g.Key, g => g.Sum ());
+				}
+				return goodsByRouteColumns;
 			}
 		}
 
