@@ -114,17 +114,6 @@
         </subclass>
 	</class>
 
-	<class name="Car" lazy="false" table="cars">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Model" column="model" />
-	 	<property name="RegistrationNumber" column="reg_number" />
-	 	<many-to-one name="Driver" class="Employee" column="driver"/>
-	 	<property name="FuelConsumption" column="fuel_consumption" />
-	 	<property name="IsArchive" column="is_archive"/>
- 	</class>
-
  	<class name="CommentTemplate" lazy="false" table="comment_templates">
  		<id name="Id" column="id">
  			<generator class="native"/>
