@@ -301,6 +301,8 @@
     <Compile Include="ReferenceFilters\OrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrdersFilter.cs" />
     <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
+    <Compile Include="Domain\Logistic\FuelType.cs" />
+    <Compile Include="HibernateMapping\Logistic\FuelTypeMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

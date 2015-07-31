@@ -358,4 +358,10 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference (typeof(RouteColumn));
 		tdiMain.AddTab (refWin);
 	}
+
+	protected void OnActionFuelTypeActivated (object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference (typeof(FuelType));
+		tdiMain.AddTab (refWin);
+	}
 }

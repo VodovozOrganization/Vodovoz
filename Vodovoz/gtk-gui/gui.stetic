@@ -409,6 +409,12 @@
         <property name="ShortLabel" translatable="yes">Колонки номенклатуры</property>
         <signal name="Activated" handler="OnActionRouteColumnsActivated" />
       </action>
+      <action id="ActionFuelType">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Виды топлива</property>
+        <property name="ShortLabel" translatable="yes">Виды топлива</property>
+        <signal name="Activated" handler="OnActionFuelTypeActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -472,6 +478,9 @@
                 <node type="Menu" action="ActionMenuLogistic">
                   <node type="Menuitem" action="ActionDeliverySchedule" />
                   <node type="Menuitem" action="ActionLogisticsArea" />
+                  <node type="Separator" />
+                  <node type="Menuitem" action="ActionFuelType" />
+                  <node type="Separator" />
                   <node type="Menuitem" action="ActionRouteColumns" />
                 </node>
                 <node type="Menu" action="Action12">
