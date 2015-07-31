@@ -17,6 +17,7 @@ namespace Vodovoz.HMap
 			Map(x => x.FuelConsumption).Column ("fuel_consumption");
 			Map(x => x.IsArchive).Column ("is_archive");
 			References (x => x.Driver).Column ("driver_id");
+			References (x => x.FuelType).Column ("fuel_type_id");
 		}
 	}
 }

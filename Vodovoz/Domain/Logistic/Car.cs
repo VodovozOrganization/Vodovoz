@@ -39,6 +39,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref fuelConsumption, value, () => FuelConsumption); }
 		}
 
+		FuelType fuelType;
+
+		[Display (Name = "Вид топлива")]
+		public virtual FuelType FuelType {
+			get { return fuelType; }
+			set { SetField (ref fuelType, value, () => FuelType); }
+		}
+
 		Employee driver;
 
 		[Display (Name = "Водитель")]

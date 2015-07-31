@@ -41,6 +41,7 @@ namespace Vodovoz
 			dataentryModel.IsEditable = true;
 			dataentryRegNumber.IsEditable = true;
 			dataentryreferenceDriver.SubjectType = typeof(Employee);
+			dataentryFuelType.PropertyMapping<Car> (c => c.FuelType);
 			radiobuttonMain.Active = true;
 
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));

@@ -651,7 +651,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2217,6 +2216,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2275,13 +2275,19 @@
               <widget class="Gtk.DataBindings.DataTable" id="tableCarData">
                 <property name="MemberName" />
                 <property name="NRows">6</property>
-                <property name="NColumns">2</property>
+                <property name="NColumns">4</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
                 <child>
                   <widget class="Gtk.DataBindings.DataCheckButton" id="checkIsArchive">
                     <property name="MemberName" />
@@ -2316,6 +2322,30 @@
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryFuelType">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                    <property name="InheritedDataSource">True</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="CursorPointsEveryType">False</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">2</property>
+                    <property name="BottomAttach">3</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gtk.DataBindings.DataEntry" id="dataentryModel">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -2331,7 +2361,7 @@
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">False</property>
                     <property name="YOptions">Fill</property>
                     <property name="XExpand">True</property>
@@ -2360,7 +2390,7 @@ Patronymic</property>
                     <property name="TopAttach">3</property>
                     <property name="BottomAttach">4</property>
                     <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -2389,7 +2419,7 @@ Patronymic</property>
                     <property name="TopAttach">1</property>
                     <property name="BottomAttach">2</property>
                     <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -2421,8 +2451,8 @@ Patronymic</property>
                   <packing>
                     <property name="TopAttach">2</property>
                     <property name="BottomAttach">3</property>
-                    <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
+                    <property name="LeftAttach">3</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -2481,6 +2511,8 @@ Patronymic</property>
                   <packing>
                     <property name="TopAttach">2</property>
                     <property name="BottomAttach">3</property>
+                    <property name="LeftAttach">2</property>
+                    <property name="RightAttach">3</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -2554,6 +2586,26 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gtk.Label" id="label9">
+                    <property name="MemberName" />
+                    <property name="Xalign">1</property>
+                    <property name="LabelProp" translatable="yes">Топливо:</property>
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">2</property>
+                    <property name="BottomAttach">3</property>
+                    <property name="AutoSize">True</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gtk.Label" id="textDriverInfo">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
@@ -2562,7 +2614,7 @@ Patronymic</property>
                     <property name="TopAttach">5</property>
                     <property name="BottomAttach">6</property>
                     <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
+                    <property name="RightAttach">4</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
