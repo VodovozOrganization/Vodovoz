@@ -300,6 +300,7 @@
     <Compile Include="Representations\OrdersVM.cs" />
     <Compile Include="ReferenceFilters\OrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrdersFilter.cs" />
+    <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -394,6 +395,7 @@
     <Folder Include="HibernateMapping\Logistic\" />
     <Folder Include="ViewWidgets\Logistics\" />
     <Folder Include="Repositories\Logistics\" />
+    <Folder Include="HibernateMapping\Handbooks\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

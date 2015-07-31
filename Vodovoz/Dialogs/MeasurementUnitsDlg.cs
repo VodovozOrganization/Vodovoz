@@ -29,6 +29,7 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			datatable1.DataSource = subjectAdaptor;
+			dataentryOKEI.Mappings = Entity.GetPropertyName (e => e.OKEI);
 		}
 
 		public override bool Save ()

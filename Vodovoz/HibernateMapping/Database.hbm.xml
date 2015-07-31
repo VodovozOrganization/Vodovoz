@@ -46,14 +46,6 @@
 	 	<property name="Name" column="name" />
  	</class>
 
-	<class name="MeasurementUnits" lazy="false" table="measurement_units">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
-	 	<property name="Digits" column="digits" />
- 	</class>
-
 	<class name="Nationality" lazy="false" table="nationality">
 		<id name="Id" column="id">
 			<generator class="native"></generator>

@@ -31,6 +31,15 @@ namespace Vodovoz.Domain
 			set { SetField (ref digits, value, () => Digits); }
 		}
 
+		string okei;
+			
+		[StringLength (3)]
+		[Display (Name = "Код ОКЕИ")]
+		public virtual string OKEI {
+			get { return okei; }
+			set { SetField (ref okei, value, () => OKEI); }
+		}
+
 		#endregion
 
 		public MeasurementUnits ()
