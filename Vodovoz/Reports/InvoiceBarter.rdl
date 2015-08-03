@@ -209,7 +209,7 @@ order_id = @order_id;</CommandText>
           <Textbox Name="Textbox1">
             <Height>17.25pt</Height>
             <Width>320.29pt</Width>
-            <Value>='Накладная № ' + {order_id} + ' от ' + {order_date} + ' Нал'</Value>
+            <Value>='Накладная № ' + {order_id} + ' от ' + {order_date}</Value>
             <ZIndex>1</ZIndex>
             <Left>86.30pt</Left>
             <Top>35.50pt</Top>
@@ -250,14 +250,18 @@ order_id = @order_id;</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox4">
-            <Height>15pt</Height>
-            <Width>80pt</Width>
+            <Height>15.00pt</Height>
+            <Width>80.00pt</Width>
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>125pt</Top>
+            <Left>0.00pt</Left>
+            <Top>125.00pt</Top>
             <Style>
-              <BorderStyle />
+              <BorderStyle>
+                <Left>None</Left>
+                <Top>None</Top>
+                <Right>None</Right>
+              </BorderStyle>
               <BorderColor />
               <BorderWidth />
               <TextAlign>Right</TextAlign>
@@ -278,17 +282,21 @@ order_id = @order_id;</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox7">
-            <Height>12.00pt</Height>
-            <Width>80pt</Width>
+            <Height>15.00pt</Height>
+            <Width>80.00pt</Width>
             <Value>Телефон:</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>140pt</Top>
+            <Left>0.00pt</Left>
+            <Top>140.00pt</Top>
             <Style>
-              <BorderStyle />
+              <BorderStyle>
+                <Left>None</Left>
+                <Bottom>None</Bottom>
+              </BorderStyle>
               <BorderColor />
               <BorderWidth />
               <TextAlign>Right</TextAlign>
+              <PaddingRight>0pt</PaddingRight>
             </Style>
           </Textbox>
           <Textbox Name="Textbox8">
@@ -296,13 +304,14 @@ order_id = @order_id;</CommandText>
             <Width>6in</Width>
             <Value>={org_name} + ' ' + {org_address}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85pt</Left>
-            <Top>80pt</Top>
+            <Left>80.2pt</Left>
+            <Top>80.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <PaddingLeft>4pt</PaddingLeft>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
@@ -311,43 +320,63 @@ order_id = @order_id;</CommandText>
             <Width>6in</Width>
             <Value>={client_name}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85pt</Left>
+            <Left>80.2pt</Left>
             <Top>95.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <PaddingLeft>4pt</PaddingLeft>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox10">
-            <Height>15pt</Height>
-            <Width>6in</Width>
+            <Height>15.00pt</Height>
+            <Width>433.62pt</Width>
             <Value>={city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.0pt</Left>
-            <Top>125pt</Top>
+            <Left>80.20pt</Left>
+            <Top>125.00pt</Top>
             <Style>
-              <BorderStyle />
+              <BorderStyle>
+                <Right>Solid</Right>
+                <Top>Solid</Top>
+                <Left>Solid</Left>
+              </BorderStyle>
               <BorderColor />
-              <BorderWidth />
+              <BorderWidth>
+                <Left>2pt</Left>
+                <Right>2pt</Right>
+                <Top>2pt</Top>
+              </BorderWidth>
               <FontWeight>Bold</FontWeight>
+              <PaddingLeft>4pt</PaddingLeft>
+              <PaddingTop>1.5pt</PaddingTop>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox12">
-            <Height>12pt</Height>
-            <Width>6in</Width>
+            <Height>15.00pt</Height>
+            <Width>433.62pt</Width>
             <Value>={phone}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.0pt</Left>
-            <Top>140pt</Top>
+            <Left>80.20pt</Left>
+            <Top>140.00pt</Top>
             <Style>
               <FontWeight>Bold</FontWeight>
-              <BorderStyle />
+              <BorderStyle>
+                <Right>Solid</Right>
+                <Bottom>Solid</Bottom>
+                <Left>Solid</Left>
+              </BorderStyle>
               <BorderColor />
-              <BorderWidth />
+              <BorderWidth>
+                <Left>2pt</Left>
+                <Right>2pt</Right>
+                <Bottom>2pt</Bottom>
+              </BorderWidth>
+              <PaddingLeft>4pt</PaddingLeft>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
@@ -413,13 +442,14 @@ order_id = @order_id;</CommandText>
             <Width>6in</Width>
             <Value>={invoice_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.00pt</Left>
-            <Top>110pt</Top>
+            <Left>80.2pt</Left>
+            <Top>110.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+              <PaddingLeft>4pt</PaddingLeft>
             </Style>
             <CanGrow>true</CanGrow>
           </Textbox>
@@ -441,6 +471,21 @@ order_id = @order_id;</CommandText>
               <BorderWidth />
             </Style>
           </CustomReportItem>
+          <Textbox Name="Textbox54" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>17.25pt</Height>
+            <Width>320.29pt</Width>
+            <Value>Безденежно</Value>
+            <ZIndex>1</ZIndex>
+            <Left>94.6pt</Left>
+            <Top>55.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+              <FontSize>14pt</FontSize>
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -496,6 +541,7 @@ order_id = @order_id;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -512,6 +558,7 @@ order_id = @order_id;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -528,6 +575,7 @@ order_id = @order_id;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -544,6 +592,7 @@ order_id = @order_id;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -560,6 +609,7 @@ order_id = @order_id;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -576,6 +626,7 @@ order_id = @order_id;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>Lightgrey</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1088,8 +1139,8 @@ order_id = @order_id;</CommandText>
           <Image Name="Image2" >
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
-            <Left>348.6pt</Left>
-            <Top>107.4pt</Top>
+            <Left>348.3pt</Left>
+            <Top>107.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1102,7 +1153,7 @@ order_id = @order_id;</CommandText>
           <Image Name="Image3" >
             <Height>10.91pt</Height>
             <Width>11.65pt</Width>
-            <Left>348.7pt</Left>
+            <Left>348.5pt</Left>
             <Top>139.4pt</Top>
             <Style>
               <BorderStyle />
