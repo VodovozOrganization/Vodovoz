@@ -2071,8 +2071,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
       <List Name="List4">
         <Height>271.79pt</Height>
         <Width>811.01pt</Width>
-        <Left>2.30pt</Left>
-        <Top>278.70pt</Top>
+        <Left>2.3pt</Left>
+        <Top>279.5pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
