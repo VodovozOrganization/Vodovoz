@@ -12,7 +12,7 @@ namespace Vodovoz.HMap
 			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
-			References (x => x.RouteList).Column ("route_list_id");
+			References (x => x.RouteList).Column ("route_list_id").Not.Nullable ();
 			References (x => x.Order).Column ("order_id");
 		}
 	}

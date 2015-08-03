@@ -39,7 +39,12 @@ namespace Vodovoz
 			enumStatus.DataSource = subjectAdaptor;
 
 			referenceCar.SubjectType = typeof(Car);
-			referenceDriver.SubjectType = typeof(Employee);
+
+			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
+			referenceDriver.PropertyMapping<RouteList> (r => r.Driver);
+
+			dataentryForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
+			dataentryForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
 
 			referenceDriver.Sensitive = false;
 			entryNumber.Sensitive = false;

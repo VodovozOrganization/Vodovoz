@@ -16,6 +16,17 @@ namespace Vodovoz.Repository
 				.Where (() => userAlias.Id == QSProjectsLib.QSMain.User.id)
 				.SingleOrDefault ();
 		}
+
+		public static QueryOver<Employee> DriversQuery()
+		{
+			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.driver);
+		}
+
+		public static QueryOver<Employee> ForwarderQuery()
+		{
+			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.forwarder);
+		}
+
 	}
 }
 

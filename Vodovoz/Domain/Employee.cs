@@ -169,7 +169,9 @@ namespace Vodovoz.Domain
 		[ItemTitleAttribute ("Офисный работник")]
 		office,
 		[ItemTitleAttribute ("Водитель")]
-		driver
+		driver,
+		[ItemTitleAttribute ("Экспедитор")]
+		forwarder
 	}
 
 	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType

@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Logistic
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "маршрутные листы",
 		Nominative = "маршрутный лист")]
-	public class RouteList: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class RouteList: BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -21,6 +21,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual Employee Driver {
 			get { return driver; }
 			set { SetField (ref driver, value, () => Driver); }
+		}
+
+		Employee forwarder;
+
+		[Display (Name = "Экспедитор")]
+		public virtual Employee Forwarder {
+			get { return forwarder; }
+			set { SetField (ref forwarder, value, () => Forwarder); }
 		}
 
 		Car car;
@@ -105,8 +113,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public void RemoveAddress (RouteListItem address)
 		{
-			ObservableAddresses.Remove (address);
 			address.RemovedFromRoute ();
+			UoW.Delete (address);
+			ObservableAddresses.Remove (address);
 		}
 
 		#region IValidatableObject implementation
