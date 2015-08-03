@@ -2420,8 +2420,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <Textbox Name="Textbox171">
             <Height>12.00pt</Height>
             <Width>179.89pt</Width>
-            <Value>
-            </Value>
+            <Value>(                 )</Value>
             <ZIndex>1</ZIndex>
             <Left>597.4pt</Left>
             <Top>107.2pt</Top>
