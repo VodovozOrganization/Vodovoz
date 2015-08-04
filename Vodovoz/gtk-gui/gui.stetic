@@ -3642,7 +3642,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">4</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -12287,7 +12287,7 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="datatreeviewContacts">
+              <widget class="QSOrmProject.OrmTableView" id="datatreeviewContacts">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
@@ -12296,8 +12296,6 @@ Patronymic</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.Contact} FullName[Имя]; PostName[Должность]; PointCurator[Курируемые точки]; MainPhoneString[Телефон]; Comment[Комментарий];</property>
-                <signal name="RowActivated" handler="OnDatatreeviewAccountsRowActivated" />
               </widget>
             </child>
           </widget>
@@ -12352,7 +12350,6 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-remove Menu</property>
                 <property name="Label" translatable="yes">Удалить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
                 <property name="Position">2</property>

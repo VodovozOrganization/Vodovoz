@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView datatreeviewContacts;
+		private global::QSOrmProject.OrmTableView datatreeviewContacts;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -45,7 +45,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.datatreeviewContacts = new global::Gtk.DataBindings.DataTreeView ();
+			this.datatreeviewContacts = new global::QSOrmProject.OrmTableView ();
 			this.datatreeviewContacts.CanFocus = true;
 			this.datatreeviewContacts.Name = "datatreeviewContacts";
 			this.datatreeviewContacts.CursorPointsEveryType = false;
@@ -53,7 +53,6 @@ namespace Vodovoz
 			this.datatreeviewContacts.InheritedBoundaryDataSource = false;
 			this.datatreeviewContacts.InheritedDataSource = false;
 			this.datatreeviewContacts.InheritedBoundaryDataSource = false;
-			this.datatreeviewContacts.ColumnMappings = "{Vodovoz.Domain.Contact} FullName[Имя]; PostName[Должность]; PointCurator[Курируемые точки]; MainPhoneString[Телефон]; Comment[Комментарий];";
 			this.GtkScrolledWindow.Add (this.datatreeviewContacts);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -114,10 +113,8 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
-			this.datatreeviewContacts.RowActivated += new global::Gtk.RowActivatedHandler (this.OnDatatreeviewAccountsRowActivated);
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler (this.OnButtonEditClicked);
-			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 		}
 	}
 }

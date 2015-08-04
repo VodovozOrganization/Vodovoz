@@ -131,6 +131,7 @@
 		<property name="Comment" column="comment" /> 
 		<property name="Fired" column="fired" />
 		<many-to-one name="Post" class="QSContacts.Post" column="post_id" />
+		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<bag name="Phones" inverse="false" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_contact_id"/>
     		<one-to-many class="QSContacts.Phone" />
@@ -187,7 +188,7 @@
     		<key column="counterparty_id"/>
     		<one-to-many class="QSContacts.Email" />
 		</bag>
-		<bag name="Contacts" inverse="false" cascade="all-delete-orphan" lazy="true" >
+		<bag name="Contacts" inverse="true" cascade="all-delete-orphan" lazy="true" >
     		<key column="counterparty_id"/>
     		<one-to-many class="Contact" />
 		</bag>

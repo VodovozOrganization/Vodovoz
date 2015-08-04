@@ -66,6 +66,15 @@ namespace Vodovoz.Domain
 			set { SetField (ref post, value, () => Post); }
 		}
 
+		Counterparty counterparty;
+
+		[Required]
+		[Display (Name = "Контрагент")]
+		public virtual Counterparty Counterparty {
+			get { return counterparty; }
+			protected set { SetField (ref counterparty, value, () => Counterparty); }
+		}
+
 		[Display (Name = "Телефоны")]
 		public virtual IList<Phone> Phones { get; set; }
 
@@ -131,11 +140,13 @@ namespace Vodovoz.Domain
 		{
 			return Id.GetHashCode (); 
 		}
-	}
 
-	public interface IContactOwner
-	{
-		IList<Contact> Contacts { get; set; }
+		public static IUnitOfWorkGeneric<Contact> Create (Counterparty counterparty)
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<Contact> ();
+			uow.Root.Counterparty = counterparty;
+			return uow;
+		}
 	}
 }
 

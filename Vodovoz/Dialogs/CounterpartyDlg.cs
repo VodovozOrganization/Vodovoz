@@ -42,7 +42,8 @@ namespace Vodovoz
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			//Initializing null fields
-			emailsView.Session = phonesView.Session = Session;
+			emailsView.Session = Session;
+			phonesView.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Emails == null)
 				UoWGeneric.Root.Emails = new List<Email> ();
 			emailsView.Emails = UoWGeneric.Root.Emails;
@@ -75,7 +76,7 @@ namespace Vodovoz
 			dataentryMainContact.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
 			dataentryFinancialContact.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
 			//Setting Contacts
-			contactsview1.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
+			contactsview1.CounterpartyUoW = UoWGeneric;
 			//Setting permissions
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
 			entryName.Changed += EntryName_Changed;

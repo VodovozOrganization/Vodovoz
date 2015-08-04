@@ -16,7 +16,7 @@ namespace Vodovoz.Domain
 		Accusative = "контрагента",
 		Genitive = "контрагента"
 	)]
-	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IContactOwner, IProxyOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IProxyOwner
 	{
 		private IList<CounterpartyContract> counterpartyContracts;
 

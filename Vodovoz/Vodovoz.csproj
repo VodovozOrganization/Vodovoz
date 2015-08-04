@@ -304,6 +304,7 @@
     <Compile Include="HibernateMapping\Logistic\FuelTypeMap.cs" />
     <Compile Include="Domain\Logistic\Car.cs" />
     <Compile Include="HibernateMapping\Logistic\CarMap.cs" />
+    <Compile Include="Representations\ContactsVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

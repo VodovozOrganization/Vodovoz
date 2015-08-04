@@ -17,19 +17,19 @@ namespace Vodovoz
 		public OrganizationDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Organization>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Organization> ();
 			ConfigureDlg ();
 		}
 
 		public OrganizationDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Organization>(id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Organization> (id);
 			TabName = UoWGeneric.Root.Name;
 			ConfigureDlg ();
 		}
 
-		public OrganizationDlg (Organization sub) : this(sub.Id)
+		public OrganizationDlg (Organization sub) : this (sub.Id)
 		{
 			
 		}
@@ -47,7 +47,7 @@ namespace Vodovoz
 			accountsview1.ParentReference = new ParentReferenceGeneric<Organization, Account> (UoWGeneric, o => o.Accounts);
 			referenceBuhgalter.SubjectType = typeof(Employee);
 			referenceLeader.SubjectType = typeof(Employee);
-			phonesview1.Session = Session;
+			phonesview1.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone> ();
 			phonesview1.Phones = UoWGeneric.Root.Phones;
@@ -61,7 +61,7 @@ namespace Vodovoz
 			logger.Info ("Сохраняем организацию...");
 			try {
 				phonesview1.SaveChanges ();
-				UoWGeneric.Save();
+				UoWGeneric.Save ();
 				return true;
 			} catch (Exception ex) {
 				string text = "Организация не сохранилась...";
@@ -70,7 +70,7 @@ namespace Vodovoz
 				return false;
 			}
 		}
-					
+
 		protected void OnRadioTabInfoToggled (object sender, EventArgs e)
 		{
 			if (radioTabInfo.Active)

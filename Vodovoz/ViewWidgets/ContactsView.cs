@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
@@ -11,45 +8,19 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ContactsView : Gtk.Bin
 	{
-		private IContactOwner contactOwner;
-		private GenericObservableList<Contact> contactsList;
-		private ISession session;
+		private IUnitOfWorkGeneric<Counterparty> counterpartyUoW;
 
-		public ISession Session {
-			get { return session; }
-			set { session = value; }
-		}
-
-		public IContactOwner ContactOwner {
-			get { return contactOwner; }
-			set {
-				contactOwner = value;
-				if (ContactOwner.Contacts == null)
-					ContactOwner.Contacts = new List<Contact> ();
-				contactsList = new GenericObservableList<Contact> (ContactOwner.Contacts);
-				datatreeviewContacts.ItemsDataSource = contactsList;
+		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
+			get {
+				return counterpartyUoW;
 			}
-		}
-
-		OrmParentReference parentReference;
-
-		public OrmParentReference ParentReference {
 			set {
-				parentReference = value;
-				if (parentReference != null) {
-					Session = parentReference.UoW.Session;
-					if (!(parentReference.ParentObject is IContactOwner)) {
-						throw new ArgumentException (String.Format ("Родительский объект в parentReference должен реализовывать интерфейс {0}", typeof(IContactOwner)));
-					}
-					ContactOwner = (IContactOwner)parentReference.ParentObject;
-				}
+				if (counterpartyUoW == value)
+					return;
+				counterpartyUoW = value;
+				datatreeviewContacts.RepresentationModel = new ViewModel.ContactsVM (value);
+				datatreeviewContacts.RepresentationModel.UpdateNodes ();
 			}
-			get { return parentReference; }
-		}
-
-		public string ColumnMappings {
-			get { return datatreeviewContacts.ColumnMappings; }
-			set { datatreeviewContacts.ColumnMappings = value; }
 		}
 
 		public ContactsView ()
@@ -70,8 +41,19 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ContactDlg dlg = new ContactDlg (ParentReference);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			var parentDlg = OrmMain.FindMyDialog (this);
+			if (parentDlg == null)
+				return;
+
+			if (parentDlg.UoW.IsNew) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.EntityObject.GetType (), typeof(Contact))) {
+					parentDlg.UoW.Save ();
+				} else
+					return;
+			}
+
+			ITdiDialog dlg = new ContactDlg (CounterpartyUoW.Root);
+			mytab.TabParent.AddTab (dlg, mytab);
 		}
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
@@ -80,22 +62,22 @@ namespace Vodovoz
 			if (mytab == null)
 				return;
 
-			ContactDlg dlg = new ContactDlg (ParentReference, datatreeviewContacts.GetSelectedObjects () [0] as Contact);
+		
+			ContactDlg dlg = new ContactDlg (datatreeviewContacts.GetSelectedId ());
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
-		protected void OnDatatreeviewAccountsRowActivated (object o, Gtk.RowActivatedArgs args)
+		protected void OnDatatreeviewContactsRowActivated (object o, Gtk.RowActivatedArgs args)
 		{
 			buttonEdit.Click ();
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
-			contactsList.Remove (datatreeviewContacts.GetSelectedObjects () [0] as Contact);
+			if (OrmMain.DeleteObject (typeof(Contact),
+				    datatreeviewContacts.GetSelectedId ())) {
+				datatreeviewContacts.RepresentationModel.UpdateNodes ();
+			}
 		}
 	}
 }

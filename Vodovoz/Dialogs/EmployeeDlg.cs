@@ -56,7 +56,7 @@ namespace Vodovoz
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				attachmentFiles.UpdateFileList ();
 			}
-			phonesView.Session = Session;
+			phonesView.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone> ();
 			phonesView.Phones = UoWGeneric.Root.Phones;
