@@ -65,7 +65,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
 SELECT 
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d %M %Yг.') AS order_date,
 counterparty_contract.number AS contract_number, DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
-counterparty.full_name AS client_name, counterparty.address AS client_address, counterparty.inn AS client_inn, counterparty.kpp AS client_kpp, organizations.full_name AS org_name, organizations.address as org_address, organizations.INN AS org_inn, organizations.KPP AS org_kpp,
+counterparty.full_name AS client_name, counterparty.jur_address AS client_address, counterparty.inn AS client_inn, counterparty.kpp AS client_kpp, organizations.full_name AS org_name, organizations.jur_address as org_address, organizations.INN AS org_inn, organizations.KPP AS org_kpp,
 buhgalter.last_name AS buh_last_name, LEFT(buhgalter.name, 1) AS buh_name, LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
 leader.last_name AS leader_last_name, LEFT(leader.name, 1) AS leader_name, LEFT(leader.patronymic, 1) AS leader_patronymic
 FROM orders 
