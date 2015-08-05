@@ -160,7 +160,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonViewDocument;
 		
-		private global::Gtk.Button buttonPrintUPD;
+		private global::QSOrmProject.EnumMenuButton buttonPrint;
 		
 		private global::Gtk.Label label18;
 		
@@ -277,7 +277,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 4;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -1028,16 +1028,18 @@ namespace Vodovoz
 			w75.Expand = false;
 			w75.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.buttonPrintUPD = new global::Gtk.Button ();
-			this.buttonPrintUPD.CanFocus = true;
-			this.buttonPrintUPD.Name = "buttonPrintUPD";
-			this.buttonPrintUPD.UseUnderline = true;
-			this.buttonPrintUPD.Label = global::Mono.Unix.Catalog.GetString ("Печать УПД");
+			this.buttonPrint = new global::QSOrmProject.EnumMenuButton ();
+			this.buttonPrint.CanFocus = true;
+			this.buttonPrint.Name = "buttonPrint";
+			this.buttonPrint.UseUnderline = true;
+			this.buttonPrint.UseMarkup = false;
+			this.buttonPrint.ItemsEnumName = "Vodovoz.PrintDocuments, Vodovoz";
+			this.buttonPrint.Label = global::Mono.Unix.Catalog.GetString ("Печать документов");
 			global::Gtk.Image w76 = new global::Gtk.Image ();
 			w76.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-print", global::Gtk.IconSize.Menu);
-			this.buttonPrintUPD.Image = w76;
-			this.hbox6.Add (this.buttonPrintUPD);
-			global::Gtk.Box.BoxChild w77 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonPrintUPD]));
+			this.buttonPrint.Image = w76;
+			this.hbox6.Add (this.buttonPrint);
+			global::Gtk.Box.BoxChild w77 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonPrint]));
 			w77.PackType = ((global::Gtk.PackType)(1));
 			w77.Position = 1;
 			w77.Expand = false;
@@ -1113,7 +1115,7 @@ namespace Vodovoz
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 			this.buttonViewDocument.Clicked += new global::System.EventHandler (this.OnButtonViewDocumentClicked);
-			this.buttonPrintUPD.Clicked += new global::System.EventHandler (this.OnButtonPrintUPDClicked);
+			this.buttonPrint.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnButtonPrintEnumItemClicked);
 			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
 		}
 	}

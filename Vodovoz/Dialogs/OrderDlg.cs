@@ -11,6 +11,7 @@ using Gtk.DataBindings;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
+using System.Data.Bindings;
 
 namespace Vodovoz
 {
@@ -394,8 +395,8 @@ namespace Vodovoz
 		{
 			if (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder) {
 				var valid = new QSValidator<Order> (UoWGeneric.Root, 
-					new Dictionary<object, object> {
-						{"NewStatus", OrderStatus.Accepted}
+					            new Dictionary<object, object> {
+						{ "NewStatus", OrderStatus.Accepted }
 					});
 				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 					return;
@@ -429,12 +430,12 @@ namespace Vodovoz
 			UpdateProxyInfo ();
 		}
 
-		void UpdateProxyInfo()
+		void UpdateProxyInfo ()
 		{
 			labelProxyInfo.Visible = Entity.SignatureType == OrderSignatureType.ByProxy;
 			if (Entity.SignatureType != OrderSignatureType.ByProxy)
 				return;
-			DBWorks.SQLHelper text = new DBWorks.SQLHelper("");
+			DBWorks.SQLHelper text = new DBWorks.SQLHelper ("");
 			if (Entity.Client != null) {
 				var proxies = Entity.Client.Proxies.Where (p => p.IsActiveProxy (Entity.DeliveryDate) && (p.DeliveryPoint == null || p.DeliveryPoint == Entity.DeliveryPoint));
 				foreach (var proxy in proxies) {
@@ -448,7 +449,7 @@ namespace Vodovoz
 					}
 				}
 			}
-			if(String.IsNullOrWhiteSpace (text.Text))
+			if (String.IsNullOrWhiteSpace (text.Text))
 				labelProxyInfo.Markup = "<span foreground=\"red\">Нет активной доверенности</span>";
 			else
 				labelProxyInfo.LabelProp = text.Text;
@@ -459,16 +460,92 @@ namespace Vodovoz
 			UpdateProxyInfo ();
 		}
 
-		protected void OnButtonPrintUPDClicked (object sender, EventArgs e)
+		protected void OnButtonPrintEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			var report = new QSReport.ReportViewDlg (new QSReport.ReportInfo {
-				Title = String.Format ("УПД {0} от {1:d}", Entity.Id, Entity.DeliveryDate),
-				Identifier = "UPD",
-				Parameters = new Dictionary<string, object>{
-					{"order_id", Entity.Id}
-				}
-			});
-			TabParent.AddTab (report, this, false);
+			QSReport.ReportViewDlg report = null;
+			QSReport.ReportInfo reportInfo = null;
+			PrintDocuments selected = (PrintDocuments)e.ItemEnum;
+
+			switch (selected) {
+			case PrintDocuments.Bill:
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("Счет №{0} от {1}", Entity.Id, Entity.DeliveryDate),
+					Identifier = "Bill",
+					Parameters = new Dictionary<string, object> {
+						{ "order_id",  Entity.Id },
+						{ "organization_id", OrganizationRepository.CashlessOrganizationId },
+						{ "hide_signature", false }
+					}
+				};
+				break;
+			case PrintDocuments.BillWithoutSignature:
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("Счет №{0} от {1} (без печати и подписи)", Entity.Id, Entity.DeliveryDate),
+					Identifier = "Bill",
+					Parameters = new Dictionary<string, object> {
+						{ "order_id",  Entity.Id },
+						{ "organization_id", OrganizationRepository.CashlessOrganizationId },
+						{ "hide_signature", true }
+					}
+				};
+				break;
+			case PrintDocuments.DoneWorkReport:
+				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
+			case PrintDocuments.EquipmentTransfer:
+				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
+			case PrintDocuments.Invoice:
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("Накладная №{0} от {1}", Entity.Id, Entity.DeliveryDate),
+					Identifier = "Invoice",
+					Parameters = new Dictionary<string, object> {
+						{ "order_id",  Entity.Id }
+					}
+				};
+				break;
+			case PrintDocuments.InvoiceBarter:
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("Накладная №{0} от {1} (безденежно)", Entity.Id, Entity.DeliveryDate),
+					Identifier = "InvoiceBarter",
+					Parameters = new Dictionary<string, object> {
+						{ "order_id",  Entity.Id }
+					}
+				};
+				break;
+			case PrintDocuments.UPD:
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("УПД {0} от {1:d}", Entity.Id, Entity.DeliveryDate),
+					Identifier = "UPD",
+					Parameters = new Dictionary<string, object> {
+						{ "order_id", Entity.Id }
+					}
+				};
+				break;
+			default:
+				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
+			}
+
+			if (reportInfo != null) {
+				report = new QSReport.ReportViewDlg (reportInfo);
+				TabParent.AddTab (report, this, false);
+			}
 		}
+	}
+
+	public enum PrintDocuments
+	{
+		[ItemTitleAttribute ("Счет")]
+		Bill,
+		[ItemTitleAttribute ("Счет (Без печати и подписи)")]
+		BillWithoutSignature,
+		[ItemTitleAttribute ("Акт выполненных работ")]
+		DoneWorkReport,
+		[ItemTitleAttribute ("Акт приема-передачи оборудования")]
+		EquipmentTransfer,
+		[ItemTitleAttribute ("Накладная (нал.)")]
+		Invoice,
+		[ItemTitleAttribute ("Накладная (безденежно)")]
+		InvoiceBarter,
+		[ItemTitleAttribute ("УПД")]
+		UPD
 	}
 }

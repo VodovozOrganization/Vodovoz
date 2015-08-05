@@ -651,7 +651,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14925,7 +14924,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="660 491">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="660 500">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14986,6 +14985,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -15073,7 +15073,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">4</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -16212,14 +16212,16 @@ Patronymic</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.Button" id="buttonPrintUPD">
+                              <widget class="QSOrmProject.EnumMenuButton" id="buttonPrint">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Type">TextAndIcon</property>
                                 <property name="Icon">stock:gtk-print Menu</property>
-                                <property name="Label" translatable="yes">Печать УПД</property>
+                                <property name="Label" translatable="yes">Печать документов</property>
                                 <property name="UseUnderline">True</property>
-                                <signal name="Clicked" handler="OnButtonPrintUPDClicked" />
+                                <property name="UseMarkup">False</property>
+                                <property name="ItemsEnumName">Vodovoz.PrintDocuments, Vodovoz</property>
+                                <signal name="EnumItemClicked" handler="OnButtonPrintEnumItemClicked" />
                               </widget>
                               <packing>
                                 <property name="PackType">End</property>
