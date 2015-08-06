@@ -469,7 +469,7 @@ namespace Vodovoz
 			switch (selected) {
 			case PrintDocuments.Bill:
 				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Счет №{0} от {1}", Entity.Id, Entity.DeliveryDate),
+					Title = String.Format ("Счет №{0} от {1:d}", Entity.Id, Entity.DeliveryDate),
 					Identifier = "Bill",
 					Parameters = new Dictionary<string, object> {
 						{ "order_id",  Entity.Id },
@@ -480,7 +480,7 @@ namespace Vodovoz
 				break;
 			case PrintDocuments.BillWithoutSignature:
 				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Счет №{0} от {1} (без печати и подписи)", Entity.Id, Entity.DeliveryDate),
+					Title = String.Format ("Счет №{0} от {1:d} (без печати и подписи)", Entity.Id, Entity.DeliveryDate),
 					Identifier = "Bill",
 					Parameters = new Dictionary<string, object> {
 						{ "order_id",  Entity.Id },
@@ -495,7 +495,7 @@ namespace Vodovoz
 				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
 			case PrintDocuments.Invoice:
 				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Накладная №{0} от {1}", Entity.Id, Entity.DeliveryDate),
+					Title = String.Format ("Накладная №{0} от {1:d}", Entity.Id, Entity.DeliveryDate),
 					Identifier = "Invoice",
 					Parameters = new Dictionary<string, object> {
 						{ "order_id",  Entity.Id }
@@ -504,7 +504,7 @@ namespace Vodovoz
 				break;
 			case PrintDocuments.InvoiceBarter:
 				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Накладная №{0} от {1} (безденежно)", Entity.Id, Entity.DeliveryDate),
+					Title = String.Format ("Накладная №{0} от {1:d} (безденежно)", Entity.Id, Entity.DeliveryDate),
 					Identifier = "InvoiceBarter",
 					Parameters = new Dictionary<string, object> {
 						{ "order_id",  Entity.Id }
