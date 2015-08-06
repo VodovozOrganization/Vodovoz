@@ -78,6 +78,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
+			#region Events
 			treeDocuments.Selection.Changed += (sender, e) => {
 				buttonViewDocument.Sensitive = treeDocuments.Selection.CountSelectedRows () > 0;
 			};
@@ -90,17 +91,16 @@ namespace Vodovoz
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 			};
 
-			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => { 
-				OrderItem item = UoWGeneric.Root.ObservableOrderItems [aIdx [0]];
-				if (item.Nomenclature.Category == NomenclatureCategory.water) {
-					UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
-					if ((item.AdditionalAgreement as WaterSalesAgreement).IsFixedPrice) {
-						return;
-					}
-				}
-				item.Price = item.Nomenclature.GetPrice (item.Count);
-				UpdateSum (); 
-			};
+			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
+
+			UoWGeneric.Root.ObservableOrderItems.ElementAdded += (aList, aIdx) => FixPrice (aIdx [0]);
+
+			UoWGeneric.Root.ObservableOrderItems.ListContentChanged += (sender, e) => UpdateSum ();
+
+			UoWGeneric.Root.ObservableOrderDepositRefundItem.ListContentChanged += (sender, e) => UpdateSum ();
+
+			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+			#endregion
 
 			dataSumDifferenceReason.Completion = new EntryCompletion ();
 			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons (UoWGeneric);
@@ -122,8 +122,6 @@ namespace Vodovoz
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();
 
-			treeItems.Selection.Changed += TreeItems_Selection_Changed;
-
 			treeEquipment.ColumnMappingConfig = FluentMappingConfig<OrderEquipment>.Create ()
 				.AddColumn ("Наименование").SetDataProperty (node => node.NameString)
 				.AddColumn ("Направление").SetDataProperty (node => node.DirectionString)
@@ -144,6 +142,18 @@ namespace Vodovoz
 
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable ();
+		}
+
+		void FixPrice (int id)
+		{
+			OrderItem item = UoWGeneric.Root.ObservableOrderItems [id];
+			if (item.Nomenclature.Category == NomenclatureCategory.water) {
+				UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
+				if ((item.AdditionalAgreement as WaterSalesAgreement).IsFixedPrice) {
+					return;
+				}
+			}
+			item.Price = item.Nomenclature.GetPrice (item.Count);
 		}
 
 		void TreeItems_Selection_Changed (object sender, EventArgs e)

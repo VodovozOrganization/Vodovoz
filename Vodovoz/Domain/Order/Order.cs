@@ -276,6 +276,9 @@ namespace Vodovoz.Domain.Orders
 				foreach (OrderItem item in ObservableOrderItems) {
 					sum += item.Price * item.Count;
 				}
+				foreach (OrderDepositRefundItem dep in ObservableOrderDepositRefundItem) {
+					sum -= dep.RefundDeposit;
+				}
 				return sum;
 			}
 		}
