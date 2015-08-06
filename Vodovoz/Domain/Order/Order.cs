@@ -13,7 +13,10 @@ namespace Vodovoz.Domain.Orders
 
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "заказы",
-		Nominative = "заказ")]
+		Nominative = "заказ",
+		Prepositional = "заказе",
+		PrepositionalPlural = "заказах"
+	)]
 	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
@@ -240,15 +243,13 @@ namespace Vodovoz.Domain.Orders
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if(validationContext.Items.ContainsKey ("NewStatus"))
-			{
+			if (validationContext.Items.ContainsKey ("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items ["NewStatus"];
-				if(newStatus == OrderStatus.Accepted)
-				{
-					if(DeliveryDate == default(DateTime))
+				if (newStatus == OrderStatus.Accepted) {
+					if (DeliveryDate == default(DateTime))
 						yield return new ValidationResult ("Не указана дата доставки.",
 							new[] { this.GetPropertyName (o => o.DeliveryDate) });
-					if(!SelfDelivery && DeliverySchedule == null)
+					if (!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult ("Не указано время доставки.",
 							new[] { this.GetPropertyName (o => o.DeliverySchedule) });
 				}
@@ -472,13 +473,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public void RemoveItem(OrderItem item)
+		public void RemoveItem (OrderItem item)
 		{
 			ObservableOrderItems.Remove (item);
 			foreach (var equip in ObservableOrderEquipments.Where (e => e.OrderItem == item).ToList ()) {
 				ObservableOrderEquipments.Remove (equip);
 			}
 		}
-	}		
+	}
 }
 

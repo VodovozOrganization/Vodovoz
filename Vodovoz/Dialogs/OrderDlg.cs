@@ -523,7 +523,9 @@ namespace Vodovoz
 			default:
 				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
 			}
-
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Order), selected.GetEnumTitle ()))
+				UoWGeneric.Save ();
+			
 			if (reportInfo != null) {
 				report = new QSReport.ReportViewDlg (reportInfo);
 				TabParent.AddTab (report, this, false);
