@@ -81,6 +81,25 @@ namespace Vodovoz
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
 			entryName.Changed += EntryName_Changed;
 			entryFullName.Changed += EntryName_Changed;
+
+			//make actions menu
+			var menu = new Gtk.Menu ();
+			var menuItem = new Gtk.MenuItem ("Все заказы контрагента");
+			menuItem.Activated += AllOrders_Activated;
+			menu.Add (menuItem);
+			menuActions.Menu = menu;
+			menu.ShowAll ();
+		}
+
+		void AllOrders_Activated (object sender, EventArgs e)
+		{
+			var filter = new OrdersFilter (UnitOfWorkFactory.CreateWithoutRoot ());
+			filter.RestrictCounterparty = Entity;
+
+			ReferenceRepresentation OrdersDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
+			OrdersDialog.Mode = OrmReferenceMode.Normal;
+
+			TabParent.AddTab (OrdersDialog, this, false);
 		}
 
 		public override bool Save ()
