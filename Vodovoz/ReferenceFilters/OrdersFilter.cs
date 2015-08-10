@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
@@ -17,6 +18,7 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumcomboStatus.ItemsEnum = typeof(OrderStatus);
+				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (uow);
 			}
 		}
 
@@ -45,11 +47,6 @@ namespace Vodovoz
 
 		#endregion
 
-		void UpdateCreteria ()
-		{
-			OnRefiltered ();
-		}
-
 		public OrderStatus? RestrictStatus {
 			get { return enumcomboStatus.SelectedItem as OrderStatus?;}
 			set { enumcomboStatus.SelectedItem = value;
@@ -57,7 +54,39 @@ namespace Vodovoz
 			}
 		}
 
+		public Counterparty RestrictCounterparty {
+			get { return entryreferenceClient.Subject as Counterparty;}
+			set { entryreferenceClient.Subject = value;
+				entryreferenceClient.Sensitive = false;
+			}
+		}
+
+		public DeliveryPoint RestrictDeliveryPoint {
+			get { return entryreferencePoint.Subject as DeliveryPoint;}
+			set { entryreferencePoint.Subject = value;
+				entryreferencePoint.Sensitive = false;
+			}
+		}
+
 		protected void OnEnumcomboStatusEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
+		{
+			entryreferencePoint.Sensitive = RestrictCounterparty != null;
+			if (RestrictCounterparty == null)
+				entryreferencePoint.Subject = null;
+			else
+			{
+				entryreferencePoint.Subject = null;
+				entryreferencePoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, RestrictCounterparty);
+			}
+			OnRefiltered ();
+		}
+
+		protected void OnEntryreferencePointChanged (object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

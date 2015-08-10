@@ -37,6 +37,16 @@ namespace Vodovoz.ViewModel
 				query.Where (o => o.OrderStatus == Filter.RestrictStatus);
 			}
 
+			if(Filter.RestrictCounterparty != null)
+			{
+				query.Where (o => o.Client == Filter.RestrictCounterparty);
+			}
+
+			if(Filter.RestrictDeliveryPoint != null)
+			{
+				query.Where (o => o.DeliveryPoint == Filter.RestrictDeliveryPoint);
+			}
+
 			var result = query
 				.JoinQueryOver (o => o.Client, () => counterpartyAlias)
 				.SelectList (list => list
