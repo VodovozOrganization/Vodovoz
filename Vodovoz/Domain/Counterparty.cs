@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSProjectsLib;
 using System.Data.Bindings.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Vodovoz.Domain
 {
@@ -16,7 +17,7 @@ namespace Vodovoz.Domain
 		Accusative = "контрагента",
 		Genitive = "контрагента"
 	)]
-	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IProxyOwner
+	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IProxyOwner, IValidatableObject
 	{
 		private IList<CounterpartyContract> counterpartyContracts;
 
@@ -130,8 +131,6 @@ namespace Vodovoz.Domain
 
 		string iNN;
 
-		[Digits (ErrorMessage = "ИНН может содержать только цифры.")]
-		[StringLength (12, MinimumLength = 0, ErrorMessage = "Номер ИНН не должен превышать 12.")]
 		[Display (Name = "ИНН")]
 		public virtual string INN {
 			get { return iNN; }
@@ -141,8 +140,6 @@ namespace Vodovoz.Domain
 		string kPP;
 
 		[Display (Name = "КПП")]
-		[Digits (ErrorMessage = "КПП может содержать только цифры.")]
-		[StringLength (9, MinimumLength = 0, ErrorMessage = "Номер КПП не должен превышать 9 цифр.")]
 		public virtual string KPP {
 			get { return kPP; }
 			set { SetField (ref kPP, value, () => KPP); }
@@ -280,6 +277,34 @@ namespace Vodovoz.Domain
 			KPP = String.Empty;
 			JurAddress = String.Empty;
 		}
+
+		#region IValidatableObject implementation
+
+		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if (PersonType == PersonType.legal) {
+				if (KPP.Length != 9 && KPP.Length != 0)
+					yield return new ValidationResult ("Длинна КПП должна равнятся 9-ти.",
+						new[] { this.GetPropertyName (o => o.KPP) });
+				if (INN.Length != 10 && INN.Length != 0)
+					yield return new ValidationResult ("Длинна ИНН должна равнятся 10-ти.",
+						new[] { this.GetPropertyName (o => o.INN) });
+				if (String.IsNullOrWhiteSpace (KPP))
+					yield return new ValidationResult ("Для организации необходимо заполнить КПП.",
+						new[] { this.GetPropertyName (o => o.KPP) });
+				if (String.IsNullOrWhiteSpace(INN))
+					yield return new ValidationResult ("Для организации необходимо заполнить ИНН.",
+						new[] { this.GetPropertyName (o => o.INN) });
+				if (!Regex.IsMatch (KPP, "^[0-9]*$"))
+					yield return new ValidationResult ("КПП может содержать только цифры.",
+						new[] { this.GetPropertyName (o => o.KPP) });
+				if (!Regex.IsMatch (INN, "^[0-9]*$"))
+					yield return new ValidationResult ("ИНН может содержать только цифры.",
+						new[] { this.GetPropertyName (o => o.INN) });
+			}
+		}
+
+		#endregion
 	}
 
 	public enum PersonType
