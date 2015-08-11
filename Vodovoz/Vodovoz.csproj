@@ -306,6 +306,8 @@
     <Compile Include="Domain\Logistic\Car.cs" />
     <Compile Include="HibernateMapping\Logistic\CarMap.cs" />
     <Compile Include="Representations\ContactsVM.cs" />
+    <Compile Include="HibernateMapping\Service\ServiceClaimMap.cs" />
+    <Compile Include="Domain\Service\ServiceClaim.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -401,6 +403,8 @@
     <Folder Include="ViewWidgets\Logistics\" />
     <Folder Include="Repositories\Logistics\" />
     <Folder Include="HibernateMapping\Handbooks\" />
+    <Folder Include="HibernateMapping\Service\" />
+    <Folder Include="Domain\Service\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
