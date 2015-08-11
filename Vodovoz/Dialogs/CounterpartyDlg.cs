@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using NHibernate.Criterion;
 using NLog;
 using QSContacts;
@@ -16,7 +15,6 @@ namespace Vodovoz
 	public partial class CounterpartyDlg : OrmGtkDialogBase<Counterparty>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
-		int dialogIsLoading = 2;
 
 		public CounterpartyDlg ()
 		{
@@ -54,7 +52,7 @@ namespace Vodovoz
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract> ();
 			}
 			//Setting up editable property
-			entryName.IsEditable = entryJurAddress.IsEditable = entryFullName.IsEditable = true;
+			entryJurAddress.IsEditable = entryFullName.IsEditable = true;
 			dataComment.Editable = dataWaybillComment.Editable = true;
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -79,8 +77,11 @@ namespace Vodovoz
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			//Setting permissions
 			spinMaxCredit.Sensitive = QSMain.User.Permissions ["max_loan_amount"];
-			entryName.Changed += EntryName_Changed;
-			entryFullName.Changed += EntryName_Changed;
+			datalegalname1.Binding.AddSource (Entity)
+				.AddBinding (s => s.Name, t => t.OwnName)
+				.AddBinding (s => s.TypeOfOwnership, t => t.Ownership)
+				.AddBinding (s => s.FullName, t => t.FullName)
+				.InitializeFromSource ();
 
 			//make actions menu
 			var menu = new Gtk.Menu ();
@@ -164,20 +165,11 @@ namespace Vodovoz
 				notebook1.CurrentPage = 7;
 		}
 
-		void EntryName_Changed (object sender, EventArgs e)
+		protected void OnEnumPersonTypeChanged (object sender, EventArgs e)
 		{
-			if (dialogIsLoading > 0) {
-				dialogIsLoading--;
-				return;
-			}
-			if (sender == entryName) {
-				foreach (KeyValuePair<string, string> pair in InformationHandbook.OrganizationTypes)
-					if (Regex.IsMatch (entryName.Text, pair.Key) || Regex.IsMatch (entryName.Text, pair.Value, RegexOptions.IgnoreCase))
-						enumPersonType.Active = (int)PersonType.legal;
-			} else
-				foreach (KeyValuePair<string, string> pair in InformationHandbook.OrganizationTypes)
-					if (Regex.IsMatch (entryFullName.Text, pair.Key) || Regex.IsMatch (entryFullName.Text, pair.Value, RegexOptions.IgnoreCase))
-						enumPersonType.Active = (int)PersonType.legal;
+			labelFIO.Visible = entryFIO.Visible = Entity.PersonType == PersonType.natural;
+			labelShort.Visible = datalegalname1.Visible = 
+				labelFullName.Visible = entryFullName.Visible = Entity.PersonType == PersonType.legal;
 		}
 	}
 }

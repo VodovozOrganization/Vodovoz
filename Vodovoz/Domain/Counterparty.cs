@@ -4,7 +4,6 @@ using System.Data.Bindings;
 using System.Collections.Generic;
 using QSContacts;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QSProjectsLib;
 using System.Data.Bindings.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -96,6 +95,15 @@ namespace Vodovoz.Domain
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
+		}
+
+		string typeOfOwnership;
+
+		[Display (Name = "Форма собственности")]
+		[StringLength(10)]
+		public virtual string TypeOfOwnership {
+			get { return typeOfOwnership; }
+			set { SetField (ref typeOfOwnership, value, () => TypeOfOwnership); }
 		}
 
 		string fullName;
