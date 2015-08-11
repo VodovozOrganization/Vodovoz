@@ -2,6 +2,7 @@
 using System;
 using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Service
 {
@@ -11,6 +12,20 @@ namespace Vodovoz.Domain.Service
 	public class ServiceClaim: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
+
+		Order initialOrder;
+
+		public virtual Order InitialOrder {
+			get { return initialOrder; }
+			set { SetField (ref initialOrder, value, () => InitialOrder); }
+		}
+
+		Order finalOrder;
+
+		public virtual Order FinalOrder {
+			get { return finalOrder; }
+			set { SetField (ref finalOrder, value, () => FinalOrder); }
+		}
 
 		ServiceClaimStatus status;
 
@@ -129,6 +144,13 @@ namespace Vodovoz.Domain.Service
 		}
 
 		#endregion
+
+		public static IUnitOfWorkGeneric<ServiceClaim> Create (Order order)
+		{
+			var uow = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim> ();
+			uow.Root.InitialOrder = order;
+			return uow;
+		}
 	}
 
 	public enum ServiceClaimStatus

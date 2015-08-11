@@ -310,6 +310,8 @@
     <Compile Include="Domain\Service\ServiceClaim.cs" />
     <Compile Include="ReferenceFilters\CounterpartyFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyFilter.cs" />
+    <Compile Include="Dialogs\ServiceClaimDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
