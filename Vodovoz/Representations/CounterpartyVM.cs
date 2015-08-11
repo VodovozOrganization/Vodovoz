@@ -10,6 +10,16 @@ namespace Vodovoz.ViewModel
 {
 	public class CounterpartyVM : RepresentationModelBase<Counterparty, CounterpartyVMNode>
 	{
+
+		public CounterpartyFilter Filter {
+			get {
+				return RepresentationFilter as CounterpartyFilter;
+			}
+			set {
+				RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -17,15 +27,20 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			CounterpartyVMNode resultAlias = null;
 
-			var counterpartylist = Repository.CounterpartyRepository.ActiveClientsQuery ().GetExecutableQueryOver (UoW.Session)
-				.SelectList(list => list
-					.Select(c => c.Id).WithAlias(() => resultAlias.Id)
-					.Select(c => c.Name).WithAlias(() => resultAlias.Name)
-				)
-				.TransformUsing(Transformers.AliasToBean<CounterpartyVMNode>())
-				.List<CounterpartyVMNode>();
+			var query = UoW.Session.QueryOver<Counterparty> (() => counterpartyAlias);
 
-			SetItemsSource (counterpartylist);
+			if (Filter.RestrictCounterpartyType != null) {
+				query.Where (c => c.CounterpartyType == Filter.RestrictCounterpartyType);
+			}
+
+			var counterpartyList = query.SelectList (list => list
+					.Select (c => c.Id).WithAlias (() => resultAlias.Id)
+					.Select (c => c.Name).WithAlias (() => resultAlias.Name)
+			                       )
+				.TransformUsing (Transformers.AliasToBean<CounterpartyVMNode> ())
+				.List<CounterpartyVMNode> ();
+
+			SetItemsSource (counterpartyList);
 		}
 
 		IMappingConfig treeViewConfig = FluentMappingConfig<CounterpartyVMNode>.Create ()
@@ -33,7 +48,7 @@ namespace Vodovoz.ViewModel
 			.Finish ();
 
 		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig;}
+			get { return treeViewConfig; }
 		}
 
 		#endregion
@@ -44,7 +59,7 @@ namespace Vodovoz.ViewModel
 		{
 			return true;
 		}
-			
+
 		protected override bool NeedUpdateFunc (object updatedSubject)
 		{
 			throw new NotImplementedException ();
@@ -52,21 +67,27 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public CounterpartyVM () : this(UnitOfWorkFactory.CreateWithoutRoot ())
+		public CounterpartyVM () : this (UnitOfWorkFactory.CreateWithoutRoot ())
 		{
+			CreateRepresentationFilter = () => new CounterpartyFilter (UoW);
 		}
 
 		public CounterpartyVM (IUnitOfWork uow)
 		{
 			this.UoW = uow;
 		}
+
+		public CounterpartyVM (CounterpartyFilter filter) : this (filter.UoW)
+		{
+			Filter = filter;
+		}
 	}
-		
+
 	public class CounterpartyVMNode
 	{
-		public int Id{ get; set;}
-					
-		public string Name { get; set;}
+		public int Id{ get; set; }
+
+		public string Name { get; set; }
 	}
 }
 

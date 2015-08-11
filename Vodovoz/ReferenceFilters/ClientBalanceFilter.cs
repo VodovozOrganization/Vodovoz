@@ -17,11 +17,13 @@ namespace Vodovoz
 			}
 			set {
 				uow = value;
-				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (uow);
+				var filter = new CounterpartyFilter (UnitOfWorkFactory.CreateWithoutRoot ());
+				filter.RestrictCounterpartyType = CounterpartyType.customer;
+				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (filter);
 			}
 		}
 
-		public ClientBalanceFilter (IUnitOfWork uow) : this()
+		public ClientBalanceFilter (IUnitOfWork uow) : this ()
 		{
 			UoW = uow;
 		}
@@ -52,16 +54,18 @@ namespace Vodovoz
 		}
 
 		public Counterparty RestrictCounterparty {
-			get { return entryreferenceClient.Subject as Counterparty;}
-			set { entryreferenceClient.Subject = value;
+			get { return entryreferenceClient.Subject as Counterparty; }
+			set {
+				entryreferenceClient.Subject = value;
 				entryreferenceClient.Sensitive = false;
 			}
 		
 		}
 
 		public DeliveryPoint RestrictDeliveryPoint {
-			get { return entryreferencePoint.Subject as DeliveryPoint;}
-			set { entryreferencePoint.Subject = value;
+			get { return entryreferencePoint.Subject as DeliveryPoint; }
+			set {
+				entryreferencePoint.Subject = value;
 				entryreferencePoint.Sensitive = false;
 			}
 
@@ -77,8 +81,7 @@ namespace Vodovoz
 			entryreferencePoint.Sensitive = RestrictCounterparty != null;
 			if (RestrictCounterparty == null)
 				entryreferencePoint.Subject = null;
-			else
-			{
+			else {
 				entryreferencePoint.Subject = null;
 				entryreferencePoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, RestrictCounterparty);
 			}

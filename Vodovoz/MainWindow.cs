@@ -9,6 +9,7 @@ using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModel;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -158,10 +159,9 @@ public partial class MainWindow: Gtk.Window
 			SwitchToUI ("Vodovoz.toolbars.orders.xml");
 	}
 
-	private void SwitchToUI(string uiResource)
+	private void SwitchToUI (string uiResource)
 	{
-		if(LastUiId > 0)
-		{
+		if (LastUiId > 0) {
 			this.UIManager.RemoveUi (LastUiId);
 			LastUiId = 0;
 		}
@@ -260,7 +260,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionCounterpartyHandbookActivated (object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof(Counterparty));
+		var refWin = new ReferenceRepresentation (new CounterpartyVM ());
 		tdiMain.AddTab (refWin);
 	}
 
