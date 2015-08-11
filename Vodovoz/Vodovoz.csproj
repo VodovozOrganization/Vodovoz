@@ -312,6 +312,7 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyFilter.cs" />
     <Compile Include="Dialogs\ServiceClaimDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
+    <Compile Include="HibernateMapping\CounterpartyMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
