@@ -149,6 +149,10 @@ namespace Vodovoz.Domain.Service
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim> ();
 			uow.Root.InitialOrder = order;
+			uow.Root.Counterparty = order.Client;
+			uow.Root.DeliveryPoint = order.DeliveryPoint;
+			uow.Root.Status = ServiceClaimStatus.PickUp;
+			uow.Root.ServiceStartDate = order.DeliveryDate;
 			return uow;
 		}
 	}

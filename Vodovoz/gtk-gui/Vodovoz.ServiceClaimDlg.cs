@@ -92,6 +92,7 @@ namespace Vodovoz
 			this.vbox1 = new global::Gtk.VBox ();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
+			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
@@ -159,11 +160,11 @@ namespace Vodovoz
 			w6.BottomAttach = ((uint)(6));
 			w6.LeftAttach = ((uint)(2));
 			w6.RightAttach = ((uint)(4));
-			w6.XOptions = ((global::Gtk.AttachOptions)(1));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.dataNumber = new global::Gtk.DataBindings.DataLabel ();
 			this.dataNumber.Name = "dataNumber";
+			this.dataNumber.Xalign = 0F;
 			this.dataNumber.InheritedDataSource = true;
 			this.dataNumber.Mappings = "Id";
 			this.dataNumber.InheritedBoundaryDataSource = false;
@@ -569,7 +570,6 @@ namespace Vodovoz
 			w37.BottomAttach = ((uint)(3));
 			w37.LeftAttach = ((uint)(3));
 			w37.RightAttach = ((uint)(4));
-			w37.XOptions = ((global::Gtk.AttachOptions)(4));
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.referenceNomenclature = new global::Gtk.DataBindings.DataEntryReference ();
@@ -589,7 +589,6 @@ namespace Vodovoz
 			w38.BottomAttach = ((uint)(3));
 			w38.LeftAttach = ((uint)(1));
 			w38.RightAttach = ((uint)(2));
-			w38.XOptions = ((global::Gtk.AttachOptions)(4));
 			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.spinTotalPrice = new global::Gtk.DataBindings.DataSpinButton (0, 100, 1);

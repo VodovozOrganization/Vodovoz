@@ -4,6 +4,7 @@ using Vodovoz.Domain.Service;
 using NLog;
 using Vodovoz.Domain.Orders;
 using QSValidation;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -32,7 +33,17 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			
+			subjectAdaptor.Target = UoWGeneric.Root;
+
+			datatable1.DataSource = subjectAdaptor;
+			enumPaymentType.DataSource = subjectAdaptor;
+			enumStatus.DataSource = subjectAdaptor;
+
+			referenceCounterparty.SubjectType = typeof(Counterparty);
+			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
+			referenceEngineer.SubjectType = typeof(Employee);
+			referenceEquipment.SubjectType = typeof(Equipment);
+			referenceNomenclature.SubjectType = typeof(Nomenclature);
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

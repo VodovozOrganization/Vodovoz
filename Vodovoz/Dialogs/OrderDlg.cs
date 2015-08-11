@@ -541,6 +541,12 @@ namespace Vodovoz
 				TabParent.AddTab (report, this, false);
 			}
 		}
+
+		protected void OnButtonAddServiceClaimClicked (object sender, EventArgs e)
+		{
+			var dlg = new ServiceClaimDlg (UoWGeneric.Root);
+			TabParent.AddSlaveTab (this, dlg);
+		}
 	}
 
 	public enum PrintDocuments
