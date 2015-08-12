@@ -16,7 +16,7 @@ namespace Vodovoz.Domain
 		Accusative = "контрагента",
 		Genitive = "контрагента"
 	)]
-	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IProxyOwner, IValidatableObject
+	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IValidatableObject
 	{
 		private IList<CounterpartyContract> counterpartyContracts;
 
@@ -100,7 +100,7 @@ namespace Vodovoz.Domain
 		string typeOfOwnership;
 
 		[Display (Name = "Форма собственности")]
-		[StringLength(10)]
+		[StringLength (10)]
 		public virtual string TypeOfOwnership {
 			get { return typeOfOwnership; }
 			set { SetField (ref typeOfOwnership, value, () => TypeOfOwnership); }
@@ -300,7 +300,7 @@ namespace Vodovoz.Domain
 				if (String.IsNullOrWhiteSpace (KPP))
 					yield return new ValidationResult ("Для организации необходимо заполнить КПП.",
 						new[] { this.GetPropertyName (o => o.KPP) });
-				if (String.IsNullOrWhiteSpace(INN))
+				if (String.IsNullOrWhiteSpace (INN))
 					yield return new ValidationResult ("Для организации необходимо заполнить ИНН.",
 						new[] { this.GetPropertyName (o => o.INN) });
 				if (!Regex.IsMatch (KPP, "^[0-9]*$"))
