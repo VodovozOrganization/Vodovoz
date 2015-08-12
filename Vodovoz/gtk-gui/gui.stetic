@@ -17444,10 +17444,7 @@ RegistrationNumber</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name
-LastName
-Patronymic</property>
-                <property name="DisplayFormatString">{0} {1} {2}</property>
+                <property name="DisplayFormatString" />
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Driver</property>
                 <property name="InheritedBoundaryDataSource">False</property>

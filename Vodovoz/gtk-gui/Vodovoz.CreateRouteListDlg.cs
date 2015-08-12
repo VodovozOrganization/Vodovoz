@@ -317,12 +317,7 @@ namespace Vodovoz
 			this.referenceDriver = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDriver.Name = "referenceDriver";
-			this.referenceDriver.DisplayFields = new string[] {
-				"Name",
-				"LastName",
-				"Patronymic"
-			};
-			this.referenceDriver.DisplayFormatString = "{0} {1} {2}";
+			this.referenceDriver.DisplayFormatString = "";
 			this.referenceDriver.InheritedDataSource = true;
 			this.referenceDriver.Mappings = "Driver";
 			this.referenceDriver.InheritedBoundaryDataSource = false;

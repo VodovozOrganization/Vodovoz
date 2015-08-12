@@ -42,6 +42,7 @@ namespace Vodovoz
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
 			referenceDriver.PropertyMapping<RouteList> (r => r.Driver);
+			referenceDriver.SetObjectDisplayFunc<Employee> (r => r.FullName);
 
 			dataentryForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
 			dataentryForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
