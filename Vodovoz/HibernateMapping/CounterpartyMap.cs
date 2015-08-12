@@ -13,6 +13,7 @@ namespace Vodovoz.HMap
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");
+			Map(x => x.FullName).Column ("full_name");
 			Map(x => x.TypeOfOwnership).Column ("type_of_ownership");
 			Map (x => x.Code1c).Column ("code_1c");
 			Map (x => x.MaxCredit).Column ("max_credit");
