@@ -5,6 +5,7 @@ using NLog;
 using Vodovoz.Domain.Orders;
 using QSValidation;
 using Vodovoz.Domain;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -44,6 +45,9 @@ namespace Vodovoz
 			referenceEngineer.SubjectType = typeof(Employee);
 			referenceEquipment.SubjectType = typeof(Equipment);
 			referenceNomenclature.SubjectType = typeof(Nomenclature);
+
+			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
+			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -58,10 +62,33 @@ namespace Vodovoz
 			UoWGeneric.Save ();
 			logger.Info ("Ok");
 			return true;
-
 		}
 
 		#endregion
+
+		protected void OnReferenceNomenclatureChanged (object sender, EventArgs e)
+		{
+			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
+
+			if (UoWGeneric.Root.Equipment != null &&
+			    UoWGeneric.Root.Equipment.Nomenclature.Id != UoWGeneric.Root.Nomenclature.Id) {
+			
+				UoWGeneric.Root.Equipment = null;
+			}
+			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentByNomenclature (UoWGeneric.Root.Nomenclature);
+		}
+
+		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
+		{
+			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
+				
+			if (UoWGeneric.Root.DeliveryPoint != null &&
+			    UoWGeneric.Root.DeliveryPoint.Counterparty.Id != UoWGeneric.Root.Counterparty.Id) {
+
+				UoWGeneric.Root.DeliveryPoint = null;
+			}
+			referenceDeliveryPoint.ItemsQuery = DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Counterparty);
+		}
 	}
 }
 

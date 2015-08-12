@@ -651,6 +651,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18921,12 +18922,12 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterparty">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">FullName</property>
-                <property name="DisplayFormatString">{0}</property>
+                <property name="DisplayFormatString" />
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Counterparty</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="CursorPointsEveryType">False</property>
+                <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -19034,6 +19035,7 @@ Patronymic</property>
                 <property name="Mappings">Nomenclature</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="CursorPointsEveryType">False</property>
+                <signal name="Changed" handler="OnReferenceNomenclatureChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">2</property>

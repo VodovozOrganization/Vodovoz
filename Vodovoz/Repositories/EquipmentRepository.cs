@@ -25,7 +25,15 @@ namespace Vodovoz.Repository
 				.List<Equipment> ()
 				.First ();
 		}
-		
+
+		public static QueryOver<Equipment> GetEquipmentByNomenclature (Nomenclature nomenclature)
+		{
+			Nomenclature nomenclatureAlias = null;
+
+			return QueryOver.Of<Equipment> ()
+				.JoinAlias (e => e.Nomenclature, () => nomenclatureAlias)
+				.Where (() => nomenclatureAlias.Id == nomenclature.Id);
+		}
 	}
 }
 

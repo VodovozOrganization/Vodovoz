@@ -496,10 +496,7 @@ namespace Vodovoz
 			this.referenceCounterparty = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterparty.Name = "referenceCounterparty";
-			this.referenceCounterparty.DisplayFields = new string[] {
-				"FullName"
-			};
-			this.referenceCounterparty.DisplayFormatString = "{0}";
+			this.referenceCounterparty.DisplayFormatString = "";
 			this.referenceCounterparty.InheritedDataSource = true;
 			this.referenceCounterparty.Mappings = "Counterparty";
 			this.referenceCounterparty.InheritedBoundaryDataSource = false;
@@ -623,6 +620,8 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
+			this.referenceNomenclature.Changed += new global::System.EventHandler (this.OnReferenceNomenclatureChanged);
+			this.referenceCounterparty.Changed += new global::System.EventHandler (this.OnReferenceCounterpartyChanged);
 		}
 	}
 }
