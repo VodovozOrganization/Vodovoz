@@ -81,7 +81,8 @@ namespace Vodovoz.Domain.Orders
 	{
 		[ItemTitleAttribute ("Сервис")]Service,
 		[ItemTitleAttribute ("Аренда")]Rent,
-		[ItemTitleAttribute ("Расторжение")]Cancellation
+		[ItemTitleAttribute ("Расторжение")]Cancellation,
+		[ItemTitleAttribute ("Продажа")]Sale
 	}
 
 	public class ReasonStringType : NHibernate.Type.EnumStringType

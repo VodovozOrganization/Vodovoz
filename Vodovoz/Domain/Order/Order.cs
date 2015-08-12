@@ -300,7 +300,7 @@ namespace Vodovoz.Domain.Orders
 				Direction = Vodovoz.Domain.Orders.Direction.Deliver,
 				Equipment = eq,
 				OrderItem = ObservableOrderItems [ItemId],
-				Reason = Reason.Rent	//TODO FIXME Добавить причину - продажа.
+				Reason = Reason.Sale
 			});
 		}
 
