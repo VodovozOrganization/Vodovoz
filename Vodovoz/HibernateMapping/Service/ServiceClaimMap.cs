@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -20,7 +21,7 @@ namespace Vodovoz
 			Map (x => x.RepeatedService).Column ("repeated_service");
 			Map (x => x.DiagnosticsResult).Column ("diagnostics_result");
 			Map (x => x.Status).Column ("status").CustomType<ServiceClaimStatusStringType> ();
-			Map (x => x.Payment).Column ("payment_type").CustomType<PaymentTypeStringType> ();
+			Map (x => x.Payment).Column ("payment_type").CustomType<PaymentStringType> ();
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.Nomenclature).Column ("nomenclature_id");
 			References (x => x.Equipment).Column ("equipment_id");
