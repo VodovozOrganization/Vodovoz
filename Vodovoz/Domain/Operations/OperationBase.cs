@@ -34,19 +34,6 @@ namespace Vodovoz.Domain.Operations
 		#endregion
 	}
 
-	public enum PaymentType
-	{
-		[ItemTitleAttribute ("Наличная оплата")] Cash,
-		[ItemTitleAttribute ("Безналичная оплата")] Clearing
-	}
-
-	public class PaymentTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public PaymentTypeStringType () : base (typeof(PaymentType))
-		{
-		}
-	}
-
 	public enum DepositType
 	{
 		[ItemTitleAttribute ("Отсутствует")] None,

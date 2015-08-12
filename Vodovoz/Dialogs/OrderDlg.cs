@@ -389,11 +389,11 @@ namespace Vodovoz
 		{
 			ITdiTab dlg;
 			string question = "Отсутствует договор с клиентом для " +
-			                  (UoWGeneric.Root.PaymentType == Payment.cash ? "наличной" : "безналичной") +
+			                  (UoWGeneric.Root.PaymentType == PaymentType.cash ? "наличной" : "безналичной") +
 			                  " формы оплаты. Создать?";
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
 				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
-					(UoWGeneric.Root.PaymentType == Payment.cash ?
+					(UoWGeneric.Root.PaymentType == PaymentType.cash ?
 						OrganizationRepository.GetCashOrganization (UoWGeneric) :
 						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
 				(dlg as IContractSaved).ContractSaved += (sender, e) => {

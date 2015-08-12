@@ -19,5 +19,18 @@ namespace Vodovoz.Domain
 		}
 	}
 
+	public enum PaymentType
+	{
+		[ItemTitleAttribute ("Наличная")]
+		cash,
+		[ItemTitleAttribute ("Безналичная")]
+		cashless
+	}
 
+	public class PaymentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public PaymentTypeStringType () : base (typeof(PaymentType))
+		{
+		}
+	}
 }

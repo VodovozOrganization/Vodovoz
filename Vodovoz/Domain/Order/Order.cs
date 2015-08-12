@@ -144,10 +144,10 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref shipped, value, () => Shipped); }
 		}
 
-		Payment paymentType;
+		PaymentType paymentType;
 
 		[Display (Name = "Форма оплаты")]
-		public virtual Payment PaymentType {
+		public virtual PaymentType PaymentType {
 			get { return paymentType; }
 			set { SetField (ref paymentType, value, () => PaymentType); }
 		}

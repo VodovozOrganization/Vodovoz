@@ -21,7 +21,7 @@ namespace Vodovoz
 			Map (x => x.RepeatedService).Column ("repeated_service");
 			Map (x => x.DiagnosticsResult).Column ("diagnostics_result");
 			Map (x => x.Status).Column ("status").CustomType<ServiceClaimStatusStringType> ();
-			Map (x => x.Payment).Column ("payment_type").CustomType<PaymentStringType> ();
+			Map (x => x.Payment).Column ("payment_type").CustomType<PaymentTypeStringType> ();
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.Nomenclature).Column ("nomenclature_id");
 			References (x => x.Equipment).Column ("equipment_id");

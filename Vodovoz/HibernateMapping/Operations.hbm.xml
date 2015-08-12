@@ -55,7 +55,7 @@
 		<property name="Money" column="money"/>
 		<property name="Deposit" column="deposit"/>
 		<property name="DepositType" column="deposit_type" type="Vodovoz.Domain.Operations.DepositTypeStringType, Vodovoz"/>
-		<property name="PaymentType" column="payment_type" type="Vodovoz.Domain.Operations.PaymentTypeStringType, Vodovoz"/>
+		<property name="PaymentType" column="payment_type" type="Vodovoz.Domain.PaymentTypeStringType, Vodovoz"/>
 		<many-to-one name="Order" class="Vodovoz.Domain.Orders.Order" column="order_id"/>
 		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id"/>

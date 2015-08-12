@@ -62,9 +62,9 @@ namespace Vodovoz.Domain.Service
 			set	{ SetField (ref deliveryPoint, value, () => DeliveryPoint); }
 		}
 
-		Payment payment;
+		PaymentType payment;
 
-		public virtual Payment Payment { 
+		public virtual PaymentType Payment { 
 			get { return payment; } 
 			set	{ SetField (ref payment, value, () => Payment); }
 		}

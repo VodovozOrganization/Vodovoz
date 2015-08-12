@@ -95,10 +95,8 @@ namespace Vodovoz.Domain
 		public virtual string Name {
 			get { return name; }
 			set { 
-				if(SetField (ref name, value, () => Name))
-				{
-					if(PersonType == PersonType.natural)
-					{
+				if (SetField (ref name, value, () => Name)) {
+					if (PersonType == PersonType.natural) {
 						FullName = Name;
 					}
 				}
@@ -177,10 +175,10 @@ namespace Vodovoz.Domain
 			set { SetField (ref address, value, () => Address); }
 		}
 
-		Payment paymentMethod;
+		PaymentType paymentMethod;
 
 		[Display (Name = "Вид оплаты")]
-		public virtual Payment PaymentMethod {
+		public virtual PaymentType PaymentMethod {
 			get { return paymentMethod; }
 			set { SetField (ref paymentMethod, value, () => PaymentMethod); }
 		}
@@ -334,21 +332,6 @@ namespace Vodovoz.Domain
 	public class PersonTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public PersonTypeStringType () : base (typeof(PersonType))
-		{
-		}
-	}
-
-	public enum Payment
-	{
-		[ItemTitleAttribute ("Наличная")]
-		cash,
-		[ItemTitleAttribute ("Безналичная")]
-		cashless
-	}
-
-	public class PaymentStringType : NHibernate.Type.EnumStringType
-	{
-		public PaymentStringType () : base (typeof(Payment))
 		{
 		}
 	}

@@ -8,10 +8,10 @@ namespace Vodovoz.Repository
 {
 	public class CounterpartyContractRepository
 	{
-		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, Payment paymentType)
+		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, PaymentType paymentType)
 		{
 			Organization organization = 
-				(paymentType == Payment.cash 
+				(paymentType == PaymentType.cash 
 				? OrganizationRepository.GetCashOrganization (uow)
 				: OrganizationRepository.GetCashlessOrganization (uow));
 
