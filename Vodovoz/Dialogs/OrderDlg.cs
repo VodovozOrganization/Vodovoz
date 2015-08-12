@@ -12,6 +12,7 @@ using System.Linq;
 using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
 using System.Data.Bindings;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz
 {
@@ -60,6 +61,8 @@ namespace Vodovoz
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositRefundItem;
+			var list = ServiceClaimRepository.GetServiceClaimForOrder (UoW, UoWGeneric.Root);
+			treeServiceClaim.ItemsDataSource = list;
 
 			enumSignatureType.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
@@ -136,6 +139,13 @@ namespace Vodovoz
 			treeDepositRefundItems.ColumnMappingConfig = FluentMappingConfig<OrderDepositRefundItem>.Create ()
 				.AddColumn ("Тип").SetDataProperty (node => node.DepositTypeString)
 				.AddColumn ("Сумма").AddNumericRenderer (node => node.RefundDeposit)
+				.Finish ();
+
+			treeServiceClaim.ColumnMappingConfig = FluentMappingConfig<ServiceClaim>.Create ()
+				.AddColumn ("Статус заявки").SetDataProperty (node => node.Status.GetEnumTitle ())
+				.AddColumn ("Номенклатура оборудования").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
+				.AddColumn ("Серийный номер").SetDataProperty (node => node.Equipment != null ? node.Equipment.Serial : "-")
+				.AddColumn ("Причина").SetDataProperty (node => node.Reason)
 				.Finish ();
 			
 			UpdateSum ();
@@ -546,6 +556,16 @@ namespace Vodovoz
 		{
 			var dlg = new ServiceClaimDlg (UoWGeneric.Root);
 			TabParent.AddSlaveTab (this, dlg);
+		}
+
+		protected void OnTreeServiceClaimRowActivated (object o, RowActivatedArgs args)
+		{
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null)
+				return;
+
+			ServiceClaimDlg dlg = new ServiceClaimDlg ((treeServiceClaim.GetSelectedObjects () [0] as ServiceClaim).Id);
+			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 	}
 

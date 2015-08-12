@@ -155,6 +155,14 @@ namespace Vodovoz.Domain.Service
 			uow.Root.ServiceStartDate = order.DeliveryDate;
 			return uow;
 		}
+
+		public ServiceClaim ()
+		{
+			Reason = String.Empty;
+			Kit = String.Empty;
+			Comment = String.Empty;
+			DiagnosticsResult = String.Empty;
+		}
 	}
 
 	public enum ServiceClaimStatus

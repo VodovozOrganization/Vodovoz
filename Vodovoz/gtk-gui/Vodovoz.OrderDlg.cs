@@ -146,6 +146,10 @@ namespace Vodovoz
 		
 		private global::Gtk.VBox vbox6;
 		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow5;
+		
+		private global::Gtk.DataBindings.DataTreeView treeServiceClaim;
+		
 		private global::Gtk.HBox hbox12;
 		
 		private global::Gtk.Button buttonAddServiceClaim;
@@ -981,6 +985,23 @@ namespace Vodovoz
 			this.vbox6.Name = "vbox6";
 			this.vbox6.Spacing = 6;
 			// Container child vbox6.Gtk.Box+BoxChild
+			this.GtkScrolledWindow5 = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
+			this.GtkScrolledWindow5.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow5.Gtk.Container+ContainerChild
+			this.treeServiceClaim = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeServiceClaim.CanFocus = true;
+			this.treeServiceClaim.Name = "treeServiceClaim";
+			this.treeServiceClaim.CursorPointsEveryType = false;
+			this.treeServiceClaim.InheritedDataSource = false;
+			this.treeServiceClaim.InheritedBoundaryDataSource = false;
+			this.treeServiceClaim.InheritedDataSource = false;
+			this.treeServiceClaim.InheritedBoundaryDataSource = false;
+			this.GtkScrolledWindow5.Add (this.treeServiceClaim);
+			this.vbox6.Add (this.GtkScrolledWindow5);
+			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vbox6 [this.GtkScrolledWindow5]));
+			w72.Position = 0;
+			// Container child vbox6.Gtk.Box+BoxChild
 			this.hbox12 = new global::Gtk.HBox ();
 			this.hbox12.Name = "hbox12";
 			this.hbox12.Spacing = 6;
@@ -990,22 +1011,22 @@ namespace Vodovoz
 			this.buttonAddServiceClaim.Name = "buttonAddServiceClaim";
 			this.buttonAddServiceClaim.UseUnderline = true;
 			this.buttonAddServiceClaim.Label = global::Mono.Unix.Catalog.GetString ("Добавить заявку");
-			global::Gtk.Image w71 = new global::Gtk.Image ();
-			w71.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-preferences", global::Gtk.IconSize.Menu);
-			this.buttonAddServiceClaim.Image = w71;
+			global::Gtk.Image w73 = new global::Gtk.Image ();
+			w73.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-preferences", global::Gtk.IconSize.Menu);
+			this.buttonAddServiceClaim.Image = w73;
 			this.hbox12.Add (this.buttonAddServiceClaim);
-			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.hbox12 [this.buttonAddServiceClaim]));
-			w72.Position = 0;
-			w72.Expand = false;
-			w72.Fill = false;
+			global::Gtk.Box.BoxChild w74 = ((global::Gtk.Box.BoxChild)(this.hbox12 [this.buttonAddServiceClaim]));
+			w74.Position = 0;
+			w74.Expand = false;
+			w74.Fill = false;
 			this.vbox6.Add (this.hbox12);
-			global::Gtk.Box.BoxChild w73 = ((global::Gtk.Box.BoxChild)(this.vbox6 [this.hbox12]));
-			w73.Position = 1;
-			w73.Expand = false;
-			w73.Fill = false;
+			global::Gtk.Box.BoxChild w75 = ((global::Gtk.Box.BoxChild)(this.vbox6 [this.hbox12]));
+			w75.Position = 1;
+			w75.Expand = false;
+			w75.Fill = false;
 			this.notebook1.Add (this.vbox6);
-			global::Gtk.Notebook.NotebookChild w74 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox6]));
-			w74.Position = 3;
+			global::Gtk.Notebook.NotebookChild w76 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox6]));
+			w76.Position = 3;
 			// Notebook tab
 			this.label17 = new global::Gtk.Label ();
 			this.label17.Name = "label17";
@@ -1040,8 +1061,8 @@ namespace Vodovoz
 			this.treeDocuments.ColumnMappings = "";
 			this.GtkScrolledWindow2.Add (this.treeDocuments);
 			this.vbox1.Add (this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w76 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow2]));
-			w76.Position = 0;
+			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow2]));
+			w78.Position = 0;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox6 = new global::Gtk.HBox ();
 			this.hbox6.Name = "hbox6";
@@ -1052,14 +1073,14 @@ namespace Vodovoz
 			this.buttonViewDocument.Name = "buttonViewDocument";
 			this.buttonViewDocument.UseUnderline = true;
 			this.buttonViewDocument.Label = global::Mono.Unix.Catalog.GetString ("Посмотреть документ");
-			global::Gtk.Image w77 = new global::Gtk.Image ();
-			w77.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-find", global::Gtk.IconSize.Menu);
-			this.buttonViewDocument.Image = w77;
+			global::Gtk.Image w79 = new global::Gtk.Image ();
+			w79.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-find", global::Gtk.IconSize.Menu);
+			this.buttonViewDocument.Image = w79;
 			this.hbox6.Add (this.buttonViewDocument);
-			global::Gtk.Box.BoxChild w78 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonViewDocument]));
-			w78.Position = 0;
-			w78.Expand = false;
-			w78.Fill = false;
+			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonViewDocument]));
+			w80.Position = 0;
+			w80.Expand = false;
+			w80.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonPrint = new global::QSOrmProject.EnumMenuButton ();
 			this.buttonPrint.CanFocus = true;
@@ -1068,29 +1089,29 @@ namespace Vodovoz
 			this.buttonPrint.UseMarkup = false;
 			this.buttonPrint.ItemsEnumName = "Vodovoz.PrintDocuments, Vodovoz";
 			this.buttonPrint.Label = global::Mono.Unix.Catalog.GetString ("Печать документов");
-			global::Gtk.Image w79 = new global::Gtk.Image ();
-			w79.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-print", global::Gtk.IconSize.Menu);
-			this.buttonPrint.Image = w79;
+			global::Gtk.Image w81 = new global::Gtk.Image ();
+			w81.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-print", global::Gtk.IconSize.Menu);
+			this.buttonPrint.Image = w81;
 			this.hbox6.Add (this.buttonPrint);
-			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonPrint]));
-			w80.PackType = ((global::Gtk.PackType)(1));
-			w80.Position = 1;
-			w80.Expand = false;
-			w80.Fill = false;
+			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonPrint]));
+			w82.PackType = ((global::Gtk.PackType)(1));
+			w82.Position = 1;
+			w82.Expand = false;
+			w82.Fill = false;
 			this.vbox1.Add (this.hbox6);
-			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox6]));
-			w81.Position = 1;
-			w81.Expand = false;
-			w81.Fill = false;
+			global::Gtk.Box.BoxChild w83 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox6]));
+			w83.Position = 1;
+			w83.Expand = false;
+			w83.Fill = false;
 			this.hbox9.Add (this.vbox1);
-			global::Gtk.Box.BoxChild w82 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.vbox1]));
-			w82.Position = 0;
+			global::Gtk.Box.BoxChild w84 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.vbox1]));
+			w84.Position = 0;
 			this.vbox5.Add (this.hbox9);
-			global::Gtk.Box.BoxChild w83 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.hbox9]));
-			w83.Position = 0;
+			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.hbox9]));
+			w85.Position = 0;
 			this.notebook1.Add (this.vbox5);
-			global::Gtk.Notebook.NotebookChild w84 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox5]));
-			w84.Position = 4;
+			global::Gtk.Notebook.NotebookChild w86 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox5]));
+			w86.Position = 4;
 			// Notebook tab
 			this.label18 = new global::Gtk.Label ();
 			this.label18.Name = "label18";
@@ -1098,8 +1119,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel (this.vbox5, this.label18);
 			this.label18.ShowAll ();
 			this.vbox2.Add (this.notebook1);
-			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.notebook1]));
-			w85.Position = 1;
+			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.notebook1]));
+			w87.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.datahbox2 = new global::Gtk.DataBindings.DataHBox ();
 			this.datahbox2.Name = "datahbox2";
@@ -1114,18 +1135,18 @@ namespace Vodovoz
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
-			global::Gtk.Image w86 = new global::Gtk.Image ();
-			w86.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w86;
+			global::Gtk.Image w88 = new global::Gtk.Image ();
+			w88.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w88;
 			this.datahbox2.Add (this.buttonAccept);
-			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.buttonAccept]));
-			w87.Position = 0;
-			w87.Fill = false;
+			global::Gtk.Box.BoxChild w89 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.buttonAccept]));
+			w89.Position = 0;
+			w89.Fill = false;
 			this.vbox2.Add (this.datahbox2);
-			global::Gtk.Box.BoxChild w88 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.datahbox2]));
-			w88.Position = 2;
-			w88.Expand = false;
-			w88.Fill = false;
+			global::Gtk.Box.BoxChild w90 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.datahbox2]));
+			w90.Position = 2;
+			w90.Expand = false;
+			w90.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -1147,6 +1168,7 @@ namespace Vodovoz
 			this.spinBottlesReturn.ValueChanged += new global::System.EventHandler (this.OnSpinBottlesReturnValueChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
+			this.treeServiceClaim.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeServiceClaimRowActivated);
 			this.buttonAddServiceClaim.Clicked += new global::System.EventHandler (this.OnButtonAddServiceClaimClicked);
 			this.buttonViewDocument.Clicked += new global::System.EventHandler (this.OnButtonViewDocumentClicked);
 			this.buttonPrint.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnButtonPrintEnumItemClicked);

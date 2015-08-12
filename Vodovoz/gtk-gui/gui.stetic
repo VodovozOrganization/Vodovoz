@@ -651,7 +651,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -16205,7 +16204,27 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <placeholder />
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow5">
+                    <property name="MemberName" />
+                    <property name="ShadowType">In</property>
+                    <child>
+                      <widget class="Gtk.DataBindings.DataTreeView" id="treeServiceClaim">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="ShowScrollbars">True</property>
+                        <property name="CursorPointsEveryType">False</property>
+                        <property name="InheritedDataSource">False</property>
+                        <property name="InheritedBoundaryDataSource">False</property>
+                        <property name="InheritedDataSource">False</property>
+                        <property name="InheritedBoundaryDataSource">False</property>
+                        <signal name="RowActivated" handler="OnTreeServiceClaimRowActivated" />
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
                 </child>
                 <child>
                   <widget class="Gtk.HBox" id="hbox12">

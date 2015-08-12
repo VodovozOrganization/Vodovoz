@@ -6,6 +6,7 @@ using Vodovoz.Domain.Orders;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Repository;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -48,6 +49,8 @@ namespace Vodovoz
 
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
+
+			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -57,6 +60,34 @@ namespace Vodovoz
 			var valid = new QSValidator<ServiceClaim> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+
+			//TODO FIXME Проверка на наличие доп. соглашения.
+
+			if (UoWGeneric.Root.InitialOrder != null) {
+				if (UoWGeneric.Root.InitialOrder.ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == UoWGeneric.Root.Equipment.Id) == null) {
+					UoWGeneric.Root.InitialOrder.ObservableOrderEquipments.Add (new OrderEquipment { 
+						Direction = Vodovoz.Domain.Orders.Direction.PickUp,
+						Equipment = UoWGeneric.Root.Equipment,
+						OrderItem = null,
+						Reason = Reason.Service
+					});
+				}
+			}
+
+			if (UoWGeneric.Root.FinalOrder != null) {
+				if (UoWGeneric.Root.FinalOrder.ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == UoWGeneric.Root.Equipment.Id) == null) {
+					UoWGeneric.Root.FinalOrder.ObservableOrderEquipments.Add (new OrderEquipment { 
+						Direction = Vodovoz.Domain.Orders.Direction.Deliver,
+						Equipment = UoWGeneric.Root.Equipment,
+						OrderItem = null,
+						Reason = Reason.Service
+					});
+				}
+
+				//TODO FIXME Добавить строку сервиса OrderItems
+			}
+
+			//TODO FIXME Добавление в закрывающий заказ.
 
 			logger.Info ("Сохраняем заявку на обслуживание...");
 			UoWGeneric.Save ();
