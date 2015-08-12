@@ -33,6 +33,12 @@ namespace Vodovoz.Repository
 		{
 			return uow.GetById<Nomenclature> (40);
 		}
+
+		public static QueryOver<Nomenclature> NomenclatureOfItemsForService ()
+		{
+			return QueryOver.Of<Nomenclature> ()
+				.Where (n => n.Category == NomenclatureCategory.equipment);
+		}
 	}
 }
 
