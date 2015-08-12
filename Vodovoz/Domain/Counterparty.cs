@@ -94,7 +94,15 @@ namespace Vodovoz.Domain
 		[Display (Name = "Название")]
 		public virtual string Name {
 			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+			set { 
+				if(SetField (ref name, value, () => Name))
+				{
+					if(PersonType == PersonType.natural)
+					{
+						FullName = Name;
+					}
+				}
+			}
 		}
 
 		string typeOfOwnership;
