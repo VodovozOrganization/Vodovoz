@@ -3,6 +3,8 @@ using System;
 using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Orders;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Service
 {
@@ -124,6 +126,25 @@ namespace Vodovoz.Domain.Service
 			get { return totalPrice; } 
 			set	{ SetField (ref totalPrice, value, () => TotalPrice); }
 		}
+
+		IList<ServiceClaimItem> serviceClaimItems = new List<ServiceClaimItem> ();
+
+		[Display (Name = "Список запчастей и работ")]
+		public virtual IList<ServiceClaimItem> ServiceClaimItems {
+			get { return serviceClaimItems; }
+			set { SetField (ref serviceClaimItems, value, () => ServiceClaimItems); }
+		}
+
+		GenericObservableList<ServiceClaimItem> observableServiceClaimItems;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<ServiceClaimItem> ObservableServiceClaimItems {
+			get {
+				if (observableServiceClaimItems == null)
+					observableServiceClaimItems = new GenericObservableList<ServiceClaimItem> (ServiceClaimItems);
+				return observableServiceClaimItems;
+			}
+		}
+
 
 		#region IValidatableObject implementation
 

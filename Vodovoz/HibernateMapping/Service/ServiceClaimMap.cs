@@ -13,6 +13,7 @@ namespace Vodovoz
 			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+
 			Map (x => x.Reason).Column ("reason");
 			Map (x => x.Kit).Column ("kit");
 			Map (x => x.Comment).Column ("comment");
@@ -22,6 +23,7 @@ namespace Vodovoz
 			Map (x => x.DiagnosticsResult).Column ("diagnostics_result");
 			Map (x => x.Status).Column ("status").CustomType<ServiceClaimStatusStringType> ();
 			Map (x => x.Payment).Column ("payment_type").CustomType<PaymentTypeStringType> ();
+
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.Nomenclature).Column ("nomenclature_id");
 			References (x => x.Equipment).Column ("equipment_id");
@@ -29,6 +31,8 @@ namespace Vodovoz
 			References (x => x.Engineer).Column ("engineer_id");
 			References (x => x.InitialOrder).Column ("initial_order_id");
 			References (x => x.FinalOrder).Column ("final_order_id");
+
+			HasMany (x => x.ServiceClaimItems).Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("service_claim_id");
 		}
 	}
 }
