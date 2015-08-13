@@ -8,6 +8,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz
 {
@@ -68,8 +69,17 @@ namespace Vodovoz
 				//Остальные справочники
 				new OrmObjectMapping<CommentTemplate> (typeof(CommentTemplateDlg), "{Vodovoz.Domain.CommentTemplate} Comment[Шаблон комментария];", new string[] { "Comment" }),
 				new OrmObjectMapping<MeasurementUnits> (typeof(MeasurementUnitsDlg), "{Vodovoz.Domain.MeasurementUnits} OKEI[ОКЕИ]; Name[Название]; Digits[Точность];"),
-				new OrmObjectMapping<Contact> (typeof(ContactDlg), "{Vodovoz.Domain.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] { "Surname", "Name", "Lastname", "Post" }),
-				new OrmObjectMapping<Car> (typeof(CarsDlg), "{Vodovoz.Domain.Logistic.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] { "Model", "RegistrationNumber", "DriverInfo" }),
+				new OrmObjectMapping<Contact> (typeof(ContactDlg), "{Vodovoz.Domain.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] {
+					"Surname",
+					"Name",
+					"Lastname",
+					"Post"
+				}),
+				new OrmObjectMapping<Car> (typeof(CarsDlg), "{Vodovoz.Domain.Logistic.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] {
+					"Model",
+					"RegistrationNumber",
+					"DriverInfo"
+				}),
 				new OrmObjectMapping<Proxy> (typeof(ProxyDlg), "{Vodovoz.Domain.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] { "Number" }),
 				new OrmObjectMapping<Order> (typeof(OrderDlg), "{Vodovoz.Domain.Orders.Order} Id[Номер]; StatusString[Статус]; ClientString[Клиент];"),
 				new OrmObjectMapping<DeliveryPoint> (typeof(DeliveryPointDlg), "{Vodovoz.Domain.DeliveryPoint} Name[Название];"),
@@ -91,12 +101,26 @@ namespace Vodovoz
 				new OrmObjectMapping<MovementDocument> (typeof(MovementDocumentDlg), "{Vodovoz.Domain.Documents.MovementDocument} Id[Номер];"),
 				new OrmObjectMapping<WriteoffDocument> (typeof(WriteoffDocumentDlg), "{Vodovoz.Domain.Documents.WriteoffDocument} Id[Номер];"),
 				//Справочники с фильтрами
-				new OrmObjectMapping<Nomenclature> (typeof(NomenclatureDlg), typeof(NomenclatureFilter), "{Vodovoz.Domain.Nomenclature} Id[Код]; Name[Название]; CategoryString[Тип];", new string[] { "Name", "CategoryString" }),
-				new OrmObjectMapping<Equipment> (typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Domain.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] { "Serial", "Type", "NomenclatureName", "LastServiceDateString" }),
-				new OrmObjectMapping<Employee> (typeof(EmployeeDlg), typeof(EmployeeFilter), "{Vodovoz.Domain.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];", new string[] { "Name", "LastName", "Patronymic" }),
+				new OrmObjectMapping<Nomenclature> (typeof(NomenclatureDlg), typeof(NomenclatureFilter), "{Vodovoz.Domain.Nomenclature} Id[Код]; Name[Название]; CategoryString[Тип];", new string[] {
+					"Name",
+					"CategoryString"
+				}),
+				new OrmObjectMapping<Equipment> (typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Domain.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] {
+					"Serial",
+					"Type",
+					"NomenclatureName",
+					"LastServiceDateString"
+				}),
+				new OrmObjectMapping<Employee> (typeof(EmployeeDlg), typeof(EmployeeFilter), "{Vodovoz.Domain.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];", new string[] {
+					"Name",
+					"LastName",
+					"Patronymic"
+				}),
 				//Логисткика
 				new OrmObjectMapping<RouteList> (typeof(CreateRouteListDlg), "{Vodovoz.Domain.Logistic.RouteList} Id[Номер]; DateString[Дата]; StatusString[Статус]; DriverInfo[Водитель];"),
-				new OrmObjectMapping<RouteColumn> (null, "{Vodovoz.Domain.Logistic.RouteColumn} Name[Название];")
+				new OrmObjectMapping<RouteColumn> (null, "{Vodovoz.Domain.Logistic.RouteColumn} Name[Название];"),
+				//Сервис
+				new OrmObjectMapping<ServiceClaim> (typeof(ServiceClaimDlg), "{Vodovoz.Domain.Service.ServiceClaim} Id[Номер];")
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
