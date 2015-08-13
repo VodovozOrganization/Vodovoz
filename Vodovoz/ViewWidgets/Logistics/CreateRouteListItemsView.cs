@@ -11,6 +11,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
 using System.Linq;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
 {
@@ -130,13 +131,15 @@ namespace Vodovoz
 
 		protected void AddOrder ()
 		{
-			OrmReference SelectDialog = new OrmReference (RouteListUoW, OrderRepository.GetAcceptedOrdersForDateQueryOver (RouteListUoW.Root.Date));
+			var filter = new OrdersFilter (UnitOfWorkFactory.CreateWithoutRoot ());
+			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date;
+
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
+			//SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
 			SelectDialog.ObjectSelected += (s, ea) => {
-				if (ea.Subject != null) {
-					RouteListUoW.Root.AddAddressFromOrder (ea.Subject as Domain.Orders.Order);
-				}
+				var order = RouteListUoW.GetById<Order> (ea.ObjectId);
+				RouteListUoW.Root.AddAddressFromOrder (order);
 			};
 			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
 		}

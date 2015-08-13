@@ -47,6 +47,16 @@ namespace Vodovoz.ViewModel
 				query.Where (o => o.DeliveryPoint == Filter.RestrictDeliveryPoint);
 			}
 
+			if(Filter.RestrictStartDate != null)
+			{
+				query.Where (o => o.DeliveryDate >= Filter.RestrictStartDate);
+			}
+
+			if(Filter.RestrictEndDate != null)
+			{
+				query.Where (o => o.DeliveryDate <= Filter.RestrictEndDate);
+			}
+
 			var result = query
 				.JoinQueryOver (o => o.Client, () => counterpartyAlias)
 				.SelectList (list => list

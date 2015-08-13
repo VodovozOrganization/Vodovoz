@@ -73,6 +73,22 @@ namespace Vodovoz
 			}
 		}
 
+		public DateTime? RestrictStartDate {
+			get { return dateperiodOrders.StartDateOrNull; }
+			set {
+				dateperiodOrders.StartDateOrNull = value;
+				dateperiodOrders.Sensitive = false;
+			}
+		}
+
+		public DateTime? RestrictEndDate {
+			get { return dateperiodOrders.EndDateOrNull; }
+			set {
+				dateperiodOrders.EndDateOrNull = value;
+				dateperiodOrders.Sensitive = false;
+			}
+		}
+
 		protected void OnEnumcomboStatusEnumItemSelected (object sender, EnumItemClickedEventArgs e)
 		{
 			OnRefiltered ();
@@ -91,6 +107,11 @@ namespace Vodovoz
 		}
 
 		protected void OnEntryreferencePointChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnDateperiodOrdersPeriodChanged (object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}
