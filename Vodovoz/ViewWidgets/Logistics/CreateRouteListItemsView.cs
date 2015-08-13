@@ -75,7 +75,7 @@ namespace Vodovoz
 				if (!goodsColumns.Contains (column.Id))
 					continue;
 				int id = column.Id;
-				config = config.AddColumn (column.Name).AddTextRenderer (a => a.GoodsByRouteColumns[id].ToString ());
+				config = config.AddColumn (column.Name).AddTextRenderer (a => a.GetGoodsAmountForColumn (id).ToString ());
 			}
 				//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
 				//						"Не указан" : 

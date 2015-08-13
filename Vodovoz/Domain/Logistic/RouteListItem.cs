@@ -33,6 +33,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		int indexInRoute;
+
+		public int IndexInRoute {
+			get {
+				return indexInRoute;
+			}
+			set {
+				SetField (ref indexInRoute, value, () => IndexInRoute); 
+			}
+		}
+
 		private Dictionary<int, int> goodsByRouteColumns;
 
 		public Dictionary<int, int> GoodsByRouteColumns{
@@ -45,6 +56,14 @@ namespace Vodovoz.Domain.Logistic
 				}
 				return goodsByRouteColumns;
 			}
+		}
+
+		public int GetGoodsAmountForColumn(int columnId)
+		{
+			if (GoodsByRouteColumns.ContainsKey (columnId))
+				return GoodsByRouteColumns [columnId];
+			else
+				return 0;
 		}
 
 		public RouteListItem ()
