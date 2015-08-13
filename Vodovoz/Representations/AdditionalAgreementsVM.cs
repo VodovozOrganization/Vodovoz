@@ -28,7 +28,7 @@ namespace Vodovoz.ViewModel
 
 			var additionalAgreementsList = UoW.Session.QueryOver<AdditionalAgreement> (() => additionalAgreementAlias)
 				.JoinAlias (c => c.Contract, () => counterpartyContractAlias)
-				.JoinAlias (c => c.DeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias (c => c.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where (() => counterpartyContractAlias.Id == CounterpartyUoW.Root.Id)
 				.SelectList (list => list
 					.Select (() => additionalAgreementAlias.Id).WithAlias (() => resultAlias.Id)
@@ -151,8 +151,11 @@ namespace Vodovoz.ViewModel
 		public string RowColor { get { return IsActive ? "black" : "grey"; } }
 
 		public string Point { 
-			get { return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
-				(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room); } 
+			get { if (String.IsNullOrWhiteSpace (Name) && String.IsNullOrWhiteSpace (City) && String.IsNullOrWhiteSpace (Street))
+					return String.Empty;
+				else
+					return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}",
+						(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room); }
 		}
 	}
 }
