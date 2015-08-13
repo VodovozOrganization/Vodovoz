@@ -315,6 +315,7 @@
     <Compile Include="HibernateMapping\CounterpartyMap.cs" />
     <Compile Include="Repositories\ServiceClaimRepository.cs" />
     <Compile Include="HibernateMapping\Order\OrderMap.cs" />
+    <Compile Include="Representations\ServiceClaimVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

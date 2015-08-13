@@ -1,16 +1,12 @@
 using Gtk;
-using NHibernate;
 using QSOrmProject;
 using Vodovoz;
-using System.Collections.Generic;
-using Vodovoz.Domain;
 using Vodovoz.ViewModel;
-using Vodovoz.Domain.Orders;
 
-public partial class MainWindow : Gtk.Window
+public partial class MainWindow : Window
 {
 	Action ActionOrdersTable;
-	Action ActionServiceTickets;
+	Action ActionServiceClaims;
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
@@ -24,7 +20,7 @@ public partial class MainWindow : Gtk.Window
 		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
 		ActionAddOrder = new Action ("ActionAddOrder", "Новый заказ", null, "table");
 		//Сервис
-		ActionServiceTickets = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
+		ActionServiceClaims = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
 		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
 		ActionWarehouseStock = new Action ("ActionWarehouseStock", "Складские остатки", null, "table");
@@ -36,7 +32,7 @@ public partial class MainWindow : Gtk.Window
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
 		w1.Add (ActionOrdersTable, null);
 		w1.Add (ActionAddOrder, null);
-		w1.Add (ActionServiceTickets, null);
+		w1.Add (ActionServiceClaims, null);
 		w1.Add (ActionWarehouseDocuments, null);
 		w1.Add (ActionWarehouseStock, null);
 		w1.Add (ActionClientBalance, null);
@@ -46,7 +42,7 @@ public partial class MainWindow : Gtk.Window
 		#region Creating events
 		ActionOrdersTable.Activated += ActionOrdersTableActivated;
 		ActionAddOrder.Activated += ActionAddOrder_Activated;
-		ActionServiceTickets.Activated += ActionServiceTicketsActivated;
+		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
@@ -63,7 +59,7 @@ public partial class MainWindow : Gtk.Window
 
 	void ActionClientBalance_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new ReferenceRepresentation(new ClientBalanceVM());
+		var refWin = new ReferenceRepresentation (new ClientBalanceVM ());
 		tdiMain.AddTab (refWin);
 	}
 
@@ -85,14 +81,15 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.AddTab (tab);
 	}
 
-	void ActionServiceTicketsActivated (object sender, System.EventArgs e)
+	void ActionServiceClaimsActivated (object sender, System.EventArgs e)
 	{
-		//ISession session = OrmMain.OpenSession ();
+		ReferenceRepresentation refWin = new ReferenceRepresentation (new ServiceClaimVM ());
+		tdiMain.AddTab (refWin);
 	}
 
 	void ActionOrdersTableActivated (object sender, System.EventArgs e)
 	{
-		ReferenceRepresentation refWin = new ReferenceRepresentation (new OrdersVM());
+		ReferenceRepresentation refWin = new ReferenceRepresentation (new OrdersVM ());
 		tdiMain.AddTab (refWin);
 	}
 }
