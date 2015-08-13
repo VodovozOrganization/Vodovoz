@@ -36,10 +36,6 @@ namespace Vodovoz
 		{
 			datatable1.DataSource = subjectAdaptor;
 			entryAgreementNumber.IsEditable = true;
-			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
-				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)
-				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - Т";
 		}
 

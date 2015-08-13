@@ -264,6 +264,7 @@ namespace Vodovoz.Domain
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement> ();
 			uow.Root.Contract = contract;
+			uow.Root.DeliveryPoint = null;
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (contract);
 			return uow;
 		}
