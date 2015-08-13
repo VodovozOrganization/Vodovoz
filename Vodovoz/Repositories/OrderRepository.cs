@@ -2,7 +2,6 @@
 using Gtk;
 using QSOrmProject;
 using Vodovoz.Domain;
-using NHibernate.Transform;
 using NHibernate.Criterion;
 using System.Collections.Generic;
 
@@ -35,8 +34,11 @@ namespace Vodovoz.Repository
 
 		public static IList<Vodovoz.Domain.Orders.Order> GetAcceptedOrdersForRegion (IUnitOfWork uow, DateTime date, LogisticsArea area)
 		{
+			DeliveryPoint point = null;
 			return uow.Session.QueryOver<Vodovoz.Domain.Orders.Order> ()
-				.Where (o => o.DeliveryDate.Date == date.Date && o.DeliveryPoint.LogisticsArea.Id == area.Id && !o.SelfDelivery)
+				.JoinAlias (o => o.DeliveryPoint, () => point)
+				.Where (o => o.DeliveryDate.Date == date.Date && point.LogisticsArea.Id == area.Id 
+					&& !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
 				.List<Vodovoz.Domain.Orders.Order> ();
 		}
 	}
