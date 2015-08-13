@@ -515,6 +515,38 @@ namespace Vodovoz.Domain.Orders
 				ObservableOrderEquipments.Remove (equip);
 			}
 		}
+
+		public void AddServiceClaimAsInitial (ServiceClaim service)
+		{
+			if (service.InitialOrder != null && service.InitialOrder.Id == Id) {
+				if (ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
+					ObservableOrderEquipments.Add (new OrderEquipment { 
+						Direction = Direction.PickUp,
+						Equipment = service.Equipment,
+						OrderItem = null,
+						Reason = Reason.Service
+					});
+				}
+				if (ObservableInitialOrderService.FirstOrDefault (sc => sc.Id == service.Id) == null)
+					ObservableInitialOrderService.Add (service);
+			}
+		}
+
+		public void AddServiceClaimAsFinal (ServiceClaim service)
+		{
+			if (service.FinalOrder != null && service.FinalOrder.Id == Id) {
+				if (ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
+					ObservableOrderEquipments.Add (new OrderEquipment { 
+						Direction = Direction.Deliver,
+						Equipment = service.Equipment,
+						OrderItem = null,
+						Reason = Reason.Service
+					});
+				}
+			}
+			//TODO FIXME Добавить строку сервиса OrderItems
+			//И вообще много чего тут сделать.
+		}
 	}
 }
 

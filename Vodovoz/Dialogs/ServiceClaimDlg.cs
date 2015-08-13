@@ -76,31 +76,12 @@ namespace Vodovoz
 				return false;
 			}
 
-			if (UoWGeneric.Root.InitialOrder != null) {
-				if (UoWGeneric.Root.InitialOrder.ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == UoWGeneric.Root.Equipment.Id) == null) {
-					UoWGeneric.Root.InitialOrder.ObservableOrderEquipments.Add (new OrderEquipment { 
-						Direction = Vodovoz.Domain.Orders.Direction.PickUp,
-						Equipment = UoWGeneric.Root.Equipment,
-						OrderItem = null,
-						Reason = Reason.Service
-					});
-				}
-			}
+			if (UoWGeneric.Root.InitialOrder != null)
+				UoWGeneric.Root.InitialOrder.AddServiceClaimAsInitial (UoWGeneric.Root);
 
 			if (UoWGeneric.Root.FinalOrder != null) {
-				if (UoWGeneric.Root.FinalOrder.ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == UoWGeneric.Root.Equipment.Id) == null) {
-					UoWGeneric.Root.FinalOrder.ObservableOrderEquipments.Add (new OrderEquipment { 
-						Direction = Vodovoz.Domain.Orders.Direction.Deliver,
-						Equipment = UoWGeneric.Root.Equipment,
-						OrderItem = null,
-						Reason = Reason.Service
-					});
-				}
-
-				//TODO FIXME Добавить строку сервиса OrderItems
+				UoWGeneric.Root.FinalOrder.AddServiceClaimAsFinal (UoWGeneric.Root);
 			}
-
-			//TODO FIXME Добавление в закрывающий заказ.
 
 			logger.Info ("Сохраняем заявку на обслуживание...");
 			UoWGeneric.Save ();
