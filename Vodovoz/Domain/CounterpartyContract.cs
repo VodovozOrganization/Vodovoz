@@ -154,7 +154,7 @@ namespace Vodovoz.Domain
 			return agreement != null ? agreement as WaterSalesAgreement : null;
 		}
 
-		public bool CheckRepairAgreementExists ()
+		public bool RepairAgreementExists ()
 		{
 			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1)
 				return false;

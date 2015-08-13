@@ -71,7 +71,7 @@ namespace Vodovoz
 				dlg = new AdditionalAgreementDailyRent (AgreementUoW.Root);
 				break;
 			case AgreementType.Repair:
-				if (AgreementUoW.Root.CheckRepairAgreementExists ()) {
+				if (AgreementUoW.Root.RepairAgreementExists ()) {
 					MessageDialogWorks.RunWarningDialog ("Доп. соглашение на ремонт оборудования уже существует. " +
 					"Нельзя создать более одного доп. соглашения данного типа.");
 					return;

@@ -3,13 +3,16 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Repository;
+using System;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementRepair : OrmGtkDialogBase<RepairAgreement>
+	public partial class AdditionalAgreementRepair : OrmGtkDialogBase<RepairAgreement>, IAgreementSaved
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 
 		public AdditionalAgreementRepair (CounterpartyContract contract)
 		{
@@ -48,6 +51,8 @@ namespace Vodovoz
 
 			logger.Info ("Сохраняем доп. соглашение...");
 			UoWGeneric.Save ();
+			if (AgreementSaved != null)
+				AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
 			logger.Info ("Ok");
 			return true;
 		}

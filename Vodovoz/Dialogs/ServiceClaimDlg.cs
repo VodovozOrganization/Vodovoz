@@ -7,6 +7,8 @@ using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Repository;
 using System.Linq;
+using QSTDI;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -61,7 +63,18 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			//TODO FIXME Проверка на наличие доп. соглашения.
+			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType 
+				(UoW, UoWGeneric.Root.Counterparty, UoWGeneric.Root.Payment);
+
+			if (contract == null) {
+				RunContractCreateDialog ();
+				return false;
+			}
+
+			if (!contract.RepairAgreementExists ()) {
+				RunAgreementCreateDialog (contract);
+				return false;
+			}
 
 			if (UoWGeneric.Root.InitialOrder != null) {
 				if (UoWGeneric.Root.InitialOrder.ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == UoWGeneric.Root.Equipment.Id) == null) {
@@ -119,6 +132,47 @@ namespace Vodovoz
 				UoWGeneric.Root.DeliveryPoint = null;
 			}
 			referenceDeliveryPoint.ItemsQuery = DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Counterparty);
+		}
+
+		void RunContractCreateDialog ()
+		{
+			ITdiTab dlg;
+			string question = "Отсутствует договор с клиентом для " +
+			                  (UoWGeneric.Root.Payment == PaymentType.cash ? "наличной" : "безналичной") +
+			                  " формы оплаты. Создать?";
+			if (MessageDialogWorks.RunQuestionDialog (question)) {
+				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Counterparty, 
+					(UoWGeneric.Root.Payment == PaymentType.cash ?
+							OrganizationRepository.GetCashOrganization (UoWGeneric) :
+							OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
+				(dlg as IContractSaved).ContractSaved += (sender, e) => {
+					if (UoWGeneric.Root.InitialOrder != null)
+						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderContract { 
+							Order = UoWGeneric.Root.InitialOrder,
+							Contract = e.Contract
+						});
+				};
+				TabParent.AddSlaveTab (this, dlg);
+			}
+		}
+
+		void RunAgreementCreateDialog (CounterpartyContract contract)
+		{
+			ITdiTab dlg;
+			string question = "Отсутствует доп. соглашение сервиса с клиентом в договоре для " +
+			                  (UoWGeneric.Root.Payment == PaymentType.cash ? "наличной" : "безналичной") +
+			                  " формы оплаты. Создать?";
+			if (MessageDialogWorks.RunQuestionDialog (question)) {
+				dlg = new AdditionalAgreementRepair (contract);
+				(dlg as IAgreementSaved).AgreementSaved += (sender, e) => {
+					if (UoWGeneric.Root.InitialOrder != null)
+						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderAgreement { 
+							Order = UoWGeneric.Root.InitialOrder,
+							AdditionalAgreement = e.Agreement
+						});
+				};
+				TabParent.AddSlaveTab (this, dlg);
+			}
 		}
 	}
 }

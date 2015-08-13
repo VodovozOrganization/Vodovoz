@@ -13,6 +13,7 @@ using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
 using System.Data.Bindings;
 using Vodovoz.Domain.Service;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -61,8 +62,8 @@ namespace Vodovoz
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositRefundItem;
-			var list = ServiceClaimRepository.GetServiceClaimForOrder (UoW, UoWGeneric.Root);
-			treeServiceClaim.ItemsDataSource = list;
+			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
+			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
 			enumSignatureType.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
