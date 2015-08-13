@@ -12,6 +12,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonCancel;
 		
+		private global::Gtk.Notebook notebook1;
+		
 		private global::Gtk.DataBindings.DataTable datatable1;
 		
 		private global::Gtk.DataBindings.DataCheckButton checkRepeated;
@@ -81,6 +83,12 @@ namespace Vodovoz
 		private global::Gtk.DataBindings.DataEntryReference referenceNomenclature;
 		
 		private global::Gtk.DataBindings.DataSpinButton spinTotalPrice;
+		
+		private global::Gtk.Label label15;
+		
+		private global::Gtk.VBox vbox2;
+		
+		private global::Gtk.Label label16;
 
 		protected virtual void Build ()
 		{
@@ -131,6 +139,11 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.notebook1 = new global::Gtk.Notebook ();
+			this.notebook1.CanFocus = true;
+			this.notebook1.Name = "notebook1";
+			this.notebook1.CurrentPage = 1;
+			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(10)), ((uint)(4)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
@@ -608,11 +621,29 @@ namespace Vodovoz
 			w39.RightAttach = ((uint)(2));
 			w39.XOptions = ((global::Gtk.AttachOptions)(4));
 			w39.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w40.Position = 1;
-			w40.Expand = false;
-			w40.Fill = false;
+			this.notebook1.Add (this.datatable1);
+			// Notebook tab
+			this.label15 = new global::Gtk.Label ();
+			this.label15.Name = "label15";
+			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString ("Информация");
+			this.notebook1.SetTabLabel (this.datatable1, this.label15);
+			this.label15.ShowAll ();
+			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.vbox2 = new global::Gtk.VBox ();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			this.notebook1.Add (this.vbox2);
+			global::Gtk.Notebook.NotebookChild w41 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox2]));
+			w41.Position = 1;
+			// Notebook tab
+			this.label16 = new global::Gtk.Label ();
+			this.label16.Name = "label16";
+			this.label16.LabelProp = global::Mono.Unix.Catalog.GetString ("Запчасти и работы");
+			this.notebook1.SetTabLabel (this.vbox2, this.label16);
+			this.label16.ShowAll ();
+			this.vbox1.Add (this.notebook1);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
+			w42.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
