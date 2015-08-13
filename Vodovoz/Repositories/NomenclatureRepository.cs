@@ -39,6 +39,18 @@ namespace Vodovoz.Repository
 			return QueryOver.Of<Nomenclature> ()
 				.Where (n => n.Category == NomenclatureCategory.equipment);
 		}
+
+		public static QueryOver<Nomenclature> NomenclatureOfPartsForService ()
+		{
+			return QueryOver.Of<Nomenclature> ()
+				.Where (n => n.Category == NomenclatureCategory.spare_parts);
+		}
+
+		public static QueryOver<Nomenclature> NomenclatureOfServices ()
+		{
+			return QueryOver.Of<Nomenclature> ()
+				.Where (n => n.Category == NomenclatureCategory.service);
+		}
 	}
 }
 

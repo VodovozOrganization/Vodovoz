@@ -88,6 +88,16 @@ namespace Vodovoz
 		
 		private global::Gtk.VBox vbox2;
 		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
+		
+		private global::Gtk.DataBindings.DataTreeView treePartsAndServices;
+		
+		private global::Gtk.HBox hbox8;
+		
+		private global::Gtk.Button buttonAddService;
+		
+		private global::Gtk.Button buttonAddPart;
+		
 		private global::Gtk.Label label16;
 
 		protected virtual void Build ()
@@ -632,9 +642,63 @@ namespace Vodovoz
 			this.vbox2 = new global::Gtk.VBox ();
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
+			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
+			this.treePartsAndServices = new global::Gtk.DataBindings.DataTreeView ();
+			this.treePartsAndServices.CanFocus = true;
+			this.treePartsAndServices.Name = "treePartsAndServices";
+			this.treePartsAndServices.CursorPointsEveryType = false;
+			this.treePartsAndServices.InheritedDataSource = false;
+			this.treePartsAndServices.InheritedBoundaryDataSource = false;
+			this.treePartsAndServices.InheritedDataSource = false;
+			this.treePartsAndServices.InheritedBoundaryDataSource = false;
+			this.GtkScrolledWindow4.Add (this.treePartsAndServices);
+			this.vbox2.Add (this.GtkScrolledWindow4);
+			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow4]));
+			w42.Position = 0;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox8 = new global::Gtk.HBox ();
+			this.hbox8.Name = "hbox8";
+			this.hbox8.Spacing = 6;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonAddService = new global::Gtk.Button ();
+			this.buttonAddService.CanFocus = true;
+			this.buttonAddService.Name = "buttonAddService";
+			this.buttonAddService.UseUnderline = true;
+			this.buttonAddService.Label = global::Mono.Unix.Catalog.GetString ("Добавить услугу");
+			global::Gtk.Image w43 = new global::Gtk.Image ();
+			w43.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddService.Image = w43;
+			this.hbox8.Add (this.buttonAddService);
+			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonAddService]));
+			w44.Position = 0;
+			w44.Expand = false;
+			w44.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonAddPart = new global::Gtk.Button ();
+			this.buttonAddPart.CanFocus = true;
+			this.buttonAddPart.Name = "buttonAddPart";
+			this.buttonAddPart.UseUnderline = true;
+			this.buttonAddPart.Label = global::Mono.Unix.Catalog.GetString ("Добавить запчасть");
+			global::Gtk.Image w45 = new global::Gtk.Image ();
+			w45.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAddPart.Image = w45;
+			this.hbox8.Add (this.buttonAddPart);
+			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonAddPart]));
+			w46.Position = 1;
+			w46.Expand = false;
+			w46.Fill = false;
+			this.vbox2.Add (this.hbox8);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox8]));
+			w47.Position = 1;
+			w47.Expand = false;
+			w47.Fill = false;
 			this.notebook1.Add (this.vbox2);
-			global::Gtk.Notebook.NotebookChild w41 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox2]));
-			w41.Position = 1;
+			global::Gtk.Notebook.NotebookChild w48 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox2]));
+			w48.Position = 1;
 			// Notebook tab
 			this.label16 = new global::Gtk.Label ();
 			this.label16.Name = "label16";
@@ -642,8 +706,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel (this.vbox2, this.label16);
 			this.label16.ShowAll ();
 			this.vbox1.Add (this.notebook1);
-			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
-			w42.Position = 1;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
+			w49.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -653,6 +717,8 @@ namespace Vodovoz
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.referenceNomenclature.Changed += new global::System.EventHandler (this.OnReferenceNomenclatureChanged);
 			this.referenceCounterparty.Changed += new global::System.EventHandler (this.OnReferenceCounterpartyChanged);
+			this.buttonAddService.Clicked += new global::System.EventHandler (this.OnButtonAddServiceClicked);
+			this.buttonAddPart.Clicked += new global::System.EventHandler (this.OnButtonAddPartClicked);
 		}
 	}
 }

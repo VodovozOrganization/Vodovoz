@@ -6,9 +6,10 @@ using Vodovoz.Domain.Orders;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Repository;
-using System.Linq;
 using QSTDI;
 using QSProjectsLib;
+using Gtk.DataBindings;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -16,6 +17,10 @@ namespace Vodovoz
 	public partial class ServiceClaimDlg : OrmGtkDialogBase<ServiceClaim>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		bool isEditable = true;
+
+		public bool IsEditable { get { return isEditable; } set { isEditable = value; } }
 
 		public ServiceClaimDlg (Order order)
 		{
@@ -39,6 +44,8 @@ namespace Vodovoz
 		{
 			subjectAdaptor.Target = UoWGeneric.Root;
 
+			treePartsAndServices.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimItems;
+
 			datatable1.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
@@ -53,6 +60,19 @@ namespace Vodovoz
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
 
 			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
+
+			treePartsAndServices.ColumnMappingConfig = FluentMappingConfig <ServiceClaimItem>.Create ()
+				.AddColumn ("Номенклатура").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
+				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
+				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
+				.AddSetter ((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
+				.AddSetter ((c, i) => c.Editable = isEditable)
+				.WidthChars (10)
+				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
+				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+				.Finish ();
+
+			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -154,6 +174,42 @@ namespace Vodovoz
 				};
 				TabParent.AddSlaveTab (this, dlg);
 			}
+		}
+
+		protected void OnButtonAddServiceClicked (object sender, EventArgs e)
+		{
+			OpenDialog (NomenclatureRepository.NomenclatureOfServices ());
+		}
+
+		protected void OnButtonAddPartClicked (object sender, EventArgs e)
+		{
+			OpenDialog (NomenclatureRepository.NomenclatureOfPartsForService ());
+		}
+
+		void OpenDialog (NHibernate.Criterion.QueryOver<Nomenclature> nomenclatureType)
+		{
+			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric, 
+				                            nomenclatureType.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ObjectSelected += NomenclatureSelected;
+			TabParent.AddSlaveTab (this, SelectDialog);
+		}
+
+		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			UoWGeneric.Root.ObservableServiceClaimItems.Add (new ServiceClaimItem { 
+				ServiceClaim = UoWGeneric.Root,
+				Nomenclature = e.Subject as Nomenclature,
+				Price = (e.Subject as Nomenclature).GetPrice (1),
+				Count = 1
+			});
+		}
+
+		void FixPrice (int id)
+		{
+			ServiceClaimItem item = UoWGeneric.Root.ObservableServiceClaimItems [id];
+			item.Price = item.Nomenclature.GetPrice ((int)item.Count);
 		}
 	}
 }
