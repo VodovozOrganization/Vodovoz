@@ -7,6 +7,7 @@ using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Repository;
 using System.Linq;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -224,11 +225,42 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		//TODO: Договор. Какой договор имеется в виду?
+		IList<ServiceClaim> initialOrderService = new List<ServiceClaim> ();
 
-		//TODO: Печатаемые документы
+		[Display (Name = "Список заявок на сервис")]
+		public virtual IList<ServiceClaim> InitialOrderService {
+			get { return initialOrderService; }
+			set { SetField (ref initialOrderService, value, () => InitialOrderService); }
+		}
 
-		//TODO: Сервисное обслуживание.
+		GenericObservableList<ServiceClaim> observableInitialOrderService;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<ServiceClaim> ObservableInitialOrderService {
+			get {
+				if (observableInitialOrderService == null)
+					observableInitialOrderService = new GenericObservableList<ServiceClaim> (InitialOrderService);
+				return observableInitialOrderService;
+			}
+		}
+
+		IList<ServiceClaim> finalOrderService = new List<ServiceClaim> ();
+
+		[Display (Name = "Список заявок на сервис")]
+		public virtual IList<ServiceClaim> FinalOrderService {
+			get { return finalOrderService; }
+			set { SetField (ref finalOrderService, value, () => FinalOrderService); }
+		}
+
+		GenericObservableList<ServiceClaim> observableFinalOrderService;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<ServiceClaim> ObservableFinalOrderService {
+			get {
+				if (observableFinalOrderService == null)
+					observableFinalOrderService = new GenericObservableList<ServiceClaim> (FinalOrderService);
+				return observableFinalOrderService;
+			}
+		}
+
 
 		public Order ()
 		{

@@ -314,6 +314,7 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
     <Compile Include="HibernateMapping\CounterpartyMap.cs" />
     <Compile Include="Repositories\ServiceClaimRepository.cs" />
+    <Compile Include="HibernateMapping\Order\OrderMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />
@@ -411,6 +412,7 @@
     <Folder Include="HibernateMapping\Handbooks\" />
     <Folder Include="HibernateMapping\Service\" />
     <Folder Include="Domain\Service\" />
+    <Folder Include="HibernateMapping\Order\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
