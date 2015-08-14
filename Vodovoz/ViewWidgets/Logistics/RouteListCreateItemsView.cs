@@ -16,7 +16,7 @@ using Vodovoz.Domain.Orders;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CreateRouteListItemsView : WidgetOnTdiTabBase
+	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -95,7 +95,7 @@ namespace Vodovoz
 			CalculateTotal ();
 		}
 
-		public CreateRouteListItemsView ()
+		public RouteListCreateItemsView ()
 		{
 			this.Build ();
 			treeItemsList.Selection.Changed += OnSelectionChanged;

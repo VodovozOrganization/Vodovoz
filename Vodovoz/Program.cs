@@ -117,7 +117,7 @@ namespace Vodovoz
 					"Patronymic"
 				}),
 				//Логисткика
-				new OrmObjectMapping<RouteList> (typeof(CreateRouteListDlg), "{Vodovoz.Domain.Logistic.RouteList} Id[Номер]; DateString[Дата]; StatusString[Статус]; DriverInfo[Водитель];"),
+				new OrmObjectMapping<RouteList> (typeof(RouteListCreateDlg), "{Vodovoz.Domain.Logistic.RouteList} Id[Номер]; DateString[Дата]; StatusString[Статус]; DriverInfo[Водитель];"),
 				new OrmObjectMapping<RouteColumn> (null, "{Vodovoz.Domain.Logistic.RouteColumn} Name[Название];"),
 				//Сервис
 				new OrmObjectMapping<ServiceClaim> (typeof(ServiceClaimDlg), "{Vodovoz.Domain.Service.ServiceClaim} Id[Номер];")

@@ -287,11 +287,7 @@
     <Compile Include="Domain\Logistic\RouteColumn.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
     <Compile Include="HibernateMapping\NomenclatureMap.cs" />
-    <Compile Include="ViewWidgets\Logistics\CreateRouteListItemsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CreateRouteListItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceItemsView.cs" />
-    <Compile Include="Dialogs\CreateRouteListDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.CreateRouteListDlg.cs" />
     <Compile Include="Domain\Logistic\RouteListItem.cs" />
     <Compile Include="Domain\Logistic\RouteList.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListMap.cs" />
@@ -318,6 +314,10 @@
     <Compile Include="Representations\ServiceClaimVM.cs" />
     <Compile Include="Domain\Service\ServiceClaimItem.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimItemMap.cs" />
+    <Compile Include="Dialogs\RouteListCreateDlg.cs" />
+    <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListCreateItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListCreateDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\KindOfMagic.1.2.3\tools\KindOfMagic.targets" />

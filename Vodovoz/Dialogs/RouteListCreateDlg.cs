@@ -8,11 +8,11 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	public partial class CreateRouteListDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListCreateDlg : OrmGtkDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		public CreateRouteListDlg ()
+		public RouteListCreateDlg ()
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
@@ -20,11 +20,11 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public CreateRouteListDlg (RouteList sub) : this (sub.Id)
+		public RouteListCreateDlg (RouteList sub) : this (sub.Id)
 		{
 		}
 
-		public CreateRouteListDlg (int id)
+		public RouteListCreateDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList> (id);

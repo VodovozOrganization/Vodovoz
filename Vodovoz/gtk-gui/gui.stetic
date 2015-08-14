@@ -651,6 +651,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14381,7 +14382,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CreateRouteListItemsView" design-size="446 300">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListCreateItemsView" design-size="446 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14397,6 +14398,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
+                <property name="Reorderable">True</property>
                 <property name="CursorPointsEveryType">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -17004,7 +17006,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CreateRouteListDlg" design-size="729 430">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListCreateDlg" design-size="729 430">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -17510,7 +17512,7 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Vodovoz.CreateRouteListItemsView" id="createroutelistitemsview1">
+          <widget class="Vodovoz.RouteListCreateItemsView" id="createroutelistitemsview1">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
           </widget>
