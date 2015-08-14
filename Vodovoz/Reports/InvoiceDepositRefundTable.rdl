@@ -45,16 +45,16 @@ order_id = @order_id;</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>131.5pt</Height>
+    <Height>47.9pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>27.75pt</Height>
         <Width>133.77pt</Width>
-        <Value>='Всего: ' + Sum({refund_deposit}, 'DepositRefund')</Value>
+        <Value>='Итого: ' + Sum({refund_deposit}, 'DepositRefund')</Value>
         <ZIndex>1</ZIndex>
         <Left>460.2pt</Left>
-        <Top>49.6pt</Top>
+        <Top>29.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -113,7 +113,7 @@ order_id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
-                      <Value>Описание</Value>
+                      <Value>Возвраты залогов</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -162,6 +162,7 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -201,27 +202,11 @@ order_id = @order_id;</CommandText>
           </TableRows>
         </Details>
         <Left>52.9pt</Left>
-        <Top>22.3pt</Top>
+        <Top>2.3pt</Top>
         <Visibility>
           <Hidden>=Count({deposit_type}, 'DepositRefund') &lt; 1</Hidden>
         </Visibility>
       </Table>
-      <Textbox Name="Textbox8">
-        <Height>12.00pt</Height>
-        <Width>121.02pt</Width>
-        <Value>Возвраты залогов</Value>
-        <ZIndex>1</ZIndex>
-        <Left>52.9pt</Left>
-        <Top>6.4pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <Visibility>
-          <Hidden>=Count({deposit_type}, 'DepositRefund') &lt; 1</Hidden>
-        </Visibility>
-      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -241,7 +226,7 @@ order_id = @order_id;</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=192.168.1.5</ConnectString>
+        <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
