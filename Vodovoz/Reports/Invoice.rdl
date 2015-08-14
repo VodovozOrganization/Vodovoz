@@ -16,7 +16,7 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, orders.bottles_return AS bottles_return, 
+orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, orders.bottles_return AS bottles_return, orders.sum_to_receive AS total,
 delivery_schedule.name AS delivery_schedule, 
 counterparty_contract.number AS contract_number, DATE_FORMAT(counterparty_contract.issue_date, '%d.%m.%y') AS contract_date,
 counterparty.full_name AS client_name, counterparty.address AS client_address, counterparty.waybill_comment AS invoice_comment,
@@ -108,6 +108,10 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
         <Field Name="room">
           <DataField>room</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1043,30 +1047,13 @@ order_id = @order_id;</CommandText>
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>150.27pt</Width>
-            <Value>=(Sum({total}, 'Goods') - Sum({refund_deposit}, 'DepositRefund'))</Value>
-            <ZIndex>1</ZIndex>
-            <Left>397.4pt</Left>
-            <Top>0.0pt</Top>
-            <Style>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-              <FontWeight>Bold</FontWeight>
-              <Format>0.00</Format>
-              <TextAlign>Left</TextAlign>
-              <FontSize>11pt</FontSize>
-            </Style>
-          </Textbox>
           <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>45.27pt</Width>
-            <Value>Всего:</Value>
+            <Width>145.77pt</Width>
+            <Value>='Всего: ' + {total}</Value>
             <ZIndex>1</ZIndex>
-            <Left>354.3pt</Left>
-            <Top>0.0pt</Top>
+            <Left>354.30pt</Left>
+            <Top>26.40pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1106,15 +1093,28 @@ order_id = @order_id;</CommandText>
           <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
             <Width>352.77pt</Width>
-            <Value>=Code.SummaString_Val(Convert.ToString((Sum({total}, 'Goods') - Sum({refund_deposit}, 'DepositRefund'))))</Value>
+            <Value>=Code.SummaString_Val(Convert.ToString({total}))</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>0.0pt</Top>
+            <Top>26.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox11" >
+            <Height>12.00pt</Height>
+            <Width>360.27pt</Width>
+            <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({refund_deposit}, 'DepositRefund'))</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>2.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
             </Style>
           </Textbox>
         </ReportItems>
