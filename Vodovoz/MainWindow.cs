@@ -364,4 +364,10 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference (typeof(FuelType));
 		tdiMain.AddTab (refWin);
 	}
+
+	protected void OnActionDeliveryShiftActivated (object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference (typeof(DeliveryShift));
+		tdiMain.AddTab (refWin);
+	}
 }

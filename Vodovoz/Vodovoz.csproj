@@ -318,6 +318,8 @@
     <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateDlg.cs" />
+    <Compile Include="Domain\Logistic\DeliveryShift.cs" />
+    <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -454,5 +456,6 @@
     <None Include="Reports\Equipment.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ViewWidgets\Logistics\RouteListCreateItemsTreeStore.cs" />
   </ItemGroup>
 </Project>

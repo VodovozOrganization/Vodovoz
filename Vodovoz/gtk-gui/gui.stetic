@@ -415,6 +415,12 @@
         <property name="ShortLabel" translatable="yes">Виды топлива</property>
         <signal name="Activated" handler="OnActionFuelTypeActivated" />
       </action>
+      <action id="ActionDeliveryShift">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Смена доставки</property>
+        <property name="ShortLabel" translatable="yes">Смена доставки</property>
+        <signal name="Activated" handler="OnActionDeliveryShiftActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -477,6 +483,7 @@
                 <node type="Menu" action="ActionMenuLogistic">
                   <node type="Menuitem" action="ActionDeliverySchedule" />
                   <node type="Menuitem" action="ActionLogisticsArea" />
+                  <node type="Menuitem" action="ActionDeliveryShift" />
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionCar" />
                   <node type="Menuitem" action="ActionFuelType" />
@@ -17492,7 +17499,7 @@ RegistrationNumber</property>
                 <property name="BottomAttach">7</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
