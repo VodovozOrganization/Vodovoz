@@ -17,9 +17,10 @@ namespace Vodovoz.HMap
 			Map(x => x.Date).Column ("date");
 			Map(x => x.Status).Column ("status").CustomType<RouteListStatusStringType> ();
 			References (x => x.Car).Column ("car_id");
+			References (x => x.Shift).Column ("delivery_shift_id");
 			References (x => x.Driver).Column ("driver_id");
 			References (x => x.Forwarder).Column ("forwarder_id");
-			HasMany (x => x.Addresses).Inverse ().Cascade.AllDeleteOrphan ()
+			HasMany (x => x.Addresses).Cascade.AllDeleteOrphan ()
 				.KeyColumn ("route_list_id")
 				.AsList (x => x.Column ("order_in_route"));
 		}

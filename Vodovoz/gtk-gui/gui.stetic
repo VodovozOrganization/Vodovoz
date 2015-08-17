@@ -17122,39 +17122,12 @@ Patronymic</property>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
-                <property name="LeftAttach">3</property>
-                <property name="RightAttach">4</property>
-                <property name="AutoSize">False</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="entryNumber">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="IsEditable">True</property>
-                <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Number</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Number</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-              </widget>
-              <packing>
-                <property name="TopAttach">1</property>
-                <property name="BottomAttach">2</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
-                <property name="AutoSize">False</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -17210,11 +17183,13 @@ Patronymic</property>
               <widget class="Gtk.Label" id="label1">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Номер:</property>
+                <property name="LabelProp" translatable="yes">Смена:</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
+                <property name="LeftAttach">2</property>
+                <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -17235,9 +17210,7 @@ Patronymic</property>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
-                <property name="LeftAttach">2</property>
-                <property name="RightAttach">3</property>
-                <property name="AutoSize">False</property>
+                <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
@@ -17446,6 +17419,32 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
+              <widget class="Gtk.DataBindings.DataSpecComboBox" id="speccomboShift">
+                <property name="MemberName" />
+                <property name="IsTextCombo">False</property>
+                <property name="Items" translatable="yes" />
+                <property name="InheritedDataSource">True</property>
+                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="ShowSpecialStateAll">False</property>
+                <property name="ShowSpecialStateNot">True</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">3</property>
+                <property name="RightAttach">4</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.DataBindings.DataSpinButton" id="spinActualDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -17529,7 +17528,7 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox6">
+          <widget class="Gtk.HBox" id="hbox7">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>

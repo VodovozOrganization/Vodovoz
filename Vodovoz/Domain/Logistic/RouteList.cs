@@ -43,6 +43,16 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		DeliveryShift shift;
+
+		[Display (Name = "Смена доставки")]
+		public virtual DeliveryShift Shift {
+			get { return shift; }
+			set { 
+				SetField (ref shift, value, () => Shift); 
+			}
+		}
+
 		DateTime date;
 
 		[Display (Name = "Дата")]
@@ -95,8 +105,6 @@ namespace Vodovoz.Domain.Logistic
 				return observableAddresses;
 			}
 		}
-
-		public virtual string Number { get { return Id.ToString (); } }
 
 		public virtual string DateString { get { return Date.ToShortDateString (); } }
 

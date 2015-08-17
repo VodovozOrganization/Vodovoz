@@ -47,8 +47,11 @@ namespace Vodovoz
 			dataentryForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
 			dataentryForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
 
+			speccomboShift.Mappings = Entity.GetPropertyName (r => r.Shift);
+			speccomboShift.ColumnMappings = PropertyUtil.GetName<DeliveryShift> (s => s.Name);
+			speccomboShift.ItemsDataSource = Repository.Logistics.DeliveryShiftRepository.ActiveShifts (UoW);
+
 			referenceDriver.Sensitive = false;
-			entryNumber.Sensitive = false;
 			enumStatus.Sensitive = false;
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
@@ -77,7 +80,7 @@ namespace Vodovoz
 
 		private void IsEditable (bool val = false)
 		{
-			enumStatus.Sensitive = entryNumber.Sensitive = val;
+			enumStatus.Sensitive = speccomboShift.Sensitive = val;
 			datepickerDate.Sensitive = referenceCar.Sensitive = val;
 			spinPlannedDistance.Sensitive = spinPlannedDistance.Sensitive = val;
 			createroutelistitemsview1.IsEditable (val);

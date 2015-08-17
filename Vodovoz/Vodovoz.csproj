@@ -320,6 +320,7 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateDlg.cs" />
     <Compile Include="Domain\Logistic\DeliveryShift.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
+    <Compile Include="Repositories\Logistics\DeliveryShiftRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
