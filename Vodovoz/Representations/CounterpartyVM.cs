@@ -87,6 +87,7 @@ namespace Vodovoz.ViewModel
 	{
 		public int Id{ get; set; }
 
+		[UseForSearch]
 		public string Name { get; set; }
 	}
 }
