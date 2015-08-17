@@ -5,6 +5,7 @@ using NLog;
 using QSValidation;
 using Gtk;
 using Vodovoz.Domain.Logistic;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -90,6 +91,13 @@ namespace Vodovoz
 		{
 
 			if (UoWGeneric.Root.Status == RouteListStatus.New) {
+				var valid = new QSValidator<RouteList> (UoWGeneric.Root, 
+					new Dictionary<object, object> {
+						{ "NewStatus", RouteListStatus.Ready }
+					});
+				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+					return;
+
 				UoWGeneric.Root.Status = RouteListStatus.Ready;
 				IsEditable ();
 				var icon = new Image ();

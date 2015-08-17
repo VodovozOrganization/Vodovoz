@@ -132,6 +132,15 @@ namespace Vodovoz.Domain.Logistic
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
+			if (validationContext.Items.ContainsKey ("NewStatus")) {
+				RouteListStatus newStatus = (RouteListStatus)validationContext.Items ["NewStatus"];
+				if (newStatus == RouteListStatus.Ready) {
+					if (Shift == null)
+						yield return new ValidationResult ("Смена маршрутного листа должна быть заполнена.",
+							new[] { this.GetPropertyName (o => o.Shift) });
+				}
+			}
+
 			if (Driver == null)
 				yield return new ValidationResult ("Не заполнен водитель.");
 			if (Car == null)
