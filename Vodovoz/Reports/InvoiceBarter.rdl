@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, orders.bottles_return AS bottles_return, 
@@ -36,7 +36,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -651,7 +651,7 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -681,7 +681,7 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -696,7 +696,7 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1108,7 +1108,7 @@ order_id = @order_id;</CommandText>
               <FontWeight>Bold</FontWeight>
               <Format>0.00</Format>
               <TextAlign>Left</TextAlign>
-              <FontSize >11pt</FontSize>
+              <FontSize>11pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1123,7 +1123,7 @@ order_id = @order_id;</CommandText>
               <BorderColor />
               <BorderWidth />
               <FontWeight>Bold</FontWeight>
-              <FontSize >11pt</FontSize>
+              <FontSize>11pt</FontSize>
             </Style>
           </Textbox>
           <Image Name="Image2">
@@ -1218,6 +1218,11 @@ order_id = @order_id;</CommandText>
         </Style>
         <ReportName>InvoiceDepositRefundTable</ReportName>
         <MergeTransactions>true</MergeTransactions>
+        <Parameters >
+          <Parameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </Parameter>
+        </Parameters>
       </Subreport>
     </ReportItems>
   </Body>

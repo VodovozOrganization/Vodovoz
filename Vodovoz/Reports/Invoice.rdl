@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, orders.bottles_return AS bottles_return, orders.sum_to_receive AS total,
@@ -36,7 +36,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -162,7 +162,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DepositRefund">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 refund_deposit, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
@@ -176,7 +176,7 @@ order_id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="refund_deposit">
           <DataField>refund_deposit</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -604,7 +604,7 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -634,7 +634,7 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -649,7 +649,7 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1104,7 +1104,7 @@ order_id = @order_id;</CommandText>
               <FontWeight>Bold</FontWeight>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox11" >
+          <Textbox Name="Textbox11">
             <Height>12.00pt</Height>
             <Width>360.27pt</Width>
             <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({refund_deposit}, 'DepositRefund'))</Value>
@@ -1167,6 +1167,11 @@ order_id = @order_id;</CommandText>
         </Style>
         <ReportName>InvoiceDepositRefundTable</ReportName>
         <MergeTransactions>true</MergeTransactions>
+        <Parameters >
+          <Parameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </Parameter>
+        </Parameters>
       </Subreport>
     </ReportItems>
   </Body>
