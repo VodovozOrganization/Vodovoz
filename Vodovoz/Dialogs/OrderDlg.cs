@@ -95,13 +95,35 @@ namespace Vodovoz
 				referenceDeliverySchedule.Sensitive = labelDeliverySchedule.Sensitive = !checkSelfDelivery.Active;
 			};
 
-			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
+			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => {
+				FixPrice (aIdx [0]);
+				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
+			};
 
-			UoWGeneric.Root.ObservableOrderItems.ElementAdded += (aList, aIdx) => FixPrice (aIdx [0]);
+			UoWGeneric.Root.ObservableOrderItems.ElementAdded += (aList, aIdx) => { 
+				FixPrice (aIdx [0]); 			
+				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
+			};
 
-			UoWGeneric.Root.ObservableOrderItems.ListContentChanged += (sender, e) => UpdateSum ();
+			UoWGeneric.Root.ObservableOrderItems.ListContentChanged += (sender, e) => {
+				UpdateSum ();
+				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
+			};
 
-			UoWGeneric.Root.ObservableOrderDepositRefundItem.ListContentChanged += (sender, e) => UpdateSum ();
+			UoWGeneric.Root.ObservableOrderDepositRefundItem.ListContentChanged += (sender, e) => {
+				UpdateSum ();
+				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
+			};
+
+			UoWGeneric.Root.ObservableFinalOrderService.ElementAdded += (aList, aIdx) => {
+				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
+				UpdateSum ();
+			};
+			
+			UoWGeneric.Root.ObservableOrderDepositRefundItem.ElementAdded += (aList, aIdx) => {
+				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
+				UpdateSum ();
+			};
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 			#endregion
@@ -150,6 +172,8 @@ namespace Vodovoz
 				.Finish ();
 			
 			UpdateSum ();
+
+			enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable ();
@@ -227,7 +251,6 @@ namespace Vodovoz
 				referenceDeliveryPoint.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
 				enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 					(UoWGeneric.Root.Client.PersonType == PersonType.legal);
-				Entity.PaymentType = Entity.Client.PaymentMethod;
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}

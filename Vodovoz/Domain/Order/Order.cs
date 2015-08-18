@@ -36,6 +36,10 @@ namespace Vodovoz.Domain.Orders
 		public virtual Counterparty Client {
 			get { return client; }
 			set {
+				if (value == client)
+					return;
+				if (value != null)
+					PaymentType = value.PaymentMethod;
 				SetField (ref client, value, () => Client); 
 				if (DeliveryPoint != null && !Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
 					DeliveryPoint = null;
@@ -158,7 +162,22 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Форма оплаты")]
 		public virtual PaymentType PaymentType {
 			get { return paymentType; }
-			set { SetField (ref paymentType, value, () => PaymentType); }
+			set { 
+				if (value == paymentType)
+					return;
+				if (!CanChangePaymentType ())
+					throw new InvalidOperationException ("Нельзя изменить тип оплаты для заполненного заказа.");
+				SetField (ref paymentType, value, () => PaymentType);
+			}
+		}
+
+		public bool CanChangePaymentType ()
+		{
+			if ((NHibernate.NHibernateUtil.IsInitialized (OrderItems) && OrderItems.Count > 0) ||
+			    (NHibernate.NHibernateUtil.IsInitialized (OrderDepositRefundItem) && OrderDepositRefundItem.Count > 0) ||
+			    (NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
+				return false;
+			return true;
 		}
 
 		IList<OrderDepositRefundItem> orderDepositRefundItem = new List<OrderDepositRefundItem> ();
