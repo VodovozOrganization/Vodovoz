@@ -29,6 +29,7 @@ namespace Vodovoz.HMap
 			References (x => x.DeliveryPoint).Column ("delivery_point_id");
 			References (x => x.DeliverySchedule).Column ("delivery_schedule_id");
 			References (x => x.PreviousOrder).Column ("previous_order_id");
+			References (x => x.Contract).Column ("counterparty_contract_id");
 
 			HasMany (x => x.OrderItems).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.OrderEquipments).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("order_id");

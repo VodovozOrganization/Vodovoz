@@ -81,6 +81,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
 		}
 
+		CounterpartyContract contract;
+
+		[Display (Name = "Договор")]
+		public virtual CounterpartyContract Contract {
+			get { return contract; }
+			set { SetField (ref contract, value, () => Contract); }
+		}
+
 		bool selfDelivery;
 
 		[Display (Name = "Самовывоз")]
