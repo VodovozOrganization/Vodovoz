@@ -12,13 +12,14 @@ using Vodovoz.ViewModel;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class WarehouseDocumentsView : Gtk.Bin, ITdiJournal
+	public partial class WarehouseDocumentsView : TdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		public WarehouseDocumentsView ()
 		{
 			this.Build ();
+			this.TabName = "Журнал документов";
 			tableDocuments.RepresentationModel = new DocumentsVM ();
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
@@ -64,29 +65,6 @@ namespace Vodovoz
 			TabParent.AddTab (OrmMain.CreateObjectDialog (document.GetType ()), this);
 		}
 
-		#region ITdiTab implementation
-
-		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
-
-		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
-
-		public ITdiTabParent TabParent { get ; set ; }
-
-		protected string _tabName = "Журнал документов";
-
-		public string TabName {
-			get { return _tabName; }
-			set {
-				if (_tabName == value)
-					return;
-				_tabName = value;
-				if (TabNameChanged != null)
-					TabNameChanged (this, new TdiTabNameChangedEventArgs (value));
-			}
-		}
-
-		#endregion
-			
 		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
 		{
 			buttonEdit.Click ();
@@ -120,7 +98,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			OrmMain.DeleteObject(tableDocuments.GetSelectedObjects () [0]);
+			OrmMain.DeleteObject (tableDocuments.GetSelectedObjects () [0]);
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)
