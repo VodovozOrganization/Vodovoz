@@ -8,6 +8,7 @@ using System.Data.Bindings;
 using NHibernate.Transform;
 using System.Linq;
 using System.Collections.Generic;
+using Vodovoz.Domain;
 
 namespace Vodovoz.ViewModel
 {
@@ -38,6 +39,8 @@ namespace Vodovoz.ViewModel
 			Order orderAlias = null;
 			RouteList routeListAlias = null;
 			ReadyForShipmentVMNode resultAlias = null;
+			Employee employeeAlias = null;
+			Car carAlias = null;
 
 			List<ReadyForShipmentVMNode> items = new List<ReadyForShipmentVMNode> ();
 
@@ -47,6 +50,10 @@ namespace Vodovoz.ViewModel
 				.SelectList (list => list
 					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => ShipmentDocumentType.Order).WithAlias (() => resultAlias.TypeEnum)
+					.Select (() => "-").WithAlias (() => resultAlias.Name)
+					.Select (() => "").WithAlias (() => resultAlias.LastName)
+					.Select (() => "").WithAlias (() => resultAlias.Patronymic)
+					.Select (() => "-").WithAlias (() => resultAlias.Car)
 				)
 				.TransformUsing (Transformers.AliasToBean<ReadyForShipmentVMNode> ())
 				.List<ReadyForShipmentVMNode> ().ToList ());
@@ -54,12 +61,18 @@ namespace Vodovoz.ViewModel
 
 			if (Filter == null || Filter.RestrictDocumentType != ShipmentDocumentType.Order) {
 				items.AddRange (UoW.Session.QueryOver<RouteList> (() => routeListAlias)
+				.JoinAlias (rl => rl.Driver, () => employeeAlias)
+				.JoinAlias (rl => rl.Car, () => carAlias)
 				.Where (r => routeListAlias.Status == RouteListStatus.Ready)
 				.SelectList (list => list
 					.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => ShipmentDocumentType.RouteList).WithAlias (() => resultAlias.TypeEnum)
+						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.Name)
+						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.LastName)
+						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.Patronymic)
+						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.Car)
 				)
-					.TransformUsing (Transformers.AliasToBean <ReadyForShipmentVMNode> ())
+				.TransformUsing (Transformers.AliasToBean <ReadyForShipmentVMNode> ())
 				.List<ReadyForShipmentVMNode> ());
 			}
 			SetItemsSource (items);
@@ -68,8 +81,8 @@ namespace Vodovoz.ViewModel
 		IMappingConfig treeViewConfig = FluentMappingConfig<ReadyForShipmentVMNode>.Create ()
 			.AddColumn ("Тип").SetDataProperty (node => node.TypeString)
 			.AddColumn ("Номер").SetDataProperty (node => node.Id)
-		                                //.AddColumn ("Водитель").SetDataProperty (node => node.Driver)
-		                                //.AddColumn ("Машина").SetDataProperty (node => node.Car)
+		    .AddColumn ("Водитель").SetDataProperty (node => node.Driver)
+		    .AddColumn ("Машина").SetDataProperty (node => node.Car)
 			.Finish ();
 
 		public override IMappingConfig TreeViewConfig {
@@ -99,9 +112,15 @@ namespace Vodovoz.ViewModel
 
 		public string TypeString { get { return TypeEnum.GetEnumTitle (); } }
 
-		//public string Driver { get; set; }
+		public string Name { get; set; }
 
-		//public string Car { get; set; }
+		public string LastName { get; set; }
+
+		public string Patronymic { get; set; }
+
+		public string Driver { get { return String.Format ("{0} {1} {2}", LastName, Name, Patronymic); } }
+
+		public string Car { get; set; }
 	}
 
 	public enum ShipmentDocumentType
