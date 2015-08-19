@@ -321,6 +321,11 @@
     <Compile Include="Domain\Logistic\DeliveryShift.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
     <Compile Include="Repositories\Logistics\DeliveryShiftRepository.cs" />
+    <Compile Include="Representations\ReadyForShipmentVM.cs" />
+    <Compile Include="ViewDialogs\ReadyForShipmentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentView.cs" />
+    <Compile Include="ReferenceFilters\ReadyForShipmentFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

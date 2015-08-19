@@ -12,6 +12,7 @@ public partial class MainWindow : Window
 	Action ActionClientBalance;
 	Action ActionRouteListTable;
 	Action ActionAddOrder;
+	Action ActionReadyForShipment;
 
 	public void BuildToolbarActions ()
 	{
@@ -23,6 +24,7 @@ public partial class MainWindow : Window
 		ActionServiceClaims = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
 		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
+		ActionReadyForShipment = new Action ("ActionReadyForShipment", "Готовые к погрузке", null, "table");
 		ActionWarehouseStock = new Action ("ActionWarehouseStock", "Складские остатки", null, "table");
 		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
@@ -34,6 +36,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionAddOrder, null);
 		w1.Add (ActionServiceClaims, null);
 		w1.Add (ActionWarehouseDocuments, null);
+		w1.Add (ActionReadyForShipment, null);
 		w1.Add (ActionWarehouseStock, null);
 		w1.Add (ActionClientBalance, null);
 		w1.Add (ActionRouteListTable, null);
@@ -44,6 +47,7 @@ public partial class MainWindow : Window
 		ActionAddOrder.Activated += ActionAddOrder_Activated;
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
+		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
@@ -54,6 +58,12 @@ public partial class MainWindow : Window
 	{
 		//TODO FIXME Сделать нормальный вид.
 		OrmReference refWin = new OrmReference (typeof(Vodovoz.Domain.Logistic.RouteList));
+		tdiMain.AddTab (refWin);
+	}
+
+	void ActionReadyForShipmentActivated (object sender, System.EventArgs e)
+	{
+		var refWin = new ReadyForShipmentView ();
 		tdiMain.AddTab (refWin);
 	}
 
