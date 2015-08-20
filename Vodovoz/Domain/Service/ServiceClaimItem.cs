@@ -36,6 +36,8 @@ namespace Vodovoz.Domain.Service
 			get { return count; }
 			set { SetField (ref count, value, () => Count); }
 		}
+
+		public virtual decimal Total { get { return Price * Count; } }
 	}
 }
 

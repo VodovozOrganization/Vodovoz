@@ -658,7 +658,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14939,6 +14938,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -16133,7 +16133,7 @@ Patronymic</property>
                         <property name="CanFocus">True</property>
                         <property name="Type">TextAndIcon</property>
                         <property name="Icon">stock:gtk-preferences Menu</property>
-                        <property name="Label" translatable="yes">Добавить заявку</property>
+                        <property name="Label" translatable="yes">Добавить новую заявку</property>
                         <property name="UseUnderline">True</property>
                         <signal name="Clicked" handler="OnButtonAddServiceClaimClicked" />
                       </widget>
@@ -16145,7 +16145,21 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <placeholder />
+                      <widget class="Gtk.Button" id="buttonAddDoneService">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-yes Menu</property>
+                        <property name="Label" translatable="yes">Добавить выполненную заявку</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnButtonAddDoneServiceClicked" />
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
                     </child>
                   </widget>
                   <packing>
@@ -18269,14 +18283,21 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.DataBindings.DataTable" id="datatable1">
                 <property name="MemberName" />
-                <property name="NRows">10</property>
+                <property name="NRows">9</property>
                 <property name="NColumns">4</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
+                <property name="BorderWidth">6</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
                 <child>
                   <placeholder />
                 </child>
@@ -18446,13 +18467,12 @@ RegistrationNumber</property>
                     <property name="BottomAttach">7</property>
                     <property name="LeftAttach">1</property>
                     <property name="RightAttach">2</property>
-                    <property name="AutoSize">True</property>
+                    <property name="AutoSize">False</property>
                     <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
+                    <property name="YExpand">True</property>
                     <property name="YFill">True</property>
                     <property name="YShrink">False</property>
                   </packing>
@@ -18493,41 +18513,6 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
-                    <property name="MemberName" />
-                    <property name="ShadowType">In</property>
-                    <child>
-                      <widget class="Gtk.DataBindings.DataTextView" id="textDiagnosticsResult">
-                        <property name="MemberName" />
-                        <property name="CanFocus">True</property>
-                        <property name="ShowScrollbars">True</property>
-                        <property name="Text" translatable="yes" />
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">DiagnosticsResult</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">DiagnosticsResult</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                      </widget>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">8</property>
-                    <property name="BottomAttach">9</property>
-                    <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
                   <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
@@ -18549,15 +18534,14 @@ RegistrationNumber</property>
                   <packing>
                     <property name="TopAttach">8</property>
                     <property name="BottomAttach">9</property>
-                    <property name="LeftAttach">3</property>
-                    <property name="RightAttach">4</property>
-                    <property name="AutoSize">True</property>
+                    <property name="LeftAttach">1</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">False</property>
                     <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
                     <property name="XExpand">False</property>
                     <property name="XFill">True</property>
                     <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
+                    <property name="YExpand">True</property>
                     <property name="YFill">True</property>
                     <property name="YShrink">False</property>
                   </packing>
@@ -18622,26 +18606,6 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="label11">
-                    <property name="MemberName" />
-                    <property name="Xalign">1</property>
-                    <property name="LabelProp" translatable="yes">Результат диагностики:</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">8</property>
-                    <property name="BottomAttach">9</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
                   <widget class="Gtk.Label" id="label12">
                     <property name="MemberName" />
                     <property name="Xalign">1</property>
@@ -18650,50 +18614,6 @@ RegistrationNumber</property>
                   <packing>
                     <property name="TopAttach">8</property>
                     <property name="BottomAttach">9</property>
-                    <property name="LeftAttach">2</property>
-                    <property name="RightAttach">3</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Label" id="label13">
-                    <property name="MemberName" />
-                    <property name="Xalign">1</property>
-                    <property name="LabelProp" translatable="yes">Предполагаемая стоимость:</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">9</property>
-                    <property name="BottomAttach">10</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gtk.Label" id="label14">
-                    <property name="MemberName" />
-                    <property name="Xalign">1</property>
-                    <property name="LabelProp" translatable="yes">Инженер:</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">9</property>
-                    <property name="BottomAttach">10</property>
-                    <property name="LeftAttach">2</property>
-                    <property name="RightAttach">3</property>
                     <property name="AutoSize">True</property>
                     <property name="XOptions">Fill</property>
                     <property name="YOptions">Fill</property>
@@ -18924,33 +18844,6 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEngineer">
-                    <property name="MemberName" />
-                    <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">FullName</property>
-                    <property name="DisplayFormatString">{0}</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Engineer</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="CursorPointsEveryType">False</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">9</property>
-                    <property name="BottomAttach">10</property>
-                    <property name="LeftAttach">3</property>
-                    <property name="RightAttach">4</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
-                <child>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipment">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
@@ -19003,38 +18896,6 @@ RegistrationNumber</property>
                     <property name="YShrink">False</property>
                   </packing>
                 </child>
-                <child>
-                  <widget class="Gtk.DataBindings.DataSpinButton" id="spinTotalPrice">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">TotalPrice</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">TotalPrice</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                  </widget>
-                  <packing>
-                    <property name="TopAttach">9</property>
-                    <property name="BottomAttach">10</property>
-                    <property name="LeftAttach">1</property>
-                    <property name="RightAttach">2</property>
-                    <property name="AutoSize">True</property>
-                    <property name="XOptions">Fill</property>
-                    <property name="YOptions">Fill</property>
-                    <property name="XExpand">False</property>
-                    <property name="XFill">True</property>
-                    <property name="XShrink">False</property>
-                    <property name="YExpand">False</property>
-                    <property name="YFill">True</property>
-                    <property name="YShrink">False</property>
-                  </packing>
-                </child>
               </widget>
             </child>
             <child>
@@ -19050,6 +18911,122 @@ RegistrationNumber</property>
               <widget class="Gtk.VBox" id="vbox2">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
+                <property name="BorderWidth">6</property>
+                <child>
+                  <widget class="Gtk.DataBindings.DataTable" id="datatable2">
+                    <property name="MemberName" />
+                    <property name="NRows">2</property>
+                    <property name="NColumns">2</property>
+                    <property name="RowSpacing">6</property>
+                    <property name="ColumnSpacing">6</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="InheritedDataSource">False</property>
+                    <property name="InheritedBoundaryDataSource">False</property>
+                    <child>
+                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
+                        <property name="MemberName" />
+                        <property name="ShadowType">In</property>
+                        <child>
+                          <widget class="Gtk.DataBindings.DataTextView" id="textDiagnosticsResult">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="ShowScrollbars">True</property>
+                            <property name="Text" translatable="yes" />
+                            <property name="InheritedDataSource">True</property>
+                            <property name="Mappings">DiagnosticsResult</property>
+                            <property name="InheritedBoundaryDataSource">False</property>
+                            <property name="InheritedDataSource">True</property>
+                            <property name="Mappings">DiagnosticsResult</property>
+                            <property name="InheritedBoundaryDataSource">False</property>
+                          </widget>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">1</property>
+                        <property name="BottomAttach">2</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">True</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label11">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Результат диагностики:</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">1</property>
+                        <property name="BottomAttach">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label14">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Инженер:</property>
+                      </widget>
+                      <packing>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEngineer">
+                        <property name="MemberName" />
+                        <property name="Events">ButtonPressMask</property>
+                        <property name="DisplayFields">FullName</property>
+                        <property name="DisplayFormatString">{0}</property>
+                        <property name="InheritedDataSource">True</property>
+                        <property name="Mappings">Engineer</property>
+                        <property name="InheritedBoundaryDataSource">False</property>
+                        <property name="CursorPointsEveryType">False</property>
+                      </widget>
+                      <packing>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">True</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
                 <child>
                   <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                     <property name="MemberName" />
@@ -19068,7 +19045,7 @@ RegistrationNumber</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">0</property>
+                    <property name="Position">1</property>
                     <property name="AutoSize">True</property>
                   </packing>
                 </child>
@@ -19113,19 +19090,43 @@ RegistrationNumber</property>
                     <child>
                       <placeholder />
                     </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label13">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Итого:</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">3</property>
+                        <property name="AutoSize">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.DataBindings.DataLabel" id="labelTotalPrice">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Цена</property>
+                        <property name="InheritedDataSource">False</property>
+                        <property name="Mappings">TotalPrice</property>
+                        <property name="InheritedBoundaryDataSource">False</property>
+                        <property name="Important">False</property>
+                        <property name="InheritedDataSource">False</property>
+                        <property name="Mappings">TotalPrice</property>
+                        <property name="InheritedBoundaryDataSource">False</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">4</property>
+                        <property name="AutoSize">False</property>
+                        <property name="Expand">False</property>
+                      </packing>
+                    </child>
                   </widget>
                   <packing>
-                    <property name="Position">1</property>
+                    <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
                 </child>
               </widget>
               <packing>
@@ -19277,6 +19278,13 @@ RegistrationNumber</property>
           </packing>
         </child>
       </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReadyForShipmentDlg" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
     </child>
   </widget>
 </stetic-interface>

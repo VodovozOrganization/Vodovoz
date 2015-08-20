@@ -1,4 +1,4 @@
-﻿using System;
+﻿nousing System;
 using QSOrmProject;
 using Vodovoz.Domain;
 using NLog;
@@ -590,6 +590,11 @@ namespace Vodovoz
 
 			ServiceClaimDlg dlg = new ServiceClaimDlg ((treeServiceClaim.GetSelectedObjects () [0] as ServiceClaim).Id);
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
+		}
+
+		protected void OnButtonAddDoneServiceClicked (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 

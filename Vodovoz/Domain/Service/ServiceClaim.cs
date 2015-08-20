@@ -120,9 +120,9 @@ namespace Vodovoz.Domain.Service
 			set	{ SetField (ref engineer, value, () => Engineer); }
 		}
 
-		double totalPrice;
+		decimal totalPrice;
 
-		public virtual double TotalPrice { 
+		public virtual decimal TotalPrice { 
 			get { return totalPrice; } 
 			set	{ SetField (ref totalPrice, value, () => TotalPrice); }
 		}
@@ -145,6 +145,13 @@ namespace Vodovoz.Domain.Service
 			}
 		}
 
+		public void UpdateTotalPrice ()
+		{
+			TotalPrice = 0;
+			foreach (ServiceClaimItem sci in ObservableServiceClaimItems) {
+				TotalPrice += sci.Total;
+			}
+		}
 
 		#region IValidatableObject implementation
 
@@ -183,6 +190,9 @@ namespace Vodovoz.Domain.Service
 			Kit = String.Empty;
 			Comment = String.Empty;
 			DiagnosticsResult = String.Empty;
+			ObservableServiceClaimItems.ElementAdded += (aList, aIdx) => UpdateTotalPrice ();
+			ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => UpdateTotalPrice ();
+			ObservableServiceClaimItems.ElementRemoved += (aList, aIdx, aObject) => UpdateTotalPrice ();
 		}
 	}
 

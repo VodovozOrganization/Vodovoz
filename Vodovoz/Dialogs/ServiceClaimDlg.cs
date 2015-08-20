@@ -47,8 +47,11 @@ namespace Vodovoz
 			treePartsAndServices.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimItems;
 
 			datatable1.DataSource = subjectAdaptor;
+			datatable2.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
+
+			labelTotalPrice.DataSource = subjectAdaptor;
 
 			referenceCounterparty.SubjectType = typeof(Counterparty);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
@@ -69,6 +72,8 @@ namespace Vodovoz
 				.AddSetter ((c, i) => c.Editable = isEditable)
 				.WidthChars (10)
 				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
+				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn ("Сумма").AddNumericRenderer (node => node.Total).Digits (2)
 				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
 				.Finish ();
 
