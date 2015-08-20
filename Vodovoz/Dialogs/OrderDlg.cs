@@ -595,7 +595,7 @@ namespace Vodovoz
 		protected void OnButtonAddDoneServiceClicked (object sender, EventArgs e)
 		{
 			OrmReference SelectDialog = new OrmReference (typeof(ServiceClaim), UoWGeneric, 
-				                            ServiceClaimRepository.GetDoneClaimsForClient (UoWGeneric.Root.Client)
+				                            ServiceClaimRepository.GetDoneClaimsForClient (UoWGeneric.Root)
 				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;

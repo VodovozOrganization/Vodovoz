@@ -21,14 +21,17 @@ namespace Vodovoz.Repository
 			return queryOver.List<ServiceClaim> ();
 		}
 
-		public static QueryOver<ServiceClaim> GetDoneClaimsForClient (Counterparty counterparty)
+		public static QueryOver<ServiceClaim> GetDoneClaimsForClient (Vodovoz.Domain.Orders.Order order)
 		{
 			ServiceClaim serviceClaimAlias = null;
 			Counterparty counterpartyAlias = null;
 
 			var queryOver = QueryOver.Of<ServiceClaim> (() => serviceClaimAlias)
 				.JoinAlias (s => s.Counterparty, () => counterpartyAlias)
-				.Where (s => counterpartyAlias.Id == counterparty.Id && s.Status == ServiceClaimStatus.Ready && s.FinalOrder == null);
+				.Where (s => counterpartyAlias.Id == order.Client.Id &&
+			                s.Status == ServiceClaimStatus.Ready &&
+			                s.FinalOrder == null &&
+			                s.Payment == order.PaymentType);
 			return queryOver;
 		}
 	}
