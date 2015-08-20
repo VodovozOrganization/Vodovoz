@@ -6,7 +6,9 @@ namespace Vodovoz.Domain
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "точки доставки",
-		Nominative = "точка доставки")]
+		Nominative = "точка доставки",
+		Accusative = "точки доставки"
+	)]
 	public class DeliveryPoint : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

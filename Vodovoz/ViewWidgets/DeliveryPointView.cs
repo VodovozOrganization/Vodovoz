@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
-using Gtk;
-using NHibernate;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
@@ -11,7 +9,7 @@ using Vodovoz.ViewModel;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class DeliveryPointView : Gtk.Bin
+	public partial class DeliveryPointView : WidgetOnDialogBase
 	{
 		GenericObservableList<DeliveryPoint> deliveryPoints;
 
@@ -45,22 +43,21 @@ namespace Vodovoz
 
 		void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
+			if (MyOrmDialog.UoW.IsNew && MyOrmDialog.UoW.HasChanges) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (MyOrmDialog.EntityObject.GetType (), typeof(DeliveryPoint))) {
+					MyTdiDialog.Save ();
+				} else
+					return;
+			}
 
 			ITdiDialog dlg = new DeliveryPointDlg (DeliveryPointUoW.Root);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			MyTab.TabParent.AddSlaveTab (MyTab, dlg);
 		}
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
 			ITdiDialog dlg = new DeliveryPointDlg((treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPointVMNode).Id);
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			MyTab.TabParent.AddSlaveTab (MyTab, dlg);
 		}
 
 		protected void OnTreeDeliveryPointsRowActivated (object o, Gtk.RowActivatedArgs args)
@@ -70,10 +67,6 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-
 			deliveryPoints.Remove (treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPoint);
 		}
 	}

@@ -8,7 +8,9 @@ namespace Vodovoz.Domain
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "контакты",
-		Nominative = "контакт")]
+		Nominative = "контакт",
+		Accusative = "контакта"
+	)]
 	public class Contact : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
