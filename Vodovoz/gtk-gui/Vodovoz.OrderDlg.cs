@@ -1059,6 +1059,7 @@ namespace Vodovoz
 			this.hbox9.Spacing = 6;
 			// Container child hbox9.Gtk.Box+BoxChild
 			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow ();

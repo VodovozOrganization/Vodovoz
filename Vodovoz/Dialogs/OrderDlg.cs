@@ -609,6 +609,7 @@ namespace Vodovoz
 			ServiceClaim selected = (e.Subject as ServiceClaim);
 			selected.FinalOrder = UoWGeneric.Root;
 			UoWGeneric.Root.ObservableFinalOrderService.Add (selected);
+			//TODO Add service nomenclature with price.
 		}
 	}
 
