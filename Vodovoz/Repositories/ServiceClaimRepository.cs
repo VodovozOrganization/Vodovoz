@@ -1,6 +1,9 @@
 ﻿using QSOrmProject;
 using System.Collections.Generic;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain;
+using NHibernate;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Repository
 {
@@ -16,6 +19,17 @@ namespace Vodovoz.Repository
 				.JoinAlias (s => s.FinalOrder, () => finalOrderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 			.Where (s => initialOrderAlias.Id == order.Id || finalOrderAlias.Id == order.Id);
 			return queryOver.List<ServiceClaim> ();
+		}
+
+		public static QueryOver<ServiceClaim> GetDoneClaimsForClient (Counterparty counterparty)
+		{
+			ServiceClaim serviceClaimAlias = null;
+			Counterparty counterpartyAlias = null;
+
+			var queryOver = QueryOver.Of<ServiceClaim> (() => serviceClaimAlias)
+				.JoinAlias (s => s.Counterparty, () => counterpartyAlias)
+				.Where (s => counterpartyAlias.Id == counterparty.Id && s.Status == ServiceClaimStatus.Ready && s.FinalOrder == null);
+			return queryOver;
 		}
 	}
 }

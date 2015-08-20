@@ -594,7 +594,21 @@ namespace Vodovoz
 
 		protected void OnButtonAddDoneServiceClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			OrmReference SelectDialog = new OrmReference (typeof(ServiceClaim), UoWGeneric, 
+				                            ServiceClaimRepository.GetDoneClaimsForClient (UoWGeneric.Root.Client)
+				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ObjectSelected += DoneServiceSelected;
+			;
+			TabParent.AddSlaveTab (this, SelectDialog);
+		}
+
+		void DoneServiceSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			ServiceClaim selected = (e.Subject as ServiceClaim);
+			selected.FinalOrder = UoWGeneric.Root;
+			UoWGeneric.Root.ObservableFinalOrderService.Add (selected);
 		}
 	}
 
