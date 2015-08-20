@@ -47,7 +47,8 @@ public partial class MainWindow: Gtk.Window
 			return;
 		}
 
-		UsersAction.Sensitive = QSMain.User.admin;
+		UsersAction.Sensitive = QSMain.User.Admin;
+		ActionParameters.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
 
 		BanksUpdater.Update (false);
@@ -369,5 +370,13 @@ public partial class MainWindow: Gtk.Window
 	{
 		OrmReference refWin = new OrmReference (typeof(DeliveryShift));
 		tdiMain.AddTab (refWin);
+	}
+
+	protected void OnActionParametersActivated (object sender, EventArgs e)
+	{
+		var config = new ApplicationConfigDialog ();
+		config.ShowAll ();
+		config.Run ();
+		config.Destroy ();
 	}
 }

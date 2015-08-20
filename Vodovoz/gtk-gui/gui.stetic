@@ -421,6 +421,13 @@
         <property name="ShortLabel" translatable="yes">Смена доставки</property>
         <signal name="Activated" handler="OnActionDeliveryShiftActivated" />
       </action>
+      <action id="ActionParameters">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Параметры приложения</property>
+        <property name="ShortLabel" translatable="yes">Параметры приложения</property>
+        <property name="StockId">gtk-preferences</property>
+        <signal name="Activated" handler="OnActionParametersActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -437,6 +444,8 @@
               <node type="Menu" action="ActionBaseMenu">
                 <node type="Menuitem" action="dialogAuthenticationAction" />
                 <node type="Menuitem" action="UsersAction" />
+                <node type="Separator" />
+                <node type="Menuitem" action="ActionParameters" />
                 <node type="Separator" />
                 <node type="Menuitem" action="quitAction" />
               </node>
@@ -658,6 +667,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14938,7 +14948,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
