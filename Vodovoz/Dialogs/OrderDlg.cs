@@ -578,6 +578,14 @@ namespace Vodovoz
 
 		protected void OnButtonAddServiceClaimClicked (object sender, EventArgs e)
 		{
+			if (UoWGeneric.IsNew) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (EntityObject.GetType (), typeof(ServiceClaim))) {
+					if (!Save ())
+						return;
+				} else
+					return;
+			}
+
 			var dlg = new ServiceClaimDlg (UoWGeneric.Root);
 			TabParent.AddSlaveTab (this, dlg);
 		}
