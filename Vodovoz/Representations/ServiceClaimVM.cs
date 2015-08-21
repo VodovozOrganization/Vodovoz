@@ -12,6 +12,15 @@ namespace Vodovoz.ViewModel
 {
 	public class ServiceClaimVM : RepresentationModelBase<ServiceClaim, ServiceClaimVMNode>
 	{
+		public ServiceClaimFilter Filter {
+			get {
+				return RepresentationFilter as ServiceClaimFilter;
+			}
+			set {
+				RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -23,6 +32,10 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<ServiceClaim> (() => serviceClaimAlias);
 
+			if (Filter.RestrictServiceClaimStatus != null) {
+				query.Where (c => c.Status == Filter.RestrictServiceClaimStatus);
+			}
+				
 			var result = query
 				.JoinAlias (sc => sc.Counterparty, () => counterpartyAlias)
 				.JoinAlias (sc => sc.Nomenclature, () => nomenclatureAlias)
@@ -70,11 +83,17 @@ namespace Vodovoz.ViewModel
 
 		public ServiceClaimVM () : this (UnitOfWorkFactory.CreateWithoutRoot ())
 		{
+			CreateRepresentationFilter = () => new ServiceClaimFilter (UoW);
 		}
 
 		public ServiceClaimVM (IUnitOfWork uow) : base ()
 		{
 			this.UoW = uow;
+		}
+
+		public ServiceClaimVM (ServiceClaimFilter filter) : this (filter.UoW)
+		{
+			Filter = filter;
 		}
 	}
 
