@@ -15,6 +15,10 @@ namespace Vodovoz.Domain.Service
 	{
 		public virtual int Id { get; set; }
 
+		public virtual string Title { 
+			get { return String.Format ("Заявка на обслуживание №{0}", Id); }
+		}
+
 		Order initialOrder;
 
 		public virtual Order InitialOrder {

@@ -22,6 +22,10 @@ namespace Vodovoz.Domain.Orders
 	{
 		public virtual int Id { get; set; }
 
+		public virtual string Title { 
+			get { return String.Format ("Заказ №{0}", Id); }
+		}
+
 		OrderStatus orderStatus;
 
 		[Display (Name = "Статус заказа")]
