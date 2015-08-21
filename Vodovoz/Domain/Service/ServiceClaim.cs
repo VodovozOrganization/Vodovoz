@@ -131,6 +131,8 @@ namespace Vodovoz.Domain.Service
 			set	{ SetField (ref totalPrice, value, () => TotalPrice); }
 		}
 
+		public string RowColor { get { return (repeatedService ? "red" : "black"); } }
+
 		IList<ServiceClaimItem> serviceClaimItems = new List<ServiceClaimItem> ();
 
 		[Display (Name = "Список запчастей и работ")]

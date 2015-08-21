@@ -169,6 +169,7 @@ namespace Vodovoz
 				.AddColumn ("Номенклатура оборудования").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
 				.AddColumn ("Серийный номер").SetDataProperty (node => node.Equipment != null ? node.Equipment.Serial : "-")
 				.AddColumn ("Причина").SetDataProperty (node => node.Reason)
+				.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 				.Finish ();
 			
 			UpdateSum ();
