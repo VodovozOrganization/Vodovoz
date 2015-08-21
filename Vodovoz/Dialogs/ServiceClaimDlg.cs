@@ -44,8 +44,6 @@ namespace Vodovoz
 		{
 			subjectAdaptor.Target = UoWGeneric.Root;
 
-			treePartsAndServices.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimItems;
-
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
@@ -63,6 +61,8 @@ namespace Vodovoz
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
 
 			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
+
+			treePartsAndServices.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimItems;
 
 			treePartsAndServices.ColumnMappingConfig = FluentMappingConfig <ServiceClaimItem>.Create ()
 				.AddColumn ("Номенклатура").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
@@ -85,17 +85,18 @@ namespace Vodovoz
 		public override bool Save ()
 		{
 			var valid = new QSValidator<ServiceClaim> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 				return false;
 
 			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType 
-				(UoW, UoWGeneric.Root.Counterparty, UoWGeneric.Root.Payment);
+				(UoWGeneric, UoWGeneric.Root.Counterparty, UoWGeneric.Root.Payment);
 
 			if (contract == null) {
 				RunContractCreateDialog ();
 				return false;
 			}
 
+			UoWGeneric.Session.Refresh (contract);
 			if (!contract.RepairAgreementExists ()) {
 				RunAgreementCreateDialog (contract);
 				return false;

@@ -260,13 +260,16 @@ namespace Vodovoz
 		private void IsEditable (bool val = false)
 		{
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
-				referenceClient.Sensitive = spinBottlesReturn.Sensitive = val;
-			spinSumDifference.Sensitive = textComments.Sensitive = 
-				checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
-			enumAddRentButton.Sensitive = buttonAddForSale.Sensitive = 
-				enumSignatureType.Sensitive = enumStatus.Sensitive = val;
-			enumPaymentType.Sensitive = pickerDeliveryDate.Sensitive = buttonFillComment.Sensitive =
-				dataSumDifferenceReason.Sensitive = val;
+				referenceClient.Sensitive = val;
+			enumAddRentButton.Sensitive = enumSignatureType.Sensitive = enumStatus.Sensitive = 
+				enumPaymentType.Sensitive = val;
+			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive = 
+				buttonAddForSale.Sensitive = buttonFillComment.Sensitive = val;
+			spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
+			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
+			textComments.Sensitive = val;
+			pickerDeliveryDate.Sensitive = val;
+			dataSumDifferenceReason.Sensitive = val;
 			treeItems.Sensitive = val;
 		}
 
@@ -300,6 +303,7 @@ namespace Vodovoz
 					RunContractCreateDialog ();
 					return;
 				}
+				UoWGeneric.Session.Refresh (contract);
 				WaterSalesAgreement wsa = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
 				if (wsa == null) {	
 					//Если нет доп. соглашения продажи воды.
@@ -576,20 +580,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonAddServiceClaimClicked (object sender, EventArgs e)
-		{
-			if (UoWGeneric.IsNew) {
-				if (CommonDialogs.SaveBeforeCreateSlaveEntity (EntityObject.GetType (), typeof(ServiceClaim))) {
-					if (!Save ())
-						return;
-				} else
-					return;
-			}
-
-			var dlg = new ServiceClaimDlg (UoWGeneric.Root);
-			TabParent.AddSlaveTab (this, dlg);
-		}
-
 		protected void OnTreeServiceClaimRowActivated (object o, RowActivatedArgs args)
 		{
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
@@ -600,24 +590,71 @@ namespace Vodovoz
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 
+		protected void OnButtonAddServiceClaimClicked (object sender, EventArgs e)
+		{
+			if (!SaveOrderBeforeContinue ())
+				return;
+			var dlg = new ServiceClaimDlg (UoWGeneric.Root);
+			TabParent.AddSlaveTab (this, dlg);
+		}
+
 		protected void OnButtonAddDoneServiceClicked (object sender, EventArgs e)
 		{
+			if (!SaveOrderBeforeContinue ())
+				return;
 			OrmReference SelectDialog = new OrmReference (typeof(ServiceClaim), UoWGeneric, 
 				                            ServiceClaimRepository.GetDoneClaimsForClient (UoWGeneric.Root)
 				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += DoneServiceSelected;
-			;
+
 			TabParent.AddSlaveTab (this, SelectDialog);
 		}
 
 		void DoneServiceSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			ServiceClaim selected = (e.Subject as ServiceClaim);
+			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType (
+				               UoWGeneric, 
+				               UoWGeneric.Root.Client, 
+				               UoWGeneric.Root.PaymentType);
+			if (!contract.RepairAgreementExists ()) {
+				RunAgreementCreateDialog (contract);
+				return;
+			}
 			selected.FinalOrder = UoWGeneric.Root;
 			UoWGeneric.Root.ObservableFinalOrderService.Add (selected);
 			//TODO Add service nomenclature with price.
+		}
+
+		bool SaveOrderBeforeContinue ()
+		{
+			if (UoWGeneric.IsNew) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (EntityObject.GetType (), typeof(ServiceClaim))) {
+					if (!Save ())
+						return false;
+				} else
+					return false;
+			}
+			return true;
+		}
+
+		void RunAgreementCreateDialog (CounterpartyContract contract)
+		{
+			ITdiTab dlg;
+			string question = "Отсутствует доп. соглашение сервиса с клиентом в договоре для " +
+			                  (UoWGeneric.Root.PaymentType == PaymentType.cash ? "наличной" : "безналичной") +
+			                  " формы оплаты. Создать?";
+			if (MessageDialogWorks.RunQuestionDialog (question)) {
+				dlg = new AdditionalAgreementRepair (contract);
+				(dlg as IAgreementSaved).AgreementSaved += (sender, e) => UoWGeneric.Root.ObservableOrderDocuments.Add (
+					new OrderAgreement {
+						Order = UoWGeneric.Root,
+						AdditionalAgreement = e.Agreement
+					});
+				TabParent.AddSlaveTab (this, dlg);
+			}
 		}
 	}
 

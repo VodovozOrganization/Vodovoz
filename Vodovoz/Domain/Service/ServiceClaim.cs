@@ -132,7 +132,10 @@ namespace Vodovoz.Domain.Service
 		[Display (Name = "Список запчастей и работ")]
 		public virtual IList<ServiceClaimItem> ServiceClaimItems {
 			get { return serviceClaimItems; }
-			set { SetField (ref serviceClaimItems, value, () => ServiceClaimItems); }
+			set {
+				if (SetField (ref serviceClaimItems, value, () => ServiceClaimItems))
+					observableServiceClaimItems = null;
+			}
 		}
 
 		GenericObservableList<ServiceClaimItem> observableServiceClaimItems;
