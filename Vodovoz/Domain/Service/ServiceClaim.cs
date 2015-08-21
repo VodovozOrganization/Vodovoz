@@ -224,7 +224,11 @@ namespace Vodovoz.Domain.Service
 		[ItemTitleAttribute ("Отправлен в сервисный центр")]
 		SendedToSC,
 		[ItemTitleAttribute ("Забрать из сервисного центра")]
-		PickUpFromSC
+		PickUpFromSC,
+		[ItemTitleAttribute ("Принят на склад")]
+		DeliveredToWarehouse,
+		[ItemTitleAttribute ("Закрыта (Наш кулер)")]
+		ClosedAsOurCooler
 	}
 
 	public class ServiceClaimStatusStringType : NHibernate.Type.EnumStringType
