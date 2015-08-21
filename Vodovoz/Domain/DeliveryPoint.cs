@@ -106,7 +106,7 @@ namespace Vodovoz.Domain
 			set { SetField (ref longitude, value, () => Longitude); }
 		}
 
-		bool isActive;
+		bool isActive = true;
 
 		[Display (Name = "Активный")]
 		public virtual bool IsActive {
