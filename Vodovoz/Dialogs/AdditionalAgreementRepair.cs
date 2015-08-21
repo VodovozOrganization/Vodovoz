@@ -8,11 +8,22 @@ using System;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementRepair : OrmGtkDialogBase<RepairAgreement>, IAgreementSaved
+	public partial class AdditionalAgreementRepair : OrmGtkDialogBase<RepairAgreement>, IAgreementSaved, IEditableDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
+
+		bool isEditable = true;
+
+		public bool IsEditable { 
+			get { return isEditable; } 
+			set {
+				isEditable = value;
+				buttonSave.Sensitive = entryAgreementNumber.Sensitive = 
+					dateIssue.Sensitive = dateStart.Sensitive = value;
+			} 
+		}
 
 		public AdditionalAgreementRepair (CounterpartyContract contract)
 		{
