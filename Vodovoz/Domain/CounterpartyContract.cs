@@ -74,7 +74,7 @@ namespace Vodovoz.Domain
 
 		Organization organization;
 
-		[Required]
+		[Required(ErrorMessage = "Организация должна быть заполнена.")]
 		[Display (Name = "Организация")]
 		public virtual Organization Organization {
 			get { return organization; }
@@ -83,7 +83,7 @@ namespace Vodovoz.Domain
 
 		Counterparty counterparty;
 
-		[Required]
+		[Required(ErrorMessage = "Контрагент должен быть указан.")]
 		[Display (Name = "Контрагент")]
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }

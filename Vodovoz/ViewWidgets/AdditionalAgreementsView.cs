@@ -10,7 +10,7 @@ using QSProjectsLib;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class AdditionalAgreementsView : Bin, IEditableDialog
+	public partial class AdditionalAgreementsView : WidgetOnDialogBase, IEditableDialog
 	{
 		IUnitOfWorkGeneric<CounterpartyContract> agreementUoW;
 
@@ -52,10 +52,14 @@ namespace Vodovoz
 
 		void OnButtonAddClicked (AgreementType type)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-			
+			if (MyOrmDialog.UoW.IsNew) {
+				if (CommonDialogs.SaveBeforeCreateSlaveEntity (MyOrmDialog.EntityObject.GetType (), typeof(AdditionalAgreement))) {
+					if (!MyTdiDialog.Save ())
+						return;
+				} else
+					return;
+			}
+
 			ITdiDialog dlg;
 			switch (type) {
 			case AgreementType.FreeRent:
@@ -81,7 +85,7 @@ namespace Vodovoz
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));
 			}
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			MyTab.TabParent.AddSlaveTab (MyTab, dlg);
 		}
 
 		protected void OnButtonEditClicked (object sender, EventArgs e)

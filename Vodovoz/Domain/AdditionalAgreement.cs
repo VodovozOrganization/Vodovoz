@@ -9,7 +9,10 @@ namespace Vodovoz.Domain
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
 		NominativePlural = "дополнительные соглашения",
-		Nominative = "дополнительное соглашение")]
+		Nominative = "дополнительное соглашение",
+		Accusative = "дополнительное соглашение",
+		Genitive = "дополнительного соглашения"
+	)]
 	public class AdditionalAgreement : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }

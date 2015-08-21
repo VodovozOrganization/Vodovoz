@@ -43,9 +43,10 @@ namespace Vodovoz
 
 		void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			if (MyOrmDialog.UoW.IsNew && MyOrmDialog.UoW.HasChanges) {
+			if (MyOrmDialog.UoW.IsNew) {
 				if (CommonDialogs.SaveBeforeCreateSlaveEntity (MyOrmDialog.EntityObject.GetType (), typeof(DeliveryPoint))) {
-					MyTdiDialog.Save ();
+					if (!MyTdiDialog.Save ())
+						return;
 				} else
 					return;
 			}
