@@ -18,9 +18,9 @@ namespace Vodovoz.Domain
 	)]
 	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IValidatableObject
 	{
-		private IList<CounterpartyContract> counterpartyContracts;
+		#region Свойства
 
-		#region IContractOwner implementation
+		private IList<CounterpartyContract> counterpartyContracts;
 
 		[Display (Name = "Договоры")]
 		public IList<CounterpartyContract> CounterpartyContracts {
@@ -28,11 +28,7 @@ namespace Vodovoz.Domain
 			set { SetField (ref counterpartyContracts, value, () => CounterpartyContracts); }
 		}
 
-		#endregion
-
 		private IList<DeliveryPoint> deliveryPoints;
-
-		#region IDeliveryPointOwner implementation
 
 		[Display (Name = "Точки доставки")]
 		public IList<DeliveryPoint> DeliveryPoints {
@@ -50,11 +46,7 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		#endregion
-
 		private IList<Contact> contact;
-
-		#region IContact implementation
 
 		[Display (Name = "Контактные лица")]
 		public virtual IList<Contact> Contacts {
@@ -62,21 +54,13 @@ namespace Vodovoz.Domain
 			set { SetField (ref contact, value, () => Contacts); }
 		}
 
-		#endregion
-
 		private IList<Proxy> proxies;
-
-		#region IProxyOwner implementation
 
 		[Display (Name = "Доверенности")]
 		public virtual IList<Proxy> Proxies {
 			get { return proxies; }
 			set { SetField (ref proxies, value, () => Proxies); }
 		}
-
-		#endregion
-
-		#region Свойства
 
 		public virtual int Id { get; set; }
 

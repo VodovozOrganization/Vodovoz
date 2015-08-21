@@ -19,8 +19,6 @@ namespace Vodovoz.Domain
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }
 
-		#region IAdditionalAgreementOwner implementation
-
 		[Display (Name = "Дополнительные соглашения")]
 		public virtual IList<AdditionalAgreement> AdditionalAgreements {
 			get { return agreements; }
@@ -36,8 +34,6 @@ namespace Vodovoz.Domain
 				return observableAdditionalAgreements;
 			}
 		}
-
-		#endregion
 
 		public virtual int Id { get; set; }
 
