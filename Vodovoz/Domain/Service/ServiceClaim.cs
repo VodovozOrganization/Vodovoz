@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Service
 {
@@ -37,7 +38,7 @@ namespace Vodovoz.Domain.Service
 
 		public virtual ServiceClaimStatus Status { 
 			get { return status; } 
-			set	{ SetField (ref status, value, () => Status); }
+			set { SetField (ref status, value, () => Status); }
 		}
 
 		Nomenclature nomenclature;
@@ -182,6 +183,17 @@ namespace Vodovoz.Domain.Service
 			foreach (ServiceClaimItem sci in ObservableServiceClaimItems) {
 				TotalPrice += sci.Total;
 			}
+		}
+
+		public void AddHistoryRecord (ServiceClaimStatus status, string comment)
+		{
+			ObservableServiceClaimHistory.Add (new ServiceClaimHistory { 
+				Date = DateTime.Now,
+				Status = status,
+				Employee = EmployeeRepository.GetEmployeeForCurrentUser (UnitOfWorkFactory.CreateWithoutRoot ()),
+				Comment = comment,
+				ServiceClaim = this
+			});
 		}
 
 		#region IValidatableObject implementation

@@ -10,6 +10,8 @@ using QSTDI;
 using QSProjectsLib;
 using Gtk.DataBindings;
 using Gtk;
+using System.Data.Bindings;
+using System.Collections;
 
 namespace Vodovoz
 {
@@ -42,12 +44,17 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			enumStatus.Sensitive = false;
+			notebook1.ShowTabs = false;
+			notebook1.CurrentPage = 0;
 			subjectAdaptor.Target = UoWGeneric.Root;
 
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
+			datatable3.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
+			enumStatusEditable.ItemsEnum = typeof(ServiceClaimStatus);
 
 			labelTotalPrice.DataSource = subjectAdaptor;
 
@@ -63,6 +70,7 @@ namespace Vodovoz
 			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
 
 			treePartsAndServices.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimItems;
+			treeHistory.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimHistory;
 
 			treePartsAndServices.ColumnMappingConfig = FluentMappingConfig <ServiceClaimItem>.Create ()
 				.AddColumn ("Номенклатура").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
@@ -75,6 +83,14 @@ namespace Vodovoz
 				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn ("Сумма").AddNumericRenderer (node => node.Total).Digits (2)
 				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+				.Finish ();
+
+			treeHistory.ColumnMappingConfig = FluentMappingConfig <ServiceClaimHistory>.Create ()
+				.AddColumn ("Дата").SetDataProperty (node => node.Date.ToShortDateString ())
+				.AddColumn ("Время").SetDataProperty (node => node.Date.ToString ("HH:mm"))
+				.AddColumn ("Статус").SetDataProperty (node => node.Status.GetEnumTitle ())
+				.AddColumn ("Сотрудник").SetDataProperty (node => node.Employee == null ? " - " : node.Employee.FullName)
+				.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
 				.Finish ();
 
 			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
@@ -108,6 +124,10 @@ namespace Vodovoz
 			if (UoWGeneric.Root.FinalOrder != null) {
 				UoWGeneric.Root.FinalOrder.AddServiceClaimAsFinal (UoWGeneric.Root);
 			}
+
+			if (UoWGeneric.IsNew)
+				UoWGeneric.Root.AddHistoryRecord (ServiceClaimStatus.PickUp, 
+					String.IsNullOrWhiteSpace (textComment.Buffer.Text) ? "Заявка зарегистрирована" : textComment.Buffer.Text);
 
 			logger.Info ("Сохраняем заявку на обслуживание...");
 			UoWGeneric.Save ();
@@ -216,6 +236,32 @@ namespace Vodovoz
 		{
 			ServiceClaimItem item = UoWGeneric.Root.ObservableServiceClaimItems [id];
 			item.Price = item.Nomenclature.GetPrice ((int)item.Count);
+		}
+
+		protected void OnToggleInfoToggled (object sender, EventArgs e)
+		{
+			if (toggleInfo.Active)
+				notebook1.CurrentPage = 0;
+		}
+
+		protected void OnToggleServicesAndWorksToggled (object sender, EventArgs e)
+		{
+			if (toggleServicesAndWorks.Active)
+				notebook1.CurrentPage = 1;
+		}
+
+		protected void OnToggleHistoryToggled (object sender, EventArgs e)
+		{
+			if (toggleHistory.Active)
+				notebook1.CurrentPage = 2;
+		}
+
+		protected void OnButtonAddClicked (object sender, EventArgs e)
+		{
+			if (!String.IsNullOrWhiteSpace (textComment.Buffer.Text) || MessageDialogWorks.RunQuestionDialog ("Вы не заполнили комментарий. Продолжить?")) {
+				UoWGeneric.Root.AddHistoryRecord ((ServiceClaimStatus)enumStatusEditable.Active, textComment.Buffer.Text);
+				UoWGeneric.Root.Status = (ServiceClaimStatus)enumStatusEditable.Active;
+			}
 		}
 	}
 }
