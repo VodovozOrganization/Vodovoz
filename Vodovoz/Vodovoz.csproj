@@ -395,6 +395,10 @@
       <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
       <Name>QSReport</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaBinding\GammaBinding.csproj">
+      <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
+      <Name>GammaBinding</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
@@ -468,6 +472,5 @@
     <None Include="Reports\Equipment.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ViewWidgets\Logistics\RouteListCreateItemsTreeStore.cs" />
   </ItemGroup>
 </Project>

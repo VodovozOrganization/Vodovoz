@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Gamma.GtkWidgets;
 using Gtk;
-using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository;
-using System.Linq;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -43,12 +43,14 @@ namespace Vodovoz
 				if (RouteListUoW.Root.Addresses == null)
 					RouteListUoW.Root.Addresses = new List<RouteListItem> ();
 				items = RouteListUoW.Root.ObservableAddresses;
+				items.IsReorderable = true;
 				items.ElementChanged += Items_ElementChanged;
 				items.ListChanged += Items_ListChanged;
 
 				UpdateColumns ();
 
-				treeItemsList.ItemsDataSource = items;
+				ytreeviewItems.ItemsDataSource = items;
+				ytreeviewItems.Reorderable = true;
 				CalculateTotal ();
 			}
 		}
@@ -66,7 +68,7 @@ namespace Vodovoz
 
 			goodsColumnsCount = goodsColumns.Length;
 
-			var config = FluentMappingConfig<RouteListItem>.Create ()
+			var config = ColumnsConfigFactory.Create<RouteListItem> ()
 				.AddColumn ("Заказ").SetDataProperty (node => node.Order.Id)
 				.AddColumn ("Адрес").AddTextRenderer (node => String.Format ("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 				.AddColumn ("Время").AddTextRenderer (node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
@@ -80,7 +82,7 @@ namespace Vodovoz
 				//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
 				//						"Не указан" : 
 				//						node.Order.DeliveryPoint.LogisticsArea.Name)
-			treeItemsList.ColumnMappingConfig = 
+			ytreeviewItems.ColumnsConfig = 
 				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish ();
 		}
@@ -98,21 +100,21 @@ namespace Vodovoz
 		public RouteListCreateItemsView ()
 		{
 			this.Build ();
-			treeItemsList.Selection.Changed += OnSelectionChanged;
+			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
+			buttonDelete.Sensitive = ytreeviewItems.Selection.CountSelectedRows () > 0;
 		}
 
 		GenericObservableList<RouteListItem> items;
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			RouteListUoW.Root.RemoveAddress (treeItemsList.GetSelectedObject () as RouteListItem);
+/*			RouteListUoW.Root.RemoveAddress (ytreeviewItems.GetSelectedObject () as RouteListItem);
 			CalculateTotal ();
-		}
+*/		}
 
 		protected void OnEnumbuttonAddOrderEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
@@ -171,13 +173,13 @@ namespace Vodovoz
 			
 		protected void OnTreeItemsListRowActivated (object o, RowActivatedArgs args)
 		{
-			var selected = treeItemsList.GetSelectedObject ();
+/*			var selected = treeItemsList.GetSelectedObject ();
 			if (selected != null) {
 				ITdiDialog dlg = null;
 				dlg = OrmMain.CreateObjectDialog ((selected as RouteListItem).Order);
 				MyTab.TabParent.AddSlaveTab (MyTab, dlg);
 			}
-		}
+*/		}
 	}
 
 	public enum AddOrderEnum

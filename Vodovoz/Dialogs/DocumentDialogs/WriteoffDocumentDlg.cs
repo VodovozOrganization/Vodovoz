@@ -40,7 +40,7 @@ namespace Vodovoz
 				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
 			referenceWarehouse.SubjectType = typeof(Warehouse);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.canEditReference = false;
+			referenceDeliveryPoint.CanEditReference = false;
 			referenceEmployee.SubjectType = typeof(Employee);
 			comboType.Sensitive = true;
 			comboType.ItemsEnum = typeof(WriteoffType);

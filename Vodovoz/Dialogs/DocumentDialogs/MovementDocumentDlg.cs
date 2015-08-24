@@ -47,9 +47,9 @@ namespace Vodovoz
 				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
 			referenceWarehouseTo.SubjectType = typeof(Warehouse);
 			referenceWarehouseFrom.SubjectType = typeof(Warehouse);
-			referenceDeliveryPointTo.canEditReference = false;
+			referenceDeliveryPointTo.CanEditReference = false;
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointFrom.canEditReference = false;
+			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceEmployee.SubjectType = typeof(Employee);
 			movementdocumentitemsview1.DocumentUoW = UoWGeneric;

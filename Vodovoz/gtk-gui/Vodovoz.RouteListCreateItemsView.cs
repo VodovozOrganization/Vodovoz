@@ -8,7 +8,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView treeItemsList;
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewItems;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -33,17 +33,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeItemsList = new global::Gtk.DataBindings.DataTreeView ();
-			this.treeItemsList.CanFocus = true;
-			this.treeItemsList.Name = "treeItemsList";
-			this.treeItemsList.Reorderable = true;
-			this.treeItemsList.CursorPointsEveryType = false;
-			this.treeItemsList.InheritedDataSource = false;
-			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.InheritedDataSource = false;
-			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.ColumnMappings = "";
-			this.GtkScrolledWindow.Add (this.treeItemsList);
+			this.ytreeviewItems = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeviewItems.CanFocus = true;
+			this.ytreeviewItems.Name = "ytreeviewItems";
+			this.GtkScrolledWindow.Add (this.ytreeviewItems);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
 			w2.Position = 0;
@@ -102,7 +95,6 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
-			this.treeItemsList.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeItemsListRowActivated);
 			this.enumbuttonAddOrder.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnEnumbuttonAddOrderEnumItemClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 		}
