@@ -38,7 +38,7 @@ namespace Vodovoz
 		
 		private global::QSContacts.PersonsView personsView;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPoint;
+		private global::Gtk.DataBindings.DataEntryReferenceVM referenceDeliveryPoint;
 
 		protected virtual void Build ()
 		{
@@ -244,13 +244,9 @@ namespace Vodovoz
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReferenceVM ();
 			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
-			this.referenceDeliveryPoint.DisplayFields = new string[] {
-				"Point"
-			};
-			this.referenceDeliveryPoint.DisplayFormatString = "{0}";
 			this.referenceDeliveryPoint.InheritedDataSource = true;
 			this.referenceDeliveryPoint.Mappings = "DeliveryPoint";
 			this.referenceDeliveryPoint.InheritedBoundaryDataSource = false;
@@ -261,7 +257,6 @@ namespace Vodovoz
 			w18.BottomAttach = ((uint)(5));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));

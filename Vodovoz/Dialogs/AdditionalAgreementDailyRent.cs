@@ -58,10 +58,7 @@ namespace Vodovoz
 			spinRentDays.Sensitive = false;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
-			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
-				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)
-				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - А";
 			dailyrentpackagesview1.AgreementUoW = UoWGeneric;
 			dateEnd.Date = UoWGeneric.Root.StartDate.AddDays (UoWGeneric.Root.RentDays);

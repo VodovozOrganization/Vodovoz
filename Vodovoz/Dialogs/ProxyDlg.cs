@@ -39,14 +39,7 @@ namespace Vodovoz
 				UoWGeneric.Root.Persons = new List<Person> ();
 			personsView.Persons = UoWGeneric.Root.Persons;
 			datepickerIssue.DateChanged += OnIssueDateChanged;
-			referenceDeliveryPoint.ParentReference = new OrmParentReference (UoWGeneric, UoWGeneric.Root.Counterparty, "DeliveryPoints");
-
-			var identifiers = new List<object> ();
-			foreach (DeliveryPoint d in UoWGeneric.Root.Counterparty.DeliveryPoints)
-				identifiers.Add (d.Id);
-			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
-				.Add (Restrictions.In ("Id", identifiers));
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Counterparty);
 		}
 
 		private void OnIssueDateChanged (object sender, EventArgs e)

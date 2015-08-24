@@ -64,7 +64,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceCounterparty;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPoint;
+		private global::Gtk.DataBindings.DataEntryReferenceVM referenceDeliveryPoint;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceEquipment;
 		
@@ -493,13 +493,9 @@ namespace Vodovoz
 			w29.XOptions = ((global::Gtk.AttachOptions)(4));
 			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReferenceVM ();
 			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
-			this.referenceDeliveryPoint.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceDeliveryPoint.DisplayFormatString = "{0}";
 			this.referenceDeliveryPoint.InheritedDataSource = true;
 			this.referenceDeliveryPoint.Mappings = "DeliveryPoint";
 			this.referenceDeliveryPoint.InheritedBoundaryDataSource = false;

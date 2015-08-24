@@ -240,6 +240,7 @@ namespace Vodovoz
 			this.referenceCounterparty = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterparty.Name = "referenceCounterparty";
+			this.referenceCounterparty.CanEditReference = false;
 			this.referenceCounterparty.DisplayFields = new string[] {
 				"Name"
 			};
@@ -260,6 +261,7 @@ namespace Vodovoz
 			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
+			this.referenceDeliveryPoint.CanEditReference = false;
 			this.referenceDeliveryPoint.DisplayFields = new string[] {
 				"Point"
 			};
@@ -279,6 +281,7 @@ namespace Vodovoz
 			this.referenceEmployee = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceEmployee.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEmployee.Name = "referenceEmployee";
+			this.referenceEmployee.CanEditReference = false;
 			this.referenceEmployee.DisplayFields = new string[] {
 				"FullName"
 			};
@@ -296,6 +299,7 @@ namespace Vodovoz
 			this.referenceWarehouse = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.referenceWarehouse.Name = "referenceWarehouse";
+			this.referenceWarehouse.CanEditReference = false;
 			this.referenceWarehouse.DisplayFields = new string[] {
 				"Name"
 			};

@@ -59,7 +59,6 @@ namespace Vodovoz
 			labelTotalPrice.DataSource = subjectAdaptor;
 
 			referenceCounterparty.SubjectType = typeof(Counterparty);
-			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceEngineer.SubjectType = typeof(Employee);
 			referenceEquipment.SubjectType = typeof(Equipment);
 			referenceNomenclature.SubjectType = typeof(Nomenclature);
@@ -158,7 +157,7 @@ namespace Vodovoz
 
 				UoWGeneric.Root.DeliveryPoint = null;
 			}
-			referenceDeliveryPoint.ItemsQuery = DeliveryPointRepository.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Counterparty);
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Counterparty);
 		}
 
 		void RunContractCreateDialog ()

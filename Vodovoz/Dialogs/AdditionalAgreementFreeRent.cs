@@ -56,10 +56,7 @@ namespace Vodovoz
 			freerentpackagesview1.IsEditable = true;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
-			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPoint.ItemsCriteria = DeliveryPointRepository
-				.DeliveryPointsForCounterpartyQuery (UoWGeneric.Root.Contract.Counterparty)
-				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria;
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - Б";
 			freerentpackagesview1.AgreementUoW = UoWGeneric;
 		}
