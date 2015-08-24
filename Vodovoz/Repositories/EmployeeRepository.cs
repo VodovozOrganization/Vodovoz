@@ -13,16 +13,16 @@ namespace Vodovoz.Repository
 
 			return uow.Session.QueryOver<Employee> ()
 				.JoinAlias (e => e.User, () => userAlias)
-				.Where (() => userAlias.Id == QSProjectsLib.QSMain.User.id)
+				.Where (() => userAlias.Id == QSProjectsLib.QSMain.User.Id)
 				.SingleOrDefault ();
 		}
 
-		public static QueryOver<Employee> DriversQuery()
+		public static QueryOver<Employee> DriversQuery ()
 		{
 			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.driver);
 		}
 
-		public static QueryOver<Employee> ForwarderQuery()
+		public static QueryOver<Employee> ForwarderQuery ()
 		{
 			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.forwarder);
 		}
