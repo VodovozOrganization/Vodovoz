@@ -33,6 +33,7 @@ namespace Vodovoz
 			References (x => x.FinalOrder).Column ("final_order_id");
 
 			HasMany (x => x.ServiceClaimItems).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("service_claim_id");
+			HasMany (x => x.ServiceClaimHistory).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("service_claim_id");
 		}
 	}
 }

@@ -154,6 +154,28 @@ namespace Vodovoz.Domain.Service
 			}
 		}
 
+		IList<ServiceClaimHistory> serviceClaimHistory = new List<ServiceClaimHistory> ();
+
+		[Display (Name = "История заявки")]
+		public virtual IList<ServiceClaimHistory> ServiceClaimHistory {
+			get { return serviceClaimHistory; }
+			set {
+				if (SetField (ref serviceClaimHistory, value, () => ServiceClaimHistory))
+					observableServiceClaimHistory = null;
+			}
+		}
+
+		GenericObservableList<ServiceClaimHistory> observableServiceClaimHistory;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<ServiceClaimHistory> ObservableServiceClaimHistory {
+			get {
+				if (observableServiceClaimHistory == null)
+					observableServiceClaimHistory = new GenericObservableList<ServiceClaimHistory> (ServiceClaimHistory);
+				return observableServiceClaimHistory;
+			}
+		}
+
+
 		public void UpdateTotalPrice ()
 		{
 			TotalPrice = 0;

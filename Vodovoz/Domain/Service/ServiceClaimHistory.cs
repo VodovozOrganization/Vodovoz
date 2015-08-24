@@ -39,6 +39,13 @@ namespace Vodovoz.Domain.Service
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
+		ServiceClaim serviceClaim;
+
+		public virtual ServiceClaim ServiceClaim {
+			get { return serviceClaim; }
+			set { SetField (ref serviceClaim, value, () => ServiceClaim); }
+		}
+
 		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (Comment.Length > 200)

@@ -17,6 +17,7 @@ namespace Vodovoz.HMap
 			Map (x => x.Status).Column ("status").CustomType<ServiceClaimStatusStringType> ();
 
 			References (x => x.Employee).Column ("employee_id");
+			References (x => x.ServiceClaim).Column ("service_claim_id");
 		}
 	}
 }
