@@ -168,6 +168,7 @@ namespace Vodovoz.Domain.Service
 		public virtual IList<ServiceClaimHistory> ServiceClaimHistory {
 			get { return serviceClaimHistory; }
 			set {
+				
 				if (SetField (ref serviceClaimHistory, value, () => ServiceClaimHistory))
 					observableServiceClaimHistory = null;
 			}
@@ -333,11 +334,22 @@ namespace Vodovoz.Domain.Service
 
 	public enum ServiceClaimType
 	{
+		[ItemTitleAttribute ("Сервис (доставка и забор)")]
 		[Display (Name = "Сервис (доставка и забор)")]
 		RegularService,
-		[Display (Name = "Только сервис)")]
+		[ItemTitleAttribute ("Только сервис")]
+		[Display (Name = "Только сервис")]
 		JustService,
-		[Display (Name = "Выезд мастера)")]
+		[ItemTitleAttribute ("Выезд мастера")]
+		[Display (Name = "Выезд мастера")]
+		RepairmanCall
+	}
+
+	public enum ServiceClaimTypesForAdding
+	{
+		[ItemTitleAttribute ("Только сервис")]
+		JustService,
+		[ItemTitleAttribute ("Выезд мастера")]
 		RepairmanCall
 	}
 
