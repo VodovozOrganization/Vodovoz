@@ -6,7 +6,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Gtk.DataBindings;
 using Vodovoz.Domain.Service;
-using System.Data.Bindings;
+using Gamma.Utilities;
 
 namespace Vodovoz.ViewModel
 {
@@ -56,6 +56,7 @@ namespace Vodovoz.ViewModel
 		IMappingConfig treeViewConfig = FluentMappingConfig<ServiceClaimVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString ())
 			.AddColumn ("Дата").SetDataProperty (node => node.StartDate.ToString ("d"))
+			.AddColumn ("Тип заявки").SetDataProperty (node => node.Type.GetEnumTitle ())
 			.AddColumn ("Статус").SetDataProperty (node => node.Status.GetEnumTitle ())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.AddColumn ("Оборудование").SetDataProperty (node => node.Nomenclature)
@@ -108,6 +109,8 @@ namespace Vodovoz.ViewModel
 		public DateTime StartDate { get; set; }
 
 		public ServiceClaimStatus Status { get; set; }
+
+		public ServiceClaimType Type { get; set; }
 	}
 }
 

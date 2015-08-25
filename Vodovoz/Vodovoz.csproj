@@ -399,6 +399,10 @@
       <Project>{190CEA0D-EA23-4C91-8030-203A5AFED7B7}</Project>
       <Name>GammaBinding</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
+      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
+      <Name>GammaUtil</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

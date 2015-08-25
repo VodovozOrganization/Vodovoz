@@ -20,6 +20,13 @@ namespace Vodovoz.Domain.Service
 			get { return String.Format ("Заявка на обслуживание №{0}", Id); }
 		}
 
+		ServiceClaimType serviceClaimType;
+
+		public virtual ServiceClaimType ServiceClaimType {
+			get { return serviceClaimType; }
+			set { SetField (ref serviceClaimType, value, () => ServiceClaimType); }
+		}
+
 		Order initialOrder;
 
 		public virtual Order InitialOrder {
@@ -198,7 +205,7 @@ namespace Vodovoz.Domain.Service
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (Nomenclature == null)
 				yield return new ValidationResult ("Необходимо заполнить модель",
@@ -206,7 +213,7 @@ namespace Vodovoz.Domain.Service
 			if (Counterparty == null)
 				yield return new ValidationResult ("Необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName (o => o.Counterparty) });
-			if (DeliveryPoint == null)
+			if (ServiceClaimType != ServiceClaimType.JustService || DeliveryPoint == null)
 				yield return new ValidationResult ("Необходимо заполнить точку доставки.", 
 					new[] { this.GetPropertyName (o => o.DeliveryPoint) });
 			if (String.IsNullOrWhiteSpace (Reason))
@@ -227,6 +234,47 @@ namespace Vodovoz.Domain.Service
 			return uow;
 		}
 
+		public List<ServiceClaimStatus> GetAvailableNextStatusList ()
+		{
+			List<ServiceClaimStatus> enumList = new List<ServiceClaimStatus> ();
+			switch (Status) {
+			case ServiceClaimStatus.DeliveredToWarehouse:
+				enumList.Add (ServiceClaimStatus.Diagnostics);
+				break;
+			case ServiceClaimStatus.Diagnostics:
+				enumList.Add (ServiceClaimStatus.Negotiation);
+				enumList.Add (ServiceClaimStatus.PaymentPending);
+				enumList.Add (ServiceClaimStatus.Service);
+				enumList.Add (ServiceClaimStatus.SendedToSC);
+				break;
+			case ServiceClaimStatus.Negotiation:
+				enumList.Add (ServiceClaimStatus.PaymentPending);
+				enumList.Add (ServiceClaimStatus.Service);
+				enumList.Add (ServiceClaimStatus.SendedToSC);
+				break;
+			case ServiceClaimStatus.PaymentPending:
+				enumList.Add (ServiceClaimStatus.SendedToSC);
+				enumList.Add (ServiceClaimStatus.Service);
+				break;
+			case ServiceClaimStatus.PickUpFromSC: 
+				enumList.Add (ServiceClaimStatus.Ready);
+				enumList.Add (ServiceClaimStatus.Negotiation);
+				break;
+			case ServiceClaimStatus.Ready:
+				enumList.Add (ServiceClaimStatus.SendedToClient);
+				enumList.Add (ServiceClaimStatus.ClosedAsOurCooler);
+				break;
+			case ServiceClaimStatus.SendedToSC: 
+				enumList.Add (ServiceClaimStatus.PickUpFromSC);
+				break;
+			case ServiceClaimStatus.Service:
+				enumList.Add (ServiceClaimStatus.Ready);
+				enumList.Add (ServiceClaimStatus.Negotiation);
+				break;
+			}
+			return enumList;
+		}
+
 		public ServiceClaim ()
 		{
 			Reason = String.Empty;
@@ -241,33 +289,61 @@ namespace Vodovoz.Domain.Service
 
 	public enum ServiceClaimStatus
 	{
+		[Display (Name = "Забрать у клиента")]
 		[ItemTitleAttribute ("Забрать у клиента")]
 		PickUp,
-		[ItemTitleAttribute ("На диагностике")]
-		Diagnostics,
-		[ItemTitleAttribute ("Ожидается оплата")]
-		PaymentPending,
-		[ItemTitleAttribute ("Согласование")]
-		Negotiation,
-		[ItemTitleAttribute ("В сервисе")]
-		Service,
-		[ItemTitleAttribute ("Готов")]
-		Ready,
-		[ItemTitleAttribute ("Отправлен клиенту")]
-		SendedToClient,
-		[ItemTitleAttribute ("Отправлен в сервисный центр")]
-		SendedToSC,
-		[ItemTitleAttribute ("Забрать из сервисного центра")]
-		PickUpFromSC,
+		[Display (Name = "Принят на склад")]
 		[ItemTitleAttribute ("Принят на склад")]
 		DeliveredToWarehouse,
+		[Display (Name = "На диагностике")]
+		[ItemTitleAttribute ("На диагностике")]
+		Diagnostics,
+		[Display (Name = "Согласование")]
+		[ItemTitleAttribute ("Согласование")]
+		Negotiation,
+		[Display (Name = "Ожидается оплата")]
+		[ItemTitleAttribute ("Ожидается оплата")]
+		PaymentPending,
+		[Display (Name = "В ремонте")]
+		[ItemTitleAttribute ("В ремонте")]
+		Service,
+		[Display (Name = "Отправлен в сервисный центр")]
+		[ItemTitleAttribute ("Отправлен в сервисный центр")]
+		SendedToSC,
+		[Display (Name = "Забрать из сервисного центра")]
+		[ItemTitleAttribute ("Забрать из сервисного центра")]
+		PickUpFromSC,
+		[Display (Name = "Отправлен клиенту")]
+		[ItemTitleAttribute ("Отправлен клиенту")]
+		SendedToClient,
+		[Display (Name = "Закрыта (Наш кулер)")]
 		[ItemTitleAttribute ("Закрыта (Наш кулер)")]
-		ClosedAsOurCooler
+		ClosedAsOurCooler,
+		[Display (Name = "Готов")]
+		[ItemTitleAttribute ("Готов")]
+		Ready
 	}
 
 	public class ServiceClaimStatusStringType : NHibernate.Type.EnumStringType
 	{
 		public ServiceClaimStatusStringType () : base (typeof(ServiceClaimStatus))
+		{
+		}
+	}
+
+	public enum ServiceClaimType
+	{
+		[Display (Name = "Сервис (доставка и забор)")]
+		RegularService,
+		[Display (Name = "Только сервис)")]
+		JustService,
+		[Display (Name = "Выезд мастера)")]
+		RepairmanCall
+	}
+
+	public class ServiceClaimTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public ServiceClaimTypeStringType () : base (typeof(ServiceClaimType))
 		{
 		}
 	}

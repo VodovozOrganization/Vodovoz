@@ -24,8 +24,8 @@ namespace Vodovoz
 
 		private IList<RouteColumn> _columnsInfo;
 
-		private IList<RouteColumn> columnsInfo{
-			get{
+		private IList<RouteColumn> columnsInfo {
+			get {
 				if (_columnsInfo == null)
 					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns (RouteListUoW);
 				return _columnsInfo;
@@ -49,7 +49,7 @@ namespace Vodovoz
 
 				UpdateColumns ();
 
-				ytreeviewItems.ItemsDataSource = items;
+				//ytreeviewItems.ItemsDataSource = items;
 				ytreeviewItems.Reorderable = true;
 				CalculateTotal ();
 			}
@@ -60,7 +60,7 @@ namespace Vodovoz
 			UpdateColumns ();
 		}
 
-		private void UpdateColumns()
+		private void UpdateColumns ()
 		{
 			var goodsColumns = items.SelectMany (i => i.GoodsByRouteColumns.Keys).Distinct ().ToArray ();
 			if (goodsColumnsCount == goodsColumns.Length)
@@ -72,16 +72,15 @@ namespace Vodovoz
 				.AddColumn ("Заказ").SetDataProperty (node => node.Order.Id)
 				.AddColumn ("Адрес").AddTextRenderer (node => String.Format ("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 				.AddColumn ("Время").AddTextRenderer (node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
-			foreach(var column in columnsInfo)
-			{
+			foreach (var column in columnsInfo) {
 				if (!goodsColumns.Contains (column.Id))
 					continue;
 				int id = column.Id;
 				config = config.AddColumn (column.Name).AddTextRenderer (a => a.GetGoodsAmountForColumn (id).ToString ());
 			}
-				//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
-				//						"Не указан" : 
-				//						node.Order.DeliveryPoint.LogisticsArea.Name)
+			//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
+			//						"Не указан" : 
+			//						node.Order.DeliveryPoint.LogisticsArea.Name)
 			ytreeviewItems.ColumnsConfig = 
 				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish ();
@@ -114,7 +113,8 @@ namespace Vodovoz
 		{
 /*			RouteListUoW.Root.RemoveAddress (ytreeviewItems.GetSelectedObject () as RouteListItem);
 			CalculateTotal ();
-*/		}
+*/
+		}
 
 		protected void OnEnumbuttonAddOrderEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
@@ -160,7 +160,7 @@ namespace Vodovoz
 			};
 			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
 		}
-			
+
 		void CalculateTotal ()
 		{
 /*			decimal total = 0;
@@ -169,8 +169,9 @@ namespace Vodovoz
 			}
 
 			labelSum.LabelProp = String.Format ("Итого: {0}", CurrencyWorks.GetShortCurrencyString (total));
-*/		}
-			
+*/
+		}
+
 		protected void OnTreeItemsListRowActivated (object o, RowActivatedArgs args)
 		{
 /*			var selected = treeItemsList.GetSelectedObject ();
@@ -179,7 +180,8 @@ namespace Vodovoz
 				dlg = OrmMain.CreateObjectDialog ((selected as RouteListItem).Order);
 				MyTab.TabParent.AddSlaveTab (MyTab, dlg);
 			}
-*/		}
+*/
+		}
 	}
 
 	public enum AddOrderEnum

@@ -110,7 +110,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable3;
 		
-		private global::QSOrmProject.EnumComboBox enumStatusEditable;
+		private global::QSOrmProject.EnumListComboBox enumStatusEditable;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 		
@@ -216,7 +216,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 2;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(7)), ((uint)(4)), false);
 			this.datatable1.Name = "datatable1";
@@ -479,6 +479,7 @@ namespace Vodovoz
 			this.referenceCounterparty = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterparty.Name = "referenceCounterparty";
+			this.referenceCounterparty.CanEditReference = false;
 			this.referenceCounterparty.DisplayFormatString = "";
 			this.referenceCounterparty.InheritedDataSource = true;
 			this.referenceCounterparty.Mappings = "Counterparty";
@@ -512,6 +513,7 @@ namespace Vodovoz
 			this.referenceEquipment = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceEquipment.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEquipment.Name = "referenceEquipment";
+			this.referenceEquipment.CanEditReference = false;
 			this.referenceEquipment.DisplayFields = new string[] {
 				"Serial"
 			};
@@ -531,6 +533,7 @@ namespace Vodovoz
 			this.referenceNomenclature = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.referenceNomenclature.Name = "referenceNomenclature";
+			this.referenceNomenclature.CanEditReference = false;
 			this.referenceNomenclature.DisplayFields = new string[] {
 				"Name"
 			};
@@ -613,6 +616,7 @@ namespace Vodovoz
 			this.referenceEngineer = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceEngineer.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEngineer.Name = "referenceEngineer";
+			this.referenceEngineer.CanEditReference = false;
 			this.referenceEngineer.DisplayFields = new string[] {
 				"FullName"
 			};
@@ -750,10 +754,8 @@ namespace Vodovoz
 			this.datatable3.InheritedDataSource = false;
 			this.datatable3.InheritedBoundaryDataSource = false;
 			// Container child datatable3.Gtk.Table+TableChild
-			this.enumStatusEditable = new global::QSOrmProject.EnumComboBox ();
+			this.enumStatusEditable = new global::QSOrmProject.EnumListComboBox ();
 			this.enumStatusEditable.Name = "enumStatusEditable";
-			this.enumStatusEditable.ShowSpecialStateAll = false;
-			this.enumStatusEditable.ShowSpecialStateNot = false;
 			this.datatable3.Add (this.enumStatusEditable);
 			global::Gtk.Table.TableChild w52 = ((global::Gtk.Table.TableChild)(this.datatable3 [this.enumStatusEditable]));
 			w52.LeftAttach = ((uint)(1));
@@ -780,7 +782,6 @@ namespace Vodovoz
 			w54.BottomAttach = ((uint)(2));
 			w54.LeftAttach = ((uint)(1));
 			w54.RightAttach = ((uint)(2));
-			w54.XOptions = ((global::Gtk.AttachOptions)(4));
 			w54.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable3.Gtk.Table+TableChild
 			this.label12 = new global::Gtk.Label ();
@@ -816,7 +817,7 @@ namespace Vodovoz
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
-			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить");
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить изменение");
 			global::Gtk.Image w58 = new global::Gtk.Image ();
 			w58.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAdd.Image = w58;
@@ -852,6 +853,8 @@ namespace Vodovoz
 			this.toggleInfo.Toggled += new global::System.EventHandler (this.OnToggleInfoToggled);
 			this.toggleServicesAndWorks.Toggled += new global::System.EventHandler (this.OnToggleServicesAndWorksToggled);
 			this.toggleHistory.Toggled += new global::System.EventHandler (this.OnToggleHistoryToggled);
+			this.referenceNomenclature.Changed += new global::System.EventHandler (this.OnReferenceNomenclatureChanged);
+			this.referenceCounterparty.Changed += new global::System.EventHandler (this.OnReferenceCounterpartyChanged);
 			this.buttonAddService.Clicked += new global::System.EventHandler (this.OnButtonAddServiceClicked);
 			this.buttonAddPart.Clicked += new global::System.EventHandler (this.OnButtonAddPartClicked);
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);

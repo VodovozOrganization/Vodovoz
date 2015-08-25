@@ -11,7 +11,7 @@ using QSProjectsLib;
 using Gtk.DataBindings;
 using Gtk;
 using System.Data.Bindings;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -42,9 +42,18 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
+		public ServiceClaimDlg (ServiceClaimType type)
+		{
+			this.Build ();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim> ();
+			UoWGeneric.Root.ServiceClaimType = type;
+			ConfigureDlg ();
+		}
+
 		void ConfigureDlg ()
 		{
 			enumStatus.Sensitive = false;
+			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
 			notebook1.CurrentPage = 0;
 			subjectAdaptor.Target = UoWGeneric.Root;
@@ -54,7 +63,6 @@ namespace Vodovoz
 			datatable3.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
-			enumStatusEditable.ItemsEnum = typeof(ServiceClaimStatus);
 
 			labelTotalPrice.DataSource = subjectAdaptor;
 
@@ -93,6 +101,10 @@ namespace Vodovoz
 				.Finish ();
 
 			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
+			configureAvailableNextStatus ();
+
+			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService)
+				referenceDeliveryPoint.Visible = false;
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -125,7 +137,7 @@ namespace Vodovoz
 			}
 
 			if (UoWGeneric.IsNew)
-				UoWGeneric.Root.AddHistoryRecord (ServiceClaimStatus.PickUp, 
+				UoWGeneric.Root.AddHistoryRecord (UoWGeneric.Root.Status, 
 					String.IsNullOrWhiteSpace (textComment.Buffer.Text) ? "Заявка зарегистрирована" : textComment.Buffer.Text);
 
 			logger.Info ("Сохраняем заявку на обслуживание...");
@@ -258,9 +270,18 @@ namespace Vodovoz
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
 			if (!String.IsNullOrWhiteSpace (textComment.Buffer.Text) || MessageDialogWorks.RunQuestionDialog ("Вы не заполнили комментарий. Продолжить?")) {
-				UoWGeneric.Root.AddHistoryRecord ((ServiceClaimStatus)enumStatusEditable.Active, textComment.Buffer.Text);
-				UoWGeneric.Root.Status = (ServiceClaimStatus)enumStatusEditable.Active;
+
+				var active = enumStatusEditable.Active;
+				var status = (active == -1) ? UoWGeneric.Root.Status : (ServiceClaimStatus)active;
+				UoWGeneric.Root.AddHistoryRecord (status, textComment.Buffer.Text);
+				UoWGeneric.Root.Status = status;
 			}
+		}
+
+		void configureAvailableNextStatus ()
+		{
+			var enumList = UoWGeneric.Root.GetAvailableNextStatusList ();
+			enumStatusEditable.SetEnumItems<ServiceClaimStatus> (enumList);
 		}
 	}
 }
