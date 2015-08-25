@@ -35,6 +35,10 @@ namespace Vodovoz.ViewModel
 			if (Filter.RestrictServiceClaimStatus != null) {
 				query.Where (c => c.Status == Filter.RestrictServiceClaimStatus);
 			}
+
+			if (Filter.RestrictServiceClaimType != null) {
+				query.Where (c => c.ServiceClaimType == Filter.RestrictServiceClaimType);
+			}
 				
 			var result = query
 				.JoinAlias (sc => sc.Counterparty, () => counterpartyAlias)

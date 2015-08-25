@@ -41,6 +41,7 @@ namespace Vodovoz
 			set {
 				uow = value;
 				comboStatus.ItemsEnum = typeof(ServiceClaimStatus);
+				comboType.ItemsEnum = typeof(ServiceClaimType);
 			}
 		}
 
@@ -54,7 +55,20 @@ namespace Vodovoz
 			}
 		}
 
+		public ServiceClaimType? RestrictServiceClaimType {
+			get { return comboType.SelectedItem as ServiceClaimType?; }
+			set {
+				comboType.SelectedItem = value;
+				comboType.Sensitive = false;
+			}
+		}
+
 		protected void OnComboStatusEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnComboTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
 		{
 			OnRefiltered ();
 		}

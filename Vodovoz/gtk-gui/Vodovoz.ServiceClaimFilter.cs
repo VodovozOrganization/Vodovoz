@@ -6,6 +6,10 @@ namespace Vodovoz
 	{
 		private global::Gtk.HBox hbox1;
 		
+		private global::Gtk.Label label2;
+		
+		private global::QSOrmProject.EnumComboBox comboType;
+		
 		private global::Gtk.Label label1;
 		
 		private global::QSOrmProject.EnumComboBox comboStatus;
@@ -21,27 +25,45 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.label2 = new global::Gtk.Label ();
+			this.label2.Name = "label2";
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип заявки:");
+			this.hbox1.Add (this.label2);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label2]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.comboType = new global::QSOrmProject.EnumComboBox ();
+			this.comboType.Name = "comboType";
+			this.comboType.ShowSpecialStateAll = true;
+			this.comboType.ShowSpecialStateNot = false;
+			this.hbox1.Add (this.comboType);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.comboType]));
+			w2.Position = 1;
+			// Container child hbox1.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Статус:");
 			this.hbox1.Add (this.label1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label1]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label1]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.comboStatus = new global::QSOrmProject.EnumComboBox ();
 			this.comboStatus.Name = "comboStatus";
 			this.comboStatus.ShowSpecialStateAll = true;
 			this.comboStatus.ShowSpecialStateNot = false;
 			this.hbox1.Add (this.comboStatus);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.comboStatus]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.comboStatus]));
+			w4.Position = 3;
 			this.Add (this.hbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.comboType.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnComboTypeEnumItemSelected);
 			this.comboStatus.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnComboStatusEnumItemSelected);
 		}
 	}
