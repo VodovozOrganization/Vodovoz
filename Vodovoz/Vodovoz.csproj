@@ -332,6 +332,8 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
     <Compile Include="Domain\Service\ServiceClaimHistory.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
+    <Compile Include="ViewDialogs\ServiceClaimsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
