@@ -47,12 +47,13 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim> ();
 			UoWGeneric.Root.ServiceClaimType = type;
+			UoWGeneric.Root.Status = ServiceClaimStatus.Diagnostics;
 			ConfigureDlg ();
 		}
 
 		void ConfigureDlg ()
 		{
-			enumStatus.Sensitive = false;
+			enumStatus.Sensitive = enumType.Sensitive = false;
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
 			notebook1.CurrentPage = 0;
@@ -63,7 +64,7 @@ namespace Vodovoz
 			datatable3.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
 			enumStatus.DataSource = subjectAdaptor;
-
+			enumType.DataSource = subjectAdaptor;
 			labelTotalPrice.DataSource = subjectAdaptor;
 
 			referenceCounterparty.SubjectType = typeof(Counterparty);
@@ -103,8 +104,15 @@ namespace Vodovoz
 			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
 			configureAvailableNextStatus ();
 
-			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService)
-				referenceDeliveryPoint.Visible = false;
+			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService) {
+				datatable1.Remove (referenceDeliveryPoint);
+				datatable1.Remove (labelDeliveryPoint);
+				referenceDeliveryPoint.Destroy ();
+				labelDeliveryPoint.Destroy ();
+
+				datatable1.Remove (referenceCounterparty);
+				datatable1.Attach (referenceCounterparty, 1, 4, 3, 4);
+			}
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

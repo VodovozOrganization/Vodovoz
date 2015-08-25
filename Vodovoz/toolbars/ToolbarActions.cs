@@ -93,7 +93,7 @@ public partial class MainWindow : Window
 
 	void ActionServiceClaimsActivated (object sender, System.EventArgs e)
 	{
-		ReferenceRepresentation refWin = new ReferenceRepresentation (new ServiceClaimVM ());
+		var refWin = new ServiceClaimsView ();
 		tdiMain.AddTab (refWin);
 	}
 
