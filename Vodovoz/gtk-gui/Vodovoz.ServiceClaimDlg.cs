@@ -512,7 +512,6 @@ namespace Vodovoz
 			this.referenceCounterparty = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterparty.Name = "referenceCounterparty";
-			this.referenceCounterparty.CanEditReference = false;
 			this.referenceCounterparty.DisplayFormatString = "";
 			this.referenceCounterparty.InheritedDataSource = true;
 			this.referenceCounterparty.Mappings = "Counterparty";
@@ -546,7 +545,6 @@ namespace Vodovoz
 			this.referenceEquipment = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceEquipment.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEquipment.Name = "referenceEquipment";
-			this.referenceEquipment.CanEditReference = false;
 			this.referenceEquipment.DisplayFields = new string[] {
 				"Serial"
 			};
@@ -566,7 +564,6 @@ namespace Vodovoz
 			this.referenceNomenclature = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceNomenclature.Events = ((global::Gdk.EventMask)(256));
 			this.referenceNomenclature.Name = "referenceNomenclature";
-			this.referenceNomenclature.CanEditReference = false;
 			this.referenceNomenclature.DisplayFields = new string[] {
 				"Name"
 			};
@@ -649,7 +646,6 @@ namespace Vodovoz
 			this.referenceEngineer = new global::Gtk.DataBindings.DataEntryReference ();
 			this.referenceEngineer.Events = ((global::Gdk.EventMask)(256));
 			this.referenceEngineer.Name = "referenceEngineer";
-			this.referenceEngineer.CanEditReference = false;
 			this.referenceEngineer.DisplayFields = new string[] {
 				"FullName"
 			};

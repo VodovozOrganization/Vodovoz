@@ -212,9 +212,9 @@ namespace Vodovoz.Domain.Service
 				yield return new ValidationResult ("Необходимо заполнить модель",
 					new[] { this.GetPropertyName (o => o.Nomenclature) });
 			if (Counterparty == null)
-				yield return new ValidationResult ("Необходимо заполнить поле \"клиент\".",
+				yield return new ValidationResult ("Необходимо заполнить поле «клиент».",
 					new[] { this.GetPropertyName (o => o.Counterparty) });
-			if (ServiceClaimType != ServiceClaimType.JustService || DeliveryPoint == null)
+			if (ServiceClaimType != ServiceClaimType.JustService && DeliveryPoint == null)
 				yield return new ValidationResult ("Необходимо заполнить точку доставки.", 
 					new[] { this.GetPropertyName (o => o.DeliveryPoint) });
 			if (String.IsNullOrWhiteSpace (Reason))
