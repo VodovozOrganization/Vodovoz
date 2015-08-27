@@ -43,7 +43,6 @@ namespace Vodovoz
 				if (RouteListUoW.Root.Addresses == null)
 					RouteListUoW.Root.Addresses = new List<RouteListItem> ();
 				items = RouteListUoW.Root.ObservableAddresses;
-				items.IsReorderable = true;
 				items.ElementChanged += Items_ElementChanged;
 				items.ListChanged += Items_ListChanged;
 

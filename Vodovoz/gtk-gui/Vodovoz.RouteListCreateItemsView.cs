@@ -36,6 +36,7 @@ namespace Vodovoz
 			this.ytreeviewItems = new global::Gamma.GtkWidgets.yTreeView ();
 			this.ytreeviewItems.CanFocus = true;
 			this.ytreeviewItems.Name = "ytreeviewItems";
+			this.ytreeviewItems.Reorderable = true;
 			this.GtkScrolledWindow.Add (this.ytreeviewItems);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

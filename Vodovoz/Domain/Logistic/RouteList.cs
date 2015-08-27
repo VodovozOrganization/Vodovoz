@@ -92,7 +92,7 @@ namespace Vodovoz.Domain.Logistic
 			get { return addresses; }
 			set { 
 				SetField (ref addresses, value, () => Addresses); 
-				observableAddresses = null;
+				SetNullToObservableAddresses ();
 			}
 		}
 
@@ -101,9 +101,23 @@ namespace Vodovoz.Domain.Logistic
 		public GenericObservableList<RouteListItem> ObservableAddresses {
 			get {
 				if (observableAddresses == null)
+				{
 					observableAddresses = new GenericObservableList<RouteListItem> (addresses);
+					observableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
+					observableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
+				}
 				return observableAddresses;
 			}
+		}
+
+		void ObservableAddresses_ElementRemoved (object aList, int[] aIdx, object aObject)
+		{
+			CheckAddressOrder ();
+		}
+
+		void ObservableAddresses_ElementAdded (object aList, int[] aIdx)
+		{
+			CheckAddressOrder ();
 		}
 
 		public virtual string DateString { get { return Date.ToShortDateString (); } }
@@ -126,6 +140,26 @@ namespace Vodovoz.Domain.Logistic
 			address.RemovedFromRoute ();
 			UoW.Delete (address);
 			ObservableAddresses.Remove (address);
+		}
+
+		private void CheckAddressOrder()
+		{
+			int i = 0;
+			foreach(var address in Addresses)
+			{
+				if (address.IndexInRoute != i)
+					address.IndexInRoute = i;
+				i++;
+			}
+		}
+
+		private void SetNullToObservableAddresses()
+		{
+			if (observableAddresses == null)
+				return;
+			observableAddresses.ElementAdded -= ObservableAddresses_ElementAdded;
+			observableAddresses.ElementRemoved -= ObservableAddresses_ElementRemoved;
+			observableAddresses = null;
 		}
 
 		#region IValidatableObject implementation
