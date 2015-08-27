@@ -169,16 +169,19 @@ namespace Vodovoz.Domain.Logistic
 			if (validationContext.Items.ContainsKey ("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items ["NewStatus"];
 				if (newStatus == RouteListStatus.Ready) {
-					if (Shift == null)
-						yield return new ValidationResult ("Смена маршрутного листа должна быть заполнена.",
-							new[] { this.GetPropertyName (o => o.Shift) });
 				}
 			}
 
+			if (Shift == null)
+				yield return new ValidationResult ("Смена маршрутного листа должна быть заполнена.",
+					new[] { this.GetPropertyName (o => o.Shift) });
+
 			if (Driver == null)
-				yield return new ValidationResult ("Не заполнен водитель.");
+				yield return new ValidationResult ("Не заполнен водитель.",
+					new[] { this.GetPropertyName (o => o.Driver) });
 			if (Car == null)
-				yield return new ValidationResult ("На заполнен автомобиль.");
+				yield return new ValidationResult ("На заполнен автомобиль.",
+					new[] { this.GetPropertyName (o => o.Car) });
 		}
 
 		#endregion
