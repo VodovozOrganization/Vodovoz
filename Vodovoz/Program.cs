@@ -58,7 +58,7 @@ namespace Vodovoz
 				new OrmObjectMapping<Nationality> (null, "{Vodovoz.Domain.Nationality} Name[Название];"),
 				new OrmObjectMapping<Manufacturer> (null, "{Vodovoz.Domain.Manufacturer} Name[Название];"),
 				new OrmObjectMapping<EquipmentType> (null, "{Vodovoz.Domain.EquipmentType} Name[Название];"),
-				new OrmObjectMapping<EquipmentColors> (null, "{Vodovoz.Domain.EquipmentColors} Name[Название];"),
+				new OrmObjectMapping<EquipmentColors> (null, "{Vodovoz.Domain.EquipmentColors} Id[Код]; Name[Название];"),
 				new OrmObjectMapping<Post> (null, "{QSContacts.Post} Name[Должность];"),
 				new OrmObjectMapping<CounterpartyStatus> (null, "{Vodovoz.Domain.CounterpartyStatus} Name[Название];"),
 				new OrmObjectMapping<Significance> (null, "{Vodovoz.Domain.Significance} Name[Значимость клиента];"),

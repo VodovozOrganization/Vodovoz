@@ -46,24 +46,9 @@ namespace Vodovoz
 
 		#endregion
 
-		void UpdateCreteria ()
-		{
-/*			IsFiltred = false;
-			if (BaseCriteria == null)
-				return;
-			FiltredCriteria = (ICriteria)BaseCriteria.Clone ();
-			if (enumcombo.SelectedItem is NomenclatureCategory) {
-				FiltredCriteria.Add (Restrictions.Eq ("Category", enumcombo.SelectedItem));
-				IsFiltred = true;
-			} else
-				FiltredCriteria.AddOrder (NHibernate.Criterion.Order.Asc ("Category"));
-*/
-			OnRefiltered ();
-		}
-
 		protected void OnEnumcomboTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
 		{
-			UpdateCreteria ();
+			OnRefiltered ();
 		}
 
 		public Warehouse RestrictWarehouse {
