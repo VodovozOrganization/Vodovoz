@@ -1214,7 +1214,6 @@
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceBuhgalter">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">FullName</property>
                             <property name="DisplayFormatString">{0}</property>
                             <property name="InheritedDataSource">True</property>
@@ -1242,7 +1241,6 @@
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceLeader">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">FullName</property>
                             <property name="DisplayFormatString">{0}</property>
                             <property name="InheritedDataSource">True</property>
@@ -2014,7 +2012,6 @@
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceNationality">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Nationality</property>
@@ -2041,7 +2038,6 @@
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceUser">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">User</property>
@@ -2237,6 +2233,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2345,7 +2342,6 @@
                   <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryFuelType">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="CursorPointsEveryType">False</property>
@@ -2397,7 +2393,6 @@
                   <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryreferenceDriver">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">Name
 LastName
 Patronymic</property>
@@ -2935,7 +2930,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="entryreferenceRouteColumn">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                             <property name="CursorPointsEveryType">False</property>
@@ -3255,7 +3249,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceColor">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Color</property>
@@ -3282,7 +3275,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceManufacturer">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Manufacturer</property>
@@ -3309,7 +3301,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceType">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Type</property>
@@ -3336,7 +3327,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceUnit">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Unit</property>
@@ -4177,7 +4167,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceMainCounterparty">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">MainCounterparty</property>
@@ -4203,7 +4192,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceSignificance">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Significance</property>
@@ -4230,7 +4218,6 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceStatus">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
-                            <property name="CanEditReference">False</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Status</property>
@@ -4316,7 +4303,6 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryFinancialContact">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">FullName</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">FinancialContact</property>
@@ -4343,7 +4329,6 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryMainContact">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">FullName
 MainPhoneString</property>
                     <property name="DisplayFormatString">{0}; телефон: {1}</property>
@@ -4760,7 +4745,6 @@ MainPhoneString</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceAccountant">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">LastName
 Name
 Patronymic</property>
@@ -4789,7 +4773,6 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceBottleManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">LastName
 Name
 Patronymic</property>
@@ -4818,7 +4801,6 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceSalesManager">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">LastName
 Name
 Patronymic</property>
@@ -5443,7 +5425,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="415 160">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="415 161">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -6318,7 +6300,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDepositService">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -6345,7 +6326,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipmentType">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -6833,7 +6813,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDepositService">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -6861,7 +6840,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipmentType">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -6889,7 +6867,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceRentServiceDaily">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -6917,7 +6894,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceRentServiceMonthly">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -7851,7 +7827,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceContact">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">FullName</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -7880,7 +7855,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliverySchedule">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -7910,7 +7884,6 @@ Patronymic</property>
                         <property name="MemberName" />
                         <property name="Tooltip" translatable="yes">При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.</property>
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -9136,7 +9109,6 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceNomenclature">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">Name</property>
                     <property name="DisplayFormatString">{0}</property>
                     <property name="InheritedDataSource">True</property>
@@ -10912,7 +10884,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceOrganization">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Organization</property>
@@ -11208,7 +11179,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceProduct">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Product</property>
@@ -11345,7 +11315,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ContactDlg" design-size="498 348">
+  <widget class="Gtk.Bin" id="Vodovoz.ContactDlg" design-size="503 371">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -11761,7 +11731,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referencePost">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Post</property>
@@ -12211,7 +12180,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referencePost">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Post</property>
@@ -12736,7 +12704,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceContractor">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -12764,7 +12731,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -13036,7 +13002,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDstWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -13064,7 +13029,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceProduct">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -13092,7 +13056,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceSrcWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -13403,7 +13366,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">FullName</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -13525,7 +13487,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterpartyFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -13553,7 +13514,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPointFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Point</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -13580,7 +13540,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceWarehouseFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -13715,7 +13674,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterpartyTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -13743,7 +13701,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPointTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Point</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -13770,7 +13727,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceWarehouseTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -14123,7 +14079,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterparty">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -14152,7 +14107,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Point</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -14179,7 +14133,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEmployee">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">FullName</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -14204,7 +14157,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
@@ -14748,7 +14700,6 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceNomenclature">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">Name</property>
                     <property name="InheritedDataSource">False</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -15574,7 +15525,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceClient">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -15627,7 +15577,6 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliverySchedule">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
@@ -17082,7 +17031,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="CursorPointsEveryType">False</property>
@@ -17363,7 +17311,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCar">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFields">Model
 RegistrationNumber</property>
                 <property name="DisplayFormatString">{0} {1}</property>
@@ -17392,7 +17339,6 @@ RegistrationNumber</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="CanEditReference">False</property>
                 <property name="DisplayFormatString" />
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Driver</property>
@@ -18869,7 +18815,6 @@ RegistrationNumber</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterparty">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFormatString" />
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">Counterparty</property>
@@ -18922,7 +18867,6 @@ RegistrationNumber</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipment">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">Serial</property>
                     <property name="DisplayFormatString">{0}</property>
                     <property name="InheritedDataSource">True</property>
@@ -18949,7 +18893,6 @@ RegistrationNumber</property>
                   <widget class="Gtk.DataBindings.DataEntryReference" id="referenceNomenclature">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="CanEditReference">False</property>
                     <property name="DisplayFields">Name</property>
                     <property name="DisplayFormatString">{0}</property>
                     <property name="InheritedDataSource">True</property>
@@ -19076,7 +19019,6 @@ RegistrationNumber</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEngineer">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="CanEditReference">False</property>
                         <property name="DisplayFields">FullName</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>

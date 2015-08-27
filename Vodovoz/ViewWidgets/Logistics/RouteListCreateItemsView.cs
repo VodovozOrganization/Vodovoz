@@ -48,7 +48,7 @@ namespace Vodovoz
 
 				UpdateColumns ();
 
-				//ytreeviewItems.ItemsDataSource = items;
+				ytreeviewItems.ItemsDataSource = items;
 				ytreeviewItems.Reorderable = true;
 				CalculateTotal ();
 			}
