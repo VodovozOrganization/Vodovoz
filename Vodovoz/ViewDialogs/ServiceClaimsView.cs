@@ -10,7 +10,7 @@ using Gtk;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ServiceClaimsView : TdiTabBase
+	public partial class ServiceClaimsView : TdiTabBase, ITdiJournal
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
