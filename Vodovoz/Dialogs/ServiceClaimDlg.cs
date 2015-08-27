@@ -111,7 +111,7 @@ namespace Vodovoz
 				labelDeliveryPoint.Destroy ();
 
 				datatable1.Remove (referenceCounterparty);
-				datatable1.Attach (referenceCounterparty, 1, 4, 3, 4);
+				datatable1.Attach (referenceCounterparty, 1, 4, 3, 4, AttachOptions.Fill, AttachOptions.Shrink, 0, 0);
 			}
 		}
 
