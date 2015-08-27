@@ -113,6 +113,7 @@ namespace Vodovoz
 				datatable1.Remove (referenceCounterparty);
 				datatable1.Attach (referenceCounterparty, 1, 4, 3, 4, AttachOptions.Fill, AttachOptions.Shrink, 0, 0);
 			}
+			datePickUpDate.IsEditable = Entity.ServiceClaimType != ServiceClaimType.RegularService;
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

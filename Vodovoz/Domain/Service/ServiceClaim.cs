@@ -90,7 +90,7 @@ namespace Vodovoz.Domain.Service
 			set	{ SetField (ref repeatedService, value, () => RepeatedService); }
 		}
 
-		DateTime serviceStartDate;
+		DateTime serviceStartDate = DateTime.Today;
 
 		public virtual DateTime ServiceStartDate { 
 			get { return serviceStartDate; } 
@@ -219,6 +219,9 @@ namespace Vodovoz.Domain.Service
 					new[] { this.GetPropertyName (o => o.DeliveryPoint) });
 			if (String.IsNullOrWhiteSpace (Reason))
 				yield return new ValidationResult ("Необходимо заполнить причину заявки.",
+					new[] { this.GetPropertyName (o => o.Reason) });
+			if (ServiceStartDate == default(DateTime))
+				yield return new ValidationResult ("Необходимо указать дату заявки.",
 					new[] { this.GetPropertyName (o => o.Reason) });
 		}
 
