@@ -48,6 +48,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => serviceClaimAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => serviceClaimAlias.Status).WithAlias (() => resultAlias.Status)
 					.Select (() => serviceClaimAlias.ServiceStartDate).WithAlias (() => resultAlias.StartDate)
+					.Select (() => serviceClaimAlias.ServiceClaimType).WithAlias (() => resultAlias.Type)
 					.Select (() => counterpartyAlias.FullName).WithAlias (() => resultAlias.Counterparty)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Nomenclature)
 			             )
