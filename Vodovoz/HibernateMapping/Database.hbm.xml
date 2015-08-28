@@ -162,29 +162,6 @@
 		</bag>
 	</class>
 
-	<class name="DeliveryPoint" lazy="false" table="delivery_points">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-		<property name="MinutesToUnload" column="minutes_to_unload" />
-		<property name="Floor" column="floor" />
-		<property name="Region" column="region" />
-		<property name="City" column="city" />
-		<property name="Street" column="street" />
-		<property name="Building" column="building" />
-		<property name="Room" column="room" />
-		<property name="Comment" column="comment" />
-		<property name="Latitude" column="latitude" />
-		<property name="Longitude" column="longitude" />
-		<property name="IsActive" column="is_active" />
-		<property name="Phone" column="phone" />
-		<many-to-one name="Contact" class="Contact" column="contact_person_id" />
-		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
-		<many-to-one name="LogisticsArea" class="LogisticsArea" column="logistic_area_id" />
-		<many-to-one name="DeliverySchedule" class="DeliverySchedule" column="delivery_schedule_id" />
-	</class>
-
 	<class name="DeliverySchedule" lazy="false" table="delivery_schedule">
  		<id name="Id" column="id">
  			<generator class="native"></generator>

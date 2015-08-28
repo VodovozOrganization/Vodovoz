@@ -334,6 +334,7 @@
     <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
     <Compile Include="ViewDialogs\ServiceClaimsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
+    <Compile Include="HibernateMapping\DeliveryPointMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
