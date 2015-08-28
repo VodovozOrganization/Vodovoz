@@ -574,7 +574,6 @@
             <child>
               <widget class="Gtk.Label" id="labelUser">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">label2</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -668,6 +667,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2233,7 +2233,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -7038,7 +7037,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="603 644">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryPointDlg" design-size="784 644">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -7286,16 +7285,18 @@ Patronymic</property>
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.DataBindings.DataEntry" id="entryName">
+                          <widget class="Gtk.DataBindings.DataLabel" id="labelCompiledAddress">
                             <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="IsEditable">True</property>
-                            <property name="InvisibleChar">●</property>
+                            <property name="WidthRequest">500</property>
+                            <property name="Xalign">0</property>
+                            <property name="Wrap">True</property>
+                            <property name="Selectable">True</property>
                             <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Name</property>
+                            <property name="Mappings">CompiledAddress</property>
                             <property name="InheritedBoundaryDataSource">False</property>
+                            <property name="Important">False</property>
                             <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Name</property>
+                            <property name="Mappings">CompiledAddress</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
@@ -7322,7 +7323,7 @@ Patronymic</property>
                           </widget>
                           <packing>
                             <property name="Position">1</property>
-                            <property name="AutoSize">True</property>
+                            <property name="AutoSize">False</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
                           </packing>
@@ -13514,7 +13515,7 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPointFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Point</property>
+                        <property name="DisplayFields">CompiledAddress</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">FromDeliveryPoint</property>
@@ -13701,7 +13702,7 @@ Patronymic</property>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPointTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Point</property>
+                        <property name="DisplayFields">CompiledAddress</property>
                         <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">ToDeliveryPoint</property>
@@ -14107,7 +14108,7 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Point</property>
+                <property name="DisplayFields">CompiledAddress</property>
                 <property name="DisplayFormatString">{0}</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">DeliveryPoint</property>
@@ -18275,7 +18276,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

@@ -18,11 +18,13 @@ namespace Vodovoz.ViewModel
 		}
 
 		Counterparty counterparty;
+
 		public Counterparty Counterparty {
-			get {if (CounterpartyUoW != null)
+			get {
+				if (CounterpartyUoW != null)
 					return CounterpartyUoW.Root;
-			else
-				return counterparty;
+				else
+					return counterparty;
 			}
 			private set {
 				counterparty = value;
@@ -32,7 +34,8 @@ namespace Vodovoz.ViewModel
 		#region IRepresentationModelWithParent implementation
 
 		public object GetParent {
-			get { return Counterparty;
+			get {
+				return Counterparty;
 			}
 		}
 
@@ -51,12 +54,8 @@ namespace Vodovoz.ViewModel
 				.Where (() => counterpartyAlias.Id == Counterparty.Id)
 				.SelectList (list => list
 					.Select (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.Id)
-					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
-					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
+					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.CompiledAddress)
 					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
-					.Select (() => deliveryPointAlias.Name).WithAlias (() => resultAlias.Name)
-					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
-					.Select (() => deliveryPointAlias.Room).WithAlias (() => resultAlias.Room)
 			                         )
 				.TransformUsing (Transformers.AliasToBean<DeliveryPointVMNode> ())
 				.List<DeliveryPointVMNode> ();
@@ -65,7 +64,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		IMappingConfig treeViewConfig = FluentMappingConfig<DeliveryPointVMNode>.Create ()
-			.AddColumn ("Название").SetDataProperty (node => node.Point)
+			.AddColumn ("Название").SetDataProperty (node => node.CompiledAddress)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -106,24 +105,11 @@ namespace Vodovoz.ViewModel
 
 		public int Id { get; set; }
 
-		public string Name { get; set; }
-
-		public string City { get; set; }
-
-		public string Street { get; set; }
-
-		public string Building { get; set; }
-
-		public string Room { get; set; }
+		public string CompiledAddress { get; set; }
 
 		public bool IsActive { get; set; }
 
 		public string RowColor { get { return IsActive ? "black" : "grey"; } }
-
-		public string Point { 
-			get { return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
-				(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room); } 
-		}
 	}
 }
 

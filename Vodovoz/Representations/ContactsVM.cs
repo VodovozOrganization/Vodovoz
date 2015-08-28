@@ -42,7 +42,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => contactAlias.Surname).WithAlias (() => resultAlias.Surname)
 					.Select (() => contactAlias.Comment).WithAlias (() => resultAlias.Comment)
 					.Select (() => postAlias.Name).WithAlias (() => resultAlias.Post)
-					.Select (() => deliveryPointAlias.Name).WithAlias (() => resultAlias.DeliveryPoint)
+					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.DeliveryPoint)
 					.SelectCount (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.DeliveryPointsCount)
 					.Select (() => phoneAlias.Number).WithAlias (() => resultAlias.Number)
 					.Select (() => phoneAlias.NumberType).WithAlias (() => resultAlias.NumberType)

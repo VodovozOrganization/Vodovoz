@@ -31,12 +31,27 @@ namespace Vodovoz.Domain
 			set { SetField (ref floor, value, () => Floor); }
 		}
 
-		string name;
+		string compiledAddress;
 
 		[Display (Name = "Название")]
-		public virtual string Name {
-			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+		public virtual string CompiledAddress {
+			get {
+				string address = String.Empty;
+				if (!String.IsNullOrWhiteSpace (City))
+					address += String.Format ("г.{0}, ", City);
+				if (!String.IsNullOrWhiteSpace (Street))
+					address += String.Format ("{0}, ", Street);
+				if (!String.IsNullOrWhiteSpace (Building))
+					address += String.Format ("д.{0}, ", Building);
+				if (default(int) != Floor)
+					address += String.Format ("эт.{0}, ", Floor);
+				if (!String.IsNullOrWhiteSpace (Room))
+					address += String.Format ("квартира/офис {0}", Room);
+				if (address [address.Length - 2] == ',')
+					address = address.Remove (address.Length - 2, 2);
+				return address;
+			}
+			set { SetField (ref compiledAddress, value, () => CompiledAddress); }
 		}
 
 		string region;
@@ -169,7 +184,7 @@ namespace Vodovoz.Domain
 
 		public DeliveryPoint ()
 		{
-			Name = String.Empty;
+			CompiledAddress = String.Empty;
 			Region = String.Empty;
 			City = String.Empty;
 			Street = String.Empty;
@@ -179,13 +194,6 @@ namespace Vodovoz.Domain
 			Latitude = String.Empty;
 			Longitude = String.Empty;
 			Phone = String.Empty;
-		}
-
-		public string Point { 
-			get {
-				return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}", 
-					(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room);
-			} 
 		}
 
 		public static IUnitOfWorkGeneric<DeliveryPoint> Create (Counterparty counterparty)

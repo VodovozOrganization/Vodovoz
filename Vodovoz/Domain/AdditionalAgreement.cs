@@ -59,7 +59,7 @@ namespace Vodovoz.Domain
 		[Display (Name = "Закрыто")]
 		public virtual bool IsCancelled { get; set; }
 
-		public virtual string AgreementDeliveryPoint { get { return DeliveryPoint != null ? DeliveryPoint.Point : "Не указана"; } }
+		public virtual string AgreementDeliveryPoint { get { return DeliveryPoint != null ? DeliveryPoint.CompiledAddress : "Не указана"; } }
 
 		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
 

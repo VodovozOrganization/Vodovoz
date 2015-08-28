@@ -36,7 +36,7 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox6;
 		
-		private global::Gtk.DataBindings.DataEntry entryName;
+		private global::Gtk.DataBindings.DataLabel labelCompiledAddress;
 		
 		private global::Gtk.DataBindings.DataCheckButton checkIsActive;
 		
@@ -282,19 +282,21 @@ namespace Vodovoz
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.entryName = new global::Gtk.DataBindings.DataEntry ();
-			this.entryName.CanFocus = true;
-			this.entryName.Name = "entryName";
-			this.entryName.IsEditable = true;
-			this.entryName.InvisibleChar = '●';
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
-			this.hbox6.Add (this.entryName);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.entryName]));
+			this.labelCompiledAddress = new global::Gtk.DataBindings.DataLabel ();
+			this.labelCompiledAddress.WidthRequest = 500;
+			this.labelCompiledAddress.Name = "labelCompiledAddress";
+			this.labelCompiledAddress.Xalign = 0F;
+			this.labelCompiledAddress.Wrap = true;
+			this.labelCompiledAddress.Selectable = true;
+			this.labelCompiledAddress.InheritedDataSource = true;
+			this.labelCompiledAddress.Mappings = "CompiledAddress";
+			this.labelCompiledAddress.InheritedBoundaryDataSource = false;
+			this.labelCompiledAddress.Important = false;
+			this.labelCompiledAddress.InheritedDataSource = true;
+			this.labelCompiledAddress.Mappings = "CompiledAddress";
+			this.labelCompiledAddress.InheritedBoundaryDataSource = false;
+			this.hbox6.Add (this.labelCompiledAddress);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.labelCompiledAddress]));
 			w16.Position = 0;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.checkIsActive = new global::Gtk.DataBindings.DataCheckButton ();

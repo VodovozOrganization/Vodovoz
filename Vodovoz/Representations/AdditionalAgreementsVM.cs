@@ -39,7 +39,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
-					.Select (() => deliveryPointAlias.Name).WithAlias (() => resultAlias.Name)
+					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.Name)
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
 					.Select (() => deliveryPointAlias.Room).WithAlias (() => resultAlias.Room))
 				.TransformUsing (Transformers.AliasToBean<AdditionalAgreementVMNode> ())
