@@ -15,7 +15,7 @@ namespace Vodovoz
 		public NomenclatureDlg ()
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Nomenclature>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Nomenclature> ();
 			TabName = "Новая номенклатура";
 			ConfigureDlg ();
 		}
@@ -27,28 +27,36 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public NomenclatureDlg (Nomenclature sub) : this (sub.Id){}
+		public NomenclatureDlg (Nomenclature sub) : this (sub.Id)
+		{
+		}
 
 		private void ConfigureDlg ()
 		{
 			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
 			entryName.IsEditable = true;
+			radioInfo.Active = true;
+
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
 			enumType.DataSource = subjectAdaptor;
 			enumVAT.DataSource = subjectAdaptor;
-			referenceUnit.SubjectType = typeof(MeasurementUnits);
-			referenceColor.SubjectType = typeof(EquipmentColors);
-			referenceManufacturer.SubjectType = typeof(Manufacturer);
-			referenceType.SubjectType = typeof(EquipmentType);
-			entryreferenceRouteColumn.PropertyMapping<Nomenclature> (n => n.RouteListColumn);
+
+			referenceUnit.PropertyMapping<Nomenclature> (n => n.Unit);
+			referenceType.PropertyMapping<Nomenclature> (n => n.Type);
+			referenceColor.PropertyMapping<Nomenclature> (n => n.Color);
+			referenceWarehouse.PropertyMapping<Nomenclature> (n => n.Warehouse);
+			referenceRouteColumn.PropertyMapping<Nomenclature> (n => n.RouteListColumn);
+			referenceManufacturer.PropertyMapping<Nomenclature> (n => n.Manufacturer);
+
 			ConfigureInputs ((NomenclatureCategory)enumType.Active);
+
 			pricesView.UoWGeneric = UoWGeneric;
 			if (UoWGeneric.Root.NomenclaturePrice == null)
 				UoWGeneric.Root.NomenclaturePrice = new List<NomenclaturePrice> ();
 			pricesView.Prices = UoWGeneric.Root.NomenclaturePrice;
-			radioInfo.Active = true;
+
 		}
 
 		public override bool Save ()
@@ -58,7 +66,7 @@ namespace Vodovoz
 				return false;
 			logger.Info ("Сохраняем номенклатуру...");
 			pricesView.SaveChanges ();
-			UoWGeneric.Save();
+			UoWGeneric.Save ();
 			return true;
 		}
 

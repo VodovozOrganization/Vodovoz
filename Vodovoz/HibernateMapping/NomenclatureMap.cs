@@ -1,5 +1,4 @@
-﻿using System;
-using FluentNHibernate.Mapping;
+﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 
 namespace Vodovoz.HMap
@@ -8,11 +7,11 @@ namespace Vodovoz.HMap
 	{
 		public NomenclatureMap ()
 		{
-			Table("nomenclature");
+			Table ("nomenclature");
 			Not.LazyLoad ();
 
-			Id(x => x.Id).Column ("id").GeneratedBy.Native();
-			Map(x => x.Name).Column ("name");
+			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+			Map (x => x.Name).Column ("name");
 			Map (x => x.Model).Column ("model");
 			Map (x => x.Weight).Column ("weight");
 			Map (x => x.VAT).Column ("vat").CustomType<VATStringType> ();
@@ -24,6 +23,7 @@ namespace Vodovoz.HMap
 			References (x => x.Type).Column ("type_id");
 			References (x => x.Manufacturer).Column ("manufacturer_id");
 			References (x => x.RouteListColumn).Column ("route_column_id");
+			References (x => x.Warehouse).Column ("warehouse_id");
 			HasMany (x => x.NomenclaturePrice).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("nomenclature_id");
 		}
 	}

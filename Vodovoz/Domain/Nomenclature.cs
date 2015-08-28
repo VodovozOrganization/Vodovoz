@@ -113,6 +113,14 @@ namespace Vodovoz.Domain
 			set { SetField (ref routeListColumn, value, () => RouteListColumn); }
 		}
 
+		Warehouse warehouse;
+
+		[Display (Name = "Склад")]
+		public virtual Warehouse Warehouse {
+			get { return warehouse; }
+			set { SetField (ref warehouse, value, () => Warehouse); }
+		}
+
 		IList<NomenclaturePrice> nomenclaturePrice;
 
 		[Display (Name = "Цены")]
