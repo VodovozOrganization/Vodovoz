@@ -19,6 +19,10 @@ namespace Vodovoz.HMap
 			Map (x => x.Street).Column ("street");
 			Map (x => x.Building).Column ("building");
 			Map (x => x.Room).Column ("room");
+			Map (x => x.Housing).Column ("housing");
+			Map (x => x.Letter).Column ("letter");
+			Map (x => x.Placement).Column ("placement");
+			Map (x => x.Structure).Column ("structure");
 			Map (x => x.Comment).Column ("comment");
 			Map (x => x.Latitude).Column ("latitude");
 			Map (x => x.Longitude).Column ("longitude");

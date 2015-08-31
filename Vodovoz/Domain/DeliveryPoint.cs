@@ -23,6 +23,38 @@ namespace Vodovoz.Domain
 			set { SetField (ref minutesToUnload, value, () => MinutesToUnload); }
 		}
 
+		string housing;
+
+		[Display (Name = "Корпус")]
+		public virtual string Housing {
+			get { return housing; }
+			set { SetField (ref housing, value, () => Housing); }
+		}
+
+		string letter;
+
+		[Display (Name = "Литера")]
+		public virtual string Letter {
+			get { return letter; }
+			set { SetField (ref letter, value, () => Letter); }
+		}
+
+		string structure;
+
+		[Display (Name = "Строение")]
+		public virtual string Structure {
+			get { return structure; }
+			set { SetField (ref structure, value, () => Structure); }
+		}
+
+		string placement;
+
+		[Display (Name = "Помещение")]
+		public virtual string Placement {
+			get { return placement; }
+			set { SetField (ref placement, value, () => Placement); }
+		}
+
 		int floor;
 
 		[Display (Name = "Этаж")]
@@ -43,10 +75,18 @@ namespace Vodovoz.Domain
 					address += String.Format ("{0}, ", Street);
 				if (!String.IsNullOrWhiteSpace (Building))
 					address += String.Format ("д.{0}, ", Building);
+				if (!String.IsNullOrWhiteSpace (Housing))
+					address += String.Format ("корп.{0}, ", Housing);
+				if (!String.IsNullOrWhiteSpace (Structure))
+					address += String.Format ("стр.{0}, ", Structure);
+				if (!String.IsNullOrWhiteSpace (Letter))
+					address += String.Format ("лит.{0}, ", Letter);
 				if (default(int) != Floor)
 					address += String.Format ("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
-					address += String.Format ("квартира/офис {0}", Room);
+					address += String.Format ("квартира/офис {0}, ", Room);
+				if (!String.IsNullOrWhiteSpace (Placement))
+					address += String.Format ("пом.{0}", Placement);
 				if (address [address.Length - 2] == ',')
 					address = address.Remove (address.Length - 2, 2);
 				return address;
