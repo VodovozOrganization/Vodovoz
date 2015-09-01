@@ -554,6 +554,7 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderEquipments.Add (new OrderEquipment { 
 						Direction = Direction.PickUp,
 						Equipment = service.Equipment,
+						NewEquipmentNomenclature = service.Equipment == null ? service.Nomenclature : null,
 						OrderItem = null,
 						Reason = Reason.Service
 					});

@@ -36,6 +36,19 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
+		Nomenclature newEquipmentNomenclature;
+
+		[Display (Name = "Номенклатура незарегистрированного оборудования")]
+		public virtual Nomenclature NewEquipmentNomenclature {
+			get { return newEquipmentNomenclature; }
+			set { if (Equipment != null && value != null)
+					throw new InvalidOperationException (String.Format ("Если указано конкретное оборудование в {0}, {1} не надо заполнять, так как это поле только для незарегистрированного оборудования.",
+						this.GetPropertyName (e => e.Equipment),
+						this.GetPropertyName (e => e.NewEquipmentNomenclature)
+					));
+				SetField (ref newEquipmentNomenclature, value, () => NewEquipmentNomenclature); }
+		}
+
 		Reason reason;
 
 		[Display (Name = "Причина")]
@@ -45,7 +58,14 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual string NameString {
-			get { return String.Format ("{0}", Equipment.Title); }
+			get { 
+				if (Equipment != null)
+					return Equipment.Title;
+				else if (NewEquipmentNomenclature != null)
+					return String.Format ("{0} (не зарегистрированный)", NewEquipmentNomenclature.Name);
+				else
+					return "Неизвестное оборудование";
+			}
 		}
 
 		public virtual string DirectionString { get { return Direction.GetEnumTitle (); } }
