@@ -327,7 +327,7 @@ namespace Vodovoz
 			DeleteConfig.AddDeleteInfo(new DeleteInfo
 				{
 					ObjectClass = typeof(DeliveryPoint),
-					SqlSelect = "SELECT id, Name FROM @tablename ",
+					SqlSelect = "SELECT id, compiled_address FROM @tablename ",
 					DisplayString = "{1}",
 					DeleteItems = new List<DeleteDependenceInfo>
 					{
