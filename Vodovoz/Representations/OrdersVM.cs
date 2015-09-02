@@ -54,7 +54,7 @@ namespace Vodovoz.ViewModel
 
 			if(Filter.RestrictEndDate != null)
 			{
-				query.Where (o => o.DeliveryDate <= Filter.RestrictEndDate);
+				query.Where (o => o.DeliveryDate <= Filter.RestrictEndDate.Value.AddDays (1).AddTicks (-1));
 			}
 
 			var result = query
