@@ -14,10 +14,11 @@ namespace Vodovoz
 			get {
 				return counterpartyUoW;
 			}
-			set {if (counterpartyUoW == value)
+			set {
+				if (counterpartyUoW == value)
 					return;
 				counterpartyUoW = value;
-				treeCounterpartyContracts.RepresentationModel = new ViewModel.ContractsVM(value);
+				treeCounterpartyContracts.RepresentationModel = new ViewModel.ContractsVM (value);
 				treeCounterpartyContracts.RepresentationModel.UpdateNodes ();
 			}
 		}
@@ -44,8 +45,7 @@ namespace Vodovoz
 			if (parentDlg == null)
 				return;
 
-			if(parentDlg.UoW.IsNew)
-			{
+			if (parentDlg.UoW.IsNew) {
 				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.EntityObject.GetType (), typeof(CounterpartyContract))) {
 					parentDlg.UoW.Save ();
 				} else
@@ -74,8 +74,7 @@ namespace Vodovoz
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
 			if (OrmMain.DeleteObject (typeof(CounterpartyContract),
-				treeCounterpartyContracts.GetSelectedId())) 
-			{
+				    treeCounterpartyContracts.GetSelectedId ())) {
 				treeCounterpartyContracts.RepresentationModel.UpdateNodes ();
 			}
 		}

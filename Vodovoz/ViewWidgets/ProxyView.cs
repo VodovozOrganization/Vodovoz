@@ -14,10 +14,11 @@ namespace Vodovoz
 			get {
 				return counterpartyUoW;
 			}
-			set {if (counterpartyUoW == value)
-				return;
+			set {
+				if (counterpartyUoW == value)
+					return;
 				counterpartyUoW = value;
-				datatreeviewProxies.RepresentationModel = new ViewModel.ProxiesVM(value);
+				datatreeviewProxies.RepresentationModel = new ViewModel.ProxiesVM (value);
 				datatreeviewProxies.RepresentationModel.UpdateNodes ();
 			}
 		}
@@ -47,8 +48,7 @@ namespace Vodovoz
 			if (parentDlg == null)
 				return;
 
-			if(parentDlg.UoW.IsNew)
-			{
+			if (parentDlg.UoW.IsNew) {
 				if (CommonDialogs.SaveBeforeCreateSlaveEntity (parentDlg.EntityObject.GetType (), typeof(Proxy))) {
 					parentDlg.UoW.Save ();
 				} else
@@ -77,8 +77,7 @@ namespace Vodovoz
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
 			if (OrmMain.DeleteObject (typeof(Proxy),
-				datatreeviewProxies.GetSelectedId())) 
-			{
+				    datatreeviewProxies.GetSelectedId ())) {
 				datatreeviewProxies.RepresentationModel.UpdateNodes ();
 			}
 		}
