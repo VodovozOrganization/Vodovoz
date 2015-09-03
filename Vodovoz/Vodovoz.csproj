@@ -54,12 +54,12 @@
     <Reference Include="gtk-databind-lib">
       <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.0.1\lib\net40\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="FluentNHibernate">
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.1.0\lib\net40\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\packages\NLog.4.1.0\lib\net40\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
