@@ -110,9 +110,8 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-/*			RouteListUoW.Root.RemoveAddress (ytreeviewItems.GetSelectedObject () as RouteListItem);
+			RouteListUoW.Root.RemoveAddress (ytreeviewItems.GetSelectedObject () as RouteListItem);
 			CalculateTotal ();
-*/
 		}
 
 		protected void OnEnumbuttonAddOrderEnumItemClicked (object sender, EnumItemClickedEventArgs e)
@@ -138,7 +137,6 @@ namespace Vodovoz
 
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			//SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
 			SelectDialog.ObjectSelected += (s, ea) => {
 				var order = RouteListUoW.GetById<Order> (ea.ObjectId);
 				RouteListUoW.Root.AddAddressFromOrder (order);

@@ -126,6 +126,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string DriverInfo { get { return String.Format ("{0} - {1}", Driver.FullName, Car.Title); } }
 
+		public virtual string Title { get { return String.Format ("Маршрутный лист №{0}", Id); } }
+
 		public RouteListItem AddAddressFromOrder (Order order)
 		{
 			if (order.DeliveryPoint == null)

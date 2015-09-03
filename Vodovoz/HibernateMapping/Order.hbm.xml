@@ -27,16 +27,6 @@
         </subclass>
 	</class>
 
-	<class name="Vodovoz.Domain.Orders.OrderEquipment" lazy="false" table="order_equipment">
-		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
- 		<property name="Direction" column="direction" type="Vodovoz.Domain.Orders.DirectionStringType, Vodovoz"/>
- 		<property name="Reason" column="reason" type="Vodovoz.Domain.Orders.ReasonStringType, Vodovoz"/>
- 		<many-to-one name="OrderItem" class="Vodovoz.Domain.Orders.OrderItem" column="order_item_id"/>
- 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
-	</class>
-
 	<class name="Vodovoz.Domain.Orders.OrderItem" lazy="false" table="order_items">
 		<id name="Id" column="id">
  			<generator class="native"></generator>

@@ -128,6 +128,7 @@ namespace Vodovoz
 			this.enumcomboStatus.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnEnumcomboStatusEnumItemSelected);
 			this.entryreferencePoint.Changed += new global::System.EventHandler (this.OnEntryreferencePointChanged);
 			this.entryreferenceClient.Changed += new global::System.EventHandler (this.OnEntryreferenceClientChanged);
+			this.dateperiodOrders.PeriodChanged += new global::System.EventHandler (this.OnDateperiodOrdersPeriodChanged);
 		}
 	}
 }
