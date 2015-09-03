@@ -30,6 +30,7 @@ namespace Vodovoz
 			this.vbox1 = new global::Gtk.VBox ();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
+			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
@@ -48,6 +49,11 @@ namespace Vodovoz
 			this.datatreeviewProxies = new global::QSOrmProject.OrmTableView ();
 			this.datatreeviewProxies.CanFocus = true;
 			this.datatreeviewProxies.Name = "datatreeviewProxies";
+			this.datatreeviewProxies.CursorPointsEveryType = false;
+			this.datatreeviewProxies.InheritedDataSource = false;
+			this.datatreeviewProxies.InheritedBoundaryDataSource = false;
+			this.datatreeviewProxies.InheritedDataSource = false;
+			this.datatreeviewProxies.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow.Add (this.datatreeviewProxies);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
