@@ -15,7 +15,6 @@ namespace Vodovoz
 
 			Map (x => x.Reason).Column ("reason");
 			Map (x => x.Kit).Column ("kit");
-			Map (x => x.Comment).Column ("comment");
 			Map (x => x.TotalPrice).Column ("total_price");
 			Map (x => x.ServiceStartDate).Column ("service_start_date");
 			Map (x => x.RepeatedService).Column ("repeated_service");
