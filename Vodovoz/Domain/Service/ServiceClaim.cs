@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Service
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "заявки на обслуживание",
 		Nominative = "заявка на обслуживание")]
-	public class ServiceClaim: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class ServiceClaim: BusinessObjectBase<ServiceClaim>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -45,7 +45,7 @@ namespace Vodovoz.Domain.Service
 
 		public virtual ServiceClaimStatus Status { 
 			get { return status; } 
-			set { SetField (ref status, value, () => Status); }
+			private set { SetField (ref status, value, () => Status); }
 		}
 
 		Nomenclature nomenclature;
@@ -118,13 +118,6 @@ namespace Vodovoz.Domain.Service
 			set	{ SetField (ref diagnosticsResult, value, () => DiagnosticsResult); }
 		}
 
-		string comment;
-
-		public virtual string Comment { 
-			get { return comment; } 
-			set	{ SetField (ref comment, value, () => Comment); }
-		}
-
 		Employee engineer;
 
 		public virtual Employee Engineer { 
@@ -157,7 +150,12 @@ namespace Vodovoz.Domain.Service
 		public GenericObservableList<ServiceClaimItem> ObservableServiceClaimItems {
 			get {
 				if (observableServiceClaimItems == null)
+				{
 					observableServiceClaimItems = new GenericObservableList<ServiceClaimItem> (ServiceClaimItems);
+					ObservableServiceClaimItems.ElementAdded += (aList, aIdx) => UpdateTotalPrice ();
+					ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => UpdateTotalPrice ();
+					ObservableServiceClaimItems.ElementRemoved += (aList, aIdx, aObject) => UpdateTotalPrice ();
+				}
 				return observableServiceClaimItems;
 			}
 		}
@@ -195,13 +193,31 @@ namespace Vodovoz.Domain.Service
 
 		public void AddHistoryRecord (ServiceClaimStatus status, string comment)
 		{
+			if(Status != status)
+			{
+				if (!GetAvailableNextStatusList ().Contains (status))
+					throw new InvalidOperationException (String.Format ("Невозможно перейти из статуса {0} в статус {1}", Status, status));
+				Status = status;
+			}
 			ObservableServiceClaimHistory.Add (new ServiceClaimHistory { 
 				Date = DateTime.Now,
 				Status = status,
-				Employee = EmployeeRepository.GetEmployeeForCurrentUser (UnitOfWorkFactory.CreateWithoutRoot ()),
+				Employee = EmployeeRepository.GetEmployeeForCurrentUser (UoW),
 				Comment = comment,
 				ServiceClaim = this
 			});
+		}
+
+		public void RemoveItem(ServiceClaimItem item)
+		{
+			if(Status == ServiceClaimStatus.ClosedAsOurCooler
+				&& Status == ServiceClaimStatus.DeliveredToWarehouse
+				&& Status == ServiceClaimStatus.PickUp
+				&& Status == ServiceClaimStatus.SendedToClient
+				&& Status == ServiceClaimStatus.Ready
+			)
+				throw new InvalidOperationException (String.Format ("Нельзя удалять позиции когда заявка находится в статусе «{0}»", Status.GetEnumTitle ()));
+			ObservableServiceClaimItems.Remove (item);
 		}
 
 		#region IValidatableObject implementation
@@ -226,17 +242,6 @@ namespace Vodovoz.Domain.Service
 		}
 
 		#endregion
-
-		public static IUnitOfWorkGeneric<ServiceClaim> Create (Order order)
-		{
-			var uow = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim> ();
-			uow.Root.InitialOrder = order;
-			uow.Root.Counterparty = order.Client;
-			uow.Root.DeliveryPoint = order.DeliveryPoint;
-			uow.Root.Status = ServiceClaimStatus.PickUp;
-			uow.Root.ServiceStartDate = order.DeliveryDate;
-			return uow;
-		}
 
 		public List<ServiceClaimStatus> GetAvailableNextStatusList ()
 		{
@@ -279,15 +284,37 @@ namespace Vodovoz.Domain.Service
 			return enumList;
 		}
 
+		public ServiceClaim (ServiceClaimType type) : this()
+		{
+			ServiceClaimType = type;
+			switch (type) {
+			case ServiceClaimType.JustService:
+				Status = ServiceClaimStatus.DeliveredToWarehouse;
+				break;
+			case ServiceClaimType.RegularService:
+				Status = ServiceClaimStatus.PickUp;
+				break;
+			case ServiceClaimType.RepairmanCall:
+				Status = ServiceClaimStatus.Diagnostics;
+				break;
+			}
+
+		}
+
+		public ServiceClaim (Order order) : this(ServiceClaimType.RegularService)
+		{
+			InitialOrder = order;
+			Counterparty = order.Client;
+			DeliveryPoint = order.DeliveryPoint;
+			Status = ServiceClaimStatus.PickUp;
+			ServiceStartDate = order.DeliveryDate;
+		}
+
 		public ServiceClaim ()
 		{
 			Reason = String.Empty;
 			Kit = String.Empty;
-			Comment = String.Empty;
 			DiagnosticsResult = String.Empty;
-			ObservableServiceClaimItems.ElementAdded += (aList, aIdx) => UpdateTotalPrice ();
-			ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => UpdateTotalPrice ();
-			ObservableServiceClaimItems.ElementRemoved += (aList, aIdx, aObject) => UpdateTotalPrice ();
 		}
 	}
 

@@ -27,7 +27,7 @@ namespace Vodovoz
 		public ServiceClaimDlg (Order order)
 		{
 			this.Build ();
-			UoWGeneric = ServiceClaim.Create (order);
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (order));
 			ConfigureDlg ();
 		}
 
@@ -45,9 +45,7 @@ namespace Vodovoz
 		public ServiceClaimDlg (ServiceClaimType type)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim> ();
-			UoWGeneric.Root.ServiceClaimType = type;
-			UoWGeneric.Root.Status = ServiceClaimStatus.Diagnostics;
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
 			ConfigureDlg ();
 		}
 
@@ -283,7 +281,6 @@ namespace Vodovoz
 				var active = enumStatusEditable.Active;
 				var status = (active == -1) ? UoWGeneric.Root.Status : (ServiceClaimStatus)active;
 				UoWGeneric.Root.AddHistoryRecord (status, textComment.Buffer.Text);
-				UoWGeneric.Root.Status = status;
 			}
 		}
 
@@ -291,6 +288,11 @@ namespace Vodovoz
 		{
 			var enumList = UoWGeneric.Root.GetAvailableNextStatusList ();
 			enumStatusEditable.SetEnumItems<ServiceClaimStatus> (enumList);
+		}
+
+		protected void OnButtonDeleteClicked (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }
