@@ -325,7 +325,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentView.cs" />
     <Compile Include="ReferenceFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
-    <Compile Include="Dialogs\ReadyForShipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentDlg.cs" />
     <Compile Include="ReferenceFilters\ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
@@ -336,6 +335,7 @@
     <Compile Include="HibernateMapping\Order\OrderEquipmentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointMap.cs" />
+    <Compile Include="Dialogs\Warehouse\ReadyForShipmentDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -442,6 +442,7 @@
     <Folder Include="Domain\Service\" />
     <Folder Include="HibernateMapping\Order\" />
     <Folder Include="HibernateMapping\Counterparty\" />
+    <Folder Include="Dialogs\Warehouse\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
