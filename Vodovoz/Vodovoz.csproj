@@ -152,12 +152,10 @@
     <Compile Include="Dialogs\ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
-    <Compile Include="ReferenceFilters\EmployeeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
     <Compile Include="Domain\Equipment.cs" />
     <Compile Include="Dialogs\EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
-    <Compile Include="ReferenceFilters\EquipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="Domain\FreeRentEquipment.cs" />
     <Compile Include="Domain\DeliverySchedule.cs" />
@@ -168,7 +166,6 @@
     <Compile Include="Сrutches\TimeAsTimeSpanTypeClone.cs" />
     <Compile Include="Dialogs\AdditionalAgreementDailyRent.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementDailyRent.cs" />
-    <Compile Include="ReferenceFilters\NomenclatureFilter.cs" />
     <Compile Include="Domain\Operations\DepositOperation.cs" />
     <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
     <Compile Include="Domain\Operations\GoodsMovementOperation.cs" />
@@ -220,14 +217,11 @@
     <Compile Include="ViewWidgets\DocumentItems\IncomingInvoiceItemsView.cs" />
     <Compile Include="Repositories\Registration\GoodsRepository.cs" />
     <Compile Include="Repositories\NomenclatureRepository.cs" />
-    <Compile Include="ViewDialogs\WarehouseDocumentsView.cs" />
     <Compile Include="Dialogs\OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockBalanceView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyView.cs" />
-    <Compile Include="ViewDialogs\StockBalanceView.cs" />
     <Compile Include="Representations\StockBalanceVM.cs" />
-    <Compile Include="ReferenceFilters\StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Repositories\WarehouseRepository.cs" />
@@ -265,7 +259,6 @@
     <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Representations\AdditionalAgreementsVM.cs" />
     <Compile Include="Representations\ClientBalanceVM.cs" />
-    <Compile Include="ReferenceFilters\ClientBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Representations\CounterpartyVM.cs" />
@@ -277,7 +270,6 @@
     <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="Domain\CommonEnums.cs" />
     <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
-    <Compile Include="ReferenceFilters\StockDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Domain\Order\OrderEnums.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Account1c.cs" />
@@ -294,7 +286,6 @@
     <Compile Include="HibernateMapping\Logistic\RouteListItemMap.cs" />
     <Compile Include="Repositories\Logistics\RouteColumnRepository.cs" />
     <Compile Include="Representations\OrdersVM.cs" />
-    <Compile Include="ReferenceFilters\OrdersFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrdersFilter.cs" />
     <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
     <Compile Include="Domain\Logistic\FuelType.cs" />
@@ -304,7 +295,6 @@
     <Compile Include="Representations\ContactsVM.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimMap.cs" />
     <Compile Include="Domain\Service\ServiceClaim.cs" />
-    <Compile Include="ReferenceFilters\CounterpartyFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyFilter.cs" />
     <Compile Include="Dialogs\ServiceClaimDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
@@ -321,21 +311,31 @@
     <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
     <Compile Include="Repositories\Logistics\DeliveryShiftRepository.cs" />
     <Compile Include="Representations\ReadyForShipmentVM.cs" />
-    <Compile Include="ViewDialogs\ReadyForShipmentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentView.cs" />
-    <Compile Include="ReferenceFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentDlg.cs" />
-    <Compile Include="ReferenceFilters\ServiceClaimFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
     <Compile Include="Domain\Service\ServiceClaimHistory.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
-    <Compile Include="ViewDialogs\ServiceClaimsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
     <Compile Include="HibernateMapping\Order\OrderEquipmentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointMap.cs" />
     <Compile Include="Dialogs\Warehouse\ReadyForShipmentDlg.cs" />
+    <Compile Include="JournalViewers\WarehouseDocumentsView.cs" />
+    <Compile Include="JournalViewers\StockBalanceView.cs" />
+    <Compile Include="JournalViewers\ReadyForShipmentView.cs" />
+    <Compile Include="JournalViewers\ServiceClaimsView.cs" />
+    <Compile Include="JournalFilters\EmployeeFilter.cs" />
+    <Compile Include="JournalFilters\EquipmentFilter.cs" />
+    <Compile Include="JournalFilters\NomenclatureFilter.cs" />
+    <Compile Include="JournalFilters\StockBalanceFilter.cs" />
+    <Compile Include="JournalFilters\ClientBalanceFilter.cs" />
+    <Compile Include="JournalFilters\StockDocumentsFilter.cs" />
+    <Compile Include="JournalFilters\OrdersFilter.cs" />
+    <Compile Include="JournalFilters\CounterpartyFilter.cs" />
+    <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
+    <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -415,7 +415,6 @@
     <Folder Include="toolbars\" />
     <Folder Include="Dialogs\" />
     <Folder Include="Domain\" />
-    <Folder Include="ReferenceFilters\" />
     <Folder Include="Сrutches\" />
     <Folder Include="Domain\Operations\" />
     <Folder Include="Domain\BasicHandbooks\" />
@@ -428,7 +427,6 @@
     <Folder Include="Repositories\" />
     <Folder Include="Repositories\Registration\" />
     <Folder Include="HibernateMapping\" />
-    <Folder Include="ViewDialogs\" />
     <Folder Include="Domain\Order\" />
     <Folder Include="Repositories\BasicHandbooks\" />
     <Folder Include="ServiceDialogs\" />
@@ -443,6 +441,8 @@
     <Folder Include="HibernateMapping\Order\" />
     <Folder Include="HibernateMapping\Counterparty\" />
     <Folder Include="Dialogs\Warehouse\" />
+    <Folder Include="JournalViewers\" />
+    <Folder Include="JournalFilters\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
