@@ -308,7 +308,6 @@
     <Compile Include="gtk-gui\Vodovoz.CounterpartyFilter.cs" />
     <Compile Include="Dialogs\ServiceClaimDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimDlg.cs" />
-    <Compile Include="HibernateMapping\CounterpartyMap.cs" />
     <Compile Include="Repositories\ServiceClaimRepository.cs" />
     <Compile Include="HibernateMapping\Order\OrderMap.cs" />
     <Compile Include="Representations\ServiceClaimVM.cs" />
@@ -334,8 +333,9 @@
     <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
     <Compile Include="ViewDialogs\ServiceClaimsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimsView.cs" />
-    <Compile Include="HibernateMapping\DeliveryPointMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderEquipmentMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\CounterpartyMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -441,6 +441,7 @@
     <Folder Include="HibernateMapping\Service\" />
     <Folder Include="Domain\Service\" />
     <Folder Include="HibernateMapping\Order\" />
+    <Folder Include="HibernateMapping\Counterparty\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
