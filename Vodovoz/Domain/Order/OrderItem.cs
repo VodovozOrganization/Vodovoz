@@ -44,14 +44,6 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref equipment, value, () => Equipment); }
 		}
 
-		MeasurementUnits units;
-
-		[Display (Name = "Единица изменения")]
-		public virtual MeasurementUnits Units {
-			get { return units; }
-			set { SetField (ref units, value, () => Units); }
-		}
-
 		Decimal price;
 
 		[Display (Name = "Цена")]

@@ -96,8 +96,7 @@ namespace Vodovoz
 					DisplayString = "{1}",
 					ClearItems = new List<ClearDependenceInfo>
 					{
-						ClearDependenceInfo.Create<Nomenclature>(item => item.Unit),
-						ClearDependenceInfo.Create<OrderItem>(item => item.Units)
+						ClearDependenceInfo.Create<Nomenclature>(item => item.Unit)
 					}
 				}.FillFromMetaInfo()
 			);
