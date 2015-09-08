@@ -360,6 +360,7 @@ namespace Vodovoz.Domain.Orders
 				Price = nomenclature.GetPrice (1)
 			});
 			ObservableOrderEquipments.Add (new OrderEquipment {
+				Order = this,
 				Direction = Vodovoz.Domain.Orders.Direction.Deliver,
 				Equipment = eq,
 				OrderItem = ObservableOrderItems [ItemId],
@@ -509,6 +510,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем оборудование
 					ObservableOrderEquipments.Add (
 						new OrderEquipment { 
+							Order = this,
 							Direction = Vodovoz.Domain.Orders.Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
@@ -535,6 +537,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем оборудование.
 					ObservableOrderEquipments.Add (
 						new OrderEquipment { 
+							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
@@ -558,6 +561,7 @@ namespace Vodovoz.Domain.Orders
 			if (service.InitialOrder != null && service.InitialOrder.Id == Id) {
 				if (ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
 					ObservableOrderEquipments.Add (new OrderEquipment { 
+						Order = this,
 						Direction = Direction.PickUp,
 						Equipment = service.Equipment,
 						NewEquipmentNomenclature = service.Equipment == null ? service.Nomenclature : null,
@@ -575,6 +579,7 @@ namespace Vodovoz.Domain.Orders
 			if (service.FinalOrder != null && service.FinalOrder.Id == Id) {
 				if (ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
 					ObservableOrderEquipments.Add (new OrderEquipment { 
+						Order = this,
 						Direction = Direction.Deliver,
 						Equipment = service.Equipment,
 						OrderItem = null,
