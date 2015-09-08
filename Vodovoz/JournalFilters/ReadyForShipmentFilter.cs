@@ -2,6 +2,7 @@
 using QSOrmProject.RepresentationModel;
 using QSOrmProject;
 using Vodovoz.ViewModel;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -17,6 +18,7 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumDocType.ItemsEnum = typeof(ShipmentDocumentType);
+				yspeccomboWarehouse.ItemsList = Repository.WarehouseRepository.GetActiveWarehouse (UoW);
 			}
 		}
 
@@ -58,7 +60,20 @@ namespace Vodovoz
 			}
 		}
 
+		public Warehouse RestrictWarehouse {
+			get { return yspeccomboWarehouse.SelectedItem as Warehouse; }
+			set {
+				yspeccomboWarehouse.SelectedItem = value;
+				yspeccomboWarehouse.Sensitive = false;
+			}
+		}
+
 		protected void OnEnumDocTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		{
+			UpdateCreteria ();
+		}
+
+		protected void OnYspeccomboWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			UpdateCreteria ();
 		}

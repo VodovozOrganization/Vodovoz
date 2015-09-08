@@ -18,10 +18,10 @@ namespace Vodovoz
 					return;
 				uow = value;
 				var vm = new ViewModel.ReadyForShipmentVM (value);
-				tableReadyForShipment.RepresentationModel = vm;
-				tableReadyForShipment.RepresentationModel.UpdateNodes ();
 				readyforshipmentfilter1.UoW = value;
 				vm.Filter = readyforshipmentfilter1;
+				tableReadyForShipment.RepresentationModel = vm;
+				tableReadyForShipment.RepresentationModel.UpdateNodes ();
 			}
 		}
 

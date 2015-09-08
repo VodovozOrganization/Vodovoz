@@ -38,7 +38,7 @@ namespace Vodovoz
 			this.readyforshipmentfilter1.Name = "readyforshipmentfilter1";
 			this.hbox1.Add (this.readyforshipmentfilter1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.readyforshipmentfilter1]));
-			w1.Position = 1;
+			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			this.vbox1.Add (this.hbox1);
@@ -72,7 +72,7 @@ namespace Vodovoz
 			this.buttonOpen.CanFocus = true;
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
-			this.buttonOpen.Label = global::Mono.Unix.Catalog.GetString ("Открыть");
+			this.buttonOpen.Label = global::Mono.Unix.Catalog.GetString ("Погрузить машину");
 			global::Gtk.Image w5 = new global::Gtk.Image ();
 			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-ok", global::Gtk.IconSize.Menu);
 			this.buttonOpen.Image = w5;
