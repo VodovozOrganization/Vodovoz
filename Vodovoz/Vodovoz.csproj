@@ -336,6 +336,7 @@
     <Compile Include="JournalFilters\CounterpartyFilter.cs" />
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
+    <Compile Include="HibernateMapping\Order\OrderItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

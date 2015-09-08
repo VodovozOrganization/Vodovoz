@@ -31,7 +31,7 @@ namespace Vodovoz.HMap
 			References (x => x.PreviousOrder).Column ("previous_order_id");
 			References (x => x.Contract).Column ("counterparty_contract_id");
 
-			HasMany (x => x.OrderItems).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("order_id");
+			HasMany (x => x.OrderItems).Cascade.AllDeleteOrphan ().Inverse ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.OrderEquipments).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("order_id");
 			HasMany (x => x.OrderDocuments).Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("order_id");
 			HasMany (x => x.OrderDepositRefundItem).Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("order_id");

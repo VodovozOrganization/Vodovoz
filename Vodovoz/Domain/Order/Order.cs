@@ -1,7 +1,6 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Repository;
@@ -353,6 +352,7 @@ namespace Vodovoz.Domain.Orders
 			Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoW, nomenclature);
 			int ItemId;
 			ItemId = ObservableOrderItems.AddWithReturn (new OrderItem {
+				Order = this,
 				AdditionalAgreement = null,
 				Count = 1,
 				Equipment = eq,
@@ -372,6 +372,7 @@ namespace Vodovoz.Domain.Orders
 			if (nomenclature.Category != NomenclatureCategory.additional)
 				return;
 			ObservableOrderItems.Add (new OrderItem {
+				Order = this,
 				AdditionalAgreement = null,
 				Count = 0,
 				Equipment = null,
@@ -388,6 +389,7 @@ namespace Vodovoz.Domain.Orders
 			    item.AdditionalAgreement.Id == wsa.Id))
 				return;
 			ObservableOrderItems.Add (new OrderItem {
+				Order = this,
 				AdditionalAgreement = wsa,
 				Count = 0,
 				Equipment = null,
@@ -415,6 +417,7 @@ namespace Vodovoz.Domain.Orders
 					depositPaymentItem.Count = waterItemsCount - BottlesReturn;
 				else
 					ObservableOrderItems.Add (new OrderItem {
+						Order = this,
 						AdditionalAgreement = null,
 						Count = waterItemsCount - BottlesReturn,
 						Equipment = null,
@@ -473,6 +476,7 @@ namespace Vodovoz.Domain.Orders
 					} else {
 						ObservableOrderItems.Add (
 							new OrderItem {
+								Order = this,
 								AdditionalAgreement = a,
 								Count = 1,
 								Equipment = null,
@@ -493,6 +497,7 @@ namespace Vodovoz.Domain.Orders
 					} else {
 						ItemId = ObservableOrderItems.AddWithReturn (
 							new OrderItem {
+								Order = this,
 								AdditionalAgreement = a,
 								Count = 1,
 								Equipment = null,
@@ -519,6 +524,7 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем номенклатуру залога.
 					ItemId = ObservableOrderItems.AddWithReturn (
 						new OrderItem {
+							Order = this,
 							AdditionalAgreement = agreement,
 							Count = 1,
 							Equipment = null,

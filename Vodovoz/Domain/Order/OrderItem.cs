@@ -11,6 +11,15 @@ namespace Vodovoz.Domain.Orders
 	{
 		public virtual int Id { get; set; }
 
+		Order order;
+
+		[Display (Name = "Заказ")]
+		public virtual Order Order {
+			get { return order; }
+			set { SetField (ref order, value, () => Order); }
+		}
+
+
 		AdditionalAgreement additionalAgreement;
 
 		[Display (Name = "Дополнительное соглашения")]
