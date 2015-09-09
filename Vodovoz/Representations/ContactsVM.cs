@@ -9,13 +9,38 @@ using QSContacts;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContactsVM : RepresentationModelBase<Contact, ContactsVMNode>
+	public class ContactsVM : RepresentationModelBase<Contact, ContactsVMNode>, IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
 				return UoW as IUnitOfWorkGeneric<Counterparty>;
 			}
 		}
+
+		Counterparty counterparty;
+
+		public Counterparty Counterparty {
+			get {
+				if (CounterpartyUoW != null)
+					return CounterpartyUoW.Root;
+				else
+					return counterparty;
+			}
+			private set {
+				counterparty = value;
+			}
+		}
+
+		#region IRepresentationModelWithParent implementation
+
+		public object GetParent {
+			get {
+				return Counterparty;
+			}
+		}
+
+		#endregion
+
 
 		#region IRepresentationModel implementation
 
@@ -34,7 +59,7 @@ namespace Vodovoz.ViewModel
 				.JoinAlias (c => c.DeliveryPoints, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (c => c.Post, () => postAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (c => c.Phones, () => phoneAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where (() => counterpartyAlias.Id == CounterpartyUoW.Root.Id)
+				.Where (() => counterpartyAlias.Id == Counterparty.Id)
 				.SelectList (list => list
 					.SelectGroup (() => contactAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => contactAlias.Name).WithAlias (() => resultAlias.Name)
@@ -71,7 +96,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (Contact updatedSubject)
 		{
-			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
+			return Counterparty.Id == updatedSubject.Counterparty.Id;
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
@@ -84,6 +109,12 @@ namespace Vodovoz.ViewModel
 		public ContactsVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
 			this.UoW = uow;
+		}
+
+		public ContactsVM(IUnitOfWork uow, Counterparty counterparty)
+		{
+			this.UoW = uow;
+			Counterparty = counterparty;
 		}
 	}
 
