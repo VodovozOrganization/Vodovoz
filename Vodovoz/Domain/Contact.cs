@@ -111,6 +111,8 @@ namespace Vodovoz.Domain
 
 		public string FullName { get { return String.Format ("{0} {1} {2}", Surname, Name, Lastname); } }
 
+		public string Title {get {return FullName;}}
+
 		public string MainPhoneString { 
 			get { 
 				if (Phones.Count > 0 && Phones [0].Number != String.Empty)
