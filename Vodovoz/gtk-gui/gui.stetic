@@ -667,7 +667,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4340,10 +4339,9 @@ Patronymic</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryFinancialContact">
+                  <widget class="Gtk.DataBindings.DataEntryReferenceVM" id="dataentryFinancialContact">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">FullName</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">FinancialContact</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -4366,12 +4364,9 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReference" id="dataentryMainContact">
+                  <widget class="Gtk.DataBindings.DataEntryReferenceVM" id="dataentryMainContact">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">FullName
-MainPhoneString</property>
-                    <property name="DisplayFormatString">{0}; телефон: {1}</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">MainContact</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -8017,11 +8012,9 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceContact">
+                      <widget class="Gtk.DataBindings.DataEntryReferenceVM" id="referenceContact">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">FullName</property>
-                        <property name="DisplayFormatString">{0}</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">Contact</property>
                         <property name="ColumnMappings" />

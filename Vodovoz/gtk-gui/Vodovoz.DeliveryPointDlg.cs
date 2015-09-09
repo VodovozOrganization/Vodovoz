@@ -108,7 +108,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label8;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceContact;
+		private global::Gtk.DataBindings.DataEntryReferenceVM referenceContact;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliverySchedule;
 		
@@ -759,13 +759,9 @@ namespace Vodovoz
 			w52.XOptions = ((global::Gtk.AttachOptions)(4));
 			w52.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceContact = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceContact = new global::Gtk.DataBindings.DataEntryReferenceVM ();
 			this.referenceContact.Events = ((global::Gdk.EventMask)(256));
 			this.referenceContact.Name = "referenceContact";
-			this.referenceContact.DisplayFields = new string[] {
-				"FullName"
-			};
-			this.referenceContact.DisplayFormatString = "{0}";
 			this.referenceContact.InheritedDataSource = true;
 			this.referenceContact.Mappings = "Contact";
 			this.referenceContact.ColumnMappings = "";
