@@ -90,7 +90,6 @@
     <EmbeddedResource Include="toolbars\logistics.xml">
       <LogicalName>logistics.xml</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="HibernateMapping\Order.hbm.xml" />
     <EmbeddedResource Include="icons\buttons\view-filter.png">
       <LogicalName>view-filter.png</LogicalName>
     </EmbeddedResource>
@@ -345,6 +344,8 @@
     <Compile Include="HibernateMapping\Documents\MovementDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\WriteoffDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\WriteoffDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderDepositRefundItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderDocumentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
