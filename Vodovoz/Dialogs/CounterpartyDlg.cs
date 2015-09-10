@@ -71,8 +71,8 @@ namespace Vodovoz
 				.Add (Restrictions.Not (Restrictions.Eq ("id", UoWGeneric.Root.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
-			dataentryMainContact.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
-			dataentryFinancialContact.ParentReference = new OrmParentReference (UoW, EntityObject, "Contacts");
+			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM (UoW, Entity);
+			dataentryFinancialContact.RepresentationModel = new ViewModel.ContactsVM (UoW, Entity);
 			//Setting Contacts
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			//Setting permissions

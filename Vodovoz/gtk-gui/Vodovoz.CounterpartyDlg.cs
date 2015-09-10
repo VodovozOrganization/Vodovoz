@@ -98,9 +98,9 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable2;
 		
-		private global::Gtk.DataBindings.DataEntryReference dataentryFinancialContact;
+		private global::Gtk.DataBindings.DataEntryReferenceVM dataentryFinancialContact;
 		
-		private global::Gtk.DataBindings.DataEntryReference dataentryMainContact;
+		private global::Gtk.DataBindings.DataEntryReferenceVM dataentryMainContact;
 		
 		private global::QSContacts.EmailsView emailsView;
 		
@@ -333,7 +333,8 @@ namespace Vodovoz
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.Name = "notebook1";
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -726,12 +727,9 @@ namespace Vodovoz
 			this.datatable2.InheritedDataSource = false;
 			this.datatable2.InheritedBoundaryDataSource = false;
 			// Container child datatable2.Gtk.Table+TableChild
-			this.dataentryFinancialContact = new global::Gtk.DataBindings.DataEntryReference ();
+			this.dataentryFinancialContact = new global::Gtk.DataBindings.DataEntryReferenceVM ();
 			this.dataentryFinancialContact.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryFinancialContact.Name = "dataentryFinancialContact";
-			this.dataentryFinancialContact.DisplayFields = new string[] {
-				"FullName"
-			};
 			this.dataentryFinancialContact.InheritedDataSource = true;
 			this.dataentryFinancialContact.Mappings = "FinancialContact";
 			this.dataentryFinancialContact.InheritedBoundaryDataSource = false;
@@ -745,14 +743,9 @@ namespace Vodovoz
 			w49.XOptions = ((global::Gtk.AttachOptions)(4));
 			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.dataentryMainContact = new global::Gtk.DataBindings.DataEntryReference ();
+			this.dataentryMainContact = new global::Gtk.DataBindings.DataEntryReferenceVM ();
 			this.dataentryMainContact.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryMainContact.Name = "dataentryMainContact";
-			this.dataentryMainContact.DisplayFields = new string[] {
-				"FullName",
-				"MainPhoneString"
-			};
-			this.dataentryMainContact.DisplayFormatString = "{0}; телефон: {1}";
 			this.dataentryMainContact.InheritedDataSource = true;
 			this.dataentryMainContact.Mappings = "MainContact";
 			this.dataentryMainContact.InheritedBoundaryDataSource = false;

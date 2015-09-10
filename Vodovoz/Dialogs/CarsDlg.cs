@@ -7,7 +7,6 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CarsDlg : OrmGtkDialogBase<Car>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();

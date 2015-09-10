@@ -9,6 +9,7 @@ using NHibernate.Transform;
 using System.Linq;
 using System.Collections.Generic;
 using Vodovoz.Domain;
+using NHibernate.Criterion;
 
 namespace Vodovoz.ViewModel
 {
@@ -18,7 +19,7 @@ namespace Vodovoz.ViewModel
 		{
 		}
 
-		public ReadyForShipmentVM (IUnitOfWork uow) : base (typeof(RouteList), typeof(Order))
+		public ReadyForShipmentVM (IUnitOfWork uow) : base (typeof(RouteList), typeof(Vodovoz.Domain.Orders.Order))
 		{
 			this.UoW = uow;
 		}
@@ -36,18 +37,76 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes ()
 		{
-			Order orderAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemsAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Equipment equipmentAlias = null;
+			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null;
+
+
 			RouteList routeListAlias = null;
+			RouteListItem routeListAddressAlias = null;
 			ReadyForShipmentVMNode resultAlias = null;
 			Employee employeeAlias = null;
 			Car carAlias = null;
 
 			List<ReadyForShipmentVMNode> items = new List<ReadyForShipmentVMNode> ();
 
-			if (Filter == null || Filter.RestrictDocumentType != ShipmentDocumentType.RouteList) {
-				items.AddRange (UoW.Session.QueryOver<Order> (() => orderAlias)
-				.Where (() => orderAlias.SelfDelivery == true && orderAlias.OrderStatus == OrderStatus.Accepted)
-				.SelectList (list => list
+			var orderitemsSubqury = QueryOver.Of<OrderItem> (() => orderItemsAlias)
+				.Where (() => orderItemsAlias.Order.Id == orderAlias.Id)
+				.JoinAlias (() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
+				.Where (() => OrderItemNomenclatureAlias.Warehouse == Filter.RestrictWarehouse)
+				.Select (i => i.Order);
+			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment> (() => orderEquipmentAlias)
+				.Where(() => orderEquipmentAlias.Order.Id == orderAlias.Id)
+				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias)
+				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias)
+				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse && orderEquipmentAlias.Direction == Direction.Deliver)
+				.Select (i => i.Order);
+
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == ShipmentDocumentType.RouteList) {
+
+				var queryRoutes = UoW.Session.QueryOver<RouteList> (() => routeListAlias)
+					.JoinAlias (rl => rl.Driver, () => employeeAlias)
+					.JoinAlias (rl => rl.Car, () => carAlias)
+					.Where (r => routeListAlias.Status == RouteListStatus.Ready);
+
+				if (Filter.RestrictWarehouse != null) {
+
+					queryRoutes.JoinAlias (rl => rl.Addresses, () => routeListAddressAlias)
+						.JoinAlias (() => routeListAddressAlias.Order, () => orderAlias)
+						.Where (new Disjunction ()
+							.Add (Subqueries.WhereExists (orderitemsSubqury))
+							.Add (Subqueries.WhereExists (orderEquipmentSubquery))
+						);
+				}
+				
+				items.AddRange (
+				queryRoutes.SelectList (list => list
+						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => ShipmentDocumentType.RouteList).WithAlias (() => resultAlias.TypeEnum)
+						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.Name)
+						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.LastName)
+						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.Patronymic)
+						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.Car)
+					)
+					.TransformUsing (Transformers.AliasToBean <ReadyForShipmentVMNode> ())
+					.List<ReadyForShipmentVMNode> ());
+			}
+
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == ShipmentDocumentType.Order) {
+				var queryOrders = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => orderAlias)
+				.Where (() => orderAlias.SelfDelivery == true && orderAlias.OrderStatus == OrderStatus.Accepted);
+				if (Filter.RestrictWarehouse != null) {
+					
+					queryOrders.Where (new Disjunction ()
+							.Add (Subqueries.WhereExists (orderitemsSubqury))
+							.Add (Subqueries.WhereExists (orderEquipmentSubquery))
+					);
+				}
+
+				items.AddRange (
+				queryOrders.SelectList (list => list
 					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => ShipmentDocumentType.Order).WithAlias (() => resultAlias.TypeEnum)
 					.Select (() => "-").WithAlias (() => resultAlias.Name)
@@ -56,25 +115,10 @@ namespace Vodovoz.ViewModel
 					.Select (() => "-").WithAlias (() => resultAlias.Car)
 				)
 				.TransformUsing (Transformers.AliasToBean<ReadyForShipmentVMNode> ())
-				.List<ReadyForShipmentVMNode> ().ToList ());
+				.List<ReadyForShipmentVMNode> ().ToList ()
+				);
 			}
 
-			if (Filter == null || Filter.RestrictDocumentType != ShipmentDocumentType.Order) {
-				items.AddRange (UoW.Session.QueryOver<RouteList> (() => routeListAlias)
-				.JoinAlias (rl => rl.Driver, () => employeeAlias)
-				.JoinAlias (rl => rl.Car, () => carAlias)
-				.Where (r => routeListAlias.Status == RouteListStatus.Ready)
-				.SelectList (list => list
-					.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)
-					.Select (() => ShipmentDocumentType.RouteList).WithAlias (() => resultAlias.TypeEnum)
-						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.Name)
-						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.LastName)
-						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.Patronymic)
-						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.Car)
-				)
-				.TransformUsing (Transformers.AliasToBean <ReadyForShipmentVMNode> ())
-				.List<ReadyForShipmentVMNode> ());
-			}
 			SetItemsSource (items);
 		}
 

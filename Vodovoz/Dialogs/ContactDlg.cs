@@ -53,7 +53,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			logger.Info ("Сохраняем доверенность...");
+			logger.Info ("Сохраняем  контактное лицо...");
 			phonesView.SaveChanges ();
 			emailsView.SaveChanges ();
 			UoWGeneric.Save ();

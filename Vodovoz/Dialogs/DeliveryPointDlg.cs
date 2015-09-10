@@ -43,8 +43,7 @@ namespace Vodovoz
 			referenceLogisticsArea.Sensitive = QSMain.User.Permissions ["logistican"];
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
-			referenceContact.SubjectType = typeof(Contact);
-			referenceContact.ParentReference = new OrmParentReference (UoWGeneric, UoWGeneric.Root.Counterparty, "Contacts");
+			referenceContact.RepresentationModel = new ViewModel.ContactsVM (UoWGeneric, Entity.Counterparty);
 			entryCity.FocusOutEvent += FocusOut;
 			entryStreet.FocusOutEvent += FocusOut;
 			entryRegion.FocusOutEvent += FocusOut;

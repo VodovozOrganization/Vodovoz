@@ -46,7 +46,7 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		private IList<Contact> contact;
+		private IList<Contact> contact = new List<Contact>();
 
 		[Display (Name = "Контактные лица")]
 		public virtual IList<Contact> Contacts {

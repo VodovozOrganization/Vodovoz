@@ -26,17 +26,4 @@
 			<many-to-one name="Contract" class="CounterpartyContract" column="contract_id" />
         </subclass>
 	</class>
-
-	<class name="Vodovoz.Domain.Orders.OrderItem" lazy="false" table="order_items">
-		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
- 		<property name="Price" column="price"/>
- 		<property name="Count" column="count"/>
- 		<many-to-one name="AdditionalAgreement" class="AdditionalAgreement" column="additional_agreement_id"/>
- 		<many-to-one name="Equipment" class="Equipment" column="equipment_id"/>
- 		<many-to-one name="Nomenclature" class="Nomenclature" column="nomenclature_id"/>
- 		<many-to-one name="Units" class="MeasurementUnits" column="units_id"/>
-	</class>
-
 </hibernate-mapping>

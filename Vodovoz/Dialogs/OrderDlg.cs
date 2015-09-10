@@ -79,7 +79,6 @@ namespace Vodovoz
 			notebook1.Page = 0;
 
 			referenceClient.SubjectType = typeof(Counterparty);
-			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
 			#region Events
