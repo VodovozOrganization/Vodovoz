@@ -9,6 +9,7 @@ using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Store;
 using Vodovoz.ViewModel;
 using QSOsm;
 

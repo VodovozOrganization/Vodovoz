@@ -9,6 +9,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

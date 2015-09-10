@@ -1,8 +1,7 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
 using QSOrmProject;
-using Vodovoz.ViewModel;
-using Vodovoz.Domain;
+using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

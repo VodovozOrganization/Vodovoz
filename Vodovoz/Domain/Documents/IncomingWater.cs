@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 using DataAnnotationsExtensions;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {

@@ -1,15 +1,16 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Logistic;
-using QSOrmProject;
-using Vodovoz.Domain.Orders;
-using Gtk.DataBindings;
-using System.Data.Bindings;
-using NHibernate.Transform;
-using System.Linq;
 using System.Collections.Generic;
-using Vodovoz.Domain;
+using System.Data.Bindings;
+using System.Linq;
+using Gtk.DataBindings;
 using NHibernate.Criterion;
+using NHibernate.Transform;
+using QSOrmProject;
+using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
@@ -167,12 +168,5 @@ namespace Vodovoz.ViewModel
 		public string Car { get; set; }
 	}
 
-	public enum ShipmentDocumentType
-	{
-		[ItemTitleAttribute ("Заказ")]
-		Order,
-		[ItemTitleAttribute ("Маршрутный лист")]
-		RouteList
-	}
 }
 

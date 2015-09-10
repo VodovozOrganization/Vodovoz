@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Linq;
 using QSOrmProject;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain
 {

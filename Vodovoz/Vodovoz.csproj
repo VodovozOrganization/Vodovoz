@@ -172,7 +172,6 @@
     <Compile Include="Domain\BasicHandbooks\Nationality.cs" />
     <Compile Include="Domain\BasicHandbooks\Significance.cs" />
     <Compile Include="Domain\Operations\OperationBase.cs" />
-    <Compile Include="Domain\BasicHandbooks\Warehouse.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
     <Compile Include="Dialogs\CounterpartyContractDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
@@ -313,7 +312,6 @@
     <Compile Include="HibernateMapping\Order\OrderEquipmentMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\DeliveryPointMap.cs" />
-    <Compile Include="Dialogs\Warehouse\ReadyForShipmentDlg.cs" />
     <Compile Include="JournalViewers\WarehouseDocumentsView.cs" />
     <Compile Include="JournalViewers\StockBalanceView.cs" />
     <Compile Include="JournalViewers\ReadyForShipmentView.cs" />
@@ -337,6 +335,10 @@
     <Compile Include="Domain\Counterparty\FreeRentEquipment.cs" />
     <Compile Include="Domain\Counterparty\PaidRentEquipment.cs" />
     <Compile Include="Domain\Counterparty\Proxy.cs" />
+    <Compile Include="Dialogs\Store\ReadyForShipmentDlg.cs" />
+    <Compile Include="Domain\Store\ShipmentDocumentType.cs" />
+    <Compile Include="Domain\Store\Warehouse.cs" />
+    <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -445,10 +447,12 @@
     <Folder Include="Domain\Service\" />
     <Folder Include="HibernateMapping\Order\" />
     <Folder Include="HibernateMapping\Counterparty\" />
-    <Folder Include="Dialogs\Warehouse\" />
     <Folder Include="JournalViewers\" />
     <Folder Include="JournalFilters\" />
     <Folder Include="Domain\Counterparty\" />
+    <Folder Include="Dialogs\Store\" />
+    <Folder Include="Domain\Store\" />
+    <Folder Include="HibernateMapping\Store\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

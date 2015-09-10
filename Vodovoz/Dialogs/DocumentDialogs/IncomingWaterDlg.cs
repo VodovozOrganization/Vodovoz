@@ -3,8 +3,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
-using QSTDI;
-using NHibernate;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

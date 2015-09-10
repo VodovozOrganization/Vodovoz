@@ -5,6 +5,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

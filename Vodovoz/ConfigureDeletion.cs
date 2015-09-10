@@ -3,10 +3,11 @@ using QSBanks;
 using QSContacts;
 using QSOrmProject.Deletion;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

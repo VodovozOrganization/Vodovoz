@@ -1,15 +1,15 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Documents;
-using QSOrmProject;
-using Gtk.DataBindings;
-using NHibernate.Transform;
-using NHibernate.Criterion;
-using Vodovoz.Domain;
-using NHibernate;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Data.Bindings;
+using Gtk.DataBindings;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Transform;
+using QSOrmProject;
+using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {

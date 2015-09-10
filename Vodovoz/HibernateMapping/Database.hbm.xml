@@ -68,13 +68,6 @@
 		<property name="Name" column="name" />
 	</class>
 
-	<class name="Warehouse" lazy="false" table="warehouses">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-	</class>
-
 	<!--Прочие справочники-->
 
 	<class name="AdditionalAgreement" lazy="false" table="additional_agreements">
