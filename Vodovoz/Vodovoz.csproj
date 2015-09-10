@@ -407,6 +407,10 @@
       <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
       <Name>GammaUtil</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
+      <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
+      <Name>QSOsm</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />

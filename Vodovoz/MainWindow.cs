@@ -10,6 +10,7 @@ using Vodovoz;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.ViewModel;
+using QSOsm;
 
 public partial class MainWindow: Gtk.Window
 {
