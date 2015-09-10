@@ -87,12 +87,6 @@
     <EmbeddedResource Include="HibernateMapping\Database.hbm.xml">
       <LogicalName>Vodovoz.Database.hbm.xml</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="HibernateMapping\Operations.hbm.xml">
-      <LogicalName>Operations.hbm.xml</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HibernateMapping\Documents.hbm.xml">
-      <LogicalName>Documents.hbm.xml</LogicalName>
-    </EmbeddedResource>
     <EmbeddedResource Include="toolbars\logistics.xml">
       <LogicalName>logistics.xml</LogicalName>
     </EmbeddedResource>
@@ -339,6 +333,18 @@
     <Compile Include="Domain\Store\ShipmentDocumentType.cs" />
     <Compile Include="Domain\Store\Warehouse.cs" />
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
+    <Compile Include="HibernateMapping\Operations\DepositOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\BottlesMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\GoodsMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\MoneyMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingInvoiceMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingInvoiceItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingWaterMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingWaterMaterialMap.cs" />
+    <Compile Include="HibernateMapping\Documents\MovementDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\MovementDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\WriteoffDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\WriteoffDocumentItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -453,6 +459,8 @@
     <Folder Include="Dialogs\Store\" />
     <Folder Include="Domain\Store\" />
     <Folder Include="HibernateMapping\Store\" />
+    <Folder Include="HibernateMapping\Operations\" />
+    <Folder Include="HibernateMapping\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
