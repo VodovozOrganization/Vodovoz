@@ -46,7 +46,9 @@ namespace Vodovoz
 
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			var node = tableReadyForShipment.GetSelectedNode () as ViewModel.ReadyForShipmentVMNode;
+			var dlg = new ReadyForShipmentDlg (node.TypeEnum, node.Id);
+			TabParent.AddTab (dlg, this);
 		}
 	}
 }
