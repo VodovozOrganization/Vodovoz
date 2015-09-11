@@ -59,6 +59,7 @@ namespace Vodovoz
 			this.vbox1.Add (this.table1);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.table1]));
 			w3.Position = 0;
+			w3.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -109,6 +110,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.ycomboboxWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnYcomboboxWarehouseItemSelected);
 		}
 	}
 }
