@@ -17,7 +17,7 @@ namespace Vodovoz
 			set {
 				uow = value;
 				enumDocType.ItemsEnum = typeof(ShipmentDocumentType);
-				yspeccomboWarehouse.ItemsList = Repository.WarehouseRepository.GetActiveWarehouse (UoW);
+				yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse (UoW);
 			}
 		}
 

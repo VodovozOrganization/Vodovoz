@@ -208,7 +208,6 @@
     <Compile Include="Representations\StockBalanceVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
-    <Compile Include="Repositories\WarehouseRepository.cs" />
     <Compile Include="Repositories\EmployeeRepository.cs" />
     <Compile Include="Domain\ProductSpecification.cs" />
     <Compile Include="Domain\ProductSpecificationMaterial.cs" />
@@ -346,6 +345,7 @@
     <Compile Include="HibernateMapping\Documents\WriteoffDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderDepositRefundItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderDocumentMap.cs" />
+    <Compile Include="Repositories\Store\WarehouseRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -462,6 +462,7 @@
     <Folder Include="HibernateMapping\Store\" />
     <Folder Include="HibernateMapping\Operations\" />
     <Folder Include="HibernateMapping\Documents\" />
+    <Folder Include="Repositories\Store\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

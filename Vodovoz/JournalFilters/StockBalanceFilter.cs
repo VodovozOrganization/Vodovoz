@@ -17,7 +17,7 @@ namespace Vodovoz
 			}
 			set {
 				uow = value;
-				speccomboStock.ItemsDataSource = Repository.WarehouseRepository.GetActiveWarehouse (uow);
+				speccomboStock.ItemsDataSource = Repository.Store.WarehouseRepository.GetActiveWarehouse (uow);
 			}
 		}
 
