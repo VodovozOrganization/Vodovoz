@@ -9,6 +9,8 @@ namespace Vodovoz
 	{
 		private IUnitOfWork uow;
 
+		ViewModel.ReadyForShipmentVM viewModel;
+
 		public IUnitOfWork UoW {
 			get {
 				return uow;
@@ -17,10 +19,10 @@ namespace Vodovoz
 				if (uow == value)
 					return;
 				uow = value;
-				var vm = new ViewModel.ReadyForShipmentVM (value);
+				viewModel = new ViewModel.ReadyForShipmentVM (value);
 				readyforshipmentfilter1.UoW = value;
-				vm.Filter = readyforshipmentfilter1;
-				tableReadyForShipment.RepresentationModel = vm;
+				viewModel.Filter = readyforshipmentfilter1;
+				tableReadyForShipment.RepresentationModel = viewModel;
 				tableReadyForShipment.RepresentationModel.UpdateNodes ();
 			}
 		}
@@ -38,18 +40,18 @@ namespace Vodovoz
 			buttonOpen.Sensitive = tableReadyForShipment.Selection.CountSelectedRows () > 0;
 		}
 
+		protected void OnButtonOpenClicked (object sender, EventArgs e)
+		{
+			var node = tableReadyForShipment.GetSelectedNode () as ViewModel.ReadyForShipmentVMNode;
+			var dlg = new ReadyForShipmentDlg (node.TypeEnum, node.Id, viewModel.Filter.RestrictWarehouse);
+			TabParent.AddTab (dlg, this);
+		}
 
-		protected void OndatatreeviewBalanceRowActivated (object o, Gtk.RowActivatedArgs args)
+		protected void OnTableReadyForShipmentRowActivated (object o, Gtk.RowActivatedArgs args)
 		{
 			buttonOpen.Click ();
 		}
 
-		protected void OnButtonOpenClicked (object sender, EventArgs e)
-		{
-			var node = tableReadyForShipment.GetSelectedNode () as ViewModel.ReadyForShipmentVMNode;
-			var dlg = new ReadyForShipmentDlg (node.TypeEnum, node.Id);
-			TabParent.AddTab (dlg, this);
-		}
 	}
 }
 

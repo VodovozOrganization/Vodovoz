@@ -21,7 +21,7 @@ namespace Vodovoz
 
 		List<ShipmentItemsNode> ShipmentList = new List<ShipmentItemsNode>();
 
-		public ReadyForShipmentDlg (ShipmentDocumentType type, int id)
+		public ReadyForShipmentDlg (ShipmentDocumentType type, int id, Warehouse stock)
 		{
 			Build ();
 			shipmentType = type;
@@ -35,6 +35,34 @@ namespace Vodovoz
 				.AddColumn ("Серийный номер").AddTextRenderer (node => node.SerialNumberText)
 				.AddColumn ("Количество").AddTextRenderer (node => node.AmountText)
 				.Finish ();
+
+			if (stock != null)
+				ycomboboxWarehouse.SelectedItem = stock;
+
+			switch(shipmentType)
+			{
+			case ShipmentDocumentType.Order:
+				var order = UoW.GetById<Vodovoz.Domain.Orders.Order> (id);
+				textviewShipmentInfo.Buffer.Text =
+					String.Format ("Самовывоз заказа №{0}\nКлиент: {1}",
+					id,
+					order.Client.FullName
+				);
+				TabName = String.Format ("Отгрузка заказа №{0}", id);
+				break;
+			case ShipmentDocumentType.RouteList:
+				var routelist = UoW.GetById<RouteList> (id);
+				textviewShipmentInfo.Buffer.Text =
+					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
+						id,
+						routelist.Driver.FullName,
+						routelist.Car.Model,
+						routelist.Car.RegistrationNumber,
+						routelist.Forwarder.FullName
+					);
+				TabName = String.Format ("Отгрузка маршрутного листа №{0}", id);
+				break;
+			}
 		}
 
 		void UpdateItemsList()
