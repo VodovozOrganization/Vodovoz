@@ -17,7 +17,7 @@ namespace Vodovoz
 			}
 			set {
 				uow = value;
-				speccomboStock.ItemsDataSource = Repository.WarehouseRepository.GetActiveWarehouse (uow);
+				speccomboStock.ItemsDataSource = Repository.Store.WarehouseRepository.GetActiveWarehouse (uow);
 			}
 		}
 
@@ -29,7 +29,6 @@ namespace Vodovoz
 		public StockBalanceFilter ()
 		{
 			this.Build ();
-			IsFiltred = false;
 		}
 
 		#region IReferenceFilter implementation
@@ -41,8 +40,6 @@ namespace Vodovoz
 			if (Refiltered != null)
 				Refiltered (this, new EventArgs ());
 		}
-
-		public bool IsFiltred { get; private set; }
 
 		#endregion
 

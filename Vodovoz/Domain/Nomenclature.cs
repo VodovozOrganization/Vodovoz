@@ -11,7 +11,7 @@ namespace Vodovoz.Domain
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",
 		Nominative = "номенклатура")]
-	public class Nomenclature: PropertyChangedBase, IDomainObject
+	public class Nomenclature: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -149,7 +149,25 @@ namespace Vodovoz.Domain
 			return price != null ? price.Price : 0m;
 		}
 
+		#region IValidatableObject implementation
+
+		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if(GetCategoriesForShipment ().Contains (Category) && Warehouse == null)
+				yield return new ValidationResult (
+					String.Format ("Для номенклатур вида «{0}», необходимо указывать склад отгрузки.", Category.GetEnumTitle ()),
+					new[] { this.GetPropertyName (o => o.Warehouse) });
+			
+		}
+
+		#endregion
+
 		#region statics
+
+		public static NomenclatureCategory[] GetCategoriesForShipment ()
+		{
+			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water };
+		}
 
 		public static NomenclatureCategory[] GetCategoriesForProductMaterial ()
 		{

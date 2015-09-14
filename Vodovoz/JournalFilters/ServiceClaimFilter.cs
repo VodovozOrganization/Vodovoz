@@ -17,7 +17,6 @@ namespace Vodovoz
 		public ServiceClaimFilter ()
 		{
 			this.Build ();
-			IsFiltred = false;
 		}
 
 		#region IRepresentationFilter implementation
@@ -29,8 +28,6 @@ namespace Vodovoz
 			if (Refiltered != null)
 				Refiltered (this, new EventArgs ());
 		}
-
-		public bool IsFiltred { get; private set; }
 
 		IUnitOfWork uow;
 

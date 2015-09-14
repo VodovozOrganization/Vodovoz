@@ -69,6 +69,7 @@ namespace Vodovoz
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonOpen = new global::Gtk.Button ();
+			this.buttonOpen.Sensitive = false;
 			this.buttonOpen.CanFocus = true;
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
@@ -91,6 +92,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.tableReadyForShipment.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTableReadyForShipmentRowActivated);
 			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
 		}
 	}

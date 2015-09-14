@@ -19160,6 +19160,7 @@ RegistrationNumber</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="InheritedDataSource">False</property>
                 <property name="InheritedBoundaryDataSource">False</property>
+                <signal name="RowActivated" handler="OnTableReadyForShipmentRowActivated" />
               </widget>
             </child>
           </widget>
@@ -19175,6 +19176,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Button" id="buttonOpen">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-ok Menu</property>
@@ -19269,7 +19271,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReadyForShipmentDlg" design-size="402 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ReadyForShipmentDlg" design-size="400 307">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -19279,29 +19281,70 @@ RegistrationNumber</property>
         <child>
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
-            <property name="NRows">3</property>
+            <property name="NRows">2</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">9</property>
             <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
+              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
+                <property name="MemberName" />
+                <property name="VscrollbarPolicy">Never</property>
+                <property name="ShadowType">In</property>
+                <child>
+                  <widget class="Gtk.TextView" id="textviewShipmentInfo">
+                    <property name="MemberName" />
+                    <property name="Sensitive">False</property>
+                    <property name="CanFocus">True</property>
+                    <property name="ShowScrollbars">True</property>
+                    <property name="Editable">False</property>
+                    <property name="Text" translatable="yes" />
+                  </widget>
+                </child>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
             </child>
             <child>
               <widget class="Gtk.Label" id="label1">
                 <property name="MemberName" />
+                <property name="Xalign">1</property>
                 <property name="LabelProp" translatable="yes">Выберите склад отгрузки:</property>
               </widget>
               <packing>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="label2">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Информация по отгрузке:</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">1</property>
+                <property name="BottomAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -19320,6 +19363,7 @@ RegistrationNumber</property>
                 <property name="Items" translatable="yes" />
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
+                <signal name="ItemSelected" handler="OnYcomboboxWarehouseItemSelected" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -19337,7 +19381,8 @@ RegistrationNumber</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
+            <property name="Expand">False</property>
           </packing>
         </child>
         <child>
