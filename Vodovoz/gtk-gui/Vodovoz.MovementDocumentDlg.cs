@@ -331,7 +331,7 @@ namespace Vodovoz
 			this.referenceDeliveryPointFrom.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPointFrom.Name = "referenceDeliveryPointFrom";
 			this.referenceDeliveryPointFrom.DisplayFields = new string[] {
-				"Point"
+				"CompiledAddress"
 			};
 			this.referenceDeliveryPointFrom.DisplayFormatString = "{0}";
 			this.referenceDeliveryPointFrom.InheritedDataSource = true;
@@ -455,7 +455,7 @@ namespace Vodovoz
 			this.referenceDeliveryPointTo.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPointTo.Name = "referenceDeliveryPointTo";
 			this.referenceDeliveryPointTo.DisplayFields = new string[] {
-				"Point"
+				"CompiledAddress"
 			};
 			this.referenceDeliveryPointTo.DisplayFormatString = "{0}";
 			this.referenceDeliveryPointTo.InheritedDataSource = true;
