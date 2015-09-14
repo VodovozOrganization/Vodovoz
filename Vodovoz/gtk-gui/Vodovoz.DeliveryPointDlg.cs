@@ -58,7 +58,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label4;
 		
-		private global::Gtk.DataBindings.DataEntry entryCity;
+		private global::QSOsm.CityEntry entryCity;
 		
 		private global::Gtk.HBox hbox8;
 		
@@ -449,17 +449,11 @@ namespace Vodovoz
 			w26.Expand = false;
 			w26.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.entryCity = new global::Gtk.DataBindings.DataEntry ();
+			this.entryCity = new global::QSOsm.CityEntry ();
 			this.entryCity.CanFocus = true;
 			this.entryCity.Name = "entryCity";
 			this.entryCity.IsEditable = true;
 			this.entryCity.InvisibleChar = '●';
-			this.entryCity.InheritedDataSource = true;
-			this.entryCity.Mappings = "City";
-			this.entryCity.InheritedBoundaryDataSource = false;
-			this.entryCity.InheritedDataSource = true;
-			this.entryCity.Mappings = "City";
-			this.entryCity.InheritedBoundaryDataSource = false;
 			this.hbox7.Add (this.entryCity);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.entryCity]));
 			w27.Position = 2;

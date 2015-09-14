@@ -48,6 +48,7 @@ namespace Vodovoz
 			entryStreet.FocusOutEvent += FocusOut;
 			entryRegion.FocusOutEvent += FocusOut;
 			entryBuilding.FocusOutEvent += FocusOut;
+			entryCity.Binding.AddBinding (Entity, entity => entity.City, widget => widget.Text).InitializeFromSource ();  
 		}
 
 		void FocusOut (object o, Gtk.FocusOutEventArgs args)
