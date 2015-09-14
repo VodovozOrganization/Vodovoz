@@ -111,6 +111,14 @@ namespace Vodovoz.Domain
 			set { SetField (ref city, value, () => City); }
 		}
 
+		string cityDistrict;
+
+		[Display (Name = "Район расположения города")]
+		public virtual string CityDistrict {
+			get { return cityDistrict; }
+			set { SetField (ref cityDistrict, value, () => CityDistrict); }
+		}
+
 		string street;
 
 		[Display (Name = "Улица")]
@@ -119,6 +127,15 @@ namespace Vodovoz.Domain
 			get { return street; }
 			set { SetField (ref street, value, () => Street); }
 		}
+
+		string streetDistrict;
+
+		[Display (Name = "Район города")]
+		public virtual string StreetDistrict {
+			get { return streetDistrict; }
+			set { SetField (ref streetDistrict, value, () => StreetDistrict); }
+		}
+
 
 		string building;
 
