@@ -30,7 +30,6 @@ namespace Vodovoz
 		public StockDocumentsFilter ()
 		{
 			this.Build ();
-			IsFiltred = false;
 		}
 
 		#region IReferenceFilter implementation
@@ -42,8 +41,6 @@ namespace Vodovoz
 			if (Refiltered != null)
 				Refiltered (this, new EventArgs ());
 		}
-
-		public bool IsFiltred { get; private set; }
 
 		#endregion
 

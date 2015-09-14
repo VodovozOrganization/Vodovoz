@@ -16,7 +16,6 @@ namespace Vodovoz
 		public CounterpartyFilter ()
 		{
 			this.Build ();
-			IsFiltred = false;
 		}
 
 
@@ -29,8 +28,6 @@ namespace Vodovoz
 			if (Refiltered != null)
 				Refiltered (this, new EventArgs ());
 		}
-
-		public bool IsFiltred { get; private set; }
 
 		IUnitOfWork uow;
 
