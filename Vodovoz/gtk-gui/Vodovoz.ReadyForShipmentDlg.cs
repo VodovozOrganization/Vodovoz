@@ -16,7 +16,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label2;
 		
-		private global::QSOrmProject.Gamma.ySpecComboBox ycomboboxWarehouse;
+		private global::Gamma.Widgets.ySpecComboBox ycomboboxWarehouse;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
@@ -85,7 +85,7 @@ namespace Vodovoz
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ycomboboxWarehouse = new global::QSOrmProject.Gamma.ySpecComboBox ();
+			this.ycomboboxWarehouse = new global::Gamma.Widgets.ySpecComboBox ();
 			this.ycomboboxWarehouse.Name = "ycomboboxWarehouse";
 			this.ycomboboxWarehouse.ShowSpecialStateAll = false;
 			this.ycomboboxWarehouse.ShowSpecialStateNot = false;
