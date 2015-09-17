@@ -7551,17 +7551,12 @@ Patronymic</property>
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>
-                          <widget class="Gtk.DataBindings.DataEntry" id="entryStreet">
+                          <widget class="QSOsm.StreetEntry" id="entryStreet">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
                             <property name="InvisibleChar">●</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Street</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Street</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
+                            <property name="CityId">0</property>
                           </widget>
                           <packing>
                             <property name="Position">0</property>
@@ -7597,6 +7592,8 @@ Patronymic</property>
                           <packing>
                             <property name="Position">2</property>
                             <property name="AutoSize">False</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
                           </packing>
                         </child>
                         <child>
@@ -7627,6 +7624,8 @@ Patronymic</property>
                           <packing>
                             <property name="Position">4</property>
                             <property name="AutoSize">False</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
                           </packing>
                         </child>
                       </widget>

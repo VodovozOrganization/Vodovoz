@@ -48,10 +48,20 @@ namespace Vodovoz
 			entryStreet.FocusOutEvent += FocusOut;
 			entryRegion.FocusOutEvent += FocusOut;
 			entryBuilding.FocusOutEvent += FocusOut;
+
+			entryCity.CitySelected += (sender, e) => {
+				entryStreet.CityId = entryCity.OsmId;
+			};
+
 			entryCity.Binding
 				.AddSource (Entity)
 				.AddBinding (entity => entity.CityDistrict, widget => widget.CityDistrict)
 				.AddBinding (entity => entity.City, widget => widget.City)
+				.InitializeFromSource ();
+			entryStreet.Binding
+				.AddSource (Entity)
+				.AddBinding (entity => entity.StreetDistrict, widget => widget.StreetDistrict)
+				.AddBinding (entity => entity.Street, widget => widget.Street)
 				.InitializeFromSource ();
 		}
 

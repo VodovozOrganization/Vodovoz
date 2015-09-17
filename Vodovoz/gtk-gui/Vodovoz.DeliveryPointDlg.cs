@@ -62,7 +62,7 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox8;
 		
-		private global::Gtk.DataBindings.DataEntry entryStreet;
+		private global::QSOsm.StreetEntry entryStreet;
 		
 		private global::Gtk.Label label7;
 		
@@ -470,17 +470,12 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.entryStreet = new global::Gtk.DataBindings.DataEntry ();
+			this.entryStreet = new global::QSOsm.StreetEntry ();
 			this.entryStreet.CanFocus = true;
 			this.entryStreet.Name = "entryStreet";
 			this.entryStreet.IsEditable = true;
 			this.entryStreet.InvisibleChar = '●';
-			this.entryStreet.InheritedDataSource = true;
-			this.entryStreet.Mappings = "Street";
-			this.entryStreet.InheritedBoundaryDataSource = false;
-			this.entryStreet.InheritedDataSource = true;
-			this.entryStreet.Mappings = "Street";
-			this.entryStreet.InheritedBoundaryDataSource = false;
+			this.entryStreet.CityId = 0;
 			this.hbox8.Add (this.entryStreet);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.entryStreet]));
 			w29.Position = 0;
@@ -509,6 +504,8 @@ namespace Vodovoz
 			this.hbox8.Add (this.entryBuilding);
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.entryBuilding]));
 			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
@@ -533,6 +530,8 @@ namespace Vodovoz
 			this.hbox8.Add (this.entryHousing);
 			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.entryHousing]));
 			w33.Position = 4;
+			w33.Expand = false;
+			w33.Fill = false;
 			this.datatable1.Add (this.hbox8);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox8]));
 			w34.TopAttach = ((uint)(3));
