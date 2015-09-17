@@ -8,7 +8,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label2;
 		
-		private global::QSOrmProject.Gamma.ySpecComboBox yspeccomboWarehouse;
+		private global::Gamma.Widgets.ySpecComboBox yspeccomboWarehouse;
 		
 		private global::Gtk.Label label3;
 		
@@ -34,7 +34,7 @@ namespace Vodovoz
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yspeccomboWarehouse = new global::QSOrmProject.Gamma.ySpecComboBox ();
+			this.yspeccomboWarehouse = new global::Gamma.Widgets.ySpecComboBox ();
 			this.yspeccomboWarehouse.Name = "yspeccomboWarehouse";
 			this.yspeccomboWarehouse.ShowSpecialStateAll = true;
 			this.yspeccomboWarehouse.ShowSpecialStateNot = false;

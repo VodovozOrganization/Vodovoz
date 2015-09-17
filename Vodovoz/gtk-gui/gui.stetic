@@ -19225,7 +19225,7 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.Gamma.ySpecComboBox" id="yspeccomboWarehouse">
+          <widget class="Gamma.Widgets.ySpecComboBox" id="yspeccomboWarehouse">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
@@ -19357,7 +19357,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.Gamma.ySpecComboBox" id="ycomboboxWarehouse">
+              <widget class="Gamma.Widgets.ySpecComboBox" id="ycomboboxWarehouse">
                 <property name="MemberName" />
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
