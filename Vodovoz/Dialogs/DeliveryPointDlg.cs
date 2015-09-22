@@ -53,6 +53,10 @@ namespace Vodovoz
 				entryStreet.CityId = entryCity.OsmId;
 			};
 
+			entryStreet.StreetSelected += (sender, e) => {
+				entryBuilding.Street = new QSOsm.OsmStreet (entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
+			};
+
 			entryCity.Binding
 				.AddSource (Entity)
 				.AddBinding (entity => entity.CityDistrict, widget => widget.CityDistrict)
@@ -62,6 +66,10 @@ namespace Vodovoz
 				.AddSource (Entity)
 				.AddBinding (entity => entity.StreetDistrict, widget => widget.StreetDistrict)
 				.AddBinding (entity => entity.Street, widget => widget.Street)
+				.InitializeFromSource ();
+			entryBuilding.Binding
+				.AddSource (Entity)
+				.AddBinding (entity => entity.Building, widget => widget.House)
 				.InitializeFromSource ();
 		}
 

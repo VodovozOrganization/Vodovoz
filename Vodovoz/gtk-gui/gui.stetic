@@ -7577,17 +7577,11 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.DataBindings.DataEntry" id="entryBuilding">
+                          <widget class="QSOsm.HouseEntry" id="entryBuilding">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
                             <property name="InvisibleChar">●</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Building</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Building</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
                             <property name="Position">2</property>

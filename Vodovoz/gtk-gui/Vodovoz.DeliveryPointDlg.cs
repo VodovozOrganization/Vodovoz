@@ -66,7 +66,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label7;
 		
-		private global::Gtk.DataBindings.DataEntry entryBuilding;
+		private global::QSOsm.HouseEntry entryBuilding;
 		
 		private global::Gtk.Label label2;
 		
@@ -490,17 +490,11 @@ namespace Vodovoz
 			w30.Expand = false;
 			w30.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.entryBuilding = new global::Gtk.DataBindings.DataEntry ();
+			this.entryBuilding = new global::QSOsm.HouseEntry ();
 			this.entryBuilding.CanFocus = true;
 			this.entryBuilding.Name = "entryBuilding";
 			this.entryBuilding.IsEditable = true;
 			this.entryBuilding.InvisibleChar = '●';
-			this.entryBuilding.InheritedDataSource = true;
-			this.entryBuilding.Mappings = "Building";
-			this.entryBuilding.InheritedBoundaryDataSource = false;
-			this.entryBuilding.InheritedDataSource = true;
-			this.entryBuilding.Mappings = "Building";
-			this.entryBuilding.InheritedBoundaryDataSource = false;
 			this.hbox8.Add (this.entryBuilding);
 			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.entryBuilding]));
 			w31.Position = 2;
