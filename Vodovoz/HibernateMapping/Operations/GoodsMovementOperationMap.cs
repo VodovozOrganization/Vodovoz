@@ -7,7 +7,7 @@ namespace Vodovoz.HMap
 	{
 		public GoodsMovementOperationMap ()
 		{
-			Table ("bottles_movement_operations");
+			Table ("goods_movement_operations");
 			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
