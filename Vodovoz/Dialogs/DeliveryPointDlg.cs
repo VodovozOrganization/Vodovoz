@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 
