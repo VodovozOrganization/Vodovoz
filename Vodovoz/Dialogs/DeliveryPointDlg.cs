@@ -51,6 +51,9 @@ namespace Vodovoz
 			comboRoomType.Binding.AddBinding (Entity, entity => entity.RoomType, widget => widget.SelectedItem)
 				.InitializeFromSource ();
 
+			ylabelDistrictOfCity.Binding.AddBinding (Entity, entity => entity.StreetDistrict, widget => widget.LabelProp)
+				.InitializeFromSource ();
+
 			entryCity.CitySelected += (sender, e) => {
 				entryStreet.CityId = entryCity.OsmId;
 			};
