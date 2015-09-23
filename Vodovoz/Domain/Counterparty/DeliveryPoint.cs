@@ -87,9 +87,8 @@ namespace Vodovoz.Domain
 					address += String.Format ("квартира/офис {0}, ", Room);
 				if (!String.IsNullOrWhiteSpace (Placement))
 					address += String.Format ("пом.{0}", Placement);
-				if (address [address.Length - 2] == ',')
-					address = address.Remove (address.Length - 2, 2);
-				return address;
+
+				return address.TrimEnd (',', ' ');
 			}
 			set { SetField (ref compiledAddress, value, () => CompiledAddress); }
 		}
