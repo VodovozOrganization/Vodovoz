@@ -7161,6 +7161,9 @@ Patronymic</property>
                       <placeholder />
                     </child>
                     <child>
+                      <placeholder />
+                    </child>
+                    <child>
                       <widget class="Gtk.DataBindings.DataHBox" id="datahbox1">
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
@@ -7574,6 +7577,21 @@ Patronymic</property>
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>
+                          <widget class="Gamma.Widgets.yEnumComboBox" id="comboRoomType">
+                            <property name="MemberName" />
+                            <property name="IsTextCombo">False</property>
+                            <property name="Items" translatable="yes" />
+                            <property name="ShowSpecialStateAll">False</property>
+                            <property name="ShowSpecialStateNot">False</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.DataBindings.DataEntry" id="entryRoom">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
@@ -7587,7 +7605,7 @@ Patronymic</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
-                            <property name="Position">0</property>
+                            <property name="Position">1</property>
                             <property name="AutoSize">False</property>
                           </packing>
                         </child>
@@ -7598,7 +7616,7 @@ Patronymic</property>
                             <property name="LabelProp" translatable="yes">Этаж:</property>
                           </widget>
                           <packing>
-                            <property name="Position">1</property>
+                            <property name="Position">2</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -7621,7 +7639,7 @@ Patronymic</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
-                            <property name="Position">2</property>
+                            <property name="Position">3</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -7879,26 +7897,6 @@ Patronymic</property>
                       <packing>
                         <property name="TopAttach">2</property>
                         <property name="BottomAttach">3</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.Label" id="label8">
-                        <property name="MemberName" />
-                        <property name="Xalign">1</property>
-                        <property name="LabelProp" translatable="yes">Офис/квартира:</property>
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">3</property>
-                        <property name="BottomAttach">4</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>

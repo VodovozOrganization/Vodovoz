@@ -37,6 +37,7 @@ namespace Vodovoz
 		{
 			entryPhone.SetDefaultCityCode ("812");
 			datatable1.DataSource = subjectAdaptor;
+			comboRoomType.ItemsEnum = typeof(RoomType);
 			referenceLogisticsArea.SubjectType = typeof(LogisticsArea);
 			referenceLogisticsArea.Sensitive = QSMain.User.Permissions ["logistican"];
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
@@ -46,6 +47,9 @@ namespace Vodovoz
 			entryStreet.FocusOutEvent += FocusOut;
 			entryRegion.FocusOutEvent += FocusOut;
 			entryBuilding.FocusOutEvent += FocusOut;
+
+			comboRoomType.Binding.AddBinding (Entity, entity => entity.RoomType, widget => widget.SelectedItem)
+				.InitializeFromSource ();
 
 			entryCity.CitySelected += (sender, e) => {
 				entryStreet.CityId = entryCity.OsmId;

@@ -65,7 +65,7 @@ namespace Vodovoz.Domain
 
 		string compiledAddress;
 
-		[Display (Name = "Название")]
+		[Display (Name = "Полный адрес")]
 		public virtual string CompiledAddress {
 			get {
 				string address = String.Empty;
@@ -84,9 +84,7 @@ namespace Vodovoz.Domain
 				if (default(int) != Floor)
 					address += String.Format ("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
-					address += String.Format ("квартира/офис {0}, ", Room);
-				if (!String.IsNullOrWhiteSpace (Placement))
-					address += String.Format ("пом.{0}", Placement);
+					address += String.Format ("{0} {1}, ", GetShortNameOfRoomType (RoomType), Room);
 
 				return address.TrimEnd (',', ' ');
 			}
@@ -112,7 +110,7 @@ namespace Vodovoz.Domain
 
 		string cityDistrict;
 
-		[Display (Name = "Район расположения города")]
+		[Display (Name = "Район области")]
 		public virtual string CityDistrict {
 			get { return cityDistrict; }
 			set { SetField (ref cityDistrict, value, () => CityDistrict); }
@@ -143,6 +141,14 @@ namespace Vodovoz.Domain
 		public virtual string Building {
 			get { return building; }
 			set { SetField (ref building, value, () => Building); }
+		}
+
+		RoomType roomType;
+
+		[Display (Name = "Тип помещения")]
+		public virtual RoomType RoomType {
+			get { return roomType; }
+			set { SetField (ref roomType, value, () => RoomType); }
 		}
 
 		string room;
@@ -257,6 +263,38 @@ namespace Vodovoz.Domain
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint> ();
 			uow.Root.Counterparty = counterparty;
 			return uow;
+		}
+
+		public static string GetShortNameOfRoomType(RoomType type)
+		{
+			switch(type)
+			{
+			case RoomType.Apartment :
+				return "кв.";
+			case RoomType.Office: 
+				return "оф.";
+			case RoomType.Room:
+				return "пом.";
+			default:
+				throw new NotSupportedException ();
+			}
+		}
+	}
+
+	public enum RoomType
+	{
+		[Display (Name = "Квартира")]
+		Apartment,
+		[Display (Name = "Офис")]
+		Office,
+		[Display (Name = "Помещение")]
+		Room
+	}
+
+	public class RoomTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public RoomTypeStringType () : base (typeof(RoomType))
+		{
 		}
 	}
 }
