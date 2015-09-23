@@ -41,6 +41,9 @@ namespace Vodovoz
 		public AdditionalAgreementsView ()
 		{
 			this.Build ();
+			buttonAdd.SetSensitive (AgreementType.FreeRent, false);
+			buttonAdd.SetSensitive (AgreementType.DailyRent, false);
+			buttonAdd.SetSensitive (AgreementType.NonfreeRent, false);
 			treeAdditionalAgreements.Selection.Changed += OnSelectionChanged;
 		}
 
