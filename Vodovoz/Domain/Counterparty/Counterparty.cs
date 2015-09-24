@@ -282,10 +282,10 @@ namespace Vodovoz.Domain
 		{
 			if (PersonType == PersonType.legal) {
 				if (KPP.Length != 9 && KPP.Length != 0)
-					yield return new ValidationResult ("Длинна КПП должна равнятся 9-ти.",
+					yield return new ValidationResult ("Длина КПП должна равнятся 9-ти.",
 						new[] { this.GetPropertyName (o => o.KPP) });
 				if (INN.Length != 10 && INN.Length != 0)
-					yield return new ValidationResult ("Длинна ИНН должна равнятся 10-ти.",
+					yield return new ValidationResult ("Длина ИНН должна равнятся 10-ти.",
 						new[] { this.GetPropertyName (o => o.INN) });
 				if (String.IsNullOrWhiteSpace (KPP))
 					yield return new ValidationResult ("Для организации необходимо заполнить КПП.",
