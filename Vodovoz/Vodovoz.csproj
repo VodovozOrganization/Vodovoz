@@ -346,6 +346,10 @@
     <Compile Include="HibernateMapping\Order\OrderDepositRefundItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderDocumentMap.cs" />
     <Compile Include="Repositories\Store\WarehouseRepository.cs" />
+    <Compile Include="Domain\Cash\ExpenseCategory.cs" />
+    <Compile Include="Domain\Cash\IncomeCategory.cs" />
+    <Compile Include="HibernateMapping\Cash\ExpenseCategoryMap.cs" />
+    <Compile Include="HibernateMapping\Cash\IncomeCategoryMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -463,6 +467,8 @@
     <Folder Include="HibernateMapping\Operations\" />
     <Folder Include="HibernateMapping\Documents\" />
     <Folder Include="Repositories\Store\" />
+    <Folder Include="Domain\Cash\" />
+    <Folder Include="HibernateMapping\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
