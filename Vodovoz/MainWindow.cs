@@ -12,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModel;
 using QSOsm;
+using Vodovoz.Domain.Cash;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -380,5 +381,17 @@ public partial class MainWindow: Gtk.Window
 		config.ShowAll ();
 		config.Run ();
 		config.Destroy ();
+	}
+
+	protected void OnAction14Activated (object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference (typeof(IncomeCategory));
+		tdiMain.AddTab (refWin);
+	}
+
+	protected void OnAction15Activated (object sender, EventArgs e)
+	{
+		OrmReference refWin = new OrmReference (typeof(ExpenseCategory));
+		tdiMain.AddTab (refWin);
 	}
 }

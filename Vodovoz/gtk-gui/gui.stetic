@@ -430,6 +430,23 @@
         <property name="StockId">gtk-preferences</property>
         <signal name="Activated" handler="OnActionParametersActivated" />
       </action>
+      <action id="Action13">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Касса</property>
+        <property name="ShortLabel" translatable="yes">Касса</property>
+      </action>
+      <action id="Action14">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Статьи доходов</property>
+        <property name="ShortLabel" translatable="yes">Статьи доходов</property>
+        <signal name="Activated" handler="OnAction14Activated" />
+      </action>
+      <action id="Action15">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Статьи расходов</property>
+        <property name="ShortLabel" translatable="yes">Статьи расходов</property>
+        <signal name="Activated" handler="OnAction15Activated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -481,6 +498,10 @@
                   <node type="Menuitem" action="ActionBanksRF" />
                   <node type="Separator" />
                   <node type="Menuitem" action="ActionUpdateBanks" />
+                </node>
+                <node type="Menu" action="Action13">
+                  <node type="Menuitem" action="Action14" />
+                  <node type="Menuitem" action="Action15" />
                 </node>
                 <node type="Menu" action="ActionCounterparty1">
                   <node type="Menuitem" action="ActionCounterpartyHandbook" />
