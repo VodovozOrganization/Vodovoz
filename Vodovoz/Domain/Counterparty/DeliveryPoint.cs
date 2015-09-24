@@ -223,11 +223,12 @@ namespace Vodovoz.Domain
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
 		}
 
-		bool isNew;
+		bool foundOnOsm;
 
-		public virtual bool IsNew {
-			get { return isNew; }
-			set { SetField (ref isNew, value, () => IsNew); }
+		[Display (Name = "Адрес найден на карте OSM")]
+		public virtual bool FoundOnOsm {
+			get { return foundOnOsm; }
+			set { SetField (ref foundOnOsm, value, () => FoundOnOsm); }
 		}
 
 		Counterparty counterparty;

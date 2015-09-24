@@ -7409,6 +7409,19 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
+                          <widget class="Gamma.GtkWidgets.yLabel" id="ylabelFoundOnOsm">
+                            <property name="MemberName" />
+                            <property name="LabelProp" translatable="yes">FoundOnOsm</property>
+                            <property name="UseMarkup">True</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.DataBindings.DataCheckButton" id="checkIsActive">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
@@ -7426,7 +7439,7 @@ Patronymic</property>
                             <property name="Mappings">IsActive</property>
                           </widget>
                           <packing>
-                            <property name="Position">1</property>
+                            <property name="Position">2</property>
                             <property name="AutoSize">False</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>

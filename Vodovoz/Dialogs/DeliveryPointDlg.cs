@@ -54,6 +54,11 @@ namespace Vodovoz
 			ylabelDistrictOfCity.Binding.AddBinding (Entity, entity => entity.StreetDistrict, widget => widget.LabelProp)
 				.InitializeFromSource ();
 
+			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
+				entity => entity.FoundOnOsm ? String.Empty : "<span foreground='red'>Не найден на карте.</span>",
+				widget => widget.LabelProp)
+				.InitializeFromSource ();
+
 			entryCity.CitySelected += (sender, e) => {
 				entryStreet.CityId = entryCity.OsmId;
 			};
@@ -61,6 +66,8 @@ namespace Vodovoz
 			entryStreet.StreetSelected += (sender, e) => {
 				entryBuilding.Street = new QSOsm.OsmStreet (entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
 			};
+
+			entryBuilding.Changed += EntryBuilding_Changed;
 
 			entryCity.Binding
 				.AddSource (Entity)
@@ -81,6 +88,12 @@ namespace Vodovoz
 		void FocusOut (object o, Gtk.FocusOutEventArgs args)
 		{
 			SetLogisticsArea ();
+		}
+
+		void EntryBuilding_Changed (object sender, EventArgs e)
+		{
+			if (entryBuilding.OsmCompletion.HasValue)
+				Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
 		}
 
 		public override bool Save ()
