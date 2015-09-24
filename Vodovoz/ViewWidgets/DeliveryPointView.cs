@@ -68,7 +68,10 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			deliveryPoints.Remove (treeDeliveryPoints.GetSelectedObjects () [0] as DeliveryPoint);
+			if (OrmMain.DeleteObject (typeof(DeliveryPoint),
+				treeDeliveryPoints.GetSelectedId ())) {
+				treeDeliveryPoints.RepresentationModel.UpdateNodes ();
+			}
 		}
 	}
 }
