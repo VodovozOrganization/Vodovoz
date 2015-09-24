@@ -3,11 +3,13 @@ using Gtk;
 using NLog;
 using QSContacts;
 using QSOrmProject;
+using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 
@@ -122,7 +124,10 @@ namespace Vodovoz
 				new OrmObjectMapping<RouteList> (typeof(RouteListCreateDlg), "{Vodovoz.Domain.Logistic.RouteList} Id[Номер]; DateString[Дата]; StatusString[Статус]; DriverInfo[Водитель];"),
 				new OrmObjectMapping<RouteColumn> (null, "{Vodovoz.Domain.Logistic.RouteColumn} Name[Название];"),
 				//Сервис
-				new OrmObjectMapping<ServiceClaim> (typeof(ServiceClaimDlg), "{Vodovoz.Domain.Service.ServiceClaim} Id[Номер];")
+				new OrmObjectMapping<ServiceClaim> (typeof(ServiceClaimDlg), "{Vodovoz.Domain.Service.ServiceClaim} Id[Номер];"),
+				//Касса
+				OrmObjectMapping<IncomeCategory>.Create().SimpleDisplay ().Column ("Название", e => e.Name).End (),
+				OrmObjectMapping<ExpenseCategory>.Create().SimpleDisplay ().Column ("Название", e => e.Name).End (),
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
