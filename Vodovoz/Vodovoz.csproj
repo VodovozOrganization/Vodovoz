@@ -350,6 +350,12 @@
     <Compile Include="Domain\Cash\IncomeCategory.cs" />
     <Compile Include="HibernateMapping\Cash\ExpenseCategoryMap.cs" />
     <Compile Include="HibernateMapping\Cash\IncomeCategoryMap.cs" />
+    <Compile Include="Domain\Cash\Income.cs" />
+    <Compile Include="Domain\Cash\Expense.cs" />
+    <Compile Include="Domain\Cash\AdvanceReport.cs" />
+    <Compile Include="HibernateMapping\Cash\ExpenseMap.cs" />
+    <Compile Include="HibernateMapping\Cash\IncomeMap.cs" />
+    <Compile Include="HibernateMapping\Cash\AdvanceReportMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
