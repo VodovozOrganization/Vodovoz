@@ -9,7 +9,7 @@ using QSContacts;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContactsVM : RepresentationModelBase<Contact, ContactsVMNode>, IRepresentationModelWithParent
+	public class ContactsVM : RepresentationModelEntityBase<Contact, ContactsVMNode>, IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -97,11 +97,6 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc (Contact updatedSubject)
 		{
 			return Counterparty.Id == updatedSubject.Counterparty.Id;
-		}
-
-		protected override bool NeedUpdateFunc (object updatedSubject)
-		{
-			throw new NotImplementedException ();
 		}
 
 		#endregion

@@ -12,7 +12,7 @@ using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModel
 {
-	public class OrdersVM : RepresentationModelBase<Order, OrdersVMNode>
+	public class OrdersVM : RepresentationModelEntityBase<Order, OrdersVMNode>
 	{
 		public OrdersFilter Filter {
 			get {
@@ -89,11 +89,6 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc (Order updatedSubject)
 		{
 			return true;
-		}
-
-		protected override bool NeedUpdateFunc (object updatedSubject)
-		{
-			throw new InvalidOperationException ();
 		}
 
 		#endregion

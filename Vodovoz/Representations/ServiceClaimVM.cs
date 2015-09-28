@@ -10,7 +10,7 @@ using Gamma.Utilities;
 
 namespace Vodovoz.ViewModel
 {
-	public class ServiceClaimVM : RepresentationModelBase<ServiceClaim, ServiceClaimVMNode>
+	public class ServiceClaimVM : RepresentationModelEntityBase<ServiceClaim, ServiceClaimVMNode>
 	{
 		public ServiceClaimFilter Filter {
 			get {
@@ -78,11 +78,6 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc (ServiceClaim updatedSubject)
 		{
 			return true;
-		}
-
-		protected override bool NeedUpdateFunc (object updatedSubject)
-		{
-			throw new InvalidOperationException ();
 		}
 
 		#endregion

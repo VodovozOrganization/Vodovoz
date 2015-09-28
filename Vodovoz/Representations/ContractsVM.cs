@@ -9,7 +9,7 @@ using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContractsVM : RepresentationModelBase<CounterpartyContract, ContractsVMNode>
+	public class ContractsVM : RepresentationModelEntityBase<CounterpartyContract, ContractsVMNode>
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -70,11 +70,6 @@ namespace Vodovoz.ViewModel
 			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
 		}
 			
-		protected override bool NeedUpdateFunc (object updatedSubject)
-		{
-			throw new NotImplementedException ();
-		}
-
 		#endregion
 
 		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow)

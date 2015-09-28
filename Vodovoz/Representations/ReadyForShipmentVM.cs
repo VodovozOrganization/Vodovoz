@@ -14,7 +14,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
-	public class ReadyForShipmentVM : RepresentationModelBase<RouteList, ReadyForShipmentVMNode>
+	public class ReadyForShipmentVM : RepresentationModelWithoutEntityBase<ReadyForShipmentVMNode>
 	{
 		public ReadyForShipmentVM () : this (UnitOfWorkFactory.CreateWithoutRoot ())
 		{
@@ -43,7 +43,6 @@ namespace Vodovoz.ViewModel
 			OrderEquipment orderEquipmentAlias = null;
 			Equipment equipmentAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null;
-
 
 			RouteList routeListAlias = null;
 			RouteListItem routeListAddressAlias = null;
@@ -132,11 +131,6 @@ namespace Vodovoz.ViewModel
 
 		public override IMappingConfig TreeViewConfig {
 			get { return treeViewConfig; }
-		}
-
-		protected override bool NeedUpdateFunc (RouteList updatedSubject)
-		{
-			throw new NotImplementedException ();
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)

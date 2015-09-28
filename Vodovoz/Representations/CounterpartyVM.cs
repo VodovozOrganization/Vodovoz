@@ -8,7 +8,7 @@ using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class CounterpartyVM : RepresentationModelBase<Counterparty, CounterpartyVMNode>
+	public class CounterpartyVM : RepresentationModelEntityBase<Counterparty, CounterpartyVMNode>
 	{
 
 		public CounterpartyFilter Filter {
@@ -58,11 +58,6 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc (Counterparty updatedSubject)
 		{
 			return true;
-		}
-
-		protected override bool NeedUpdateFunc (object updatedSubject)
-		{
-			throw new NotImplementedException ();
 		}
 
 		#endregion

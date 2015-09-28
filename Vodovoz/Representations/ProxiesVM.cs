@@ -10,7 +10,7 @@ using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class ProxiesVM : RepresentationModelBase<Proxy, ProxiesVMNode>
+	public class ProxiesVM : RepresentationModelEntityBase<Proxy, ProxiesVMNode>
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -64,11 +64,6 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc (Proxy updatedSubject)
 		{
 			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
-		}
-
-		protected override bool NeedUpdateFunc (object updatedSubject)
-		{
-			throw new NotImplementedException ();
 		}
 
 		#endregion

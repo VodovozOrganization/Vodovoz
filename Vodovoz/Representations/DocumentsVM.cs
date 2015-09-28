@@ -13,7 +13,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
-	public class DocumentsVM : RepresentationModelBase<Document, DocumentVMNode>
+	public class DocumentsVM : RepresentationModelWithoutEntityBase<DocumentVMNode>
 	{
 		public StockDocumentsFilter Filter {
 			get {
@@ -168,11 +168,6 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
-
-		protected override bool NeedUpdateFunc (Document updatedSubject)
-		{
-			throw new InvalidCastException ();
-		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
 		{

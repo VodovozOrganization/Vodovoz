@@ -12,7 +12,7 @@ using Gtk.DataBindings;
 
 namespace Vodovoz.ViewModel
 {
-	public class ClientBalanceVM : RepresentationModelBase<Nomenclature, ClientBalanceVMNode>
+	public class ClientBalanceVM : RepresentationModelWithoutEntityBase<ClientBalanceVMNode>
 	{
 		public ClientBalanceFilter Filter {
 			get {
@@ -77,11 +77,6 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
-
-		protected override bool NeedUpdateFunc (Nomenclature updatedSubject)
-		{
-			throw new NotImplementedException ();
-		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
 		{

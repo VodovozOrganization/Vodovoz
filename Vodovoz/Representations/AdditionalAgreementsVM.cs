@@ -9,7 +9,7 @@ using NHibernate.Criterion;
 
 namespace Vodovoz.ViewModel
 {
-	public class AdditionalAgreementsVM : RepresentationModelBase<AdditionalAgreement, AdditionalAgreementVMNode>
+	public class AdditionalAgreementsVM : RepresentationModelWithoutEntityBase<AdditionalAgreementVMNode>
 	{
 		public IUnitOfWorkGeneric<CounterpartyContract> CounterpartyUoW {
 			get {
@@ -61,11 +61,6 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
-
-		protected override bool NeedUpdateFunc (AdditionalAgreement updatedSubject)
-		{
-			return CounterpartyUoW.Root.Id == updatedSubject.Contract.Id;
-		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)
 		{
