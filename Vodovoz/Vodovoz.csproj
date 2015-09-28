@@ -94,6 +94,9 @@
       <LogicalName>view-filter.png</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="icons\buttons\menu.png" />
+    <EmbeddedResource Include="toolbars\cash.xml">
+      <LogicalName>cash.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

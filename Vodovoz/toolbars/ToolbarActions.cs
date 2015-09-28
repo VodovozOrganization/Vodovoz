@@ -13,6 +13,8 @@ public partial class MainWindow : Window
 	Action ActionRouteListTable;
 	Action ActionAddOrder;
 	Action ActionReadyForShipment;
+	Action ActionCashDocuments;
+	Action ActionAccountableDebt;
 
 	public void BuildToolbarActions ()
 	{
@@ -29,6 +31,10 @@ public partial class MainWindow : Window
 		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
+		//Касса
+		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
+		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
+
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
@@ -40,6 +46,8 @@ public partial class MainWindow : Window
 		w1.Add (ActionWarehouseStock, null);
 		w1.Add (ActionClientBalance, null);
 		w1.Add (ActionRouteListTable, null);
+		w1.Add (ActionCashDocuments, null);
+		w1.Add (ActionAccountableDebt, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -51,7 +59,14 @@ public partial class MainWindow : Window
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
+		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
+		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		#endregion
+	}
+
+	void ActionAccountableDebt_Activated (object sender, System.EventArgs e)
+	{
+		
 	}
 
 	void ActionRouteListTable_Activated (object sender, System.EventArgs e)
@@ -59,6 +74,11 @@ public partial class MainWindow : Window
 		//TODO FIXME Сделать нормальный вид.
 		OrmReference refWin = new OrmReference (typeof(Vodovoz.Domain.Logistic.RouteList));
 		tdiMain.AddTab (refWin);
+	}
+
+	void ActionCashDocuments_Activated (object sender, System.EventArgs e)
+	{
+		
 	}
 
 	void ActionReadyForShipmentActivated (object sender, System.EventArgs e)

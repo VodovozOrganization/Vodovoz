@@ -8,11 +8,10 @@ using QSProjectsLib;
 using QSSupportLib;
 using Vodovoz;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModel;
-using QSOsm;
-using Vodovoz.Domain.Cash;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -393,5 +392,11 @@ public partial class MainWindow: Gtk.Window
 	{
 		OrmReference refWin = new OrmReference (typeof(ExpenseCategory));
 		tdiMain.AddTab (refWin);
+	}
+
+	protected void OnActionCashToggled (object sender, EventArgs e)
+	{
+		if (ActionCash.Active)
+			SwitchToUI ("cash.xml");
 	}
 }

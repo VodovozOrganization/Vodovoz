@@ -1,0 +1,6 @@
+﻿<ui>
+	<toolbar name='toolbarSub'>
+		<toolitem name='ActionCashDocuments' action='ActionCashDocuments'/>
+		<toolitem name='ActionAccountableDebt' action='ActionAccountableDebt'/>
+	</toolbar>
+</ui>

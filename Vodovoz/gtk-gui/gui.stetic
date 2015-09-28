@@ -172,6 +172,7 @@
         <property name="Active">False</property>
         <property name="Value">0</property>
         <property name="Group">group1</property>
+        <signal name="Toggled" handler="OnActionCashToggled" />
       </action>
       <action id="ActionAccounting">
         <property name="Type">Radio</property>
@@ -19135,6 +19136,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
+            <property name="AddIfNotExist">False</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
             <signal name="ItemSelected" handler="OnYspeccomboWarehouseItemSelected" />
@@ -19267,6 +19269,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
+                <property name="AddIfNotExist">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
                 <signal name="ItemSelected" handler="OnYcomboboxWarehouseItemSelected" />
