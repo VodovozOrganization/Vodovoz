@@ -26,7 +26,7 @@ LEFT JOIN phones ON counterparty.id = phones.counterparty_id
 WHERE orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
-            <Value>11</Value>
+            <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
