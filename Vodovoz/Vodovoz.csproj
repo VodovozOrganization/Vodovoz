@@ -181,7 +181,6 @@
     <Compile Include="Domain\Documents\MovementDocument.cs" />
     <Compile Include="toolbars\ToolbarActions.cs" />
     <Compile Include="Domain\Documents\Document.cs" />
-    <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterDlg.cs" />
@@ -256,7 +255,6 @@
     <Compile Include="Representations\DocumentsVM.cs" />
     <Compile Include="Domain\CommonEnums.cs" />
     <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
-    <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Domain\Order\OrderEnums.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Account1c.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\Bank1c.cs" />
@@ -359,6 +357,14 @@
     <Compile Include="HibernateMapping\Cash\ExpenseMap.cs" />
     <Compile Include="HibernateMapping\Cash\IncomeMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceReportMap.cs" />
+    <Compile Include="JournalViewers\CashDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CashDocumentsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
+    <Compile Include="Representations\CashDocumentsVM.cs" />
+    <Compile Include="JournalFilters\CashDocumentsFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CashDocumentsFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
+    <Compile Include="Domain\Cash\CashDocumentType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

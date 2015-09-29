@@ -78,7 +78,8 @@ public partial class MainWindow : Window
 
 	void ActionCashDocuments_Activated (object sender, System.EventArgs e)
 	{
-		
+		var refWin = new CashDocumentsView ();
+		tdiMain.AddTab (refWin);
 	}
 
 	void ActionReadyForShipmentActivated (object sender, System.EventArgs e)
