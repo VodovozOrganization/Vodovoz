@@ -405,11 +405,11 @@ namespace Vodovoz
 			UpdateSum ();
 			string text;
 			if (spinSumDifference.Value > 0)
-				text = "Сумма <b>преплаты</b>/недоплаты:";
+				text = "Сумма <b>переплаты</b>/недоплаты:";
 			else if (spinSumDifference.Value < 0)
-				text = "Сумма преплаты/<b>недоплаты</b>:";
+				text = "Сумма переплаты/<b>недоплаты</b>:";
 			else
-				text = "Сумма преплаты/недоплаты:";
+				text = "Сумма переплаты/недоплаты:";
 			labelSumDifference.Markup = text;
 		}
 
