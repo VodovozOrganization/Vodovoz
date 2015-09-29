@@ -9,7 +9,7 @@ using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Service
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "заявки на обслуживание",
 		Nominative = "заявка на обслуживание")]
 	public class ServiceClaim: BusinessObjectBase<ServiceClaim>, IDomainObject, IValidatableObject
