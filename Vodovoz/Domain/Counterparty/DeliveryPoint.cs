@@ -62,6 +62,10 @@ namespace Vodovoz.Domain
 			get { return floor; }
 			set { SetField (ref floor, value, () => Floor); }
 		}
+			
+		public virtual string Title { 
+			get { return CompiledAddress;}
+		}
 
 		string compiledAddress;
 
