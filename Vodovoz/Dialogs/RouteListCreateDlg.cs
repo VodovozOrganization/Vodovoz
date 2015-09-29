@@ -6,6 +6,7 @@ using QSValidation;
 using Gtk;
 using Vodovoz.Domain.Logistic;
 using System.Collections.Generic;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -43,10 +44,11 @@ namespace Vodovoz
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
 			referenceDriver.PropertyMapping<RouteList> (r => r.Driver);
-			referenceDriver.SetObjectDisplayFunc<Employee> (r => r.FullName);
+			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 
 			dataentryForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
 			dataentryForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
+			dataentryForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 
 			speccomboShift.Mappings = Entity.GetPropertyName (r => r.Shift);
 			speccomboShift.ColumnMappings = PropertyUtil.GetName<DeliveryShift> (s => s.Name);
