@@ -222,7 +222,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 2;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(7)), ((uint)(4)), false);
 			this.datatable1.Name = "datatable1";
@@ -243,7 +243,7 @@ namespace Vodovoz
 			this.checkRepeated.InheritedDataSource = true;
 			this.checkRepeated.Mappings = "RepeatedService";
 			this.checkRepeated.InheritedBoundaryDataSource = false;
-			this.checkRepeated.Editable = false;
+			this.checkRepeated.Editable = true;
 			this.checkRepeated.AutomaticTitle = false;
 			this.checkRepeated.InheritedBoundaryDataSource = false;
 			this.checkRepeated.InheritedDataSource = true;
