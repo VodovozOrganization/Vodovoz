@@ -24,8 +24,6 @@ namespace Vodovoz.Repository.Store
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null, resultNomenclatureAlias = null;
 
-			RouteListItem routeListAddressAlias = null;
-
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
 			switch (type) {
@@ -34,10 +32,10 @@ namespace Vodovoz.Repository.Store
 					.Select (o => o.Id);
 				break;
 			case ShipmentDocumentType.RouteList:
-				ordersQuery
-					.JoinAlias (() => orderAlias.Id == routeListAddressAlias.Order.Id, () => routeListAddressAlias)
-					.Where (() => routeListAddressAlias.RouteList.Id == id)
-					.Select (o => o.Id);
+				var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
+					.Where (r => r.RouteList.Id == id)
+					.Select (r => r.Order.Id);
+				ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select(o=>o.Id);
 				break;
 			default:
 				throw new NotSupportedException (type.ToString ());

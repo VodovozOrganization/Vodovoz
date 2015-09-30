@@ -55,6 +55,7 @@ namespace Vodovoz
 				textviewShipmentInfo.Buffer.Text =
 					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 						id,
+						routelist.Date,
 						routelist.Driver.FullName,
 						routelist.Car.Model,
 						routelist.Car.RegistrationNumber,
@@ -91,10 +92,10 @@ namespace Vodovoz
 					.Select (o => o.Id);
 				break;
 			case ShipmentDocumentType.RouteList:
-				ordersQuery
-					.JoinAlias (() => orderAlias.Id == routeListAddressAlias.Order.Id, () => routeListAddressAlias)
-					.Where (() => routeListAddressAlias.RouteList.Id == shipmentId)
-					.Select (o => o.Id);
+				var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
+					.Where (r => r.RouteList.Id == shipmentId)
+					.Select (r => r.Order.Id);
+				ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select(o=>o.Id);
 				break;
 			default:
 				throw new NotSupportedException (shipmentType.ToString ());
