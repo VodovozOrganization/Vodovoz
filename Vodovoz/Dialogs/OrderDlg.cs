@@ -284,7 +284,6 @@ namespace Vodovoz
 				                            NomenclatureRepository.NomenclatureForSaleQuery ()
 				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += NomenclatureSelected;
 			TabParent.AddSlaveTab (this, SelectDialog);
 		}
