@@ -49,9 +49,6 @@
     <Reference Include="FluentNHibernate">
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.1.0\lib\net40\FluentNHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.1.0\lib\net40\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\QSProjects\packages\NHibernate.4.0.4.4000\lib\net40\NHibernate.dll</HintPath>
     </Reference>
@@ -60,6 +57,9 @@
     </Reference>
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.1.1.0.0\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\packages\NLog.4.1.2\lib\net40\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -368,6 +368,10 @@
     <Compile Include="Dialogs\Cash\CashIncomeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashIncomeDlg.cs" />
     <Compile Include="Repositories\Cash\CategoryRepository.cs" />
+    <Compile Include="Dialogs\Cash\CashExpenseDlg.cs" />
+    <Compile Include="Dialogs\Cash\AdvanceReportDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CashExpenseDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AdvanceReportDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
