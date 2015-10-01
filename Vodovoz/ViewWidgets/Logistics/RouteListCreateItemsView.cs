@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -183,8 +183,8 @@ namespace Vodovoz
 
 	public enum AddOrderEnum
 	{
-		[ItemTitleAttribute ("Один заказ")] AddOne,
-		[ItemTitleAttribute ("Все заказы для логистического района")]AddAllForRegion
+		[Display (Name = "Один заказ")] AddOne,
+		[Display (Name = "Все заказы для логистического района")]AddAllForRegion
 	}
 
 }

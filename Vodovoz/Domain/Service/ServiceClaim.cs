@@ -1,10 +1,10 @@
-﻿using QSOrmProject;
-using System;
-using System.Data.Bindings;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Orders;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
+using QSOrmProject;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Service
@@ -377,9 +377,9 @@ namespace Vodovoz.Domain.Service
 
 	public enum ServiceClaimTypesForAdding
 	{
-		[ItemTitleAttribute ("Только сервис")]
+		[Display (Name = "Только сервис")]
 		JustService,
-		[ItemTitleAttribute ("Выезд мастера")]
+		[Display (Name = "Выезд мастера")]
 		RepairmanCall
 	}
 
