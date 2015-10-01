@@ -59,7 +59,7 @@ namespace Vodovoz
 						routelist.Driver.FullName,
 						routelist.Car.Model,
 						routelist.Car.RegistrationNumber,
-						routelist.Forwarder.FullName
+						routelist.Forwarder != null ? routelist.Forwarder.FullName : "(Отсутствует)" 
 					);
 				TabName = String.Format ("Отгрузка маршрутного листа №{0}", id);
 				break;
