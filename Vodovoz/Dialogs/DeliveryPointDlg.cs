@@ -74,6 +74,7 @@ namespace Vodovoz
 				.AddSource (Entity)
 				.AddBinding (entity => entity.CityDistrict, widget => widget.CityDistrict)
 				.AddBinding (entity => entity.City, widget => widget.City)
+				.AddBinding (entity => entity.LocalityType, widget => widget.Locality) 
 				.InitializeFromSource ();
 			entryStreet.Binding
 				.AddSource (Entity)

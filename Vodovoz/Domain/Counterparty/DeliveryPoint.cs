@@ -75,7 +75,7 @@ namespace Vodovoz.Domain
 			get {
 				string address = String.Empty;
 				if (!String.IsNullOrWhiteSpace (City))
-					address += String.Format ("г.{0}, ", City);
+					address += String.Format ("{0} {1}, ", GetShortNameOfLocalityType (LocalityType), City);
 				if (!String.IsNullOrWhiteSpace (Street))
 					address += String.Format ("{0}, ", Street);
 				if (!String.IsNullOrWhiteSpace (Building))
@@ -288,6 +288,28 @@ namespace Vodovoz.Domain
 				return "оф.";
 			case RoomType.Room:
 				return "пом.";
+			default:
+				throw new NotSupportedException ();
+			}
+		}
+
+		public static string GetShortNameOfLocalityType (LocalityType type)
+		{
+			switch (type) {
+			case LocalityType.allotments:
+				return "д.п.";
+			case LocalityType.city:
+				return "г.";
+			case LocalityType.farm:
+				return "фер.";
+			case LocalityType.hamlet:
+				return "дер.";
+			case LocalityType.isolated_dwelling:
+				return "х.";
+			case LocalityType.town:
+				return "г.";
+			case LocalityType.village:
+				return "н.п.";
 			default:
 				throw new NotSupportedException ();
 			}
