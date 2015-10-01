@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Cash
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "расходные одера",
 		Nominative = "расходный ордер")]
-	public class Expense : PropertyChangedBase, IDomainObject
+	public class Expense : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -80,6 +80,20 @@ namespace Vodovoz.Domain.Cash
 		public Expense ()
 		{
 		}
+
+		#region IValidatableObject implementation
+
+		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if(TypeOperation == ExpenseType.Advance)
+			{
+				if (Employee == null)
+					yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
+						new[] { this.GetPropertyName (o => o.Employee) });
+			}
+		}
+
+		#endregion
 	}
 
 	public enum ExpenseType

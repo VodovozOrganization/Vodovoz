@@ -67,6 +67,18 @@ namespace Vodovoz
 
 		}
 
+		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			switch((ExpenseType)e.SelectedItem)
+			{
+			case ExpenseType.Advance: 
+				labelEmploeey.LabelProp = "Подотчетное лицо:";
+				break;
+			case ExpenseType.Expense : 
+				labelEmploeey.LabelProp = "Сотрудник:";
+				break;
+			}
+		}
 	}
 }
 
