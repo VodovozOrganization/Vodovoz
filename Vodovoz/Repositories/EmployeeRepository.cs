@@ -27,6 +27,11 @@ namespace Vodovoz.Repository
 			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.forwarder);
 		}
 
+		public static QueryOver<Employee> ActiveEmployeeQuery ()
+		{
+			return QueryOver.Of<Employee> ().Where (e => !e.IsFired );
+		}
+
 	}
 }
 

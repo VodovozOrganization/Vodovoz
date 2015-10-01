@@ -365,6 +365,9 @@
     <Compile Include="gtk-gui\Vodovoz.CashDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Domain\Cash\CashDocumentType.cs" />
+    <Compile Include="Dialogs\Cash\CashIncomeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CashIncomeDlg.cs" />
+    <Compile Include="Repositories\Cash\CategoryRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -484,6 +487,8 @@
     <Folder Include="Repositories\Store\" />
     <Folder Include="Domain\Cash\" />
     <Folder Include="HibernateMapping\Cash\" />
+    <Folder Include="Dialogs\Cash\" />
+    <Folder Include="Repositories\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
