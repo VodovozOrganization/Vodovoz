@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using QSOsm.DTO;
 
 namespace Vodovoz.Domain
 {
@@ -310,33 +311,11 @@ namespace Vodovoz.Domain
 		}
 	}
 
-	/// <summary>
-	/// Тип населенного пункта. Маленькими буквами для совпадения с соответствующими типами в OSM.
-	/// </summary>
-	public enum LocalityType
-	{
-		[Display (Name = "Город")]
-		city,
-		[Display (Name = "Малый город")]
-		town,
-		[Display (Name = "Населенный пункт")]
-		village,
-		[Display (Name = "Дачный поселок")]
-		allotments,
-		[Display (Name = "Деревня")]
-		hamlet,
-		[Display (Name = "Ферма")]
-		farm,
-		[Display (Name = "Хутор")]
-		isolated_dwelling
-	}
-
 	public class LocalityTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public LocalityTypeStringType () : base (typeof(LocalityType))
 		{
 		}
 	}
-
 }
 

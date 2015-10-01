@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
+using QSOsm.DTO;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
@@ -64,7 +65,7 @@ namespace Vodovoz
 			};
 
 			entryStreet.StreetSelected += (sender, e) => {
-				entryBuilding.Street = new QSOsm.OsmStreet (entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
+				entryBuilding.Street = new OsmStreet (entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
 			};
 
 			entryBuilding.Changed += EntryBuilding_Changed;
