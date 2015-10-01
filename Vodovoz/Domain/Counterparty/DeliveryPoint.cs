@@ -62,9 +62,9 @@ namespace Vodovoz.Domain
 			get { return floor; }
 			set { SetField (ref floor, value, () => Floor); }
 		}
-			
+
 		public virtual string Title { 
-			get { return CompiledAddress;}
+			get { return CompiledAddress; }
 		}
 
 		string compiledAddress;
@@ -110,6 +110,14 @@ namespace Vodovoz.Domain
 		public virtual string City {
 			get { return city; }
 			set { SetField (ref city, value, () => City); }
+		}
+
+		LocalityType localityType;
+
+		[Display (Name = "Тип населенного пункта")]
+		public virtual LocalityType LocalityType {
+			get { return localityType; }
+			set { SetField (ref localityType, value, () => LocalityType); }
 		}
 
 		string cityDistrict;
@@ -270,11 +278,10 @@ namespace Vodovoz.Domain
 			return uow;
 		}
 
-		public static string GetShortNameOfRoomType(RoomType type)
+		public static string GetShortNameOfRoomType (RoomType type)
 		{
-			switch(type)
-			{
-			case RoomType.Apartment :
+			switch (type) {
+			case RoomType.Apartment:
 				return "кв.";
 			case RoomType.Office: 
 				return "оф.";
@@ -302,5 +309,34 @@ namespace Vodovoz.Domain
 		{
 		}
 	}
+
+	/// <summary>
+	/// Тип населенного пункта. Маленькими буквами для совпадения с соответствующими типами в OSM.
+	/// </summary>
+	public enum LocalityType
+	{
+		[Display (Name = "Город")]
+		city,
+		[Display (Name = "Малый город")]
+		town,
+		[Display (Name = "Населенный пункт")]
+		village,
+		[Display (Name = "Дачный поселок")]
+		allotments,
+		[Display (Name = "Деревня")]
+		hamlet,
+		[Display (Name = "Ферма")]
+		farm,
+		[Display (Name = "Хутор")]
+		isolated_dwelling
+	}
+
+	public class LocalityTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public LocalityTypeStringType () : base (typeof(LocalityType))
+		{
+		}
+	}
+
 }
 
