@@ -19855,14 +19855,12 @@ RegistrationNumber</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinMoney">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Lower">0.01</property>
                     <property name="Upper">1000000</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
                     <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
                     <property name="Numeric">True</property>
-                    <property name="Value">0.01</property>
                     <property name="ValueAsDecimal">0</property>
                   </widget>
                   <packing>
@@ -20002,7 +20000,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label7">
+              <widget class="Gtk.Label" id="labelEmploeey">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
                 <property name="LabelProp" translatable="yes">Сотрудник:</property>
@@ -20219,6 +20217,7 @@ RegistrationNumber</property>
                 <property name="Items" translatable="yes" />
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
+                <signal name="EnumItemSelected" handler="OnEnumcomboOperationEnumItemSelected" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -20241,14 +20240,12 @@ RegistrationNumber</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinMoney">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Lower">0.01</property>
                     <property name="Upper">1000000</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
                     <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
                     <property name="Numeric">True</property>
-                    <property name="Value">0.01</property>
                     <property name="ValueAsDecimal">0</property>
                   </widget>
                   <packing>
@@ -20388,7 +20385,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label7">
+              <widget class="Gtk.Label" id="labelEmploeey">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
                 <property name="LabelProp" translatable="yes">Сотрудник:</property>
@@ -20612,14 +20609,12 @@ RegistrationNumber</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinMoney">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Lower">0.01</property>
                     <property name="Upper">1000000</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
                     <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
                     <property name="Numeric">True</property>
-                    <property name="Value">0.01</property>
                     <property name="ValueAsDecimal">0</property>
                   </widget>
                   <packing>

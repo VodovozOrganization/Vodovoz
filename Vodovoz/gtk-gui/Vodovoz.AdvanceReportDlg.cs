@@ -115,14 +115,13 @@ namespace Vodovoz
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton (0.01, 1000000, 100);
+			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton (0, 1000000, 100);
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
 			this.yspinMoney.Adjustment.PageIncrement = 1000;
 			this.yspinMoney.ClimbRate = 1;
 			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
-			this.yspinMoney.Value = 0.01;
 			this.yspinMoney.ValueAsDecimal = 0m;
 			this.hbox5.Add (this.yspinMoney);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.yspinMoney]));

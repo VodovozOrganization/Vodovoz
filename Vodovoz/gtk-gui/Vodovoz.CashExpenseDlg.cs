@@ -34,7 +34,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label5;
 		
-		private global::Gtk.Label label7;
+		private global::Gtk.Label labelEmploeey;
 		
 		private global::Gamma.Widgets.yDatePicker ydateDocument;
 		
@@ -129,14 +129,13 @@ namespace Vodovoz
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton (0.01, 1000000, 100);
+			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton (0, 1000000, 100);
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
 			this.yspinMoney.Adjustment.PageIncrement = 1000;
 			this.yspinMoney.ClimbRate = 1;
 			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
-			this.yspinMoney.Value = 0.01;
 			this.yspinMoney.ValueAsDecimal = 0m;
 			this.hbox5.Add (this.yspinMoney);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.yspinMoney]));
@@ -216,12 +215,12 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.label7 = new global::Gtk.Label ();
-			this.label7.Name = "label7";
-			this.label7.Xalign = 1F;
-			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Сотрудник:");
-			this.table1.Add (this.label7);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.label7]));
+			this.labelEmploeey = new global::Gtk.Label ();
+			this.labelEmploeey.Name = "labelEmploeey";
+			this.labelEmploeey.Xalign = 1F;
+			this.labelEmploeey.LabelProp = global::Mono.Unix.Catalog.GetString ("Сотрудник:");
+			this.table1.Add (this.labelEmploeey);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelEmploeey]));
 			w16.TopAttach = ((uint)(2));
 			w16.BottomAttach = ((uint)(3));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -297,6 +296,7 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
+			this.enumcomboOperation.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnEnumcomboOperationEnumItemSelected);
 		}
 	}
 }
