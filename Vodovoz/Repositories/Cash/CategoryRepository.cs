@@ -12,6 +12,10 @@ namespace Vodovoz.Repository.Cash
 			return uow.Session.QueryOver<IncomeCategory> ().List ();
 		}
 
+		public static IList<ExpenseCategory> ExpenseCategories (IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<ExpenseCategory> ().List ();
+		}
 	}
 }
 
