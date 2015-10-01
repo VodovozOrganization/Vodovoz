@@ -13,7 +13,7 @@ using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
 using System.Data.Bindings;
 using Vodovoz.Domain.Service;
-using System.Data.Bindings.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -659,19 +659,19 @@ namespace Vodovoz
 
 	public enum PrintDocuments
 	{
-		[ItemTitleAttribute ("Счет")]
+		[Display (Name = "Счет")]
 		Bill,
-		[ItemTitleAttribute ("Счет (Без печати и подписи)")]
+		[Display (Name = "Счет (Без печати и подписи)")]
 		BillWithoutSignature,
-		[ItemTitleAttribute ("Акт выполненных работ")]
+		[Display (Name = "Акт выполненных работ")]
 		DoneWorkReport,
-		[ItemTitleAttribute ("Акт приема-передачи оборудования")]
+		[Display (Name = "Акт приема-передачи оборудования")]
 		EquipmentTransfer,
-		[ItemTitleAttribute ("Накладная (нал.)")]
+		[Display (Name = "Накладная (нал.)")]
 		Invoice,
-		[ItemTitleAttribute ("Накладная (безденежно)")]
+		[Display (Name = "Накладная (безденежно)")]
 		InvoiceBarter,
-		[ItemTitleAttribute ("УПД")]
+		[Display (Name = "УПД")]
 		UPD
 	}
 }

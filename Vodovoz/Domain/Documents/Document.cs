@@ -1,6 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
-using System.Data.Bindings;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -41,13 +41,13 @@ namespace Vodovoz.Domain.Documents
 
 	public enum DocumentType
 	{
-		[ItemTitleAttribute ("Входящая накладная")]
+		[Display (Name = "Входящая накладная")]
 		IncomingInvoice,
-		[ItemTitleAttribute ("Документ производства")]
+		[Display (Name = "Документ производства")]
 		IncomingWater,
-		[ItemTitleAttribute ("Документ перемещения")]
+		[Display (Name = "Документ перемещения")]
 		MovementDocument,
-		[ItemTitleAttribute ("Акт списания")]
+		[Display (Name = "Акт списания")]
 		WriteoffDocument
 	}
 

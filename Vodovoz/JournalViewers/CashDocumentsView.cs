@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using Gtk;
-using NHibernate;
 using NLog;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
 using QSTDI;
-using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
 using Vodovoz.Domain.Cash;
 
@@ -21,6 +18,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			this.TabName = "Кассовые документы";
+			buttonAdd.ItemsEnum = typeof(CashDocumentType);
 			tableDocuments.RepresentationModel = new CashDocumentsVM ();
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
@@ -49,13 +47,13 @@ namespace Vodovoz
 			case CashDocumentType.Income:
 				dlg = new CashIncomeDlg ();
 				break;
-/*			case CashDocumentType.Expense:
-				dlg = new IncomingWater ();
+			case CashDocumentType.Expense:
+				dlg = new CashExpenseDlg ();
 				break;
 			case CashDocumentType.AdvanceReport:
-				dlg = new MovementDocument ();
+				dlg = new AdvanceReportDlg ();
 				break;
-*/			default:
+			default:
 				throw new NotSupportedException ("Тип документа не поддерживается.");
 			}
 			if (TabParent.BeforeCreateNewTab ((object)null, null).HasFlag (TdiBeforeCreateResultFlag.Canceled))
@@ -81,10 +79,10 @@ namespace Vodovoz
 				dlg = new CashIncomeDlg (id);
 				break;
 			case CashDocumentType.Expense:
-				dlg = new IncomingWaterDlg (id);
+				dlg = new CashExpenseDlg (id);
 				break;
 			case CashDocumentType.AdvanceReport: 
-				dlg = new MovementDocumentDlg (id);
+				dlg = new AdvanceReportDlg (id);
 				break;
 			default:
 				return;

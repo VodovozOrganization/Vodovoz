@@ -1,9 +1,9 @@
 ﻿using System;
-using QSOrmProject;
-using System.Data.Bindings;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
+using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
@@ -275,15 +275,15 @@ namespace Vodovoz.Domain
 
 	public enum AgreementType
 	{
-		[ItemTitleAttribute ("Долгосрочая аренда")]
+		[Display (Name = "Долгосрочая аренда")]
 		NonfreeRent,
-		[ItemTitleAttribute ("Посуточная аренда")]
+		[Display (Name = "Посуточная аренда")]
 		DailyRent,
-		[ItemTitleAttribute ("Бесплатная аренда")]
+		[Display (Name = "Бесплатная аренда")]
 		FreeRent,
-		[ItemTitleAttribute ("Продажа воды")]
+		[Display (Name = "Продажа воды")]
 		WaterSales,
-		[ItemTitleAttribute ("Ремонт")]
+		[Display (Name = "Ремонт")]
 		Repair
 	}
 
@@ -296,11 +296,11 @@ namespace Vodovoz.Domain
 
 	public enum OrderAgreementType
 	{
-		[ItemTitleAttribute ("Долгосрочная аренда")]
+		[Display (Name = "Долгосрочная аренда")]
 		NonfreeRent,
-		[ItemTitleAttribute ("Посуточная аренда")]
+		[Display (Name = "Посуточная аренда")]
 		DailyRent,
-		[ItemTitleAttribute ("Бесплатная аренда")]
+		[Display (Name = "Бесплатная аренда")]
 		FreeRent
 	}
 
