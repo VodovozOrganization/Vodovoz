@@ -196,7 +196,7 @@ namespace Vodovoz
 			this.label7 = new global::Gtk.Label ();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
-			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Сотрудник:");
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Подотчетное лицо:");
 			this.table1.Add (this.label7);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.label7]));
 			w14.TopAttach = ((uint)(2));

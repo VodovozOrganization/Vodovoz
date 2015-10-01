@@ -13,6 +13,8 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Income>();
+			Entity.Casher = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Date = DateTime.Today;
 			ConfigureDlg ();
 		}
 

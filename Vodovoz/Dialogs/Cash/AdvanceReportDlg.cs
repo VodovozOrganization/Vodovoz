@@ -13,6 +13,8 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<AdvanceReport>();
+			Entity.Casher = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Date = DateTime.Today;
 			ConfigureDlg ();
 		}
 
@@ -35,7 +37,7 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
+			comboCategory.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
 			comboCategory.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
 
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();

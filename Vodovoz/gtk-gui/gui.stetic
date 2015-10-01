@@ -14866,7 +14866,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">3</property>
+            <property name="CurrentPage">4</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -20744,7 +20744,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="label7">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Сотрудник:</property>
+                <property name="LabelProp" translatable="yes">Подотчетное лицо:</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>

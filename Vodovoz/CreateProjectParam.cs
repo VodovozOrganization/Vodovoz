@@ -108,6 +108,9 @@ namespace Vodovoz
 				//Касса
 				OrmObjectMapping<IncomeCategory>.Create().SimpleDisplay ().Column ("Название", e => e.Name).End (),
 				OrmObjectMapping<ExpenseCategory>.Create().SimpleDisplay ().Column ("Название", e => e.Name).End (),
+				OrmObjectMapping<Income>.Create().Dialog<CashIncomeDlg> (),
+				OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg> (),
+				OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg> (),
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
