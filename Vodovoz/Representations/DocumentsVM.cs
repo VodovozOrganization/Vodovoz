@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
+using Gamma.Utilities;
 using Gtk.DataBindings;
 using NHibernate;
 using NHibernate.Criterion;
