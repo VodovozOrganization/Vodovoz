@@ -9,7 +9,6 @@ using Vodovoz.Domain.Cash;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CashDocumentsView : TdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();

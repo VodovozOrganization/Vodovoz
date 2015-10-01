@@ -4,7 +4,6 @@ using QSTDI;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ReadyForShipmentView : TdiTabBase
 	{
 		private IUnitOfWork uow;

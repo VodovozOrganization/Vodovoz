@@ -3,7 +3,6 @@ using QSTDI;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class StockBalanceView : TdiTabBase
 	{
 		private IUnitOfWork uow;

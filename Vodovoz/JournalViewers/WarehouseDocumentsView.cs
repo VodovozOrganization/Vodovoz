@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using Gtk;
-using NHibernate;
 using NLog;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
@@ -11,7 +9,6 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class WarehouseDocumentsView : TdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
