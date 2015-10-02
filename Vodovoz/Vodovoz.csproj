@@ -372,6 +372,9 @@
     <Compile Include="Dialogs\Cash\AdvanceReportDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashExpenseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdvanceReportDlg.cs" />
+    <Compile Include="Representations\AccountableDebtsVM.cs" />
+    <Compile Include="JournalViewers\AccountableDebts.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

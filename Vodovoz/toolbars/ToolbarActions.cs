@@ -66,7 +66,8 @@ public partial class MainWindow : Window
 
 	void ActionAccountableDebt_Activated (object sender, System.EventArgs e)
 	{
-		
+		var refWin = new AccountableDebts ();
+		tdiMain.AddTab (refWin);
 	}
 
 	void ActionRouteListTable_Activated (object sender, System.EventArgs e)

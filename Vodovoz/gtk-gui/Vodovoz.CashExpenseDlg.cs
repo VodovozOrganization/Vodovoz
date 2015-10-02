@@ -105,7 +105,7 @@ namespace Vodovoz
 			this.comboCategory.Name = "comboCategory";
 			this.comboCategory.AddIfNotExist = false;
 			this.comboCategory.ShowSpecialStateAll = false;
-			this.comboCategory.ShowSpecialStateNot = false;
+			this.comboCategory.ShowSpecialStateNot = true;
 			this.table1.Add (this.comboCategory);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.comboCategory]));
 			w6.TopAttach = ((uint)(1));

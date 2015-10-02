@@ -91,6 +91,13 @@ namespace Vodovoz.Domain.Cash
 					yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
 						new[] { this.GetPropertyName (o => o.Employee) });
 			}
+
+			if(TypeOperation == ExpenseType.Expense)
+			{
+				if (ExpenseCategory == null)
+					yield return new ValidationResult ("Статья расхода должна быть указана.",
+						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
+			}
 		}
 
 		#endregion
