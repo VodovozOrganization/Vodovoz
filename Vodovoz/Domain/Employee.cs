@@ -3,6 +3,7 @@ using QSOrmProject;
 using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
@@ -145,6 +146,11 @@ namespace Vodovoz.Domain
 		public string FullName {
 			get { return String.Format ("{0} {1} {2}", LastName, Name, Patronymic); }
 		}
+
+		public string ShortName {
+			get { return StringWorks.PersonNameWithInitials (LastName, Name, Patronymic); }
+		}
+
 
 		#region IValidatableObject implementation
 
