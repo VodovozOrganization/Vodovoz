@@ -17,6 +17,16 @@ namespace Vodovoz.Repository
 				.SingleOrDefault ();
 		}
 
+		public static IList<Employee> GetEmployeesForUser (IUnitOfWork uow, int userId)
+		{
+			User userAlias = null;
+
+			return uow.Session.QueryOver<Employee> ()
+				.JoinAlias (e => e.User, () => userAlias)
+				.Where (() => userAlias.Id == userId)
+				.List ();
+		}
+
 		public static QueryOver<Employee> DriversQuery ()
 		{
 			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.driver);

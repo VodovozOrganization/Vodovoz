@@ -1,14 +1,16 @@
 ﻿using System;
-using System.IO;
-using QSTDI;
-using QSOrmProject;
-using NHibernate;
-using System.Data.Bindings;
-using NLog;
-using Gtk;
-using QSValidation;
 using System.Collections.Generic;
+using System.Data.Bindings;
+using System.IO;
+using System.Linq;
+using Gtk;
+using NHibernate;
+using NLog;
 using QSContacts;
+using QSOrmProject;
+using QSProjectsLib;
+using QSTDI;
+using QSValidation;
 using Vodovoz.Domain;
 
 namespace Vodovoz
@@ -78,6 +80,27 @@ namespace Vodovoz
 			var valid = new QSValidator<Employee> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+
+			if(Entity.User != null)
+			{
+				var associatedEmployees = Repository.EmployeeRepository.GetEmployeesForUser (UoW, Entity.User.Id);
+				if(associatedEmployees.Any (e => e.Id != Entity.Id))
+				{
+					string mes = String.Format ("Пользователь {0} уже связан с сотрудником {1}, при привязки этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
+						Entity.User.Name,
+						String.Join (", ", associatedEmployees.Select (e => e.ShortName))
+					);
+					if (MessageDialogWorks.RunQuestionDialog (mes)) {
+						foreach(var ae in associatedEmployees.Where (e => e.Id != Entity.Id))
+						{
+							ae.User = null;
+							UoWGeneric.Save (ae);
+						}
+					} else
+						return false;
+				}
+			}
+
 			phonesView.SaveChanges ();	
 			logger.Info ("Сохраняем сотрудника...");
 			try {
