@@ -464,6 +464,8 @@ namespace Vodovoz
 			this.entryBuilding.CanFocus = true;
 			this.entryBuilding.Name = "entryBuilding";
 			this.entryBuilding.IsEditable = true;
+			this.entryBuilding.WidthChars = 20;
+			this.entryBuilding.MaxLength = 20;
 			this.entryBuilding.InvisibleChar = '●';
 			this.hbox8.Add (this.entryBuilding);
 			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.entryBuilding]));

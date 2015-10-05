@@ -7581,6 +7581,8 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
+                            <property name="WidthChars">20</property>
+                            <property name="MaxLength">20</property>
                             <property name="InvisibleChar">●</property>
                           </widget>
                           <packing>
