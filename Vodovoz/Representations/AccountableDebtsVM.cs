@@ -22,12 +22,17 @@ namespace Vodovoz.ViewModel
 			
 			AccountableDebtsVMNode resultAlias = null;
 			Expense operationAddAlias = null;
+			Income operationReturnAlias = null;
 			AdvanceReport operationRemoveAlias = null;
 			Employee employeeAlias = null;
 
 			var subqueryAdd = QueryOver.Of<Expense>(() => operationAddAlias)
-				.Where(() => operationAddAlias.Employee.Id == employeeAlias.Id)
+				.Where(() => operationAddAlias.Employee.Id == employeeAlias.Id && operationAddAlias.TypeOperation == ExpenseType.Advance)
 				.Select (Projections.Sum<Expense> (o => o.Money));
+
+			var subqueryReturn = QueryOver.Of<Income>(() => operationReturnAlias)
+				.Where(() => operationReturnAlias.Employee.Id == employeeAlias.Id && operationReturnAlias.TypeOperation == IncomeType.Return)
+				.Select (Projections.Sum<Income> (o => o.Money));
 
 			var subqueryRemove = QueryOver.Of<AdvanceReport>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Accountable.Id == employeeAlias.Id)
@@ -41,6 +46,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
 					.SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
 					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
+					.SelectSubQuery (subqueryReturn).WithAlias(() => resultAlias.Returned)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableDebtsVMNode>())
 				.List<AccountableDebtsVMNode>().Where(r => r.Debt != 0).ToList ();
@@ -101,12 +107,14 @@ namespace Vodovoz.ViewModel
 
 		public decimal Removed{ get; set;}
 
+		public decimal Returned{ get; set;}
+
 		public string DebtText { get { 
 				return CurrencyWorks.GetShortCurrencyString (Debt);
 		}}
 
 		public decimal Debt { get{
-				return Append - Removed;
+				return Append - Removed - Returned;
 			}}
 
 		public string RowColor {
