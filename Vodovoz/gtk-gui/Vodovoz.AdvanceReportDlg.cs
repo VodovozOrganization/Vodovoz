@@ -22,7 +22,7 @@ namespace Vodovoz
 		
 		private global::QSProjectsLib.CurrencyLabel currencylabel1;
 		
-		private global::Gtk.HBox hbox6;
+		private global::Gtk.HBox hboxDebt;
 		
 		private global::Gtk.Label labelCurrentDebt;
 		
@@ -34,13 +34,13 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label2;
 		
-		private global::Gtk.Label label3;
-		
 		private global::Gtk.Label label4;
 		
 		private global::Gtk.Label label5;
 		
 		private global::Gtk.Label label7;
+		
+		private global::Gtk.Label labelDebtTitle;
 		
 		private global::Gamma.Widgets.yDatePicker ydateDocument;
 		
@@ -50,7 +50,7 @@ namespace Vodovoz
 		
 		private global::Gtk.CheckButton checkCreateChange;
 		
-		private global::Gtk.Label label8;
+		private global::Gtk.Label labelTableTitle;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
@@ -162,38 +162,38 @@ namespace Vodovoz
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.hbox6 = new global::Gtk.HBox ();
-			this.hbox6.Name = "hbox6";
-			this.hbox6.Spacing = 6;
-			// Container child hbox6.Gtk.Box+BoxChild
+			this.hboxDebt = new global::Gtk.HBox ();
+			this.hboxDebt.Name = "hboxDebt";
+			this.hboxDebt.Spacing = 6;
+			// Container child hboxDebt.Gtk.Box+BoxChild
 			this.labelCurrentDebt = new global::Gtk.Label ();
 			this.labelCurrentDebt.Name = "labelCurrentDebt";
 			this.labelCurrentDebt.LabelProp = global::Mono.Unix.Catalog.GetString ("label2");
-			this.hbox6.Add (this.labelCurrentDebt);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.labelCurrentDebt]));
+			this.hboxDebt.Add (this.labelCurrentDebt);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hboxDebt [this.labelCurrentDebt]));
 			w10.Position = 0;
 			w10.Expand = false;
 			w10.Fill = false;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hboxDebt.Gtk.Box+BoxChild
 			this.labelChangeType = new global::Gtk.Label ();
 			this.labelChangeType.Name = "labelChangeType";
 			this.labelChangeType.Xalign = 1F;
 			this.labelChangeType.LabelProp = global::Mono.Unix.Catalog.GetString ("label4");
-			this.hbox6.Add (this.labelChangeType);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.labelChangeType]));
+			this.hboxDebt.Add (this.labelChangeType);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hboxDebt [this.labelChangeType]));
 			w11.Position = 1;
-			// Container child hbox6.Gtk.Box+BoxChild
+			// Container child hboxDebt.Gtk.Box+BoxChild
 			this.labelChangeSum = new global::Gtk.Label ();
 			this.labelChangeSum.Name = "labelChangeSum";
 			this.labelChangeSum.LabelProp = global::Mono.Unix.Catalog.GetString ("label5");
 			this.labelChangeSum.UseMarkup = true;
-			this.hbox6.Add (this.labelChangeSum);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.labelChangeSum]));
+			this.hboxDebt.Add (this.labelChangeSum);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hboxDebt [this.labelChangeSum]));
 			w12.Position = 2;
 			w12.Expand = false;
 			w12.Fill = false;
-			this.table1.Add (this.hbox6);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1 [this.hbox6]));
+			this.table1.Add (this.hboxDebt);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1 [this.hboxDebt]));
 			w13.TopAttach = ((uint)(2));
 			w13.BottomAttach = ((uint)(3));
 			w13.LeftAttach = ((uint)(1));
@@ -221,51 +221,51 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.label3 = new global::Gtk.Label ();
-			this.label3.Name = "label3";
-			this.label3.Xalign = 1F;
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Текущий долг:");
-			this.table1.Add (this.label3);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.label3]));
-			w16.TopAttach = ((uint)(2));
-			w16.BottomAttach = ((uint)(3));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label ();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Статья дохода:");
 			this.table1.Add (this.label4);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1 [this.label4]));
-			w17.TopAttach = ((uint)(1));
-			w17.BottomAttach = ((uint)(2));
-			w17.LeftAttach = ((uint)(2));
-			w17.RightAttach = ((uint)(3));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.label4]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
+			w16.LeftAttach = ((uint)(2));
+			w16.RightAttach = ((uint)(3));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label ();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Сумма:");
 			this.table1.Add (this.label5);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1 [this.label5]));
-			w18.TopAttach = ((uint)(2));
-			w18.BottomAttach = ((uint)(3));
-			w18.LeftAttach = ((uint)(2));
-			w18.RightAttach = ((uint)(3));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1 [this.label5]));
+			w17.TopAttach = ((uint)(2));
+			w17.BottomAttach = ((uint)(3));
+			w17.LeftAttach = ((uint)(2));
+			w17.RightAttach = ((uint)(3));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label ();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Подотчетное лицо:");
 			this.table1.Add (this.label7);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.label7]));
-			w19.TopAttach = ((uint)(1));
-			w19.BottomAttach = ((uint)(2));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1 [this.label7]));
+			w18.TopAttach = ((uint)(1));
+			w18.BottomAttach = ((uint)(2));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelDebtTitle = new global::Gtk.Label ();
+			this.labelDebtTitle.Name = "labelDebtTitle";
+			this.labelDebtTitle.Xalign = 1F;
+			this.labelDebtTitle.LabelProp = global::Mono.Unix.Catalog.GetString ("Текущий долг:");
+			this.table1.Add (this.labelDebtTitle);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelDebtTitle]));
+			w19.TopAttach = ((uint)(2));
+			w19.BottomAttach = ((uint)(3));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -320,12 +320,12 @@ namespace Vodovoz
 			w24.Expand = false;
 			w24.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.label8 = new global::Gtk.Label ();
-			this.label8.Name = "label8";
-			this.label8.Xalign = 0F;
-			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString ("Последние выданные авансы:");
-			this.vbox1.Add (this.label8);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label8]));
+			this.labelTableTitle = new global::Gtk.Label ();
+			this.labelTableTitle.Name = "labelTableTitle";
+			this.labelTableTitle.Xalign = 0F;
+			this.labelTableTitle.LabelProp = global::Mono.Unix.Catalog.GetString ("Последние выданные авансы:");
+			this.vbox1.Add (this.labelTableTitle);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.labelTableTitle]));
 			w25.Position = 3;
 			w25.Expand = false;
 			w25.Fill = false;

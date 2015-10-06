@@ -47,6 +47,9 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<AdvanceReport> (id);
+			//Отключаем отображение ненужных элементов.
+			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = checkCreateChange.Visible = false;
+
 			ConfigureDlg ();
 		}
 
@@ -79,8 +82,50 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем авансовый отчет...");
+			Income newIncome = null;
+			Expense newExpense = null;
 			try {
-				UoWGeneric.Save();
+				UoWGeneric.Save(); // Сохраняем сначала отчет, так как нужно получить Id.
+				if(checkCreateChange.Active)
+				{
+					if(Balance < 0)
+					{
+						newExpense = new Expense{
+							Casher = Entity.Casher,
+							Date = Entity.Date,
+							Employee = Entity.Accountable,
+							TypeOperation = ExpenseType.Advance,
+							Money = Math.Abs (Balance),
+							Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Entity.Id)
+						};
+						UoWGeneric.Save (newExpense);
+						UoWGeneric.Commit ();
+					}
+					else if(Balance > 0)
+					{
+						newIncome = new Income{
+							Casher = Entity.Casher,
+							Date = Entity.Date,
+							Employee = Entity.Accountable,
+							TypeOperation = IncomeType.Return,
+							Money = Math.Abs (Balance),
+							Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Entity.Id)
+						};
+						UoWGeneric.Save (newIncome);
+						UoWGeneric.Commit ();
+					}
+
+					if(newIncome != null)
+					{
+						MessageDialogWorks.RunInfoDialog (String.Format ("Дополнительно создан приходный ордер №{0}, на сумму {1:C}.\nНе забудьте получить сдачу от подотчетного лица!",
+							newIncome.Id, newIncome.Money));
+					}
+					if(newExpense != null)
+					{
+						MessageDialogWorks.RunInfoDialog (String.Format ("Дополнительно создан расходный ордер №{0}, на сумму {1:C}.\nНе забудьте доплатить подотчетному лицу!",
+							newExpense.Id, newExpense.Money));
+					}
+				}
 			} catch (Exception ex) {
 				logger.Error (ex, "Не удалось записать авансовый отчет.");
 				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);

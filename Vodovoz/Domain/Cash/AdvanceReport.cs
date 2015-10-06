@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Cash
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "авансовые отчеты",
 		Nominative = "авансовый отчет")]
-	public class AdvanceReport : PropertyChangedBase, IDomainObject
+	public class AdvanceReport : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -72,6 +72,21 @@ namespace Vodovoz.Domain.Cash
 		public AdvanceReport ()
 		{
 		}
+
+		#region IValidatableObject implementation
+
+		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if (Accountable == null)
+				yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
+					new[] { this.GetPropertyName (o => o.Accountable) });
+			if (ExpenseCategory == null)
+				yield return new ValidationResult ("Статья расхода должна быть указана.",
+					new[] { this.GetPropertyName (o => o.ExpenseCategory) });
+		}
+
+		#endregion
+
 	}
 }
 
