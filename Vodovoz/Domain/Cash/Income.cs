@@ -89,6 +89,8 @@ namespace Vodovoz.Domain.Cash
 		Common,
 		[Display (Name = "Приход от водителя")]
 		DriverReport,
+		[Display (Name = "Возврат от подотчетного лица")]
+		Return,
 	}
 
 	public class IncomeTypeStringType : NHibernate.Type.EnumStringType

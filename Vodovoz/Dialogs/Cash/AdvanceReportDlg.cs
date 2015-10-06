@@ -3,12 +3,28 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
-	public partial class AdvanceReportDlg : OrmGtkDialogBase<AdvanceReport>
+	public partial class AdvanceReportDlg : OrmGtkDialogBase<AdvanceReport>, IAccountableSlipsFilter
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
+		decimal debt = 0;
+		decimal Balance = 0;
+
+		protected decimal Debt {
+			get {
+				return debt;
+			}
+			set {
+				debt = value;
+				labelCurrentDebt.LabelProp = String.Format ("{0:C}", debt);
+				CalculateBalance ();
+				OnRefiltered ();
+			}
+		}
 
 		public AdvanceReportDlg ()
 		{
@@ -23,6 +39,8 @@ namespace Vodovoz
 			}
 			Entity.Date = DateTime.Today;
 			ConfigureDlg ();
+			FillDebt ();
+			treeviewDebts.RepresentationModel = new ViewModel.AccountableSlipsVM (this);
 		}
 
 		public AdvanceReportDlg (int id)
@@ -37,9 +55,11 @@ namespace Vodovoz
 		void ConfigureDlg()
 		{
 			yentryCasher.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
+			yentryCasher.SetObjectDisplayFunc<Employee> (e => e.ShortName);
 			yentryCasher.Binding.AddBinding (Entity, s => s.Casher, w => w.Subject).InitializeFromSource ();
 
 			yentryEmploeey.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
+			yentryEmploeey.SetObjectDisplayFunc<Employee> (e => e.ShortName);
 			yentryEmploeey.Binding.AddBinding (Entity, s => s.Accountable, w => w.Subject).InitializeFromSource ();
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
@@ -70,6 +90,71 @@ namespace Vodovoz
 			return true;
 		}
 
+		protected void CalculateBalance()
+		{
+			if (!UoW.IsNew)
+				return;
+
+			Balance = debt - Entity.Money;
+
+			if(Balance < 0)
+			{
+				labelChangeType.LabelProp = "Доплата:";
+				labelChangeSum.LabelProp = string.Format("<span foreground=\"red\">{0:C}</span>", Math.Abs(Balance));
+				checkCreateChange.Label = String.Format("Создать расходный ордер на сумму {0:C}", Math.Abs(Balance));
+			}
+			else
+			{
+				labelChangeType.LabelProp = "Остаток:";
+				labelChangeSum.LabelProp = string.Format("{0:C}", Balance);
+				checkCreateChange.Label = String.Format ("Создать приходный ордер на сумму {0:C}", Math.Abs(Balance));
+			}
+		}
+
+		protected void OnYspinMoneyValueChanged (object sender, EventArgs e)
+		{
+			CalculateBalance ();
+		}
+
+		void FillDebt()
+		{
+			if(!UoW.IsNew)
+				return;
+
+			if(Entity.Accountable == null)
+			{
+				Debt = 0;
+				return;
+			}
+
+			logger.Info("Получаем долг {0}...", Entity.Accountable.ShortName);
+			Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
+
+			logger.Info("Ok");
+		}
+
+		protected void OnYentryEmploeeyChanged (object sender, EventArgs e)
+		{
+			FillDebt ();
+		}
+
+		public event EventHandler Refiltered;
+
+		public decimal? RestrictDebt {
+			get { return Debt;
+			}
+		}
+
+		public Employee Accountable {
+			get { return Entity.Accountable;
+			}
+		}
+
+		void OnRefiltered ()
+		{
+			if (Refiltered != null)
+				Refiltered (this, new EventArgs ());
+		}
 	}
 }
 

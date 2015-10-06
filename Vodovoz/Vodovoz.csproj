@@ -375,6 +375,9 @@
     <Compile Include="Representations\AccountableDebtsVM.cs" />
     <Compile Include="JournalViewers\AccountableDebts.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
+    <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
+    <Compile Include="Representations\AccountableSlipsVM.cs" />
+    <Compile Include="JournalFilters\IAccountableSlipsFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
