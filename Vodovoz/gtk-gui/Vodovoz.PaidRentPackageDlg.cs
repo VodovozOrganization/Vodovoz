@@ -213,7 +213,7 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.spinDeposit = new global::Gtk.DataBindings.DataSpinButton (0, 9000000, 1);
+			this.spinDeposit = new global::Gtk.DataBindings.DataSpinButton (0D, 99999D, 1D);
 			this.spinDeposit.CanFocus = true;
 			this.spinDeposit.Name = "spinDeposit";
 			this.spinDeposit.Adjustment.PageIncrement = 10;

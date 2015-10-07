@@ -6209,7 +6209,7 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataSpinButton" id="spinDeposit">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Upper">100000</property>
+                    <property name="Upper">99999</property>
                     <property name="PageIncrement">10</property>
                     <property name="StepIncrement">1</property>
                     <property name="ClimbRate">1</property>
@@ -6659,7 +6659,7 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataSpinButton" id="spinDeposit">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Upper">9000000</property>
+                    <property name="Upper">99999</property>
                     <property name="PageIncrement">10</property>
                     <property name="StepIncrement">1</property>
                     <property name="ClimbRate">1</property>
