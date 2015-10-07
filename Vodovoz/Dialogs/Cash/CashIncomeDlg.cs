@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
@@ -77,6 +78,28 @@ namespace Vodovoz
 
 		}
 			
+		protected void OnButtonPrintClicked (object sender, EventArgs e)
+		{
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Expense), "квитанции"))
+				Save ();
+
+			var reportInfo = new QSReport.ReportInfo {
+				Title = String.Format ("Квитанция №{0} от {1:d}", Entity.Id, Entity.Date),
+				Identifier = "Cash.ReturnTicket",
+				Parameters = new Dictionary<string, object> {
+					{ "id",  Entity.Id }
+				}
+			};
+
+			var report = new QSReport.ReportViewDlg (reportInfo);
+			TabParent.AddTab (report, this, false);
+
+		}
+
+		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			buttonPrint.Sensitive = Entity.TypeOperation == IncomeType.Return;
+		}
 	}
 }
 

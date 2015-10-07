@@ -1,0 +1,983 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>server=192.168.1.34;user=admin;database=bazar;port=3306;password=;</ConnectString>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="credit_slip">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT `lessees`.`name` as lessee, `credit_slips`.`date` as docdate, `credit_slips`.`sum` as sum, `contracts`.`number` as contract, 
+`accrual`.`month` as month, `accrual`.`year` as year, users.name as user, `credit_slips`.`details` FROM credit_slips
+LEFT JOIN payments ON payments.credit_slip_id = credit_slips.id
+LEFT JOIN accrual ON accrual.id = credit_slips.accrual_id
+LEFT JOIN lessees ON credit_slips.lessee_id = lessees.id
+LEFT JOIN users ON users.id = credit_slips.user_id
+LEFT JOIN contracts ON credit_slips.contract_id = contracts.id
+WHERE credit_slips.id = @id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id">
+            <Value>=Parameters!id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="lessee">
+          <DataField>lessee</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="date">
+          <DataField>docdate</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="sum">
+          <DataField>sum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="contract">
+          <DataField>contract</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="month">
+          <DataField>month</DataField>
+          <TypeName>System.Byte</TypeName>
+        </Field>
+        <Field Name="year">
+          <DataField>year</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="user">
+          <DataField>user</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="details">
+          <DataField>details</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>27.4pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>7.23pt</Top>
+        <Left>7.23pt</Left>
+        <Width>280.74pt</Width>
+        <Height>21.07pt</Height>
+        <Value>= "Квитанция №" + {?id}</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>5.5pt</Top>
+        <Left>309.1pt</Left>
+        <Width>280.74pt</Width>
+        <Height>21.07pt</Height>
+        <Value>= "Квитанция №" + {?id}</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Line Name="Line1">
+        <Height>239.74pt</Height>
+        <Width>-0.0pt</Width>
+        <Style>
+          <BorderStyle>
+            <Default>Dashed</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>2pt</Default>
+          </BorderWidth>
+        </Style>
+        <Left>292.9pt</Left>
+        <Top>0.0pt</Top>
+      </Line>
+      <List Name="List3">
+        <Height>228.80pt</Height>
+        <Width>278.55pt</Width>
+        <Left>314.1pt</Left>
+        <Top>0.0pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox13">
+            <Height>12.73pt</Height>
+            <Width>258.33pt</Width>
+            <Value>=Fields!date.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>11.7pt</Left>
+            <Top>0.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <Format>d</Format>
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox14">
+            <Height>14.25pt</Height>
+            <Width>158.82pt</Width>
+            <Value>="По договору №" + Fields!contract.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>6.4pt</Left>
+            <Top>17.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox15">
+            <Height>29.24pt</Height>
+            <Width>246.82pt</Width>
+            <Value>="Арендатор: " + Fields!lessee.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.40pt</Left>
+            <Top>35.10pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox16">
+            <Height>13.49pt</Height>
+            <Width>244.66pt</Width>
+            <Value>="Оплата услуг за " + MonthName(Fields!month.Value) + "  " + Fields!year.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.9pt</Left>
+            <Top>64.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Visibility >
+              <Hidden>=Iif(Fields!month.IsMissing, "True", "False")</Hidden>
+            </Visibility>
+          </Textbox>
+          <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>23.99pt</Height>
+            <Width>253.51pt</Width>
+            <Value>="Получено: " + Format(Fields!sum.Value, "C") + "  " + SummaString_Val(Convert.ToString(Fields!sum.Value))</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.1pt</Left>
+            <Top>145.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontStyle>Italic</FontStyle>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.25pt</Height>
+            <Width>249.89pt</Width>
+            <Value>="Кассир: " + Fields!user.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>8.1pt</Left>
+            <Top>181.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox9" >
+            <Height>11.99pt</Height>
+            <Width>64.02pt</Width>
+            <Value>Основание:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.40pt</Left>
+            <Top>82.10pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox10" >
+            <Height>56.35pt</Height>
+            <Width>184.39pt</Width>
+            <Value>={details}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>67.00pt</Left>
+            <Top>82.80pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+                <Left>Solid</Left>
+                <Right>Solid</Right>
+                <Top>Solid</Top>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>credit_slip</DataSetName>
+      </List>
+      <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>228.80pt</Height>
+        <Width>278.55pt</Width>
+        <Left>5.9pt</Left>
+        <Top>0.0pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox5">
+            <Height>12.73pt</Height>
+            <Width>258.33pt</Width>
+            <Value>=Fields!date.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>11.7pt</Left>
+            <Top>0.7pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <Format>d</Format>
+              <TextAlign>Center</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox6">
+            <Height>14.25pt</Height>
+            <Width>158.82pt</Width>
+            <Value>="По договору №" + Fields!contract.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>6.4pt</Left>
+            <Top>17.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox7">
+            <Height>29.24pt</Height>
+            <Width>246.82pt</Width>
+            <Value>="Арендатор: " + Fields!lessee.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.40pt</Left>
+            <Top>35.10pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox8">
+            <Height>13.49pt</Height>
+            <Width>244.66pt</Width>
+            <Value>="Оплата услуг за " + MonthName(Fields!month.Value) + "  " + Fields!year.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.9pt</Left>
+            <Top>64.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <Visibility >
+              <Hidden>=Iif(Fields!month.IsMissing, "True", "False")</Hidden>
+            </Visibility>
+          </Textbox>
+          <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>23.99pt</Height>
+            <Width>253.51pt</Width>
+            <Value>="Получено: " + Format(Fields!sum.Value, "C") + "  " + SummaString_Val(Convert.ToString(Fields!sum.Value))</Value>
+            <ZIndex>1</ZIndex>
+            <Left>7.1pt</Left>
+            <Top>145.4pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontStyle>Italic</FontStyle>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>14.25pt</Height>
+            <Width>249.89pt</Width>
+            <Value>="Кассир: " + Fields!user.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>8.1pt</Left>
+            <Top>181.3pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox17" >
+            <Height>11.99pt</Height>
+            <Width>64.02pt</Width>
+            <Value>Основание:</Value>
+            <ZIndex>1</ZIndex>
+            <Left>5.40pt</Left>
+            <Top>82.10pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Left</TextAlign>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox18" >
+            <Height>56.35pt</Height>
+            <Width>184.39pt</Width>
+            <Value>={details}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>67.00pt</Left>
+            <Top>82.80pt</Top>
+            <Style>
+              <BorderStyle>
+                <Default>Solid</Default>
+                <Left>Solid</Left>
+                <Right>Solid</Right>
+                <Top>Solid</Top>
+                <Bottom>Solid</Bottom>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>credit_slip</DataSetName>
+      </List>
+    </ReportItems>
+    <Height>246.4pt</Height>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
+        Dim T1Str As String
+        Dim T2Str As String
+        Dim T3Str As String
+        Dim T4Str As String
+        Dim KStr As String
+        Dim Cel As String
+ 
+        Summa = Trim$(Summa) 'Удалить пробелы
+        Summa = Replace(Summa, ",", ".", , , vbBinaryCompare) 'Заменить запятые на точки
+        If InStr(1, Summa, ".", vbBinaryCompare) = 0 Then Summa = Summa &amp; ".00" 'Дописать копейки
+        If Mid$(Summa, Len(Summa) - 1, 1) = "." Then Summa = Summa &amp; "0" '
+        'Проверка длины числа
+        If Len(Summa) &gt; 15 Then
+            MsgBox("Слишком длинное число.", vbInformation, "Мультивалютная сумма прописью")
+            Return "Invalid value!"
+            Exit Function
+        End If
+ 
+        If Len(Summa) &lt; 15 Then Summa = New String("0", 15 - Len(Summa)) &amp; Summa
+ 
+        'Анализ первой триады
+        T1Str = TrStr(Left(Summa, 3), 0)
+        If T1Str &lt;&gt; "" Then
+            Select Case Right$(Left(Summa, 3), 1)
+                Case Is = "0"
+                    T1Str = T1Str &amp; "миллиардов "
+                Case Is = "1"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиард "
+                    End If
+                Case Is = "2"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "3"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Is = "4"
+                    If Mid$(Left(Summa, 3), 2, 1) = "1" Then
+                        T1Str = T1Str &amp; "миллиардов "
+                    Else
+                        T1Str = T1Str &amp; "миллиарда "
+                    End If
+                Case Else
+                    T1Str = T1Str &amp; "миллиардов "
+            End Select
+        End If
+ 
+        'Анализ второй триады
+        T2Str = TrStr(Mid$(Summa, 4, 3), 0)
+        If T2Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 4, 3), 1)
+                Case Is = "0"
+                    T2Str = T2Str &amp; "миллионов "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллион "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 4, 3), 2, 1) = "1" Then
+                        T2Str = T2Str &amp; "миллионов "
+                    Else
+                        T2Str = T2Str &amp; "миллиона "
+                    End If
+                Case Else
+                    T2Str = T2Str &amp; "миллионов "
+            End Select
+        End If
+ 
+        'Анализ третьей триады
+        T3Str = TrStr(Mid$(Summa, 7, 3), 1)
+        If T3Str &lt;&gt; "" Then
+            Select Case Right$(Mid$(Summa, 7, 3), 1)
+                Case Is = "0"
+                    T3Str = T3Str &amp; "тысяч "
+                Case Is = "1"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысяча "
+                    End If
+                Case Is = "2"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "3"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Is = "4"
+                    If Mid$(Mid$(Summa, 7, 3), 2, 1) = "1" Then
+                        T3Str = T3Str &amp; "тысяч "
+                    Else
+                        T3Str = T3Str &amp; "тысячи "
+                    End If
+                Case Else
+                    T3Str = T3Str &amp; "тысяч "
+            End Select
+        End If
+ 
+        'Анализ четвертой триады
+        T4Str = TrStr(Mid$(Summa, 10, 3), 0)
+ 
+        'Анализ копеек
+        KStr = KdStr(Right$(Summa, 2), 1)
+ 
+        If Len(T1Str &amp; T2Str &amp; T3Str &amp; T4Str) = 0 Then
+            Cel = "ноль "
+        Else
+            Cel = T1Str &amp; T2Str &amp; T3Str &amp; T4Str
+        End If
+ 
+        '========= Приписать валюту =========
+        'Рубли
+        If Val(Mid$(Summa, 11, 1)) &lt;&gt; 1 Then
+            Select Case Mid$(Summa, 12, 1)
+                Case Is = "0"
+                    Cel = Cel &amp; "рублей "
+                Case Is = "1"
+                    Cel = Cel &amp; "рубль "
+                Case Is = "2"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "3"
+                    Cel = Cel &amp; "рубля "
+                Case Is = "4"
+                    Cel = Cel &amp; "рубля "
+                Case Else
+                    Cel = Cel &amp; "рублей "
+            End Select
+        End If
+ 
+        Select Case Mid$(Summa, 11, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+                Cel = Cel &amp; "рублей "
+        End Select
+ 
+        'Копейки
+        If Val(Mid$(Summa, 14, 1)) &lt;&gt; 1 Then
+            Select Case Right$(Summa, 1)
+                Case Is = "0"
+                    KStr = KStr &amp; "копеек"
+                Case Is = "1"
+                    KStr = KStr &amp; "копейка"
+                Case Is = "2"
+                    KStr = KStr &amp; "копейки"
+                Case Is = "3"
+                    KStr = KStr &amp; "копейки"
+                Case Is = "4"
+                    KStr = KStr &amp; "копейки"
+                Case Else
+                    KStr = KStr &amp; "копеек"
+            End Select
+        End If
+ 
+        Select Case Right$(Summa, 2)
+            Case Is = "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"
+                KStr = KStr &amp; "копеек"
+        End Select
+ 
+        Return Strings.Left(Cel &amp; KStr, 1).ToUpper &amp; Strings.Right(Cel &amp; KStr, Len(Cel &amp; KStr) - 1)
+ 
+    End Function
+    Private Function TrStr(ByVal Triada As String, ByVal Rod As Integer) As String
+        TrStr = ""
+        If Rod = 0 Then
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "один "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "два "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "один "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "два "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        Else
+            Select Case Left$(Triada, 1)
+                Case Is = "1"
+                    TrStr = TrStr &amp; "сто "
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двести "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "триста "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "четыреста "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьсот "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьсот "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьсот "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьсот "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девятьсот "
+            End Select
+ 
+            Select Case Mid$(Triada, 2, 1)
+                Case Is = "2"
+                    TrStr = TrStr &amp; "двадцать "
+                Case Is = "3"
+                    TrStr = TrStr &amp; "тридцать "
+                Case Is = "4"
+                    TrStr = TrStr &amp; "сорок "
+                Case Is = "5"
+                    TrStr = TrStr &amp; "пятьдесят "
+                Case Is = "6"
+                    TrStr = TrStr &amp; "шестьдесят "
+                Case Is = "7"
+                    TrStr = TrStr &amp; "семьдесят "
+                Case Is = "8"
+                    TrStr = TrStr &amp; "восемьдесят "
+                Case Is = "9"
+                    TrStr = TrStr &amp; "девяносто "
+            End Select
+ 
+            If Val(Mid$(Triada, 2, 1)) &gt; 1 Then
+                Select Case Right$(Triada, 1)
+                    Case Is = "1"
+                        TrStr = TrStr &amp; "одна "
+                    Case Is = "2"
+                        TrStr = TrStr &amp; "две "
+                    Case Is = "3"
+                        TrStr = TrStr &amp; "три "
+                    Case Is = "4"
+                        TrStr = TrStr &amp; "четыре "
+                    Case Is = "5"
+                        TrStr = TrStr &amp; "пять "
+                    Case Is = "6"
+                        TrStr = TrStr &amp; "шесть "
+                    Case Is = "7"
+                        TrStr = TrStr &amp; "семь "
+                    Case Is = "8"
+                        TrStr = TrStr &amp; "восемь "
+                    Case Is = "9"
+                        TrStr = TrStr &amp; "девять "
+                End Select
+            End If
+ 
+            Select Case Right$(Triada, 2)
+                Case Is = "01"
+                    TrStr = TrStr &amp; "одна "
+                Case Is = "02"
+                    TrStr = TrStr &amp; "две "
+                Case Is = "03"
+                    TrStr = TrStr &amp; "три "
+                Case Is = "04"
+                    TrStr = TrStr &amp; "четыре "
+                Case Is = "05"
+                    TrStr = TrStr &amp; "пять "
+                Case Is = "06"
+                    TrStr = TrStr &amp; "шесть "
+                Case Is = "07"
+                    TrStr = TrStr &amp; "семь "
+                Case Is = "08"
+                    TrStr = TrStr &amp; "восемь "
+                Case Is = "09"
+                    TrStr = TrStr &amp; "девять "
+                Case Is = "10"
+                    TrStr = TrStr &amp; "десять "
+                Case Is = "11"
+                    TrStr = TrStr &amp; "одиннадцать "
+                Case Is = "12"
+                    TrStr = TrStr &amp; "двенадцать "
+                Case Is = "13"
+                    TrStr = TrStr &amp; "тринадцать "
+                Case Is = "14"
+                    TrStr = TrStr &amp; "четырнадцать "
+                Case Is = "15"
+                    TrStr = TrStr &amp; "пятнадцать "
+                Case Is = "16"
+                    TrStr = TrStr &amp; "шестнадцать "
+                Case Is = "17"
+                    TrStr = TrStr &amp; "семьнадцать "
+                Case Is = "18"
+                    TrStr = TrStr &amp; "восемнадцать "
+                Case Is = "19"
+                    TrStr = TrStr &amp; "девятнадцать "
+            End Select
+        End If
+    End Function
+ 
+    Private Function KdStr(ByVal Kopeiki As String, ByVal Rod As Integer) As String
+        KdStr = ""
+ 
+        If Rod = 0 Then
+            Select Case Left(Kopeiki, 1)
+                Case Is = "2"
+                    KdStr = KdStr &amp; "Двадцать "
+                Case Is = "3"
+                    KdStr = KdStr &amp; "Тридцать "
+                Case Is = "4"
+                    KdStr = KdStr &amp; "Сорок "
+                Case Is = "5"
+                    KdStr = KdStr &amp; "Пятьдесят "
+                Case Is = "6"
+                    KdStr = KdStr &amp; "Шестьдесят "
+                Case Is = "7"
+                    KdStr = KdStr &amp; "Семьдесят "
+                Case Is = "8"
+                    KdStr = KdStr &amp; "Восемьдесят "
+                Case Is = "9"
+                    KdStr = KdStr &amp; "Девяносто "
+            End Select
+ 
+            If Val(Left(Kopeiki, 1)) &gt; 1 Then
+                Select Case Right(Kopeiki, 1)
+                    Case Is = "1"
+                        KdStr = KdStr &amp; "один "
+                    Case Is = "2"
+                        KdStr = KdStr &amp; "два "
+                    Case Is = "3"
+                        KdStr = KdStr &amp; "три "
+                    Case Is = "4"
+                        KdStr = KdStr &amp; "четыре "
+                    Case Is = "5"
+                        KdStr = KdStr &amp; "пять "
+                    Case Is = "6"
+                        KdStr = KdStr &amp; "шесть "
+                    Case Is = "7"
+                        KdStr = KdStr &amp; "семь "
+                    Case Is = "8"
+                        KdStr = KdStr &amp; "восемь "
+                    Case Is = "9"
+                        KdStr = KdStr &amp; "девять "
+                End Select
+            Else
+                Select Case Kopeiki
+                    Case Is = "00"
+                        KdStr = KdStr &amp; "ноль "
+                    Case Is = "01"
+                        KdStr = KdStr &amp; "один "
+                    Case Is = "02"
+                        KdStr = KdStr &amp; "два "
+                    Case Is = "03"
+                        KdStr = KdStr &amp; "три "
+                    Case Is = "04"
+                        KdStr = KdStr &amp; "четыре "
+                    Case Is = "05"
+                        KdStr = KdStr &amp; "пять "
+                    Case Is = "06"
+                        KdStr = KdStr &amp; "шесть "
+                    Case Is = "07"
+                        KdStr = KdStr &amp; "семь "
+                    Case Is = "08"
+                        KdStr = KdStr &amp; "восемь "
+                    Case Is = "09"
+                        KdStr = KdStr &amp; "девять "
+                    Case Is = "10"
+                        KdStr = KdStr &amp; "десять "
+                    Case Is = "11"
+                        KdStr = KdStr &amp; "одиннадцать "
+                    Case Is = "12"
+                        KdStr = KdStr &amp; "двенадцать "
+                    Case Is = "13"
+                        KdStr = KdStr &amp; "тринадцать "
+                    Case Is = "14"
+                        KdStr = KdStr &amp; "четырнадцать "
+                    Case Is = "15"
+                        KdStr = KdStr &amp; "пятнадцать "
+                    Case Is = "16"
+                        KdStr = KdStr &amp; "шестнадцать "
+                    Case Is = "17"
+                        KdStr = KdStr &amp; "семнадцать "
+                    Case Is = "18"
+                        KdStr = KdStr &amp; "восемьнадцать "
+                    Case Is = "19"
+                        KdStr = KdStr &amp; "девятнадцать "
+                End Select
+            End If
+        Else
+            Select Case Left(Kopeiki, 1)
+                Case Is = "2"
+                    KdStr = KdStr &amp; "Двадцать "
+                Case Is = "3"
+                    KdStr = KdStr &amp; "Тридцать "
+                Case Is = "4"
+                    KdStr = KdStr &amp; "Сорок "
+                Case Is = "5"
+                    KdStr = KdStr &amp; "Пятьдесят "
+                Case Is = "6"
+                    KdStr = KdStr &amp; "Шестьдесят "
+                Case Is = "7"
+                    KdStr = KdStr &amp; "Семьдесят "
+                Case Is = "8"
+                    KdStr = KdStr &amp; "Восемьдесят "
+                Case Is = "9"
+                    KdStr = KdStr &amp; "Девяносто "
+            End Select
+ 
+            If Val(Left(Kopeiki, 1)) &gt; 1 Then
+                Select Case Right(Kopeiki, 1)
+                    Case Is = "1"
+                        KdStr = KdStr &amp; "одна "
+                    Case Is = "2"
+                        KdStr = KdStr &amp; "две "
+                    Case Is = "3"
+                        KdStr = KdStr &amp; "три "
+                    Case Is = "4"
+                        KdStr = KdStr &amp; "четыре "
+                    Case Is = "5"
+                        KdStr = KdStr &amp; "пять "
+                    Case Is = "6"
+                        KdStr = KdStr &amp; "шесть "
+                    Case Is = "7"
+                        KdStr = KdStr &amp; "семь "
+                    Case Is = "8"
+                        KdStr = KdStr &amp; "восемь "
+                    Case Is = "9"
+                        KdStr = KdStr &amp; "девять "
+                End Select
+            Else
+                Select Case Kopeiki
+                    Case Is = "00"
+                        KdStr = KdStr &amp; "ноль "
+                    Case Is = "01"
+                        KdStr = KdStr &amp; "одна "
+                    Case Is = "02"
+                        KdStr = KdStr &amp; "две "
+                    Case Is = "03"
+                        KdStr = KdStr &amp; "три "
+                    Case Is = "04"
+                        KdStr = KdStr &amp; "четыре "
+                    Case Is = "05"
+                        KdStr = KdStr &amp; "пять "
+                    Case Is = "06"
+                        KdStr = KdStr &amp; "шесть "
+                    Case Is = "07"
+                        KdStr = KdStr &amp; "семь "
+                    Case Is = "08"
+                        KdStr = KdStr &amp; "восемь "
+                    Case Is = "09"
+                        KdStr = KdStr &amp; "девять "
+                    Case Is = "10"
+                        KdStr = KdStr &amp; "десять "
+                    Case Is = "11"
+                        KdStr = KdStr &amp; "одиннадцать "
+                    Case Is = "12"
+                        KdStr = KdStr &amp; "двенадцать "
+                    Case Is = "13"
+                        KdStr = KdStr &amp; "тринадцать "
+                    Case Is = "14"
+                        KdStr = KdStr &amp; "четырнадцать "
+                    Case Is = "15"
+                        KdStr = KdStr &amp; "пятнадцать "
+                    Case Is = "16"
+                        KdStr = KdStr &amp; "шестнадцать "
+                    Case Is = "17"
+                        KdStr = KdStr &amp; "семнадцать "
+                    Case Is = "18"
+                        KdStr = KdStr &amp; "восемьнадцать "
+                    Case Is = "19"
+                        KdStr = KdStr &amp; "девятнадцать "
+                End Select
+            End If
+        End If
+    End Function</Code>
+  <ReportParameters >
+    <ReportParameter Name="id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>90</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>
