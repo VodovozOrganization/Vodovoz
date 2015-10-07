@@ -98,6 +98,10 @@ namespace Vodovoz.Domain.Cash
 					yield return new ValidationResult ("Статья расхода должна быть указана.",
 						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
 			}
+
+			if(Money <= 0)
+				yield return new ValidationResult ("Сумма должна иметь значение отличное от 0.",
+					new[] { this.GetPropertyName (o => o.Money) });
 		}
 
 		#endregion

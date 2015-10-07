@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Cash
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "приходные одера",
 		Nominative = "приходный ордер")]
-	public class Income : PropertyChangedBase, IDomainObject
+	public class Income : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -81,6 +81,32 @@ namespace Vodovoz.Domain.Cash
 		public Income ()
 		{
 		}
+
+		#region IValidatableObject implementation
+
+		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if(TypeOperation == IncomeType.Return)
+			{
+				if (Employee == null)
+					yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
+						new[] { this.GetPropertyName (o => o.Employee) });
+			}
+
+			if(TypeOperation != IncomeType.Return)
+			{
+				if (ExpenseCategory == null)
+					yield return new ValidationResult ("Статья дохода должна быть указана.",
+						new[] { this.GetPropertyName (o => o.IncomeCategory) });
+			}
+
+			if(Money <= 0)
+				yield return new ValidationResult ("Сумма должна иметь значение отличное от 0.",
+					new[] { this.GetPropertyName (o => o.Money) });
+		}
+
+		#endregion
+
 	}
 
 	public enum IncomeType
