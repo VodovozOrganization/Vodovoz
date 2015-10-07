@@ -95,7 +95,7 @@ namespace Vodovoz.Domain.Cash
 
 			if(TypeOperation != IncomeType.Return)
 			{
-				if (ExpenseCategory == null)
+				if (IncomeCategory == null)
 					yield return new ValidationResult ("Статья дохода должна быть указана.",
 						new[] { this.GetPropertyName (o => o.IncomeCategory) });
 			}
