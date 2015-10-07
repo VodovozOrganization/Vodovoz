@@ -20381,7 +20381,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="label4">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Статья дохода:</property>
+                <property name="LabelProp" translatable="yes">Статья расхода:</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -20782,7 +20782,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="label4">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Статья дохода:</property>
+                <property name="LabelProp" translatable="yes">Статья расхода:</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
