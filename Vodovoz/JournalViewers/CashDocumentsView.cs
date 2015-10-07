@@ -29,7 +29,6 @@ namespace Vodovoz
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
 		{
 			tableDocuments.RepresentationModel.UpdateNodes ();
-
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
@@ -91,7 +90,23 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			OrmMain.DeleteObject (tableDocuments.GetSelectedObjects () [0]);
+			var node = (ViewModel.CashDocumentsVMNode)tableDocuments.GetSelectedNode ();
+			Type docType = null;
+
+			switch(node.DocTypeEnum)
+			{
+			case CashDocumentType.Income:
+				docType = typeof(Income);
+				break;
+			case CashDocumentType.Expense:
+				docType = typeof(Expense);
+				break;
+			case CashDocumentType.AdvanceReport:
+				docType = typeof(AdvanceReport);
+				break;
+			}
+
+			OrmMain.DeleteObject(docType, tableDocuments.GetSelectedId ());
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)

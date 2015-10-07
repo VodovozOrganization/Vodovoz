@@ -8,6 +8,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz
 {
@@ -148,7 +149,11 @@ namespace Vodovoz
 					SqlSelect = "SELECT id, last_name, name, patronymic FROM @tablename ",
 					DisplayString = "{1} {2} {3}",
                     DeleteItems = new List<DeleteDependenceInfo>{
-                        DeleteDependenceInfo.CreateFromBag<Employee>(item => item.Phones) 
+                        DeleteDependenceInfo.CreateFromBag<Employee>(item => item.Phones),
+						DeleteDependenceInfo.Create<Income> (item => item.Casher),
+						DeleteDependenceInfo.Create<Expense> (item => item.Casher),
+						DeleteDependenceInfo.Create<AdvanceReport> (item => item.Casher),
+						DeleteDependenceInfo.Create<AdvanceReport> (item => item.Accountable),
                     },
 					ClearItems = new List<ClearDependenceInfo>
 					{
@@ -159,7 +164,9 @@ namespace Vodovoz
 						ClearDependenceInfo.Create<MovementDocument>(item => item.ResponsiblePerson),
 						ClearDependenceInfo.Create<WriteoffDocument>(item => item.ResponsibleEmployee),
 						ClearDependenceInfo.Create<Organization>(item => item.Leader),
-						ClearDependenceInfo.Create<Organization>(item => item.Buhgalter)
+						ClearDependenceInfo.Create<Organization>(item => item.Buhgalter),
+						ClearDependenceInfo.Create<Income>(item => item.Employee),
+						ClearDependenceInfo.Create<Expense>(item => item.Employee),
 					}
 				}.FillFromMetaInfo()
 			);
@@ -189,8 +196,6 @@ namespace Vodovoz
 			);
 
 			#endregion
-
-
 
 			//Контрагент и все что сним связано
 			#region NearCounterparty
@@ -482,6 +487,61 @@ namespace Vodovoz
 					ObjectClass = typeof(DepositOperation),
 					SqlSelect = "SELECT id, received_deposit, refund_deposit FROM @tablename ",
 					DisplayString = "Залог: получено = {1:C}, возврат = {2:C}"
+				}.FillFromMetaInfo()
+			);
+
+			#endregion
+
+			#region Cash
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Income),
+					SqlSelect = "SELECT id, date FROM @tablename ",
+					DisplayString = "Приходный ордер №{0} от {1}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(Expense),
+					SqlSelect = "SELECT id, date FROM @tablename ",
+
+					DisplayString = "Расходный ордер №{0} от {1}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(AdvanceReport),
+					SqlSelect = "SELECT id, date FROM @tablename ",
+					DisplayString = "Авансовый отчет №{0} от {1}"
+				}.FillFromMetaInfo()
+			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(IncomeCategory),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "Статья дохода {1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Income>(item => item.IncomeCategory)
+					}
+				}.FillFromMetaInfo()
+			);
+				
+			DeleteConfig.AddDeleteInfo(new DeleteInfo
+				{
+					ObjectClass = typeof(ExpenseCategory),
+					SqlSelect = "SELECT id, name FROM @tablename ",
+					DisplayString = "Статья раcхода {1}",
+					ClearItems = new List<ClearDependenceInfo>
+					{
+						ClearDependenceInfo.Create<Expense>(item => item.ExpenseCategory),
+						ClearDependenceInfo.Create<AdvanceReport>(item => item.ExpenseCategory)
+					}
+						
 				}.FillFromMetaInfo()
 			);
 
