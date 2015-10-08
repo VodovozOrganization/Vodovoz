@@ -19743,7 +19743,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 302">
+  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 304">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -19816,10 +19816,28 @@ RegistrationNumber</property>
         <child>
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
-            <property name="NRows">3</property>
+            <property name="NRows">5</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
             <child>
               <widget class="Gamma.Widgets.ySpecComboBox" id="comboCategory">
                 <property name="MemberName" />
@@ -19832,8 +19850,8 @@ RegistrationNumber</property>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
-                <property name="LeftAttach">3</property>
-                <property name="RightAttach">4</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -19902,10 +19920,10 @@ RegistrationNumber</property>
                 </child>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
-                <property name="LeftAttach">3</property>
-                <property name="RightAttach">4</property>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -19926,6 +19944,8 @@ RegistrationNumber</property>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
+                <property name="LeftAttach">2</property>
+                <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -19984,8 +20004,6 @@ RegistrationNumber</property>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
-                <property name="LeftAttach">2</property>
-                <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -20004,10 +20022,28 @@ RegistrationNumber</property>
                 <property name="LabelProp" translatable="yes">Сумма:</property>
               </widget>
               <packing>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelClientTitle">
+                <property name="MemberName" />
+                <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes">Клиент:</property>
+              </widget>
+              <packing>
                 <property name="TopAttach">2</property>
                 <property name="BottomAttach">3</property>
-                <property name="LeftAttach">2</property>
-                <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -20026,8 +20062,8 @@ RegistrationNumber</property>
                 <property name="LabelProp" translatable="yes">Сотрудник:</property>
               </widget>
               <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -20050,8 +20086,8 @@ RegistrationNumber</property>
               <packing>
                 <property name="TopAttach">1</property>
                 <property name="BottomAttach">2</property>
-                <property name="LeftAttach">1</property>
-                <property name="RightAttach">2</property>
+                <property name="LeftAttach">3</property>
+                <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
@@ -20083,13 +20119,34 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryEmploeey">
+              <widget class="Gamma.Widgets.yEntryReference" id="yentryClient">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
                 <property name="BottomAttach">3</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.Widgets.yEntryReference" id="yentryEmploeey">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">3</property>
+                <property name="BottomAttach">4</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>

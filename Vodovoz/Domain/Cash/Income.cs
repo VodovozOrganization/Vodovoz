@@ -45,6 +45,14 @@ namespace Vodovoz.Domain.Cash
 			set { SetField (ref employee, value, () => Employee); }
 		}
 
+		Counterparty customer;
+
+		[Display (Name = "Клиент")]
+		public virtual Counterparty Customer {
+			get { return customer; }
+			set { SetField (ref customer, value, () => Customer); }
+		}
+
 		IncomeCategory incomeCategory;
 
 		[Display (Name = "Статья дохода")]
@@ -113,8 +121,10 @@ namespace Vodovoz.Domain.Cash
 	{
 		[Display (Name = "Прочий приход")]
 		Common,
-		[Display (Name = "Приход от водителя")]
-		DriverReport,
+		[Display (Name = "Оплата покупателя")]
+		Payment,
+//		[Display (Name = "Приход от водителя")]   Временно пока не используется в закрытии маршрутника.
+//		DriverReport,
 		[Display (Name = "Возврат от подотчетного лица")]
 		Return,
 	}
