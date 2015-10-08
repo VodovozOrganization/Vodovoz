@@ -51,8 +51,8 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			comboCategory.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
-			comboCategory.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
+			yentryExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.Subject).InitializeFromSource ();
 
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
