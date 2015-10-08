@@ -16,18 +16,24 @@ namespace Vodovoz
 				if (uow == value)
 					return;
 				uow = value;
-				var vm = new ViewModel.AccountableDebtsVM (value);
+				accountabledebtsfilter1.UoW = value;
+				var vm = new ViewModel.AccountableDebtsVM (accountabledebtsfilter1);
 				representationtreeviewDebts.RepresentationModel = vm;
 				representationtreeviewDebts.RepresentationModel.UpdateNodes ();
 			}
 		}
 
-
 		public AccountableDebts ()
 		{
 			this.Build ();
 			this.TabName = "Долги сотрудников";
+			representationtreeviewDebts.Selection.Changed += RepresentationtreeviewDebts_Selection_Changed;
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+		}
+
+		void RepresentationtreeviewDebts_Selection_Changed (object sender, EventArgs e)
+		{
+			buttonSlips.Sensitive = buttonAdvanceReport.Sensitive = representationtreeviewDebts.Selection.CountSelectedRows () > 0;
 		}
 
 		protected void OnButtonSearchClearClicked (object sender, EventArgs e)
@@ -38,6 +44,11 @@ namespace Vodovoz
 		protected void OnEntrySearchChanged (object sender, EventArgs e)
 		{
 			representationtreeviewDebts.RepresentationModel.SearchString = entrySearch.Text;
+		}
+
+		protected void OnButtonAdvanceReportClicked (object sender, EventArgs e)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

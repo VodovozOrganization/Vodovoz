@@ -15,6 +15,14 @@ namespace Vodovoz.ViewModel
 {
 	public class AccountableDebtsVM : RepresentationModelWithoutEntityBase<AccountableDebtsVMNode>, IRepresentationModelGamma
 	{
+		public AccountableDebtsFilter Filter {
+			get {
+				return RepresentationFilter as AccountableDebtsFilter;
+			}
+			set { RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -37,6 +45,13 @@ namespace Vodovoz.ViewModel
 			var subqueryRemove = QueryOver.Of<AdvanceReport>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Accountable.Id == employeeAlias.Id)
 				.Select (Projections.Sum<AdvanceReport> (o => o.Money));
+
+			if(Filter.RestrictExpenseCategory != null)
+			{
+				subqueryAdd.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
+				subqueryReturn.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
+				subqueryRemove.Where (e => e.ExpenseCategory == Filter.RestrictExpenseCategory);
+			}
 
 			var stocklist = UoW.Session.QueryOver<Employee> (() => employeeAlias)
 				.SelectList(list => list
@@ -75,16 +90,24 @@ namespace Vodovoz.ViewModel
 			if (updatedSubject is Expense)
 				return (updatedSubject as Expense).TypeOperation == ExpenseType.Advance;
 
+			if (updatedSubject is Income)
+				return (updatedSubject as Income).TypeOperation == IncomeType.Return;
+
 			return true;
 		}
 
 		#endregion
 
+		public AccountableDebtsVM (AccountableDebtsFilter filter) : this(filter.UoW)
+		{
+			Filter = filter;
+		}
+
 		public AccountableDebtsVM () 
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
-		public AccountableDebtsVM (IUnitOfWork uow) : base(typeof(Employee), typeof(Expense), typeof(AdvanceReport))
+		public AccountableDebtsVM (IUnitOfWork uow) : base(typeof(Employee), typeof(Income), typeof(Expense), typeof(AdvanceReport))
 		{
 			this.UoW = uow;
 		}

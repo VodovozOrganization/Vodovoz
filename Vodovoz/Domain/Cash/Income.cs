@@ -26,7 +26,25 @@ namespace Vodovoz.Domain.Cash
 		[Display (Name = "Тип операции")]
 		public IncomeType TypeOperation {
 			get { return typeOperation; }
-			set { SetField (ref typeOperation, value, () => TypeOperation); }
+			set { 
+				if(SetField (ref typeOperation, value, () => TypeOperation))
+				{
+					switch(TypeOperation)
+					{
+					case IncomeType.Return:
+						IncomeCategory = null;
+						Customer = null;
+						break;
+					case IncomeType.Common:
+						ExpenseCategory = null;
+						Customer = null;
+						break;
+					case IncomeType.Payment:
+						ExpenseCategory = null;
+						break;
+					}
+				}
+			}
 		}
 
 		Employee casher;
@@ -59,6 +77,17 @@ namespace Vodovoz.Domain.Cash
 		public virtual IncomeCategory IncomeCategory {
 			get { return incomeCategory; }
 			set { SetField (ref incomeCategory, value, () => IncomeCategory); }
+		}
+
+		ExpenseCategory expenseCategory;
+
+		/// <summary>
+		/// Используется только для отслеживания возвратных возвратных денег с типом операции Return
+		/// </summary>
+		[Display (Name = "Статья расхода")]
+		public virtual ExpenseCategory ExpenseCategory {
+			get { return expenseCategory; }
+			set { SetField (ref expenseCategory, value, () => ExpenseCategory); }
 		}
 
 		string description;
@@ -99,6 +128,10 @@ namespace Vodovoz.Domain.Cash
 				if (Employee == null)
 					yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
 						new[] { this.GetPropertyName (o => o.Employee) });
+
+				if (ExpenseCategory == null)
+					yield return new ValidationResult ("Статья по которой брались деньги должна быть указана.",
+						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
 			}
 
 			if(TypeOperation != IncomeType.Return)
@@ -106,6 +139,13 @@ namespace Vodovoz.Domain.Cash
 				if (IncomeCategory == null)
 					yield return new ValidationResult ("Статья дохода должна быть указана.",
 						new[] { this.GetPropertyName (o => o.IncomeCategory) });
+			}
+
+			if(TypeOperation == IncomeType.Payment)
+			{
+				if (Customer == null)
+					yield return new ValidationResult ("Клиент должен быть указан.",
+						new[] { this.GetPropertyName (o => o.Customer) });
 			}
 
 			if(Money <= 0)

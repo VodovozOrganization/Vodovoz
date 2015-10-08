@@ -52,6 +52,9 @@ namespace Vodovoz
 			yentryClient.ItemsQuery = Repository.CounterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
 
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
+			yentryExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.Subject).InitializeFromSource ();
+
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
 			comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
@@ -102,6 +105,8 @@ namespace Vodovoz
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			buttonPrint.Sensitive = Entity.TypeOperation == IncomeType.Return;
+			labelExpenseTitle.Visible = yentryExpense.Visible = Entity.TypeOperation == IncomeType.Return;
+			labelIncomeTitle.Visible = comboCategory.Visible = Entity.TypeOperation != IncomeType.Return;
 
 			labelClientTitle.Visible = yentryClient.Visible = Entity.TypeOperation == IncomeType.Payment;
 		}

@@ -1,7 +1,8 @@
 ﻿using System;
-using Vodovoz.Domain.Cash;
-using QSOrmProject;
 using System.Collections.Generic;
+using NHibernate.Criterion;
+using QSOrmProject;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Repository.Cash
 {
@@ -15,6 +16,11 @@ namespace Vodovoz.Repository.Cash
 		public static IList<ExpenseCategory> ExpenseCategories (IUnitOfWork uow)
 		{
 			return uow.Session.QueryOver<ExpenseCategory> ().List ();
+		}
+
+		public static QueryOver<ExpenseCategory> ExpenseCategoriesQuery()
+		{
+			return QueryOver.Of<ExpenseCategory> ();
 		}
 	}
 }

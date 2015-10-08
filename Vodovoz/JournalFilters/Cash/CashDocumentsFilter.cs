@@ -43,11 +43,6 @@ namespace Vodovoz
 
 		#endregion
 
-		void UpdateCreteria ()
-		{
-			OnRefiltered ();
-		}
-
 		public CashDocumentType? RestrictDocumentType {
 			get { return enumcomboDocumentType.SelectedItem as CashDocumentType?;}
 			set { enumcomboDocumentType.SelectedItem = value;

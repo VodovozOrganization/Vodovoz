@@ -378,6 +378,8 @@
     <Compile Include="Representations\AccountableSlipsVM.cs" />
     <Compile Include="JournalFilters\Cash\CashDocumentsFilter.cs" />
     <Compile Include="JournalFilters\Cash\IAccountableSlipsFilter.cs" />
+    <Compile Include="JournalFilters\Cash\AccountableDebtsFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AccountableDebtsFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
