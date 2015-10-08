@@ -29,6 +29,16 @@ namespace Vodovoz
 			this.TabName = "Долги сотрудников";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 		}
+
+		protected void OnButtonSearchClearClicked (object sender, EventArgs e)
+		{
+			entrySearch.Text = String.Empty;
+		}
+
+		protected void OnEntrySearchChanged (object sender, EventArgs e)
+		{
+			representationtreeviewDebts.RepresentationModel.SearchString = entrySearch.Text;
+		}
 	}
 }
 

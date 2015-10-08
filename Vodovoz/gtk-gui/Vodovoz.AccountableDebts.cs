@@ -6,9 +6,23 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox1;
 		
+		private global::Gtk.HBox hbox2;
+		
+		private global::Gtk.Label label1;
+		
+		private global::Gtk.Entry entrySearch;
+		
+		private global::Gtk.Button buttonSearchClear;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::QSOrmProject.RepresentationTreeView representationtreeviewDebts;
+		
+		private global::Gtk.HBox hbox1;
+		
+		private global::Gtk.Button buttonSlips;
+		
+		private global::Gtk.Button buttonAdvanceReport;
 
 		protected virtual void Build ()
 		{
@@ -21,6 +35,47 @@ namespace Vodovoz
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox ();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label ();
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Поиск:");
+			this.hbox2.Add (this.label1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.label1]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.entrySearch = new global::Gtk.Entry ();
+			this.entrySearch.CanFocus = true;
+			this.entrySearch.Name = "entrySearch";
+			this.entrySearch.IsEditable = true;
+			this.entrySearch.InvisibleChar = '●';
+			this.hbox2.Add (this.entrySearch);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.entrySearch]));
+			w2.Position = 1;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.buttonSearchClear = new global::Gtk.Button ();
+			this.buttonSearchClear.TooltipMarkup = "Очистить";
+			this.buttonSearchClear.CanFocus = true;
+			this.buttonSearchClear.Name = "buttonSearchClear";
+			this.buttonSearchClear.UseUnderline = true;
+			global::Gtk.Image w3 = new global::Gtk.Image ();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-clear", global::Gtk.IconSize.Menu);
+			this.buttonSearchClear.Image = w3;
+			this.hbox2.Add (this.buttonSearchClear);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonSearchClear]));
+			w4.Position = 2;
+			w4.Expand = false;
+			w4.Fill = false;
+			this.vbox1.Add (this.hbox2);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -30,13 +85,46 @@ namespace Vodovoz
 			this.representationtreeviewDebts.Name = "representationtreeviewDebts";
 			this.GtkScrolledWindow.Add (this.representationtreeviewDebts);
 			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
+			w7.Position = 1;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonSlips = new global::Gtk.Button ();
+			this.buttonSlips.CanFocus = true;
+			this.buttonSlips.Name = "buttonSlips";
+			this.buttonSlips.UseUnderline = true;
+			this.buttonSlips.Label = global::Mono.Unix.Catalog.GetString ("Детально");
+			this.hbox1.Add (this.buttonSlips);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonSlips]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonAdvanceReport = new global::Gtk.Button ();
+			this.buttonAdvanceReport.CanFocus = true;
+			this.buttonAdvanceReport.Name = "buttonAdvanceReport";
+			this.buttonAdvanceReport.UseUnderline = true;
+			this.buttonAdvanceReport.Label = global::Mono.Unix.Catalog.GetString ("Создать авансовый отчет");
+			this.hbox1.Add (this.buttonAdvanceReport);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAdvanceReport]));
+			w9.Position = 1;
+			w9.Expand = false;
+			w9.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.entrySearch.Changed += new global::System.EventHandler (this.OnEntrySearchChanged);
+			this.buttonSearchClear.Clicked += new global::System.EventHandler (this.OnButtonSearchClearClicked);
 		}
 	}
 }
