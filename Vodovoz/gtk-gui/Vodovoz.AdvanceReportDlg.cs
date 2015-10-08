@@ -110,7 +110,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table (((uint)(3)), ((uint)(4)), false);
+			this.table1 = new global::Gtk.Table (((uint)(4)), ((uint)(4)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -122,10 +122,8 @@ namespace Vodovoz
 			this.comboCategory.ShowSpecialStateNot = false;
 			this.table1.Add (this.comboCategory);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.comboCategory]));
-			w6.TopAttach = ((uint)(1));
-			w6.BottomAttach = ((uint)(2));
-			w6.LeftAttach = ((uint)(3));
-			w6.RightAttach = ((uint)(4));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -144,6 +142,8 @@ namespace Vodovoz
 			this.hbox5.Add (this.yspinMoney);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.yspinMoney]));
 			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
 			this.currencylabel1 = new global::QSProjectsLib.CurrencyLabel ();
 			this.currencylabel1.Name = "currencylabel1";
@@ -155,10 +155,10 @@ namespace Vodovoz
 			w8.Fill = false;
 			this.table1.Add (this.hbox5);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1 [this.hbox5]));
-			w9.TopAttach = ((uint)(2));
-			w9.BottomAttach = ((uint)(3));
-			w9.LeftAttach = ((uint)(3));
-			w9.RightAttach = ((uint)(4));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
+			w9.LeftAttach = ((uint)(1));
+			w9.RightAttach = ((uint)(2));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -207,6 +207,10 @@ namespace Vodovoz
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
 			this.table1.Add (this.label1);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
+			w14.TopAttach = ((uint)(1));
+			w14.BottomAttach = ((uint)(2));
+			w14.LeftAttach = ((uint)(2));
+			w14.RightAttach = ((uint)(3));
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -227,10 +231,6 @@ namespace Vodovoz
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Статья расхода:");
 			this.table1.Add (this.label4);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.label4]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.LeftAttach = ((uint)(2));
-			w16.RightAttach = ((uint)(3));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -240,10 +240,8 @@ namespace Vodovoz
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Сумма:");
 			this.table1.Add (this.label5);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1 [this.label5]));
-			w17.TopAttach = ((uint)(2));
-			w17.BottomAttach = ((uint)(3));
-			w17.LeftAttach = ((uint)(2));
-			w17.RightAttach = ((uint)(3));
+			w17.TopAttach = ((uint)(3));
+			w17.BottomAttach = ((uint)(4));
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -277,8 +275,10 @@ namespace Vodovoz
 			this.ydateDocument.AutoSeparation = true;
 			this.table1.Add (this.ydateDocument);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1 [this.ydateDocument]));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(2));
+			w20.TopAttach = ((uint)(1));
+			w20.BottomAttach = ((uint)(2));
+			w20.LeftAttach = ((uint)(3));
+			w20.RightAttach = ((uint)(4));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
