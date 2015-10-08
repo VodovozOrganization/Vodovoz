@@ -361,7 +361,6 @@
     <Compile Include="gtk-gui\Vodovoz.CashDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
     <Compile Include="Representations\CashDocumentsVM.cs" />
-    <Compile Include="JournalFilters\CashDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashDocumentsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.StockDocumentsFilter.cs" />
     <Compile Include="Domain\Cash\CashDocumentType.cs" />
@@ -377,7 +376,8 @@
     <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
     <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
     <Compile Include="Representations\AccountableSlipsVM.cs" />
-    <Compile Include="JournalFilters\IAccountableSlipsFilter.cs" />
+    <Compile Include="JournalFilters\Cash\CashDocumentsFilter.cs" />
+    <Compile Include="JournalFilters\Cash\IAccountableSlipsFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -499,6 +499,7 @@
     <Folder Include="HibernateMapping\Cash\" />
     <Folder Include="Dialogs\Cash\" />
     <Folder Include="Repositories\Cash\" />
+    <Folder Include="JournalFilters\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
