@@ -26,6 +26,13 @@ namespace Vodovoz
 			}
 		}
 
+		public AdvanceReportDlg (Employee accountable, ExpenseCategory expenseCategory, decimal money) : this()
+		{
+			Entity.Accountable = accountable;
+			Entity.ExpenseCategory = expenseCategory;
+			Entity.Money = money;
+		}
+
 		public AdvanceReportDlg ()
 		{
 			this.Build ();

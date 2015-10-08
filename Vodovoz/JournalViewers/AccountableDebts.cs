@@ -1,6 +1,8 @@
 ﻿using System;
 using QSOrmProject;
 using QSTDI;
+using Vodovoz.Domain;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -48,7 +50,12 @@ namespace Vodovoz
 
 		protected void OnButtonAdvanceReportClicked (object sender, EventArgs e)
 		{
-			throw new NotImplementedException ();
+			var accountable = UoW.GetById<Employee> (representationtreeviewDebts.GetSelectedId ());
+			var category = accountabledebtsfilter1.RestrictExpenseCategory;
+			decimal money = representationtreeviewDebts.GetSelectedObject<AccountableDebtsVMNode> ().Debt;
+
+			var dlg = new AdvanceReportDlg (accountable, category, money);
+			OpenNewTab (dlg);
 		}
 	}
 }
