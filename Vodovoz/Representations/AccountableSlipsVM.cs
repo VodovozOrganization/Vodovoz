@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
-using NHibernate.Criterion;
+using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Operations;
-using Gamma.GtkWidgets;
-using Gamma.Utilities;
 using QSProjectsLib;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModel
 {
@@ -33,7 +30,6 @@ namespace Vodovoz.ViewModel
 			Expense operationRecivedAlias = null;
 			Income operationReturnedAlias = null;
 			AdvanceReport operationReportedAlias = null;
-			Employee employeeAlias = null;
 
 			List<AccountableSlipsVMNode> result = new List<AccountableSlipsVMNode> ();
 
@@ -57,7 +53,7 @@ namespace Vodovoz.ViewModel
 				.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
-					.Select (e => e.Money).WithAlias (() => resultAlias.Append)
+					.Select (e => e.Money).WithAlias (() => resultAlias.Removed)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
 				.Take (20)
@@ -71,7 +67,7 @@ namespace Vodovoz.ViewModel
 				.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
-					.Select (e => e.Money).WithAlias (() => resultAlias.Append)
+					.Select (e => e.Money).WithAlias (() => resultAlias.Removed)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
 				.Take (20)
