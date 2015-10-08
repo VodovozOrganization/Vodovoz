@@ -65,7 +65,7 @@ namespace Vodovoz
 			};
 
 			entryStreet.StreetSelected += (sender, e) => {
-				entryBuilding.Street = new OsmStreet (entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
+				entryBuilding.Street = new OsmStreet (-1, entryStreet.CityId, entryStreet.Street, entryStreet.StreetDistrict);
 			};
 
 			entryBuilding.Changed += EntryBuilding_Changed;
