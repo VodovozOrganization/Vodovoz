@@ -20238,6 +20238,7 @@ RegistrationNumber</property>
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
                 <property name="Text" translatable="yes" />
+                <property name="WrapMode">WordChar</property>
               </widget>
             </child>
           </widget>
@@ -20646,6 +20647,7 @@ RegistrationNumber</property>
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
                 <property name="Text" translatable="yes" />
+                <property name="WrapMode">WordChar</property>
               </widget>
             </child>
           </widget>
@@ -21119,6 +21121,7 @@ RegistrationNumber</property>
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
                 <property name="Text" translatable="yes" />
+                <property name="WrapMode">WordChar</property>
               </widget>
             </child>
           </widget>

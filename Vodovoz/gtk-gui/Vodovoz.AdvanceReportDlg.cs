@@ -357,6 +357,7 @@ namespace Vodovoz
 			this.ytextviewDescription = new global::Gamma.GtkWidgets.yTextView ();
 			this.ytextviewDescription.CanFocus = true;
 			this.ytextviewDescription.Name = "ytextviewDescription";
+			this.ytextviewDescription.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow.Add (this.ytextviewDescription);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
