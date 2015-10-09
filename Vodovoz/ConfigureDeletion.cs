@@ -498,7 +498,7 @@ namespace Vodovoz
 				{
 					ObjectClass = typeof(Income),
 					SqlSelect = "SELECT id, date FROM @tablename ",
-					DisplayString = "Приходный ордер №{0} от {1}"
+					DisplayString = "Приходный ордер №{0} от {1:d}"
 				}.FillFromMetaInfo()
 			);
 
@@ -507,7 +507,7 @@ namespace Vodovoz
 					ObjectClass = typeof(Expense),
 					SqlSelect = "SELECT id, date FROM @tablename ",
 
-					DisplayString = "Расходный ордер №{0} от {1}"
+					DisplayString = "Расходный ордер №{0} от {1:d}"
 				}.FillFromMetaInfo()
 			);
 
@@ -515,7 +515,7 @@ namespace Vodovoz
 				{
 					ObjectClass = typeof(AdvanceReport),
 					SqlSelect = "SELECT id, date FROM @tablename ",
-					DisplayString = "Авансовый отчет №{0} от {1}"
+					DisplayString = "Авансовый отчет №{0} от {1:d}"
 				}.FillFromMetaInfo()
 			);
 
@@ -536,12 +536,11 @@ namespace Vodovoz
 					ObjectClass = typeof(ExpenseCategory),
 					SqlSelect = "SELECT id, name FROM @tablename ",
 					DisplayString = "Статья раcхода {1}",
-					ClearItems = new List<ClearDependenceInfo>
-					{
-						ClearDependenceInfo.Create<Expense>(item => item.ExpenseCategory),
-						ClearDependenceInfo.Create<AdvanceReport>(item => item.ExpenseCategory)
-					}
-						
+					DeleteItems = new List<DeleteDependenceInfo>{
+						DeleteDependenceInfo.Create<Expense>(item => item.ExpenseCategory),
+						DeleteDependenceInfo.Create<AdvanceReport>(item => item.ExpenseCategory),
+						DeleteDependenceInfo.Create<Income>(item => item.ExpenseCategory),
+					}						
 				}.FillFromMetaInfo()
 			);
 
