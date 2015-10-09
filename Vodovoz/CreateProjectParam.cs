@@ -22,6 +22,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("max_loan_amount", new UserPermission ("max_loan_amount", "Установка максимального кредита",
 				"Пользователь имеет права для установки максимальной суммы кредита."));
 			QSMain.ProjectPermission.Add ("logistican", new UserPermission ("logistican", "Логист", "Пользователь является логистом."));
+			QSMain.ProjectPermission.Add ("money_manage", new UserPermission ("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
 		}
 
 
@@ -106,8 +107,8 @@ namespace Vodovoz
 				//Сервис
 				new OrmObjectMapping<ServiceClaim> (typeof(ServiceClaimDlg), "{Vodovoz.Domain.Service.ServiceClaim} Id[Номер];"),
 				//Касса
-				OrmObjectMapping<IncomeCategory>.Create().SimpleDisplay ().Column ("Название", e => e.Name).End (),
-				OrmObjectMapping<ExpenseCategory>.Create().SimpleDisplay ().Column ("Название", e => e.Name).End (),
+				OrmObjectMapping<IncomeCategory>.Create().EditPermision ("money_manage").SimpleDisplay ().Column ("Название", e => e.Name).End (),
+				OrmObjectMapping<ExpenseCategory>.Create().EditPermision ("money_manage").SimpleDisplay ().Column ("Название", e => e.Name).End (),
 				OrmObjectMapping<Income>.Create().Dialog<CashIncomeDlg> (),
 				OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg> (),
 				OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg> (),

@@ -52,6 +52,7 @@ public partial class MainWindow: Gtk.Window
 		UsersAction.Sensitive = QSMain.User.Admin;
 		ActionParameters.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
+		ActionCash.Sensitive = QSMain.User.Permissions ["money_manage"];
 
 		BanksUpdater.Update (false);
 	}
