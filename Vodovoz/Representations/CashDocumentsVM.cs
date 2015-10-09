@@ -60,6 +60,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => incomeAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => incomeAlias.Date).WithAlias (() => resultAlias.Date)
 						.Select (() => incomeAlias.Money).WithAlias (() => resultAlias.Money)
+						.Select (() => incomeAlias.Description).WithAlias (() => resultAlias.Description)
 						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.EmployeeName)
 						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.EmployeeSurname)
 						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
@@ -93,6 +94,7 @@ namespace Vodovoz.ViewModel
 						.Select (() => expenseAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => expenseAlias.Date).WithAlias (() => resultAlias.Date)
 						.Select (() => expenseAlias.Money).WithAlias (() => resultAlias.Money)
+						.Select (() => expenseAlias.Description).WithAlias (() => resultAlias.Description)
 						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.EmployeeName)
 						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.EmployeeSurname)
 						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
@@ -126,6 +128,7 @@ namespace Vodovoz.ViewModel
 						.Select (() => advanceReportAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => advanceReportAlias.Date).WithAlias (() => resultAlias.Date)
 						.Select (() => advanceReportAlias.Money).WithAlias (() => resultAlias.Money)
+						.Select (() => advanceReportAlias.Description).WithAlias (() => resultAlias.Description)
 						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.EmployeeName)
 						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.EmployeeSurname)
 						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
@@ -152,6 +155,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Статья").SetDataProperty (node => node.Category)
 			.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Money))
 			.AddColumn ("Сотрудник").SetDataProperty (node => node.EmployeeString)
+			.AddColumn ("Основание").SetDataProperty (node => node.Description)
 			.Finish ();
 
 		public override Gtk.DataBindings.IMappingConfig TreeViewConfig {
@@ -222,6 +226,8 @@ namespace Vodovoz.ViewModel
 		}
 
 		public string Category { get; set; }
+
+		public string Description { get; set; }
 
 		public decimal Money { get; set; } 
 	}
