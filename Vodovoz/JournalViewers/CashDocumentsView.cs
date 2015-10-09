@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Linq;
 using Gtk;
 using NLog;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
+using QSProjectsLib;
 using QSTDI;
-using Vodovoz.ViewModel;
 using Vodovoz.Domain.Cash;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -19,11 +21,17 @@ namespace Vodovoz
 			this.TabName = "Кассовые документы";
 			buttonAdd.ItemsEnum = typeof(CashDocumentType);
 			tableDocuments.RepresentationModel = new CashDocumentsVM ();
+			tableDocuments.RepresentationModel.ItemsListUpdated += TableDocuments_RepresentationModel_ItemsListUpdated;
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
 			tableDocuments.RepresentationModel.UpdateNodes ();
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+		}
+
+		void TableDocuments_RepresentationModel_ItemsListUpdated (object sender, EventArgs e)
+		{
+			CalculateTotal ();
 		}
 
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
@@ -115,6 +123,16 @@ namespace Vodovoz
 			hboxFilter.Visible = buttonFilter.Active;
 		}
 
+		void CalculateTotal()
+		{
+			decimal total = 0;
+			foreach(var node in tableDocuments.RepresentationModel.ItemsList.Cast<ViewModel.CashDocumentsVMNode> ())
+			{
+				total += node.Money;
+			}
+			labelDocsSum.LabelProp = String.Format ("Сумма документов: {0}",
+				CurrencyWorks.GetShortCurrencyString (total));
+		}
 	}
 }
 
