@@ -29,6 +29,8 @@ namespace Vodovoz
 		public CashDocumentsFilter ()
 		{
 			this.Build ();
+			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery ();
+			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
 		}
 
 		#region IReferenceFilter implementation
@@ -48,10 +50,54 @@ namespace Vodovoz
 			set { enumcomboDocumentType.SelectedItem = value;
 				enumcomboDocumentType.Sensitive = false;
 			}
-		
+		}
+
+		public ExpenseCategory RestrictExpenseCategory {
+			get { return yentryExpense.Subject as ExpenseCategory;}
+			set { yentryExpense.Subject = value;
+				yentryExpense.Sensitive = false;
+			}
+		}
+
+		public IncomeCategory RestrictIncomeCategory {
+			get { return yentryIncome.Subject as IncomeCategory;}
+			set { yentryIncome.Subject = value;
+				yentryIncome.Sensitive = false;
+			}
+		}
+
+		public DateTime? RestrictStartDate {
+			get { return dateperiodDocs.StartDateOrNull; }
+			set {
+				dateperiodDocs.StartDateOrNull = value;
+				dateperiodDocs.Sensitive = false;
+			}
+		}
+
+		public DateTime? RestrictEndDate {
+			get { return dateperiodDocs.EndDateOrNull; }
+			set {
+				dateperiodDocs.EndDateOrNull = value;
+				dateperiodDocs.Sensitive = false;
+			}
 		}
 
 		protected void OnEnumcomboDocumentTypeEnumItemSelected (object sender, ItemSelectedEventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnDateperiodDocsPeriodChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnYentryExpenseChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+			
+		protected void OnYentryIncomeChanged (object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

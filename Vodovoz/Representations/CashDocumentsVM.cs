@@ -40,7 +40,19 @@ namespace Vodovoz.ViewModel
 			List<CashDocumentsVMNode> result = new List<CashDocumentsVMNode> ();
 
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == CashDocumentType.Income) {
-				var incomeList = UoW.Session.QueryOver<Income> (() => incomeAlias)
+
+				var income = UoW.Session.QueryOver<Income> (() => incomeAlias);
+
+				if (Filter.RestrictExpenseCategory != null)
+					income.Where (i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
+				if (Filter.RestrictIncomeCategory != null)
+					income.Where (i => i.IncomeCategory == Filter.RestrictIncomeCategory);
+				if(Filter.RestrictStartDate.HasValue)
+					income.Where (o => o.Date >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					income.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+
+				var incomeList = income
 					.JoinQueryOver (() => incomeAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => incomeAlias.Casher, () => casherAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => incomeAlias.IncomeCategory, () => incomeCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -63,8 +75,17 @@ namespace Vodovoz.ViewModel
 				result.AddRange (incomeList);
 			}
 		
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == CashDocumentType.Expense) {
-				var expenseList = UoW.Session.QueryOver<Expense> (() => expenseAlias)
+			if (Filter.RestrictIncomeCategory == null && (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == CashDocumentType.Expense)) {
+				var expense = UoW.Session.QueryOver<Expense> (() => expenseAlias);
+
+				if (Filter.RestrictExpenseCategory != null)
+					expense.Where (i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
+				if(Filter.RestrictStartDate.HasValue)
+					expense.Where (o => o.Date >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					expense.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+
+				var expenseList = expense
 					.JoinQueryOver (() => expenseAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => expenseAlias.Casher, () => casherAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => expenseAlias.ExpenseCategory, () => expenseCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -87,8 +108,17 @@ namespace Vodovoz.ViewModel
 				result.AddRange (expenseList);
 			}
 
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == CashDocumentType.AdvanceReport) {
-				var expenseList = UoW.Session.QueryOver<AdvanceReport> (() => advanceReportAlias)
+			if (Filter.RestrictIncomeCategory == null && (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == CashDocumentType.AdvanceReport)) {
+				var advanceReport = UoW.Session.QueryOver<AdvanceReport> (() => advanceReportAlias);
+
+				if (Filter.RestrictExpenseCategory != null)
+					advanceReport.Where (i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
+				if(Filter.RestrictStartDate.HasValue)
+					advanceReport.Where (o => o.Date >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					advanceReport.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+
+				var advanceReportList = advanceReport
 					.JoinQueryOver (() => advanceReportAlias.Accountable, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => advanceReportAlias.Casher, () => casherAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => advanceReportAlias.ExpenseCategory, () => expenseCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -107,8 +137,8 @@ namespace Vodovoz.ViewModel
 					.TransformUsing (Transformers.AliasToBean<CashDocumentsVMNode> ())
 					.List<CashDocumentsVMNode> ();
 
-				expenseList.ToList ().ForEach (i => i.DocTypeEnum = CashDocumentType.AdvanceReport);
-				result.AddRange (expenseList);
+				advanceReportList.ToList ().ForEach (i => i.DocTypeEnum = CashDocumentType.AdvanceReport);
+				result.AddRange (advanceReportList);
 			}
 
 			SetItemsSource (result.OrderByDescending (d => d.Date).ToList ());

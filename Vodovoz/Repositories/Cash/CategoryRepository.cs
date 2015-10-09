@@ -22,6 +22,12 @@ namespace Vodovoz.Repository.Cash
 		{
 			return QueryOver.Of<ExpenseCategory> ();
 		}
+
+		public static QueryOver<IncomeCategory> IncomeCategoriesQuery()
+		{
+			return QueryOver.Of<IncomeCategory> ();
+		}
+
 	}
 }
 
