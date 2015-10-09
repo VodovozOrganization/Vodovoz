@@ -8,7 +8,7 @@ namespace Vodovoz
 	{
 		decimal? RestrictDebt { get;}
 
-		Employee Accountable { get;}
+		Employee RestrictAccountable { get;}
 	}
 }
 

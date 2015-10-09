@@ -197,7 +197,7 @@ namespace Vodovoz
 			}
 		}
 
-		public Employee Accountable {
+		public Employee RestrictAccountable {
 			get { return Entity.Accountable;
 			}
 		}

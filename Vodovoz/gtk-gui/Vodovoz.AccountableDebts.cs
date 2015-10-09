@@ -136,6 +136,8 @@ namespace Vodovoz
 			this.Hide ();
 			this.entrySearch.Changed += new global::System.EventHandler (this.OnEntrySearchChanged);
 			this.buttonSearchClear.Clicked += new global::System.EventHandler (this.OnButtonSearchClearClicked);
+			this.representationtreeviewDebts.RowActivated += new global::Gtk.RowActivatedHandler (this.OnRepresentationtreeviewDebtsRowActivated);
+			this.buttonSlips.Clicked += new global::System.EventHandler (this.OnButtonSlipsClicked);
 			this.buttonAdvanceReport.Clicked += new global::System.EventHandler (this.OnButtonAdvanceReportClicked);
 		}
 	}

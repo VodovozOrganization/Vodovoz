@@ -57,6 +57,20 @@ namespace Vodovoz
 			var dlg = new AdvanceReportDlg (accountable, category, money);
 			OpenNewTab (dlg);
 		}
+
+		protected void OnButtonSlipsClicked (object sender, EventArgs e)
+		{
+			var accountable = UoW.GetById<Employee> (representationtreeviewDebts.GetSelectedId ());
+			var category = accountabledebtsfilter1.RestrictExpenseCategory;
+
+			var dlg = new AccountableSlipsView (accountable, category);
+			OpenNewTab (dlg);
+		}
+
+		protected void OnRepresentationtreeviewDebtsRowActivated (object o, Gtk.RowActivatedArgs args)
+		{
+			buttonSlips.Click ();
+		}
 	}
 }
 

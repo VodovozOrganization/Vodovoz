@@ -34,7 +34,7 @@ namespace Vodovoz.ViewModel
 			List<AccountableSlipsVMNode> result = new List<AccountableSlipsVMNode> ();
 
 			var recived = UoW.Session.QueryOver<Expense>(() => operationRecivedAlias)
-				.Where(e => e.Employee == Filter.Accountable && e.TypeOperation == ExpenseType.Advance)
+				.Where(e => e.Employee == Filter.RestrictAccountable && e.TypeOperation == ExpenseType.Advance)
 				.OrderBy (e => e.Date).Desc
 				.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
@@ -48,7 +48,7 @@ namespace Vodovoz.ViewModel
 			result.AddRange (recived);
 
 			var returned = UoW.Session.QueryOver<Income>(() => operationReturnedAlias)
-				.Where(e => e.Employee == Filter.Accountable && e.TypeOperation == IncomeType.Return)
+				.Where(e => e.Employee == Filter.RestrictAccountable && e.TypeOperation == IncomeType.Return)
 				.OrderBy (e => e.Date).Desc
 				.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
@@ -62,7 +62,7 @@ namespace Vodovoz.ViewModel
 			result.AddRange (returned);
 
 			var reported = UoW.Session.QueryOver<AdvanceReport>(() => operationReportedAlias)
-				.Where(e => e.Accountable == Filter.Accountable)
+				.Where(e => e.Accountable == Filter.RestrictAccountable)
 				.OrderBy (e => e.Date).Desc
 				.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
