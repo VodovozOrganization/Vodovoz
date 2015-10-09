@@ -207,6 +207,27 @@ namespace Vodovoz
 			if (Refiltered != null)
 				Refiltered (this, new EventArgs ());
 		}
+
+		public ExpenseCategory RestrictExpenseCategory {
+			get { return Entity.ExpenseCategory;
+			}
+		}
+
+		public DateTime? RestrictStartDate {
+			get {
+				return null;
+			}
+		}
+
+		public DateTime? RestrictEndDate {
+			get { return null;
+			}
+		}
+
+		protected void OnYentryExpenseChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
 	}
 }
 

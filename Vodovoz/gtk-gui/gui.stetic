@@ -21029,6 +21029,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yEntryReference" id="yentryExpense">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <signal name="Changed" handler="OnYentryExpenseChanged" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>

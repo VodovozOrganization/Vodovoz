@@ -33,47 +33,74 @@ namespace Vodovoz.ViewModel
 
 			List<AccountableSlipsVMNode> result = new List<AccountableSlipsVMNode> ();
 
-			var recived = UoW.Session.QueryOver<Expense>(() => operationRecivedAlias)
-				.Where(e => e.Employee == Filter.RestrictAccountable && e.TypeOperation == ExpenseType.Advance)
-				.OrderBy (e => e.Date).Desc
-				.SelectList (list => list
+			var recived = UoW.Session.QueryOver<Expense> (() => operationRecivedAlias)
+				.Where (e => e.Employee == Filter.RestrictAccountable && e.TypeOperation == ExpenseType.Advance);
+
+			var returned = UoW.Session.QueryOver<Income> (() => operationReturnedAlias)
+				.Where (e => e.Employee == Filter.RestrictAccountable && e.TypeOperation == IncomeType.Return);
+
+			var reported = UoW.Session.QueryOver<AdvanceReport> (() => operationReportedAlias)
+				.Where (e => e.Accountable == Filter.RestrictAccountable);
+
+
+			//Добавляем условия по фильтру
+			if(Filter.RestrictExpenseCategory != null)
+			{
+				recived.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+				returned.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+				reported.Where (o => o.ExpenseCategory == Filter.RestrictExpenseCategory);
+			}
+				
+			if(Filter.RestrictStartDate.HasValue)
+			{
+				recived.Where (o => o.Date >= Filter.RestrictStartDate.Value);
+				returned.Where (o => o.Date >= Filter.RestrictStartDate.Value);
+				reported.Where (o => o.Date >= Filter.RestrictStartDate.Value);
+			}
+				
+			if(Filter.RestrictEndDate.HasValue)
+			{
+				recived.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+				returned.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+				reported.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+			}
+				
+			if(!Filter.RestrictEndDate.HasValue && !Filter.RestrictEndDate.HasValue)
+			{
+				recived.OrderBy (e => e.Date).Desc.Take (20);
+				returned.OrderBy (e => e.Date).Desc.Take (20);
+				reported.OrderBy (e => e.Date).Desc.Take (20);
+			}
+
+			var recivedList = recived.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
 					.Select (e => e.Money).WithAlias (() => resultAlias.Append)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
-				.Take (20)
 				.List<AccountableSlipsVMNode>();
-			recived.ToList ().ForEach (i => i.DocType = CashDocumentType.Expense);
-			result.AddRange (recived);
+			recivedList.ToList ().ForEach (i => i.DocType = CashDocumentType.Expense);
+			result.AddRange (recivedList);
 
-			var returned = UoW.Session.QueryOver<Income>(() => operationReturnedAlias)
-				.Where(e => e.Employee == Filter.RestrictAccountable && e.TypeOperation == IncomeType.Return)
-				.OrderBy (e => e.Date).Desc
-				.SelectList (list => list
+			var	returnedList = returned.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
 					.Select (e => e.Money).WithAlias (() => resultAlias.Removed)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
-				.Take (20)
 				.List<AccountableSlipsVMNode>();
-			returned.ToList ().ForEach (i => i.DocType = CashDocumentType.Income);
-			result.AddRange (returned);
+			returnedList.ToList ().ForEach (i => i.DocType = CashDocumentType.Income);
+			result.AddRange (returnedList);
 
-			var reported = UoW.Session.QueryOver<AdvanceReport>(() => operationReportedAlias)
-				.Where(e => e.Accountable == Filter.RestrictAccountable)
-				.OrderBy (e => e.Date).Desc
-				.SelectList (list => list
+			var reportedList = reported.SelectList (list => list
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
 					.Select (e => e.Money).WithAlias (() => resultAlias.Removed)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
-				.Take (20)
 				.List<AccountableSlipsVMNode>();
-			reported.ToList ().ForEach (i => i.DocType = CashDocumentType.AdvanceReport);
-			result.AddRange (reported);
+			reportedList.ToList ().ForEach (i => i.DocType = CashDocumentType.AdvanceReport);
+			result.AddRange (reportedList);
 
 			result.Sort ((x, y) => { 
 				if (x.Date > y.Date)

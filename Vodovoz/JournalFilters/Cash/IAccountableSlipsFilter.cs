@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz
 {
@@ -9,6 +10,12 @@ namespace Vodovoz
 		decimal? RestrictDebt { get;}
 
 		Employee RestrictAccountable { get;}
+
+		ExpenseCategory RestrictExpenseCategory { get;}
+
+		DateTime? RestrictStartDate { get;}
+
+		DateTime? RestrictEndDate { get;}
 	}
 }
 
