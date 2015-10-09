@@ -90,6 +90,9 @@ namespace Vodovoz.Domain.Cash
 				if (Employee == null)
 					yield return new ValidationResult ("Подотчетное лицо должно быть указано.",
 						new[] { this.GetPropertyName (o => o.Employee) });
+				if (ExpenseCategory == null)
+					yield return new ValidationResult ("Статья расхода под которую выдаются деньги должна быть заполнена.",
+						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
 			}
 
 			if(TypeOperation == ExpenseType.Expense)
