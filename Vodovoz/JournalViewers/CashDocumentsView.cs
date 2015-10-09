@@ -106,7 +106,8 @@ namespace Vodovoz
 				break;
 			}
 
-			OrmMain.DeleteObject(docType, tableDocuments.GetSelectedId ());
+			if (OrmMain.DeleteObject (docType, tableDocuments.GetSelectedId ()))
+				tableDocuments.RepresentationModel.UpdateNodes ();
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)
