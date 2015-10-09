@@ -23,7 +23,7 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			Entity.Date = DateTime.Today;
+			Entity.Date = DateTime.Now;
 			ConfigureDlg ();
 		}
 

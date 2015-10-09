@@ -44,7 +44,7 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			Entity.Date = DateTime.Today;
+			Entity.Date = DateTime.Now;
 			ConfigureDlg ();
 			FillDebt ();
 			treeviewDebts.RepresentationModel = new ViewModel.AccountableSlipsVM (this);

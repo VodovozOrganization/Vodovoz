@@ -111,15 +111,7 @@ namespace Vodovoz.ViewModel
 				result.AddRange (expenseList);
 			}
 
-			result.Sort ((x, y) => { 
-				if (x.Date > y.Date)
-					return 1;
-				if (x.Date == y.Date)
-					return 0;
-				return -1;
-			});
-
-			SetItemsSource (result);
+			SetItemsSource (result.OrderByDescending (d => d.Date).ToList ());
 		}
 
 		Gtk.DataBindings.IMappingConfig treeViewConfig = Gtk.DataBindings.FluentMappingConfig<CashDocumentsVMNode>.Create ()
