@@ -2,5 +2,6 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionCashDocuments' action='ActionCashDocuments'/>
 		<toolitem name='ActionAccountableDebt' action='ActionAccountableDebt'/>
+		<toolitem name='ActionCashFlow' action='ActionCashFlow'/>
 	</toolbar>
 </ui>

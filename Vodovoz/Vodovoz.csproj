@@ -384,6 +384,8 @@
     <Compile Include="gtk-gui\Vodovoz.AccountableSlipsView.cs" />
     <Compile Include="JournalFilters\Cash\AccountableSlipFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableSlipFilter.cs" />
+    <Compile Include="ReportsParameters\CashFlow.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.CashFlow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -506,6 +508,7 @@
     <Folder Include="Dialogs\Cash\" />
     <Folder Include="Repositories\Cash\" />
     <Folder Include="JournalFilters\Cash\" />
+    <Folder Include="ReportsParameters\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -551,6 +554,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Cash\ReturnTicket.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\CashFlow.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\CashFlowDetail.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
