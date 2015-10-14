@@ -16,6 +16,7 @@ public partial class MainWindow : Window
 	Action ActionCashDocuments;
 	Action ActionAccountableDebt;
 	Action ActionCashFlow;
+	Action ActionTransferBankDocs;
 
 	public void BuildToolbarActions ()
 	{
@@ -36,7 +37,8 @@ public partial class MainWindow : Window
 		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
 		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
-
+		//Бухгалтерия
+		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
@@ -51,6 +53,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionCashDocuments, null);
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionCashFlow, null);
+		w1.Add (ActionTransferBankDocs, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -65,12 +68,18 @@ public partial class MainWindow : Window
 		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
+		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		#endregion
+	}
+
+	void ActionTransferBankDocs_Activated (object sender, System.EventArgs e)
+	{
+		
 	}
 
 	void ActionCashFlow_Activated (object sender, System.EventArgs e)
 	{
-		var report = new QSReport.ReportViewDlg (new Vodovoz.Reports.CashFlow());
+		var report = new QSReport.ReportViewDlg (new Vodovoz.Reports.CashFlow ());
 		tdiMain.AddTab (report);
 	}
 

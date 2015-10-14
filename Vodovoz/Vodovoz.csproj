@@ -97,6 +97,9 @@
     <EmbeddedResource Include="toolbars\cash.xml">
       <LogicalName>cash.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="toolbars\accounting.xml">
+      <LogicalName>accounting.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

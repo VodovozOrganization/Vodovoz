@@ -53,6 +53,7 @@ public partial class MainWindow: Gtk.Window
 		ActionParameters.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
 		ActionCash.Sensitive = QSMain.User.Permissions ["money_manage"];
+		ActionAccounting.Sensitive = QSMain.User.Permissions ["money_manage"];
 
 		BanksUpdater.Update (false);
 	}
@@ -399,5 +400,11 @@ public partial class MainWindow: Gtk.Window
 	{
 		if (ActionCash.Active)
 			SwitchToUI ("cash.xml");
+	}
+
+	protected void OnActionAccountingToggled (object sender, EventArgs e)
+	{
+		if (ActionAccounting.Active)
+			SwitchToUI ("accounting.xml");
 	}
 }

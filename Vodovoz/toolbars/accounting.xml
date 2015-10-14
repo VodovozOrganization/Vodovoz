@@ -1,0 +1,5 @@
+﻿<ui>
+	<toolbar name='toolbarSub'>
+		<toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/>
+	</toolbar>
+</ui>
