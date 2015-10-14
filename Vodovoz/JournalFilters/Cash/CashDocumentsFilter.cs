@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Gamma.Widgets;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -31,6 +32,7 @@ namespace Vodovoz
 			this.Build ();
 			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery ();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
+			entryEmployee.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
 		}
 
 		#region IReferenceFilter implementation
@@ -66,6 +68,13 @@ namespace Vodovoz
 			}
 		}
 
+		public Employee RestrictEmployee {
+			get { return entryEmployee.Subject as Employee;}
+			set { entryEmployee.Subject = value;
+				entryEmployee.Sensitive = false;
+			}
+		}
+
 		public DateTime? RestrictStartDate {
 			get { return dateperiodDocs.StartDateOrNull; }
 			set {
@@ -98,6 +107,11 @@ namespace Vodovoz
 		}
 			
 		protected void OnYentryIncomeChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnEntryEmployeeChanged (object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

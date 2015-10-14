@@ -51,6 +51,8 @@ namespace Vodovoz.ViewModel
 					income.Where (o => o.Date >= Filter.RestrictStartDate.Value);
 				if(Filter.RestrictEndDate.HasValue)
 					income.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+				if (Filter.RestrictEmployee != null)
+					income.Where (o => o.Employee == Filter.RestrictEmployee);
 
 				var incomeList = income
 					.JoinQueryOver (() => incomeAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -85,6 +87,8 @@ namespace Vodovoz.ViewModel
 					expense.Where (o => o.Date >= Filter.RestrictStartDate.Value);
 				if(Filter.RestrictEndDate.HasValue)
 					expense.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+				if (Filter.RestrictEmployee != null)
+					expense.Where (o => o.Employee == Filter.RestrictEmployee);
 
 				var expenseList = expense
 					.JoinQueryOver (() => expenseAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -119,6 +123,8 @@ namespace Vodovoz.ViewModel
 					advanceReport.Where (o => o.Date >= Filter.RestrictStartDate.Value);
 				if(Filter.RestrictEndDate.HasValue)
 					advanceReport.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+				if (Filter.RestrictEmployee != null)
+					advanceReport.Where (o => o.Accountable == Filter.RestrictEmployee);
 
 				var advanceReportList = advanceReport
 					.JoinQueryOver (() => advanceReportAlias.Accountable, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
