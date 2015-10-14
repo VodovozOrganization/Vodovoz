@@ -12293,7 +12293,16 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <placeholder />
+              <widget class="Gtk.Label" id="labelCurrentCash">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">label1</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
             </child>
             <child>
               <placeholder />

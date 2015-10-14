@@ -24,6 +24,8 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox2;
 		
+		private global::Gtk.Label labelCurrentCash;
+		
 		private global::Gtk.Label labelDocsSum;
 
 		protected virtual void Build ()
@@ -34,7 +36,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.CashDocumentsView";
 			// Container child Vodovoz.CashDocumentsView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
@@ -131,20 +132,29 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
+			this.labelCurrentCash = new global::Gtk.Label ();
+			this.labelCurrentCash.Name = "labelCurrentCash";
+			this.labelCurrentCash.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
+			this.hbox2.Add (this.labelCurrentCash);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.labelCurrentCash]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.labelDocsSum = new global::Gtk.Label ();
 			this.labelDocsSum.Name = "labelDocsSum";
 			this.labelDocsSum.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
 			this.hbox2.Add (this.labelDocsSum);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.labelDocsSum]));
-			w12.PackType = ((global::Gtk.PackType)(1));
-			w12.Position = 2;
-			w12.Expand = false;
-			w12.Fill = false;
-			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
-			w13.Position = 3;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.labelDocsSum]));
+			w13.PackType = ((global::Gtk.PackType)(1));
+			w13.Position = 2;
 			w13.Expand = false;
 			w13.Fill = false;
+			this.vbox1.Add (this.hbox2);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			w14.Position = 3;
+			w14.Expand = false;
+			w14.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

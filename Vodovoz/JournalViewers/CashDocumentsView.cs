@@ -15,18 +15,31 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
+		private IUnitOfWork uow;
+
 		public CashDocumentsView ()
 		{
 			this.Build ();
 			this.TabName = "Кассовые документы";
 			buttonAdd.ItemsEnum = typeof(CashDocumentType);
 			tableDocuments.RepresentationModel = new CashDocumentsVM ();
+			uow = tableDocuments.RepresentationModel.UoW;
 			tableDocuments.RepresentationModel.ItemsListUpdated += TableDocuments_RepresentationModel_ItemsListUpdated;
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
 			tableDocuments.RepresentationModel.UpdateNodes ();
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+
+			//Подписываемся на обновления для общей кассы
+			OrmMain.GetObjectDescription<Expense> ().ObjectUpdated += OnCashUpdated;
+			OrmMain.GetObjectDescription<Income> ().ObjectUpdated += OnCashUpdated;
+			UpdateCurrentCash ();
+		}
+
+		void OnCashUpdated (object sender, OrmObjectUpdatedEventArgs e)
+		{
+			UpdateCurrentCash ();
 		}
 
 		void TableDocuments_RepresentationModel_ItemsListUpdated (object sender, EventArgs e)
@@ -115,7 +128,10 @@ namespace Vodovoz
 			}
 
 			if (OrmMain.DeleteObject (docType, tableDocuments.GetSelectedId ()))
+			{
 				tableDocuments.RepresentationModel.UpdateNodes ();
+				UpdateCurrentCash ();
+			}
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)
@@ -132,6 +148,14 @@ namespace Vodovoz
 			}
 			labelDocsSum.LabelProp = String.Format ("Сумма документов: {0}",
 				CurrencyWorks.GetShortCurrencyString (total));
+		}
+
+		void UpdateCurrentCash ()
+		{
+			labelCurrentCash.LabelProp = String.Format ("Сейчас денег в кассе: {0}", 
+				CurrencyWorks.GetShortCurrencyString (
+					Repository.Cash.CashRepository.CurrentCash (uow)
+				));
 		}
 	}
 }

@@ -386,6 +386,7 @@
     <Compile Include="gtk-gui\Vodovoz.AccountableSlipFilter.cs" />
     <Compile Include="ReportsParameters\CashFlow.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.CashFlow.cs" />
+    <Compile Include="Repositories\Cash\CashRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
