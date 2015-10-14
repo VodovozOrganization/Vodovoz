@@ -105,6 +105,11 @@ namespace Vodovoz.Domain.Cash
 			if(Money <= 0)
 				yield return new ValidationResult ("Сумма должна иметь значение отличное от 0.",
 					new[] { this.GetPropertyName (o => o.Money) });
+
+			if(String.IsNullOrWhiteSpace (Description))
+				yield return new ValidationResult ("Основание должно быть заполнено.",
+					new[] { this.GetPropertyName (o => o.Description) });
+			
 		}
 
 		#endregion
