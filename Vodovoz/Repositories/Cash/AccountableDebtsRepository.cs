@@ -17,11 +17,11 @@ namespace Vodovoz.Repository.Cash
 
 			decimal returned = uow.Session.QueryOver<Income>()
 				.Where(i => i.Employee == accountable && i.TypeOperation == IncomeType.Return)
-				.Select (Projections.Sum<Expense> (o => o.Money)).SingleOrDefault<decimal> ();
+				.Select (Projections.Sum<Income> (o => o.Money)).SingleOrDefault<decimal> ();
 
 			decimal reported = uow.Session.QueryOver<AdvanceReport>()
 				.Where(a => a.Accountable == accountable)
-				.Select (Projections.Sum<Expense> (o => o.Money)).SingleOrDefault<decimal> ();
+				.Select (Projections.Sum<AdvanceReport> (o => o.Money)).SingleOrDefault<decimal> ();
 			
 			return recived - returned - reported;
 		}
