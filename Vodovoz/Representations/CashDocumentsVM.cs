@@ -148,7 +148,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		Gtk.DataBindings.IMappingConfig treeViewConfig = Gtk.DataBindings.FluentMappingConfig<CashDocumentsVMNode>.Create ()
-			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
+			//.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Тип документа").SetDataProperty (node => node.DocTypeString)
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
 			.AddColumn ("Кассир").SetDataProperty (node => node.CasherString)
