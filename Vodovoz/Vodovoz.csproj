@@ -46,9 +46,6 @@
       <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
-    <Reference Include="FluentNHibernate">
-      <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.1.0\lib\net40\FluentNHibernate.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\..\QSProjects\packages\NHibernate.4.0.4.4000\lib\net40\NHibernate.dll</HintPath>
     </Reference>
@@ -60,6 +57,9 @@
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.1.2\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
