@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     if(cash_income.cash_income_category_id,
@@ -51,7 +51,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryType">
           <DataField>CategoryType</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -75,7 +75,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.cash_expense_category_id as CategoryId,
@@ -98,7 +98,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -118,7 +118,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.cash_expense_category_id as CategoryId,
@@ -151,7 +151,7 @@ ORDER BY Category, employee;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -176,9 +176,26 @@ ORDER BY Category, employee;</CommandText>
     </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>0.0pt</Height>
+    <Height>25.2pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems >
+      <Textbox Name="Textbox17">
+        <Height>18.03pt</Height>
+        <Width>565.42pt</Width>
+        <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>18.20pt</Left>
+        <Top>2.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
   </PageHeader>
   <Body>
     <ReportItems>
@@ -336,8 +353,8 @@ ORDER BY Category, employee;</CommandText>
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={CategoryId}</GroupExpression>
-                <GroupExpression >={CategoryType}</GroupExpression>
+                <GroupExpression>={CategoryId}</GroupExpression>
+                <GroupExpression>={CategoryType}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -383,7 +400,7 @@ ORDER BY Category, employee;</CommandText>
                 </TableRow>
               </TableRows>
             </Header>
-            <Sorting >
+            <Sorting>
               <SortBy>
                 <SortExpression>={Category}</SortExpression>
                 <Direction>Ascending</Direction>
@@ -457,7 +474,7 @@ ORDER BY Category, employee;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -474,7 +491,7 @@ ORDER BY Category, employee;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -569,7 +586,7 @@ ORDER BY Category, employee;</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
-        <TableGroups >
+        <TableGroups>
           <TableGroup>
             <Grouping Name="ExpenseGroup">
               <PageBreakAtStart>false</PageBreakAtStart>
@@ -659,7 +676,7 @@ ORDER BY Category, employee;</CommandText>
           <TableColumn>
             <Width>335.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>108.1pt</Width>
           </TableColumn>
           <TableColumn>
@@ -683,12 +700,12 @@ ORDER BY Category, employee;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
                       <Value>Сотрудник</Value>
@@ -700,7 +717,7 @@ ORDER BY Category, employee;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -717,7 +734,7 @@ ORDER BY Category, employee;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -733,7 +750,7 @@ ORDER BY Category, employee;</CommandText>
               <Height>12pt</Height>
               <TableCells>
                 <TableCell>
-                  <ReportItems >
+                  <ReportItems>
                     <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>={description}</Value>
                       <CanGrow>true</CanGrow>
@@ -748,7 +765,7 @@ ORDER BY Category, employee;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox31">
                       <Value>={employee}</Value>
@@ -793,7 +810,7 @@ ORDER BY Category, employee;</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox19" >
+                    <Textbox Name="Textbox19">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -808,7 +825,7 @@ ORDER BY Category, employee;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Style>
@@ -844,7 +861,7 @@ ORDER BY Category, employee;</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
-        <TableGroups >
+        <TableGroups>
           <TableGroup>
             <Grouping Name="AdvanceGroup">
               <PageBreakAtStart>false</PageBreakAtStart>
