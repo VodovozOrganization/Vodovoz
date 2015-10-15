@@ -1,7 +1,11 @@
 ﻿using System;
 using QSTDI;
 using QSBanks;
+using System.Linq;
 using Gtk;
+using Vodovoz.Repository;
+using QSOrmProject;
+using QSBanks.Repository;
 
 namespace Vodovoz
 {
@@ -9,6 +13,8 @@ namespace Vodovoz
 	public partial class LoadBankTransferDocumentDlg : TdiTabBase
 	{
 		private BankTransferDocumentParser parser;
+		private IUnitOfWork uow;
+
 		private ListStore documents = new ListStore (
 			                              typeof(bool), 
 			                              typeof(string), 
@@ -20,7 +26,14 @@ namespace Vodovoz
 			                              typeof(string), 
 			                              typeof(string), 
 			                              typeof(string), 
-			                              typeof(TransferDocument));
+			                              typeof(TransferDocument),
+			                              typeof(string), 
+			                              typeof(string), 
+			                              typeof(string), 
+			                              typeof(string), 
+			                              typeof(string),
+			                              typeof(string)
+		                              );
 
 		private enum Columns
 		{
@@ -34,14 +47,22 @@ namespace Vodovoz
 			RecipientNameCol,
 			RecipientAccountCol,
 			RecipientBankCol,
-			TransferDocumentCol
+			TransferDocumentCol,
+			PayerNameColorCol,
+			PayerAccountColorCol,
+			PayerBankColorCol,
+			RecipientNameColorCol,
+			RecipientAccountColorCol,
+			RecipientBankColorCol
 		}
-
 
 		public LoadBankTransferDocumentDlg ()
 		{
 			this.Build ();
+			uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TabName = "Загрузка из банк-клиента";
+			labelDescription1.Markup = "<span background=\"light coral\">     </span> - объект будет создан";
+			labelDescription2.Markup = "<span background=\"khaki\">     </span> - объект будет исправлен";
 
 			TreeViewColumn checkColumn = new TreeViewColumn ();
 			checkColumn.Title = "";
@@ -50,6 +71,7 @@ namespace Vodovoz
 			checkCell.Toggled += CheckCell_Toggled;
 			checkColumn.PackStart (checkCell, true);
 			checkColumn.AddAttribute (checkCell, "active", (int)Columns.CheckCol);
+
 
 			TreeViewColumn numberColumn = new TreeViewColumn ();
 			numberColumn.Title = "№";
@@ -74,36 +96,46 @@ namespace Vodovoz
 			CellRendererText payerCell = new CellRendererText ();
 			payerColumn.PackStart (payerCell, true);
 			payerColumn.AddAttribute (payerCell, "text", (int)Columns.PayerNameCol);
+			payerColumn.AddAttribute (payerCell, "background", (int)Columns.PayerNameColorCol);
 
 			TreeViewColumn payerAccountColumn = new TreeViewColumn ();
 			payerAccountColumn.Title = "Счет плательщика";
 			CellRendererText payerAccountCell = new CellRendererText ();
 			payerAccountColumn.PackStart (payerAccountCell, true);
 			payerAccountColumn.AddAttribute (payerAccountCell, "text", (int)Columns.PayerAccountCol);
+			payerAccountColumn.AddAttribute (payerAccountCell, "background", (int)Columns.PayerAccountColorCol);
 
 			TreeViewColumn payerBankColumn = new TreeViewColumn ();
 			payerBankColumn.Title = "Банк плательщика";
 			CellRendererText payerBankCell = new CellRendererText ();
+			payerBankCell.WidthChars = 40;
 			payerBankColumn.PackStart (payerBankCell, true);
 			payerBankColumn.AddAttribute (payerBankCell, "text", (int)Columns.PayerBankCol);
+			payerBankColumn.AddAttribute (payerBankCell, "background", (int)Columns.PayerBankColorCol);
+			payerBankColumn.AddAttribute (payerBankCell, "tooltip_column", (int)Columns.PayerBankCol);
 
 			TreeViewColumn recipientColumn = new TreeViewColumn ();
 			recipientColumn.Title = "Получатель";
 			CellRendererText recipientCell = new CellRendererText ();
 			recipientColumn.PackStart (recipientCell, true);
 			recipientColumn.AddAttribute (recipientCell, "text", (int)Columns.RecipientNameCol);
+			recipientColumn.AddAttribute (recipientCell, "background", (int)Columns.RecipientNameColorCol);
 
 			TreeViewColumn recipientAccountColumn = new TreeViewColumn ();
 			recipientAccountColumn.Title = "Счет получателя";
 			CellRendererText recipientAccountCell = new CellRendererText ();
 			recipientAccountColumn.PackStart (recipientAccountCell, true);
 			recipientAccountColumn.AddAttribute (recipientAccountCell, "text", (int)Columns.RecipientAccountCol);
+			recipientAccountColumn.AddAttribute (recipientAccountCell, "background", (int)Columns.RecipientAccountColorCol);
 
 			TreeViewColumn recipientBankColumn = new TreeViewColumn ();
 			recipientBankColumn.Title = "Банк получателя";
 			CellRendererText recipientBankCell = new CellRendererText ();
+			recipientBankCell.WidthChars = 40;
 			recipientBankColumn.PackStart (recipientBankCell, true);
 			recipientBankColumn.AddAttribute (recipientBankCell, "text", (int)Columns.RecipientBankCol);
+			recipientBankColumn.AddAttribute (payerBankCell, "tooltip", (int)Columns.RecipientBankCol);
+			recipientBankColumn.AddAttribute (recipientBankCell, "background", (int)Columns.RecipientBankColorCol);
 
 			treeDocuments.AppendColumn (checkColumn);
 			treeDocuments.AppendColumn (numberColumn);
@@ -119,6 +151,7 @@ namespace Vodovoz
 			treeDocuments.Model = documents;
 
 			buttonUpload.Sensitive = buttonReadFile.Sensitive = false;
+			checkButtonAll.Sensitive = false;
 		}
 
 		void CheckCell_Toggled (object o, ToggledArgs args)
@@ -129,6 +162,10 @@ namespace Vodovoz
 				bool old = (bool)documents.GetValue (iter, (int)Columns.CheckCol);
 				documents.SetValue (iter, (int)Columns.CheckCol, !old);
 			}
+
+			checkButtonAll.Toggled -= OnCheckButtonAllToggled;
+			checkButtonAll.Active = false;
+			checkButtonAll.Toggled += OnCheckButtonAllToggled;
 		}
 
 		protected void OnButtonUploadClicked (object sender, EventArgs e)
@@ -142,6 +179,7 @@ namespace Vodovoz
 			parser = new BankTransferDocumentParser (filechooser.Filename);
 			parser.Parse ();
 			buttonUpload.Sensitive = true;
+			checkButtonAll.Sensitive = true;
 			foreach (var doc in parser.TransferDocuments) {
 				documents.AppendValues (
 					true, 
@@ -149,14 +187,16 @@ namespace Vodovoz
 					doc.Date.ToShortDateString (), 
 					doc.Total.ToString (), 
 					doc.PayerName,
-					doc.PayerAccount,
+					doc.PayerCheckingAccount,
 					doc.PayerBank,
 					doc.RecipientName,
-					doc.RecipientAccount,
+					doc.RecipientCheckingAccount,
 					doc.RecipientBank,
-					doc
+					doc,
+					"white", "white", "white", "white", "white", "white"
 				);
 			}
+			CheckDocuments ();
 		}
 
 		protected void OnFilechooserSelectionChanged (object sender, EventArgs e)
@@ -164,6 +204,86 @@ namespace Vodovoz
 			buttonReadFile.Sensitive = !String.IsNullOrWhiteSpace (filechooser.Filename);
 			buttonUpload.Sensitive = false;
 		}
+
+		protected void CheckDocuments ()
+		{
+			TreeIter iter;
+			if (!documents.GetIterFirst (out iter))
+				return;
+			do {
+				var doc = (documents.GetValue (iter, (int)Columns.TransferDocumentCol) as TransferDocument);
+
+				//Проверяем плательщика
+				var payerCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn);
+				if (payerCounterparty == null) {
+					var organization = OrganizationRepository.GetOrganizationByName (uow, doc.PayerName);
+					if (organization == null) {
+						documents.SetValue (iter, (int)Columns.PayerNameColorCol, "light coral");
+						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, "light coral");
+						//TODO Добавить контрагента или организацию.
+					} else {
+						if (!organization.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount)) {
+							documents.SetValue (iter, (int)Columns.PayerAccountColorCol, "light coral");
+							//TODO Добавить счет.
+						}
+					}
+				} else {
+					if (payerCounterparty.FullName != doc.PayerName) {
+						documents.SetValue (iter, (int)Columns.PayerNameColorCol, "khaki");
+						//TODO Исправить имя
+					}
+					if (!payerCounterparty.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount)) {
+						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, "light coral");
+						//TODO Добавить счет
+					}
+				}
+
+				//Проверяем получателя
+				var recipientCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn);
+				if (recipientCounterparty == null) {
+					documents.SetValue (iter, (int)Columns.RecipientNameColorCol, "light coral");
+					documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, "light coral");
+					//TODO Добавить контрагента
+				} else {
+					if (recipientCounterparty.FullName != doc.RecipientName) {
+						documents.SetValue (iter, (int)Columns.RecipientNameColorCol, "khaki");
+						//TODO Исправить имя
+					}
+					if (!recipientCounterparty.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount)) {
+						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, "light coral");
+						//TODO Добавить счет
+					}
+				}
+
+				//Проверяем банки
+				var payerBank = BankRepository.GetBankByBik (uow, doc.PayerBik);
+				if (payerBank == null && !String.IsNullOrEmpty (doc.PayerBik)) {
+					documents.SetValue (iter, (int)Columns.PayerBankColorCol, "light coral");
+					//TODO Сделать что-то с банком, если бик не пустой.
+				}
+				var recipientBank = BankRepository.GetBankByBik (uow, doc.RecipientBik);
+				if (recipientBank == null && !String.IsNullOrEmpty (doc.PayerBik)) {
+					documents.SetValue (iter, (int)Columns.RecipientBankColorCol, "light coral");
+					//TODO Сделать что-то с банком, если бик не пустой.
+				}
+			} while (documents.IterNext (ref iter));
+		}
+
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
+		{
+			this.OnCloseTab (false);
+		}
+
+		protected void OnCheckButtonAllToggled (object sender, EventArgs e)
+		{
+			if (!checkButtonAll.HasFocus)
+				return;
+			TreeIter iter;
+			if (!documents.GetIterFirst (out iter))
+				return;
+			do {
+				documents.SetValue (iter, (int)Columns.CheckCol, checkButtonAll.Active);
+			} while (documents.IterNext (ref iter));
+		}
 	}
 }
-

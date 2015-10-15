@@ -21942,6 +21942,24 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
+          <widget class="Gtk.CheckButton" id="checkButtonAll">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Label" translatable="yes">Отметить все</property>
+            <property name="Active">True</property>
+            <property name="DrawIndicator">True</property>
+            <property name="HasLabel">True</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Toggled" handler="OnCheckButtonAllToggled" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
             <property name="MemberName" />
             <property name="ShadowType">In</property>
@@ -21954,7 +21972,7 @@ RegistrationNumber</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">2</property>
+            <property name="Position">3</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
@@ -21962,6 +21980,61 @@ RegistrationNumber</property>
           <widget class="Gtk.HBox" id="hbox3">
             <property name="MemberName" />
             <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="labelDescription1">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">label1</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VSeparator" id="vseparator2">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelDescription2">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">label2</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonCancel">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-close Menu</property>
+                <property name="Label" translatable="yes">Отменить</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">3</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
             <child>
               <widget class="Gtk.Button" id="buttonUpload">
                 <property name="MemberName" />
@@ -21974,14 +22047,14 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">0</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
               </packing>
             </child>
           </widget>
           <packing>
-            <property name="Position">3</property>
+            <property name="Position">4</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

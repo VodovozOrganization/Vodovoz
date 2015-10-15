@@ -13,9 +13,19 @@ namespace Vodovoz.Repository
 				.Where (c => c.CounterpartyType == CounterpartyType.customer);
 		}
 
-		public static IList<Counterparty> All(IUnitOfWork uow)
+		public static IList<Counterparty> All (IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<Counterparty> ().List<Counterparty>();
+			return uow.Session.QueryOver<Counterparty> ().List<Counterparty> ();
+		}
+
+		public static Counterparty GetCounterpartyByINN (IUnitOfWork uow, string inn)
+		{
+			if (string.IsNullOrWhiteSpace (inn))
+				return null;
+			return uow.Session.QueryOver<Counterparty> ()
+				.Where (c => c.INN == inn)
+				.Take (1)
+				.SingleOrDefault ();
 		}
 	}
 }

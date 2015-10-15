@@ -17,6 +17,16 @@ namespace Vodovoz.Repository
 		{
 			return uow.GetById<Organization> (CashlessOrganizationId);
 		}
+
+		public static Organization GetOrganizationByName (IUnitOfWork uow, string fullName)
+		{
+			if (string.IsNullOrWhiteSpace (fullName))
+				return null;
+			return uow.Session.QueryOver<Organization> ()
+				.Where (c => c.FullName == fullName)
+				.Take (1)
+				.SingleOrDefault ();
+		}
 	}
 }
 
