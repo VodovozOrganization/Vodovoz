@@ -99,7 +99,6 @@ namespace Vodovoz
 
 			var report = new QSReport.ReportViewDlg (reportInfo);
 			TabParent.AddTab (report, this, false);
-
 		}
 
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)

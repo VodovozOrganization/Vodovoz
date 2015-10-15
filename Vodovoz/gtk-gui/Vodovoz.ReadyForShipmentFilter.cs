@@ -36,6 +36,7 @@ namespace Vodovoz
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.yspeccomboWarehouse = new global::Gamma.Widgets.ySpecComboBox ();
 			this.yspeccomboWarehouse.Name = "yspeccomboWarehouse";
+			this.yspeccomboWarehouse.AddIfNotExist = false;
 			this.yspeccomboWarehouse.ShowSpecialStateAll = true;
 			this.yspeccomboWarehouse.ShowSpecialStateNot = false;
 			this.hbox3.Add (this.yspeccomboWarehouse);

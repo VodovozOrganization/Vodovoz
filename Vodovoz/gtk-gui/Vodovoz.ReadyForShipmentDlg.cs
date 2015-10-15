@@ -87,6 +87,7 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.ycomboboxWarehouse = new global::Gamma.Widgets.ySpecComboBox ();
 			this.ycomboboxWarehouse.Name = "ycomboboxWarehouse";
+			this.ycomboboxWarehouse.AddIfNotExist = false;
 			this.ycomboboxWarehouse.ShowSpecialStateAll = false;
 			this.ycomboboxWarehouse.ShowSpecialStateNot = false;
 			this.table1.Add (this.ycomboboxWarehouse);

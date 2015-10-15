@@ -3,7 +3,6 @@ using NLog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
-using Vodovoz.Repository;
 
 namespace Vodovoz
 {

@@ -154,6 +154,7 @@ namespace Vodovoz
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
 			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton (0, 1000000, 100);
+			this.yspinMoney.CanDefault = true;
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
 			this.yspinMoney.Adjustment.PageIncrement = 1000;
