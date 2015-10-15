@@ -11,7 +11,7 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class CashDocumentsView : TdiTabBase
+	public partial class CashDocumentsView : TdiTabBase, ITdiJournal
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
