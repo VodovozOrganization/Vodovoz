@@ -74,7 +74,8 @@ public partial class MainWindow : Window
 
 	void ActionTransferBankDocs_Activated (object sender, System.EventArgs e)
 	{
-		
+		var win = new LoadBankTransferDocumentDlg ();
+		tdiMain.AddTab (win);
 	}
 
 	void ActionCashFlow_Activated (object sender, System.EventArgs e)

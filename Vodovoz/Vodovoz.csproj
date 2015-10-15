@@ -390,6 +390,8 @@
     <Compile Include="ReportsParameters\CashFlow.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.CashFlow.cs" />
     <Compile Include="Repositories\Cash\CashRepository.cs" />
+    <Compile Include="ServiceDialogs\LoadBankTransferDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.LoadBankTransferDocumentDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
