@@ -249,8 +249,6 @@ namespace Vodovoz
 			if (UoWGeneric.Root.Client != null) {
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
-				enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
-					(UoWGeneric.Root.Client.PersonType == PersonType.legal);
 			} else {
 				referenceDeliveryPoint.Sensitive = false;
 			}
@@ -654,6 +652,12 @@ namespace Vodovoz
 					});
 				TabParent.AddSlaveTab (this, dlg);
 			}
+		}
+
+		protected void OnEnumPaymentTypeChanged (object sender, EventArgs e)
+		{
+			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
+				(Entity.PaymentType == PaymentType.cashless);
 		}
 	}
 
