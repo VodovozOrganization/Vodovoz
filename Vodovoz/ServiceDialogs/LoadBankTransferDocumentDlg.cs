@@ -7,6 +7,8 @@ using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Repository;
+using System.Text.RegularExpressions;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -17,7 +19,6 @@ namespace Vodovoz
 		private IUnitOfWork uow;
 
 		private const string NeedToAdd = "light coral";
-		private const string NeedToUpdate = "khaki";
 		private const string OddRowColor = "white";
 		private const string EvenRowColor = "gray94";
 
@@ -72,7 +73,6 @@ namespace Vodovoz
 			uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TabName = "Загрузка из банк-клиента";
 			labelDescription1.Markup = String.Format ("<span background=\"{0}\">     </span> - объект будет создан", NeedToAdd);
-			labelDescription2.Markup = String.Format ("<span background=\"{0}\">     </span> - объект будет исправлен", NeedToUpdate);
 
 			TreeViewColumn checkColumn = new TreeViewColumn ();
 			checkColumn.Title = "";
@@ -256,12 +256,8 @@ namespace Vodovoz
 						//Проверяем, есть ли организация с таким именем
 						documents.SetValue (iter, (int)Columns.PayerNameColorCol, NeedToAdd);
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
-					} else {
-						if (payerCounterparty.FullName != doc.PayerName)
-							documents.SetValue (iter, (int)Columns.PayerNameColorCol, NeedToUpdate);
-						if (!payerCounterparty.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
-							documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
-					}
+					} else if (!payerCounterparty.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
+						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
 				} else {
 					if (!organization.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
@@ -276,10 +272,8 @@ namespace Vodovoz
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
 					} else if (!organization.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
-				} else {
-					if (!recipientCounterparty.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
-						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
-				}
+				} else if (!recipientCounterparty.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
+					documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
 
 				//Проверяем банки
 				var payerBank = BankRepository.GetBankByBik (uow, doc.PayerBik);
@@ -302,7 +296,9 @@ namespace Vodovoz
 			if (!documents.GetIterFirst (out iter))
 				return;
 			do {
-				//TODO Сделать исправление имени.
+				//FIXME Исправить множественные добавления одного и того же контрагента.
+
+
 				//Шевелим прогрессбаром. I'd like to move it, move it.
 				if (progressBar.Fraction + progressStep > 1)
 					progressBar.Fraction = 1;
@@ -335,7 +331,9 @@ namespace Vodovoz
 					cuow.Root.FullName = doc.PayerName;
 					cuow.Root.INN = doc.PayerInn;
 					cuow.Root.KPP = doc.PayerKpp;
-					cuow.Root.PersonType = PersonType.legal;	//FIXME Сделать определение типа лица
+					cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.PayerName);
+					if (cuow.Root.TypeOfOwnership != null)
+						cuow.Root.PersonType = PersonType.legal;		//FIXME добавить вопрос - КТО ЭТО?
 					cuow.Root.ObservableAccounts.Add (new Account () {
 						Number = doc.PayerCheckingAccount,
 						InBank = BankRepository.GetBankByBik (uow, doc.PayerBik)
@@ -371,7 +369,9 @@ namespace Vodovoz
 					cuow.Root.FullName = doc.RecipientName;
 					cuow.Root.INN = doc.RecipientInn;
 					cuow.Root.KPP = doc.RecipientKpp;
-					cuow.Root.PersonType = PersonType.legal;	//FIXME Сделать определение типа лица
+					cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.RecipientName);
+					if (cuow.Root.TypeOfOwnership != null)
+						cuow.Root.PersonType = PersonType.legal;		//FIXME добавить вопрос - КТО ЭТО?
 					cuow.Root.ObservableAccounts.Add (new Account () {
 						Number = doc.RecipientCheckingAccount,
 						InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
@@ -408,6 +408,21 @@ namespace Vodovoz
 			do {
 				documents.SetValue (iter, (int)Columns.CheckCol, checkButtonAll.Active);
 			} while (documents.IterNext (ref iter));
+		}
+
+		protected string TryGetOrganizationType (string name)
+		{
+			foreach (var pair in InformationHandbook.OrganizationTypes) {
+				string pattern = String.Format (@".*(^|\(|\s){0}($|\)|\s).*", pair.Key);
+				string fullPattern = String.Format (@".*(^|\(|\s){0}($|\)|\s).*", pair.Value);
+				Regex regex = new Regex (pattern);
+				if (regex.IsMatch (name))
+					return pair.Key;
+				regex = new Regex (fullPattern);
+				if (regex.IsMatch (name))
+					return pair.Key;
+			}
+			return null;
 		}
 	}
 }

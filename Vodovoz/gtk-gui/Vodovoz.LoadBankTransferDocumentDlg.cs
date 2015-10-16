@@ -28,10 +28,6 @@ namespace Vodovoz
 		
 		private global::Gtk.Label labelDescription1;
 		
-		private global::Gtk.VSeparator vseparator2;
-		
-		private global::Gtk.Label labelDescription2;
-		
 		private global::Gtk.Button buttonCancel;
 		
 		private global::Gtk.Button buttonUpload;
@@ -140,57 +136,39 @@ namespace Vodovoz
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.vseparator2 = new global::Gtk.VSeparator ();
-			this.vseparator2.Name = "vseparator2";
-			this.hbox3.Add (this.vseparator2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.vseparator2]));
-			w12.Position = 1;
-			w12.Expand = false;
-			w12.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.labelDescription2 = new global::Gtk.Label ();
-			this.labelDescription2.Name = "labelDescription2";
-			this.labelDescription2.LabelProp = global::Mono.Unix.Catalog.GetString ("label2");
-			this.labelDescription2.UseMarkup = true;
-			this.hbox3.Add (this.labelDescription2);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.labelDescription2]));
-			w13.Position = 2;
-			w13.Expand = false;
-			w13.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonCancel = new global::Gtk.Button ();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
 			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString ("Отменить");
-			global::Gtk.Image w14 = new global::Gtk.Image ();
-			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-close", global::Gtk.IconSize.Menu);
-			this.buttonCancel.Image = w14;
+			global::Gtk.Image w12 = new global::Gtk.Image ();
+			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-close", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Image = w12;
 			this.hbox3.Add (this.buttonCancel);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonCancel]));
-			w15.PackType = ((global::Gtk.PackType)(1));
-			w15.Position = 3;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonCancel]));
+			w13.PackType = ((global::Gtk.PackType)(1));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonUpload = new global::Gtk.Button ();
 			this.buttonUpload.CanFocus = true;
 			this.buttonUpload.Name = "buttonUpload";
 			this.buttonUpload.UseUnderline = true;
 			this.buttonUpload.Label = global::Mono.Unix.Catalog.GetString ("Загрузить");
-			global::Gtk.Image w16 = new global::Gtk.Image ();
-			w16.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-goto-bottom", global::Gtk.IconSize.Menu);
-			this.buttonUpload.Image = w16;
+			global::Gtk.Image w14 = new global::Gtk.Image ();
+			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-goto-bottom", global::Gtk.IconSize.Menu);
+			this.buttonUpload.Image = w14;
 			this.hbox3.Add (this.buttonUpload);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonUpload]));
-			w17.PackType = ((global::Gtk.PackType)(1));
-			w17.Position = 4;
-			w17.Expand = false;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonUpload]));
+			w15.PackType = ((global::Gtk.PackType)(1));
+			w15.Position = 2;
+			w15.Expand = false;
 			this.vbox1.Add (this.hbox3);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
-			w18.Position = 4;
-			w18.Expand = false;
-			w18.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
+			w16.Position = 4;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
