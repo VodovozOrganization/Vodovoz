@@ -27,6 +27,16 @@ namespace Vodovoz.Repository
 				.Take (1)
 				.SingleOrDefault ();
 		}
+
+		public static Organization GetOrganizationByInn (IUnitOfWork uow, string inn)
+		{
+			if (string.IsNullOrWhiteSpace (inn))
+				return null;
+			return uow.Session.QueryOver<Organization> ()
+				.Where (c => c.INN == inn)
+				.Take (1)
+				.SingleOrDefault ();
+		}
 	}
 }
 
