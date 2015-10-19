@@ -14943,7 +14943,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18288,6 +18287,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18373,7 +18373,7 @@ RegistrationNumber</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">RepeatedService</property>
                     <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="Editable">False</property>
+                    <property name="Editable">True</property>
                     <property name="AutomaticTitle">False</property>
                     <property name="InheritedBoundaryDataSource">False</property>
                     <property name="InheritedDataSource">True</property>

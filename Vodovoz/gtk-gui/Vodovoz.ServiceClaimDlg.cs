@@ -243,7 +243,7 @@ namespace Vodovoz
 			this.checkRepeated.InheritedDataSource = true;
 			this.checkRepeated.Mappings = "RepeatedService";
 			this.checkRepeated.InheritedBoundaryDataSource = false;
-			this.checkRepeated.Editable = false;
+			this.checkRepeated.Editable = true;
 			this.checkRepeated.AutomaticTitle = false;
 			this.checkRepeated.InheritedBoundaryDataSource = false;
 			this.checkRepeated.InheritedDataSource = true;
