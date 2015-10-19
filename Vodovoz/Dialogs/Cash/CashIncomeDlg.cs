@@ -57,12 +57,18 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
+			OrmMain.GetObjectDescription<IncomeCategory> ().ObjectUpdated += OnIncomeCategoryUpdated;;
+			OnIncomeCategoryUpdated (null, null);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
 
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
+		}
+
+		void OnIncomeCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		{
+			comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
 		}
 
 		public override bool Save ()
