@@ -691,7 +691,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14883,7 +14882,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="660 500">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="656 500">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -14944,6 +14943,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -15031,7 +15031,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">4</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -15131,6 +15131,7 @@ Patronymic</property>
                         <property name="InheritedBoundaryDataSource">False</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">PaymentType</property>
+                        <signal name="Changed" handler="OnEnumPaymentTypeChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">4</property>
@@ -15254,11 +15255,10 @@ Patronymic</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">False</property>
-                        <property name="YOptions">Fill</property>
                         <property name="XExpand">True</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
+                        <property name="YExpand">True</property>
                         <property name="YFill">True</property>
                         <property name="YShrink">False</property>
                       </packing>
@@ -15589,6 +15589,7 @@ Patronymic</property>
                     <child>
                       <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliverySchedule">
                         <property name="MemberName" />
+                        <property name="WidthRequest">80</property>
                         <property name="Events">ButtonPressMask</property>
                         <property name="DisplayFields">Name</property>
                         <property name="DisplayFormatString">{0}</property>
@@ -15616,9 +15617,7 @@ Patronymic</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">True</property>
-                    <property name="Expand">False</property>
-                    <property name="Fill">False</property>
+                    <property name="AutoSize">False</property>
                   </packing>
                 </child>
               </widget>

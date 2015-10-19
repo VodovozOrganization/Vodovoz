@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
+using Gamma.Utilities;
 using QSOrmProject;
 
 namespace Vodovoz.Domain
