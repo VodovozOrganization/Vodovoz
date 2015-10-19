@@ -198,6 +198,9 @@ namespace Vodovoz
 					return;
 				}
 			}
+			if ((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
+			   && item.Price != 0)
+				return;
 			item.Price = item.Nomenclature.GetPrice (item.Count);
 		}
 

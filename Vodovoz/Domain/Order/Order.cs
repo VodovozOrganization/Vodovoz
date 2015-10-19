@@ -484,7 +484,7 @@ namespace Vodovoz.Domain.Orders
 						    item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
 						    item.Price == equipment.Deposit)) != null) {
 						orderItem.Count++;
-						orderItem.Price = orderItem.Nomenclature.GetPrice (orderItem.Count);
+						orderItem.Price = equipment.Deposit;
 					} else {
 						ObservableOrderItems.Add (
 							new OrderItem {
