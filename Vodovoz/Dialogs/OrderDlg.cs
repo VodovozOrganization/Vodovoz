@@ -1,19 +1,19 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain;
-using NLog;
-using QSValidation;
-using QSTDI;
-using Vodovoz.Repository;
-using QSProjectsLib;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
+using System.Linq;
 using Gtk;
 using Gtk.DataBindings;
-using System.Linq;
+using NLog;
+using QSOrmProject;
+using QSProjectsLib;
+using QSTDI;
+using QSValidation;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
-using System.Collections.Generic;
-using System.Data.Bindings;
 using Vodovoz.Domain.Service;
-using System.ComponentModel.DataAnnotations;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -64,6 +64,11 @@ namespace Vodovoz
 			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositRefundItem;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
+
+			//Подписывемся на изменения листов для засеривания клинета
+			Entity.ObservableOrderDocuments.ElementAdded += Entity_UpdateClientCanChange;
+			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
+			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 
 			enumSignatureType.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
@@ -177,6 +182,11 @@ namespace Vodovoz
 
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable ();
+		}
+
+		void Entity_UpdateClientCanChange (object aList, int[] aIdx)
+		{
+			referenceClient.Sensitive = Entity.CanChangeContractor ();
 		}
 
 		void FixPrice (int id)

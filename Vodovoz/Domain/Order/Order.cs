@@ -41,6 +41,8 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if (value == client)
 					return;
+				if (!CanChangeContractor ())
+					throw new InvalidOperationException ("Нельзя изменить клиента для заполненного заказа.");
 				if (value != null)
 					PaymentType = value.PaymentMethod;
 				SetField (ref client, value, () => Client); 
@@ -179,6 +181,15 @@ namespace Vodovoz.Domain.Orders
 			if ((NHibernate.NHibernateUtil.IsInitialized (OrderItems) && OrderItems.Count > 0) ||
 			    (NHibernate.NHibernateUtil.IsInitialized (OrderDepositRefundItem) && OrderDepositRefundItem.Count > 0) ||
 			    (NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
+				return false;
+			return true;
+		}
+
+		public bool CanChangeContractor ()
+		{
+			if ((NHibernate.NHibernateUtil.IsInitialized (OrderDocuments) && OrderDocuments.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized (InitialOrderService) && InitialOrderService.Count > 0) || 
+				(NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
 				return false;
 			return true;
 		}
