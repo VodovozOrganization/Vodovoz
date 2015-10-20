@@ -288,109 +288,174 @@ namespace Vodovoz
 
 		protected void OnButtonUploadClicked (object sender, EventArgs e)
 		{
+			FillCounterparties ();
+			//FillDocuments ();
+		}
+
+		protected void FillCounterparties ()
+		{
 			TreeIter iter;
 			progressBar.Fraction = 0;
-			progressBar.Text = "Идет исправление/создание недостающих объектов...";
+			progressBar.Text = "Идет исправление/создание недостающих объектов... Операция 1/2";
 			double progressStep = 1.0 / rowsCount;
 
 			if (!documents.GetIterFirst (out iter))
 				return;
-			do {
-				//FIXME Исправить множественные добавления одного и того же контрагента.
+			try {
+				do {
+					//Шевелим прогрессбаром. I'd like to move it, move it.
+					if (progressBar.Fraction + progressStep > 1)
+						progressBar.Fraction = 1;
+					else
+						progressBar.Fraction += progressStep;
+					while (Application.EventsPending ())
+						Application.RunIteration ();
 
+					//Проверяем галочку.
+					if (!(bool)documents.GetValue (iter, (int)Columns.CheckCol))
+						continue;
 
-				//Шевелим прогрессбаром. I'd like to move it, move it.
-				if (progressBar.Fraction + progressStep > 1)
-					progressBar.Fraction = 1;
-				else
-					progressBar.Fraction += progressStep;
-				while (Application.EventsPending ())
-					Application.RunIteration ();
-				
-				//Проверяем галочку.
-				if (!(bool)documents.GetValue (iter, (int)Columns.CheckCol))
-					continue;
+					//Получаем документ
+					var doc = (TransferDocument)documents.GetValue (iter, (int)Columns.TransferDocumentCol);
 
-				//Получаем документ
-				var doc = (TransferDocument)documents.GetValue (iter, (int)Columns.TransferDocumentCol);
+					//Обрабатываем банк плательщика.
+					if ((documents.GetValue (iter, (int)Columns.PayerBankColorCol) as string) == NeedToAdd) {
+						var buow = UnitOfWorkFactory.CreateWithNewRoot<Bank> ();
+						buow.Root.Bik = doc.PayerBik;
+						buow.Root.Name = doc.PayerBank;
+						buow.Root.CorAccount = doc.PayerCorrespondentAccount;
+						buow.Save ();
+						documents.SetValue (iter, (int)Columns.PayerBankColorCol, OddRowColor);
+					}
 
-				//Обрабатываем банк плательщика.
-				if ((documents.GetValue (iter, (int)Columns.PayerBankColorCol) as string) == NeedToAdd) {
-					var buow = UnitOfWorkFactory.CreateWithNewRoot<Bank> ();
-					buow.Root.Bik = doc.PayerBik;
-					buow.Root.Name = doc.PayerBank;
-					buow.Root.CorAccount = doc.PayerCorrespondentAccount;
-					buow.Save ();
-					documents.SetValue (iter, (int)Columns.PayerBankColorCol, OddRowColor);
-				}
+					//Обрабатываем плательщика
+					if ((documents.GetValue (iter, (int)Columns.PayerNameColorCol) as string) == NeedToAdd) {
+						var cuow = UnitOfWorkFactory.CreateWithNewRoot<Counterparty> ();
+						cuow.Root.Name = doc.PayerName;
+						cuow.Root.FullName = doc.PayerName;
+						cuow.Root.INN = doc.PayerInn;
+						cuow.Root.KPP = doc.PayerKpp;
+						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.PayerName);
+						if (cuow.Root.TypeOfOwnership != null)
+							cuow.Root.PersonType = PersonType.legal;
+						else {
+							if (MessageDialogWorks.RunQuestionDialog (
+								    String.Format ("Не удалось определить тип контрагента. Контрагент \"{0}\" является юридическим лицом?", doc.PayerName)))
+								cuow.Root.PersonType = PersonType.legal;
+							else
+								cuow.Root.PersonType = PersonType.natural;
+						}
+						cuow.Root.ObservableAccounts.Add (new Account () {
+							Number = doc.PayerCheckingAccount,
+							InBank = BankRepository.GetBankByBik (uow, doc.PayerBik)
+						});
+						cuow.Save ();
+						documents.SetValue (iter, (int)Columns.PayerNameColorCol, OddRowColor);
+						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, EvenRowColor);
+						DeselectSameOrganizations (doc.PayerInn, doc.PayerName);
+					} else if ((documents.GetValue (iter, (int)Columns.PayerAccountColorCol) as string) == NeedToAdd) {
+						var cuow = UnitOfWorkFactory.CreateForRoot <Counterparty> (
+							           CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn).Id);
+						if (!cuow.Root.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount)) {
+							cuow.Root.Accounts.Add (new Account () {
+								Number = doc.PayerCheckingAccount,
+								InBank = BankRepository.GetBankByBik (uow, doc.PayerBik)
+							});
+							cuow.Save ();
+						}
+						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, EvenRowColor);
+					}
 
-				//Обрабатываем плательщика
-				if ((documents.GetValue (iter, (int)Columns.PayerNameColorCol) as string) == NeedToAdd) {
-					var cuow = UnitOfWorkFactory.CreateWithNewRoot<Counterparty> ();
-					cuow.Root.Name = doc.PayerName;
-					cuow.Root.FullName = doc.PayerName;
-					cuow.Root.INN = doc.PayerInn;
-					cuow.Root.KPP = doc.PayerKpp;
-					cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.PayerName);
-					if (cuow.Root.TypeOfOwnership != null)
-						cuow.Root.PersonType = PersonType.legal;		//FIXME добавить вопрос - КТО ЭТО?
-					cuow.Root.ObservableAccounts.Add (new Account () {
-						Number = doc.PayerCheckingAccount,
-						InBank = BankRepository.GetBankByBik (uow, doc.PayerBik)
-					});
-					cuow.Save ();
-					documents.SetValue (iter, (int)Columns.PayerNameColorCol, OddRowColor);
-					documents.SetValue (iter, (int)Columns.PayerAccountColorCol, EvenRowColor);
-				} else if ((documents.GetValue (iter, (int)Columns.PayerAccountColorCol) as string) == NeedToAdd) {
-					var cuow = UnitOfWorkFactory.CreateForRoot <Counterparty> (
-						           CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn).Id);
-					cuow.Root.Accounts.Add (new Account () {
-						Number = doc.PayerCheckingAccount,
-						InBank = BankRepository.GetBankByBik (uow, doc.PayerBik)
-					});
-					cuow.Save ();
-					documents.SetValue (iter, (int)Columns.PayerAccountColorCol, EvenRowColor);
-				}
+					//Обрабатываем банк получателя.
+					if ((documents.GetValue (iter, (int)Columns.RecipientBankColorCol) as string) == NeedToAdd) {
+						var buow = UnitOfWorkFactory.CreateWithNewRoot<Bank> ();
+						buow.Root.Bik = doc.RecipientBik;
+						buow.Root.Name = doc.RecipientBank;
+						buow.Root.CorAccount = doc.RecipientCorrespondentAccount;
+						buow.Save ();
+						documents.SetValue (iter, (int)Columns.RecipientBankColorCol, EvenRowColor);
+					}
 
-				//Обрабатываем банк получателя.
-				if ((documents.GetValue (iter, (int)Columns.RecipientBankColorCol) as string) == NeedToAdd) {
-					var buow = UnitOfWorkFactory.CreateWithNewRoot<Bank> ();
-					buow.Root.Bik = doc.RecipientBik;
-					buow.Root.Name = doc.RecipientBank;
-					buow.Root.CorAccount = doc.RecipientCorrespondentAccount;
-					buow.Save ();
-					documents.SetValue (iter, (int)Columns.RecipientBankColorCol, EvenRowColor);
-				}
-
-				//Обрабатываем получателя
-				if ((documents.GetValue (iter, (int)Columns.RecipientNameColorCol) as string) == NeedToAdd) {
-					var cuow = UnitOfWorkFactory.CreateWithNewRoot<Counterparty> ();
-					cuow.Root.Name = doc.RecipientName;
-					cuow.Root.FullName = doc.RecipientName;
-					cuow.Root.INN = doc.RecipientInn;
-					cuow.Root.KPP = doc.RecipientKpp;
-					cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.RecipientName);
-					if (cuow.Root.TypeOfOwnership != null)
-						cuow.Root.PersonType = PersonType.legal;		//FIXME добавить вопрос - КТО ЭТО?
-					cuow.Root.ObservableAccounts.Add (new Account () {
-						Number = doc.RecipientCheckingAccount,
-						InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
-					});
-					cuow.Save ();
-					documents.SetValue (iter, (int)Columns.RecipientNameColorCol, EvenRowColor);
-					documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
-				} else if ((documents.GetValue (iter, (int)Columns.RecipientAccountColorCol) as string) == NeedToAdd) {
-					var cuow = UnitOfWorkFactory.CreateForRoot <Counterparty> (
-						           CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn).Id);
-					cuow.Root.Accounts.Add (new Account () {
-						Number = doc.RecipientCheckingAccount,
-						InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
-					});
-					cuow.Save ();	
-					documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
-				}
-			} while (documents.IterNext (ref iter));
+					//Обрабатываем получателя
+					if ((documents.GetValue (iter, (int)Columns.RecipientNameColorCol) as string) == NeedToAdd) {
+						var cuow = UnitOfWorkFactory.CreateWithNewRoot<Counterparty> ();
+						cuow.Root.Name = doc.RecipientName;
+						cuow.Root.FullName = doc.RecipientName;
+						cuow.Root.INN = doc.RecipientInn;
+						cuow.Root.KPP = doc.RecipientKpp;
+						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.RecipientName);
+						if (cuow.Root.TypeOfOwnership != null)
+							cuow.Root.PersonType = PersonType.legal;
+						else {
+							if (MessageDialogWorks.RunQuestionDialog (
+								    String.Format ("Не удалось определить тип контрагента. Контрагент \"{0}\" является юридическим лицом?", doc.RecipientName)))
+								cuow.Root.PersonType = PersonType.legal;
+							else
+								cuow.Root.PersonType = PersonType.natural;
+						}
+						cuow.Root.ObservableAccounts.Add (new Account () {
+							Number = doc.RecipientCheckingAccount,
+							InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
+						});
+						cuow.Save ();
+						documents.SetValue (iter, (int)Columns.RecipientNameColorCol, EvenRowColor);
+						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
+						DeselectSameOrganizations (doc.RecipientInn, doc.RecipientName);
+					} else if ((documents.GetValue (iter, (int)Columns.RecipientAccountColorCol) as string) == NeedToAdd) {
+						var cuow = UnitOfWorkFactory.CreateForRoot <Counterparty> (
+							           CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn).Id);
+						if (!cuow.Root.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount)) {
+							cuow.Root.Accounts.Add (new Account () {
+								Number = doc.RecipientCheckingAccount,
+								InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
+							});
+							cuow.Save ();	
+						}
+						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
+					}
+				} while (documents.IterNext (ref iter));
+			} catch (Exception ex) {
+				progressBar.Text = "Произошла ошибка!";
+				progressBar.Fraction = 0;
+				throw ex;
+			}
 			progressBar.Text = "Исправление/создание недостающих объектов завершено";
+		}
+
+		protected void FillDocuments ()
+		{
+			TreeIter iter;
+			progressBar.Fraction = 0;
+			progressBar.Text = "Загружаем выгрузку из банк-клиента... Операция 2/2";
+			double progressStep = 1.0 / rowsCount;
+
+			if (!documents.GetIterFirst (out iter))
+				return;
+			try {
+				do {
+					//Шевелим прогрессбаром. I'd like to move it, move it.
+					if (progressBar.Fraction + progressStep > 1)
+						progressBar.Fraction = 1;
+					else
+						progressBar.Fraction += progressStep;
+					while (Application.EventsPending ())
+						Application.RunIteration ();
+
+					//Проверяем галочку.
+					if (!(bool)documents.GetValue (iter, (int)Columns.CheckCol))
+						continue;
+					//Получаем документ
+					var doc = (TransferDocument)documents.GetValue (iter, (int)Columns.TransferDocumentCol);
+
+
+					//TODO Добавить заполнение документов прихода и расхода.
+				} while (documents.IterNext (ref iter));
+			} catch (Exception ex) {
+				progressBar.Text = "Произошла ошибка!";
+				progressBar.Fraction = 0;
+				throw ex;
+			}
+			progressBar.Text = "Загрузка завершена успешно";
 		}
 
 		protected void OnButtonCancelClicked (object sender, EventArgs e)
@@ -415,14 +480,34 @@ namespace Vodovoz
 			foreach (var pair in InformationHandbook.OrganizationTypes) {
 				string pattern = String.Format (@".*(^|\(|\s){0}($|\)|\s).*", pair.Key);
 				string fullPattern = String.Format (@".*(^|\(|\s){0}($|\)|\s).*", pair.Value);
-				Regex regex = new Regex (pattern);
+				Regex regex = new Regex (pattern, RegexOptions.IgnoreCase);
 				if (regex.IsMatch (name))
 					return pair.Key;
-				regex = new Regex (fullPattern);
+				regex = new Regex (fullPattern, RegexOptions.IgnoreCase);
 				if (regex.IsMatch (name))
 					return pair.Key;
 			}
 			return null;
+		}
+
+		protected void DeselectSameOrganizations (string INN, string name)
+		{
+			TreeIter iter;
+			if (!documents.GetIterFirst (out iter))
+				return;
+			do {
+				var document = documents.GetValue (iter, (int)Columns.TransferDocumentCol) as TransferDocument;
+				if (document.PayerInn == INN
+				    && document.PayerName == name
+				    && (documents.GetValue (iter, (int)Columns.PayerNameColorCol) as string) == NeedToAdd)
+					documents.SetValue (iter, (int)Columns.PayerNameColorCol, OddRowColor);
+				if (document.RecipientInn == INN
+				    && document.RecipientName == name
+				    && (documents.GetValue (iter, (int)Columns.RecipientNameColorCol) as string) == NeedToAdd)
+					documents.SetValue (iter, (int)Columns.RecipientNameColorCol, EvenRowColor);
+			} while (documents.IterNext (ref iter));
+			while (Application.EventsPending ())
+				Application.RunIteration ();
 		}
 	}
 }
