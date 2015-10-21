@@ -22,42 +22,42 @@ namespace Vodovoz.Domain.Accounting
 			set { SetField (ref date, value, () => Date); }
 		}
 
-		decimal total { get; set; }
+		decimal total;
 
 		public virtual decimal Total {
 			get { return total; }
 			set { SetField (ref total, value, () => Total); }
 		}
 
-		string description { get; set; }
+		string description;
 
 		public virtual string Description {
 			get { return description; }
 			set { SetField (ref description, value, () => Description); }
 		}
 
-		Organization organization { get; set; }
+		Organization organization;
 
 		public virtual Organization Organization {
 			get { return organization; }
 			set { SetField (ref organization, value, () => Organization); }
 		}
 
-		Account organizationAccount { get; set; }
+		Account organizationAccount;
 
 		public virtual Account OrganizationAccount {
 			get { return organizationAccount; }
 			set { SetField (ref organizationAccount, value, () => OrganizationAccount); }
 		}
 
-		Counterparty counterparty { get; set; }
+		Counterparty counterparty;
 
 		public virtual Counterparty Counterparty { 
 			get { return Counterparty; }
 			set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
-		Account counterpartyAccount { get; set; }
+		Account counterpartyAccount;
 
 		public virtual Account CounterpartyAccount {
 			get { return counterpartyAccount; }
