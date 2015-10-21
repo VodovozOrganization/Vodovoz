@@ -7158,7 +7158,6 @@ Patronymic</property>
         <child>
           <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
             <property name="MemberName" />
-            <property name="HscrollbarPolicy">Never</property>
             <property name="ShadowType">In</property>
             <property name="BorderWidth">1</property>
             <child>
@@ -14944,6 +14943,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -15031,7 +15031,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -20269,7 +20269,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="Date">0</property>
-                <property name="IsEditable">False</property>
+                <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
               </widget>
               <packing>
@@ -20699,7 +20699,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="Date">0</property>
-                <property name="IsEditable">False</property>
+                <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
               </widget>
               <packing>
@@ -21129,7 +21129,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="Date">0</property>
-                <property name="IsEditable">False</property>
+                <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
               </widget>
               <packing>

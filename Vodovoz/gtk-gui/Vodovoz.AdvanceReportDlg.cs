@@ -259,7 +259,7 @@ namespace Vodovoz
 			this.ydateDocument.Events = ((global::Gdk.EventMask)(256));
 			this.ydateDocument.Name = "ydateDocument";
 			this.ydateDocument.Date = new global::System.DateTime (0);
-			this.ydateDocument.IsEditable = false;
+			this.ydateDocument.IsEditable = true;
 			this.ydateDocument.AutoSeparation = true;
 			this.table1.Add (this.ydateDocument);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.ydateDocument]));
