@@ -392,6 +392,10 @@
     <Compile Include="Repositories\Cash\CashRepository.cs" />
     <Compile Include="ServiceDialogs\LoadBankTransferDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.LoadBankTransferDocumentDlg.cs" />
+    <Compile Include="Domain\Accounting\AccountIncome.cs" />
+    <Compile Include="Domain\Accounting\AccountExpense.cs" />
+    <Compile Include="HibernateMapping\Accounting\AccountIncomeMap.cs" />
+    <Compile Include="HibernateMapping\Accounting\AccountExpenseMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -515,6 +519,8 @@
     <Folder Include="Repositories\Cash\" />
     <Folder Include="JournalFilters\Cash\" />
     <Folder Include="ReportsParameters\" />
+    <Folder Include="Domain\Accounting\" />
+    <Folder Include="HibernateMapping\Accounting\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
