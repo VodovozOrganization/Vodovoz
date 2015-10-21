@@ -2,4 +2,7 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/>
 	</toolbar>
+	<toolbar name='toolbarSub'>
+		<toolitem name='ActionAccountingTable' action='ActionAccountingTable'/>
+	</toolbar>
 </ui>

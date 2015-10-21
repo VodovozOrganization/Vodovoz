@@ -7,6 +7,7 @@ using QSBanks;
 using NHibernate.Transform;
 using QSProjectsLib;
 using QSOrmProject;
+using System.Linq;
 
 namespace Vodovoz.ViewModel
 {
@@ -103,6 +104,8 @@ namespace Vodovoz.ViewModel
 				.List<AccountingVMNode> ();
 
 			result.AddRange (expenseList);
+
+			SetItemsSource (result.OrderByDescending (d => d.Date).ToList ());
 		}
 
 		#endregion

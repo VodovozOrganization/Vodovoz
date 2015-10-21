@@ -397,6 +397,8 @@
     <Compile Include="HibernateMapping\Accounting\AccountIncomeMap.cs" />
     <Compile Include="HibernateMapping\Accounting\AccountExpenseMap.cs" />
     <Compile Include="Representations\AccountingVM.cs" />
+    <Compile Include="JournalViewers\AccountingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AccountingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

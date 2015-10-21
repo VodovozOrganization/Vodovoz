@@ -17,6 +17,7 @@ public partial class MainWindow : Window
 	Action ActionAccountableDebt;
 	Action ActionCashFlow;
 	Action ActionTransferBankDocs;
+	Action ActionAccountingTable;
 
 	public void BuildToolbarActions ()
 	{
@@ -39,6 +40,7 @@ public partial class MainWindow : Window
 		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
+		ActionAccountingTable = new Action ("ActionAccountingTable", "Операции по счету", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
@@ -54,6 +56,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionCashFlow, null);
 		w1.Add (ActionTransferBankDocs, null);
+		w1.Add (ActionAccountingTable, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -69,7 +72,14 @@ public partial class MainWindow : Window
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
+		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		#endregion
+	}
+
+	void ActionAccountingTable_Activated (object sender, System.EventArgs e)
+	{
+		var refWin = new AccountingView ();
+		tdiMain.AddTab (refWin);
 	}
 
 	void ActionTransferBankDocs_Activated (object sender, System.EventArgs e)
