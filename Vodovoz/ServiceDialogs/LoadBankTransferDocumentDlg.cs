@@ -9,6 +9,7 @@ using Vodovoz.Domain;
 using Vodovoz.Repository;
 using System.Text.RegularExpressions;
 using QSProjectsLib;
+using Vodovoz.Domain.Accounting;
 
 namespace Vodovoz
 {
@@ -289,7 +290,7 @@ namespace Vodovoz
 		protected void OnButtonUploadClicked (object sender, EventArgs e)
 		{
 			FillCounterparties ();
-			//FillDocuments ();
+			FillDocuments ();
 		}
 
 		protected void FillCounterparties ()
@@ -446,7 +447,34 @@ namespace Vodovoz
 						continue;
 					//Получаем документ
 					var doc = (TransferDocument)documents.GetValue (iter, (int)Columns.TransferDocumentCol);
-
+					var organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
+					//Мы платим
+					if (organization == null) {
+						organization = OrganizationRepository.GetOrganizationByInn (uow, doc.PayerInn);
+						var expenseUoW = UnitOfWorkFactory.CreateWithNewRoot <AccountExpense> ();
+						expenseUoW.Root.Number = Int32.Parse (doc.Number);
+						expenseUoW.Root.Date = doc.Date;
+						expenseUoW.Root.Total = doc.Total;
+						expenseUoW.Root.Description = doc.PaymentPurpose;
+						expenseUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn);
+						expenseUoW.Root.CounterpartyAccount = expenseUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
+						expenseUoW.Root.Organization = organization;
+						expenseUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
+						expenseUoW.Save ();
+					} 
+					//Банковский ордер - нам платят
+					else {
+						var incomeUoW = UnitOfWorkFactory.CreateWithNewRoot <AccountIncome> ();
+						incomeUoW.Root.Number = Int32.Parse (doc.Number);
+						incomeUoW.Root.Date = doc.Date;
+						incomeUoW.Root.Total = doc.Total;
+						incomeUoW.Root.Description = doc.PaymentPurpose;
+						incomeUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn);
+						incomeUoW.Root.CounterpartyAccount = incomeUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
+						incomeUoW.Root.Organization = organization;
+						incomeUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
+						incomeUoW.Save ();
+					}
 
 					//TODO Добавить заполнение документов прихода и расхода.
 				} while (documents.IterNext (ref iter));
