@@ -93,7 +93,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => expenseAlias.Total).WithAlias (() => resultAlias.Expense)
 
 					.Select (() => counterpartyAlias.FullName).WithAlias (() => resultAlias.Recipient)
-					.Select (() => counterpartyAccountAlias.Number).WithAlias (() => resultAlias.PayerAccount)
+					.Select (() => counterpartyAccountAlias.Number).WithAlias (() => resultAlias.RecipientAccount)
 					.Select (() => counterpartyBankAlias.Name).WithAlias (() => resultAlias.RecipientBank)
 
 					.Select (() => organizationAlias.FullName).WithAlias (() => resultAlias.Payer)
@@ -111,7 +111,7 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		Gtk.DataBindings.IMappingConfig treeViewConfig = Gtk.DataBindings.FluentMappingConfig<AccountingVMNode>.Create ()
-			.AddColumn ("Номер").SetDataProperty (node => node.Number)
+			.AddColumn ("Номер").SetDataProperty (node => node.Number.ToString ())
 			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToShortDateString ())
 			.AddColumn ("Плательщик").SetDataProperty (node => node.PayerString)
 			.AddColumn ("Приход").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Income))
@@ -138,7 +138,7 @@ namespace Vodovoz.ViewModel
 	{
 		public int Id { get; set; }
 
-		public string Number { get; set; }
+		public int Number { get; set; }
 
 		public DateTime Date { get; set; }
 

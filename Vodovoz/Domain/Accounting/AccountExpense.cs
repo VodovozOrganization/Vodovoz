@@ -60,7 +60,7 @@ namespace Vodovoz.Domain.Accounting
 		Counterparty counterparty;
 
 		public virtual Counterparty Counterparty { 
-			get { return Counterparty; }
+			get { return counterparty; }
 			set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
