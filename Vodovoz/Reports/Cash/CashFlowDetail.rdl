@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -246,8 +246,8 @@ ORDER BY Category, employee;</CommandText>
       </Textbox>
       <Subreport Name="SubreportIncome">
         <Height>47.48pt</Height>
-        <Width>603.79pt</Width>
-        <Left>9pt</Left>
+        <Width>596.29pt</Width>
+        <Left>0.00pt</Left>
         <Top>34.10pt</Top>
         <Style>
           <BorderStyle />
@@ -268,9 +268,9 @@ ORDER BY Category, employee;</CommandText>
       </Subreport>
       <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>47.48pt</Height>
-        <Width>603.79pt</Width>
-        <Left>9.0pt</Left>
-        <Top>111.7pt</Top>
+        <Width>597.04pt</Width>
+        <Left>0.00pt</Left>
+        <Top>111.70pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -290,9 +290,9 @@ ORDER BY Category, employee;</CommandText>
       </Subreport>
       <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>47.48pt</Height>
-        <Width>603.79pt</Width>
-        <Left>9.0pt</Left>
-        <Top>187.3pt</Top>
+        <Width>597.04pt</Width>
+        <Left>0.00pt</Left>
+        <Top>187.30pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />

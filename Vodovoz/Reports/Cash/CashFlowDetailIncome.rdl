@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -99,8 +99,8 @@ ORDER BY Category;</CommandText>
         <Width>565.42pt</Width>
         <Value>="Приход за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
         <ZIndex>1</ZIndex>
-        <Left>18.20pt</Left>
-        <Top>2.80pt</Top>
+        <Left>4.6pt</Left>
+        <Top>2.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -125,19 +125,19 @@ ORDER BY Category;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>354.9pt</Width>
+            <Width>335.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>108.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>122.5pt</Width>
+            <Width>113.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>10.4pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -252,8 +252,8 @@ ORDER BY Category;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>16pt</Left>
-        <Top>6.4pt</Top>
+        <Left>2.4pt</Left>
+        <Top>5.1pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -377,7 +377,7 @@ ORDER BY Category;</CommandText>
         </TableGroups>
       </Table>
     </ReportItems>
-    <Height>70.8pt</Height>
+    <Height>64.1pt</Height>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>
