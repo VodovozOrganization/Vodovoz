@@ -14,6 +14,13 @@ namespace Vodovoz.Domain.Accounting
 
 		public virtual int Id { get; set; }
 
+		int number;
+
+		public virtual int Number {
+			get { return number; }
+			set { SetField (ref number, value, () => Number); }
+		}
+
 		DateTime date;
 
 		[Display (Name = "Дата")]

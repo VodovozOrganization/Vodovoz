@@ -11,6 +11,7 @@ namespace Vodovoz.HMap
 			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+			Map (x => x.Number).Column ("number");
 			Map (x => x.Date).Column ("date");
 			Map (x => x.Total).Column ("total");
 			Map (x => x.Description).Column ("description");
