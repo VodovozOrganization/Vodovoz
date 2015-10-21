@@ -32,13 +32,23 @@
     IFNULL(cash_income.cash_income_category_id,
             cash_income.cash_expense_category_id) as CategoryId,
     cash_income.money as sum,
-    cash_income.description
+    cash_income.description,
+    CONCAT_WS('',
+            CONCAT(employees.last_name, ' '),
+            if(employees.name = '',
+                '',
+                CONCAT(LEFT(employees.name, 1), '.')),
+            if(employees.patronymic = '',
+                '',
+                CONCAT(LEFT(employees.patronymic, 1), '.'))) as employee
 FROM
     cash_income
         LEFT JOIN
     cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
         LEFT JOIN
     cash_expense_category ON cash_expense_category.id = cash_income.cash_expense_category_id
+        LEFT JOIN
+    employees ON employees.id = cash_income.employee_id
 WHERE
     cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 ORDER BY Category;</CommandText>
@@ -70,6 +80,10 @@ ORDER BY Category;</CommandText>
         </Field>
         <Field Name="description">
           <DataField>description</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="employee">
+          <DataField>employee</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -111,10 +125,13 @@ ORDER BY Category;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>413.9pt</Width>
+            <Width>354.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>154.9pt</Width>
+            <Width>108.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>122.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -141,7 +158,24 @@ ORDER BY Category;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
+                    <Textbox Name="Textbox30">
+                      <Value>Сотрудник</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Silver</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
                       <Value>Сумма</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -184,7 +218,22 @@ ORDER BY Category;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="sum">
+                    <Textbox Name="Textbox31">
+                      <Value>={employee}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
                       <Value>=Fields!sum.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
@@ -212,7 +261,24 @@ ORDER BY Category;</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
+                    <Textbox Name="Textbox19">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -278,6 +344,7 @@ ORDER BY Category;</CommandText>
                           <Value>=Fields!Category.Value</Value>
                         </Textbox>
                       </ReportItems>
+                      <ColSpan>2</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
