@@ -41,11 +41,11 @@ namespace Vodovoz
 			enumcomboOperation.ItemsEnum = typeof(ExpenseType);
 			enumcomboOperation.Binding.AddBinding (Entity, s => s.TypeOperation, w => w.SelectedItem).InitializeFromSource ();
 
-			yentryCasher.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
+			yentryCasher.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
 			yentryCasher.SetObjectDisplayFunc<Employee> (e => e.ShortName);
 			yentryCasher.Binding.AddBinding (Entity, s => s.Casher, w => w.Subject).InitializeFromSource ();
 
-			yentryEmploeey.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
+			yentryEmploeey.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
 			yentryEmploeey.SetObjectDisplayFunc<Employee> (e => e.ShortName);
 			yentryEmploeey.Binding.AddBinding (Entity, s => s.Employee, w => w.Subject).InitializeFromSource ();
 

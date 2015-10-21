@@ -42,6 +42,10 @@ namespace Vodovoz.Repository
 			return QueryOver.Of<Employee> ().Where (e => !e.IsFired );
 		}
 
+		public static QueryOver<Employee> ActiveEmployeeOrderedQuery ()
+		{
+			return QueryOver.Of<Employee> ().Where (e => !e.IsFired ).OrderBy(e => e.LastName).Asc.ThenBy (e => e.Name).Asc.ThenBy (e => e.Patronymic).Asc ;
+		}
 	}
 }
 
