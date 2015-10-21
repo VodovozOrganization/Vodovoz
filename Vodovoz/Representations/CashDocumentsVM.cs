@@ -50,7 +50,7 @@ namespace Vodovoz.ViewModel
 				if(Filter.RestrictStartDate.HasValue)
 					income.Where (o => o.Date >= Filter.RestrictStartDate.Value);
 				if(Filter.RestrictEndDate.HasValue)
-					income.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+					income.Where (o => o.Date < Filter.RestrictEndDate.Value.AddDays (1));
 				if (Filter.RestrictEmployee != null)
 					income.Where (o => o.Employee == Filter.RestrictEmployee);
 
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModel
 				if(Filter.RestrictStartDate.HasValue)
 					expense.Where (o => o.Date >= Filter.RestrictStartDate.Value);
 				if(Filter.RestrictEndDate.HasValue)
-					expense.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+					expense.Where (o => o.Date < Filter.RestrictEndDate.Value.AddDays (1));
 				if (Filter.RestrictEmployee != null)
 					expense.Where (o => o.Employee == Filter.RestrictEmployee);
 
@@ -122,7 +122,7 @@ namespace Vodovoz.ViewModel
 				if(Filter.RestrictStartDate.HasValue)
 					advanceReport.Where (o => o.Date >= Filter.RestrictStartDate.Value);
 				if(Filter.RestrictEndDate.HasValue)
-					advanceReport.Where (o => o.Date <= Filter.RestrictEndDate.Value);
+					advanceReport.Where (o => o.Date < Filter.RestrictEndDate.Value.AddDays (1));
 				if (Filter.RestrictEmployee != null)
 					advanceReport.Where (o => o.Accountable == Filter.RestrictEmployee);
 

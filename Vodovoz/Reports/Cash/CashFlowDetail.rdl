@@ -40,7 +40,7 @@ FROM
         LEFT JOIN
     cash_expense_category ON cash_expense_category.id = cash_income.cash_expense_category_id
 WHERE
-    cash_income.date BETWEEN @startDate AND @endDate
+    cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -87,7 +87,7 @@ FROM
         LEFT JOIN
     cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
 WHERE cash_expense.type &lt;&gt; 'Advance' AND
-    cash_expense.date BETWEEN @startDate AND @endDate
+    cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -140,7 +140,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = cash_expense.employee_id
 WHERE cash_expense.type = 'Advance' AND
-    cash_expense.date BETWEEN @startDate AND @endDate
+    cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 ORDER BY Category, employee;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">

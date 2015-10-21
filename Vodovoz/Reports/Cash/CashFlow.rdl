@@ -27,7 +27,7 @@
 FROM cash_income
 LEFT JOIN cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
 LEFT JOIN cash_expense_category ON cash_expense_category.id = cash_income.cash_expense_category_id
-WHERE cash_income.date BETWEEN @startDate AND @endDate
+WHERE cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 GROUP BY cash_income.cash_income_category_id, cash_income.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -61,7 +61,7 @@ FROM
         LEFT JOIN
     cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
 WHERE cash_expense.type &lt;&gt; 'Advance' AND
-    cash_expense.date BETWEEN @startDate AND @endDate
+    cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 GROUP BY cash_expense.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -95,7 +95,7 @@ FROM
         LEFT JOIN
     cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
 WHERE cash_expense.type = 'Advance' AND
-    cash_expense.date BETWEEN @startDate AND @endDate
+    cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 GROUP BY cash_expense.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
