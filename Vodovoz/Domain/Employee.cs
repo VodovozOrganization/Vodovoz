@@ -4,6 +4,8 @@ using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using QSProjectsLib;
+using QSBanks;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain
 {
@@ -88,6 +90,14 @@ namespace Vodovoz.Domain
 			set { SetField (ref addressCurrent, value, () => AddressCurrent); }
 		}
 
+		string inn;
+
+		[Display (Name = "ИНН")]
+		public virtual string INN {
+			get { return inn; }
+			set { SetField (ref inn, value, () => INN); }
+		}
+
 		bool isFired;
 
 		[Display (Name = "Сотрудник уволен")]
@@ -102,6 +112,28 @@ namespace Vodovoz.Domain
 		public virtual IList<QSContacts.Phone> Phones {
 			get { return phones; }
 			set { SetField (ref phones, value, () => Phones); }
+		}
+
+		IList<Account> accounts;
+
+		public virtual IList<Account> Accounts {
+			get { return accounts; }
+			set {
+				if (SetField (ref accounts, value, () => Accounts)) {
+					observableAccounts = null;
+				}
+			}
+		}
+
+		GenericObservableList<Account> observableAccounts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public GenericObservableList<Account> ObservableAccounts {
+			get {
+				if (observableAccounts == null) {
+					observableAccounts = new GenericObservableList<Account> (Accounts);
+				}
+				return observableAccounts;
+			}
 		}
 
 		Nationality nationality;
