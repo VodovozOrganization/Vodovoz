@@ -399,6 +399,10 @@
     <Compile Include="Representations\AccountingVM.cs" />
     <Compile Include="JournalViewers\AccountingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountingView.cs" />
+    <Compile Include="Repositories\Accounting\AccountExpenseRepository.cs" />
+    <Compile Include="Repositories\Accounting\AccountIncomeRepository.cs" />
+    <Compile Include="HibernateMapping\Organization\OrganizationMap.cs" />
+    <Compile Include="HibernateMapping\Organization\EmployeeMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -524,6 +528,8 @@
     <Folder Include="ReportsParameters\" />
     <Folder Include="Domain\Accounting\" />
     <Folder Include="HibernateMapping\Accounting\" />
+    <Folder Include="Repositories\Accounting\" />
+    <Folder Include="HibernateMapping\Organization\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
