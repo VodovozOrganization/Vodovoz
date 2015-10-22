@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using QSProjectsLib;
 using System.Data.Bindings.Collections.Generic;
 using System.Text.RegularExpressions;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Domain
 {
@@ -46,7 +47,7 @@ namespace Vodovoz.Domain
 			}
 		}
 
-		private IList<Contact> contact = new List<Contact>();
+		private IList<Contact> contact = new List<Contact> ();
 
 		[Display (Name = "Контактные лица")]
 		public virtual IList<Contact> Contacts {
@@ -173,6 +174,14 @@ namespace Vodovoz.Domain
 		public virtual PersonType PersonType {
 			get { return personType; }
 			set { SetField (ref personType, value, () => PersonType); }
+		}
+
+		ExpenseCategory defaultExpenseCategory;
+
+		[Display (Name = "Расход по-умолчанию")]
+		public virtual ExpenseCategory DefaultExpenseCategory {
+			get { return defaultExpenseCategory; }
+			set { SetField (ref defaultExpenseCategory, value, () => DefaultExpenseCategory); }
 		}
 
 		Significance significance;

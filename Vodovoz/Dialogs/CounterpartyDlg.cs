@@ -8,6 +8,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using QSBanks;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz
 {
@@ -40,7 +41,7 @@ namespace Vodovoz
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			//Initializing null fields
-			emailsView.Session = Session;
+			emailsView.Session = UoWGeneric.Session;
 			phonesView.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Emails == null)
 				UoWGeneric.Root.Emails = new List<Email> ();
@@ -66,8 +67,9 @@ namespace Vodovoz
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			referenceSignificance.SubjectType = typeof(Significance);
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
+			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);
-			referenceMainCounterparty.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
+			referenceMainCounterparty.ItemsCriteria = UoWGeneric.Session.CreateCriteria<Counterparty> ()
 				.Add (Restrictions.Not (Restrictions.Eq ("id", UoWGeneric.Root.Id)));
 			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
@@ -172,6 +174,11 @@ namespace Vodovoz
 				labelFullName.Visible = entryFullName.Visible = 
 					referenceMainCounterparty.Visible = labelMainCounterparty.Visible =
 					radioDetails.Visible = radiobuttonProxies.Visible = Entity.PersonType == PersonType.legal;
+		}
+
+		protected void OnEnumCounterpartyTypeChanged (object sender, EventArgs e)
+		{
+			labelDefaultExpense.Visible = referenceDefaultExpense.Visible = Entity.CounterpartyType == CounterpartyType.supplier;
 		}
 	}
 }
