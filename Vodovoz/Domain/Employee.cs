@@ -12,7 +12,7 @@ namespace Vodovoz.Domain
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
 		Nominative = "сотрудник")]
-	public class Employee : PropertyChangedBase, IDomainObject, IValidatableObject, ISpecialRowsRender
+	public class Employee : AccountOwnerBase, IDomainObject, IValidatableObject, ISpecialRowsRender
 	{
 		#region Свойства
 
@@ -112,28 +112,6 @@ namespace Vodovoz.Domain
 		public virtual IList<QSContacts.Phone> Phones {
 			get { return phones; }
 			set { SetField (ref phones, value, () => Phones); }
-		}
-
-		IList<Account> accounts;
-
-		public virtual IList<Account> Accounts {
-			get { return accounts; }
-			set {
-				if (SetField (ref accounts, value, () => Accounts)) {
-					observableAccounts = null;
-				}
-			}
-		}
-
-		GenericObservableList<Account> observableAccounts;
-		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<Account> ObservableAccounts {
-			get {
-				if (observableAccounts == null) {
-					observableAccounts = new GenericObservableList<Account> (Accounts);
-				}
-				return observableAccounts;
-			}
 		}
 
 		Nationality nationality;

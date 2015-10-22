@@ -107,11 +107,11 @@ namespace Vodovoz
 				//Сервис
 				new OrmObjectMapping<ServiceClaim> (typeof(ServiceClaimDlg), "{Vodovoz.Domain.Service.ServiceClaim} Id[Номер];"),
 				//Касса
-				OrmObjectMapping<IncomeCategory>.Create().EditPermision ("money_manage").SimpleDisplay ().Column ("Название", e => e.Name).End (),
-				OrmObjectMapping<ExpenseCategory>.Create().EditPermision ("money_manage").SimpleDisplay ().Column ("Название", e => e.Name).End (),
-				OrmObjectMapping<Income>.Create().Dialog<CashIncomeDlg> (),
-				OrmObjectMapping<Expense>.Create().Dialog<CashExpenseDlg> (),
-				OrmObjectMapping<AdvanceReport>.Create().Dialog<AdvanceReportDlg> (),
+				OrmObjectMapping<IncomeCategory>.Create ().EditPermision ("money_manage").SimpleDisplay ().Column ("Название", e => e.Name).End (),
+				OrmObjectMapping<ExpenseCategory>.Create ().EditPermision ("money_manage").SimpleDisplay ().Column ("Название", e => e.Name).End (),
+				OrmObjectMapping<Income>.Create ().Dialog<CashIncomeDlg> (),
+				OrmObjectMapping<Expense>.Create ().Dialog<CashExpenseDlg> (),
+				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
@@ -123,7 +123,9 @@ namespace Vodovoz
 			ParentReferenceConfig.AddActions (new ParentReferenceActions<Counterparty, QSBanks.Account> {
 				AddNewChild = (c, a) => c.AddAccount (a)
 			});
-
+			ParentReferenceConfig.AddActions (new ParentReferenceActions<Employee, QSBanks.Account> {
+				AddNewChild = (c, a) => c.AddAccount (a)
+			});
 		}
 	}
 }

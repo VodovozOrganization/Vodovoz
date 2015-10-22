@@ -12,6 +12,7 @@ using QSProjectsLib;
 using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
+using QSBanks;
 
 namespace Vodovoz
 {
@@ -44,6 +45,7 @@ namespace Vodovoz
 		{
 			datatableMain.DataSource = subjectAdaptor;
 			dataenumcomboCategory.DataSource = subjectAdaptor;
+			entryInn.DataSource = subjectAdaptor;
 			dataentryPassportSeria.MaxLength = 5;
 			dataentryPassportNumber.MaxLength = 6;
 			dataentryDrivingNumber.MaxLength = 10;
@@ -62,6 +64,8 @@ namespace Vodovoz
 			if (UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone> ();
 			phonesView.Phones = UoWGeneric.Root.Phones;
+			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account> (UoWGeneric, o => o.Accounts);
+			accountsView.SetTitle ("Банковские счета сотрудника");
 			buttonSavePhoto.Sensitive = UoWGeneric.Root.Photo != null;
 			logger.Info ("Ok");
 		}
@@ -81,18 +85,15 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			if(Entity.User != null)
-			{
+			if (Entity.User != null) {
 				var associatedEmployees = Repository.EmployeeRepository.GetEmployeesForUser (UoW, Entity.User.Id);
-				if(associatedEmployees.Any (e => e.Id != Entity.Id))
-				{
+				if (associatedEmployees.Any (e => e.Id != Entity.Id)) {
 					string mes = String.Format ("Пользователь {0} уже связан с сотрудником {1}, при привязки этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
-						Entity.User.Name,
-						String.Join (", ", associatedEmployees.Select (e => e.ShortName))
-					);
+						             Entity.User.Name,
+						             String.Join (", ", associatedEmployees.Select (e => e.ShortName))
+					             );
 					if (MessageDialogWorks.RunQuestionDialog (mes)) {
-						foreach(var ae in associatedEmployees.Where (e => e.Id != Entity.Id))
-						{
+						foreach (var ae in associatedEmployees.Where (e => e.Id != Entity.Id)) {
 							ae.User = null;
 							UoWGeneric.Save (ae);
 						}
@@ -125,9 +126,15 @@ namespace Vodovoz
 				notebookMain.CurrentPage = 0;
 		}
 
-		protected void OnRadioTabAccountsToggled (object sender, EventArgs e)
+		protected void OnRadioTabFilesToggled (object sender, EventArgs e)
 		{
 			if (radioTabFiles.Active)
+				notebookMain.CurrentPage = 2;
+		}
+
+		protected void OnRadioTabAccountingToggled (object sender, EventArgs e)
+		{
+			if (radioTabAccounting.Active)
 				notebookMain.CurrentPage = 1;
 		}
 
