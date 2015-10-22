@@ -20,8 +20,7 @@ namespace Vodovoz.HMap
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.CounterpartyAccount).Column ("counterparty_account_id");
 			References (x => x.Employee).Column ("employee_id");
-			//TODO
-			//References (x => x.EmployeeAccount).Column ("employee_account_id");
+			References (x => x.EmployeeAccount).Column ("employee_account_id");
 		}
 	}
 }

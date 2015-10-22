@@ -2,6 +2,8 @@
 using QSOrmProject;
 using Vodovoz.Domain;
 using NHibernate.Criterion;
+using QSBanks;
+using System.Linq;
 
 namespace Vodovoz.Repository
 {
@@ -27,6 +29,16 @@ namespace Vodovoz.Repository
 				.List ();
 		}
 
+		public static Employee GetEmployeeByINNAndAccount (IUnitOfWork uow, string inn, string account)
+		{
+			IList<Account> accountsAlias;
+			var employees = uow.Session.QueryOver<Employee> ()
+				.JoinAlias (e => e.Accounts, () => accountsAlias)
+				.Where (e => e.INN == inn)
+				.List ();
+			return employees.FirstOrDefault (e => e.Accounts.Any (acc => acc.Number == account));
+		}
+
 		public static QueryOver<Employee> DriversQuery ()
 		{
 			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.driver);
@@ -39,12 +51,12 @@ namespace Vodovoz.Repository
 
 		public static QueryOver<Employee> ActiveEmployeeQuery ()
 		{
-			return QueryOver.Of<Employee> ().Where (e => !e.IsFired );
+			return QueryOver.Of<Employee> ().Where (e => !e.IsFired);
 		}
 
 		public static QueryOver<Employee> ActiveEmployeeOrderedQuery ()
 		{
-			return QueryOver.Of<Employee> ().Where (e => !e.IsFired ).OrderBy(e => e.LastName).Asc.ThenBy (e => e.Name).Asc.ThenBy (e => e.Patronymic).Asc ;
+			return QueryOver.Of<Employee> ().Where (e => !e.IsFired).OrderBy (e => e.LastName).Asc.ThenBy (e => e.Name).Asc.ThenBy (e => e.Patronymic).Asc;
 		}
 	}
 }

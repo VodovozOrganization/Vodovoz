@@ -691,6 +691,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -22089,6 +22090,7 @@ RegistrationNumber</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
+            <signal name="Toggled" handler="OnCheckButtonAllToggled" />
           </widget>
           <packing>
             <property name="Position">2</property>
@@ -22139,6 +22141,7 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-close Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="PackType">End</property>

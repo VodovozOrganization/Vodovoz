@@ -246,35 +246,44 @@ namespace Vodovoz
 					progressBar.Fraction += progressStep;
 				while (Application.EventsPending ())
 					Application.RunIteration ();
-				
+
 				var doc = (documents.GetValue (iter, (int)Columns.TransferDocumentCol) as TransferDocument);
 
-				//Проверяем плательщика
+				//Сначала пробуем найти нашу организацию. Она должна фигурировать либо как получатель либо как плательщик.
 				var organization = OrganizationRepository.GetOrganizationByInn (uow, doc.PayerInn);
 				if (organization == null) {
+					//Нам платят
+					organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
+					if (organization == null) {
+						throw new Exception ("Не удалось обнаружить нашу организацию по ИНН. Заполните организацию, или проверьте корректность ИНН.");
+					}
+					//Проверяем наш счет
+					if (!organization.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
+						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
+					//Ищем плательщика
 					var payerCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn);
 					if (payerCounterparty == null) {
-						//Проверяем, есть ли организация с таким именем
 						documents.SetValue (iter, (int)Columns.PayerNameColorCol, NeedToAdd);
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
 					} else if (!payerCounterparty.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
 				} else {
+					//Мы платим
+					//Проверяем наш счет
 					if (!organization.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
+					//Ищем получателя
+					var recipientCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn);
+					if (recipientCounterparty == null) {
+						//Возможно это сотрудник
+						var employee = EmployeeRepository.GetEmployeeByINNAndAccount (uow, doc.RecipientInn, doc.RecipientCheckingAccount);
+						if (employee == null) {
+							documents.SetValue (iter, (int)Columns.RecipientNameColorCol, NeedToAdd);
+							documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
+						}
+					} else if (!recipientCounterparty.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
+						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
 				}
-
-				//Проверяем получателя
-				var recipientCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn);
-				if (recipientCounterparty == null) {
-					organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
-					if (organization == null) {
-						documents.SetValue (iter, (int)Columns.RecipientNameColorCol, NeedToAdd);
-						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
-					} else if (!organization.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
-						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
-				} else if (!recipientCounterparty.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
-					documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
 
 				//Проверяем банки
 				var payerBank = BankRepository.GetBankByBik (uow, doc.PayerBik);
@@ -398,6 +407,7 @@ namespace Vodovoz
 							Number = doc.RecipientCheckingAccount,
 							InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
 						});
+						cuow.Root.CounterpartyType = CounterpartyType.supplier;
 						cuow.Save ();
 						documents.SetValue (iter, (int)Columns.RecipientNameColorCol, EvenRowColor);
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
@@ -460,7 +470,12 @@ namespace Vodovoz
 							expenseUoW.Root.Organization = organization;
 							expenseUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							expenseUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn);
-							expenseUoW.Root.CounterpartyAccount = expenseUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
+							if (expenseUoW.Root.Counterparty == null) {
+								expenseUoW.Root.Employee = EmployeeRepository.GetEmployeeByINNAndAccount (uow, doc.RecipientInn, doc.RecipientCheckingAccount);
+								expenseUoW.Root.EmployeeAccount = expenseUoW.Root.Employee.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
+							} else {
+								expenseUoW.Root.CounterpartyAccount = expenseUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
+							}
 							expenseUoW.Save ();
 						}
 					} 

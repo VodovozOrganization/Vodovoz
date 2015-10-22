@@ -77,15 +77,13 @@ namespace Vodovoz.Domain.Accounting
 			get { return employee; }
 			set { SetField (ref employee, value, () => Employee); }
 		}
-		//TODO Добавить сотрудникам счета.
-		/*
-		Account employeeAccount { get; set; }
+
+		Account employeeAccount;
 
 		public virtual Account EmployeeAccount {
 			get { return employeeAccount; }
 			set { SetField (ref employeeAccount, value, () => EmployeeAccount); }
 		}
-*/
 
 		#endregion
 

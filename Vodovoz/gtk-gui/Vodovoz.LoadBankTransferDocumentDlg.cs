@@ -40,7 +40,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.LoadBankTransferDocumentDlg";
 			// Container child Vodovoz.LoadBankTransferDocumentDlg.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
@@ -176,7 +175,9 @@ namespace Vodovoz
 			this.Hide ();
 			this.filechooser.SelectionChanged += new global::System.EventHandler (this.OnFilechooserSelectionChanged);
 			this.buttonReadFile.Clicked += new global::System.EventHandler (this.OnButtonReadFileClicked);
+			this.checkButtonAll.Toggled += new global::System.EventHandler (this.OnCheckButtonAllToggled);
 			this.buttonUpload.Clicked += new global::System.EventHandler (this.OnButtonUploadClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 		}
 	}
 }
