@@ -10,6 +10,8 @@ using Vodovoz.Repository;
 using System.Text.RegularExpressions;
 using QSProjectsLib;
 using Vodovoz.Domain.Accounting;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz
 {
@@ -43,8 +45,12 @@ namespace Vodovoz
 			                              typeof(string), 
 			                              typeof(string), 
 			                              typeof(string),
+			                              typeof(string),
+			                              typeof(ListStore),
 			                              typeof(string)
 		                              );
+		private ListStore expenseCategories = new ListStore (typeof(ExpenseCategory), typeof(string));
+		private ListStore incomeCategories = new ListStore (typeof(IncomeCategory), typeof(string));
 
 		private enum Columns
 		{
@@ -65,7 +71,9 @@ namespace Vodovoz
 			PayerBankColorCol,
 			RecipientNameColorCol,
 			RecipientAccountColorCol,
-			RecipientBankColorCol
+			RecipientBankColorCol,
+			CategoryComboModel,
+			CategoryName
 		}
 
 		public LoadBankTransferDocumentDlg ()
@@ -74,6 +82,13 @@ namespace Vodovoz
 			uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TabName = "Загрузка из банк-клиента";
 			labelDescription1.Markup = String.Format ("<span background=\"{0}\">     </span> - объект будет создан", NeedToAdd);
+
+			foreach (var category in CategoryRepository.ExpenseCategories (uow)) {
+				expenseCategories.AppendValues (category, category.Name);
+			}
+			foreach (var category in CategoryRepository.IncomeCategories (uow)) {
+				incomeCategories.AppendValues (category, category.Name);
+			}
 
 			TreeViewColumn checkColumn = new TreeViewColumn ();
 			checkColumn.Title = "";
@@ -162,10 +177,22 @@ namespace Vodovoz
 			paymentReasonColumn.AddAttribute (paymentReasonCell, "text", (int)Columns.PaymentReasonCol);
 			paymentReasonColumn.Resizable = true;
 
+			TreeViewColumn categoryColumn = new TreeViewColumn ();
+			categoryColumn.Title = "Категория дохода/расхода";
+			CellRendererCombo categoryCombo = new CellRendererCombo ();
+			categoryCombo.TextColumn = 1;
+			categoryCombo.Editable = true;
+			categoryCombo.HasEntry = false;
+			categoryCombo.Edited += CategoryCombo_Edited;
+			categoryColumn.PackStart (categoryCombo, true);
+			categoryColumn.AddAttribute (categoryCombo, "model", (int)Columns.CategoryComboModel);
+			categoryColumn.AddAttribute (categoryCombo, "text", (int)Columns.CategoryName);
+
 			treeDocuments.AppendColumn (checkColumn);
 			treeDocuments.AppendColumn (numberColumn);
 			treeDocuments.AppendColumn (dateColumn);
 			treeDocuments.AppendColumn (totalColumn);
+			treeDocuments.AppendColumn (categoryColumn);
 			treeDocuments.AppendColumn (payerColumn);
 			treeDocuments.AppendColumn (payerAccountColumn);
 			treeDocuments.AppendColumn (payerBankColumn);
@@ -179,6 +206,16 @@ namespace Vodovoz
 
 			buttonUpload.Sensitive = buttonReadFile.Sensitive = false;
 			checkButtonAll.Sensitive = false;
+		}
+
+		void CategoryCombo_Edited (object o, EditedArgs args)
+		{
+			TreeIter iter;
+			if (!documents.GetIterFromString (out iter, args.Path))
+				return;
+			if (String.IsNullOrWhiteSpace (args.NewText))
+				return;
+			documents.SetValue (iter, (int)Columns.CategoryName, args.NewText);
 		}
 
 		void CheckCell_Toggled (object o, ToggledArgs args)
@@ -198,7 +235,6 @@ namespace Vodovoz
 		protected void OnButtonReadFileClicked (object sender, EventArgs e)
 		{
 			documents.Clear ();
-			rowsCount = 0;
 			parser = new BankTransferDocumentParser (filechooser.Filename);
 			parser.Parse ();
 			buttonUpload.Sensitive = true;
@@ -217,9 +253,9 @@ namespace Vodovoz
 					doc.RecipientBank,
 					doc.PaymentPurpose,
 					doc,
-					OddRowColor, EvenRowColor, OddRowColor, EvenRowColor, OddRowColor, EvenRowColor
+					OddRowColor, EvenRowColor, OddRowColor, EvenRowColor, OddRowColor, EvenRowColor, 
+					null, String.Empty
 				);
-				rowsCount++;
 			}
 			HighlightDocuments ();
 		}
@@ -235,6 +271,8 @@ namespace Vodovoz
 			TreeIter iter;
 			if (!documents.GetIterFirst (out iter))
 				return;
+
+			string defaultIncomeCategory = CategoryRepository.DefaultIncomeCategory (uow).Name;
 			progressBar.Fraction = 0;
 			progressBar.Text = "Идет обработка файла выгрузки...";
 			double progressStep = 1.0 / rowsCount;
@@ -267,6 +305,8 @@ namespace Vodovoz
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
 					} else if (!payerCounterparty.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
+					documents.SetValue (iter, (int)Columns.CategoryComboModel, incomeCategories);
+					documents.SetValue (iter, (int)Columns.CategoryName, defaultIncomeCategory);
 				} else {
 					//Мы платим
 					//Проверяем наш счет
@@ -283,6 +323,9 @@ namespace Vodovoz
 						}
 					} else if (!recipientCounterparty.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
+					documents.SetValue (iter, (int)Columns.CategoryComboModel, expenseCategories);
+					if (recipientCounterparty != null && recipientCounterparty.DefaultExpenseCategory != null)
+						documents.SetValue (iter, (int)Columns.CategoryName, recipientCounterparty.DefaultExpenseCategory.Name);
 				}
 
 				//Проверяем банки
