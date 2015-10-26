@@ -1,21 +1,36 @@
 ﻿using Vodovoz.Domain;
 using QSOrmProject;
+using QSSupportLib;
 
 namespace Vodovoz.Repository
 {
 	public static class OrganizationRepository
 	{
-		public const int CashOrganizationId = 12;
-		public const int CashlessOrganizationId = 11;
+		const string cashOrganization = "cash_organization_id";
+		const string cashlessOrganization = "cashless_organization_id";
 
 		public static Organization GetCashOrganization (IUnitOfWork uow)
 		{
-			return uow.GetById<Organization> (CashOrganizationId);
+			if (MainSupport.BaseParameters.All.ContainsKey (cashOrganization)) {
+				int id = -1;
+				id = int.Parse (MainSupport.BaseParameters.All [cashOrganization]);
+				if (id == -1)
+					return null;
+				return uow.GetById<Organization> (id);
+			}
+			return null;
 		}
 
 		public static Organization GetCashlessOrganization (IUnitOfWork uow)
 		{
-			return uow.GetById<Organization> (CashlessOrganizationId);
+			if (MainSupport.BaseParameters.All.ContainsKey (cashlessOrganization)) {
+				int id = -1;
+				id = int.Parse (MainSupport.BaseParameters.All [cashlessOrganization]);
+				if (id == -1)
+					return null;
+				return uow.GetById<Organization> (id);
+			}
+			return null;
 		}
 
 		public static Organization GetOrganizationByName (IUnitOfWork uow, string fullName)
