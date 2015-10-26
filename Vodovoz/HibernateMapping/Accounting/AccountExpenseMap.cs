@@ -21,6 +21,7 @@ namespace Vodovoz.HMap
 			References (x => x.CounterpartyAccount).Column ("counterparty_account_id");
 			References (x => x.Employee).Column ("employee_id");
 			References (x => x.EmployeeAccount).Column ("employee_account_id");
+			References (x => x.Category).Column ("cash_expense_category_id");
 		}
 	}
 }

@@ -16,6 +16,7 @@ namespace Vodovoz.HMap
 			Map (x => x.Total).Column ("total");
 			Map (x => x.Description).Column ("description");
 			References (x => x.Organization).Column ("organization_id");
+			References (x => x.Category).Column ("cash_income_category_id");
 			References (x => x.OrganizationAccount).Column ("organization_account_id");
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.CounterpartyAccount).Column ("counterparty_account_id");

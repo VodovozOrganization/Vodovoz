@@ -2,6 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using QSBanks;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Domain.Accounting
 {
@@ -84,6 +85,14 @@ namespace Vodovoz.Domain.Accounting
 			get { return employeeAccount; }
 			set { SetField (ref employeeAccount, value, () => EmployeeAccount); }
 		}
+
+		ExpenseCategory category;
+
+		public virtual ExpenseCategory Category {
+			get { return category; }
+			set { SetField (ref category, value, () => Category); }
+		}
+
 
 		#endregion
 
