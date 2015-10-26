@@ -47,10 +47,11 @@ namespace Vodovoz
 			                              typeof(string),
 			                              typeof(string),
 			                              typeof(ListStore),
-			                              typeof(string)
+			                              typeof(string),
+			                              typeof(object)
 		                              );
-		private ListStore expenseCategories = new ListStore (typeof(ExpenseCategory), typeof(string));
-		private ListStore incomeCategories = new ListStore (typeof(IncomeCategory), typeof(string));
+		private ListStore expenseCategories = new ListStore (typeof(string), typeof(ExpenseCategory));
+		private ListStore incomeCategories = new ListStore (typeof(string), typeof(IncomeCategory));
 
 		private enum Columns
 		{
@@ -73,7 +74,8 @@ namespace Vodovoz
 			RecipientAccountColorCol,
 			RecipientBankColorCol,
 			CategoryComboModel,
-			CategoryName
+			CategoryName,
+			CategoryObject
 		}
 
 		public LoadBankTransferDocumentDlg ()
@@ -84,10 +86,10 @@ namespace Vodovoz
 			labelDescription1.Markup = String.Format ("<span background=\"{0}\">     </span> - объект будет создан", NeedToAdd);
 
 			foreach (var category in CategoryRepository.ExpenseCategories (uow)) {
-				expenseCategories.AppendValues (category, category.Name);
+				expenseCategories.AppendValues (category.Name, category);
 			}
 			foreach (var category in CategoryRepository.IncomeCategories (uow)) {
-				incomeCategories.AppendValues (category, category.Name);
+				incomeCategories.AppendValues (category.Name, category);
 			}
 
 			TreeViewColumn checkColumn = new TreeViewColumn ();
@@ -180,7 +182,7 @@ namespace Vodovoz
 			TreeViewColumn categoryColumn = new TreeViewColumn ();
 			categoryColumn.Title = "Категория дохода/расхода";
 			CellRendererCombo categoryCombo = new CellRendererCombo ();
-			categoryCombo.TextColumn = 1;
+			categoryCombo.TextColumn = 0;
 			categoryCombo.Editable = true;
 			categoryCombo.HasEntry = false;
 			categoryCombo.Edited += CategoryCombo_Edited;
@@ -210,12 +212,17 @@ namespace Vodovoz
 
 		void CategoryCombo_Edited (object o, EditedArgs args)
 		{
-			TreeIter iter;
+			TreeIter iter, refIter;
 			if (!documents.GetIterFromString (out iter, args.Path))
 				return;
 			if (String.IsNullOrWhiteSpace (args.NewText))
 				return;
 			documents.SetValue (iter, (int)Columns.CategoryName, args.NewText);
+			var listStore = (ListStore)documents.GetValue (iter, (int)Columns.CategoryComboModel);
+			if (ListStoreWorks.SearchListStore (listStore, args.NewText, out refIter)) {
+				var selected = listStore.GetValue (refIter, 1);
+				documents.SetValue (iter, (int)Columns.CategoryObject, selected);
+			}
 		}
 
 		void CheckCell_Toggled (object o, ToggledArgs args)
@@ -254,8 +261,9 @@ namespace Vodovoz
 					doc.PaymentPurpose,
 					doc,
 					OddRowColor, EvenRowColor, OddRowColor, EvenRowColor, OddRowColor, EvenRowColor, 
-					null, String.Empty
+					null, String.Empty, null
 				);
+				rowsCount++;
 			}
 			HighlightDocuments ();
 		}
@@ -266,13 +274,28 @@ namespace Vodovoz
 			buttonUpload.Sensitive = false;
 		}
 
+		protected bool CheckAllCategoriesSelected ()
+		{
+			TreeIter iter;
+			if (!documents.GetIterFirst (out iter))
+				return false;
+			
+			do {
+				if (!(bool)documents.GetValue (iter, (int)Columns.CheckCol))
+					continue;
+				if (documents.GetValue (iter, (int)Columns.CategoryObject) == null)
+					return false;
+			} while (documents.IterNext (ref iter));
+			return true;
+		}
+
 		protected void HighlightDocuments ()
 		{
 			TreeIter iter;
 			if (!documents.GetIterFirst (out iter))
 				return;
 
-			string defaultIncomeCategory = CategoryRepository.DefaultIncomeCategory (uow).Name;
+			var defaultIncomeCategory = CategoryRepository.DefaultIncomeCategory (uow);
 			progressBar.Fraction = 0;
 			progressBar.Text = "Идет обработка файла выгрузки...";
 			double progressStep = 1.0 / rowsCount;
@@ -306,7 +329,8 @@ namespace Vodovoz
 					} else if (!payerCounterparty.Accounts.Any (acc => acc.Number == doc.PayerCheckingAccount))
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
 					documents.SetValue (iter, (int)Columns.CategoryComboModel, incomeCategories);
-					documents.SetValue (iter, (int)Columns.CategoryName, defaultIncomeCategory);
+					documents.SetValue (iter, (int)Columns.CategoryName, defaultIncomeCategory.Name);
+					documents.SetValue (iter, (int)Columns.CategoryObject, defaultIncomeCategory);
 				} else {
 					//Мы платим
 					//Проверяем наш счет
@@ -324,8 +348,10 @@ namespace Vodovoz
 					} else if (!recipientCounterparty.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
 					documents.SetValue (iter, (int)Columns.CategoryComboModel, expenseCategories);
-					if (recipientCounterparty != null && recipientCounterparty.DefaultExpenseCategory != null)
+					if (recipientCounterparty != null && recipientCounterparty.DefaultExpenseCategory != null) {
 						documents.SetValue (iter, (int)Columns.CategoryName, recipientCounterparty.DefaultExpenseCategory.Name);
+						documents.SetValue (iter, (int)Columns.CategoryObject, recipientCounterparty.DefaultExpenseCategory);
+					}
 				}
 
 				//Проверяем банки
@@ -341,6 +367,10 @@ namespace Vodovoz
 
 		protected void OnButtonUploadClicked (object sender, EventArgs e)
 		{
+			if (!CheckAllCategoriesSelected ()) {
+				MessageDialogWorks.RunErrorDialog ("Не у всех отмеченных документов выбраны категории дохода/расхода.");
+				return;
+			}
 			FillCounterparties ();
 			FillDocuments ();
 		}
@@ -519,6 +549,7 @@ namespace Vodovoz
 							} else {
 								expenseUoW.Root.CounterpartyAccount = expenseUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
 							}
+							expenseUoW.Root.Category = (ExpenseCategory)documents.GetValue (iter, (int)Columns.CategoryObject);
 							expenseUoW.Save ();
 						}
 					} 
@@ -534,6 +565,7 @@ namespace Vodovoz
 							incomeUoW.Root.CounterpartyAccount = incomeUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							incomeUoW.Root.Organization = organization;
 							incomeUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
+							incomeUoW.Root.Category = (IncomeCategory)documents.GetValue (iter, (int)Columns.CategoryObject);
 							incomeUoW.Save ();
 						}
 					}
