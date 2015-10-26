@@ -100,6 +100,12 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			if(!Entity.FoundOnOsm)
+			{
+				if(!MessageDialogWorks.RunQuestionDialog ("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
+					return false;
+			}
+
 			var valid = new QSValidator<DeliveryPoint> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;

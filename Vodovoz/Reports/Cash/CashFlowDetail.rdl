@@ -182,10 +182,10 @@ ORDER BY Category, employee;</CommandText>
     <ReportItems>
       <Textbox Name="Textbox17">
         <Height>18.03pt</Height>
-        <Width>565.42pt</Width>
+        <Width>560.17pt</Width>
         <Value>="Доходы и расходы за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
         <ZIndex>1</ZIndex>
-        <Left>18.20pt</Left>
+        <Left>0.00pt</Left>
         <Top>2.80pt</Top>
         <Style>
           <BorderStyle />
@@ -201,10 +201,10 @@ ORDER BY Category, employee;</CommandText>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>21.11pt</Height>
-        <Width>569.18pt</Width>
+        <Width>560.18pt</Width>
         <Value>Приход (наличка)</Value>
         <ZIndex>1</ZIndex>
-        <Left>16.50pt</Left>
+        <Left>0.00pt</Left>
         <Top>6.60pt</Top>
         <Style>
           <BorderStyle />
@@ -216,11 +216,11 @@ ORDER BY Category, employee;</CommandText>
       </Textbox>
       <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
-        <Width>569.18pt</Width>
+        <Width>560.18pt</Width>
         <Value>Расход (наличка)</Value>
         <ZIndex>1</ZIndex>
-        <Left>15.6pt</Left>
-        <Top>88.0pt</Top>
+        <Left>0.00pt</Left>
+        <Top>88.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -231,11 +231,11 @@ ORDER BY Category, employee;</CommandText>
       </Textbox>
       <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
-        <Width>569.18pt</Width>
+        <Width>560.18pt</Width>
         <Value>Выданные авансы</Value>
         <ZIndex>1</ZIndex>
-        <Left>16.7pt</Left>
-        <Top>164.3pt</Top>
+        <Left>0.00pt</Left>
+        <Top>164.30pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -246,7 +246,7 @@ ORDER BY Category, employee;</CommandText>
       </Textbox>
       <Subreport Name="SubreportIncome">
         <Height>47.48pt</Height>
-        <Width>596.29pt</Width>
+        <Width>561.04pt</Width>
         <Left>0.00pt</Left>
         <Top>34.10pt</Top>
         <Style>
@@ -268,7 +268,7 @@ ORDER BY Category, employee;</CommandText>
       </Subreport>
       <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>47.48pt</Height>
-        <Width>597.04pt</Width>
+        <Width>561.04pt</Width>
         <Left>0.00pt</Left>
         <Top>111.70pt</Top>
         <Style>
@@ -290,7 +290,7 @@ ORDER BY Category, employee;</CommandText>
       </Subreport>
       <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>47.48pt</Height>
-        <Width>597.04pt</Width>
+        <Width>560.29pt</Width>
         <Left>0.00pt</Left>
         <Top>187.30pt</Top>
         <Style>

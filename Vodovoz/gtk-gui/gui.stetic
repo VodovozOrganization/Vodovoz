@@ -7758,6 +7758,18 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
+                          <widget class="Gtk.Label" id="label2">
+                            <property name="MemberName" />
+                            <property name="LabelProp" translatable="yes">№:</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.DataBindings.DataEntry" id="entryRoom">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
@@ -7771,7 +7783,7 @@ Patronymic</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
-                            <property name="Position">1</property>
+                            <property name="Position">2</property>
                             <property name="AutoSize">False</property>
                           </packing>
                         </child>
@@ -7782,7 +7794,7 @@ Patronymic</property>
                             <property name="LabelProp" translatable="yes">Этаж:</property>
                           </widget>
                           <packing>
-                            <property name="Position">2</property>
+                            <property name="Position">3</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -7792,6 +7804,7 @@ Patronymic</property>
                           <widget class="Gtk.DataBindings.DataSpinButton" id="spinFloor">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
+                            <property name="Lower">-5</property>
                             <property name="Upper">100</property>
                             <property name="PageIncrement">10</property>
                             <property name="StepIncrement">1</property>
@@ -7805,7 +7818,7 @@ Patronymic</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
-                            <property name="Position">3</property>
+                            <property name="Position">4</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
