@@ -15,6 +15,20 @@ namespace Vodovoz.ViewModel
 {
 	public class AccountingVM: RepresentationModelWithoutEntityBase<AccountingVMNode>
 	{
+		public AccountingFilter Filter {
+			get {
+				return RepresentationFilter as AccountingFilter;
+			}
+			set {
+				RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
+		public AccountingVM (AccountingFilter filter) : this (filter.UoW)
+		{
+			Filter = filter;
+		}
+
 		public AccountingVM () : this (UnitOfWorkFactory.CreateWithoutRoot ())
 		{
 		}
@@ -50,9 +64,19 @@ namespace Vodovoz.ViewModel
 
 			List<AccountingVMNode> result = new List<AccountingVMNode> ();
 
-			var income = UoW.Session.QueryOver<AccountIncome> (() => incomeAlias);
+			if (Filter.RestrictOperationType != AccountingFilter.OperationType.expense) {
 
-			var incomeList = income
+				var income = UoW.Session.QueryOver<AccountIncome> (() => incomeAlias);
+
+				if (Filter.RestrictStartDate != null) {
+					income.Where (o => o.Date >= Filter.RestrictStartDate);
+				}
+
+				if (Filter.RestrictEndDate != null) {
+					income.Where (o => o.Date <= Filter.RestrictEndDate.Value.AddDays (1).AddTicks (-1));
+				}
+				
+				var incomeList = income
 				.JoinQueryOver (() => incomeAlias.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => incomeAlias.CounterpartyAccount, () => counterpartyAccountAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => counterpartyAccountAlias.InBank, () => counterpartyBankAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -77,15 +101,25 @@ namespace Vodovoz.ViewModel
 					.Select (() => organizationAccountAlias.Number).WithAlias (() => resultAlias.OrganizationAccount)
 					.Select (() => organizationBankAlias.Name).WithAlias (() => resultAlias.OrganizationBank)
 					.Select (() => incomeCategoryAlias.Name).WithAlias (() => resultAlias.Category)
-			                 )
+				                 )
 				.TransformUsing (Transformers.AliasToBean<AccountingVMNode> ())
 				.List<AccountingVMNode> ();
 
-			result.AddRange (incomeList);
+				result.AddRange (incomeList);
+			}
+			if (Filter.RestrictOperationType != AccountingFilter.OperationType.income) {
+				
+				var expense = UoW.Session.QueryOver<AccountExpense> (() => expenseAlias);
 
-			var expense = UoW.Session.QueryOver<AccountExpense> (() => expenseAlias);
+				if (Filter.RestrictStartDate != null) {
+					expense.Where (o => o.Date >= Filter.RestrictStartDate);
+				}
 
-			var expenseList = expense
+				if (Filter.RestrictEndDate != null) {
+					expense.Where (o => o.Date <= Filter.RestrictEndDate.Value.AddDays (1).AddTicks (-1));
+				}
+
+				var expenseList = expense
 				.JoinQueryOver (() => expenseAlias.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => expenseAlias.CounterpartyAccount, () => counterpartyAccountAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => counterpartyAccountAlias.InBank, () => counterpartyBankAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -121,11 +155,12 @@ namespace Vodovoz.ViewModel
 					.Select (() => organizationBankAlias.Name).WithAlias (() => resultAlias.OrganizationBank)
 
 					.Select (() => expenseCategoryAlias.Name).WithAlias (() => resultAlias.Category)
-			                  )
+				                  )
 				.TransformUsing (Transformers.AliasToBean<AccountingVMNode> ())
 				.List<AccountingVMNode> ();
 
-			result.AddRange (expenseList);
+				result.AddRange (expenseList);
+			}
 
 			SetItemsSource (result.OrderByDescending (d => d.Date).ToList ());
 		}

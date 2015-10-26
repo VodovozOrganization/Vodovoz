@@ -6,6 +6,8 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox1;
 		
+		private global::Vodovoz.AccountingFilter accountingFilter;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::QSOrmProject.OrmTableView tableAccountingOperations;
@@ -21,6 +23,15 @@ namespace Vodovoz
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.accountingFilter = new global::Vodovoz.AccountingFilter ();
+			this.accountingFilter.Events = ((global::Gdk.EventMask)(256));
+			this.accountingFilter.Name = "accountingFilter";
+			this.vbox1.Add (this.accountingFilter);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.accountingFilter]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -35,8 +46,8 @@ namespace Vodovoz
 			this.tableAccountingOperations.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow.Add (this.tableAccountingOperations);
 			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
+			w3.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

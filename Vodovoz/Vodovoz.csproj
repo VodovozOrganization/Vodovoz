@@ -403,6 +403,8 @@
     <Compile Include="Repositories\Accounting\AccountIncomeRepository.cs" />
     <Compile Include="HibernateMapping\Organization\OrganizationMap.cs" />
     <Compile Include="HibernateMapping\Organization\EmployeeMap.cs" />
+    <Compile Include="JournalFilters\AccountingFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.AccountingFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

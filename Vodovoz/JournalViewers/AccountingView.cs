@@ -2,6 +2,7 @@
 using QSTDI;
 using NLog;
 using Vodovoz.ViewModel;
+using QSOrmProject;
 
 namespace Vodovoz
 {
@@ -14,7 +15,8 @@ namespace Vodovoz
 		{
 			this.Build ();
 			this.TabName = "Журнал операций по счету";
-			tableAccountingOperations.RepresentationModel = new AccountingVM ();
+			accountingFilter.UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			tableAccountingOperations.RepresentationModel = new AccountingVM (accountingFilter);
 			tableAccountingOperations.RepresentationModel.UpdateNodes ();
 		}
 	}
