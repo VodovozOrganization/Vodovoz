@@ -6,14 +6,14 @@ namespace Vodovoz.Repository
 {
 	public static class OrganizationRepository
 	{
-		const string cashOrganization = "cash_organization_id";
-		const string cashlessOrganization = "cashless_organization_id";
+		public const string CashOrganization = "cash_organization_id";
+		public const string CashlessOrganization = "cashless_organization_id";
 
 		public static Organization GetCashOrganization (IUnitOfWork uow)
 		{
-			if (MainSupport.BaseParameters.All.ContainsKey (cashOrganization)) {
+			if (MainSupport.BaseParameters.All.ContainsKey (CashOrganization)) {
 				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [cashOrganization]);
+				id = int.Parse (MainSupport.BaseParameters.All [CashOrganization]);
 				if (id == -1)
 					return null;
 				return uow.GetById<Organization> (id);
@@ -23,9 +23,9 @@ namespace Vodovoz.Repository
 
 		public static Organization GetCashlessOrganization (IUnitOfWork uow)
 		{
-			if (MainSupport.BaseParameters.All.ContainsKey (cashlessOrganization)) {
+			if (MainSupport.BaseParameters.All.ContainsKey (CashlessOrganization)) {
 				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [cashlessOrganization]);
+				id = int.Parse (MainSupport.BaseParameters.All [CashlessOrganization]);
 				if (id == -1)
 					return null;
 				return uow.GetById<Organization> (id);

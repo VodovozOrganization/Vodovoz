@@ -14,6 +14,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
+using QSSupportLib;
 
 namespace Vodovoz
 {
@@ -199,7 +200,7 @@ namespace Vodovoz
 				}
 			}
 			if ((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
-			   && item.Price != 0)
+			    && item.Price != 0)
 				return;
 			item.Price = item.Nomenclature.GetPrice (item.Count);
 		}
@@ -531,7 +532,7 @@ namespace Vodovoz
 					Identifier = "Bill",
 					Parameters = new Dictionary<string, object> {
 						{ "order_id",  Entity.Id },
-						{ "organization_id", OrganizationRepository.CashlessOrganizationId },
+						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
 						{ "hide_signature", false }
 					}
 				};
@@ -542,7 +543,7 @@ namespace Vodovoz
 					Identifier = "Bill",
 					Parameters = new Dictionary<string, object> {
 						{ "order_id",  Entity.Id },
-						{ "organization_id", OrganizationRepository.CashlessOrganizationId },
+						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])  },
 						{ "hide_signature", true }
 					}
 				};
