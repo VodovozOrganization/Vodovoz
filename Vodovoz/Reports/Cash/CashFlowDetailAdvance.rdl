@@ -10,7 +10,7 @@
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz;user=vad;password=;port=3306;server=rs.qsolution.ru</ConnectString>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
@@ -85,11 +85,11 @@ ORDER BY Category, employee;</CommandText>
     <ReportItems>
       <Textbox Name="Textbox17">
         <Height>18.03pt</Height>
-        <Width>565.42pt</Width>
+        <Width>559.42pt</Width>
         <Value>="Авансы за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
         <ZIndex>1</ZIndex>
-        <Left>4.6pt</Left>
-        <Top>2.8pt</Top>
+        <Left>0.00pt</Left>
+        <Top>2.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -114,10 +114,10 @@ ORDER BY Category, employee;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>335.5pt</Width>
+            <Width>126.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>108.1pt</Width>
+            <Width>318.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>113.0pt</Width>
@@ -130,9 +130,9 @@ ORDER BY Category, employee;</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>Статья расхода</Value>
-                      <Style>
+                    <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>Сотрудник</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -147,9 +147,9 @@ ORDER BY Category, employee;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox30">
-                      <Value>Сотрудник</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox15">
+                      <Value>Статья расхода</Value>
+                      <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -191,10 +191,9 @@ ORDER BY Category, employee;</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>={description}</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>={employee}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -207,9 +206,10 @@ ORDER BY Category, employee;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>={employee}</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <Value>={description}</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -241,7 +241,7 @@ ORDER BY Category, employee;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
+        <Left>0.0pt</Left>
         <Top>5.1pt</Top>
         <Footer>
           <TableRows>
@@ -250,7 +250,7 @@ ORDER BY Category, employee;</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox19">
+                    <Textbox Name="Textbox3">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -267,7 +267,7 @@ ORDER BY Category, employee;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                    <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -314,19 +314,23 @@ ORDER BY Category, employee;</CommandText>
               <RepeatOnNewPage>false</RepeatOnNewPage>
               <TableRows>
                 <TableRow>
-                  <Height>.2in</Height>
+                  <Height>.4in</Height>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox27">
+                        <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Style>
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
+                            <FontWeight>Normal</FontWeight>
                             <BackgroundColor>Lightgrey</BackgroundColor>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <FontStyle>Italic</FontStyle>
+                            <FontFamily>Monotype Corsiva</FontFamily>
+                            <FontSize>14pt</FontSize>
                           </Style>
                           <Value>=Fields!Category.Value</Value>
                         </Textbox>
@@ -345,6 +349,7 @@ ORDER BY Category, employee;</CommandText>
                             <FontWeight>Bold</FontWeight>
                             <TextAlign>Right</TextAlign>
                             <BackgroundColor>Lightgrey</BackgroundColor>
+                            <VerticalAlign>Bottom</VerticalAlign>
                           </Style>
                           <Value>=sum(Fields!sum.Value)</Value>
                         </Textbox>
@@ -364,7 +369,7 @@ ORDER BY Category, employee;</CommandText>
         </TableGroups>
       </Table>
     </ReportItems>
-    <Height>64.1pt</Height>
+    <Height>80.1pt</Height>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>
