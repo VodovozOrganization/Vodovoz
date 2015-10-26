@@ -9,6 +9,7 @@ using QSProjectsLib;
 using QSOrmProject;
 using System.Linq;
 using Gtk;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModel
 {
@@ -31,6 +32,9 @@ namespace Vodovoz.ViewModel
 			
 			AccountIncome incomeAlias;
 			AccountExpense expenseAlias;
+
+			ExpenseCategory expenseCategoryAlias;
+			IncomeCategory incomeCategoryAlias;
 
 			Counterparty counterpartyAlias;
 			Account counterpartyAccountAlias;
@@ -57,6 +61,8 @@ namespace Vodovoz.ViewModel
 				.JoinQueryOver (() => incomeAlias.OrganizationAccount, () => organizationAccountAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => organizationAccountAlias.InBank, () => organizationBankAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 
+				.JoinQueryOver (() => incomeAlias.Category, () => incomeCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+
 				.SelectList (list => list
 					.Select (() => incomeAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => incomeAlias.Date).WithAlias (() => resultAlias.Date)
@@ -70,6 +76,7 @@ namespace Vodovoz.ViewModel
 
 					.Select (() => organizationAccountAlias.Number).WithAlias (() => resultAlias.OrganizationAccount)
 					.Select (() => organizationBankAlias.Name).WithAlias (() => resultAlias.OrganizationBank)
+					.Select (() => incomeCategoryAlias.Name).WithAlias (() => resultAlias.Category)
 			                 )
 				.TransformUsing (Transformers.AliasToBean<AccountingVMNode> ())
 				.List<AccountingVMNode> ();
@@ -91,6 +98,8 @@ namespace Vodovoz.ViewModel
 				.JoinQueryOver (() => expenseAlias.EmployeeAccount, () => employeeAccountAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => employeeAccountAlias.InBank, () => employeeBankAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 
+				.JoinQueryOver (() => expenseAlias.Category, () => expenseCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+
 				.SelectList (list => list
 					.Select (() => expenseAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => expenseAlias.Date).WithAlias (() => resultAlias.Date)
@@ -110,6 +119,8 @@ namespace Vodovoz.ViewModel
 
 					.Select (() => organizationAccountAlias.Number).WithAlias (() => resultAlias.OrganizationAccount)
 					.Select (() => organizationBankAlias.Name).WithAlias (() => resultAlias.OrganizationBank)
+
+					.Select (() => expenseCategoryAlias.Name).WithAlias (() => resultAlias.Category)
 			                  )
 				.TransformUsing (Transformers.AliasToBean<AccountingVMNode> ())
 				.List<AccountingVMNode> ();
@@ -124,6 +135,7 @@ namespace Vodovoz.ViewModel
 		Gtk.DataBindings.IMappingConfig treeViewConfig = Gtk.DataBindings.FluentMappingConfig<AccountingVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.Number.ToString ())
 			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToShortDateString ())
+			.AddColumn ("Категория дохода/расхода").SetDataProperty (node => node.Category)
 			.AddColumn ("Приход").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Income))
 			.AddColumn ("Расход").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Expense))
 			.AddColumn ("Контрагент/сотрудник").SetDataProperty (node => node.Name)
@@ -155,6 +167,8 @@ namespace Vodovoz.ViewModel
 		public decimal Income { get; set; }
 
 		public decimal Expense { get; set; }
+
+		public string Category { get; set; }
 
 		public string OrganizationAccount { get; set; }
 
