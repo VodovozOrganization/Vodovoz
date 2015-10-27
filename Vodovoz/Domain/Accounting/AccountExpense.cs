@@ -7,8 +7,8 @@ using Vodovoz.Domain.Cash;
 namespace Vodovoz.Domain.Accounting
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
-		NominativePlural = "названия",
-		Nominative = "название")]
+		NominativePlural = "операции расхода",
+		Nominative = "операция расхода")]
 	public class AccountExpense: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
