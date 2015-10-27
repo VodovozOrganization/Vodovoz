@@ -121,7 +121,9 @@ namespace Vodovoz
 				DeleteItems = new List<DeleteDependenceInfo> {
 					DeleteDependenceInfo.CreateFromBag<Organization> (item => item.Phones),
 					DeleteDependenceInfo.CreateFromBag<Organization> (item => item.Accounts),
-					DeleteDependenceInfo.Create<CounterpartyContract> (item => item.Organization)
+					DeleteDependenceInfo.Create<CounterpartyContract> (item => item.Organization),
+					DeleteDependenceInfo.Create<AccountIncome> (item => item.Organization),
+					DeleteDependenceInfo.Create<AccountExpense> (item => item.Organization)
 				}
 			}.FillFromMetaInfo ()
 			);
@@ -201,7 +203,9 @@ namespace Vodovoz
 					DeleteDependenceInfo.Create<MovementDocument> (item => item.FromClient),
 					DeleteDependenceInfo.Create<MovementDocument> (item => item.ToClient),
 					DeleteDependenceInfo.Create<Order> (item => item.Client),
-					DeleteDependenceInfo.Create<WriteoffDocument> (item => item.Client)
+					DeleteDependenceInfo.Create<WriteoffDocument> (item => item.Client),
+					DeleteDependenceInfo.Create<AccountIncome> (item => item.Counterparty),
+					DeleteDependenceInfo.Create<AccountExpense> (item => item.Counterparty)
 				},
 				ClearItems = new List<ClearDependenceInfo> {
 					ClearDependenceInfo.Create<Counterparty> (item => item.MainCounterparty)
@@ -500,6 +504,14 @@ namespace Vodovoz
 				DisplayString = "Операция расхода №{1} от {2:d} на сумму {3}₽"
 			}.FillFromMetaInfo ()
 			);
+				
+			DeleteConfig.ExistingConfig<Account> ().DeleteItems
+				.AddRange (new List<DeleteDependenceInfo> {
+				DeleteDependenceInfo.Create<AccountIncome> (item => item.CounterpartyAccount),
+				DeleteDependenceInfo.Create<AccountIncome> (item => item.OrganizationAccount),
+				DeleteDependenceInfo.Create<AccountExpense> (item => item.CounterpartyAccount),
+				DeleteDependenceInfo.Create<AccountExpense> (item => item.OrganizationAccount)
+			});
 
 			#endregion
 
