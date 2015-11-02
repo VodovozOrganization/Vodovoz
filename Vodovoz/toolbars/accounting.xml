@@ -1,8 +1,7 @@
 ﻿<ui>
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/>
-	</toolbar>
-	<toolbar name='toolbarSub'>
 		<toolitem name='ActionAccountingTable' action='ActionAccountingTable'/>
+		<toolitem name='ActionAccountFlow' action='ActionAccountFlow'/>
 	</toolbar>
 </ui>

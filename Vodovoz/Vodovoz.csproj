@@ -405,6 +405,8 @@
     <Compile Include="HibernateMapping\Organization\EmployeeMap.cs" />
     <Compile Include="JournalFilters\AccountingFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountingFilter.cs" />
+    <Compile Include="ReportsParameters\AccountFlow.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.AccountFlow.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -592,6 +594,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Cash\CashFlowDetailIncome.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\AccountFlowDetail.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\AccountFlowDetailExpense.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\AccountFlowDetailIncome.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
