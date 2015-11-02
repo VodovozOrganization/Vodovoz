@@ -17,17 +17,18 @@ namespace Vodovoz.Reports
 		#region IParametersWidget implementation
 
 		public string Title {
-			get { return "Доходы и расходы";
+			get {
+				return "Доходы и расходы";
 			}
 		}
 
 		public event EventHandler<LoadReportEventArgs> LoadReport;
+
 		#endregion
 
-		void OnUpdate(bool hide = false)
+		void OnUpdate (bool hide = false)
 		{
-			if(LoadReport != null)
-			{
+			if (LoadReport != null) {
 				LoadReport (this, new LoadReportEventArgs (GetReportInfo (), hide));
 			}
 		}
@@ -37,7 +38,7 @@ namespace Vodovoz.Reports
 			OnUpdate (true);
 		}
 
-		private ReportInfo GetReportInfo()
+		private ReportInfo GetReportInfo ()
 		{
 			string ReportName;
 			if (checkDetail.Active) {
@@ -57,8 +58,8 @@ namespace Vodovoz.Reports
 			return new ReportInfo {
 				Identifier = ReportName,
 				Parameters = new Dictionary<string, object> {
-					{"StartDate", dateperiodpicker1.StartDateOrNull.Value},
-					{"EndDate", dateperiodpicker1.EndDateOrNull.Value}
+					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
+					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value }
 				}
 			};
 		}
@@ -75,11 +76,11 @@ namespace Vodovoz.Reports
 
 		enum ReportParts
 		{
-			[Display(Name = "Приход")]
+			[Display (Name = "Приход")]
 			Income,
-			[Display(Name = "Расход")]
+			[Display (Name = "Расход")]
 			Expense,
-			[Display(Name = "Авансы")]
+			[Display (Name = "Авансы")]
 			Advance
 		}
 	}
