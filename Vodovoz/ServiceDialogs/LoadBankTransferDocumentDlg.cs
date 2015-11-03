@@ -242,6 +242,7 @@ namespace Vodovoz
 		protected void OnButtonReadFileClicked (object sender, EventArgs e)
 		{
 			documents.Clear ();
+			rowsCount = 0;
 			parser = new BankTransferDocumentParser (filechooser.Filename);
 			parser.Parse ();
 			buttonUpload.Sensitive = true;
@@ -317,8 +318,11 @@ namespace Vodovoz
 					organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
 					if (organization == null) {
 						organization = OrganizationRepository.GetOrganizationByAccountNumber (uow, doc.RecipientCheckingAccount);
-						if (organization == null)
+						if (organization == null) {
+							progressBar.Fraction = 0;
+							progressBar.Text = "Ошибка обработки выгрузки!";
 							throw new Exception ("Не удалось обнаружить нашу организацию ни по ИНН, ни по номеру счета. Заполните организацию, или проверьте корректность ИНН.");
+						}
 					}
 					//Проверяем наш счет
 					if (!organization.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
