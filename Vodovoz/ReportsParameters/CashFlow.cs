@@ -44,12 +44,20 @@ namespace Vodovoz.Reports
 			if (checkDetail.Active) {
 				if (comboPart.SelectedItem.Equals (SpecialComboState.All))
 					ReportName = "Cash.CashFlowDetail";
+				else if (comboPart.SelectedItem.Equals (ReportParts.IncomeAll))
+					ReportName = "Cash.CashFlowDetailIncomeAll";
 				else if (comboPart.SelectedItem.Equals (ReportParts.Income))
 					ReportName = "Cash.CashFlowDetailIncome";
+				else if (comboPart.SelectedItem.Equals (ReportParts.IncomeReturn))
+					ReportName = "Cash.CashFlowDetailIncomeReturn";
+				else if (comboPart.SelectedItem.Equals (ReportParts.ExpenseAll))
+					ReportName = "Cash.CashFlowDetailExpenseAll";
 				else if (comboPart.SelectedItem.Equals (ReportParts.Expense))
 					ReportName = "Cash.CashFlowDetailExpense";
 				else if (comboPart.SelectedItem.Equals (ReportParts.Advance))
 					ReportName = "Cash.CashFlowDetailAdvance";
+				else if (comboPart.SelectedItem.Equals (ReportParts.AdvanceReport))
+					ReportName = "Cash.CashFlowDetailAdvanceReport";
 				else
 					throw new InvalidOperationException ("Неизвестный раздел.");
 			} else
@@ -76,12 +84,20 @@ namespace Vodovoz.Reports
 
 		enum ReportParts
 		{
+			[Display (Name = "Приход (все)")]
+			IncomeAll,
 			[Display (Name = "Приход")]
 			Income,
+			[Display (Name = "Сдача")]
+			IncomeReturn,
+			[Display (Name = "Расход (все)")]
+			ExpenseAll,
 			[Display (Name = "Расход")]
 			Expense,
 			[Display (Name = "Авансы")]
-			Advance
+			Advance,
+			[Display (Name = "Авансовые отчеты")]
+			AdvanceReport
 		}
 	}
 }

@@ -197,7 +197,7 @@ ORDER BY Category, employee;</CommandText>
         <Value>Приход (наличка)</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
-        <Top>6pt</Top>
+        <Top>6.60pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -209,25 +209,10 @@ ORDER BY Category, employee;</CommandText>
       <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.11pt</Height>
         <Width>560.18pt</Width>
-        <Value>Расход (наличка)</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>170pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>16pt</FontSize>
-          <TextAlign>Center</TextAlign>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox14" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>21.11pt</Height>
-        <Width>560.18pt</Width>
-        <Value>Выданные авансы</Value>
+        <Value>Сдача (наличка)</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
-        <Top>252pt</Top>
+        <Top>88.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -240,7 +225,7 @@ ORDER BY Category, employee;</CommandText>
         <Height>47.48pt</Height>
         <Width>561.04pt</Width>
         <Left>0.00pt</Left>
-        <Top>34.00pt</Top>
+        <Top>34.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -262,13 +247,13 @@ ORDER BY Category, employee;</CommandText>
         <Height>47.48pt</Height>
         <Width>561.04pt</Width>
         <Left>0.00pt</Left>
-        <Top>198pt</Top>
+        <Top>111.70pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
-        <ReportName>CashFlowDetailExpense</ReportName>
+        <ReportName>CashFlowDetailIncomeReturn</ReportName>
         <NoRows>За период нет расхода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
@@ -280,104 +265,8 @@ ORDER BY Category, employee;</CommandText>
           </Parameter>
         </Parameters>
       </Subreport>
-      <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>47.48pt</Height>
-        <Width>560.29pt</Width>
-        <Left>0.0pt</Left>
-        <Top>280pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportName>CashFlowDetailAdvance</ReportName>
-        <NoRows>За период нет авансов.</NoRows>
-        <MergeTransactions>true</MergeTransactions>
-        <Parameters>
-          <Parameter Name="StartDate">
-            <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
-          </Parameter>
-        </Parameters>
-      </Subreport>
-      <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>21.11pt</Height>
-        <Width>560.18pt</Width>
-        <Value>Авансовые отчеты</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>334pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>16pt</FontSize>
-          <TextAlign>Center</TextAlign>
-        </Style>
-      </Textbox>
-      <Subreport Name="Subreport3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>47.48pt</Height>
-        <Width>560.29pt</Width>
-        <Left>0.0pt</Left>
-        <Top>362pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportName>CashFlowDetailAdvanceReport</ReportName>
-        <NoRows>?? ?????? ??? ???????.</NoRows>
-        <MergeTransactions>true</MergeTransactions>
-        <Parameters>
-          <Parameter Name="StartDate">
-            <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
-          </Parameter>
-        </Parameters>
-      </Subreport>
-      <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>21.11pt</Height>
-        <Width>560.18pt</Width>
-        <Value>Сдача (наличка)</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>88.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontSize>16pt</FontSize>
-          <TextAlign>Center</TextAlign>
-        </Style>
-      </Textbox>
-      <Subreport Name="Subreport4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>47.48pt</Height>
-        <Width>561.04pt</Width>
-        <Left>0.0pt</Left>
-        <Top>116.0pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportName>CashFlowDetailIncomeReturn</ReportName>
-        <NoRows>?? ?????? ??? ????????.</NoRows>
-        <MergeTransactions>true</MergeTransactions>
-        <Parameters>
-          <Parameter Name="StartDate">
-            <Value>=Parameters!StartDate</Value>
-          </Parameter>
-          <Parameter Name="EndDate">
-            <Value>=Parameters!EndDate</Value>
-          </Parameter>
-        </Parameters>
-      </Subreport>
     </ReportItems>
-    <Height>418.4pt</Height>
+    <Height>170.8pt</Height>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>

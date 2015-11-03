@@ -6,15 +6,6 @@
   </Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>
-        </ConnectString>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -28,10 +19,9 @@
     if(cash_income.cash_income_category_id,
         1,
         0) as CategoryType,
-    IFNULL(cash_income_category.name,
-            cash_expense_category.name) as Category,
-    IFNULL(cash_income.cash_income_category_id,
-            cash_income.cash_expense_category_id) as CategoryId,
+    cash_income.date as Date,
+    cash_income_category.name as Category,
+    cash_income.cash_income_category_id as CategoryId,
     cash_income.money as sum,
     cash_income.description,
     CONCAT_WS('',
@@ -46,8 +36,6 @@ FROM
     cash_income
         LEFT JOIN
     cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
-        LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_income.cash_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
@@ -86,6 +74,10 @@ ORDER BY Category;</CommandText>
         <Field Name="employee">
           <DataField>employee</DataField>
           <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Date">
+          <DataField>Date</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -126,13 +118,16 @@ ORDER BY Category;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>126.6pt</Width>
+            <Width>65pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>318.7pt</Width>
+            <Width>125pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>113.0pt</Width>
+            <Width>320pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>65pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -140,6 +135,23 @@ ORDER BY Category;</CommandText>
             <TableRow>
               <Height>10.4pt</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>Дата</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <BackgroundColor>Silver</BackgroundColor>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -203,6 +215,22 @@ ORDER BY Category;</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>={Date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format >dd.MM.yyyy</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                       <Value>={employee}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -213,6 +241,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -260,6 +289,23 @@ ORDER BY Category;</CommandText>
             <TableRow>
               <Height>.2in</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
@@ -332,6 +378,27 @@ ORDER BY Category;</CommandText>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
+                        <Textbox Name="Textbox12">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Normal</FontWeight>
+                            <BackgroundColor>Lightgrey</BackgroundColor>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <FontFamily>Monotype Corsiva</FontFamily>
+                            <FontSize>14pt</FontSize>
+                            <FontStyle>Italic</FontStyle>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
                         <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Style>
                             <BorderStyle>
@@ -344,7 +411,7 @@ ORDER BY Category;</CommandText>
                             <VerticalAlign>Bottom</VerticalAlign>
                             <FontFamily>Monotype Corsiva</FontFamily>
                             <FontSize>14pt</FontSize>
-                            <FontStyle >Italic</FontStyle>
+                            <FontStyle>Italic</FontStyle>
                           </Style>
                           <Value>=Fields!Category.Value</Value>
                         </Textbox>
@@ -384,6 +451,7 @@ ORDER BY Category;</CommandText>
       </Table>
     </ReportItems>
     <Height>78.4pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>
@@ -406,9 +474,16 @@ ORDER BY Category;</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2015-10-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -417,6 +492,11 @@ ORDER BY Category;</CommandText>
     </ReportParameter>
     <ReportParameter Name="EndDate">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2015-11-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -424,4 +504,13 @@ ORDER BY Category;</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

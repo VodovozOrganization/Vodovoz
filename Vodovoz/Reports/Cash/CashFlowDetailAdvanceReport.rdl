@@ -16,11 +16,11 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_expense.cash_expense_category_id as CategoryId,
+    cash_advance_report.cash_expense_category_id as CategoryId,
 	cash_expense_category.name as Category,
-	cash_expense.money as Sum,
-    cash_expense.description,
-    cash_expense.date as date,
+	cash_advance_report.money as Sum,
+    cash_advance_report.description,
+    cash_advance_report.date as date,
     CONCAT_WS('',
             CONCAT(employees.last_name, ' '),
             if(employees.name = '',
@@ -30,13 +30,12 @@
                 '',
                 CONCAT(LEFT(employees.patronymic, 1), '.'))) as employee
 FROM
-    cash_expense
+    cash_advance_report
         LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
+    cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
         LEFT JOIN
-    employees ON employees.id = cash_expense.employee_id
-WHERE cash_expense.type = 'Advance' AND
-    cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+    employees ON employees.id = cash_advance_report.employee_id
+WHERE cash_advance_report.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
 ORDER BY Category, employee;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -83,7 +82,7 @@ ORDER BY Category, employee;</CommandText>
       <Textbox Name="Textbox17">
         <Height>18.03pt</Height>
         <Width>559.42pt</Width>
-        <Value>="Выданные авансы за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
+        <Value>="Авансовые отчеты за период " + Format(CDate({?StartDate}), "d") + "-" + Format(CDate({?EndDate}), "d")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>2.80pt</Top>
@@ -234,7 +233,7 @@ ORDER BY Category, employee;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
