@@ -161,6 +161,9 @@ namespace Vodovoz.Domain
 			get { return StringWorks.PersonNameWithInitials (LastName, Name, Patronymic); }
 		}
 
+		public string Title {
+			get { return ShortName;}
+		}
 
 		#region IValidatableObject implementation
 
