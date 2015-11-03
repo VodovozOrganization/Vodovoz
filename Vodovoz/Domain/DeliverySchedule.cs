@@ -45,9 +45,30 @@ namespace Vodovoz.Domain
 		{
 			if (From > To)
 				yield return new ValidationResult ("Окончание периода доставки не может быть раньше его начала.", new[] {
-					"From",
-					"To"
+					this.GetPropertyName (o => o.From),
+					this.GetPropertyName (o => o.To)
 				});
+
+			if(From.TotalMinutes < 1)
+				yield return new ValidationResult ("Время начало периода не может быть 0.", new[] {
+					this.GetPropertyName (o => o.From)
+				});
+
+			if(To.TotalMinutes < 1)
+				yield return new ValidationResult ("Время окончания периода не может быть 0.", new[] {
+					this.GetPropertyName (o => o.To)
+				});
+
+			if(From.TotalDays > 1)
+				yield return new ValidationResult ("Время начало периода не может быть больше 24 часов.", new[] {
+					this.GetPropertyName (o => o.From)
+				});
+
+			if(To.TotalDays > 1)
+				yield return new ValidationResult ("Время окончания периода не может быть больше 24 часов.", new[] {
+					this.GetPropertyName (o => o.To)
+				});
+			
 		}
 
 		#endregion
