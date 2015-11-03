@@ -117,7 +117,7 @@ ORDER BY Category, employee;</CommandText>
             <Width>125pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>320pt</Width>
+            <Width>305pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65pt</Width>
