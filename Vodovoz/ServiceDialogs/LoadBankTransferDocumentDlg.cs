@@ -241,7 +241,9 @@ namespace Vodovoz
 
 		protected void OnButtonReadFileClicked (object sender, EventArgs e)
 		{
+			uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			documents.Clear ();
+			checkButtonAll.Active = true;
 			rowsCount = 0;
 			parser = new BankTransferDocumentParser (filechooser.Filename);
 			parser.Parse ();
@@ -383,6 +385,7 @@ namespace Vodovoz
 
 		protected void FillCounterparties ()
 		{
+			uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TreeIter iter;
 			progressBar.Fraction = 0;
 			progressBar.Text = "Идет исправление/создание недостающих объектов... Операция 1/2";
@@ -415,6 +418,7 @@ namespace Vodovoz
 						buow.Root.CorAccount = doc.PayerCorrespondentAccount;
 						buow.Save ();
 						documents.SetValue (iter, (int)Columns.PayerBankColorCol, OddRowColor);
+						DeselectSameBanks (doc.PayerBik);
 					}
 
 					//Обрабатываем плательщика
@@ -463,6 +467,7 @@ namespace Vodovoz
 						buow.Root.CorAccount = doc.RecipientCorrespondentAccount;
 						buow.Save ();
 						documents.SetValue (iter, (int)Columns.RecipientBankColorCol, EvenRowColor);
+						DeselectSameBanks (doc.RecipientBik);
 					}
 
 					//Обрабатываем получателя
@@ -514,6 +519,7 @@ namespace Vodovoz
 
 		protected void FillDocuments ()
 		{
+			uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TreeIter iter;
 			progressBar.Fraction = 0;
 			progressBar.Text = "Загружаем выгрузку из банк-клиента... Операция 2/2";
@@ -548,9 +554,9 @@ namespace Vodovoz
 							expenseUoW.Root.Description = doc.PaymentPurpose;
 							expenseUoW.Root.Organization = organization;
 							expenseUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
-							expenseUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.RecipientInn);
+							expenseUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (expenseUoW, doc.RecipientInn);
 							if (expenseUoW.Root.Counterparty == null) {
-								expenseUoW.Root.Employee = EmployeeRepository.GetEmployeeByINNAndAccount (uow, doc.RecipientInn, doc.RecipientCheckingAccount);
+								expenseUoW.Root.Employee = EmployeeRepository.GetEmployeeByINNAndAccount (expenseUoW, doc.RecipientInn, doc.RecipientCheckingAccount);
 								expenseUoW.Root.EmployeeAccount = expenseUoW.Root.Employee.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
 							} else {
 								expenseUoW.Root.CounterpartyAccount = expenseUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
@@ -567,7 +573,7 @@ namespace Vodovoz
 							incomeUoW.Root.Date = doc.Date;
 							incomeUoW.Root.Total = doc.Total;
 							incomeUoW.Root.Description = doc.PaymentPurpose;
-							incomeUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn);
+							incomeUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (incomeUoW, doc.PayerInn);
 							incomeUoW.Root.CounterpartyAccount = incomeUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							incomeUoW.Root.Organization = organization;
 							incomeUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
@@ -604,8 +610,8 @@ namespace Vodovoz
 		protected string TryGetOrganizationType (string name)
 		{
 			foreach (var pair in InformationHandbook.OrganizationTypes) {
-				string pattern = String.Format (@".*(^|\(|\s){0}($|\)|\s).*", pair.Key);
-				string fullPattern = String.Format (@".*(^|\(|\s){0}($|\)|\s).*", pair.Value);
+				string pattern = String.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Key);
+				string fullPattern = String.Format (@".*(^|\(|\s|\W|['""]){0}($|\)|\s|\W|['""]).*", pair.Value);
 				Regex regex = new Regex (pattern, RegexOptions.IgnoreCase);
 				if (regex.IsMatch (name))
 					return pair.Key;
@@ -631,6 +637,24 @@ namespace Vodovoz
 				    && document.RecipientName == name
 				    && (documents.GetValue (iter, (int)Columns.RecipientNameColorCol) as string) == NeedToAdd)
 					documents.SetValue (iter, (int)Columns.RecipientNameColorCol, EvenRowColor);
+			} while (documents.IterNext (ref iter));
+			while (Application.EventsPending ())
+				Application.RunIteration ();
+		}
+
+		protected void DeselectSameBanks (string bik)
+		{
+			TreeIter iter;
+			if (!documents.GetIterFirst (out iter))
+				return;
+			do {
+				var document = documents.GetValue (iter, (int)Columns.TransferDocumentCol) as TransferDocument;
+				if (document.PayerBik == bik
+				    && (documents.GetValue (iter, (int)Columns.PayerBankColorCol) as string) == NeedToAdd)
+					documents.SetValue (iter, (int)Columns.PayerBankColorCol, OddRowColor);
+				if (document.RecipientBik == bik
+				    && (documents.GetValue (iter, (int)Columns.RecipientBankColorCol) as string) == NeedToAdd)
+					documents.SetValue (iter, (int)Columns.RecipientBankColorCol, EvenRowColor);
 			} while (documents.IterNext (ref iter));
 			while (Application.EventsPending ())
 				Application.RunIteration ();
