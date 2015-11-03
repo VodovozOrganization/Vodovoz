@@ -35,7 +35,7 @@ FROM
     cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_advance_report.employee_id
-WHERE cash_advance_report.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+WHERE cash_advance_report.date &gt;= @startDate AND cash_advance_report.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
 ORDER BY Category, employee;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">

@@ -39,7 +39,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = cash_income.employee_id
 WHERE
-    cash_income.type = 'Return' AND cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+    cash_income.type = 'Return' AND cash_income.date &gt;= @startDate AND cash_income.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
