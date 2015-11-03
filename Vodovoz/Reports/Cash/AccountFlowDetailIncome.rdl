@@ -27,7 +27,7 @@ LEFT JOIN cash_income_category ON cash_income_category.id = account_income.cash_
 LEFT JOIN counterparty ON counterparty.id = account_income.counterparty_id
 
 WHERE
- account_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY) 
+ account_income.date BETWEEN @startDate AND @endDate 
 ORDER BY category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
