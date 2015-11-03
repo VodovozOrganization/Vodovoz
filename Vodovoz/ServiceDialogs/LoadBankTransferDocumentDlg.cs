@@ -83,6 +83,16 @@ namespace Vodovoz
 			this.Build ();
 			uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			TabName = "Загрузка из банк-клиента";
+
+			var txtFilter = new FileFilter ();
+			txtFilter.AddPattern ("*.txt");
+			txtFilter.Name = "Текстовые файлы (*.txt)";
+			var allFilter = new FileFilter ();
+			allFilter.AddPattern ("*");
+			allFilter.Name = "Все файлы";
+			filechooser.AddFilter (txtFilter);
+			filechooser.AddFilter (allFilter);
+
 			labelDescription1.Markup = String.Format ("<span background=\"{0}\">     </span> - объект будет создан", NeedToAdd);
 
 			foreach (var category in CategoryRepository.ExpenseCategories (uow)) {
