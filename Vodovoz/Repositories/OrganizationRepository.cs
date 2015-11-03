@@ -1,6 +1,8 @@
 ﻿using Vodovoz.Domain;
 using QSOrmProject;
 using QSSupportLib;
+using System.Collections.Generic;
+using QSBanks;
 
 namespace Vodovoz.Repository
 {
@@ -49,6 +51,18 @@ namespace Vodovoz.Repository
 				return null;
 			return uow.Session.QueryOver<Organization> ()
 				.Where (c => c.INN == inn)
+				.Take (1)
+				.SingleOrDefault ();
+		}
+
+		public static Organization GetOrganizationByAccountNumber (IUnitOfWork uow, string accountNumber)
+		{
+			if (string.IsNullOrWhiteSpace (accountNumber))
+				return null;
+			Account accountAlias = null;
+			return uow.Session.QueryOver<Organization> ()
+				.JoinAlias (org => org.Accounts, () => accountAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where (org => accountAlias.Number == accountNumber)
 				.Take (1)
 				.SingleOrDefault ();
 		}

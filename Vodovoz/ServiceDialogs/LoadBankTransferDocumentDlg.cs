@@ -316,7 +316,9 @@ namespace Vodovoz
 					//Нам платят
 					organization = OrganizationRepository.GetOrganizationByInn (uow, doc.RecipientInn);
 					if (organization == null) {
-						throw new Exception ("Не удалось обнаружить нашу организацию по ИНН. Заполните организацию, или проверьте корректность ИНН.");
+						organization = OrganizationRepository.GetOrganizationByAccountNumber (uow, doc.RecipientCheckingAccount);
+						if (organization == null)
+							throw new Exception ("Не удалось обнаружить нашу организацию ни по ИНН, ни по номеру счета. Заполните организацию, или проверьте корректность ИНН.");
 					}
 					//Проверяем наш счет
 					if (!organization.Accounts.Any (acc => acc.Number == doc.RecipientCheckingAccount))
