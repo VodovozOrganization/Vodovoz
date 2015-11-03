@@ -9499,7 +9499,7 @@ Patronymic</property>
                     <property name="IsEditable">True</property>
                     <property name="InvisibleChar">●</property>
                     <property name="ShowSeconds">False</property>
-                    <property name="AutocompleteStep">30</property>
+                    <property name="AutocompleteStep">15</property>
                     <property name="DateTime">0</property>
                     <property name="Time">0</property>
                     <property name="InheritedDataSource">True</property>
@@ -9532,7 +9532,7 @@ Patronymic</property>
                     <property name="IsEditable">True</property>
                     <property name="InvisibleChar">●</property>
                     <property name="ShowSeconds">False</property>
-                    <property name="AutocompleteStep">30</property>
+                    <property name="AutocompleteStep">15</property>
                     <property name="DateTime">0</property>
                     <property name="Time">0</property>
                     <property name="InheritedDataSource">True</property>
