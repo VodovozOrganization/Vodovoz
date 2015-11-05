@@ -51,12 +51,18 @@ namespace Vodovoz
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-			yentryExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.Subject).InitializeFromSource ();
+			OrmMain.GetObjectDescription<ExpenseCategory> ().ObjectUpdated += OnExpenseCategoryUpdated;
+			OnExpenseCategoryUpdated (null, null);
+			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
 
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
+		}
+
+		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		{
+			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
 		}
 
 		public override bool Save ()

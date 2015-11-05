@@ -52,12 +52,13 @@ namespace Vodovoz
 			yentryClient.ItemsQuery = Repository.CounterpartyRepository.ActiveClientsQuery ();
 			yentryClient.Binding.AddBinding (Entity, s => s.Customer, w => w.Subject).InitializeFromSource ();
 
-			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
-			yentryExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.Subject).InitializeFromSource ();
-
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
-			OrmMain.GetObjectDescription<IncomeCategory> ().ObjectUpdated += OnIncomeCategoryUpdated;;
+			OrmMain.GetObjectDescription<ExpenseCategory> ().ObjectUpdated += OnExpenseCategoryUpdated;
+			OnExpenseCategoryUpdated (null, null);
+			comboExpense.Binding.AddBinding (Entity, s => s.ExpenseCategory, w => w.SelectedItem).InitializeFromSource ();
+
+			OrmMain.GetObjectDescription<IncomeCategory> ().ObjectUpdated += OnIncomeCategoryUpdated;
 			OnIncomeCategoryUpdated (null, null);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
 
@@ -69,6 +70,11 @@ namespace Vodovoz
 		void OnIncomeCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
 		{
 			comboCategory.ItemsList = Repository.Cash.CategoryRepository.IncomeCategories (UoW);
+		}
+
+		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
+		{
+			comboExpense.ItemsList = Repository.Cash.CategoryRepository.ExpenseCategories (UoW);
 		}
 
 		public override bool Save ()
@@ -110,7 +116,7 @@ namespace Vodovoz
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			buttonPrint.Sensitive = Entity.TypeOperation == IncomeType.Return;
-			labelExpenseTitle.Visible = yentryExpense.Visible = Entity.TypeOperation == IncomeType.Return;
+			labelExpenseTitle.Visible = comboExpense.Visible = Entity.TypeOperation == IncomeType.Return;
 			labelIncomeTitle.Visible = comboCategory.Visible = Entity.TypeOperation != IncomeType.Return;
 
 			labelClientTitle.Visible = yentryClient.Visible = Entity.TypeOperation == IncomeType.Payment;
