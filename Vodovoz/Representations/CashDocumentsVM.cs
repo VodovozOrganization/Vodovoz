@@ -8,6 +8,8 @@ using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
+using NHibernate.Criterion;
+using NHibernate;
 
 namespace Vodovoz.ViewModel
 {
@@ -58,6 +60,7 @@ namespace Vodovoz.ViewModel
 					.JoinQueryOver (() => incomeAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => incomeAlias.Casher, () => casherAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => incomeAlias.IncomeCategory, () => incomeCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => incomeAlias.ExpenseCategory, () => expenseCategoryAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => incomeAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => incomeAlias.Date).WithAlias (() => resultAlias.Date)
@@ -69,7 +72,10 @@ namespace Vodovoz.ViewModel
 						.Select (() => casherAlias.Name).WithAlias (() => resultAlias.CasherName)
 						.Select (() => casherAlias.LastName).WithAlias (() => resultAlias.CasherSurname)
 						.Select (() => casherAlias.Patronymic).WithAlias (() => resultAlias.CasherPatronymic)
-						.Select (() => incomeCategoryAlias.Name).WithAlias (() => resultAlias.Category)
+						.Select (Projections.SqlFunction("COALESCE", NHibernateUtil.String
+							, Projections.Property(() => incomeCategoryAlias.Name)
+							, Projections.Property(() => expenseCategoryAlias.Name)
+						)).WithAlias (() => resultAlias.Category)
 					)
 					.TransformUsing (Transformers.AliasToBean<CashDocumentsVMNode> ())
 					.List<CashDocumentsVMNode> ();
