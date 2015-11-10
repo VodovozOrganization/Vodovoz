@@ -407,6 +407,8 @@
     <Compile Include="gtk-gui\Vodovoz.AccountingFilter.cs" />
     <Compile Include="ReportsParameters\AccountFlow.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.AccountFlow.cs" />
+    <Compile Include="Domain\Cash\AdvanceClosing.cs" />
+    <Compile Include="HibernateMapping\Cash\AdvanceClosingMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

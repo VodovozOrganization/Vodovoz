@@ -71,6 +71,14 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		bool? advanceClosed;
+
+		[Display (Name = "Аванс закрыт")]
+		public virtual bool? AdvanceClosed {
+			get { return advanceClosed; }
+			set { SetField (ref advanceClosed, value, () => AdvanceClosed); }
+		}
+
 		public virtual string Title { 
 			get { return String.Format ("Расходный ордер №{0} от {1:d}", Id, Date); }
 		}
@@ -93,6 +101,17 @@ namespace Vodovoz.Domain.Cash
 				if (ExpenseCategory == null)
 					yield return new ValidationResult ("Статья расхода под которую выдаются деньги должна быть заполнена.",
 						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
+
+				if (!AdvanceClosed.HasValue)
+					yield return new ValidationResult ("Отсутствует иформация поле Закрытия аванса. Поле не может быть null.",
+						new[] { this.GetPropertyName (o => o.AdvanceClosed) });
+				
+			}
+			else
+			{
+				if (AdvanceClosed.HasValue)
+					yield return new ValidationResult (String.Format ("Если это не выдача под аванс {0} должно быть null.", this.GetPropertyName (o => o.AdvanceClosed)),
+						new[] { this.GetPropertyName (o => o.AdvanceClosed) });
 			}
 
 			if(TypeOperation == ExpenseType.Expense)
@@ -109,7 +128,7 @@ namespace Vodovoz.Domain.Cash
 			if(String.IsNullOrWhiteSpace (Description))
 				yield return new ValidationResult ("Основание должно быть заполнено.",
 					new[] { this.GetPropertyName (o => o.Description) });
-			
+								
 		}
 
 		#endregion
