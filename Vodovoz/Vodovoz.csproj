@@ -360,7 +360,6 @@
     <Compile Include="HibernateMapping\Cash\ExpenseMap.cs" />
     <Compile Include="HibernateMapping\Cash\IncomeMap.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceReportMap.cs" />
-    <Compile Include="JournalViewers\CashDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashDocumentsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDocumentsView.cs" />
     <Compile Include="Representations\CashDocumentsVM.cs" />
@@ -375,7 +374,6 @@
     <Compile Include="gtk-gui\Vodovoz.CashExpenseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdvanceReportDlg.cs" />
     <Compile Include="Representations\AccountableDebtsVM.cs" />
-    <Compile Include="JournalViewers\AccountableDebts.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebts.cs" />
     <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
     <Compile Include="Representations\AccountableSlipsVM.cs" />
@@ -383,7 +381,6 @@
     <Compile Include="JournalFilters\Cash\IAccountableSlipsFilter.cs" />
     <Compile Include="JournalFilters\Cash\AccountableDebtsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableDebtsFilter.cs" />
-    <Compile Include="JournalViewers\AccountableSlipsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableSlipsView.cs" />
     <Compile Include="JournalFilters\Cash\AccountableSlipFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountableSlipFilter.cs" />
@@ -409,6 +406,9 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.AccountFlow.cs" />
     <Compile Include="Domain\Cash\AdvanceClosing.cs" />
     <Compile Include="HibernateMapping\Cash\AdvanceClosingMap.cs" />
+    <Compile Include="JournalViewers\Cash\AccountableDebts.cs" />
+    <Compile Include="JournalViewers\Cash\AccountableSlipsView.cs" />
+    <Compile Include="JournalViewers\Cash\CashDocumentsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -536,6 +536,7 @@
     <Folder Include="HibernateMapping\Accounting\" />
     <Folder Include="Repositories\Accounting\" />
     <Folder Include="HibernateMapping\Organization\" />
+    <Folder Include="JournalViewers\Cash\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
