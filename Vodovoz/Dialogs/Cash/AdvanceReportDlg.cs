@@ -4,15 +4,21 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain;
+using Gamma.GtkWidgets;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz
 {
-	public partial class AdvanceReportDlg : OrmGtkDialogBase<AdvanceReport>, IAccountableSlipsFilter
+	public partial class AdvanceReportDlg : OrmGtkDialogBase<AdvanceReport>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		decimal debt = 0;
 		decimal Balance = 0;
+		decimal closingSum = 0;
+
+		List<RecivedAdvance> advanceList;
 
 		protected decimal Debt {
 			get {
@@ -21,8 +27,17 @@ namespace Vodovoz
 			set {
 				debt = value;
 				labelCurrentDebt.LabelProp = String.Format ("{0:C}", debt);
+			}
+		}
+
+		protected decimal ClosingSum {
+			get {
+				return closingSum;
+			}
+			set {
+				closingSum = value;
+				labelClosingSum.LabelProp = String.Format ("{0:C}", closingSum);
 				CalculateBalance ();
-				OnRefiltered ();
 			}
 		}
 
@@ -47,7 +62,6 @@ namespace Vodovoz
 			Entity.Date = DateTime.Now;
 			ConfigureDlg ();
 			FillDebt ();
-			treeviewDebts.RepresentationModel = new ViewModel.AccountableSlipsVM (this);
 		}
 
 		public AdvanceReportDlg (int id)
@@ -55,7 +69,7 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<AdvanceReport> (id);
 			//Отключаем отображение ненужных элементов.
-			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = checkCreateChange.Visible = false;
+			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
 
 			ConfigureDlg ();
 		}
@@ -81,6 +95,14 @@ namespace Vodovoz
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
+
+			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<RecivedAdvance> ()
+				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
+				.AddColumn ("Дата").AddTextRenderer (a => a.Advance.Date.ToString ())
+				.AddColumn ("Сумма").AddTextRenderer (a => a.Advance.Money.ToString ("C"))
+				.AddColumn ("Статья").AddTextRenderer (a => a.Advance.ExpenseCategory.Name)
+				.AddColumn ("Основание").AddTextRenderer (a => a.Advance.Description)
+				.Finish ();
 		}
 
 		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
@@ -99,7 +121,7 @@ namespace Vodovoz
 			Expense newExpense = null;
 			try {
 				UoWGeneric.Save(); // Сохраняем сначала отчет, так как нужно получить Id.
-				if(checkCreateChange.Active)
+				if(true)
 				{
 					if(Balance < 0)
 					{
@@ -141,7 +163,7 @@ namespace Vodovoz
 				}
 			} catch (Exception ex) {
 				logger.Error (ex, "Не удалось записать авансовый отчет.");
-				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
+				QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
 				return false;
 			}
 			logger.Info ("Ok");
@@ -153,19 +175,26 @@ namespace Vodovoz
 			if (!UoW.IsNew)
 				return;
 
-			Balance = debt - Entity.Money;
+			Balance = ClosingSum - Entity.Money;
 
-			if(Balance < 0)
+			labelChangeSum.Visible = labelChangeType.Visible = true;
+
+			if(Balance == 0)
+			{
+				labelChangeSum.Visible = labelChangeType.Visible = false;
+				labelCreating.Markup = String.Format("<span foreground=\"green\">Аванс будет закрыть полностью.</span>");
+			}
+			else if(Balance < 0)
 			{
 				labelChangeType.LabelProp = "Доплата:";
 				labelChangeSum.LabelProp = string.Format("<span foreground=\"red\">{0:C}</span>", Math.Abs(Balance));
-				checkCreateChange.Label = String.Format("Создать расходный ордер на сумму {0:C}", Math.Abs(Balance));
+				labelCreating.Markup = String.Format("<span foreground=\"blue\">Будет создан расходный ордер на сумму {0:C}, в качестве доплаты.</span>", Math.Abs(Balance));
 			}
 			else
 			{
 				labelChangeType.LabelProp = "Остаток:";
 				labelChangeSum.LabelProp = string.Format("{0:C}", Balance);
-				checkCreateChange.Label = String.Format ("Создать приходный ордер на сумму {0:C}", Math.Abs(Balance));
+				labelCreating.Markup = String.Format ("<span foreground=\"blue\">Будет создан приходный ордер на сумму {0:C}, в качестве сдачи от подотчетного лица.</span>", Math.Abs(Balance));
 			}
 		}
 
@@ -182,13 +211,29 @@ namespace Vodovoz
 			if(Entity.Accountable == null)
 			{
 				Debt = 0;
+				ytreeviewDebts.Model = null;
 				return;
 			}
 
 			logger.Info("Получаем долг {0}...", Entity.Accountable.ShortName);
-			Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
+			//Debt = Repository.Cash.AccountableDebtsRepository.EmloyeeDebt (UoW, Entity.Accountable);
+
+			var advaces = Repository.Cash.AccountableDebtsRepository.UnclosedAdvance (UoW, Entity.Accountable, Entity.ExpenseCategory);
+
+			Debt = advaces.Sum (a => a.Money);
+
+			advanceList = new List<RecivedAdvance> ();
+
+			advaces.ToList ().ForEach (adv => advanceList.Add (new RecivedAdvance(adv)));
+			advanceList.ForEach (i => i.SelectChanged += I_SelectChanged);
+			ytreeviewDebts.ItemsDataSource = advanceList;
 
 			logger.Info("Ok");
+		}
+
+		void I_SelectChanged (object sender, EventArgs e)
+		{
+			ClosingSum = advanceList.Where (a => a.Selected).Sum (a => a.Advance.Money);
 		}
 
 		protected void OnYentryEmploeeyChanged (object sender, EventArgs e)
@@ -196,43 +241,32 @@ namespace Vodovoz
 			FillDebt ();
 		}
 
-		public event EventHandler Refiltered;
-
-		public decimal? RestrictDebt {
-			get { return Debt;
-			}
-		}
-
-		public Employee RestrictAccountable {
-			get { return Entity.Accountable;
-			}
-		}
-
-		void OnRefiltered ()
+		protected void OnComboExpenseChanged (object sender, EventArgs e)
 		{
-			if (Refiltered != null)
-				Refiltered (this, new EventArgs ());
+			FillDebt ();
 		}
-
-		public ExpenseCategory RestrictExpenseCategory {
-			get { return Entity.ExpenseCategory;
-			}
-		}
-
-		public DateTime? RestrictStartDate {
-			get {
-				return null;
-			}
-		}
-
-		public DateTime? RestrictEndDate {
-			get { return null;
-			}
-		}
-
-		protected void OnYentryExpenseChanged (object sender, EventArgs e)
+			
+		class RecivedAdvance
 		{
-			OnRefiltered ();
+			private bool selected;
+
+			public bool Selected {
+				get { return selected;}
+				set{ selected = value;
+					if (SelectChanged != null)
+						SelectChanged (this, EventArgs.Empty);
+				}
+			}
+
+			public event EventHandler SelectChanged;
+
+			public Expense Advance { get; set;}
+
+			public RecivedAdvance(Expense exp)
+			{
+				Advance = exp;
+				Selected = false;
+			}
 		}
 	}
 }
