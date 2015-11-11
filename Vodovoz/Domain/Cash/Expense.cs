@@ -26,7 +26,15 @@ namespace Vodovoz.Domain.Cash
 		[Display (Name = "Тип операции")]
 		public ExpenseType TypeOperation {
 			get { return typeOperation; }
-			set { SetField (ref typeOperation, value, () => TypeOperation); }
+			set {
+				if(SetField (ref typeOperation, value, () => TypeOperation))
+				{
+					if (TypeOperation == ExpenseType.Advance && AdvanceClosed == null)
+						AdvanceClosed = false;
+					if (TypeOperation != ExpenseType.Advance && AdvanceClosed.HasValue)
+						AdvanceClosed = null;
+				}
+			}
 		}
 
 		Employee casher;
