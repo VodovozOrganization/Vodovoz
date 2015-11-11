@@ -15,6 +15,7 @@ public partial class MainWindow : Window
 	Action ActionReadyForShipment;
 	Action ActionCashDocuments;
 	Action ActionAccountableDebt;
+	Action ActionUnclosedAdvances;
 	Action ActionCashFlow;
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
@@ -38,6 +39,7 @@ public partial class MainWindow : Window
 		//Касса
 		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
+		ActionUnclosedAdvances = new Action ("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
 		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
@@ -56,6 +58,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionRouteListTable, null);
 		w1.Add (ActionCashDocuments, null);
 		w1.Add (ActionAccountableDebt, null);
+		w1.Add (ActionUnclosedAdvances, null);
 		w1.Add (ActionCashFlow, null);
 		w1.Add (ActionTransferBankDocs, null);
 		w1.Add (ActionAccountingTable, null);
@@ -73,6 +76,7 @@ public partial class MainWindow : Window
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
+		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
@@ -83,6 +87,12 @@ public partial class MainWindow : Window
 	void ActionAccountingTable_Activated (object sender, System.EventArgs e)
 	{
 		var refWin = new AccountingView ();
+		tdiMain.AddTab (refWin);
+	}
+
+	void ActionUnclosedAdvances_Activated (object sender, System.EventArgs e)
+	{
+		var refWin = new UnclosedAdvancesView ();
 		tdiMain.AddTab (refWin);
 	}
 
