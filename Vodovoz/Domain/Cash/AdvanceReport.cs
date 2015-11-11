@@ -1,6 +1,8 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -45,6 +47,14 @@ namespace Vodovoz.Domain.Cash
 			set { SetField (ref expenseCategory, value, () => ExpenseCategory); }
 		}
 
+		Income changeReturn;
+
+		[Display (Name = "Возврат сдачи")]
+		public virtual Income ChangeReturn {
+			get { return changeReturn; }
+			set { SetField (ref changeReturn, value, () => ChangeReturn); }
+		}
+
 		string description;
 
 		[Display (Name = "Основание")]
@@ -71,6 +81,54 @@ namespace Vodovoz.Domain.Cash
 
 		public AdvanceReport ()
 		{
+		}
+
+		public List<AdvanceClosing> CloseAdvances(out Expense surcharge, out Income returnChange, List<Expense> advances )
+		{
+			if (advances.Any (a => a.ExpenseCategory != ExpenseCategory))
+				throw new InvalidOperationException ("Нельзя что бы авансовый отчет, закрывал авансы выданные по другим статьям.");
+
+			surcharge = null; returnChange = null;
+
+			decimal totalExpense = advances.Sum (a => a.Money);
+			decimal balance = totalExpense - Money;
+			List<AdvanceClosing> resultClosing = new List<AdvanceClosing> ();
+
+			if(balance < 0)
+			{
+				surcharge = new Expense{
+					Casher = Casher,
+					Date = Date,
+					Employee = Accountable,
+					TypeOperation = ExpenseType.Advance,
+					ExpenseCategory = ExpenseCategory,
+					Money = Math.Abs (balance),
+					Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Id),
+					AdvanceClosed = true
+				};
+				resultClosing.Add (new AdvanceClosing(this, surcharge));
+			}
+			else if(balance > 0)
+			{
+				returnChange = new Income{
+					Casher = Casher,
+					Date = Date,
+					Employee = Accountable,
+					ExpenseCategory = ExpenseCategory,
+					TypeOperation = IncomeType.Return,
+					Money = Math.Abs (balance),
+					Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Id)
+				};
+				ChangeReturn = returnChange;
+			}
+
+			foreach(var adv in advances)
+			{
+				adv.AdvanceClosed = true;
+				resultClosing.Add (new AdvanceClosing(this, adv));
+			}
+
+			return resultClosing;
 		}
 
 		#region IValidatableObject implementation

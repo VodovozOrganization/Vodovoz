@@ -71,6 +71,8 @@ namespace Vodovoz
 			//Отключаем отображение ненужных элементов.
 			labelDebtTitle.Visible = labelTableTitle.Visible = hboxDebt.Visible = GtkScrolledWindow1.Visible = labelCreating.Visible = false;
 
+			comboExpense.Sensitive = yspinMoney.Sensitive = yentryEmploeey.Sensitive = false;
+
 			ConfigureDlg ();
 		}
 
@@ -117,38 +119,25 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем авансовый отчет...");
-			Income newIncome = null;
-			Expense newExpense = null;
+			Income newIncome;
+			Expense newExpense;
+			bool needClosing = UoWGeneric.IsNew;
 			try {
 				UoWGeneric.Save(); // Сохраняем сначала отчет, так как нужно получить Id.
-				if(true)
+				if(needClosing)
 				{
-					if(Balance < 0)
-					{
-						newExpense = new Expense{
-							Casher = Entity.Casher,
-							Date = Entity.Date,
-							Employee = Entity.Accountable,
-							TypeOperation = ExpenseType.Advance,
-							Money = Math.Abs (Balance),
-							Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Entity.Id)
-						};
+					var closing = Entity.CloseAdvances (out newExpense, out newIncome, 
+						advanceList.Where (a => a.Selected).Select (a => a.Advance).ToList ());
+
+					if(newExpense != null)
 						UoWGeneric.Save (newExpense);
-						UoWGeneric.Commit ();
-					}
-					else if(Balance > 0)
-					{
-						newIncome = new Income{
-							Casher = Entity.Casher,
-							Date = Entity.Date,
-							Employee = Entity.Accountable,
-							TypeOperation = IncomeType.Return,
-							Money = Math.Abs (Balance),
-							Description = String.Format ("Возврат в кассу денежных средств по авансовому отчету №{0}", Entity.Id)
-						};
+					if(newIncome != null)
 						UoWGeneric.Save (newIncome);
-						UoWGeneric.Commit ();
-					}
+
+					advanceList.Where (a => a.Selected).Select (a => a.Advance).ToList ().ForEach (a => UoWGeneric.Save (a));
+					closing.ForEach (c => UoWGeneric.Save(c));
+
+					UoWGeneric.Save ();
 
 					if(newIncome != null)
 					{

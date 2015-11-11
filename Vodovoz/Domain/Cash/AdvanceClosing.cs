@@ -28,19 +28,17 @@ namespace Vodovoz.Domain.Cash
 			get { return advanceReport; }
 			set { SetField (ref advanceReport, value, () => AdvanceReport); }
 		}
-
-		Income changeReturn;
-
-		[Display (Name = "Возврат сдачи")]
-		public virtual Income ChangeReturn {
-			get { return changeReturn; }
-			set { SetField (ref changeReturn, value, () => ChangeReturn); }
-		}
 			
 		#endregion
 
-		public AdvanceClosing ()
+		protected AdvanceClosing ()
 		{
+		}
+
+		public AdvanceClosing (AdvanceReport advanceReport,  Expense advanceExpense)
+		{
+			this.advanceExpense = advanceExpense;
+			this.advanceReport = advanceReport;
 		}
 
 		#region IValidatableObject implementation
@@ -50,9 +48,9 @@ namespace Vodovoz.Domain.Cash
 			if (AdvanceExpense == null)
 				yield return new ValidationResult ("Выданный аванс должен быть заполнен.",
 					new[] { this.GetPropertyName (o => o.AdvanceExpense) });
-			if (ChangeReturn == null && AdvanceReport == null)
-				yield return new ValidationResult ("Авансовый отчет или возврат сдачи должны быть заполнены.",
-					new[] { this.GetPropertyName (o => o.ChangeReturn), this.GetPropertyName (o => o.AdvanceReport) });
+			if (AdvanceReport == null)
+				yield return new ValidationResult ("Авансовый отчет должен быть заполнен.",
+					new[] {this.GetPropertyName (o => o.AdvanceReport) });
 		}
 
 		#endregion
