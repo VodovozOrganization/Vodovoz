@@ -35,7 +35,7 @@ namespace Vodovoz
 
 		void RepresentationtreeviewDebts_Selection_Changed (object sender, EventArgs e)
 		{
-			buttonSlips.Sensitive = buttonAdvanceReport.Sensitive = representationtreeviewDebts.Selection.CountSelectedRows () > 0;
+			buttonSlips.Sensitive = buttonAdvanceReport.Sensitive = buttonUnclosed.Sensitive = representationtreeviewDebts.Selection.CountSelectedRows () > 0;
 		}
 
 		protected void OnButtonSearchClearClicked (object sender, EventArgs e)
@@ -70,6 +70,16 @@ namespace Vodovoz
 		protected void OnRepresentationtreeviewDebtsRowActivated (object o, Gtk.RowActivatedArgs args)
 		{
 			buttonSlips.Click ();
+		}
+
+		protected void OnButtonUnclosedClicked (object sender, EventArgs e)
+		{
+			var accountable = UoW.GetById<Employee> (representationtreeviewDebts.GetSelectedId ());
+			var category = accountabledebtsfilter1.RestrictExpenseCategory;
+
+			var dlg = new UnclosedAdvancesView (accountable, category);
+			OpenNewTab (dlg);
+
 		}
 	}
 }

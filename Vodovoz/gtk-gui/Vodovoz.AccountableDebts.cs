@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox2;
 		
-		private global::Gtk.Label label1;
+		private global::Gtk.Label label2;
 		
 		private global::Gtk.Entry entrySearch;
 		
@@ -20,9 +20,11 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.RepresentationTreeView representationtreeviewDebts;
 		
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.HBox hbox3;
 		
 		private global::Gtk.Button buttonSlips;
+		
+		private global::Gtk.Button buttonUnclosed;
 		
 		private global::Gtk.Button buttonAdvanceReport;
 
@@ -50,11 +52,11 @@ namespace Vodovoz
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.label1 = new global::Gtk.Label ();
-			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Поиск:");
-			this.hbox2.Add (this.label1);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.label1]));
+			this.label2 = new global::Gtk.Label ();
+			this.label2.Name = "label2";
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Поиск:");
+			this.hbox2.Add (this.label2);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.label2]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
@@ -99,36 +101,47 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
 			w8.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox ();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonSlips = new global::Gtk.Button ();
 			this.buttonSlips.CanFocus = true;
 			this.buttonSlips.Name = "buttonSlips";
 			this.buttonSlips.UseUnderline = true;
-			this.buttonSlips.Label = global::Mono.Unix.Catalog.GetString ("Детально");
-			this.hbox1.Add (this.buttonSlips);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonSlips]));
+			this.buttonSlips.Label = global::Mono.Unix.Catalog.GetString ("Движения по сотруднику");
+			this.hbox3.Add (this.buttonSlips);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonSlips]));
 			w9.Position = 0;
 			w9.Expand = false;
 			w9.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.buttonUnclosed = new global::Gtk.Button ();
+			this.buttonUnclosed.CanFocus = true;
+			this.buttonUnclosed.Name = "buttonUnclosed";
+			this.buttonUnclosed.UseUnderline = true;
+			this.buttonUnclosed.Label = global::Mono.Unix.Catalog.GetString ("Незакрытые авансы");
+			this.hbox3.Add (this.buttonUnclosed);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonUnclosed]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonAdvanceReport = new global::Gtk.Button ();
 			this.buttonAdvanceReport.CanFocus = true;
 			this.buttonAdvanceReport.Name = "buttonAdvanceReport";
 			this.buttonAdvanceReport.UseUnderline = true;
 			this.buttonAdvanceReport.Label = global::Mono.Unix.Catalog.GetString ("Создать авансовый отчет");
-			this.hbox1.Add (this.buttonAdvanceReport);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAdvanceReport]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w11.Position = 3;
+			this.hbox3.Add (this.buttonAdvanceReport);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonAdvanceReport]));
+			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
+			this.vbox1.Add (this.hbox3);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
+			w12.Position = 3;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -138,6 +151,7 @@ namespace Vodovoz
 			this.buttonSearchClear.Clicked += new global::System.EventHandler (this.OnButtonSearchClearClicked);
 			this.representationtreeviewDebts.RowActivated += new global::Gtk.RowActivatedHandler (this.OnRepresentationtreeviewDebtsRowActivated);
 			this.buttonSlips.Clicked += new global::System.EventHandler (this.OnButtonSlipsClicked);
+			this.buttonUnclosed.Clicked += new global::System.EventHandler (this.OnButtonUnclosedClicked);
 			this.buttonAdvanceReport.Clicked += new global::System.EventHandler (this.OnButtonAdvanceReportClicked);
 		}
 	}
