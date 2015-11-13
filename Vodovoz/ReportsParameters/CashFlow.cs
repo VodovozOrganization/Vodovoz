@@ -84,13 +84,13 @@ namespace Vodovoz.Reports
 
 		enum ReportParts
 		{
-			[Display (Name = "Приход (все)")]
+			[Display (Name = "Поступления суммарно")]
 			IncomeAll,
 			[Display (Name = "Приход")]
 			Income,
 			[Display (Name = "Сдача")]
 			IncomeReturn,
-			[Display (Name = "Расход (все)")]
+			[Display (Name = "Расходы суммарно")]
 			ExpenseAll,
 			[Display (Name = "Расход")]
 			Expense,

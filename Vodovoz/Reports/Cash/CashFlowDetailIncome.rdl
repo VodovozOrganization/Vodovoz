@@ -172,7 +172,7 @@ ORDER BY Category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Статья дохода\расхода(возврат)</Value>
+                      <Value>Основание</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -224,7 +224,7 @@ ORDER BY Category;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >dd.MM.yyyy</Format>
+                        <Format>dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -241,7 +241,7 @@ ORDER BY Category;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -378,27 +378,6 @@ ORDER BY Category;</CommandText>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox12">
-                          <Value>
-                          </Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Normal</FontWeight>
-                            <BackgroundColor>Lightgrey</BackgroundColor>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <FontFamily>Monotype Corsiva</FontFamily>
-                            <FontSize>14pt</FontSize>
-                            <FontStyle>Italic</FontStyle>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
                         <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Style>
                             <BorderStyle>
@@ -416,7 +395,7 @@ ORDER BY Category;</CommandText>
                           <Value>=Fields!Category.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -504,7 +483,7 @@ ORDER BY Category;</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

@@ -93,13 +93,13 @@
           <BorderWidth />
         </Style>
         <ReportName>CashFlowDetailIncome</ReportName>
-        <NoRows>За период нет пирихода.</NoRows>
+        <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
         </Parameters>
@@ -118,10 +118,10 @@
         <NoRows>За период нет расхода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
         </Parameters>
@@ -140,10 +140,10 @@
         <NoRows>За период нет авансов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
         </Parameters>
@@ -166,21 +166,21 @@
       <Subreport Name="Subreport3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>47.48pt</Height>
         <Width>560.29pt</Width>
-        <Left>0.0pt</Left>
-        <Top>362pt</Top>
+        <Left>0.00pt</Left>
+        <Top>362.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
         </Style>
         <ReportName>CashFlowDetailAdvanceReport</ReportName>
-        <NoRows>?? ?????? ??? ???????.</NoRows>
+        <NoRows>За период нет авансовых отчетов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
         </Parameters>
@@ -211,13 +211,13 @@
           <BorderWidth />
         </Style>
         <ReportName>CashFlowDetailIncomeReturn</ReportName>
-        <NoRows>?? ?????? ??? ????????.</NoRows>
+        <NoRows>За период нет возвратов денег.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
         </Parameters>

@@ -163,7 +163,7 @@ ORDER BY category;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Статья расхода</Value>
+                      <Value>Назначение платежа</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -368,27 +368,6 @@ ORDER BY category;</CommandText>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox12">
-                          <Value>
-                          </Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Normal</FontWeight>
-                            <BackgroundColor>Lightgrey</BackgroundColor>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                            <FontFamily>Monotype Corsiva</FontFamily>
-                            <FontSize>14pt</FontSize>
-                            <FontStyle>Italic</FontStyle>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
                         <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Style>
                             <BorderStyle>
@@ -406,7 +385,7 @@ ORDER BY category;</CommandText>
                           <Value>=Fields!category.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>

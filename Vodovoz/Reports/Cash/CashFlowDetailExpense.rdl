@@ -165,7 +165,7 @@ ORDER BY Category, employee;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Статья расхода</Value>
+                      <Value>Основание</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -234,7 +234,7 @@ ORDER BY Category, employee;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -369,27 +369,6 @@ ORDER BY Category, employee;</CommandText>
                   <TableCells>
                     <TableCell>
                       <ReportItems>
-                        <Textbox Name="Textbox7">
-                          <Value>
-                          </Value>
-                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Normal</FontWeight>
-                            <BackgroundColor>Lightgrey</BackgroundColor>
-                            <FontFamily>Monotype Corsiva</FontFamily>
-                            <FontSize>14pt</FontSize>
-                            <FontStyle>Italic</FontStyle>
-                            <VerticalAlign>Bottom</VerticalAlign>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
                         <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                           <Style>
                             <BorderStyle>
@@ -407,7 +386,7 @@ ORDER BY Category, employee;</CommandText>
                           <Value>=Fields!Category.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>2</ColSpan>
+                      <ColSpan>3</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -495,7 +474,7 @@ ORDER BY Category, employee;</CommandText>
   </ReportParameters>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

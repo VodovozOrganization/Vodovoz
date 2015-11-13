@@ -93,7 +93,7 @@
           <BorderWidth />
         </Style>
         <ReportName>CashFlowDetailExpense</ReportName>
-        <NoRows>За период нет пирихода.</NoRows>
+        <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
           <Parameter Name="StartDate" >
@@ -137,7 +137,7 @@
           <BorderWidth />
         </Style>
         <ReportName>CashFlowDetailAdvanceReport</ReportName>
-        <NoRows>За период нет авансов.</NoRows>
+        <NoRows>За период нет авансовых отчетов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
           <Parameter Name="StartDate" >
@@ -190,7 +190,7 @@
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
