@@ -16,7 +16,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<PaidRentPackage>();
-			TabName = "Новый пакет платной аренды";
 			ConfigureDlg ();
 		}
 

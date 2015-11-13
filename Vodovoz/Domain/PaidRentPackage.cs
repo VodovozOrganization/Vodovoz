@@ -5,9 +5,11 @@ using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
-	[OrmSubject (Gender = GrammaticalGender.Masculine,
-		NominativePlural = "пакеты платной аренды",
-		Nominative = "пакет платной аренды")]
+	[OrmSubject (Gender = GrammaticalGender.Neuter,
+		NominativePlural = "условия платной аренды",
+		Nominative = "условие платной аренды",
+		Accusative = "условие платной аренды"
+	)]
 	public class PaidRentPackage: PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

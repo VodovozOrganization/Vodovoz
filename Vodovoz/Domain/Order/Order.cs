@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Orders
 			set {
 				if (value == client)
 					return;
-				if (!CanChangeContractor ())
+				if (client != null && !CanChangeContractor ())
 					throw new InvalidOperationException ("Нельзя изменить клиента для заполненного заказа.");
 				if (value != null)
 					PaymentType = value.PaymentMethod;

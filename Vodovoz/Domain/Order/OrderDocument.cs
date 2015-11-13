@@ -72,7 +72,7 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public override string DocumentDate {
-			get { return String.Format ("От {0}", Contract.IssueDate.ToShortDateString ()); }
+			get { return String.Format ("от {0}", Contract.IssueDate.ToShortDateString ()); }
 		}
 	}
 

@@ -351,8 +351,8 @@
       </action>
       <action id="ActionPaidRentPackage">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Пакеты платной аренды</property>
-        <property name="ShortLabel" translatable="yes">Пакеты платной аренды</property>
+        <property name="Label" translatable="yes">Условия платной аренды</property>
+        <property name="ShortLabel" translatable="yes">Условия платной аренды</property>
         <signal name="Activated" handler="OnActionPaidRentPackageActivated" />
       </action>
       <action id="Action11">
@@ -535,7 +535,7 @@
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -9613,7 +9613,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="437 300">
+  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="451 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

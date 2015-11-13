@@ -172,6 +172,7 @@ public partial class MainWindow : Window
 	void ActionOrdersTableActivated (object sender, System.EventArgs e)
 	{
 		ReferenceRepresentation refWin = new ReferenceRepresentation (new OrdersVM ());
+		refWin.TabName = "Журнал заказов";
 		tdiMain.AddTab (refWin);
 	}
 }
