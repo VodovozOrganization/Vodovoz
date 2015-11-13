@@ -1,13 +1,13 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Store;
+using Vodovoz.Domain;
 
 namespace Vodovoz.HMap
 {
-	public class WarehouseMap : ClassMap<Warehouse>
+	public class EquipmentColorsMap : ClassMap<EquipmentColors>
 	{
-		public WarehouseMap ()
+		public EquipmentColorsMap ()
 		{
-			Table ("warehouses");
+			Table ("equipment_colors");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Name).Column ("name");

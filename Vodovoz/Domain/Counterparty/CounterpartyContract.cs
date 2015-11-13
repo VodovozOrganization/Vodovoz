@@ -108,7 +108,7 @@ namespace Vodovoz.Domain
 		/// <returns><c>true</c>, если такое доп. соглашение уже существует, <c>false</c> иначе.</returns>
 		/// <param name="id">Id доп. соглашения, для исключения совпадения с самим собой.</param>
 		/// <param name="deliveryPoint">Точка доставки.</param>
-		public bool CheckWaterSalesAgreementExists (int id, DeliveryPoint deliveryPoint)
+		public virtual bool CheckWaterSalesAgreementExists (int id, DeliveryPoint deliveryPoint)
 		{
 			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
 				return false;
@@ -128,7 +128,7 @@ namespace Vodovoz.Domain
 				!a.IsCancelled);
 		}
 
-		public WaterSalesAgreement GetWaterSalesAgreement (DeliveryPoint deliveryPoint)
+		public virtual WaterSalesAgreement GetWaterSalesAgreement (DeliveryPoint deliveryPoint)
 		{
 			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
 				return null;
@@ -150,7 +150,7 @@ namespace Vodovoz.Domain
 			return agreement != null ? agreement as WaterSalesAgreement : null;
 		}
 
-		public bool RepairAgreementExists ()
+		public virtual bool RepairAgreementExists ()
 		{
 			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1)
 				return false;

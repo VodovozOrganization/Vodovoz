@@ -153,21 +153,21 @@ namespace Vodovoz.Domain
 			AddressCurrent = String.Empty;
 		}
 
-		public string FullName {
+		public virtual string FullName {
 			get { return String.Format ("{0} {1} {2}", LastName, Name, Patronymic); }
 		}
 
-		public string ShortName {
+		public virtual string ShortName {
 			get { return StringWorks.PersonNameWithInitials (LastName, Name, Patronymic); }
 		}
 
-		public string Title {
+		public virtual string Title {
 			get { return ShortName;}
 		}
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (String.IsNullOrEmpty (Name) && String.IsNullOrEmpty (LastName) && String.IsNullOrEmpty (Patronymic))
 				yield return new ValidationResult ("Должно быть заполнено хотя бы одно из следующих полей: " +
@@ -178,7 +178,7 @@ namespace Vodovoz.Domain
 
 		#region ISpecialRowsRender implementation
 
-		public string TextColor { get { return IsFired ? "grey" : "black"; } }
+		public virtual string TextColor { get { return IsFired ? "grey" : "black"; } }
 
 		#endregion
 	}

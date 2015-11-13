@@ -18,28 +18,7 @@
 		<property name="Name" column="name" />
 	</class>
 
-	<class name="EquipmentColors" lazy="false" table="equipment_colors">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
-
-	<class name="EquipmentType" lazy="false" table="equipment_type">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
-
  	<class name="LogisticsArea" lazy="false" table="logistics_area">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
-
-	<class name="Manufacturer" lazy="false" table="manufacturers">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>
@@ -139,22 +118,6 @@
 		</bag>
 	</class>
 
- 	<class name="CounterpartyContract" lazy="false" table="counterparty_contract">
-		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="MaxDelay" column="max_delay" />
-		<property name="IssueDate" column="issue_date" /> 
-		<property name="IsArchive" column="is_archive" /> 
-		<property name="OnCancellation" column="on_cancellation" /> 
-		<many-to-one name="Organization" class="Organization" column="organization_id"/>
-		<many-to-one name="Counterparty" class="Counterparty" column="counterparty_id"/>
-		<bag name="AdditionalAgreements" inverse="false" cascade="all-delete-orphan" lazy="true" >
-    		<key column="counterparty_contract_id"/>
-    		<one-to-many class="AdditionalAgreement" />
-		</bag>
-	</class>
-
 	<class name="DeliverySchedule" lazy="false" table="delivery_schedule">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -186,17 +149,6 @@
  		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  	</class>
 
- 	<class name="FreeRentPackage" lazy="false" table="free_rent_packages">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-		<property name="MinWaterAmount" column="min_water_amount" />
-		<property name="Deposit" column="deposit" />
-		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
-		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
-	</class>
-
 	<class name="ProductSpecification" lazy="false" table="specification_production">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
@@ -227,20 +179,6 @@
  		<many-to-one name="Equipment" class="Equipment" column="equipment_id" />
  	</class>
 
- 	<class name="PaidRentPackage" lazy="false" table="paid_rent_packages">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
-		<property name="Name" column="name" />
-		<property name="PriceDaily" column="price_daily" />
-		<property name="PriceMonthly" column="price_monthly" />
-		<property name="Deposit" column="deposit" />
-		<many-to-one name="EquipmentType" class="EquipmentType" column="equipment_type_id"/>
-		<many-to-one name="RentServiceDaily" class="Nomenclature" column="rent_service_daily_id"/>
-		<many-to-one name="RentServiceMonthly" class="Nomenclature" column="rent_service_monthly_id"/>
-		<many-to-one name="DepositService" class="Nomenclature" column="deposit_service_id" />
-	</class>
-
  	<class name="Proxy" lazy="false" table="counterparty_proxies">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -257,7 +195,7 @@
 		</bag>
 	</class>
 
-	<class name="User" lazy="false" table="users">
+	<class name="User" table="users">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
 	 	</id>

@@ -8,7 +8,6 @@ namespace Vodovoz
 		public EmployeeMap ()
 		{
 			Table ("employees");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Name).Column ("name");

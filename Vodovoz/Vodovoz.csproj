@@ -414,6 +414,12 @@
     <Compile Include="gtk-gui\Vodovoz.UnclosedAdvancesFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.UnclosedAdvancesView.cs" />
     <Compile Include="Representations\UnclosedAdvancesVM.cs" />
+    <Compile Include="HibernateMapping\Contracts\FreeRentPackageMap.cs" />
+    <Compile Include="HibernateMapping\Contracts\PaidRentPackageMap.cs" />
+    <Compile Include="HibernateMapping\Goods\ManufacturerMap.cs" />
+    <Compile Include="HibernateMapping\Goods\EquipmentColorsMap.cs" />
+    <Compile Include="HibernateMapping\Contracts\CounterpartyContractMap.cs" />
+    <Compile Include="HibernateMapping\Goods\EquipmentTypeMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -542,6 +548,8 @@
     <Folder Include="Repositories\Accounting\" />
     <Folder Include="HibernateMapping\Organization\" />
     <Folder Include="JournalViewers\Cash\" />
+    <Folder Include="HibernateMapping\Contracts\" />
+    <Folder Include="HibernateMapping\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

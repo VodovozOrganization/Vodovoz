@@ -18,7 +18,7 @@ namespace Vodovoz.HMap
 			Map (x => x.DoNotReserve).Column ("reserve");
 			Map (x => x.Serial).Column ("serial");
 			Map (x => x.Category).Column ("category").CustomType<NomenclatureCategoryStringType> ();
-			References (x => x.Unit).Column ("unit_id");
+			References (x => x.Unit).Column ("unit_id").Not.LazyLoad ();
 			References (x => x.Color).Column ("color_id");
 			References (x => x.Type).Column ("type_id");
 			References (x => x.Manufacturer).Column ("manufacturer_id");

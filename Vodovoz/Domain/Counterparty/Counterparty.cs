@@ -24,7 +24,7 @@ namespace Vodovoz.Domain
 		private IList<CounterpartyContract> counterpartyContracts;
 
 		[Display (Name = "Договоры")]
-		public IList<CounterpartyContract> CounterpartyContracts {
+		public virtual IList<CounterpartyContract> CounterpartyContracts {
 			get { return counterpartyContracts; }
 			set { SetField (ref counterpartyContracts, value, () => CounterpartyContracts); }
 		}
@@ -32,7 +32,7 @@ namespace Vodovoz.Domain
 		private IList<DeliveryPoint> deliveryPoints;
 
 		[Display (Name = "Точки доставки")]
-		public IList<DeliveryPoint> DeliveryPoints {
+		public virtual IList<DeliveryPoint> DeliveryPoints {
 			get { return deliveryPoints; }
 			set { SetField (ref deliveryPoints, value, () => DeliveryPoints); }
 		}
@@ -287,7 +287,7 @@ namespace Vodovoz.Domain
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (PersonType == PersonType.legal) {
 				if (KPP.Length != 9 && KPP.Length != 0)

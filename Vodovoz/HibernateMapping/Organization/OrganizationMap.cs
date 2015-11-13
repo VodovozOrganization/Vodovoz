@@ -8,7 +8,6 @@ namespace Vodovoz.HMap
 		public OrganizationMap ()
 		{
 			Table ("organizations");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Name).Column ("name");

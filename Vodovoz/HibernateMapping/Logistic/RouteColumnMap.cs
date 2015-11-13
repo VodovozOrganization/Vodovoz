@@ -9,7 +9,6 @@ namespace Vodovoz.HMap
 		public RouteColumnMap ()
 		{
 			Table("nomenclature_route_column");
-			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");
