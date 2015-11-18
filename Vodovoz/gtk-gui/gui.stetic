@@ -17635,6 +17635,24 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
+              <widget class="Gtk.Button" id="buttonPrint">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-print Menu</property>
+                <property name="Label" translatable="yes">Печатать</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonPrintClicked" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Button" id="buttonAccept">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -17645,8 +17663,10 @@ RegistrationNumber</property>
                 <signal name="Clicked" handler="OnButtonAcceptClicked" />
               </widget>
               <packing>
-                <property name="Position">0</property>
+                <property name="PackType">End</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
             </child>
