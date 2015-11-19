@@ -62,7 +62,7 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
-			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositRefundItem;
+			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositItems;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
@@ -115,7 +115,7 @@ namespace Vodovoz
 				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 			};
 
-			UoWGeneric.Root.ObservableOrderDepositRefundItem.ListContentChanged += (sender, e) => {
+			UoWGeneric.Root.ObservableOrderDepositItems.ListContentChanged += (sender, e) => {
 				UpdateSum ();
 				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 			};
@@ -125,7 +125,7 @@ namespace Vodovoz
 				UpdateSum ();
 			};
 			
-			UoWGeneric.Root.ObservableOrderDepositRefundItem.ElementAdded += (aList, aIdx) => {
+			UoWGeneric.Root.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => {
 				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 				UpdateSum ();
 			};
@@ -164,9 +164,12 @@ namespace Vodovoz
 				.AddColumn ("Дата").SetDataProperty (node => node.DocumentDate)
 				.Finish ();
 
-			treeDepositRefundItems.ColumnMappingConfig = FluentMappingConfig<OrderDepositRefundItem>.Create ()
+			treeDepositRefundItems.ColumnMappingConfig = FluentMappingConfig<OrderDepositItem>.Create ()
 				.AddColumn ("Тип").SetDataProperty (node => node.DepositTypeString)
-				.AddColumn ("Сумма").AddNumericRenderer (node => node.RefundDeposit)
+				.AddColumn ("Количество").AddNumericRenderer (node => node.Count)
+				.AddColumn ("Цена").AddNumericRenderer (node => node.Deposit)
+				.AddColumn ("Сумма").AddNumericRenderer (node => node.Total)
+				.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Visible = n.PaymentDirection == PaymentDirection.ToClient)
 				.Finish ();
 
 			treeServiceClaim.ColumnMappingConfig = FluentMappingConfig<ServiceClaim>.Create ()

@@ -1,10 +1,11 @@
 ﻿using System;
 using Vodovoz.Domain.Operations;
 using QSOrmProject;
+using System.Data.Bindings;
 
 namespace Vodovoz.Domain.Orders
 {
-	public class OrderDepositRefundItem : PropertyChangedBase, IDomainObject
+	public class OrderDepositItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -13,6 +14,20 @@ namespace Vodovoz.Domain.Orders
 		public virtual Order Order {
 			get { return order; }
 			set { SetField (ref order, value, () => Order); }
+		}
+
+		int count;
+
+		public virtual int Count {
+			get { return count; }
+			set { SetField (ref count, value, () => Count); }
+		}
+
+		PaymentDirection paymentDirection;
+
+		public virtual PaymentDirection PaymentDirection {
+			get { return paymentDirection; }
+			set { SetField (ref paymentDirection, value, () => PaymentDirection); }
 		}
 
 		DepositOperation depositOperation;
@@ -47,8 +62,12 @@ namespace Vodovoz.Domain.Orders
 			get { 
 				switch (DepositType) {
 				case DepositType.Bottles:
+					if (PaymentDirection == PaymentDirection.FromClient)
+						return "Залог за бутыли";
 					return "Возврат залога за бутыли";
 				case DepositType.Equipment:
+					if (PaymentDirection == PaymentDirection.FromClient)
+						return "Залог за оборудование";
 					return "Возврат залога за оборудования";
 				default:
 					return "Не определено";
@@ -56,11 +75,26 @@ namespace Vodovoz.Domain.Orders
 			} 
 		}
 
-		Decimal refundDeposit;
+		Decimal deposit;
 
-		public virtual Decimal RefundDeposit {
-			get { return refundDeposit; }
-			set { SetField (ref refundDeposit, value, () => RefundDeposit); }
+		public virtual Decimal Deposit {
+			get { return deposit; }
+			set { SetField (ref deposit, value, () => Deposit); }
+		}
+
+		public virtual Decimal Total { get { return Deposit * Count; } }
+	}
+
+	public enum PaymentDirection
+	{
+		[ItemTitleAttribute ("Клиенту")]ToClient,
+		[ItemTitleAttribute ("От клиента")]FromClient
+	}
+
+	public class PaymentDirectionStringType : NHibernate.Type.EnumStringType
+	{
+		public PaymentDirectionStringType () : base (typeof(PaymentDirection))
+		{
 		}
 	}
 }

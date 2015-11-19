@@ -179,7 +179,7 @@ namespace Vodovoz.Domain.Orders
 		public bool CanChangePaymentType ()
 		{
 			if ((NHibernate.NHibernateUtil.IsInitialized (OrderItems) && OrderItems.Count > 0) ||
-			    (NHibernate.NHibernateUtil.IsInitialized (OrderDepositRefundItem) && OrderDepositRefundItem.Count > 0) ||
+			    (NHibernate.NHibernateUtil.IsInitialized (OrderDepositItems) && OrderDepositItems.Count > 0) ||
 			    (NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
 				return false;
 			return true;
@@ -188,27 +188,27 @@ namespace Vodovoz.Domain.Orders
 		public bool CanChangeContractor ()
 		{
 			if ((NHibernate.NHibernateUtil.IsInitialized (OrderDocuments) && OrderDocuments.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized (InitialOrderService) && InitialOrderService.Count > 0) || 
-				(NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
+			    (NHibernate.NHibernateUtil.IsInitialized (InitialOrderService) && InitialOrderService.Count > 0) ||
+			    (NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
 				return false;
 			return true;
 		}
 
-		IList<OrderDepositRefundItem> orderDepositRefundItem = new List<OrderDepositRefundItem> ();
+		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem> ();
 
 		[Display (Name = "Залоги заказа")]
-		public virtual IList<OrderDepositRefundItem> OrderDepositRefundItem {
-			get { return orderDepositRefundItem; }
-			set { SetField (ref orderDepositRefundItem, value, () => OrderDepositRefundItem); }
+		public virtual IList<OrderDepositItem> OrderDepositItems {
+			get { return orderDepositItems; }
+			set { SetField (ref orderDepositItems, value, () => OrderDepositItems); }
 		}
 
-		GenericObservableList<OrderDepositRefundItem> observableOrderDepositRefundItem;
+		GenericObservableList<OrderDepositItem> observableOrderDepositItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<OrderDepositRefundItem> ObservableOrderDepositRefundItem {
+		public GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
 			get {
-				if (observableOrderDepositRefundItem == null)
-					observableOrderDepositRefundItem = new GenericObservableList<OrderDepositRefundItem> (OrderDepositRefundItem);
-				return observableOrderDepositRefundItem;
+				if (observableOrderDepositItems == null)
+					observableOrderDepositItems = new GenericObservableList<OrderDepositItem> (OrderDepositItems);
+				return observableOrderDepositItems;
 			}
 		}
 
@@ -349,8 +349,9 @@ namespace Vodovoz.Domain.Orders
 				foreach (OrderItem item in ObservableOrderItems) {
 					sum += item.Price * item.Count;
 				}
-				foreach (OrderDepositRefundItem dep in ObservableOrderDepositRefundItem) {
-					sum -= dep.RefundDeposit;
+				foreach (OrderDepositItem dep in ObservableOrderDepositItems) {
+					if (dep.PaymentDirection == PaymentDirection.ToClient)
+						sum -= dep.Deposit * dep.Count;
 				}
 				return sum;
 			}
@@ -419,15 +420,17 @@ namespace Vodovoz.Domain.Orders
 				.Sum (item => item.Count);
 			
 			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == NomenclatureRepository.GetBottleDeposit (uow).Id);
-			var depositRefundItem = ObservableOrderDepositRefundItem.FirstOrDefault (item => item.DepositType == Vodovoz.Domain.Operations.DepositType.Bottles);
+			var depositRefundItem = ObservableOrderDepositItems.FirstOrDefault (item => item.DepositType == DepositType.Bottles);
 
 			//Надо создать услугу залога
 			if (BottlesReturn < waterItemsCount) {
-				if (depositRefundItem != null)
-					ObservableOrderDepositRefundItem.Remove (depositRefundItem);
+				if (depositRefundItem != null) {
+					depositRefundItem.Count = waterItemsCount - BottlesReturn;
+					depositRefundItem.PaymentDirection = PaymentDirection.FromClient;
+				}
 				if (depositPaymentItem != null)
 					depositPaymentItem.Count = waterItemsCount - BottlesReturn;
-				else
+				else {
 					ObservableOrderItems.Add (new OrderItem {
 						Order = this,
 						AdditionalAgreement = null,
@@ -436,11 +439,22 @@ namespace Vodovoz.Domain.Orders
 						Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
 						Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (waterItemsCount - BottlesReturn)
 					});
+					ObservableOrderDepositItems.Add (new OrderDepositItem {
+						Order = this,
+						Count = waterItemsCount - BottlesReturn,
+						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (waterItemsCount - BottlesReturn),
+						DepositOperation = null,
+						DepositType = DepositType.Bottles,
+						FreeRentItem = null,
+						PaidRentItem = null,
+						PaymentDirection = PaymentDirection.FromClient
+					});
+				}
 				return;
 			}
 			if (BottlesReturn == waterItemsCount) {
 				if (depositRefundItem != null)
-					ObservableOrderDepositRefundItem.Remove (depositRefundItem);
+					ObservableOrderDepositItems.Remove (depositRefundItem);
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
 				return;
@@ -448,16 +462,19 @@ namespace Vodovoz.Domain.Orders
 			if (BottlesReturn > waterItemsCount) {
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
-				if (depositRefundItem != null)
-					depositRefundItem.RefundDeposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount) * (BottlesReturn - waterItemsCount);
-				else
-					ObservableOrderDepositRefundItem.Add (new OrderDepositRefundItem {
+				if (depositRefundItem != null) {
+					depositRefundItem.Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount);
+					depositRefundItem.Count = BottlesReturn - waterItemsCount;
+				} else
+					ObservableOrderDepositItems.Add (new OrderDepositItem {
 						Order = this,
 						DepositOperation = null,
 						DepositType = DepositType.Bottles,
-						RefundDeposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount),
+						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount),
 						PaidRentItem = null,
-						FreeRentItem = null
+						FreeRentItem = null,
+						PaymentDirection = PaymentDirection.ToClient,
+						Count = BottlesReturn - waterItemsCount
 					});
 				return;
 			}

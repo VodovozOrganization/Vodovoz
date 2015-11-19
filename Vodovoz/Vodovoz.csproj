@@ -251,7 +251,6 @@
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Representations\CounterpartyVM.cs" />
     <Compile Include="Domain\Order\Order.cs" />
-    <Compile Include="Domain\Order\OrderDepositRefundItem.cs" />
     <Compile Include="Domain\Order\OrderDocument.cs" />
     <Compile Include="Domain\Order\OrderEquipment.cs" />
     <Compile Include="Domain\Order\OrderItem.cs" />
@@ -347,7 +346,6 @@
     <Compile Include="HibernateMapping\Documents\MovementDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\WriteoffDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\WriteoffDocumentItemMap.cs" />
-    <Compile Include="HibernateMapping\Order\OrderDepositRefundItemMap.cs" />
     <Compile Include="HibernateMapping\Order\OrderDocumentMap.cs" />
     <Compile Include="Repositories\Store\WarehouseRepository.cs" />
     <Compile Include="Domain\Cash\ExpenseCategory.cs" />
@@ -420,6 +418,8 @@
     <Compile Include="HibernateMapping\Goods\EquipmentColorsMap.cs" />
     <Compile Include="HibernateMapping\Contracts\CounterpartyContractMap.cs" />
     <Compile Include="HibernateMapping\Goods\EquipmentTypeMap.cs" />
+    <Compile Include="Domain\Order\OrderDepositItem.cs" />
+    <Compile Include="HibernateMapping\Order\OrderDepositItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
