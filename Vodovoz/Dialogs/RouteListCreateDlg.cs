@@ -22,6 +22,12 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
+			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if (Entity.Logistican == null) {
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
+				FailInitialize = true;
+				return;
+			}
 			UoWGeneric.Root.Date = DateTime.Now;
 			ConfigureDlg ();
 		}
@@ -42,7 +48,6 @@ namespace Vodovoz
 			subjectAdaptor.Target = UoWGeneric.Root;
 
 			dataRouteList.DataSource = subjectAdaptor;
-			enumStatus.DataSource = subjectAdaptor;
 
 			referenceCar.SubjectType = typeof(Car);
 
@@ -50,16 +55,21 @@ namespace Vodovoz
 			referenceDriver.PropertyMapping<RouteList> (r => r.Driver);
 			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
-			dataentryForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
-			dataentryForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
-			dataentryForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
+			referenceForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
+			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+
+			referenceLogistican.Sensitive = false;
+			referenceLogistican.PropertyMapping<RouteList> (r => r.Logistican);
+			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			speccomboShift.Mappings = Entity.GetPropertyName (r => r.Shift);
 			speccomboShift.ColumnMappings = PropertyUtil.GetName<DeliveryShift> (s => s.Name);
-			speccomboShift.ItemsDataSource = Repository.Logistics.DeliveryShiftRepository.ActiveShifts (UoW);
+			speccomboShift.ItemsDataSource = DeliveryShiftRepository.ActiveShifts (UoW);
+
 
 			referenceDriver.Sensitive = false;
-			enumStatus.Sensitive = false;
+			buttonPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
@@ -69,10 +79,8 @@ namespace Vodovoz
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
-				IsEditable ();
-			} else {
-				IsEditable (true);
 			}
+			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New);
 		}
 
 		public override bool Save ()
@@ -89,11 +97,12 @@ namespace Vodovoz
 
 		private void IsEditable (bool val = false)
 		{
-			enumStatus.Sensitive = speccomboShift.Sensitive = val;
-			datepickerDate.Sensitive = referenceCar.Sensitive = val;
-			spinPlannedDistance.Sensitive = spinPlannedDistance.Sensitive = val;
+			speccomboShift.Sensitive = val;
+			datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = val;
+			spinPlannedDistance.Sensitive = val;
+			spinActualDistance.Sensitive = val ||
+			(UoWGeneric.Root.Status == RouteListStatus.Closed || UoWGeneric.Root.Status == RouteListStatus.NotDelivered);
 			createroutelistitemsview1.IsEditable (val);
-			buttonPrint.Sensitive = !val;
 		}
 
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
@@ -112,6 +121,7 @@ namespace Vodovoz
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
+				buttonPrint.Sensitive = true;
 				buttonAccept.Label = "Редактировать";
 				return;
 			}
@@ -121,6 +131,7 @@ namespace Vodovoz
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
+				buttonPrint.Sensitive = false;
 				buttonAccept.Label = "Подтвердить";
 				return;
 			}

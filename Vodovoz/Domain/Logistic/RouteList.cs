@@ -31,6 +31,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref forwarder, value, () => Forwarder); }
 		}
 
+		Employee logistican;
+
+		[Display (Name = "Логист")]
+		public virtual Employee Logistican {
+			get { return logistican; }
+			set { SetField (ref logistican, value, () => Logistican); }
+		}
+
 		Car car;
 
 		[Display (Name = "Машина")]
@@ -100,8 +108,7 @@ namespace Vodovoz.Domain.Logistic
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public GenericObservableList<RouteListItem> ObservableAddresses {
 			get {
-				if (observableAddresses == null)
-				{
+				if (observableAddresses == null) {
 					observableAddresses = new GenericObservableList<RouteListItem> (addresses);
 					observableAddresses.ElementAdded += ObservableAddresses_ElementAdded;
 					observableAddresses.ElementRemoved += ObservableAddresses_ElementRemoved;
@@ -144,18 +151,17 @@ namespace Vodovoz.Domain.Logistic
 			ObservableAddresses.Remove (address);
 		}
 
-		private void CheckAddressOrder()
+		private void CheckAddressOrder ()
 		{
 			int i = 0;
-			foreach(var address in Addresses)
-			{
+			foreach (var address in Addresses) {
 				if (address.IndexInRoute != i)
 					address.IndexInRoute = i;
 				i++;
 			}
 		}
 
-		private void SetNullToObservableAddresses()
+		private void SetNullToObservableAddresses ()
 		{
 			if (observableAddresses == null)
 				return;
