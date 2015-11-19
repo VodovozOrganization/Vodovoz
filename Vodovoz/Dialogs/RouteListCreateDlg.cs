@@ -152,7 +152,7 @@ namespace Vodovoz
 			RdlText = RdlText.Replace ("<!--colspan-->", String.Format ("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
 
 			//Расширяем таблицу
-			string columnsXml = "<TableColumn><Width>30pt</Width></TableColumn>";
+			string columnsXml = "<TableColumn><Width>20pt</Width></TableColumn>";
 			string columns = String.Empty;
 			for (int i = 0; i < RouteColumns.Count; i++) {
 				columns += columnsXml;
@@ -176,7 +176,8 @@ namespace Vodovoz
 					"<Value>{1}</Value>" +
 					"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
 					"<BorderStyle><Default>Solid</Default><Top>Solid</Top><Bottom>Solid</Bottom></BorderStyle>" +
-					"<BorderColor /><BorderWidth /><TextAlign>Center</TextAlign></Style></Textbox></ReportItems></TableCell>", 
+					"<BorderColor /><BorderWidth /><FontSize>8pt</FontSize><TextAlign>Center</TextAlign></Style>" +
+					"<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>", 
 					TextBoxNumber++, column.Name);
 				//Формула для колонки с водой для информации из запроса
 				CellColumnValue += String.Format (CellTemplate,
