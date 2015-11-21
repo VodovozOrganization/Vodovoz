@@ -17,7 +17,7 @@ namespace Vodovoz
 			Map (x => x.PassportSeria).Column ("passport_seria");
 			Map (x => x.PassportNumber).Column ("passport_number");
 			Map (x => x.DrivingNumber).Column ("driving_number");
-			Map (x => x.Photo).Column ("photo").CustomSqlType ("BinaryBlob");
+			Map (x => x.Photo).Column ("photo").CustomSqlType ("BinaryBlob").LazyLoad ();
 			Map (x => x.AddressRegistration).Column ("address_registration");
 			Map (x => x.AddressCurrent).Column ("address_current");
 			Map (x => x.IsFired).Column ("is_fired");
