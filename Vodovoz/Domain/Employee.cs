@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using QSProjectsLib;
 using QSBanks;
-using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain
 {

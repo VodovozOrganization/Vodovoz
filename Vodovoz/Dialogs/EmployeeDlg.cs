@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
 using System.IO;
 using System.Linq;
 using Gtk;
-using NHibernate;
 using NLog;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 using QSBanks;
@@ -66,6 +63,8 @@ namespace Vodovoz
 			phonesView.Phones = UoWGeneric.Root.Phones;
 			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account> (UoWGeneric, o => o.Accounts);
 			accountsView.SetTitle ("Банковские счета сотрудника");
+
+			yimagePhoto.Binding.AddBinding (Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource ();
 			buttonSavePhoto.Sensitive = UoWGeneric.Root.Photo != null;
 			logger.Info ("Ok");
 		}
@@ -193,7 +192,7 @@ namespace Vodovoz
 			fc.Destroy ();
 		}
 
-		protected void OnDataimageviewerPhotoButtonPressEvent (object o, ButtonPressEventArgs args)
+		protected void OnYimagePhotoButtonPressEvent (object o, ButtonPressEventArgs args)
 		{
 			if (((Gdk.EventButton)args.Event).Type == Gdk.EventType.TwoButtonPress) {
 				string filePath = System.IO.Path.Combine (System.IO.Path.GetTempPath (), "temp_img.jpg");

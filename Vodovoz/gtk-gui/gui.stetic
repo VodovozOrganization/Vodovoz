@@ -1393,6 +1393,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1448,7 +1449,7 @@
           <widget class="Gtk.Notebook" id="notebookMain">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -2111,14 +2112,11 @@
                             <property name="InheritedDataSource">True</property>
                             <property name="InheritedBoundaryDataSource">False</property>
                             <child>
-                              <widget class="QSOrmProject.DataImageViewer" id="dataimageviewerPhoto">
+                              <widget class="Gamma.Widgets.yImageViewer" id="yimagePhoto">
                                 <property name="MemberName" />
                                 <property name="VerticalFit">True</property>
                                 <property name="HorizontalFit">False</property>
-                                <property name="InheritedBoundaryDataSource">False</property>
-                                <property name="InheritedDataSource">True</property>
-                                <property name="Mappings">Photo</property>
-                                <signal name="ButtonPressEvent" handler="OnDataimageviewerPhotoButtonPressEvent" />
+                                <signal name="ButtonPressEvent" handler="OnYimagePhotoButtonPressEvent" />
                               </widget>
                               <packing>
                                 <property name="Position">0</property>
