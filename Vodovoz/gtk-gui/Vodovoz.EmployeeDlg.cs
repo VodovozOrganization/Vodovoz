@@ -86,7 +86,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataVBox vbox3;
 		
-		private global::QSOrmProject.DataImageViewer dataimageviewerPhoto;
+		private global::Gamma.Widgets.yImageViewer yimagePhoto;
 		
 		private global::Gtk.HButtonBox hbuttonbox1;
 		
@@ -123,6 +123,7 @@ namespace Vodovoz
 			this.Name = "Vodovoz.EmployeeDlg";
 			// Container child Vodovoz.EmployeeDlg.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
@@ -204,7 +205,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook ();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 1;
+			this.notebookMain.CurrentPage = 0;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -635,15 +636,12 @@ namespace Vodovoz
 			this.vbox3.InheritedDataSource = true;
 			this.vbox3.InheritedBoundaryDataSource = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.dataimageviewerPhoto = new global::QSOrmProject.DataImageViewer ();
-			this.dataimageviewerPhoto.Name = "dataimageviewerPhoto";
-			this.dataimageviewerPhoto.VerticalFit = true;
-			this.dataimageviewerPhoto.HorizontalFit = false;
-			this.dataimageviewerPhoto.InheritedBoundaryDataSource = false;
-			this.dataimageviewerPhoto.InheritedDataSource = true;
-			this.dataimageviewerPhoto.Mappings = "Photo";
-			this.vbox3.Add (this.dataimageviewerPhoto);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.dataimageviewerPhoto]));
+			this.yimagePhoto = new global::Gamma.Widgets.yImageViewer ();
+			this.yimagePhoto.Name = "yimagePhoto";
+			this.yimagePhoto.VerticalFit = true;
+			this.yimagePhoto.HorizontalFit = false;
+			this.vbox3.Add (this.yimagePhoto);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.yimagePhoto]));
 			w41.Position = 0;
 			// Container child vbox3.Gtk.Box+BoxChild
 			this.hbuttonbox1 = new global::Gtk.HButtonBox ();
@@ -777,7 +775,7 @@ namespace Vodovoz
 			this.radioTabInfo.Toggled += new global::System.EventHandler (this.OnRadioTabInfoToggled);
 			this.radioTabAccounting.Toggled += new global::System.EventHandler (this.OnRadioTabAccountingToggled);
 			this.radioTabFiles.Toggled += new global::System.EventHandler (this.OnRadioTabFilesToggled);
-			this.dataimageviewerPhoto.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler (this.OnDataimageviewerPhotoButtonPressEvent);
+			this.yimagePhoto.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler (this.OnYimagePhotoButtonPressEvent);
 			this.buttonLoadPhoto.Clicked += new global::System.EventHandler (this.OnButtonLoadClicked);
 			this.buttonSavePhoto.Clicked += new global::System.EventHandler (this.OnButtonSavePhotoClicked);
 		}

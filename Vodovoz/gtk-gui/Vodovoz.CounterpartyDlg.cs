@@ -40,7 +40,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
 		
-		private global::QSOrmProject.DataLegalName datalegalname1;
+		private global::QSOrmProject.yLegalName datalegalname1;
 		
 		private global::Gtk.DataBindings.DataEntry entryFIO;
 		
@@ -357,7 +357,7 @@ namespace Vodovoz
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.datalegalname1 = new global::QSOrmProject.DataLegalName ();
+			this.datalegalname1 = new global::QSOrmProject.yLegalName ();
 			this.datalegalname1.Events = ((global::Gdk.EventMask)(256));
 			this.datalegalname1.Name = "datalegalname1";
 			this.datatable1.Add (this.datalegalname1);
