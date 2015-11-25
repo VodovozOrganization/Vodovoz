@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::QSOrmProject.OrmTableView treeCounterpartyContracts;
+		private global::QSOrmProject.RepresentationTreeView treeCounterpartyContracts;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -46,14 +46,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeCounterpartyContracts = new global::QSOrmProject.OrmTableView ();
+			this.treeCounterpartyContracts = new global::QSOrmProject.RepresentationTreeView ();
 			this.treeCounterpartyContracts.CanFocus = true;
 			this.treeCounterpartyContracts.Name = "treeCounterpartyContracts";
-			this.treeCounterpartyContracts.CursorPointsEveryType = false;
-			this.treeCounterpartyContracts.InheritedDataSource = false;
-			this.treeCounterpartyContracts.InheritedBoundaryDataSource = false;
-			this.treeCounterpartyContracts.InheritedDataSource = false;
-			this.treeCounterpartyContracts.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow.Add (this.treeCounterpartyContracts);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

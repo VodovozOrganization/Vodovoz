@@ -1393,7 +1393,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3692,7 +3691,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5200,7 +5198,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -5210,16 +5208,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="treeAdditionalAgreements">
+              <widget class="QSOrmProject.RepresentationTreeView" id="treeAdditionalAgreements">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings" />
                 <signal name="RowActivated" handler="OnTreeAdditionalAgreementsRowActivated" />
               </widget>
             </child>
@@ -7138,7 +7130,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -7148,16 +7140,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="treeDeliveryPoints">
+              <widget class="QSOrmProject.RepresentationTreeView" id="treeDeliveryPoints">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings" />
                 <signal name="RowActivated" handler="OnTreeDeliveryPointsRowActivated" />
               </widget>
             </child>
@@ -7749,6 +7735,7 @@ Patronymic</property>
                             <property name="Items" translatable="yes" />
                             <property name="ShowSpecialStateAll">False</property>
                             <property name="ShowSpecialStateNot">False</property>
+                            <property name="UseShortTitle">False</property>
                           </widget>
                           <packing>
                             <property name="Position">0</property>
@@ -8166,7 +8153,7 @@ Patronymic</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
@@ -8184,15 +8171,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="datatreeviewBalance">
+              <widget class="QSOrmProject.RepresentationTreeView" id="datatreeviewBalance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
             </child>
           </widget>
@@ -8220,7 +8202,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -8230,15 +8212,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="datatreeviewProxies">
+              <widget class="QSOrmProject.RepresentationTreeView" id="datatreeviewProxies">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
                 <signal name="RowActivated" handler="OnDatatreeviewProxiesRowActivated" />
               </widget>
             </child>
@@ -10667,6 +10644,7 @@ Patronymic</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
+            <property name="UseShortTitle">False</property>
             <signal name="EnumItemSelected" handler="OnEnumcomboDocumentTypeEnumItemSelected" />
           </widget>
           <packing>
@@ -11351,7 +11329,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -11361,15 +11339,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="treeCounterpartyContracts">
+              <widget class="QSOrmProject.RepresentationTreeView" id="treeCounterpartyContracts">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
                 <signal name="RowActivated" handler="OnTreeCounterpartyContractsRowActivated" />
               </widget>
             </child>
@@ -12214,7 +12187,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -12224,15 +12197,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="datatreeviewContacts">
+              <widget class="QSOrmProject.RepresentationTreeView" id="datatreeviewContacts">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
             </child>
           </widget>
@@ -12419,15 +12387,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="tableDocuments">
+              <widget class="QSOrmProject.RepresentationTreeView" id="tableDocuments">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
                 <signal name="RowActivated" handler="OnTableDocumentsRowActivated" />
               </widget>
             </child>
@@ -12592,15 +12555,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="tableDocuments">
+              <widget class="QSOrmProject.RepresentationTreeView" id="tableDocuments">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
                 <signal name="RowActivated" handler="OnTableDocumentsRowActivated" />
               </widget>
             </child>
@@ -19644,15 +19602,10 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="tableReadyForShipment">
+              <widget class="QSOrmProject.RepresentationTreeView" id="tableReadyForShipment">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
                 <signal name="RowActivated" handler="OnTableReadyForShipmentRowActivated" />
               </widget>
             </child>
@@ -20115,15 +20068,10 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="tableServiceClaims">
+              <widget class="QSOrmProject.RepresentationTreeView" id="tableServiceClaims">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
                 <signal name="RowActivated" handler="OnTableServiceClaimsRowActivated" />
               </widget>
             </child>
@@ -20294,6 +20242,7 @@ RegistrationNumber</property>
                 <property name="Items" translatable="yes" />
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
+                <property name="UseShortTitle">False</property>
                 <signal name="EnumItemSelected" handler="OnEnumcomboOperationEnumItemSelected" />
               </widget>
               <packing>
@@ -20769,6 +20718,7 @@ RegistrationNumber</property>
                 <property name="Items" translatable="yes" />
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
+                <property name="UseShortTitle">False</property>
                 <signal name="EnumItemSelected" handler="OnEnumcomboOperationEnumItemSelected" />
               </widget>
               <packing>
@@ -21860,7 +21810,7 @@ RegistrationNumber</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -22231,6 +22181,7 @@ RegistrationNumber</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
+            <property name="UseShortTitle">False</property>
           </widget>
           <packing>
             <property name="TopAttach">2</property>
@@ -22489,7 +22440,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AccountingView" design-size="377 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AccountingView" design-size="388 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -22550,7 +22501,7 @@ RegistrationNumber</property>
           </widget>
           <packing>
             <property name="Position">1</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -22560,15 +22511,10 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="QSOrmProject.OrmTableView" id="tableAccountingOperations">
+              <widget class="QSOrmProject.RepresentationTreeView" id="tableAccountingOperations">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
             </child>
           </widget>
@@ -22687,6 +22633,7 @@ RegistrationNumber</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
+            <property name="UseShortTitle">False</property>
           </widget>
           <packing>
             <property name="TopAttach">1</property>

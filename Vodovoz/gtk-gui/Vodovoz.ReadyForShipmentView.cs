@@ -12,7 +12,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::QSOrmProject.OrmTableView tableReadyForShipment;
+		private global::QSOrmProject.RepresentationTreeView tableReadyForShipment;
 		
 		private global::Gtk.HBox hbox2;
 		
@@ -51,14 +51,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.tableReadyForShipment = new global::QSOrmProject.OrmTableView ();
+			this.tableReadyForShipment = new global::QSOrmProject.RepresentationTreeView ();
 			this.tableReadyForShipment.CanFocus = true;
 			this.tableReadyForShipment.Name = "tableReadyForShipment";
-			this.tableReadyForShipment.CursorPointsEveryType = false;
-			this.tableReadyForShipment.InheritedDataSource = false;
-			this.tableReadyForShipment.InheritedBoundaryDataSource = false;
-			this.tableReadyForShipment.InheritedDataSource = false;
-			this.tableReadyForShipment.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow.Add (this.tableReadyForShipment);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

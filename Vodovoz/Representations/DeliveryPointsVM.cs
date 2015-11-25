@@ -9,7 +9,7 @@ using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class DeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, DeliveryPointVMNode>, IRepresentationModelWithParent, IRepresentationModelGamma
+	public class DeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, DeliveryPointVMNode>, IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModel
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
 		}
 

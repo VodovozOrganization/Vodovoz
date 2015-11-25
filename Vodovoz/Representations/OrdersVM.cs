@@ -11,7 +11,7 @@ using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class OrdersVM : RepresentationModelEntityBase<Order, OrdersVMNode>, IRepresentationModelGamma
+	public class OrdersVM : RepresentationModelEntityBase<Order, OrdersVMNode>
 	{
 		public OrdersFilter Filter {
 			get {
@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.Finish ();
 
-		public IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
 		}
 

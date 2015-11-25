@@ -16,7 +16,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::QSOrmProject.OrmTableView tableAccountingOperations;
+		private global::QSOrmProject.RepresentationTreeView tableAccountingOperations;
 
 		protected virtual void Build ()
 		{
@@ -78,14 +78,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.tableAccountingOperations = new global::QSOrmProject.OrmTableView ();
+			this.tableAccountingOperations = new global::QSOrmProject.RepresentationTreeView ();
 			this.tableAccountingOperations.CanFocus = true;
 			this.tableAccountingOperations.Name = "tableAccountingOperations";
-			this.tableAccountingOperations.CursorPointsEveryType = false;
-			this.tableAccountingOperations.InheritedDataSource = false;
-			this.tableAccountingOperations.InheritedBoundaryDataSource = false;
-			this.tableAccountingOperations.InheritedDataSource = false;
-			this.tableAccountingOperations.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow.Add (this.tableAccountingOperations);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

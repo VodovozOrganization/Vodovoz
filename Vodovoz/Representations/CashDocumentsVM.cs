@@ -10,6 +10,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using NHibernate.Criterion;
 using NHibernate;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -159,7 +160,7 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (result.OrderByDescending (d => d.Date).ToList ());
 		}
 
-		Gtk.DataBindings.IMappingConfig treeViewConfig = Gtk.DataBindings.FluentMappingConfig<CashDocumentsVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<CashDocumentsVMNode>.Create ()
 			//.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Тип документа").SetDataProperty (node => node.DocTypeString)
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
@@ -170,8 +171,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Основание").SetDataProperty (node => node.Description)
 			.Finish ();
 
-		public override Gtk.DataBindings.IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

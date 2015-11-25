@@ -8,7 +8,7 @@ using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class CounterpartyVM : RepresentationModelEntityBase<Counterparty, CounterpartyVMNode>, IRepresentationModelGamma
+	public class CounterpartyVM : RepresentationModelEntityBase<Counterparty, CounterpartyVMNode>
 	{
 
 		public CounterpartyFilter Filter {
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Контрагент").SetDataProperty (node => node.Name)
 			.Finish ();
 
-		public IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
 		}
 

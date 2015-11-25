@@ -14,7 +14,7 @@ using Gamma.GtkWidgets;
 
 namespace Vodovoz.ViewModel
 {
-	public class UnclosedAdvancesVM : RepresentationModelWithoutEntityBase<UnclosedAdvancesVMNode>, IRepresentationModelGamma
+	public class UnclosedAdvancesVM : RepresentationModelWithoutEntityBase<UnclosedAdvancesVMNode>
 	{
 		public UnclosedAdvancesFilter Filter {
 			get {
@@ -77,7 +77,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Основание").SetDataProperty (node => node.Description)
 			.Finish ();
 
-		public IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get { return treeViewConfig; }
 		}
 

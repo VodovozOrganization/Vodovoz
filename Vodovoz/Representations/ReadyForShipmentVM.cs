@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Bindings;
 using System.Linq;
-using Gtk.DataBindings;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -11,6 +10,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -122,15 +122,15 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (items);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<ReadyForShipmentVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>.Create ()
 			.AddColumn ("Тип").SetDataProperty (node => node.TypeString)
 			.AddColumn ("Номер").SetDataProperty (node => node.Id)
 		    .AddColumn ("Водитель").SetDataProperty (node => node.Driver)
 		    .AddColumn ("Машина").SetDataProperty (node => node.Car)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		protected override bool NeedUpdateFunc (object updatedSubject)

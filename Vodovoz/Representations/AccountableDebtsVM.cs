@@ -13,7 +13,7 @@ using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModel
 {
-	public class AccountableDebtsVM : RepresentationModelWithoutEntityBase<AccountableDebtsVMNode>, IRepresentationModelGamma
+	public class AccountableDebtsVM : RepresentationModelWithoutEntityBase<AccountableDebtsVMNode>
 	{
 		public AccountableDebtsFilter Filter {
 			get {
@@ -75,7 +75,7 @@ namespace Vodovoz.ViewModel
 			.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public Gamma.ColumnConfig.IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get {
 				return treeViewConfig;
 			}

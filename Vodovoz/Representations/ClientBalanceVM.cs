@@ -12,7 +12,7 @@ using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class ClientBalanceVM : RepresentationModelWithoutEntityBase<ClientBalanceVMNode>, IRepresentationModelGamma
+	public class ClientBalanceVM : RepresentationModelWithoutEntityBase<ClientBalanceVMNode>
 	{
 		public ClientBalanceFilter Filter {
 			get {
@@ -70,7 +70,7 @@ namespace Vodovoz.ViewModel
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
 		}
 

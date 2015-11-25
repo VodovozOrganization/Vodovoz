@@ -12,7 +12,7 @@ using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.ViewModel
 {
-	public class AccountableSlipsVM : RepresentationModelWithoutEntityBase<AccountableSlipsVMNode>, IRepresentationModelGamma
+	public class AccountableSlipsVM : RepresentationModelWithoutEntityBase<AccountableSlipsVMNode>
 	{
 		public IAccountableSlipsFilter Filter {
 			get {
@@ -121,7 +121,7 @@ namespace Vodovoz.ViewModel
 			//.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public Gamma.ColumnConfig.IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get {
 				return treeViewConfig;
 			}

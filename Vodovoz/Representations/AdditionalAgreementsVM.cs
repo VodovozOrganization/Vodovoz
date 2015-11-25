@@ -4,8 +4,8 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
 using NHibernate.Criterion;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -47,15 +47,15 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (additionalAgreementsList);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<AdditionalAgreementVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<AdditionalAgreementVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.NumberString)
 			.AddColumn ("Дата").SetDataProperty (node => node.IssueDateString)
 			.AddColumn ("Тип").SetDataProperty (node => node.TypeString)
 			.AddColumn ("Точка доставки").SetDataProperty (node => node.Point)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

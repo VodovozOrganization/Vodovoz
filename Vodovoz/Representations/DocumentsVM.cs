@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.Utilities;
-using Gtk.DataBindings;
 using NHibernate;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -10,6 +9,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -154,15 +154,15 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (result);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<DocumentVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<DocumentVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Тип документа").SetDataProperty (node => node.DocTypeString)
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
 			.AddColumn ("Детали").SetDataProperty (node => node.Description)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

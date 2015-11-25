@@ -4,9 +4,9 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
 using Vodovoz.Domain.Service;
 using Gamma.Utilities;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -58,7 +58,7 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (result);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<ServiceClaimVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ServiceClaimVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString ())
 			.AddColumn ("Дата").SetDataProperty (node => node.StartDate.ToString ("d"))
 			.AddColumn ("Тип заявки").SetDataProperty (node => node.Type.GetEnumTitle ())
@@ -67,8 +67,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Оборудование").SetDataProperty (node => node.Nomenclature)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

@@ -12,7 +12,7 @@ using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class StockBalanceVM : RepresentationModelWithoutEntityBase<StockBalanceVMNode>, IRepresentationModelGamma
+	public class StockBalanceVM : RepresentationModelWithoutEntityBase<StockBalanceVMNode>
 	{
 		public StockBalanceFilter Filter {
 			get {
@@ -68,7 +68,7 @@ namespace Vodovoz.ViewModel
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
 		}
 

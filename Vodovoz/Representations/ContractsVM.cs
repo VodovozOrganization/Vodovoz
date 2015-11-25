@@ -5,7 +5,7 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -50,15 +50,15 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (contractslist);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<ContractsVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig <ContractsVMNode>.Create ()
 			.AddColumn("Номер").SetDataProperty (node => node.Title)
 			.AddColumn ("Организация").SetDataProperty (node => node.Organization)
 			.AddColumn ("Кол-во доп. соглашений").SetDataProperty (node => node.AdditionalAgreements)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig;}
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

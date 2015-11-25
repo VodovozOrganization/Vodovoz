@@ -10,6 +10,7 @@ using QSOrmProject;
 using System.Linq;
 using Gtk;
 using Vodovoz.Domain.Cash;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -167,7 +168,7 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		Gtk.DataBindings.IMappingConfig treeViewConfig = Gtk.DataBindings.FluentMappingConfig<AccountingVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<AccountingVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.Number.ToString ())
 			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToShortDateString ())
 			.AddColumn ("Категория дохода/расхода").SetDataProperty (node => node.Category)
@@ -177,8 +178,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Назначение").SetDataProperty (node => node.Description)
 			.Finish ();
 
-		public override Gtk.DataBindings.IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#region implemented abstract members of RepresentationModelWithoutEntityBase

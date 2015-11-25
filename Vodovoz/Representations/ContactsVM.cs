@@ -9,7 +9,7 @@ using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContactsVM : RepresentationModelEntityBase<Contact, ContactsVMNode>, IRepresentationModelWithParent, IRepresentationModelGamma
+	public class ContactsVM : RepresentationModelEntityBase<Contact, ContactsVMNode>, IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -86,7 +86,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
 			.Finish ();
 
-		public IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
 		}
 

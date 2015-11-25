@@ -6,7 +6,7 @@ using QSContacts;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -45,7 +45,7 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (proxieslist);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<ProxiesVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig <ProxiesVMNode>.Create ()
 			.AddColumn("Номер").SetDataProperty (node => node.Title)
 			.AddColumn ("Начало действия").SetDataProperty (node => node.Start)
 			.AddColumn ("Окончание действия").SetDataProperty (node => node.End)
@@ -53,8 +53,8 @@ namespace Vodovoz.ViewModel
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig;}
+		public override IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion
