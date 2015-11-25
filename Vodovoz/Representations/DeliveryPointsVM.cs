@@ -5,11 +5,11 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class DeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, DeliveryPointVMNode>, IRepresentationModelWithParent
+	public class DeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, DeliveryPointVMNode>, IRepresentationModelWithParent, IRepresentationModelGamma
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -63,13 +63,13 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (deliveryPointslist);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<DeliveryPointVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<DeliveryPointVMNode>.Create ()
 			.AddColumn ("Название").SetDataProperty (node => node.CompiledAddress)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

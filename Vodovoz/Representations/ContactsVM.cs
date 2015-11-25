@@ -4,12 +4,12 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
 using QSContacts;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContactsVM : RepresentationModelEntityBase<Contact, ContactsVMNode>, IRepresentationModelWithParent
+	public class ContactsVM : RepresentationModelEntityBase<Contact, ContactsVMNode>, IRepresentationModelWithParent, IRepresentationModelGamma
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -78,7 +78,7 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (contactslist);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<ContactsVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ContactsVMNode>.Create ()
 			.AddColumn ("Имя").SetDataProperty (node => node.FullName)
 			.AddColumn ("Должность").SetDataProperty (node => node.Post)
 			.AddColumn ("Курируемые точки").SetDataProperty (node => node.PointCurator)
@@ -86,8 +86,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

@@ -8,11 +8,11 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Operations;
-using Gtk.DataBindings;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class ClientBalanceVM : RepresentationModelWithoutEntityBase<ClientBalanceVMNode>
+	public class ClientBalanceVM : RepresentationModelWithoutEntityBase<ClientBalanceVMNode>, IRepresentationModelGamma
 	{
 		public ClientBalanceFilter Filter {
 			get {
@@ -64,14 +64,14 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (stocklist);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<ClientBalanceVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientBalanceVMNode>.Create ()
 			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)
 			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig;}
+		public IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

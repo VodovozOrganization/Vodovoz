@@ -4,11 +4,11 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class CounterpartyVM : RepresentationModelEntityBase<Counterparty, CounterpartyVMNode>
+	public class CounterpartyVM : RepresentationModelEntityBase<Counterparty, CounterpartyVMNode>, IRepresentationModelGamma
 	{
 
 		public CounterpartyFilter Filter {
@@ -43,12 +43,12 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (counterpartyList);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<CounterpartyVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig <CounterpartyVMNode>.Create ()
 			.AddColumn ("Контрагент").SetDataProperty (node => node.Name)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion

@@ -1,18 +1,17 @@
 ﻿using System;
-using Gtk.DataBindings;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Documents;
 using System.Collections.Generic;
 using System.Data.Bindings;
 using NHibernate;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
-	public class OrdersVM : RepresentationModelEntityBase<Order, OrdersVMNode>
+	public class OrdersVM : RepresentationModelEntityBase<Order, OrdersVMNode>, IRepresentationModelGamma
 	{
 		public OrdersFilter Filter {
 			get {
@@ -71,15 +70,15 @@ namespace Vodovoz.ViewModel
 			SetItemsSource (result);
 		}
 
-		IMappingConfig treeViewConfig = FluentMappingConfig<OrdersVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig <OrdersVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToString("d"))
 			.AddColumn ("Статус").SetDataProperty (node => node.StatusEnum.GetEnumTitle ())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.Finish ();
 
-		public override IMappingConfig TreeViewConfig {
-			get { return treeViewConfig; }
+		public IColumnsConfig ColumnsConfig {
+			get { return columnsConfig; }
 		}
 
 		#endregion
