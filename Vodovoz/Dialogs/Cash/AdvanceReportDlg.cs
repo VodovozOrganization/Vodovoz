@@ -162,7 +162,12 @@ namespace Vodovoz
 
 			labelChangeSum.Visible = labelChangeType.Visible = true;
 
-			if(Balance == 0)
+			if(ClosingSum == 0)
+			{
+				labelChangeSum.Visible = labelChangeType.Visible = false;
+				labelCreating.Markup = String.Format("<span foreground=\"Cadet Blue\">Не выбранных авансов.</span>");
+			}
+			else if(Balance == 0)
 			{
 				labelChangeSum.Visible = labelChangeType.Visible = false;
 				labelCreating.Markup = String.Format("<span foreground=\"green\">Аванс будет закрыть полностью.</span>");
@@ -211,6 +216,7 @@ namespace Vodovoz
 			advanceList.ForEach (i => i.SelectChanged += I_SelectChanged);
 			ytreeviewDebts.ItemsDataSource = advanceList;
 
+			CalculateBalance ();
 			logger.Info("Ok");
 		}
 

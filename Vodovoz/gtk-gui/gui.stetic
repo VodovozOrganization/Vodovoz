@@ -21318,7 +21318,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelChangeSum">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">label5</property>
+                <property name="LabelProp" translatable="yes">--//--</property>
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -21341,7 +21341,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="labelChangeType">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">label4</property>
+                <property name="LabelProp" translatable="yes">--//--</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -21477,7 +21477,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="Xpad">9</property>
             <property name="Xalign">0</property>
-            <property name="LabelProp" translatable="yes">label3</property>
+            <property name="LabelProp" translatable="yes">Рачет не производился</property>
           </widget>
           <packing>
             <property name="Position">2</property>

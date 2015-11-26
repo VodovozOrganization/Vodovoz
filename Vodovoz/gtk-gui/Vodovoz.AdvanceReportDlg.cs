@@ -257,7 +257,7 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.labelChangeSum = new global::Gtk.Label ();
 			this.labelChangeSum.Name = "labelChangeSum";
-			this.labelChangeSum.LabelProp = global::Mono.Unix.Catalog.GetString ("label5");
+			this.labelChangeSum.LabelProp = global::Mono.Unix.Catalog.GetString ("--//--");
 			this.labelChangeSum.UseMarkup = true;
 			this.table1.Add (this.labelChangeSum);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelChangeSum]));
@@ -271,7 +271,7 @@ namespace Vodovoz
 			this.labelChangeType = new global::Gtk.Label ();
 			this.labelChangeType.Name = "labelChangeType";
 			this.labelChangeType.Xalign = 1F;
-			this.labelChangeType.LabelProp = global::Mono.Unix.Catalog.GetString ("label4");
+			this.labelChangeType.LabelProp = global::Mono.Unix.Catalog.GetString ("--//--");
 			this.table1.Add (this.labelChangeType);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelChangeType]));
 			w19.TopAttach = ((uint)(3));
@@ -349,7 +349,7 @@ namespace Vodovoz
 			this.labelCreating.Name = "labelCreating";
 			this.labelCreating.Xpad = 9;
 			this.labelCreating.Xalign = 0F;
-			this.labelCreating.LabelProp = global::Mono.Unix.Catalog.GetString ("label3");
+			this.labelCreating.LabelProp = global::Mono.Unix.Catalog.GetString ("Рачет не производился");
 			this.vbox1.Add (this.labelCreating);
 			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.labelCreating]));
 			w26.Position = 2;
