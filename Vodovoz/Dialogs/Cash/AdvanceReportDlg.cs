@@ -122,38 +122,32 @@ namespace Vodovoz
 			Income newIncome;
 			Expense newExpense;
 			bool needClosing = UoWGeneric.IsNew;
-			try {
-				UoWGeneric.Save(); // Сохраняем сначала отчет, так как нужно получить Id.
-				if(needClosing)
+			UoWGeneric.Save(); // Сохраняем сначала отчет, так как нужно получить Id.
+			if(needClosing)
+			{
+				var closing = Entity.CloseAdvances (out newExpense, out newIncome, 
+					advanceList.Where (a => a.Selected).Select (a => a.Advance).ToList ());
+
+				if(newExpense != null)
+					UoWGeneric.Save (newExpense);
+				if(newIncome != null)
+					UoWGeneric.Save (newIncome);
+
+				advanceList.Where (a => a.Selected).Select (a => a.Advance).ToList ().ForEach (a => UoWGeneric.Save (a));
+				closing.ForEach (c => UoWGeneric.Save(c));
+
+				UoWGeneric.Save ();
+
+				if(newIncome != null)
 				{
-					var closing = Entity.CloseAdvances (out newExpense, out newIncome, 
-						advanceList.Where (a => a.Selected).Select (a => a.Advance).ToList ());
-
-					if(newExpense != null)
-						UoWGeneric.Save (newExpense);
-					if(newIncome != null)
-						UoWGeneric.Save (newIncome);
-
-					advanceList.Where (a => a.Selected).Select (a => a.Advance).ToList ().ForEach (a => UoWGeneric.Save (a));
-					closing.ForEach (c => UoWGeneric.Save(c));
-
-					UoWGeneric.Save ();
-
-					if(newIncome != null)
-					{
-						MessageDialogWorks.RunInfoDialog (String.Format ("Дополнительно создан приходный ордер №{0}, на сумму {1:C}.\nНе забудьте получить сдачу от подотчетного лица!",
-							newIncome.Id, newIncome.Money));
-					}
-					if(newExpense != null)
-					{
-						MessageDialogWorks.RunInfoDialog (String.Format ("Дополнительно создан расходный ордер №{0}, на сумму {1:C}.\nНе забудьте доплатить подотчетному лицу!",
-							newExpense.Id, newExpense.Money));
-					}
+					MessageDialogWorks.RunInfoDialog (String.Format ("Дополнительно создан приходный ордер №{0}, на сумму {1:C}.\nНе забудьте получить сдачу от подотчетного лица!",
+						newIncome.Id, newIncome.Money));
 				}
-			} catch (Exception ex) {
-				logger.Error (ex, "Не удалось записать авансовый отчет.");
-				QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
-				return false;
+				if(newExpense != null)
+				{
+					MessageDialogWorks.RunInfoDialog (String.Format ("Дополнительно создан расходный ордер №{0}, на сумму {1:C}.\nНе забудьте доплатить подотчетному лицу!",
+						newExpense.Id, newExpense.Money));
+				}
 			}
 			logger.Info ("Ok");
 			return true;

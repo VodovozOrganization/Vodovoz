@@ -72,13 +72,7 @@ namespace Vodovoz
 				return false;
 
 			logger.Info ("Сохраняем расходный ордер...");
-			try {
-				UoWGeneric.Save();
-			} catch (Exception ex) {
-				logger.Error (ex, "Не удалось записать расходный ордер.");
-				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
-				return false;
-			}
+			UoWGeneric.Save();
 			logger.Info ("Ok");
 			return true;
 
