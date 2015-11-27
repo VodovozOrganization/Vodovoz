@@ -26,6 +26,7 @@ namespace Vodovoz.HMap
 			Map (x => x.PaymentType).Column ("payment_type").CustomType<PaymentTypeStringType> ();
 
 			References (x => x.Client).Column ("client_id");
+			References (x => x.Author).Column ("author_employee_id");
 			References (x => x.DeliveryPoint).Column ("delivery_point_id");
 			References (x => x.DeliverySchedule).Column ("delivery_schedule_id");
 			References (x => x.PreviousOrder).Column ("previous_order_id");

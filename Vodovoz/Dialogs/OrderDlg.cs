@@ -27,6 +27,12 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Order> ();
+			Entity.Author = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if (Entity.Author == null) {
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать создавать заказы, так как некого указывать в качестве автора документа.");
+				FailInitialize = true;
+				return;
+			}
 			UoWGeneric.Root.OrderStatus = OrderStatus.NewOrder;
 			TabName = "Новый заказ";
 			ConfigureDlg ();
@@ -95,6 +101,11 @@ namespace Vodovoz
 			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery ();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule> (e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource ();
+
+			referenceAuthor.ItemsQuery = EmployeeRepository.ActiveEmployeeOrderedQuery ();
+			referenceAuthor.SetObjectDisplayFunc<Employee> (e => e.ShortName);
+			referenceAuthor.Binding.AddBinding (Entity, s => s.Author, w => w.Subject).InitializeFromSource ();
+			referenceAuthor.Sensitive = false;
 
 			referenceDeliveryPoint.Binding.AddBinding (Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);

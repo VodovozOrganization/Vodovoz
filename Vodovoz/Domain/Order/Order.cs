@@ -33,6 +33,15 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref orderStatus, value, () => OrderStatus); }
 		}
 
+		Employee author;
+
+		[Display (Name = "Создатель заказа")]
+
+		public virtual Employee Author {
+			get { return author; }
+			set { SetField (ref author, value, () => Author); }
+		}
+
 		Counterparty client;
 
 		[Display (Name = "Клиент")]
