@@ -14987,7 +14987,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="686 500">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="686 504">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -15160,21 +15160,13 @@ Patronymic</property>
                       <placeholder />
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataCheckButton" id="checkDelivered">
+                      <widget class="Gamma.GtkWidgets.yCheckButton" id="checkDelivered">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Отгружен по платежке</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Shipped</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="Editable">True</property>
-                        <property name="AutomaticTitle">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Shipped</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">9</property>
@@ -15193,31 +15185,22 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataCheckButton" id="checkSelfDelivery">
+                      <widget class="Gamma.GtkWidgets.yCheckButton" id="checkSelfDelivery">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Самовывоз</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">SelfDelivery</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="Editable">True</property>
-                        <property name="AutomaticTitle">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">SelfDelivery</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">7</property>
                         <property name="BottomAttach">8</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
+                        <property name="AutoSize">False</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
+                        <property name="XExpand">True</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>

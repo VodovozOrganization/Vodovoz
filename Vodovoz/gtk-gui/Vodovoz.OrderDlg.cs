@@ -30,9 +30,9 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
 		
-		private global::Gtk.DataBindings.DataCheckButton checkDelivered;
+		private global::Gamma.GtkWidgets.yCheckButton checkDelivered;
 		
-		private global::Gtk.DataBindings.DataCheckButton checkSelfDelivery;
+		private global::Gamma.GtkWidgets.yCheckButton checkSelfDelivery;
 		
 		private global::Gamma.Widgets.yEnumComboBox enumPaymentType;
 		
@@ -305,20 +305,12 @@ namespace Vodovoz
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.checkDelivered = new global::Gtk.DataBindings.DataCheckButton ();
+			this.checkDelivered = new global::Gamma.GtkWidgets.yCheckButton ();
 			this.checkDelivered.CanFocus = true;
 			this.checkDelivered.Name = "checkDelivered";
 			this.checkDelivered.Label = global::Mono.Unix.Catalog.GetString ("Отгружен по платежке");
 			this.checkDelivered.DrawIndicator = true;
 			this.checkDelivered.UseUnderline = true;
-			this.checkDelivered.InheritedDataSource = true;
-			this.checkDelivered.Mappings = "Shipped";
-			this.checkDelivered.InheritedBoundaryDataSource = false;
-			this.checkDelivered.Editable = true;
-			this.checkDelivered.AutomaticTitle = false;
-			this.checkDelivered.InheritedBoundaryDataSource = false;
-			this.checkDelivered.InheritedDataSource = true;
-			this.checkDelivered.Mappings = "Shipped";
 			this.datatable1.Add (this.checkDelivered);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.checkDelivered]));
 			w12.TopAttach = ((uint)(9));
@@ -328,27 +320,18 @@ namespace Vodovoz
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.checkSelfDelivery = new global::Gtk.DataBindings.DataCheckButton ();
+			this.checkSelfDelivery = new global::Gamma.GtkWidgets.yCheckButton ();
 			this.checkSelfDelivery.CanFocus = true;
 			this.checkSelfDelivery.Name = "checkSelfDelivery";
 			this.checkSelfDelivery.Label = global::Mono.Unix.Catalog.GetString ("Самовывоз");
 			this.checkSelfDelivery.DrawIndicator = true;
 			this.checkSelfDelivery.UseUnderline = true;
-			this.checkSelfDelivery.InheritedDataSource = true;
-			this.checkSelfDelivery.Mappings = "SelfDelivery";
-			this.checkSelfDelivery.InheritedBoundaryDataSource = false;
-			this.checkSelfDelivery.Editable = true;
-			this.checkSelfDelivery.AutomaticTitle = false;
-			this.checkSelfDelivery.InheritedBoundaryDataSource = false;
-			this.checkSelfDelivery.InheritedDataSource = true;
-			this.checkSelfDelivery.Mappings = "SelfDelivery";
 			this.datatable1.Add (this.checkSelfDelivery);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.checkSelfDelivery]));
 			w13.TopAttach = ((uint)(7));
 			w13.BottomAttach = ((uint)(8));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(4));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.enumPaymentType = new global::Gamma.Widgets.yEnumComboBox ();

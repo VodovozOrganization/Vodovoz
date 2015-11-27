@@ -58,6 +58,8 @@ namespace Vodovoz
 				buttonAccept.Label = "Редактировать";
 			}
 			subjectAdaptor.Target = UoWGeneric.Root;
+			datatable1.DataSource = subjectAdaptor;
+			datatable2.DataSource = subjectAdaptor;
 
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
@@ -84,6 +86,9 @@ namespace Vodovoz
 
 			textComments.Binding.AddBinding (Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource ();
 
+			checkSelfDelivery.Binding.AddBinding (Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource ();
+			checkDelivered.Binding.AddBinding (Entity, s => s.Shipped, w => w.Active).InitializeFromSource ();
+
 			referenceClient.ItemsQuery = CounterpartyRepository.ActiveClientsQuery ();
 			referenceClient.SetObjectDisplayFunc<Counterparty> (e => e.Name);
 			referenceClient.Binding.AddBinding (Entity, s => s.Client, w => w.Subject).InitializeFromSource ();
@@ -91,9 +96,6 @@ namespace Vodovoz
 			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery ();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule> (e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource ();
-
-			datatable1.DataSource = subjectAdaptor;
-			datatable2.DataSource = subjectAdaptor;
 
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);
 			buttonViewDocument.Sensitive = false;
