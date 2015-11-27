@@ -59,7 +59,6 @@ namespace Vodovoz
 			}
 			subjectAdaptor.Target = UoWGeneric.Root;
 			datatable1.DataSource = subjectAdaptor;
-			datatable2.DataSource = subjectAdaptor;
 
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
@@ -88,6 +87,8 @@ namespace Vodovoz
 
 			checkSelfDelivery.Binding.AddBinding (Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource ();
 			checkDelivered.Binding.AddBinding (Entity, s => s.Shipped, w => w.Active).InitializeFromSource ();
+
+			spinBottlesReturn.Binding.AddBinding (Entity, s => s.BottlesReturn, w => w.ValueAsInt).InitializeFromSource ();
 
 			referenceClient.ItemsQuery = CounterpartyRepository.ActiveClientsQuery ();
 			referenceClient.SetObjectDisplayFunc<Counterparty> (e => e.Name);
@@ -151,7 +152,7 @@ namespace Vodovoz
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
 			#endregion
-
+			dataSumDifferenceReason.Binding.AddBinding (Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource ();
 			dataSumDifferenceReason.Completion = new EntryCompletion ();
 			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons (UoWGeneric);
 			dataSumDifferenceReason.Completion.TextColumn = 0;

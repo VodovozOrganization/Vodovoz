@@ -100,7 +100,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable2;
 		
-		private global::Gtk.DataBindings.DataEntry dataSumDifferenceReason;
+		private global::Gamma.GtkWidgets.yEntry dataSumDifferenceReason;
 		
 		private global::Gtk.HBox hbox11;
 		
@@ -122,7 +122,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label labelSumDifference;
 		
-		private global::Gtk.DataBindings.DataSpinButton spinBottlesReturn;
+		private global::Gamma.GtkWidgets.ySpinButton spinBottlesReturn;
 		
 		private global::Gtk.SpinButton spinSumDifference;
 		
@@ -289,7 +289,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -682,17 +682,11 @@ namespace Vodovoz
 			this.datatable2.InheritedDataSource = false;
 			this.datatable2.InheritedBoundaryDataSource = false;
 			// Container child datatable2.Gtk.Table+TableChild
-			this.dataSumDifferenceReason = new global::Gtk.DataBindings.DataEntry ();
+			this.dataSumDifferenceReason = new global::Gamma.GtkWidgets.yEntry ();
 			this.dataSumDifferenceReason.CanFocus = true;
 			this.dataSumDifferenceReason.Name = "dataSumDifferenceReason";
 			this.dataSumDifferenceReason.IsEditable = true;
 			this.dataSumDifferenceReason.InvisibleChar = '●';
-			this.dataSumDifferenceReason.InheritedDataSource = true;
-			this.dataSumDifferenceReason.Mappings = "SumDifferenceReason";
-			this.dataSumDifferenceReason.InheritedBoundaryDataSource = false;
-			this.dataSumDifferenceReason.InheritedDataSource = true;
-			this.dataSumDifferenceReason.Mappings = "SumDifferenceReason";
-			this.dataSumDifferenceReason.InheritedBoundaryDataSource = false;
 			this.datatable2.Add (this.dataSumDifferenceReason);
 			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.datatable2 [this.dataSumDifferenceReason]));
 			w46.TopAttach = ((uint)(2));
@@ -799,23 +793,18 @@ namespace Vodovoz
 			w56.XOptions = ((global::Gtk.AttachOptions)(4));
 			w56.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.spinBottlesReturn = new global::Gtk.DataBindings.DataSpinButton (0, 1000, 1);
+			this.spinBottlesReturn = new global::Gamma.GtkWidgets.ySpinButton (0, 100, 1);
 			this.spinBottlesReturn.CanFocus = true;
 			this.spinBottlesReturn.Name = "spinBottlesReturn";
 			this.spinBottlesReturn.Adjustment.PageIncrement = 10;
 			this.spinBottlesReturn.ClimbRate = 1;
 			this.spinBottlesReturn.Numeric = true;
-			this.spinBottlesReturn.InheritedDataSource = true;
-			this.spinBottlesReturn.Mappings = "BottlesReturn";
-			this.spinBottlesReturn.InheritedBoundaryDataSource = false;
-			this.spinBottlesReturn.InheritedDataSource = true;
-			this.spinBottlesReturn.Mappings = "BottlesReturn";
-			this.spinBottlesReturn.InheritedBoundaryDataSource = false;
+			this.spinBottlesReturn.ValueAsDecimal = 0m;
+			this.spinBottlesReturn.ValueAsInt = 0;
 			this.datatable2.Add (this.spinBottlesReturn);
 			global::Gtk.Table.TableChild w57 = ((global::Gtk.Table.TableChild)(this.datatable2 [this.spinBottlesReturn]));
 			w57.LeftAttach = ((uint)(1));
 			w57.RightAttach = ((uint)(2));
-			w57.XOptions = ((global::Gtk.AttachOptions)(4));
 			w57.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
 			this.spinSumDifference = new global::Gtk.SpinButton (-100000, 100000, 1);
