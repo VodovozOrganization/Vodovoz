@@ -21409,7 +21409,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">4</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -21983,23 +21983,16 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="ShadowType">In</property>
                         <child>
-                          <widget class="Gtk.DataBindings.DataTreeView" id="treeItems">
+                          <widget class="Gamma.GtkWidgets.yTreeView" id="treeItems">
                             <property name="MemberName" />
-                            <property name="HeightRequest">100</property>
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
-                            <property name="CursorPointsEveryType">False</property>
-                            <property name="InheritedDataSource">False</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">False</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="ColumnMappings" />
                           </widget>
                         </child>
                       </widget>
                       <packing>
                         <property name="Position">0</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
                       </packing>
                     </child>
                   </widget>
@@ -22025,15 +22018,10 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
-                      <widget class="Gtk.DataBindings.DataTreeView" id="treeDepositRefundItems">
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="treeDepositRefundItems">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
-                        <property name="CursorPointsEveryType">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
                       </widget>
                     </child>
                   </widget>
@@ -22385,16 +22373,10 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="ShadowType">In</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataTreeView" id="treeEquipment">
+                  <widget class="Gamma.GtkWidgets.yTreeView" id="treeEquipment">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="ShowScrollbars">True</property>
-                    <property name="CursorPointsEveryType">False</property>
-                    <property name="InheritedDataSource">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="ColumnMappings" />
                   </widget>
                 </child>
               </widget>
@@ -22420,16 +22402,10 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
-                      <widget class="Gtk.DataBindings.DataTreeView" id="treeServiceClaim">
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="treeServiceClaim">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
-                        <property name="CursorPointsEveryType">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <signal name="RowActivated" handler="OnTreeServiceClaimRowActivated" />
                       </widget>
                     </child>
                   </widget>
@@ -22515,16 +22491,10 @@ RegistrationNumber</property>
                             <property name="MemberName" />
                             <property name="ShadowType">In</property>
                             <child>
-                              <widget class="Gtk.DataBindings.DataTreeView" id="treeDocuments">
+                              <widget class="Gamma.GtkWidgets.yTreeView" id="treeDocuments">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="ShowScrollbars">True</property>
-                                <property name="CursorPointsEveryType">False</property>
-                                <property name="InheritedDataSource">False</property>
-                                <property name="InheritedBoundaryDataSource">False</property>
-                                <property name="InheritedDataSource">False</property>
-                                <property name="InheritedBoundaryDataSource">False</property>
-                                <property name="ColumnMappings" />
                               </widget>
                             </child>
                           </widget>

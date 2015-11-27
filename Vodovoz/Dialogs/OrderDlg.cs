@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Linq;
 using Gtk;
-using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
@@ -15,6 +14,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
 using QSSupportLib;
+using Gamma.GtkWidgets;
 
 namespace Vodovoz
 {
@@ -159,7 +159,7 @@ namespace Vodovoz
 
 			spinSumDifference.Value = (double)(UoWGeneric.Root.SumToReceive - UoWGeneric.Root.TotalSum);
 
-			treeItems.ColumnMappingConfig = FluentMappingConfig<OrderItem>.Create ()
+			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem> ()
 				.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureString)
 				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
@@ -173,18 +173,18 @@ namespace Vodovoz
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();
 
-			treeEquipment.ColumnMappingConfig = FluentMappingConfig<OrderEquipment>.Create ()
+			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment> ()
 				.AddColumn ("Наименование").SetDataProperty (node => node.NameString)
 				.AddColumn ("Направление").SetDataProperty (node => node.DirectionString)
 				.AddColumn ("Причина").SetDataProperty (node => node.ReasonString)
 				.Finish ();
 
-			treeDocuments.ColumnMappingConfig = FluentMappingConfig<OrderDocument>.Create ()
+			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument> ()
 				.AddColumn ("Документ").SetDataProperty (node => node.Name)
 				.AddColumn ("Дата").SetDataProperty (node => node.DocumentDate)
 				.Finish ();
 
-			treeDepositRefundItems.ColumnMappingConfig = FluentMappingConfig<OrderDepositItem>.Create ()
+			treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem> ()
 				.AddColumn ("Тип").SetDataProperty (node => node.DepositTypeString)
 				.AddColumn ("Количество").AddNumericRenderer (node => node.Count)
 				.AddColumn ("Цена").AddNumericRenderer (node => node.Deposit)
@@ -192,7 +192,7 @@ namespace Vodovoz
 				.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Visible = n.PaymentDirection == PaymentDirection.ToClient)
 				.Finish ();
 
-			treeServiceClaim.ColumnMappingConfig = FluentMappingConfig<ServiceClaim>.Create ()
+			treeServiceClaim.ColumnsConfig = ColumnsConfigFactory.Create<ServiceClaim> ()
 				.AddColumn ("Статус заявки").SetDataProperty (node => node.Status.GetEnumTitle ())
 				.AddColumn ("Номенклатура оборудования").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
 				.AddColumn ("Серийный номер").SetDataProperty (node => node.Equipment != null ? node.Equipment.Serial : "-")

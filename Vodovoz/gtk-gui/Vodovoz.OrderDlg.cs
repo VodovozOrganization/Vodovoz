@@ -90,13 +90,13 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
-		private global::Gtk.DataBindings.DataTreeView treeItems;
+		private global::Gamma.GtkWidgets.yTreeView treeItems;
 		
 		private global::Gtk.Label label8;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
 		
-		private global::Gtk.DataBindings.DataTreeView treeDepositRefundItems;
+		private global::Gamma.GtkWidgets.yTreeView treeDepositRefundItems;
 		
 		private global::Gtk.Table table2;
 		
@@ -140,7 +140,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow3;
 		
-		private global::Gtk.DataBindings.DataTreeView treeEquipment;
+		private global::Gamma.GtkWidgets.yTreeView treeEquipment;
 		
 		private global::Gtk.Label label15;
 		
@@ -148,7 +148,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow5;
 		
-		private global::Gtk.DataBindings.DataTreeView treeServiceClaim;
+		private global::Gamma.GtkWidgets.yTreeView treeServiceClaim;
 		
 		private global::Gtk.HBox hbox12;
 		
@@ -166,7 +166,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 		
-		private global::Gtk.DataBindings.DataTreeView treeDocuments;
+		private global::Gamma.GtkWidgets.yTreeView treeDocuments;
 		
 		private global::Gtk.HBox hbox6;
 		
@@ -289,7 +289,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 4;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -621,16 +621,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.treeItems = new global::Gtk.DataBindings.DataTreeView ();
-			this.treeItems.HeightRequest = 100;
+			this.treeItems = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeItems.CanFocus = true;
 			this.treeItems.Name = "treeItems";
-			this.treeItems.CursorPointsEveryType = false;
-			this.treeItems.InheritedDataSource = false;
-			this.treeItems.InheritedBoundaryDataSource = false;
-			this.treeItems.InheritedDataSource = false;
-			this.treeItems.InheritedBoundaryDataSource = false;
-			this.treeItems.ColumnMappings = "";
 			this.GtkScrolledWindow1.Add (this.treeItems);
 			this.hbox8.Add (this.GtkScrolledWindow1);
 			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.GtkScrolledWindow1]));
@@ -652,14 +645,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
 			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
-			this.treeDepositRefundItems = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeDepositRefundItems = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeDepositRefundItems.CanFocus = true;
 			this.treeDepositRefundItems.Name = "treeDepositRefundItems";
-			this.treeDepositRefundItems.CursorPointsEveryType = false;
-			this.treeDepositRefundItems.InheritedDataSource = false;
-			this.treeDepositRefundItems.InheritedBoundaryDataSource = false;
-			this.treeDepositRefundItems.InheritedDataSource = false;
-			this.treeDepositRefundItems.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow4.Add (this.treeDepositRefundItems);
 			this.vbox4.Add (this.GtkScrolledWindow4);
 			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.GtkScrolledWindow4]));
@@ -889,15 +877,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
-			this.treeEquipment = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeEquipment = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeEquipment.CanFocus = true;
 			this.treeEquipment.Name = "treeEquipment";
-			this.treeEquipment.CursorPointsEveryType = false;
-			this.treeEquipment.InheritedDataSource = false;
-			this.treeEquipment.InheritedBoundaryDataSource = false;
-			this.treeEquipment.InheritedDataSource = false;
-			this.treeEquipment.InheritedBoundaryDataSource = false;
-			this.treeEquipment.ColumnMappings = "";
 			this.GtkScrolledWindow3.Add (this.treeEquipment);
 			this.notebook1.Add (this.GtkScrolledWindow3);
 			global::Gtk.Notebook.NotebookChild w70 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.GtkScrolledWindow3]));
@@ -917,14 +899,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow5.Name = "GtkScrolledWindow5";
 			this.GtkScrolledWindow5.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow5.Gtk.Container+ContainerChild
-			this.treeServiceClaim = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeServiceClaim = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeServiceClaim.CanFocus = true;
 			this.treeServiceClaim.Name = "treeServiceClaim";
-			this.treeServiceClaim.CursorPointsEveryType = false;
-			this.treeServiceClaim.InheritedDataSource = false;
-			this.treeServiceClaim.InheritedBoundaryDataSource = false;
-			this.treeServiceClaim.InheritedDataSource = false;
-			this.treeServiceClaim.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow5.Add (this.treeServiceClaim);
 			this.vbox6.Add (this.GtkScrolledWindow5);
 			global::Gtk.Box.BoxChild w72 = ((global::Gtk.Box.BoxChild)(this.vbox6 [this.GtkScrolledWindow5]));
@@ -992,15 +969,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.treeDocuments = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeDocuments = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeDocuments.CanFocus = true;
 			this.treeDocuments.Name = "treeDocuments";
-			this.treeDocuments.CursorPointsEveryType = false;
-			this.treeDocuments.InheritedDataSource = false;
-			this.treeDocuments.InheritedBoundaryDataSource = false;
-			this.treeDocuments.InheritedDataSource = false;
-			this.treeDocuments.InheritedBoundaryDataSource = false;
-			this.treeDocuments.ColumnMappings = "";
 			this.GtkScrolledWindow2.Add (this.treeDocuments);
 			this.vbox1.Add (this.GtkScrolledWindow2);
 			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow2]));
@@ -1112,7 +1083,6 @@ namespace Vodovoz
 			this.spinBottlesReturn.ValueChanged += new global::System.EventHandler (this.OnSpinBottlesReturnValueChanged);
 			this.buttonAddForSale.Clicked += new global::System.EventHandler (this.OnButtonAddForSaleClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
-			this.treeServiceClaim.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTreeServiceClaimRowActivated);
 			this.buttonAddServiceClaim.Clicked += new global::System.EventHandler (this.OnButtonAddServiceClaimClicked);
 			this.buttonAddDoneService.Clicked += new global::System.EventHandler (this.OnButtonAddDoneServiceClicked);
 			this.buttonViewDocument.Clicked += new global::System.EventHandler (this.OnButtonViewDocumentClicked);
