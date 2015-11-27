@@ -57,8 +57,6 @@ namespace Vodovoz
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 			}
-			subjectAdaptor.Target = UoWGeneric.Root;
-			datatable1.DataSource = subjectAdaptor;
 
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
@@ -98,7 +96,9 @@ namespace Vodovoz
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule> (e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource ();
 
+			referenceDeliveryPoint.Binding.AddBinding (Entity, s => s.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);
+
 			buttonViewDocument.Sensitive = false;
 			buttonDelete.Sensitive = false;
 			enumStatus.Sensitive = false;
