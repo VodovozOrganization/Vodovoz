@@ -1,4 +1,5 @@
 ﻿using System.Data.Bindings;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
@@ -21,8 +22,11 @@ namespace Vodovoz.Domain
 
 	public enum PaymentType
 	{
+		//FIXME Удалить ItemTitleAttribute после полного перехода на GammaBinding
+		[Display (Name = "Наличная")]
 		[ItemTitleAttribute ("Наличная")]
 		cash,
+		[Display (Name = "Безналичная")]
 		[ItemTitleAttribute ("Безналичная")]
 		cashless
 	}

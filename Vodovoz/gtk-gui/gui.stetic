@@ -691,7 +691,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14988,7 +14987,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="656 500">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="686 500">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -15049,6 +15048,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -15136,7 +15136,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -15226,16 +15226,13 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumPaymentType">
+                      <widget class="Gamma.Widgets.yEnumComboBox" id="enumPaymentType">
                         <property name="MemberName" />
                         <property name="IsTextCombo">False</property>
                         <property name="Items" translatable="yes" />
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">PaymentType</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">PaymentType</property>
+                        <property name="ShowSpecialStateAll">False</property>
+                        <property name="ShowSpecialStateNot">False</property>
+                        <property name="UseShortTitle">False</property>
                         <signal name="Changed" handler="OnEnumPaymentTypeChanged" />
                       </widget>
                       <packing>
@@ -15255,16 +15252,13 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumSignatureType">
+                      <widget class="Gamma.Widgets.yEnumComboBox" id="enumSignatureType">
                         <property name="MemberName" />
                         <property name="IsTextCombo">False</property>
                         <property name="Items" translatable="yes" />
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">SignatureType</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">SignatureType</property>
+                        <property name="ShowSpecialStateAll">False</property>
+                        <property name="ShowSpecialStateNot">False</property>
+                        <property name="UseShortTitle">False</property>
                         <signal name="Changed" handler="OnEnumSignatureTypeChanged" />
                       </widget>
                       <packing>
@@ -15272,9 +15266,10 @@ Patronymic</property>
                         <property name="BottomAttach">10</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">3</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">True</property>
+                        <property name="XExpand">False</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -15283,23 +15278,21 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumStatus">
+                      <widget class="Gamma.Widgets.yEnumComboBox" id="enumStatus">
                         <property name="MemberName" />
                         <property name="IsTextCombo">False</property>
                         <property name="Items" translatable="yes" />
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">OrderStatus</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">OrderStatus</property>
+                        <property name="ShowSpecialStateAll">False</property>
+                        <property name="ShowSpecialStateNot">False</property>
+                        <property name="UseShortTitle">False</property>
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">True</property>
+                        <property name="XExpand">False</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -15316,24 +15309,17 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="ShadowType">In</property>
                             <child>
-                              <widget class="Gtk.DataBindings.DataTextView" id="textComments">
+                              <widget class="Gamma.GtkWidgets.yTextView" id="textComments">
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="ShowScrollbars">True</property>
                                 <property name="Text" translatable="yes" />
-                                <property name="WrapMode">Word</property>
-                                <property name="InheritedDataSource">True</property>
-                                <property name="Mappings">Comment</property>
-                                <property name="InheritedBoundaryDataSource">False</property>
-                                <property name="InheritedDataSource">True</property>
-                                <property name="Mappings">Comment</property>
-                                <property name="InheritedBoundaryDataSource">False</property>
                               </widget>
                             </child>
                           </widget>
                           <packing>
                             <property name="Position">0</property>
-                            <property name="AutoSize">False</property>
+                            <property name="AutoSize">True</property>
                           </packing>
                         </child>
                         <child>
@@ -15613,15 +15599,13 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="QSOrmProject.DataDatePicker" id="pickerDeliveryDate">
+                      <widget class="Gamma.Widgets.yDatePicker" id="pickerDeliveryDate">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <property name="Date">0</property>
                         <property name="IsEditable">True</property>
                         <property name="AutoSeparation">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">DeliveryDate</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
+                        <signal name="DateChanged" handler="OnPickerDeliveryDateDateChanged" />
                       </widget>
                       <packing>
                         <property name="TopAttach">6</property>
@@ -15640,15 +15624,9 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceClient">
+                      <widget class="Gamma.Widgets.yEntryReference" id="referenceClient">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Name</property>
-                        <property name="DisplayFormatString">{0}</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Client</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="CursorPointsEveryType">False</property>
                         <signal name="Changed" handler="OnReferenceClientChanged" />
                       </widget>
                       <packing>
@@ -15656,9 +15634,10 @@ Patronymic</property>
                         <property name="BottomAttach">3</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">True</property>
+                        <property name="XExpand">False</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -15681,9 +15660,10 @@ Patronymic</property>
                         <property name="BottomAttach">4</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">False</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
-                        <property name="XExpand">True</property>
+                        <property name="XExpand">False</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -15692,16 +15672,9 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDeliverySchedule">
+                      <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliverySchedule">
                         <property name="MemberName" />
-                        <property name="WidthRequest">80</property>
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Name</property>
-                        <property name="DisplayFormatString">{0}</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">DeliverySchedule</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="CursorPointsEveryType">False</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">6</property>
@@ -20084,7 +20057,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 341">
+  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 355">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

@@ -71,11 +71,29 @@ namespace Vodovoz
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 
-			enumSignatureType.DataSource = subjectAdaptor;
-			enumPaymentType.DataSource = subjectAdaptor;
+			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
+			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
+
+			enumPaymentType.ItemsEnum = typeof(PaymentType);
+			enumPaymentType.Binding.AddBinding (Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource ();
+
+			enumStatus.ItemsEnum = typeof(OrderStatus);
+			enumStatus.Binding.AddBinding (Entity, s => s.OrderStatus, w => w.SelectedItem).InitializeFromSource ();
+
+			pickerDeliveryDate.Binding.AddBinding (Entity, s => s.DeliveryDate, w => w.Date).InitializeFromSource ();
+
+			textComments.Binding.AddBinding (Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource ();
+
+			referenceClient.ItemsQuery = CounterpartyRepository.ActiveClientsQuery ();
+			referenceClient.SetObjectDisplayFunc<Counterparty> (e => e.Name);
+			referenceClient.Binding.AddBinding (Entity, s => s.Client, w => w.Subject).InitializeFromSource ();
+
+			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery ();
+			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule> (e => e.Name);
+			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource ();
+
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
-			enumStatus.DataSource = subjectAdaptor;
 
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Client != null);
 			buttonViewDocument.Sensitive = false;
@@ -84,7 +102,6 @@ namespace Vodovoz
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
 
-			referenceClient.SubjectType = typeof(Counterparty);
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 
 			#region Events
@@ -675,6 +692,11 @@ namespace Vodovoz
 		{
 			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 				(Entity.PaymentType == PaymentType.cashless);
+		}
+
+		protected void OnPickerDeliveryDateDateChanged (object sender, EventArgs e)
+		{
+			UpdateProxyInfo ();
 		}
 	}
 

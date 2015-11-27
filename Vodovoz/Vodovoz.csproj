@@ -420,6 +420,7 @@
     <Compile Include="HibernateMapping\Goods\EquipmentTypeMap.cs" />
     <Compile Include="Domain\Order\OrderDepositItem.cs" />
     <Compile Include="HibernateMapping\Order\OrderDepositItemMap.cs" />
+    <Compile Include="Repositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
