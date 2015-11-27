@@ -26,6 +26,9 @@ namespace Vodovoz
 		private const string EvenRowColor = "gray94";
 
 		private int rowsCount = 0;
+
+		private decimal totalIncome = 0;
+		private decimal totalExpense = 0;
 	
 		private ListStore documents = new ListStore (
 			                              typeof(bool), 
@@ -146,6 +149,7 @@ namespace Vodovoz
 			payerAccountColumn.PackStart (payerAccountCell, true);
 			payerAccountColumn.AddAttribute (payerAccountCell, "text", (int)Columns.PayerAccountCol);
 			payerAccountColumn.AddAttribute (payerAccountCell, "background", (int)Columns.PayerAccountColorCol);
+			payerAccountColumn.Visible = false;
 
 			TreeViewColumn payerBankColumn = new TreeViewColumn ();
 			payerBankColumn.Title = "Банк плательщика";
@@ -155,6 +159,7 @@ namespace Vodovoz
 			payerBankColumn.AddAttribute (payerBankCell, "text", (int)Columns.PayerBankCol);
 			payerBankColumn.AddAttribute (payerBankCell, "background", (int)Columns.PayerBankColorCol);
 			payerBankColumn.Resizable = true;
+			payerBankColumn.Visible = false;
 
 			TreeViewColumn recipientColumn = new TreeViewColumn ();
 			recipientColumn.Title = "Получатель";
@@ -171,6 +176,7 @@ namespace Vodovoz
 			recipientAccountColumn.PackStart (recipientAccountCell, true);
 			recipientAccountColumn.AddAttribute (recipientAccountCell, "text", (int)Columns.RecipientAccountCol);
 			recipientAccountColumn.AddAttribute (recipientAccountCell, "background", (int)Columns.RecipientAccountColorCol);
+			recipientAccountColumn.Visible = false;
 
 			TreeViewColumn recipientBankColumn = new TreeViewColumn ();
 			recipientBankColumn.Title = "Банк получателя";
@@ -180,6 +186,7 @@ namespace Vodovoz
 			recipientBankColumn.AddAttribute (recipientBankCell, "text", (int)Columns.RecipientBankCol);
 			recipientBankColumn.AddAttribute (recipientBankCell, "background", (int)Columns.RecipientBankColorCol);
 			recipientBankColumn.Resizable = true;
+			recipientBankColumn.Visible = false;
 
 			TreeViewColumn paymentReasonColumn = new TreeViewColumn ();
 			paymentReasonColumn.Title = "Назначение платежа";
@@ -304,6 +311,7 @@ namespace Vodovoz
 
 		protected void HighlightDocuments ()
 		{
+			totalIncome = totalExpense = 0;
 			TreeIter iter;
 			if (!documents.GetIterFirst (out iter))
 				return;
@@ -349,6 +357,7 @@ namespace Vodovoz
 					documents.SetValue (iter, (int)Columns.CategoryComboModel, incomeCategories);
 					documents.SetValue (iter, (int)Columns.CategoryName, defaultIncomeCategory.Name);
 					documents.SetValue (iter, (int)Columns.CategoryObject, defaultIncomeCategory);
+					totalIncome += doc.Total;
 				} else {
 					//Мы платим
 					//Проверяем наш счет
@@ -370,6 +379,7 @@ namespace Vodovoz
 						documents.SetValue (iter, (int)Columns.CategoryName, recipientCounterparty.DefaultExpenseCategory.Name);
 						documents.SetValue (iter, (int)Columns.CategoryObject, recipientCounterparty.DefaultExpenseCategory);
 					}
+					totalExpense += doc.Total;
 				}
 
 				//Проверяем банки
@@ -438,6 +448,7 @@ namespace Vodovoz
 						cuow.Root.FullName = doc.PayerName;
 						cuow.Root.INN = doc.PayerInn;
 						cuow.Root.KPP = doc.PayerKpp;
+						cuow.Root.PaymentMethod = PaymentType.cashless;
 						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.PayerName);
 						if (cuow.Root.TypeOfOwnership != null)
 							cuow.Root.PersonType = PersonType.legal;
@@ -487,6 +498,8 @@ namespace Vodovoz
 						cuow.Root.FullName = doc.RecipientName;
 						cuow.Root.INN = doc.RecipientInn;
 						cuow.Root.KPP = doc.RecipientKpp;
+						cuow.Root.CounterpartyType = CounterpartyType.supplier;
+						cuow.Root.PaymentMethod = PaymentType.cashless;
 						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.RecipientName);
 						if (cuow.Root.TypeOfOwnership != null)
 							cuow.Root.PersonType = PersonType.legal;
