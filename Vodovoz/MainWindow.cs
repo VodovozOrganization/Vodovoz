@@ -82,6 +82,21 @@ public partial class MainWindow: Gtk.Window
 		else if ((args.Event.Key == Gdk.Key.Cyrillic_em || args.Event.Key == Gdk.Key.Cyrillic_EM) && args.Event.State == modifier) {
 			Widget w = (o as MainWindow).Focus;
 			PasteFromClipboard (w);
+		}//CTRL+S || CTRL+ENTER
+		else if ((args.Event.Key == Gdk.Key.S
+		         || args.Event.Key == Gdk.Key.s
+		         || args.Event.Key == Gdk.Key.Cyrillic_yeru
+		         || args.Event.Key == Gdk.Key.Cyrillic_YERU
+		         || args.Event.Key == Gdk.Key.Return) && args.Event.State == modifier) {
+			var w = tdiMain.CurrentPageWidget;
+			if (w is QSTDI.TabVBox) {
+				var tab = (w as QSTDI.TabVBox).Tab;
+				if (tab is QSTDI.TdiSliderTab) {
+					var dialog = (tab as QSTDI.TdiSliderTab).ActiveDialog;
+					//FIXME: Вставить закрытие диалога.
+					dialog.Save ();
+				}
+			}
 		}
 	}
 
