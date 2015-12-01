@@ -13,22 +13,22 @@ namespace Vodovoz.Repository.Cash
 
 		public static IList<IncomeCategory> IncomeCategories (IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<IncomeCategory> ().List ();
+			return uow.Session.QueryOver<IncomeCategory> ().OrderBy (ic => ic.Name).Asc ().List ();
 		}
 
 		public static IList<ExpenseCategory> ExpenseCategories (IUnitOfWork uow)
 		{
-			return uow.Session.QueryOver<ExpenseCategory> ().List ();
+			return uow.Session.QueryOver<ExpenseCategory> ().OrderBy (ec => ec.Name).Asc ().List ();
 		}
 
 		public static QueryOver<ExpenseCategory> ExpenseCategoriesQuery ()
 		{
-			return QueryOver.Of<ExpenseCategory> ();
+			return QueryOver.Of<ExpenseCategory> ().OrderBy (ec => ec.Name).Asc ();
 		}
 
 		public static QueryOver<IncomeCategory> IncomeCategoriesQuery ()
 		{
-			return QueryOver.Of<IncomeCategory> ();
+			return QueryOver.Of<IncomeCategory> ().OrderBy (ic => ic.Name).Asc ();
 		}
 
 		public static IncomeCategory DefaultIncomeCategory (IUnitOfWork uow)
