@@ -16,15 +16,17 @@ namespace Vodovoz
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
 		bool isDupSet;
 
+		public event EventHandler<EntitySavedEventArgs> EntitySaved;
+
 		public event EventHandler<EquipmentCreatedEventArgs> EquipmentCreated;
 
 		#region ITdiTab implementation
 
 		public ITdiTabParent TabParent { set; get; }
 
-		public bool FailInitialize { get; protected set;}
+		public bool FailInitialize { get; protected set; }
 
-		public List<Equipment> RegisteredEquipment {private set; get; }
+		public List<Equipment> RegisteredEquipment { private set; get; }
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
@@ -68,7 +70,7 @@ namespace Vodovoz
 				.Add (Restrictions.Eq ("Serial", true));
 		}
 
-		void PreparedReport()
+		void PreparedReport ()
 		{
 			isDupSet = printTwo.Active;
 			if (RegisteredEquipment == null)
@@ -76,8 +78,7 @@ namespace Vodovoz
 			string ReportPath = System.IO.Path.Combine (Directory.GetCurrentDirectory (), "Reports", "Equipment" + ".rdl");
 			DBWorks.SQLHelper Parameters = new DBWorks.SQLHelper ("dup={0}&equipment_id=", printTwo.Active ? 1 : 0);
 			Parameters.StartNewList ("", ",");
-			foreach(var equipment in RegisteredEquipment)
-			{
+			foreach (var equipment in RegisteredEquipment) {
 				Parameters.AddAsList (equipment.Id.ToString ());
 			}
 				
@@ -90,7 +91,7 @@ namespace Vodovoz
 			TestCanRegister ();
 		}
 
-		void TestCanRegister()
+		void TestCanRegister ()
 		{
 			bool nomenclatureOk = referenceNomenclature.Subject != null;
 			bool countOk = spinAmount.ValueAsInt > 0;
@@ -117,19 +118,17 @@ namespace Vodovoz
 				                "Будет зарегистрировано {0} серийных номеров для оборудования "
 			                );
 			string Message = amount + String.Format ("({0}). Вы подтверждаете регистрацию?", 
-				(referenceNomenclature.Subject as Nomenclature).Name);
+				                 (referenceNomenclature.Subject as Nomenclature).Name);
 			MessageDialog md = new MessageDialog ((Window)this.Toplevel, DialogFlags.Modal,
-				MessageType.Question, 
-				ButtonsType.YesNo,
-				Message);
+				                   MessageType.Question, 
+				                   ButtonsType.YesNo,
+				                   Message);
 			bool result = md.Run () == (int)ResponseType.Yes;
 			md.Destroy ();
 
-			if(result)
-			{
+			if (result) {
 				RegisteredEquipment = new List<Equipment> ();
-				for(int count = 0; count < spinAmount.ValueAsInt; count++)
-				{
+				for (int count = 0; count < spinAmount.ValueAsInt; count++) {
 					var newEquipment = new Equipment {
 						Nomenclature = (referenceNomenclature.Subject as Nomenclature),
 						WarrantyEndDate = dateWarrantyEnd.Date
