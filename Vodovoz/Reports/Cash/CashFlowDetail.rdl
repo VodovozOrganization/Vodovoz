@@ -96,11 +96,14 @@
         <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="IncomeCategory">
+            <Value>=Parameters!IncomeCategory</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -118,11 +121,14 @@
         <NoRows>За период нет расхода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategory">
+            <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -140,11 +146,14 @@
         <NoRows>За период нет авансов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategory">
+            <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -177,11 +186,14 @@
         <NoRows>За период нет авансовых отчетов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategory">
+            <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -220,10 +232,14 @@
           <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
+          <Parameter Name="ExpenseCategory" >
+            <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
     </ReportItems>
     <Height>418.4pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>
@@ -246,6 +262,15 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
@@ -263,14 +288,31 @@
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="IncomeCategory">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="ExpenseCategory">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
 </Report>

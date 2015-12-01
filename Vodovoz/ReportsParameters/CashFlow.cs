@@ -2,7 +2,9 @@
 using QSReport;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Widgets;
+using QSOrmProject;
+using Vodovoz.Repository.Cash;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Reports
 {
@@ -11,7 +13,11 @@ namespace Vodovoz.Reports
 		public CashFlow ()
 		{
 			this.Build ();
+			var uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			comboPart.ItemsEnum = typeof(ReportParts);
+			comboExpenseCategory.ItemsList = CategoryRepository.ExpenseCategories (uow);
+			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
+			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
 		}
 
 		#region IParametersWidget implementation
@@ -42,7 +48,7 @@ namespace Vodovoz.Reports
 		{
 			string ReportName;
 			if (checkDetail.Active) {
-				if (comboPart.SelectedItem.Equals (SpecialComboState.All))
+				if (comboPart.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All))
 					ReportName = "Cash.CashFlowDetail";
 				else if (comboPart.SelectedItem.Equals (ReportParts.IncomeAll))
 					ReportName = "Cash.CashFlowDetailIncomeAll";
@@ -63,11 +69,24 @@ namespace Vodovoz.Reports
 			} else
 				ReportName = "Cash.CashFlow";
 
+			var inCat = 
+				comboIncomeCategory.SelectedItem == null
+				|| comboIncomeCategory.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All)
+				? -1
+				: (comboIncomeCategory.SelectedItem as IncomeCategory).Id;
+			var exCat = 
+				comboExpenseCategory.SelectedItem == null
+				|| comboExpenseCategory.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All)
+				? -1
+				: (comboExpenseCategory.SelectedItem as ExpenseCategory).Id;
+			
 			return new ReportInfo {
 				Identifier = ReportName,
 				Parameters = new Dictionary<string, object> {
 					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value }
+					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
+					{ "IncomeCategory", inCat },
+					{ "ExpenseCategory", exCat }
 				}
 			};
 		}
@@ -79,7 +98,27 @@ namespace Vodovoz.Reports
 
 		protected void OnCheckDetailToggled (object sender, EventArgs e)
 		{
-			comboPart.Sensitive = checkDetail.Active;
+			comboPart.Sensitive = comboExpenseCategory.Sensitive =
+				comboIncomeCategory.Sensitive = checkDetail.Active;
+		}
+
+		protected void OnComboPartEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			if (comboPart.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All))
+				comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = true;
+			else if (comboPart.SelectedItem.Equals (ReportParts.IncomeAll)
+			         || comboPart.SelectedItem.Equals (ReportParts.Income)
+			         || comboPart.SelectedItem.Equals (ReportParts.IncomeReturn)) {
+				comboExpenseCategory.Sensitive = false;
+				comboIncomeCategory.Sensitive = true;
+			} else if (comboPart.SelectedItem.Equals (ReportParts.ExpenseAll)
+			           || comboPart.SelectedItem.Equals (ReportParts.Expense)
+			           || comboPart.SelectedItem.Equals (ReportParts.Advance)
+			           || comboPart.SelectedItem.Equals (ReportParts.AdvanceReport)) {
+				comboExpenseCategory.Sensitive = true;
+				comboIncomeCategory.Sensitive = false;
+			} else
+				throw new InvalidOperationException ("Неизвестный раздел.");
 		}
 
 		enum ReportParts

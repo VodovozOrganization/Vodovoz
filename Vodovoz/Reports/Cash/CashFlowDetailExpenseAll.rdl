@@ -102,6 +102,9 @@
           <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
+          <Parameter Name="ExpenseCategory" >
+            <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
       <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -123,6 +126,9 @@
           </Parameter>
           <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategory" >
+            <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -146,10 +152,14 @@
           <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
+          <Parameter Name="ExpenseCategory" >
+            <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
     </ReportItems>
     <Height>244.4pt</Height>
+    <Columns >1</Columns>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>
@@ -172,7 +182,16 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -189,14 +208,31 @@
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="ExpenseCategory">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
+    <ReportParameter Name="IncomeCategory">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
 </Report>

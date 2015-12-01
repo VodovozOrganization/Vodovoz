@@ -10,6 +10,10 @@ namespace Vodovoz.Reports
 		
 		private global::Gtk.CheckButton checkDetail;
 		
+		private global::Gamma.Widgets.ySpecComboBox comboExpenseCategory;
+		
+		private global::Gamma.Widgets.ySpecComboBox comboIncomeCategory;
+		
 		private global::Gamma.Widgets.yEnumComboBox comboPart;
 		
 		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker1;
@@ -17,6 +21,10 @@ namespace Vodovoz.Reports
 		private global::Gtk.Label label1;
 		
 		private global::Gtk.Label label2;
+		
+		private global::Gtk.Label label3;
+		
+		private global::Gtk.Label label4;
 
 		protected virtual void Build ()
 		{
@@ -25,7 +33,7 @@ namespace Vodovoz.Reports
 			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.Reports.CashFlow";
 			// Container child Vodovoz.Reports.CashFlow.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table (((uint)(4)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table (((uint)(6)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -39,8 +47,8 @@ namespace Vodovoz.Reports
 			this.buttonRun.Label = global::Mono.Unix.Catalog.GetString ("Сформировать отчет");
 			this.table1.Add (this.buttonRun);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1 [this.buttonRun]));
-			w1.TopAttach = ((uint)(3));
-			w1.BottomAttach = ((uint)(4));
+			w1.TopAttach = ((uint)(5));
+			w1.BottomAttach = ((uint)(6));
 			w1.RightAttach = ((uint)(2));
 			w1.XOptions = ((global::Gtk.AttachOptions)(0));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -60,19 +68,48 @@ namespace Vodovoz.Reports
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.comboExpenseCategory = new global::Gamma.Widgets.ySpecComboBox ();
+			this.comboExpenseCategory.Name = "comboExpenseCategory";
+			this.comboExpenseCategory.AddIfNotExist = false;
+			this.comboExpenseCategory.ShowSpecialStateAll = true;
+			this.comboExpenseCategory.ShowSpecialStateNot = false;
+			this.table1.Add (this.comboExpenseCategory);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1 [this.comboExpenseCategory]));
+			w3.TopAttach = ((uint)(4));
+			w3.BottomAttach = ((uint)(5));
+			w3.LeftAttach = ((uint)(1));
+			w3.RightAttach = ((uint)(2));
+			w3.XOptions = ((global::Gtk.AttachOptions)(4));
+			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.comboIncomeCategory = new global::Gamma.Widgets.ySpecComboBox ();
+			this.comboIncomeCategory.Name = "comboIncomeCategory";
+			this.comboIncomeCategory.AddIfNotExist = false;
+			this.comboIncomeCategory.ShowSpecialStateAll = true;
+			this.comboIncomeCategory.ShowSpecialStateNot = false;
+			this.table1.Add (this.comboIncomeCategory);
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1 [this.comboIncomeCategory]));
+			w4.TopAttach = ((uint)(3));
+			w4.BottomAttach = ((uint)(4));
+			w4.LeftAttach = ((uint)(1));
+			w4.RightAttach = ((uint)(2));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.comboPart = new global::Gamma.Widgets.yEnumComboBox ();
 			this.comboPart.Sensitive = false;
 			this.comboPart.Name = "comboPart";
 			this.comboPart.ShowSpecialStateAll = true;
 			this.comboPart.ShowSpecialStateNot = false;
+			this.comboPart.UseShortTitle = false;
 			this.table1.Add (this.comboPart);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1 [this.comboPart]));
-			w3.TopAttach = ((uint)(2));
-			w3.BottomAttach = ((uint)(3));
-			w3.LeftAttach = ((uint)(1));
-			w3.RightAttach = ((uint)(2));
-			w3.XOptions = ((global::Gtk.AttachOptions)(4));
-			w3.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1 [this.comboPart]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.LeftAttach = ((uint)(1));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.dateperiodpicker1 = new global::QSWidgetLib.DatePeriodPicker ();
 			this.dateperiodpicker1.Events = ((global::Gdk.EventMask)(256));
@@ -80,36 +117,60 @@ namespace Vodovoz.Reports
 			this.dateperiodpicker1.StartDate = new global::System.DateTime (0);
 			this.dateperiodpicker1.EndDate = new global::System.DateTime (0);
 			this.table1.Add (this.dateperiodpicker1);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1 [this.dateperiodpicker1]));
-			w4.LeftAttach = ((uint)(1));
-			w4.RightAttach = ((uint)(2));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.dateperiodpicker1]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Период:");
 			this.table1.Add (this.label1);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
+			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Раздел:");
 			this.table1.Add (this.label2);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.label2]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1 [this.label2]));
+			w8.TopAttach = ((uint)(2));
+			w8.BottomAttach = ((uint)(3));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label3 = new global::Gtk.Label ();
+			this.label3.Name = "label3";
+			this.label3.Xalign = 1F;
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Статья дохода:");
+			this.table1.Add (this.label3);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1 [this.label3]));
+			w9.TopAttach = ((uint)(3));
+			w9.BottomAttach = ((uint)(4));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label4 = new global::Gtk.Label ();
+			this.label4.Name = "label4";
+			this.label4.Xalign = 1F;
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Статья расхода:");
+			this.table1.Add (this.label4);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1 [this.label4]));
+			w10.TopAttach = ((uint)(4));
+			w10.BottomAttach = ((uint)(5));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add (this.table1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
 			this.dateperiodpicker1.PeriodChanged += new global::System.EventHandler (this.OnDateperiodpicker1PeriodChanged);
+			this.comboPart.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnComboPartEnumItemSelected);
 			this.checkDetail.Toggled += new global::System.EventHandler (this.OnCheckDetailToggled);
 			this.buttonRun.Clicked += new global::System.EventHandler (this.OnButtonRunClicked);
 		}
