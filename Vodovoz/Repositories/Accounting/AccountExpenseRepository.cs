@@ -8,7 +8,7 @@ namespace Vodovoz.Repository
 	{
 		public static bool AccountExpenseExists (IUnitOfWork uow, int year, int number, string accountNumber)
 		{
-			Account accountAlias;
+			Account accountAlias = null;
 
 			var expense = uow.Session.QueryOver<AccountExpense> ()
 				.JoinAlias (ae => ae.OrganizationAccount, () => accountAlias)

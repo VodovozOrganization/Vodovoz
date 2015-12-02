@@ -43,25 +43,25 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes ()
 		{
-			AccountingVMNode resultAlias;
+			AccountingVMNode resultAlias = null;
 			
-			AccountIncome incomeAlias;
-			AccountExpense expenseAlias;
+			AccountIncome incomeAlias = null;
+		    AccountExpense expenseAlias = null;
 
-			ExpenseCategory expenseCategoryAlias;
-			IncomeCategory incomeCategoryAlias;
+			ExpenseCategory expenseCategoryAlias = null;
+			IncomeCategory incomeCategoryAlias = null;
 
-			Counterparty counterpartyAlias;
-			Account counterpartyAccountAlias;
-			Bank counterpartyBankAlias;
+			Counterparty counterpartyAlias = null;
+			Account counterpartyAccountAlias = null;
+			Bank counterpartyBankAlias = null;
 
-			Organization organizationAlias;
-			Account organizationAccountAlias;
-			Bank organizationBankAlias;
+			Organization organizationAlias = null;
+			Account organizationAccountAlias = null;
+			Bank organizationBankAlias = null;
 
-			Employee employeeAlias;
-			Account employeeAccountAlias;
-			Bank employeeBankAlias;
+			Employee employeeAlias = null;
+			Account employeeAccountAlias = null;
+			Bank employeeBankAlias = null;
 
 			List<AccountingVMNode> result = new List<AccountingVMNode> ();
 

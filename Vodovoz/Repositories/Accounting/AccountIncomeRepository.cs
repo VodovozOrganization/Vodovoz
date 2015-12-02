@@ -9,8 +9,8 @@ namespace Vodovoz.Repository
 	{
 		public static bool AccountIncomeExists (IUnitOfWork uow, int year, int number, string counterpartyInn, string accountNumber)
 		{
-			Account accountAlias;
-			Counterparty counterpartyAlias;
+			Account accountAlias = null;
+			Counterparty counterpartyAlias = null;
 
 			var income = uow.Session.QueryOver<AccountIncome> ()
 				.JoinAlias (ai => ai.CounterpartyAccount, () => accountAlias)

@@ -31,7 +31,7 @@ namespace Vodovoz.Repository
 
 		public static Employee GetEmployeeByINNAndAccount (IUnitOfWork uow, string inn, string account)
 		{
-			IList<Account> accountsAlias;
+			IList<Account> accountsAlias = null;
 			var employees = uow.Session.QueryOver<Employee> ()
 				.JoinAlias (e => e.Accounts, () => accountsAlias)
 				.Where (e => e.INN == inn)
