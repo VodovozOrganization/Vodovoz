@@ -352,17 +352,47 @@ namespace Vodovoz
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(Order),
 				SqlSelect = "SELECT id FROM @tablename ",
-				DisplayString = "Заказ №{0}"
+				DisplayString = "Заказ №{0}",
+				DeleteItems = new List<DeleteDependenceInfo> {
+					DeleteDependenceInfo.Create<OrderItem> (item => item.Order),
+					DeleteDependenceInfo.Create<OrderDocument> (item => item.Order),
+					DeleteDependenceInfo.Create<OrderDepositItem> (item => item.Order)
+				}
 			}.FillFromMetaInfo ()
 			);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(OrderItem),
 				SqlSelect = "SELECT id, order_id FROM @tablename ",
-				DisplayString = "Строка заказа №{1}"
+				DisplayString = "Строка заказа №{1}",
+				DeleteItems = new List<DeleteDependenceInfo> {
+					DeleteDependenceInfo.Create<OrderEquipment> (item => item.OrderItem)
+				}
 			}.FillFromMetaInfo ()
 			);
 
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(OrderEquipment),
+				SqlSelect = "SELECT id, order_id FROM @tablename ",
+				DisplayString = "Оборудование заказа №{1}"
+			}.FillFromMetaInfo ()
+			);
+
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(OrderDocument),
+				SqlSelect = "SELECT id, order_id FROM @tablename ",
+				DisplayString = "Документ к заказу №{1}"
+			}.FillFromMetaInfo ()
+			);
+
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(OrderDepositItem),
+				SqlSelect = "SELECT id, order_id FROM @tablename ",
+				DisplayString = "Залог к заказу №{1}"
+			}.FillFromMetaInfo ()
+			);
+				
+			//FIXME Тут скорее всего еще не все зависимости.
 
 			#endregion
 
@@ -453,7 +483,6 @@ namespace Vodovoz
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(Expense),
 				SqlSelect = "SELECT id, date FROM @tablename ",
-
 				DisplayString = "Расходный ордер №{0} от {1:d}"
 			}.FillFromMetaInfo ()
 			);
