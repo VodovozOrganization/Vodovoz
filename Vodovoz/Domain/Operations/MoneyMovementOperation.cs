@@ -9,6 +9,13 @@ namespace Vodovoz.Domain.Operations
 		Nominative = "передвижение денег")]
 	public class MoneyMovementOperation: OperationBase
 	{
+		Order order;
+
+		public virtual Order Order {
+			get { return order; }
+			set { SetField (ref order, value, () => Order); }
+		}
+
 		OrderItem orderItem;
 
 		public virtual OrderItem OrderItem {

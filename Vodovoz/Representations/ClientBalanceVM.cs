@@ -18,7 +18,8 @@ namespace Vodovoz.ViewModel
 			get {
 				return RepresentationFilter as ClientBalanceFilter;
 			}
-			set { RepresentationFilter = value as IRepresentationFilter;
+			set {
+				RepresentationFilter = value as IRepresentationFilter;
 			}
 		}
 
@@ -29,43 +30,43 @@ namespace Vodovoz.ViewModel
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
 			ClientBalanceVMNode resultAlias = null;
-			GoodsMovementOperation operationAddAlias = null;
-			GoodsMovementOperation operationRemoveAlias = null;
+			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseMovementOperation operationRemoveAlias = null;
 
-			var subqueryAdd = QueryOver.Of<GoodsMovementOperation>(() => operationAddAlias)
-				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id && operationAddAlias.Sale == false)
+			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
+				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.And ((Filter == null || Filter.RestrictCounterparty == null) 
-					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.IncomingCounterparty)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingCounterparty), Filter.RestrictCounterparty))
-				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
+					? Restrictions.IsNotNull (Projections.Property<CounterpartyMovementOperation> (o => o.IncomingCounterparty)) 
+					: Restrictions.Eq (Projections.Property<CounterpartyMovementOperation> (o => o.IncomingCounterparty), Filter.RestrictCounterparty))
+				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
 			//FIXME Возможно некорректная выборка вернувшихся куллеров. Надо смотреть на то как они будут возвращатся.
 
-			var subqueryRemove = QueryOver.Of<GoodsMovementOperation>(() => operationRemoveAlias)
-				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
+			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation> (() => operationRemoveAlias)
+				.Where (() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.And ((Filter == null || Filter.RestrictCounterparty == null) 
-					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.WriteoffCounterparty)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffCounterparty), Filter.RestrictCounterparty))
-				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
+					? Restrictions.IsNotNull (Projections.Property<CounterpartyMovementOperation> (o => o.WriteoffCounterparty)) 
+					: Restrictions.Eq (Projections.Property<CounterpartyMovementOperation> (o => o.WriteoffCounterparty), Filter.RestrictCounterparty))
+				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
 			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
-				.JoinQueryOver(n => n.Unit, () => unitAlias)
-				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.NomenclatureName)
-					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
-					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
-					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
-				)
-				.TransformUsing(Transformers.AliasToBean<ClientBalanceVMNode>())
-				.List<ClientBalanceVMNode>().Where(r => r.Amount != 0).ToList ();
+				.JoinQueryOver (n => n.Unit, () => unitAlias)
+				.SelectList (list => list
+					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.Id)
+					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.NomenclatureName)
+					.Select (() => unitAlias.Name).WithAlias (() => resultAlias.UnitName)
+					.Select (() => unitAlias.Digits).WithAlias (() => resultAlias.UnitDigits)
+					.SelectSubQuery (subqueryAdd).WithAlias (() => resultAlias.Append)
+					.SelectSubQuery (subqueryRemove).WithAlias (() => resultAlias.Removed)
+			                )
+				.TransformUsing (Transformers.AliasToBean<ClientBalanceVMNode> ())
+				.List<ClientBalanceVMNode> ().Where (r => r.Amount != 0).ToList ();
 
 			SetItemsSource (stocklist);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientBalanceVMNode>.Create ()
-			.AddColumn("Номенклатура").SetDataProperty (node => node.NomenclatureName)
+			.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureName)
 			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
@@ -86,45 +87,44 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public ClientBalanceVM (ClientBalanceFilter filter) : this(filter.UoW)
+		public ClientBalanceVM (ClientBalanceFilter filter) : this (filter.UoW)
 		{
 			Filter = filter;
 		}
 
-		public ClientBalanceVM () 
-			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
+		public ClientBalanceVM ()
+			: this (UnitOfWorkFactory.CreateWithoutRoot ())
 		{
-			CreateRepresentationFilter = () => new ClientBalanceFilter(UoW);
+			CreateRepresentationFilter = () => new ClientBalanceFilter (UoW);
 		}
 
-		public ClientBalanceVM (IUnitOfWork uow) : base(typeof(GoodsMovementOperation))
+		public ClientBalanceVM (IUnitOfWork uow) : base (typeof(WarehouseMovementOperation))
 		{
 			this.UoW = uow;
 		}
 	}
-		
+
 	public class ClientBalanceVMNode
 	{
 
-		public int Id{ get; set;}
+		public int Id{ get; set; }
 
-		public decimal Append{ get; set;}
+		public decimal Append{ get; set; }
 
-		public decimal Removed{ get; set;}
+		public decimal Removed{ get; set; }
 
-		public string UnitName{ get; set;}
+		public string UnitName{ get; set; }
 
-		public short UnitDigits{ get; set;}
+		public short UnitDigits{ get; set; }
 
 		[UseForSearch]
-		public string NomenclatureName { get; set;}
+		public string NomenclatureName { get; set; }
 
 		public string CountText { get { return String.Format ("{0:" + String.Format ("F{0}", UnitDigits) + "} {1}", 
-			Amount,
-			UnitName);
-		}}
+				Amount,
+				UnitName); } }
 
-		public decimal Amount { get { return Append - Removed; }}
+		public decimal Amount { get { return Append - Removed; } }
 
 		public string RowColor {
 			get {

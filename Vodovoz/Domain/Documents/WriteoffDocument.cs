@@ -18,8 +18,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				base.TimeStamp = value;
 				foreach (var item in Items) {
-					if (item.WriteOffGoodsOperation.OperationTime != TimeStamp)
-						item.WriteOffGoodsOperation.OperationTime = TimeStamp;
+					if (item.WarehouseWriteoffOperation.OperationTime != TimeStamp)
+						item.WarehouseWriteoffOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -53,8 +53,8 @@ namespace Vodovoz.Domain.Documents
 				if (Client == null || !Client.DeliveryPoints.Contains (DeliveryPoint))
 					DeliveryPoint = null;
 				foreach (var item in Items) {
-					if (item.WriteOffGoodsOperation.WriteoffCounterparty != client)
-						item.WriteOffGoodsOperation.WriteoffCounterparty = client;
+					if (item.CounterpartyWriteoffOperation.WriteoffCounterparty != client)
+						item.CounterpartyWriteoffOperation.WriteoffCounterparty = client;
 				}
 			}
 		}
@@ -67,8 +67,8 @@ namespace Vodovoz.Domain.Documents
 			set { 
 				deliveryPoint = value; 
 				foreach (var item in Items) {
-					if (item.WriteOffGoodsOperation.WriteoffDeliveryPoint != deliveryPoint)
-						item.WriteOffGoodsOperation.WriteoffDeliveryPoint = deliveryPoint;
+					if (item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint != deliveryPoint)
+						item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint = deliveryPoint;
 				}
 			}
 		}
@@ -84,8 +84,8 @@ namespace Vodovoz.Domain.Documents
 					Client = null;
 				
 				foreach (var item in Items) {
-					if (item.WriteOffGoodsOperation.WriteoffWarehouse != writeoffWarehouse)
-						item.WriteOffGoodsOperation.WriteoffWarehouse = writeoffWarehouse;
+					if (item.WarehouseWriteoffOperation.WriteoffWarehouse != writeoffWarehouse)
+						item.WarehouseWriteoffOperation.WriteoffWarehouse = writeoffWarehouse;
 				}
 			}
 		}
@@ -135,10 +135,10 @@ namespace Vodovoz.Domain.Documents
 
 		public void AddItem (WriteoffDocumentItem item)
 		{
-			item.WriteOffGoodsOperation.WriteoffWarehouse = WriteoffWarehouse;
-			item.WriteOffGoodsOperation.WriteoffCounterparty = Client;
-			item.WriteOffGoodsOperation.WriteoffDeliveryPoint = DeliveryPoint;
-			item.WriteOffGoodsOperation.OperationTime = TimeStamp;
+			item.WarehouseWriteoffOperation.WriteoffWarehouse = WriteoffWarehouse;
+			item.CounterpartyWriteoffOperation.WriteoffCounterparty = Client;
+			item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint = DeliveryPoint;
+			item.WarehouseWriteoffOperation.OperationTime = TimeStamp;
 			item.Document = this;
 			ObservableItems.Add (item);
 		}

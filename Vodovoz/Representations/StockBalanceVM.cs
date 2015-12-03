@@ -29,22 +29,22 @@ namespace Vodovoz.ViewModel
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
 			StockBalanceVMNode resultAlias = null;
-			GoodsMovementOperation operationAddAlias = null;
-			GoodsMovementOperation operationRemoveAlias = null;
+			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseMovementOperation operationRemoveAlias = null;
 
-			var subqueryAdd = QueryOver.Of<GoodsMovementOperation>(() => operationAddAlias)
+			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
 				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.And ((Filter == null || Filter.RestrictWarehouse == null) 
-					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.IncomingWarehouse), Filter.RestrictWarehouse))
-				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
+					? Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse)) 
+					: Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse), Filter.RestrictWarehouse))
+				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
-			var subqueryRemove = QueryOver.Of<GoodsMovementOperation>(() => operationRemoveAlias)
+			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.And ((Filter == null || Filter.RestrictWarehouse == null) 
-					? Restrictions.IsNotNull (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse)) 
-					: Restrictions.Eq (Projections.Property<GoodsMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictWarehouse))
-				.Select (Projections.Sum<GoodsMovementOperation> (o => o.Amount));
+					? Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse)) 
+					: Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse), Filter.RestrictWarehouse))
+				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
 			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
 				.JoinQueryOver(n => n.Unit, () => unitAlias)
@@ -93,7 +93,7 @@ namespace Vodovoz.ViewModel
 			: this(UnitOfWorkFactory.CreateWithoutRoot ()) 
 		{}
 
-		public StockBalanceVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(GoodsMovementOperation))
+		public StockBalanceVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(WarehouseMovementOperation))
 		{
 			this.UoW = uow;
 		}

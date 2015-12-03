@@ -10,6 +10,13 @@ namespace Vodovoz.Domain.Operations
 	{
 		//TODO ID Документа перемещения
 
+		Order order;
+
+		public virtual Order Order {
+			get { return order; }
+			set { SetField (ref order, value, () => Order); }
+		}
+
 		OrderItem orderItem;
 
 		public virtual OrderItem OrderItem {

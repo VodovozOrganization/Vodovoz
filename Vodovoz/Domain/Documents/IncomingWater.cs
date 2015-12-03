@@ -92,9 +92,9 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		GoodsMovementOperation produceOperation = new GoodsMovementOperation ();
+		WarehouseMovementOperation produceOperation = new WarehouseMovementOperation ();
 
-		public GoodsMovementOperation ProduceOperation {
+		public WarehouseMovementOperation ProduceOperation {
 			get { return produceOperation; }
 			set { SetField (ref produceOperation, value, () => ProduceOperation); }
 		}

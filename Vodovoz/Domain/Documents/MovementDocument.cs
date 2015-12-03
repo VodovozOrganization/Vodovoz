@@ -39,8 +39,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				base.TimeStamp = value;
 				foreach (var item in Items) {
-					if (item.MoveGoodsOperation.OperationTime != TimeStamp)
-						item.MoveGoodsOperation.OperationTime = TimeStamp;
+					if (item.WarehouseMovementOperation.OperationTime != TimeStamp)
+						item.WarehouseMovementOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -74,8 +74,8 @@ namespace Vodovoz.Domain.Documents
 					FromDeliveryPoint = null;
 				}
 				foreach (var item in Items) {
-					if (item.MoveGoodsOperation.WriteoffCounterparty != fromClient)
-						item.MoveGoodsOperation.WriteoffCounterparty = fromClient;
+					if (item.CounterpartyMovementOperation.WriteoffCounterparty != fromClient)
+						item.CounterpartyMovementOperation.WriteoffCounterparty = fromClient;
 				}
 			}
 		}
@@ -92,8 +92,8 @@ namespace Vodovoz.Domain.Documents
 					ToDeliveryPoint = null;
 				}
 				foreach (var item in Items) {
-					if (item.MoveGoodsOperation.IncomingCounterparty != toClient)
-						item.MoveGoodsOperation.IncomingCounterparty = toClient;
+					if (item.CounterpartyMovementOperation.IncomingCounterparty != toClient)
+						item.CounterpartyMovementOperation.IncomingCounterparty = toClient;
 				}
 			}
 		}
@@ -106,8 +106,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref fromDeliveryPoint, value, () => FromDeliveryPoint); 
 				foreach (var item in Items) {
-					if (item.MoveGoodsOperation.WriteoffDeliveryPoint != fromDeliveryPoint)
-						item.MoveGoodsOperation.WriteoffDeliveryPoint = fromDeliveryPoint;
+					if (item.CounterpartyMovementOperation.WriteoffDeliveryPoint != fromDeliveryPoint)
+						item.CounterpartyMovementOperation.WriteoffDeliveryPoint = fromDeliveryPoint;
 				}
 			}
 		}
@@ -120,8 +120,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref toDeliveryPoint, value, () => ToDeliveryPoint); 
 				foreach (var item in Items) {
-					if (item.MoveGoodsOperation.IncomingDeliveryPoint != toDeliveryPoint)
-						item.MoveGoodsOperation.IncomingDeliveryPoint = toDeliveryPoint;
+					if (item.CounterpartyMovementOperation.IncomingDeliveryPoint != toDeliveryPoint)
+						item.CounterpartyMovementOperation.IncomingDeliveryPoint = toDeliveryPoint;
 				}
 			}
 		}
@@ -134,8 +134,8 @@ namespace Vodovoz.Domain.Documents
 			set { 
 				SetField (ref fromWarehouse, value, () => FromWarehouse);	
 				foreach (var item in Items) {
-					if (item.MoveGoodsOperation.WriteoffWarehouse != fromWarehouse)
-						item.MoveGoodsOperation.WriteoffWarehouse = fromWarehouse;
+					if (item.WarehouseMovementOperation.WriteoffWarehouse != fromWarehouse)
+						item.WarehouseMovementOperation.WriteoffWarehouse = fromWarehouse;
 				}
 			}
 		}
@@ -148,8 +148,8 @@ namespace Vodovoz.Domain.Documents
 			set { 
 				SetField (ref toWarehouse, value, () => ToWarehouse); 
 				foreach (var item in Items) {
-					if (item.MoveGoodsOperation.IncomingWarehouse != toWarehouse)
-						item.MoveGoodsOperation.IncomingWarehouse = toWarehouse;
+					if (item.WarehouseMovementOperation.IncomingWarehouse != toWarehouse)
+						item.WarehouseMovementOperation.IncomingWarehouse = toWarehouse;
 				}
 			}
 		}
@@ -229,13 +229,13 @@ namespace Vodovoz.Domain.Documents
 
 		public void AddItem (MovementDocumentItem item)
 		{
-			item.MoveGoodsOperation.IncomingWarehouse = ToWarehouse;
-			item.MoveGoodsOperation.WriteoffWarehouse = FromWarehouse;
-			item.MoveGoodsOperation.IncomingCounterparty = ToClient;
-			item.MoveGoodsOperation.WriteoffCounterparty = FromClient;
-			item.MoveGoodsOperation.IncomingDeliveryPoint = ToDeliveryPoint;
-			item.MoveGoodsOperation.WriteoffDeliveryPoint = FromDeliveryPoint;
-			item.MoveGoodsOperation.OperationTime = TimeStamp;
+			item.WarehouseMovementOperation.IncomingWarehouse = ToWarehouse;
+			item.WarehouseMovementOperation.WriteoffWarehouse = FromWarehouse;
+			item.CounterpartyMovementOperation.IncomingCounterparty = ToClient;
+			item.CounterpartyMovementOperation.WriteoffCounterparty = FromClient;
+			item.CounterpartyMovementOperation.IncomingDeliveryPoint = ToDeliveryPoint;
+			item.CounterpartyMovementOperation.WriteoffDeliveryPoint = FromDeliveryPoint;
+			item.WarehouseMovementOperation.OperationTime = TimeStamp;
 			item.Document = this;
 			ObservableItems.Add (item);
 		}

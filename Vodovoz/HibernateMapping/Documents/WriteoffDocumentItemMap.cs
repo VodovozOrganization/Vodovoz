@@ -16,7 +16,8 @@ namespace Vodovoz.HMap
 			References (x => x.Equipment).Column ("equipment_id");
 			References (x => x.Nomenclature).Column ("nomenclature_id").Not.Nullable ();
 			References (x => x.CullingCategory).Column ("culling_category_id");
-			References (x => x.WriteOffGoodsOperation).Column ("writeoff_movement_operation_id").Not.Nullable ().Cascade.All ();
+			References (x => x.WarehouseWriteoffOperation).Column ("writeoff_warehouse_movement_operation_id").Cascade.All ();
+			References (x => x.CounterpartyWriteoffOperation).Column ("writeoff_counterparty_movement_operation_id").Cascade.All ();
 		}
 	}
 }

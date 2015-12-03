@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Operations
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
 		NominativePlural = "передвижения товаров",
 		Nominative = "передвижение товаров")]
-	public class GoodsMovementOperation: OperationBase
+	public class WarehouseMovementOperation: OperationBase
 	{
 		//TODO ID Документа перемещения
 
@@ -25,34 +25,6 @@ namespace Vodovoz.Domain.Operations
 		public virtual Warehouse IncomingWarehouse {
 			get { return incomingWarehouse; }
 			set { SetField (ref incomingWarehouse, value, () => IncomingWarehouse); }
-		}
-
-		Counterparty incomingCounterparty;
-
-		public virtual Counterparty IncomingCounterparty {
-			get { return incomingCounterparty; }
-			set { SetField (ref incomingCounterparty, value, () => IncomingCounterparty); }
-		}
-
-		DeliveryPoint incomingDeliveryPoint;
-
-		public virtual DeliveryPoint IncomingDeliveryPoint {
-			get { return incomingDeliveryPoint; }
-			set { SetField (ref incomingDeliveryPoint, value, () => IncomingDeliveryPoint); }
-		}
-
-		Counterparty writeoffCounterparty;
-
-		public virtual Counterparty WriteoffCounterparty {
-			get { return writeoffCounterparty; }
-			set { SetField (ref writeoffCounterparty, value, () => WriteoffCounterparty); }
-		}
-
-		DeliveryPoint writeoffDeliveryPoint;
-
-		public virtual DeliveryPoint WriteoffDeliveryPoint {
-			get { return writeoffDeliveryPoint; }
-			set { SetField (ref writeoffDeliveryPoint, value, () => WriteoffDeliveryPoint); }
 		}
 
 		Nomenclature nomenclature;
@@ -77,13 +49,6 @@ namespace Vodovoz.Domain.Operations
 		public virtual decimal Amount {
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount); }
-		}
-
-		bool sale;
-
-		public virtual bool Sale {
-			get { return sale; }
-			set { SetField (ref sale, value, () => Sale); }
 		}
 	}
 }

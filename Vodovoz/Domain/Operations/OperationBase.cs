@@ -17,13 +17,6 @@ namespace Vodovoz.Domain.Operations
 			set { SetField (ref operationTime, value, () => OperationTime); }
 		}
 
-		Order order;
-
-		public virtual Order Order {
-			get { return order; }
-			set { SetField (ref order, value, () => Order); }
-		}
-
 		#region IValidatableObject implementation
 
 		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

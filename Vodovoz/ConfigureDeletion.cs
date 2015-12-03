@@ -30,7 +30,9 @@ namespace Vodovoz
 				DisplayString = "{1}",
 				DeleteItems = new List<DeleteDependenceInfo> {
 					DeleteDependenceInfo.CreateFromBag<Nomenclature> (item => item.NomenclaturePrice),
-					DeleteDependenceInfo.Create<Equipment> (item => item.Nomenclature)
+					DeleteDependenceInfo.Create<Equipment> (item => item.Nomenclature),
+					DeleteDependenceInfo.Create<WarehouseMovementOperation> (item => item.Nomenclature),
+					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.Nomenclature)
 				}
 			}.FillFromMetaInfo ()
 			);
@@ -67,7 +69,9 @@ namespace Vodovoz
 					DeleteDependenceInfo.Create<IncomingInvoiceItem> (item => item.Equipment),
 					DeleteDependenceInfo.Create<OrderEquipment> (item => item.Equipment),
 					DeleteDependenceInfo.Create<OrderItem> (item => item.Equipment),
-					DeleteDependenceInfo.Create<PaidRentEquipment> (item => item.Equipment)
+					DeleteDependenceInfo.Create<PaidRentEquipment> (item => item.Equipment),
+					DeleteDependenceInfo.Create<WarehouseMovementOperation> (item => item.Equipment),
+					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.Equipment)
 				}
 			}.FillFromMetaInfo ()
 			);
@@ -196,8 +200,8 @@ namespace Vodovoz
                                 .AddCheckProperty<CounterpartyContract> (item => item.Counterparty),
 					DeleteDependenceInfo.CreateFromBag<Counterparty> (item => item.Proxies),
 					DeleteDependenceInfo.Create<DepositOperation> (item => item.Counterparty),
-					DeleteDependenceInfo.Create<GoodsMovementOperation> (item => item.WriteoffCounterparty),
-					DeleteDependenceInfo.Create<GoodsMovementOperation> (item => item.IncomingCounterparty),
+					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.WriteoffCounterparty),
+					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.IncomingCounterparty),
 					DeleteDependenceInfo.Create<IncomingInvoice> (item => item.Contractor),
 					DeleteDependenceInfo.Create<MoneyMovementOperation> (item => item.Counterparty),
 					DeleteDependenceInfo.Create<MovementDocument> (item => item.FromClient),
@@ -304,8 +308,8 @@ namespace Vodovoz
 					DeleteDependenceInfo.Create<AdditionalAgreement> (item => item.DeliveryPoint),
 					DeleteDependenceInfo.Create<BottlesMovementOperation> (item => item.DeliveryPoint),
 					DeleteDependenceInfo.Create<DepositOperation> (item => item.DeliveryPoint),
-					DeleteDependenceInfo.Create<GoodsMovementOperation> (item => item.WriteoffDeliveryPoint),
-					DeleteDependenceInfo.Create<GoodsMovementOperation> (item => item.IncomingDeliveryPoint),
+					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.WriteoffDeliveryPoint),
+					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.IncomingDeliveryPoint),
 					DeleteDependenceInfo.Create<Proxy> (item => item.DeliveryPoint)
 				}
 			}.FillFromMetaInfo ()
@@ -447,10 +451,18 @@ namespace Vodovoz
 			);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(GoodsMovementOperation),
+				ObjectClass = typeof(WarehouseMovementOperation),
 				SqlSelect = "SELECT id, amount FROM @tablename ",
 				//FIXME Указать название товара
-				DisplayString = "Перемещение Х в количестве {1}"
+				DisplayString = "Складское перемещение Х в количестве {1}"
+			}.FillFromMetaInfo ()
+			);
+
+			DeleteConfig.AddDeleteInfo (new DeleteInfo {
+				ObjectClass = typeof(CounterpartyMovementOperation),
+				SqlSelect = "SELECT id, amount FROM @tablename ",
+				//FIXME Указать название товара
+				DisplayString = "Перемещение у контрагента Х в количестве {1}"
 			}.FillFromMetaInfo ()
 			);
 

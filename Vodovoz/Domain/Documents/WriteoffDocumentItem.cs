@@ -22,8 +22,8 @@ namespace Vodovoz.Domain.Documents
 			get { return nomenclature; }
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
-				if (WriteOffGoodsOperation.Nomenclature != nomenclature)
-					WriteOffGoodsOperation.Nomenclature = nomenclature;
+				if (WarehouseWriteoffOperation.Nomenclature != nomenclature)
+					WarehouseWriteoffOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -34,8 +34,8 @@ namespace Vodovoz.Domain.Documents
 			get { return equipment; }
 			set {
 				SetField (ref equipment, value, () => Equipment);
-				if (WriteOffGoodsOperation.Equipment != equipment)
-					WriteOffGoodsOperation.Equipment = equipment;
+				if (WarehouseWriteoffOperation.Equipment != equipment)
+					WarehouseWriteoffOperation.Equipment = equipment;
 			}
 		}
 
@@ -55,12 +55,13 @@ namespace Vodovoz.Domain.Documents
 			get { return amount; }
 			set {
 				SetField (ref amount, value, () => Amount);
-				if (WriteOffGoodsOperation.Amount != amount)
-					WriteOffGoodsOperation.Amount = amount;
+				if (WarehouseWriteoffOperation.Amount != amount)
+					WarehouseWriteoffOperation.Amount = amount;
 			}
 		}
 
-		decimal amountOnStock = 10000000; //FIXME пока не реализуем способ загружать количество на складе на конкретный день
+		decimal amountOnStock = 10000000;
+		//FIXME пока не реализуем способ загружать количество на складе на конкретный день
 
 		[Display (Name = "Имеется на складе")]
 		public virtual decimal AmountOnStock {
@@ -86,13 +87,19 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null && !Nomenclature.Serial; }
 		}
 
-		GoodsMovementOperation writeoffGoodsOperation = new GoodsMovementOperation ();
+		WarehouseMovementOperation warehouseWriteoffOperation = new WarehouseMovementOperation ();
 
-		public GoodsMovementOperation WriteOffGoodsOperation {
-			get { return writeoffGoodsOperation; }
-			set { SetField (ref writeoffGoodsOperation, value, () => WriteOffGoodsOperation); }
+		public WarehouseMovementOperation WarehouseWriteoffOperation {
+			get { return warehouseWriteoffOperation; }
+			set { SetField (ref warehouseWriteoffOperation, value, () => WarehouseWriteoffOperation); }
 		}
 
+		CounterpartyMovementOperation counterpartyWriteoffOperation = new CounterpartyMovementOperation ();
+
+		public CounterpartyMovementOperation CounterpartyWriteoffOperation {
+			get { return counterpartyWriteoffOperation; }
+			set { SetField (ref counterpartyWriteoffOperation, value, () => CounterpartyWriteoffOperation); }
+		}
 	}
 }
 

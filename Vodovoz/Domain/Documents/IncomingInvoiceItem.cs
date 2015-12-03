@@ -84,9 +84,9 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null && !Nomenclature.Serial; }
 		}
 
-		GoodsMovementOperation incomeGoodsOperation = new GoodsMovementOperation ();
+		WarehouseMovementOperation incomeGoodsOperation = new WarehouseMovementOperation ();
 
-		public GoodsMovementOperation IncomeGoodsOperation {
+		public WarehouseMovementOperation IncomeGoodsOperation {
 			get { return incomeGoodsOperation; }
 			set { SetField (ref incomeGoodsOperation, value, () => IncomeGoodsOperation); }
 		}

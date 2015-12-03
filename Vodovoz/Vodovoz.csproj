@@ -160,7 +160,6 @@
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementDailyRent.cs" />
     <Compile Include="Domain\Operations\DepositOperation.cs" />
     <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
-    <Compile Include="Domain\Operations\GoodsMovementOperation.cs" />
     <Compile Include="Domain\Operations\MoneyMovementOperation.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
     <Compile Include="Domain\BasicHandbooks\CounterpartyStatus.cs" />
@@ -336,7 +335,6 @@
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
     <Compile Include="HibernateMapping\Operations\DepositOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\BottlesMovementOperationMap.cs" />
-    <Compile Include="HibernateMapping\Operations\GoodsMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Operations\MoneyMovementOperationMap.cs" />
     <Compile Include="HibernateMapping\Documents\IncomingInvoiceMap.cs" />
     <Compile Include="HibernateMapping\Documents\IncomingInvoiceItemMap.cs" />
@@ -421,6 +419,10 @@
     <Compile Include="Domain\Order\OrderDepositItem.cs" />
     <Compile Include="HibernateMapping\Order\OrderDepositItemMap.cs" />
     <Compile Include="Repositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
+    <Compile Include="HibernateMapping\Operations\WarehouseMovementOperationMap.cs" />
+    <Compile Include="Domain\Operations\WarehouseMovementOperation.cs" />
+    <Compile Include="Domain\Operations\CounterpartyMovementOperation.cs" />
+    <Compile Include="HibernateMapping\Operations\CounterpartyMovementOperationMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

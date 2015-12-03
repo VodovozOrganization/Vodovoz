@@ -72,9 +72,9 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}
 
-		GoodsMovementOperation consumptionMaterialOperation = new GoodsMovementOperation ();
+		WarehouseMovementOperation consumptionMaterialOperation = new WarehouseMovementOperation ();
 
-		public GoodsMovementOperation ConsumptionMaterialOperation {
+		public WarehouseMovementOperation ConsumptionMaterialOperation {
 			get { return consumptionMaterialOperation; }
 			set { SetField (ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
 		}

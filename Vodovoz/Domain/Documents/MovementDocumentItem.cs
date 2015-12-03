@@ -20,9 +20,10 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
-			set { SetField (ref nomenclature, value, () => Nomenclature);
-				if (MoveGoodsOperation.Nomenclature != nomenclature)
-					MoveGoodsOperation.Nomenclature = nomenclature;
+			set {
+				SetField (ref nomenclature, value, () => Nomenclature);
+				if (WarehouseMovementOperation.Nomenclature != nomenclature)
+					WarehouseMovementOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -31,9 +32,10 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
-			set { SetField (ref equipment, value, () => Equipment);
-				if (MoveGoodsOperation.Equipment != equipment)
-					MoveGoodsOperation.Equipment = equipment;
+			set {
+				SetField (ref equipment, value, () => Equipment);
+				if (WarehouseMovementOperation.Equipment != equipment)
+					WarehouseMovementOperation.Equipment = equipment;
 			}
 		}
 
@@ -43,13 +45,15 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Количество")]
 		public virtual decimal Amount {
 			get { return amount; }
-			set { SetField (ref amount, value, () => Amount);
-				if (MoveGoodsOperation.Amount != amount)
-					MoveGoodsOperation.Amount = amount;
+			set {
+				SetField (ref amount, value, () => Amount);
+				if (WarehouseMovementOperation.Amount != amount)
+					WarehouseMovementOperation.Amount = amount;
 			}
 		}
 
-		decimal amountOnSource = 10000000; //FIXME пока не реализуем способ загружать количество на складе на конкретный день
+		decimal amountOnSource = 10000000;
+		//FIXME пока не реализуем способ загружать количество на складе на конкретный день
 
 		[Display (Name = "Имеется на складе")]
 		public virtual decimal AmountOnSource {
@@ -71,12 +75,20 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null && !Nomenclature.Serial; }
 		}
 
-		GoodsMovementOperation moveGoodsOperation = new GoodsMovementOperation ();
+		WarehouseMovementOperation warehouseMovementOperation = new WarehouseMovementOperation ();
 
-		public GoodsMovementOperation MoveGoodsOperation {
-			get { return moveGoodsOperation; }
-			set { SetField (ref moveGoodsOperation, value, () => MoveGoodsOperation); }
+		public WarehouseMovementOperation WarehouseMovementOperation {
+			get { return warehouseMovementOperation; }
+			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
 		}
+
+		CounterpartyMovementOperation counterpartyMovementOperation = new CounterpartyMovementOperation ();
+
+		public CounterpartyMovementOperation CounterpartyMovementOperation {
+			get { return counterpartyMovementOperation; }
+			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+		}
+
 
 	}
 }
