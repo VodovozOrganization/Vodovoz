@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -46,6 +47,14 @@ namespace Vodovoz.Domain.Documents
 			get { return routeList; }
 			set { SetField (ref routeList, value, () => RouteList); }
 		}
+
+		Warehouse warehouse;
+
+		public virtual Warehouse Warehouse {
+			get { return Warehouse; }
+			set { SetField (ref warehouse, value, () => Warehouse); }
+		}
+
 
 		IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem> ();
 
