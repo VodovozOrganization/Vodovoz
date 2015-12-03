@@ -423,6 +423,10 @@
     <Compile Include="Domain\Operations\WarehouseMovementOperation.cs" />
     <Compile Include="Domain\Operations\CounterpartyMovementOperation.cs" />
     <Compile Include="HibernateMapping\Operations\CounterpartyMovementOperationMap.cs" />
+    <Compile Include="Domain\Documents\CarLoadDocument.cs" />
+    <Compile Include="Domain\Documents\CarLoadDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Documents\CarLoadDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarLoadDocumentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
