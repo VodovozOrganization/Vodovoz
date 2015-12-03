@@ -8,10 +8,11 @@ using Vodovoz.Domain.Logistic;
 using NHibernate.Criterion;
 using System.Collections.Generic;
 using NHibernate.Transform;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ReadyForShipmentDlg : TdiTabBase
 	{
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
@@ -19,8 +20,11 @@ namespace Vodovoz
 		ShipmentDocumentType shipmentType;
 		int shipmentId;
 
-		List<ShipmentItemsNode> ShipmentList = new List<ShipmentItemsNode>();
+		List<ShipmentItemsNode> ShipmentList = new List<ShipmentItemsNode> ();
 
+		/// <param name="type">Маршрутный лист или заказ</param>
+		/// <param name="id">Номер маршрутного листа или заказа.</param>
+		/// <param name="stock">Склад отгрузки.</param>
 		public ReadyForShipmentDlg (ShipmentDocumentType type, int id, Warehouse stock)
 		{
 			Build ();
@@ -39,8 +43,7 @@ namespace Vodovoz
 			if (stock != null)
 				ycomboboxWarehouse.SelectedItem = stock;
 
-			switch(shipmentType)
-			{
+			switch (shipmentType) {
 			case ShipmentDocumentType.Order:
 				var order = UoW.GetById<Vodovoz.Domain.Orders.Order> (id);
 				textviewShipmentInfo.Buffer.Text =
@@ -54,19 +57,19 @@ namespace Vodovoz
 				var routelist = UoW.GetById<RouteList> (id);
 				textviewShipmentInfo.Buffer.Text =
 					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
-						id,
-						routelist.Date,
-						routelist.Driver.FullName,
-						routelist.Car.Model,
-						routelist.Car.RegistrationNumber,
-						routelist.Forwarder != null ? routelist.Forwarder.FullName : "(Отсутствует)" 
-					);
+					id,
+					routelist.Date,
+					routelist.Driver.FullName,
+					routelist.Car.Model,
+					routelist.Car.RegistrationNumber,
+					routelist.Forwarder != null ? routelist.Forwarder.FullName : "(Отсутствует)" 
+				);
 				TabName = String.Format ("Отгрузка маршрутного листа №{0}", id);
 				break;
 			}
 		}
 
-		void UpdateItemsList()
+		void UpdateItemsList ()
 		{
 			ShipmentList.Clear ();
 
@@ -95,7 +98,7 @@ namespace Vodovoz
 				var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
 					.Where (r => r.RouteList.Id == shipmentId)
 					.Select (r => r.Order.Id);
-				ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select(o=>o.Id);
+				ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
 				break;
 			default:
 				throw new NotSupportedException (shipmentType.ToString ());
@@ -113,7 +116,7 @@ namespace Vodovoz
 					.SelectGroup (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 					.SelectSum (() => orderItemsAlias.Count).WithAlias (() => resultAlias.Amount)
 					.Select (() => unitsAlias.Name).WithAlias (() => resultAlias.UnitName)
-				)
+			                 )
 				.TransformUsing (Transformers.AliasToBean <ShipmentItemsNode> ())
 				.List<ShipmentItemsNode> ();
 
@@ -133,12 +136,11 @@ namespace Vodovoz
 					.SelectGroup (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 					.SelectSum (() => 1).WithAlias (() => resultAlias.Amount)
 					.Select (() => unitsAlias.Name).WithAlias (() => resultAlias.UnitName)
-				)
+			                      )
 				.TransformUsing (Transformers.AliasToBean <ShipmentItemsNode> ())
 				.List<ShipmentItemsNode> ();
 
-			foreach(var node in orderEquipments)
-			{
+			foreach (var node in orderEquipments) {
 				if (!ShipmentList.Exists (item => item.EquipmentId == node.EquipmentId))
 					ShipmentList.Add (node);
 			}
@@ -151,13 +153,26 @@ namespace Vodovoz
 			UpdateItemsList ();
 		}
 
+		protected void OnButtonConfirmShipmentClicked (object sender, EventArgs e)
+		{
+			foreach (var node in ShipmentList) {
+				var warehouseMovementOperation = UnitOfWorkFactory.CreateWithNewRoot <WarehouseMovementOperation> ();
+				warehouseMovementOperation.Root.Amount = node.Amount;
+				warehouseMovementOperation.Root.Equipment = UoW.GetById<Equipment> (node.EquipmentId);
+				warehouseMovementOperation.Root.Nomenclature = UoW.GetById <Nomenclature> (node.Id);
+				warehouseMovementOperation.Root.WriteoffWarehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
+				warehouseMovementOperation.Root.OperationTime = DateTime.Now;
+				warehouseMovementOperation.Save ();
+			}
+		}
+
 		public class ShipmentItemsNode
 		{
 			public int Id{ get; set; }
 
 			public string NomenclatureName { get; set; }
 
-			public string SerialNumber { get{return EquipmentId > 0 ? EquipmentId.ToString () : null;}}
+			public string SerialNumber { get { return EquipmentId > 0 ? EquipmentId.ToString () : null; } }
 
 			public int Amount { get; set; }
 
@@ -165,16 +180,15 @@ namespace Vodovoz
 
 			public int EquipmentId { get; set; }
 
-			public string UnitName{ get; set;}
+			public string UnitName{ get; set; }
 
 			public string SerialNumberText {
-				get {return IsNew ? String.Format ("{0}(новый)", SerialNumber) : String.Format ("{0}", SerialNumber); }
+				get { return IsNew ? String.Format ("{0}(новый)", SerialNumber) : String.Format ("{0}", SerialNumber); }
 			}
 
 			public string AmountText { get { return String.Format ("{0} {1}", 
-				Amount,
-				UnitName);
-				}}
+					Amount,
+					UnitName); } }
 		}
 
 	}

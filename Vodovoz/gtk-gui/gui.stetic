@@ -18414,13 +18414,14 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Button" id="button2">
+              <widget class="Gtk.Button" id="buttonConfirmShipment">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-apply SmallToolbar</property>
                 <property name="Label" translatable="yes">Подтвердить отгрузку</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonConfirmShipmentClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>

@@ -26,7 +26,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonPrint;
 		
-		private global::Gtk.Button button2;
+		private global::Gtk.Button buttonConfirmShipment;
 
 		protected virtual void Build ()
 		{
@@ -128,16 +128,16 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonPrint]));
 			w10.Position = 0;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.button2 = new global::Gtk.Button ();
-			this.button2.CanFocus = true;
-			this.button2.Name = "button2";
-			this.button2.UseUnderline = true;
-			this.button2.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить отгрузку");
+			this.buttonConfirmShipment = new global::Gtk.Button ();
+			this.buttonConfirmShipment.CanFocus = true;
+			this.buttonConfirmShipment.Name = "buttonConfirmShipment";
+			this.buttonConfirmShipment.UseUnderline = true;
+			this.buttonConfirmShipment.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить отгрузку");
 			global::Gtk.Image w11 = new global::Gtk.Image ();
 			w11.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.SmallToolbar);
-			this.button2.Image = w11;
-			this.hbox1.Add (this.button2);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.button2]));
+			this.buttonConfirmShipment.Image = w11;
+			this.hbox1.Add (this.buttonConfirmShipment);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonConfirmShipment]));
 			w12.Position = 1;
 			this.vbox1.Add (this.hbox1);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
@@ -150,6 +150,7 @@ namespace Vodovoz
 			}
 			this.Hide ();
 			this.ycomboboxWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnYcomboboxWarehouseItemSelected);
+			this.buttonConfirmShipment.Clicked += new global::System.EventHandler (this.OnButtonConfirmShipmentClicked);
 		}
 	}
 }
