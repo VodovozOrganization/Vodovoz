@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using NHibernate.Transform;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Documents;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -72,7 +74,7 @@ namespace Vodovoz
 		void UpdateItemsList ()
 		{
 			ShipmentList.Clear ();
-
+			//FIXME Добавить проверку, не отгружен ли товар уже.
 			Warehouse CurrentStock = ycomboboxWarehouse.SelectedItem as Warehouse;
 			if (CurrentStock == null)
 				return;
@@ -95,7 +97,7 @@ namespace Vodovoz
 					.Select (o => o.Id);
 				break;
 			case ShipmentDocumentType.RouteList:
-				var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
+				var routeListItemsSubQuery = QueryOver.Of<RouteListItem> ()
 					.Where (r => r.RouteList.Id == shipmentId)
 					.Select (r => r.Order.Id);
 				ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
@@ -155,6 +157,19 @@ namespace Vodovoz
 
 		protected void OnButtonConfirmShipmentClicked (object sender, EventArgs e)
 		{
+			var CarLoadDocumentUoW = UnitOfWorkFactory.CreateWithNewRoot <CarLoadDocument> ();
+
+			CarLoadDocumentUoW.Root.Storekeeper = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if (CarLoadDocumentUoW.Root.Storekeeper == null) {
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете загружать автомобили, так как некого указывать в качестве кладовщика.");
+				return;
+			}
+			if (shipmentType == ShipmentDocumentType.Order)
+				CarLoadDocumentUoW.Root.Order = UoW.GetById<Vodovoz.Domain.Orders.Order> (shipmentId);
+			else
+				CarLoadDocumentUoW.Root.RouteList = UoW.GetById<RouteList> (shipmentId);
+			CarLoadDocumentUoW.Root.Warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
+
 			foreach (var node in ShipmentList) {
 				var warehouseMovementOperation = UnitOfWorkFactory.CreateWithNewRoot <WarehouseMovementOperation> ();
 				warehouseMovementOperation.Root.Amount = node.Amount;
@@ -163,7 +178,9 @@ namespace Vodovoz
 				warehouseMovementOperation.Root.WriteoffWarehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
 				warehouseMovementOperation.Root.OperationTime = DateTime.Now;
 				warehouseMovementOperation.Save ();
+				CarLoadDocumentUoW.Root.AddItem (new CarLoadDocumentItem { MovementOperation = warehouseMovementOperation.Root });
 			}
+			CarLoadDocumentUoW.Save ();
 		}
 
 		public class ShipmentItemsNode
