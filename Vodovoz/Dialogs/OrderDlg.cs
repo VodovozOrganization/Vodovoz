@@ -345,7 +345,17 @@ namespace Vodovoz
 				CounterpartyContract contract = CounterpartyContractRepository.
 					GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
 				if (contract == null) {
-					RunContractCreateDialog ();
+					var result = AskCreateContract ();
+					switch (result) {
+					case (int)ResponseType.Yes:
+						RunContractAndWaterAgreementDialog ();
+						break;
+					case (int)ResponseType.Accept:
+						CreateDefaultContractWithAgreement ();
+						break;
+					default:
+						break;
+					}
 					return;
 				}
 				UoWGeneric.Session.Refresh (contract);
@@ -353,9 +363,7 @@ namespace Vodovoz
 				if (wsa == null) {	
 					//Если нет доп. соглашения продажи воды.
 					if (MessageDialogWorks.RunQuestionDialog ("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
-						ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryDate);
-						(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
-						TabParent.AddSlaveTab (this, dlg);
+						RunAdditionalAgreementWaterDialog ();
 					} else
 						return;
 				} else {
@@ -461,23 +469,122 @@ namespace Vodovoz
 		void RunContractCreateDialog ()
 		{
 			ITdiTab dlg;
-			string question = "Отсутствует договор с клиентом для " +
-			                  (UoWGeneric.Root.PaymentType == PaymentType.cash ? "наличной" : "безналичной") +
-			                  " формы оплаты. Создать?";
-			if (MessageDialogWorks.RunQuestionDialog (question)) {
+			bool shouldCreateContract = AskCreateContract () == (int)ResponseType.Yes;
+			if (shouldCreateContract) {
 				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
 					(UoWGeneric.Root.PaymentType == PaymentType.cash ?
 						OrganizationRepository.GetCashOrganization (UoWGeneric) :
 						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
-				(dlg as IContractSaved).ContractSaved += (sender, e) => {
-					UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderContract { 
-						Order = UoWGeneric.Root,
-						Contract = e.Contract
-					});
-				};
+				(dlg as IContractSaved).ContractSaved += OnContractSaved;
 				TabParent.AddSlaveTab (this, dlg);
 			}
 		}
+
+		protected int AskCreateContract(){
+			MessageDialog md = new MessageDialog (null,
+				DialogFlags.Modal,
+				MessageType.Question,
+				ButtonsType.YesNo,
+				"Отсутствует договор с клиентом для " +
+				(UoWGeneric.Root.PaymentType == PaymentType.cash ? "наличной" : "безналичной") +
+				" формы оплаты. Создать?");
+			md.SetPosition (WindowPosition.Center);
+			md.AddButton ("Автоматически", ResponseType.Accept);
+			md.ShowAll ();
+			var result = md.Run ();
+			md.Destroy ();
+			return result;
+		}
+
+		protected void RunContractAndWaterAgreementDialog(){
+			ITdiTab dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
+				(UoWGeneric.Root.PaymentType == PaymentType.cash ?
+					OrganizationRepository.GetCashOrganization (UoWGeneric) :
+					OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
+			(dlg as IContractSaved).ContractSaved += OnContractSaved;
+			dlg.CloseTab += (sender, e) => {
+				CounterpartyContract contract =
+					CounterpartyContractRepository.GetCounterpartyContractByPaymentType (
+						UoWGeneric,
+						UoWGeneric.Root.Client,
+						UoWGeneric.Root.PaymentType);
+				if(contract!=null){
+					bool hasWaterAgreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint)!=null;
+					if(!hasWaterAgreement)
+						RunAdditionalAgreementWaterDialog();
+				}
+			};
+			TabParent.AddSlaveTab (this, dlg);
+		}
+
+		protected void OnContractSaved(object sender, ContractSavedEventArgs args){
+			UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderContract { 
+				Order = UoWGeneric.Root,
+				Contract = args.Contract
+			});
+		}
+
+		protected void RunAdditionalAgreementWaterDialog(){
+			ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryDate);
+			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
+			TabParent.AddSlaveTab (this, dlg);
+		}
+
+		protected void CreateDefaultContractWithAgreement(){
+			var contract = CreateDefaultContract ();
+			AdditionalAgreement agreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
+			if(agreement==null){
+				agreement = CreateDefaultWaterAgreement (contract);
+				contract.AdditionalAgreements.Add (agreement);
+				AddContractAndAgreementDocuments (contract,agreement);
+			}
+			UpdateSum ();
+		}			
+
+		protected CounterpartyContract CreateDefaultContract(){
+			CounterpartyContract result;
+			using (var uow = CounterpartyContract.Create (UoWGeneric.Root.Client)) {
+				var contract = uow.Root;
+				contract.Organization = (UoWGeneric.Root.PaymentType == PaymentType.cash ?
+					OrganizationRepository.GetCashOrganization (UoWGeneric) :
+					OrganizationRepository.GetCashlessOrganization (UoWGeneric));
+				contract.IsArchive = false;
+				contract.IssueDate = DateTime.Today;
+				contract.AdditionalAgreements = new List<AdditionalAgreement> ();
+				uow.Save ();
+				result = uow.Root;
+			}
+			return result;
+		}
+
+		protected AdditionalAgreement CreateDefaultWaterAgreement(CounterpartyContract contract){
+			AdditionalAgreement result;
+			using (var uow = WaterSalesAgreement.Create (contract)) {
+				AdditionalAgreement agreement = uow.Root;
+				agreement.Contract = contract;
+				agreement.AgreementNumber = WaterSalesAgreement.GetNumber (contract);
+				result = uow.Root;
+				uow.Save ();
+			}
+			return result;
+		}
+
+		protected void AddContractAndAgreementDocuments(CounterpartyContract contract, AdditionalAgreement agreement){
+			Order order = UoWGeneric.Root;
+			var orderDocuments = UoWGeneric.Root.ObservableOrderDocuments;
+			orderDocuments.Add (new OrderContract { 
+				Order = order,
+				Contract = contract
+			});
+			orderDocuments.Add (new OrderAgreement { 
+				Order = order,
+				AdditionalAgreement = agreement
+			});
+		}
+
+	
+
+
 
 		protected void OnSpinBottlesReturnValueChanged (object sender, EventArgs e)
 		{
