@@ -469,14 +469,17 @@ namespace Vodovoz
 		void RunContractCreateDialog ()
 		{
 			ITdiTab dlg;
-			bool shouldCreateContract = AskCreateContract () == (int)ResponseType.Yes;
-			if (shouldCreateContract) {
+			var response = AskCreateContract ();
+			if (response == (int)ResponseType.Yes) {
 				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
 					(UoWGeneric.Root.PaymentType == PaymentType.cash ?
 						OrganizationRepository.GetCashOrganization (UoWGeneric) :
 						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
 				(dlg as IContractSaved).ContractSaved += OnContractSaved;
 				TabParent.AddSlaveTab (this, dlg);
+			} else if (response == (int)ResponseType.Accept) {
+				var contract = CreateDefaultContract ();
+				AddContractDocument (contract);
 			}
 		}
 
@@ -532,13 +535,13 @@ namespace Vodovoz
 
 		protected void CreateDefaultContractWithAgreement(){
 			var contract = CreateDefaultContract ();
+			AddContractDocument (contract);
 			AdditionalAgreement agreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
 			if(agreement==null){
 				agreement = CreateDefaultWaterAgreement (contract);
 				contract.AdditionalAgreements.Add (agreement);
-				AddContractAndAgreementDocuments (contract,agreement);
+				AddAgreementDocument (agreement);
 			}
-			UpdateSum ();
 		}			
 
 		protected CounterpartyContract CreateDefaultContract(){
@@ -568,24 +571,25 @@ namespace Vodovoz
 			}
 			return result;
 		}
-
-		protected void AddContractAndAgreementDocuments(CounterpartyContract contract, AdditionalAgreement agreement){
+			
+		protected void AddContractDocument(CounterpartyContract contract){
 			Order order = UoWGeneric.Root;
 			var orderDocuments = UoWGeneric.Root.ObservableOrderDocuments;
 			orderDocuments.Add (new OrderContract { 
 				Order = order,
 				Contract = contract
 			});
+		}
+
+		protected void AddAgreementDocument(AdditionalAgreement agreement){
+			Order order = UoWGeneric.Root;
+			var orderDocuments = UoWGeneric.Root.ObservableOrderDocuments;
 			orderDocuments.Add (new OrderAgreement { 
 				Order = order,
 				AdditionalAgreement = agreement
 			});
 		}
-
-	
-
-
-
+			
 		protected void OnSpinBottlesReturnValueChanged (object sender, EventArgs e)
 		{
 			UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
