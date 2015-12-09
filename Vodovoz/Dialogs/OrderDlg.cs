@@ -474,7 +474,8 @@ namespace Vodovoz
 				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
 					(UoWGeneric.Root.PaymentType == PaymentType.cash ?
 						OrganizationRepository.GetCashOrganization (UoWGeneric) :
-						OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
+						OrganizationRepository.GetCashlessOrganization (UoWGeneric)),
+					UoWGeneric.Root.DeliveryDate);
 				(dlg as IContractSaved).ContractSaved += OnContractSaved;
 				TabParent.AddSlaveTab (this, dlg);
 			} else if (response == (int)ResponseType.Accept) {
@@ -503,7 +504,8 @@ namespace Vodovoz
 			ITdiTab dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
 				(UoWGeneric.Root.PaymentType == PaymentType.cash ?
 					OrganizationRepository.GetCashOrganization (UoWGeneric) :
-					OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
+					OrganizationRepository.GetCashlessOrganization (UoWGeneric)),
+					UoWGeneric.Root.DeliveryDate);
 			(dlg as IContractSaved).ContractSaved += OnContractSaved;
 			dlg.CloseTab += (sender, e) => {
 				CounterpartyContract contract =
@@ -552,7 +554,7 @@ namespace Vodovoz
 					OrganizationRepository.GetCashOrganization (UoWGeneric) :
 					OrganizationRepository.GetCashlessOrganization (UoWGeneric));
 				contract.IsArchive = false;
-				contract.IssueDate = DateTime.Today;
+				contract.IssueDate = UoWGeneric.Root.DeliveryDate;
 				contract.AdditionalAgreements = new List<AdditionalAgreement> ();
 				uow.Save ();
 				result = uow.Root;
@@ -566,6 +568,8 @@ namespace Vodovoz
 				AdditionalAgreement agreement = uow.Root;
 				agreement.Contract = contract;
 				agreement.AgreementNumber = WaterSalesAgreement.GetNumber (contract);
+				agreement.IssueDate = UoWGeneric.Root.DeliveryDate;
+				agreement.StartDate = UoWGeneric.Root.DeliveryDate;
 				result = uow.Root;
 				uow.Save ();
 			}

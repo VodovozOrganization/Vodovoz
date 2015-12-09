@@ -39,6 +39,10 @@ namespace Vodovoz
 			referenceOrganization.Sensitive = false;
 		}
 
+		public CounterpartyContractDlg(Counterparty counterparty, Organization organizetion, DateTime date):this(counterparty,organizetion){
+			UoWGeneric.Root.IssueDate = date;
+		}
+
 		public CounterpartyContractDlg (CounterpartyContract sub) : this (sub.Id)
 		{
 		}
