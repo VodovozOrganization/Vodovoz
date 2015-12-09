@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.Documents
 		Warehouse warehouse;
 
 		public virtual Warehouse Warehouse {
-			get { return Warehouse; }
+			get { return warehouse; }
 			set { SetField (ref warehouse, value, () => Warehouse); }
 		}
 
