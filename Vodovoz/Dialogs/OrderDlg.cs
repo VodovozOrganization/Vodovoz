@@ -170,6 +170,9 @@ namespace Vodovoz
 
 			spinSumDifference.Value = (double)(UoWGeneric.Root.SumToReceive - UoWGeneric.Root.TotalSum);
 
+			var colorBlack = new Gdk.Color (0, 0, 0);
+			var colorBlue = new Gdk.Color (0, 0, 0xff);
+
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem> ()
 				.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureString)
 				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
@@ -179,6 +182,9 @@ namespace Vodovoz
 				.WidthChars (10)
 				.AddTextRenderer (node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
+				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0)).Editing (true)
+				.AddSetter((c,node)=>c.ForegroundGdk = node.HasUserSpecifiedPrice() && node.Nomenclature.Category==NomenclatureCategory.water ? colorBlue: colorBlack)
+				.AddSetter((c,node)=>c.Editable = node.Nomenclature.Category==NomenclatureCategory.water)
 				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Price * node.Count))
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
@@ -229,14 +235,12 @@ namespace Vodovoz
 			OrderItem item = UoWGeneric.Root.ObservableOrderItems [id];
 			if (item.Nomenclature.Category == NomenclatureCategory.water) {
 				UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
-				if ((item.AdditionalAgreement as WaterSalesAgreement).IsFixedPrice) {
-					return;
-				}
 			}
 			if ((item.Nomenclature.Category == NomenclatureCategory.deposit || item.Nomenclature.Category == NomenclatureCategory.rent)
-			    && item.Price != 0)
+			     && item.Price != 0)
 				return;
-			item.Price = item.Nomenclature.GetPrice (item.Count);
+			if(!item.HasUserSpecifiedPrice())
+				item.Price = item.DefaultPrice;
 		}
 
 		void TreeItems_Selection_Changed (object sender, EventArgs e)

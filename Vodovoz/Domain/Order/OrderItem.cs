@@ -52,13 +52,50 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref price, value, () => Price); }
 		}
 
-		int count;
+		int count=-1;
 
 		[Display (Name = "Количество")]
 		public virtual int Count {
 			get { return count; }
-			set { SetField (ref count, value, () => Count); }
+			set { 			
+				if (count != -1) {	
+					var oldDefaultPrice = DefaultPrice;
+					var newDefaultPrice = GetDefaultPrice (value);
+					if (Price == oldDefaultPrice)
+						Price = newDefaultPrice;
+					DefaultPrice = newDefaultPrice;
+				}
+				SetField (ref count, value, () => Count); 
+			}
 		}
+
+		protected Decimal GetDefaultPrice(int count){			
+			Decimal result=0;
+			if (Nomenclature.Category == NomenclatureCategory.water) {
+				result = Nomenclature.GetPrice (count);
+				var waterSalesAgreement = AdditionalAgreement as WaterSalesAgreement;
+				if (waterSalesAgreement.IsFixedPrice)
+					result = waterSalesAgreement.FixedPrice;
+			}
+			return result;
+		}
+			
+		Decimal defaultPrice=-1;
+
+		public virtual Decimal DefaultPrice {
+			get { 
+				if (defaultPrice == -1) {
+					defaultPrice = GetDefaultPrice (count);
+				}
+				return defaultPrice; 
+			}
+			set { SetField (ref defaultPrice, value, () => DefaultPrice); }
+		}
+
+		public virtual bool HasUserSpecifiedPrice(){
+			return price != DefaultPrice;
+		}
+
 
 		public virtual bool CanEditAmount {
 			get { return AdditionalAgreement == null || AdditionalAgreement.Type == AgreementType.WaterSales; }
