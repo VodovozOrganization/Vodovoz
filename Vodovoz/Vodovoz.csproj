@@ -431,6 +431,8 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListClosingItemsView.cs" />
+    <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

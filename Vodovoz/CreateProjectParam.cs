@@ -51,7 +51,6 @@ namespace Vodovoz
 				new OrmObjectMapping<LogisticsArea> (null, "{Vodovoz.Domain.LogisticsArea} Name[Название]"),
 				new OrmObjectMapping<FuelType> (null, "{Vodovoz.Domain.Logistic.FuelType} Name[Название]"),
 				new OrmObjectMapping<DeliveryShift> (null, "{Vodovoz.Domain.Logistic.DeliveryShift} Name[Название]"),
-				new OrmObjectMapping<Warehouse> (null, "{Vodovoz.Domain.Store.Warehouse} Name[Название]"),
 				//Остальные справочники
 				new OrmObjectMapping<CommentTemplate> (typeof(CommentTemplateDlg), "{Vodovoz.Domain.CommentTemplate} Comment[Шаблон комментария];", new string[] { "Comment" }),
 				new OrmObjectMapping<MeasurementUnits> (typeof(MeasurementUnitsDlg), "{Vodovoz.Domain.MeasurementUnits} OKEI[ОКЕИ]; Name[Название]; Digits[Точность];"),
@@ -115,7 +114,9 @@ namespace Vodovoz
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),
 				//Банкинг
 				OrmObjectMapping<AccountIncome>.Create (),
-				OrmObjectMapping<AccountExpense>.Create ()
+				OrmObjectMapping<AccountExpense>.Create (),
+				//Склад
+				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w=>w.Name).End()
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());
