@@ -288,7 +288,6 @@
     <Compile Include="Representations\ServiceClaimVM.cs" />
     <Compile Include="Domain\Service\ServiceClaimItem.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimItemMap.cs" />
-    <Compile Include="Dialogs\RouteListCreateDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListCreateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListCreateDlg.cs" />
@@ -427,6 +426,11 @@
     <Compile Include="Domain\Documents\CarLoadDocumentItem.cs" />
     <Compile Include="HibernateMapping\Documents\CarLoadDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\CarLoadDocumentMap.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListCreateDlg.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListClosingDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListClosingItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListClosingDlg.cs" />
+    <Compile Include="ViewWidgets\Logistics\RouteListClosingItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -557,6 +561,7 @@
     <Folder Include="JournalViewers\Cash\" />
     <Folder Include="HibernateMapping\Contracts\" />
     <Folder Include="HibernateMapping\Goods\" />
+    <Folder Include="Dialogs\Logistic\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
