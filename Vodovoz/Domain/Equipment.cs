@@ -58,10 +58,10 @@ namespace Vodovoz.Domain
 			set { SetField (ref lastServiceDate, value, () => LastServiceDate); }
 		}
 
-		DateTime warrantyEndDate;
+		DateTime? warrantyEndDate;
 
 		[Display (Name = "Окончание гарантии")]
-		public virtual DateTime WarrantyEndDate {
+		public virtual DateTime? WarrantyEndDate {
 			get { return warrantyEndDate; }
 			set { SetField (ref warrantyEndDate, value, () => WarrantyEndDate); }
 		}

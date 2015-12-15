@@ -431,6 +431,13 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingDlg.cs" />
     <Compile Include="ViewWidgets\Logistics\RouteListClosingItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReadyForReceptionDlg.cs" />
+    <Compile Include="JournalViewers\ReadyForReceptionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReadyForReceptionView.cs" />
+    <Compile Include="Representations\ReadyForReceptionVM.cs" />
+    <Compile Include="JournalFilters\ReadyForReceptionFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReadyForReceptionFilter.cs" />
+    <Compile Include="Dialogs\Store\ReadyForReceptionDlg.cs" />
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
   </ItemGroup>

@@ -7,6 +7,9 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Logistic;
+using System.Linq;
+using System.Collections;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Repository.Store
 {
@@ -61,6 +64,42 @@ namespace Vodovoz.Repository.Store
 				.Select (Projections.Distinct(Projections.Property<Nomenclature> (n => n.Warehouse)))
 				.List<Warehouse> ();
 		}
+
+		public static Dictionary<int,decimal> NomenclaturesInStock(IUnitOfWork UoW, Warehouse warehouse,int[] nomenclatureIds)
+		{
+			Nomenclature nomenclatureAlias = null;
+			WarehouseMovementOperation operationAddAlias = null;
+			WarehouseMovementOperation operationRemoveAlias = null;
+
+			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And (Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse), warehouse))
+				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
+
+			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.And (Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse), warehouse))
+				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
+
+			NomenclatureInStock inStock = null;
+			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias).Where (() => nomenclatureAlias.Id.IsIn (nomenclatureIds))
+				.SelectList (list => list
+					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => inStock.Id)
+					.SelectSubQuery (subqueryAdd).WithAlias (() => inStock.Added)
+					.SelectSubQuery (subqueryRemove).WithAlias (() => inStock.Removed)
+				).TransformUsing (Transformers.AliasToBean<NomenclatureInStock>()).List<NomenclatureInStock> ();
+			var result = new Dictionary<int,decimal> ();
+			foreach(var nomenclatureInStock in stocklist){
+				result.Add (nomenclatureInStock.Id, nomenclatureInStock.Amount);
+			}
+			return result;			      
+		}
+	}
+	class NomenclatureInStock{
+		public int Id{ get; set; }
+		public decimal Amount{ get{return Added - Removed;}}
+		public decimal Added{get;set;}
+		public decimal Removed{get;set;}
 	}
 }
 

@@ -40,6 +40,10 @@ namespace Vodovoz
 			referenceNomenclature.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.equipment))
 				.Add (Restrictions.Eq ("Serial", true));
+			ydatepickerWarrantyEnd.Binding.AddBinding (UoWGeneric.Root, 
+				equipment => equipment.WarrantyEndDate, 
+				widget => widget.DateOrNull
+			);
 		}
 
 		public override bool Save ()

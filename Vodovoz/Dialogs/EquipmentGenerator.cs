@@ -70,6 +70,19 @@ namespace Vodovoz
 				.Add (Restrictions.Eq ("Serial", true));
 		}
 
+		public static EquipmentGenerator CreateOne(int nomenclatureID){
+			return new EquipmentGenerator (nomenclatureID);
+		}
+
+		protected EquipmentGenerator(int nomenclatureId):this()
+		{
+			referenceNomenclature.Subject = uow.Session.Get<Nomenclature> (nomenclatureId);
+			referenceNomenclature.Sensitive = false;
+			spinAmount.Value = 1;
+			spinAmount.Sensitive = false;
+			buttonAddAndClose.Label = "Закрыть";
+		}
+
 		void PreparedReport ()
 		{
 			isDupSet = printTwo.Active;
@@ -95,7 +108,7 @@ namespace Vodovoz
 		{
 			bool nomenclatureOk = referenceNomenclature.Subject != null;
 			bool countOk = spinAmount.ValueAsInt > 0;
-			bool warrantyOk = !dateWarrantyEnd.IsEmpty;
+			bool warrantyOk = !ydatepickerWarrantyEnd.DateOrNull.HasValue;
 
 			buttonCreate.Sensitive = nomenclatureOk && countOk && warrantyOk;
 		}
@@ -131,7 +144,7 @@ namespace Vodovoz
 				for (int count = 0; count < spinAmount.ValueAsInt; count++) {
 					var newEquipment = new Equipment {
 						Nomenclature = (referenceNomenclature.Subject as Nomenclature),
-						WarrantyEndDate = dateWarrantyEnd.Date
+						WarrantyEndDate = ydatepickerWarrantyEnd.DateOrNull
 					};
 					uow.Save (newEquipment);
 					RegisteredEquipment.Add (newEquipment);
@@ -140,7 +153,7 @@ namespace Vodovoz
 
 				//Деактивируем создание оборудования
 				referenceNomenclature.Sensitive = spinAmount.Sensitive = 
-					dateWarrantyEnd.Sensitive = buttonCreate.Sensitive = false;
+					ydatepickerWarrantyEnd.Sensitive = buttonCreate.Sensitive = false;
 				PreparedReport ();
 				buttonAddAndClose.Sensitive = true;
 			}

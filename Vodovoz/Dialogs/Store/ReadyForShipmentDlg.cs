@@ -12,6 +12,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Documents;
 using QSProjectsLib;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -19,8 +20,13 @@ namespace Vodovoz
 	{
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
+		private Dictionary<int,decimal> inStock;
+
 		ShipmentDocumentType shipmentType;
 		int shipmentId;
+
+		Vodovoz.Domain.Orders.Order order;
+		RouteList routelist;
 
 		List<ShipmentItemsNode> ShipmentList = new List<ShipmentItemsNode> ();
 
@@ -36,10 +42,17 @@ namespace Vodovoz
 			this.TabName = "Товар на погрузку";
 			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, type, id);
 
+			inStock = new Dictionary<int, decimal> ();
+
+			var colorBlack = new Gdk.Color (0, 0, 0);
+			var colorRed = new Gdk.Color (0xff, 0, 0);
+
 			ytreeItems.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ShipmentItemsNode> ()
 				.AddColumn ("Номенклатуры").AddTextRenderer (node => node.NomenclatureName)
 				.AddColumn ("Серийный номер").AddTextRenderer (node => node.SerialNumberText)
 				.AddColumn ("Количество").AddTextRenderer (node => node.AmountText)
+				.AddSetter((cell,node)=>cell.Text = ItemsInStock(node.Id)>0 ? node.AmountText : node.AmountText + " (нет в наличии)")
+				.AddSetter(((cell,node) => cell.ForegroundGdk = ItemsInStock(node.Id)>0 ? colorBlack : colorRed))
 				.Finish ();
 
 			if (stock != null)
@@ -47,7 +60,7 @@ namespace Vodovoz
 
 			switch (shipmentType) {
 			case ShipmentDocumentType.Order:
-				var order = UoW.GetById<Vodovoz.Domain.Orders.Order> (id);
+				order = UoW.GetById<Vodovoz.Domain.Orders.Order> (id);
 				textviewShipmentInfo.Buffer.Text =
 					String.Format ("Самовывоз заказа №{0}\nКлиент: {1}",
 					id,
@@ -56,7 +69,7 @@ namespace Vodovoz
 				TabName = String.Format ("Отгрузка заказа №{0}", id);
 				break;
 			case ShipmentDocumentType.RouteList:
-				var routelist = UoW.GetById<RouteList> (id);
+				routelist = UoW.GetById<RouteList> (id);
 				textviewShipmentInfo.Buffer.Text =
 					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 					id,
@@ -69,6 +82,12 @@ namespace Vodovoz
 				TabName = String.Format ("Отгрузка маршрутного листа №{0}", id);
 				break;
 			}
+		}
+
+		protected decimal ItemsInStock(int nomenclatureId){
+			decimal itemsLeft;
+			inStock.TryGetValue (nomenclatureId, out itemsLeft);
+			return itemsLeft;
 		}
 
 		void UpdateItemsList ()
@@ -146,8 +165,12 @@ namespace Vodovoz
 				if (!ShipmentList.Exists (item => item.EquipmentId == node.EquipmentId))
 					ShipmentList.Add (node);
 			}
-
+			UpdateStockBalance ();
 			ytreeItems.ItemsDataSource = ShipmentList;
+		}
+
+		protected void UpdateStockBalance(){
+			inStock = Repository.Store.WarehouseRepository.NomenclaturesInStock (UoW, ycomboboxWarehouse.SelectedItem as Warehouse, ShipmentList.Select ((shipment) => shipment.Id).ToArray());
 		}
 
 		protected void OnYcomboboxWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -157,6 +180,14 @@ namespace Vodovoz
 
 		protected void OnButtonConfirmShipmentClicked (object sender, EventArgs e)
 		{
+			UpdateStockBalance ();
+			foreach (ShipmentItemsNode shipmentItem in ShipmentList) {
+				bool available = ItemsInStock (shipmentItem.Id) > 0;
+				if (!available) {
+					MessageDialogWorks.RunErrorDialog ("Невозможно подтвердить отгрузку т.к. не все товары в наличии на складе.");	
+					return;
+				}
+			}
 			var CarLoadDocumentUoW = UnitOfWorkFactory.CreateWithNewRoot <CarLoadDocument> ();
 
 			CarLoadDocumentUoW.Root.Storekeeper = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
@@ -181,6 +212,21 @@ namespace Vodovoz
 				CarLoadDocumentUoW.Root.AddItem (new CarLoadDocumentItem { MovementOperation = warehouseMovementOperation.Root });
 			}
 			CarLoadDocumentUoW.Save ();
+			ChangeShipmentStatus ();
+		}
+
+		protected void ChangeShipmentStatus()
+		{
+			switch (shipmentType) {
+			case ShipmentDocumentType.Order:
+				//TODO Закрыть заказ
+				break;
+			case ShipmentDocumentType.RouteList:				
+				//TODO Изменить статус на InLoading или EnRoute
+				break;
+			default:
+				throw new NotSupportedException (shipmentType.ToString ());
+			}
 		}
 
 		public class ShipmentItemsNode
