@@ -3,6 +3,7 @@ using Vodovoz.Domain;
 using System.Collections.Generic;
 using QSOrmProject;
 using System.Linq;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Repository
 {
@@ -19,11 +20,21 @@ namespace Vodovoz.Repository
 
 		public static Equipment GetEquipmentForSaleByNomenclature (IUnitOfWork uow, Nomenclature nomenclature)
 		{
-			//TODO FIXME Заменить реальной выборкой.
-			return uow.Session.CreateCriteria<Equipment> ()
-				.Add (Restrictions.Eq ("Id", 13))
-				.List<Equipment> ()
-				.First ();
+			Equipment equipmentAlias = null;
+			WarehouseMovementOperation operationAddAlias = null;
+
+			var subqueryEquipmentAvailable = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
+				.OrderBy (() => operationAddAlias.OperationTime).Desc
+				.Where (() => equipmentAlias.Id == operationAddAlias.Equipment.Id)
+				.Select (op=>op.IncomingWarehouse)
+				.Take (1);
+
+			return uow.Session.QueryOver<Equipment> (() => equipmentAlias)				
+				.Where (() => equipmentAlias.Nomenclature.Id == nomenclature.Id)
+				.Where (() => !equipmentAlias.OnDuty)
+				.Where (Subqueries.IsNotNull (subqueryEquipmentAvailable.DetachedCriteria))
+				.Take (1)
+				.List ().First ();
 		}
 
 		public static QueryOver<Equipment> GetEquipmentByNomenclature (Nomenclature nomenclature)

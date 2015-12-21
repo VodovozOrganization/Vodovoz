@@ -370,23 +370,34 @@ namespace Vodovoz.Domain.Orders
 		{
 			if (nomenclature.Category != NomenclatureCategory.equipment)
 				return;
-			Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoW, nomenclature);
-			int ItemId;
-			ItemId = ObservableOrderItems.AddWithReturn (new OrderItem {
-				Order = this,
-				AdditionalAgreement = null,
-				Count = 1,
-				Equipment = eq,
-				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice (1)
-			});
-			ObservableOrderEquipments.Add (new OrderEquipment {
-				Order = this,
-				Direction = Vodovoz.Domain.Orders.Direction.Deliver,
-				Equipment = eq,
-				OrderItem = ObservableOrderItems [ItemId],
-				Reason = Reason.Sale
-			});
+			if (!nomenclature.Serial) {
+				ObservableOrderItems.Add (new OrderItem {
+					Order = this,
+					AdditionalAgreement = null,
+					Count = 0,
+					Equipment = null,
+					Nomenclature = nomenclature,
+					Price = nomenclature.GetPrice (1)
+				});
+			} else {
+				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoW, nomenclature);
+				int ItemId;
+				ItemId = ObservableOrderItems.AddWithReturn (new OrderItem {
+					Order = this,
+					AdditionalAgreement = null,
+					Count = 1,
+					Equipment = eq,
+					Nomenclature = nomenclature,
+					Price = nomenclature.GetPrice (1)
+				});
+				ObservableOrderEquipments.Add (new OrderEquipment {
+					Order = this,
+					Direction = Vodovoz.Domain.Orders.Direction.Deliver,
+					Equipment = eq,
+					OrderItem = ObservableOrderItems [ItemId],
+					Reason = Reason.Sale
+				});
+			}
 		}
 
 		public void AddAdditionalNomenclatureForSale (Nomenclature nomenclature)
