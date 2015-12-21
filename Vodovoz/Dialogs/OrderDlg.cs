@@ -330,12 +330,15 @@ namespace Vodovoz
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
 		{
-			OrmReference SelectDialog = new OrmReference (typeof(Nomenclature), UoWGeneric, 
-				                            NomenclatureRepository.NomenclatureForSaleQuery ()
-				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.NomenclatureForSaleVM (UoWGeneric));
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ObjectSelected += NomenclatureSelected;
+			SelectDialog.TabName = "Номенклатура на продажу";
+			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
 			TabParent.AddSlaveTab (this, SelectDialog);
+		}
+
+		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e){					
+			NomenclatureSelected (this, new OrmReferenceObjectSectedEventArgs (UoWGeneric.Session.Get<Nomenclature> (e.ObjectId)));
 		}
 
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)

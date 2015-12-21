@@ -440,6 +440,7 @@
     <Compile Include="Dialogs\Store\ReadyForReceptionDlg.cs" />
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
+    <Compile Include="Representations\NomenclatureForSaleVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
