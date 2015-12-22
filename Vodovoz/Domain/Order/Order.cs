@@ -638,6 +638,12 @@ namespace Vodovoz.Domain.Orders
 			//TODO FIXME Добавить строку сервиса OrderItems
 			//И вообще много чего тут сделать.
 		}
+
+		public void Close()
+		{
+			//FIXME Правильно закрывать заказ
+			OrderStatus = OrderStatus.Closed;
+		}
 	}
 }
 

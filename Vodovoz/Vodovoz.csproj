@@ -441,6 +441,10 @@
     <Compile Include="Dialogs\Store\WarehouseDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WarehouseDlg.cs" />
     <Compile Include="Representations\NomenclatureForSaleVM.cs" />
+    <Compile Include="Domain\Documents\CarUnloadDocument.cs" />
+    <Compile Include="Domain\Documents\CarUnloadDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Documents\CarUnloadDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarUnloadDocumentItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

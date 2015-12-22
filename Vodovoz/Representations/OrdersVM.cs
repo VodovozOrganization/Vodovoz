@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using Gamma.ColumnConfig;
+using Gamma.Utilities;
+using NHibernate;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using System.Collections.Generic;
-using System.Data.Bindings;
-using NHibernate;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
-using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {

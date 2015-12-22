@@ -202,12 +202,13 @@ namespace Vodovoz.Domain.Logistic
 
 	public enum RouteListStatus
 	{
-		[ItemTitleAttribute ("Новый")] New,
-		[ItemTitleAttribute ("Готов к отгрузке")] Ready,
-		[ItemTitleAttribute ("На погрузке")]InLoading,
-		[ItemTitleAttribute ("В пути")]EnRoute,
-		[ItemTitleAttribute ("Не сдан")]NotDelivered,
-		[ItemTitleAttribute ("Закрыт")]Closed
+		[Display (Name = "Новый")] New,
+		[Display (Name = "Готов к отгрузке")] Ready,
+		[Display (Name = "На погрузке")] InLoading,
+		[Display (Name = "В пути")] EnRoute,
+		[Display (Name = "Готов к отчету")] ReadyToReport,
+		[Display (Name = "Не сдан")] NotDelivered,
+		[Display (Name = "Закрыт")] Closed
 	}
 
 	public class RouteListStatusStringType : NHibernate.Type.EnumStringType

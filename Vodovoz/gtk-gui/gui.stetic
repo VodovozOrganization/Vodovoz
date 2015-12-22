@@ -24019,13 +24019,14 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Button" id="buttonConfirmShipment">
+              <widget class="Gtk.Button" id="buttonConfirmReception">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-apply SmallToolbar</property>
                 <property name="Label" translatable="yes">Подтвердить прием</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonConfirmReceptionClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
