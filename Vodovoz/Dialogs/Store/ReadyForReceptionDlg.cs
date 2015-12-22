@@ -108,8 +108,11 @@ namespace Vodovoz
 			Warehouse CurrentStock = ycomboboxWarehouse.SelectedItem as Warehouse;
 			if (CurrentStock == null)
 				return;
-			ytreeBottles.Sensitive = CurrentStock.CanReceiveBottles;
-			ytreeEquipment.Sensitive = CurrentStock.CanReceiveEquipment;
+			
+			frameBottles.Visible = CurrentStock.CanReceiveBottles;
+			frameEquipment.Visible = CurrentStock.CanReceiveEquipment;
+			buttonAddEquipment.Sensitive = buttonConfirmReception.Sensitive = CanUnload ();
+
 			if (CurrentStock.CanReceiveBottles)
 				ListBottles ();
 			if (CurrentStock.CanReceiveEquipment) {				
@@ -267,9 +270,7 @@ namespace Vodovoz
 			
 			foreach (var item in returnedItems.Union(returnedEquipment)) {			 
 				ReceptionReturnsList.Add (item);
-			}
-
-			buttonConfirmReception.Sensitive = CanUnload ();
+			}				
 		}
 
 		protected bool CanUnload(){
@@ -367,7 +368,6 @@ namespace Vodovoz
 			foreach (var item in routelist.Addresses) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
-
 		}
 	}
 
