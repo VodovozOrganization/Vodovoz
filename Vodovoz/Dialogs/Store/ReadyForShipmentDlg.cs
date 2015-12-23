@@ -20,7 +20,7 @@ namespace Vodovoz
 	{
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
-		private Dictionary<int,decimal> inStock;
+		private Dictionary<int,decimal> itemsInStock;
 		private Dictionary<int,decimal> equipmentInStock;
 
 		ShipmentDocumentType shipmentType;
@@ -43,7 +43,7 @@ namespace Vodovoz
 			this.TabName = "Товар на погрузку";
 			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, type, id);
 
-			inStock = new Dictionary<int, decimal> ();
+			itemsInStock = new Dictionary<int, decimal> ();
 
 			var colorBlack = new Gdk.Color (0, 0, 0);
 			var colorRed = new Gdk.Color (0xff, 0, 0);
@@ -90,7 +90,6 @@ namespace Vodovoz
 		{
 			ShipmentList.Clear ();
 
-			//FIXME Добавить проверку, не отгружен ли товар уже.
 			Warehouse CurrentStock = ycomboboxWarehouse.SelectedItem as Warehouse;
 			if (CurrentStock == null)
 				return;
@@ -102,8 +101,6 @@ namespace Vodovoz
 			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null;
 			Equipment equipmentAlias = null;
 			MeasurementUnits unitsAlias = null;
-
-			RouteListItem routeListAddressAlias = null;
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
@@ -160,33 +157,8 @@ namespace Vodovoz
 				.List<ShipmentItemsNode> ();
 
 			foreach (var node in orderEquipments) {
-//				if (!ShipmentList.Exists (item => item.EquipmentId == node.EquipmentId))
 					ShipmentList.Add (node);
 			}
-			/*
-			var orderTrackableEquipment = UoW.Session.QueryOver<OrderEquipment> (() => orderEquipmentAlias)
-				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
-				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias)
-				.Where (() => orderEquipmentAlias.Direction == Domain.Orders.Direction.Deliver)
-				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias)
-				.Where(()=>OrderEquipmentNomenclatureAlias.Serial)
-				.JoinAlias (() => OrderEquipmentNomenclatureAlias.Unit, () => unitsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Where (() => OrderEquipmentNomenclatureAlias.Warehouse == CurrentStock)
-				.SelectList (list => list
-					.Select (() => OrderEquipmentNomenclatureAlias.Id).WithAlias (() => resultAlias.Id)
-					.Select (() => OrderEquipmentNomenclatureAlias.Name).WithAlias (() => resultAlias.NomenclatureName)
-					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
-					.Select (() => 1).WithAlias (() => resultAlias.Amount)
-					.Select (() => unitsAlias.Name).WithAlias (() => resultAlias.UnitName)
-				)
-				.TransformUsing (Transformers.AliasToBean <ShipmentItemsNode> ())
-				.List<ShipmentItemsNode> ();
-		
-			foreach (var node in orderTrackableEquipment) {
-		//		if (!ShipmentList.Exists (item => item.EquipmentId == node.EquipmentId))
-					ShipmentList.Add (node);
-			}
-			*/
 
 			UpdateStockBalance ();
 
@@ -197,11 +169,11 @@ namespace Vodovoz
 
 		protected void UpdateStockBalance(){
 			Warehouse warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
-			inStock = Repository.Store.WarehouseRepository.NomenclaturesInStock (UoW, warehouse,
+			itemsInStock = warehouse.NomenclaturesInStock (UoW,
 				ShipmentList.Where(shipment=>!shipment.IsTrackable).Select (shipment => shipment.Id).ToArray());
-			foreach (var item in inStock)
+			foreach (var item in itemsInStock)
 				ShipmentList.First (shipment => shipment.Id == item.Key).InStock = item.Value;
-			equipmentInStock = Repository.Store.WarehouseRepository.EquipmentInStock (UoW, warehouse,
+			equipmentInStock = warehouse.EquipmentInStock (UoW,
 				ShipmentList.Where(shipment=>shipment.IsTrackable).Select (shipment => shipment.EquipmentId).ToArray ());
 			foreach (var item in equipmentInStock)
 				ShipmentList.First (shipment => shipment.EquipmentId == item.Key).InStock = item.Value;
@@ -209,9 +181,9 @@ namespace Vodovoz
 
 		protected bool CanLoad(){
 			var warehousesLoadedFrom = 
-				Vodovoz.Repository.Store.WarehouseRepository.WarehousesVisited (UoW, shipmentType, shipmentId);
-			bool itemsAvailable = ShipmentList.All(node=>node.IsAvailable);
+				Vodovoz.Repository.Store.WarehouseRepository.WarehousesLoadedFrom (UoW, shipmentType, shipmentId);			
 			bool alreadyLoaded = warehousesLoadedFrom.Contains(ycomboboxWarehouse.SelectedItem);
+			bool itemsAvailable = ShipmentList.All(node=>node.IsAvailable);
 			return !alreadyLoaded && itemsAvailable;
 		}
 
@@ -253,15 +225,17 @@ namespace Vodovoz
 				CarLoadDocumentUoW.Root.AddItem (new CarLoadDocumentItem { MovementOperation = warehouseMovementOperation.Root });
 			}
 			CarLoadDocumentUoW.Save ();
-			ChangeShipmentStatus ();
-			UoW.Save (routelist);
+
+			UpdateShipmentStatus ();
+			UoW.Save(routelist);
 			UoW.Commit ();
+		
 			OnCloseTab (false);
 		}			
 
-		protected void ChangeShipmentStatus ()
+		protected void UpdateShipmentStatus ()
 		{
-			var warehousesLeft = Vodovoz.Repository.Store.WarehouseRepository.WarehousesNotVisited (UoW, shipmentType, shipmentId);
+			var warehousesLeft = Vodovoz.Repository.Store.WarehouseRepository.WarehousesNotLoadedFrom (UoW, shipmentType, shipmentId);
 			switch (shipmentType) {
 			case ShipmentDocumentType.Order:				
 				if(warehousesLeft.Count==0)
@@ -269,10 +243,7 @@ namespace Vodovoz
 				break;
 			case ShipmentDocumentType.RouteList:						
 				if (warehousesLeft.Count == 0) {
-					routelist.Status = RouteListStatus.EnRoute;
-					foreach (var item in routelist.Addresses) {
-						item.Order.OrderStatus = OrderStatus.OnTheWay;
-					}
+					routelist.Ship ();
 				}
 				else
 					routelist.Status = RouteListStatus.InLoading;

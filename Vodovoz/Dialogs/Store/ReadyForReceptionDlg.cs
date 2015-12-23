@@ -25,19 +25,16 @@ namespace Vodovoz
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
 		int shipmentId;
+		RouteList routelist;
 
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 		GenericObservableList<ReceptionItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionItemNode>();
 		GenericObservableList<ReceptionBottleNode> ReceptionBottleList = new GenericObservableList<ReceptionBottleNode>();
 		ReceptionItemNode equipmentToRegister;
 
-		public ReadyForReceptionDlg ()
-		{
-			this.Build ();
-		}
-
-		public ReadyForReceptionDlg (int id, Warehouse stock):this()
-		{			
+		public ReadyForReceptionDlg (int id, Warehouse stock)
+		{		
+			this.Build ();	
 			shipmentId = id;
 
 			this.TabName = "Прием машины";
@@ -83,7 +80,7 @@ namespace Vodovoz
 			if (stock != null)
 				ycomboboxWarehouse.SelectedItem = stock;
 
-			var routelist = UoW.GetById<RouteList> (id);
+			routelist = UoW.GetById<RouteList> (id);
 			textviewShipmentInfo.Buffer.Text =
 					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 				id,
@@ -118,6 +115,7 @@ namespace Vodovoz
 			if (CurrentStock.CanReceiveEquipment) {				
 				ListEquipment ();
 				ListTrackableEquipment ();
+				ListNewTrackableEquipment ();
 			}
 			ListReturnableItems ();
 		}
@@ -137,40 +135,13 @@ namespace Vodovoz
 			foreach (var bottle in orderBottles)
 				ReceptionBottleList.Add (bottle);			
 		}
-
-		/*
-		void ListEquipmentForService(){
-			ReceptionItemNode resultAlias = null;
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			Equipment equipmentAlias = null;
-			Nomenclature nomenclatureAlias = null;
-			ServiceClaim serviceClaimAlias = null;
-		
-			var equipmentItems = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
-				.JoinAlias (rli => rli.Order, () => orderAlias)
-				.JoinAlias (() => orderAlias.InitialOrderService, () => serviceClaimAlias)
-				.JoinAlias (() => serviceClaimAlias.Equipment, () => equipmentAlias,NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias (() => serviceClaimAlias.Nomenclature, () => nomenclatureAlias)
-				.SelectList (list => list
-					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)
-					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
-					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
-					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
-			                     )
-				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
-				.List<ReceptionItemNode> ();
-			foreach (var equipment in equipmentItems)
-				ReceptionEquipmentList.Add (equipment);			
-		}
-		*/
-
+			
 		void ListEquipment(){
 			ReceptionItemNode resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			Equipment equipmentAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			ServiceClaim serviceClaimAlias = null;
 			var equipmentItems = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
 				.JoinAlias (rli => rli.Order, () => orderAlias)
 				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
@@ -197,7 +168,6 @@ namespace Vodovoz
 			Equipment equipmentAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Nomenclature nomenclatureAlias = null;
-			ServiceClaim serviceClaimAlias = null;
 			var equipmentItems = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
 				.JoinAlias (rli => rli.Order, () => orderAlias)
 				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
@@ -217,6 +187,28 @@ namespace Vodovoz
 				ReceptionEquipmentList.Add (equipment);	
 		}
 
+		void ListNewTrackableEquipment(){
+			ReceptionItemNode resultAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			var equipmentItems = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
+				.JoinAlias (rli => rli.Order, () => orderAlias)
+				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Where(()=>orderEquipmentAlias.Direction==Domain.Orders.Direction.PickUp)
+				.JoinAlias(()=>orderEquipmentAlias.NewEquipmentNomenclature,()=>nomenclatureAlias)
+				.Where(()=>nomenclatureAlias.Serial)
+				.SelectList (list => list					
+					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)		
+					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
+					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
+				)
+				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
+				.List<ReceptionItemNode> ();
+			foreach (var equipment in equipmentItems)
+				ReceptionEquipmentList.Add (equipment);	
+		}
+
 		void ListReturnableItems(){
 			ReceptionItemNode resultAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
@@ -226,11 +218,11 @@ namespace Vodovoz
 			OrderEquipment orderEquipmentAlias = null;
 			Warehouse warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
 
-			var returnedItems = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
+			var returnableItems = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
 				.JoinAlias (rli => rli.Order, () => orderAlias)
 				.JoinAlias (() => orderAlias.OrderItems, () => orderItemsAlias)
 				.JoinAlias (() => orderItemsAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => !nomenclatureAlias.Serial)
+				.Where (() => !nomenclatureAlias.Serial)	
 				.Where (Restrictions.Or (
 				                    Restrictions.On (() => nomenclatureAlias.Warehouse).IsNull,
 				                    Restrictions.Eq (Projections.Property (() => nomenclatureAlias.Warehouse), warehouse)
@@ -246,18 +238,18 @@ namespace Vodovoz
 				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
 				.List<ReceptionItemNode> ();
 
-			var returnedEquipment = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
+			var returnableEquipment = UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == shipmentId)
 				.JoinAlias (rli => rli.Order, () => orderAlias)
 				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias)
 				.JoinAlias (() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(()=>orderEquipmentAlias.Direction==Vodovoz.Domain.Orders.Direction.Deliver)
 				.Where (Restrictions.Or (
 				                        Restrictions.On (() => nomenclatureAlias.Warehouse).IsNull,
 				                        Restrictions.Eq (Projections.Property (() => nomenclatureAlias.Warehouse), warehouse)
 			                        ))
 				.Where (() => nomenclatureAlias.Category != NomenclatureCategory.rent
-			                        && nomenclatureAlias.Category != NomenclatureCategory.deposit)
-				.Where (() => orderEquipmentAlias.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+			                        && nomenclatureAlias.Category != NomenclatureCategory.deposit)				
 				.SelectList (list => list
 					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)				
 					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
@@ -268,7 +260,7 @@ namespace Vodovoz
 				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
 				.List<ReceptionItemNode> ();
 			
-			foreach (var item in returnedItems.Union(returnedEquipment)) {			 
+			foreach (var item in returnableItems.Union(returnableEquipment)) {			 
 				ReceptionReturnsList.Add (item);
 			}				
 		}
@@ -356,10 +348,11 @@ namespace Vodovoz
 					CarUnloadDocumentUoW.Root.AddItem (new CarUnloadDocumentItem { MovementOperation = warehouseMovementOperation.Root });
 				}
 			}
-			RouteList routelist = CarUnloadDocumentUoW.GetById<RouteList> (shipmentId);
-			ChangeRouteListStatus (routelist);
-			CarUnloadDocumentUoW.Save (routelist);
 			CarUnloadDocumentUoW.Save ();
+
+			ChangeRouteListStatus (routelist);
+			UoW.Save (routelist);
+			UoW.Commit ();
 			OnCloseTab (false);
 		}
 

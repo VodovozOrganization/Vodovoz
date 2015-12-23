@@ -170,6 +170,14 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
+		public virtual void Ship(){
+			Status = RouteListStatus.EnRoute;
+			foreach (var item in Addresses) {
+				item.Order.OrderStatus = OrderStatus.OnTheWay;
+			}
+		}
+			
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
