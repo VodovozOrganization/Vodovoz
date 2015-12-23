@@ -5427,7 +5427,6 @@ Patronymic</property>
             <child>
               <widget class="Vodovoz.FreeRentPackagesView" id="freerentpackagesview1">
                 <property name="MemberName" />
-                <property name="HeightRequest">200</property>
                 <property name="Events">ButtonPressMask</property>
                 <property name="IsEditable">False</property>
               </widget>
@@ -5436,12 +5435,11 @@ Patronymic</property>
                 <property name="BottomAttach">5</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">False</property>
-                <property name="YOptions">0</property>
                 <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">False</property>
+                <property name="YExpand">True</property>
+                <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
             </child>
@@ -5604,9 +5602,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">1</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
+            <property name="AutoSize">False</property>
           </packing>
         </child>
       </widget>
@@ -6238,7 +6234,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackageDlg" design-size="397 205">
+  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackageDlg" design-size="397 228">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -8703,7 +8699,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackagesView" design-size="547 300">
+  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackagesView" design-size="560 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -8743,7 +8739,7 @@ Patronymic</property>
           </widget>
           <packing>
             <property name="Position">1</property>
-            <property name="AutoSize">True</property>
+            <property name="AutoSize">False</property>
           </packing>
         </child>
         <child>

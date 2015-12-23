@@ -129,7 +129,6 @@ namespace Vodovoz
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.freerentpackagesview1 = new global::Vodovoz.FreeRentPackagesView ();
-			this.freerentpackagesview1.HeightRequest = 200;
 			this.freerentpackagesview1.Events = ((global::Gdk.EventMask)(256));
 			this.freerentpackagesview1.Name = "freerentpackagesview1";
 			this.freerentpackagesview1.IsEditable = false;
@@ -138,7 +137,6 @@ namespace Vodovoz
 			w8.TopAttach = ((uint)(4));
 			w8.BottomAttach = ((uint)(5));
 			w8.RightAttach = ((uint)(2));
-			w8.YOptions = ((global::Gtk.AttachOptions)(0));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.hbox5 = new global::Gtk.HBox ();
 			this.hbox5.Name = "hbox5";
@@ -238,8 +236,6 @@ namespace Vodovoz
 			this.vbox1.Add (this.datatable1);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
 			w17.Position = 1;
-			w17.Expand = false;
-			w17.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
