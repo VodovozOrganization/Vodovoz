@@ -132,6 +132,7 @@ namespace Vodovoz
 					.SelectGroup (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 					.SelectSum (() => orderItemsAlias.Count).WithAlias (() => resultAlias.Amount)
 					.Select (() => unitsAlias.Name).WithAlias (() => resultAlias.UnitName)
+					.Select(()=>unitsAlias.Digits).WithAlias(()=>resultAlias.UnitDigits)
 			                 )
 				.TransformUsing (Transformers.AliasToBean <ShipmentItemsNode> ())
 				.List<ShipmentItemsNode> ();
@@ -152,6 +153,7 @@ namespace Vodovoz
 					.SelectGroup (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 					.SelectSum (() => 1).WithAlias (() => resultAlias.Amount)
 					.Select (() => unitsAlias.Name).WithAlias (() => resultAlias.UnitName)
+					.Select(()=>unitsAlias.Digits).WithAlias(()=>resultAlias.UnitDigits)
 			                      )
 				.TransformUsing (Transformers.AliasToBean <ShipmentItemsNode> ())
 				.List<ShipmentItemsNode> ();
@@ -265,7 +267,7 @@ namespace Vodovoz
 
 			public decimal InStock{ get; set; }
 
-			public string InStockText{ get { return $"{InStock} {UnitName}"; } }
+			public string InStockText{ get { return String.Format("{0} {1}",InStock.ToString("N"+UnitDigits),UnitName); } }
 
 			public bool IsAvailable{ get { return InStock >= Amount; } }
 
@@ -276,6 +278,8 @@ namespace Vodovoz
 			public bool IsTrackable{ get {return EquipmentId > 0;} }
 
 			public string UnitName{ get; set; }
+
+			public int UnitDigits{ get; set; }
 
 			public string SerialNumberText {
 				get { return IsNew ? String.Format ("{0}(новый)", SerialNumber) : String.Format ("{0}", SerialNumber); }
