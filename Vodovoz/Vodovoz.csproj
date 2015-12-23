@@ -445,6 +445,9 @@
     <Compile Include="Domain\Documents\CarUnloadDocumentItem.cs" />
     <Compile Include="HibernateMapping\Documents\CarUnloadDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\CarUnloadDocumentItemMap.cs" />
+    <Compile Include="ViewWidgets\Store\BottleReceptionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.BottleReceptionView.cs" />
+    <Compile Include="Representations\BottleReceptionVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -576,6 +579,7 @@
     <Folder Include="HibernateMapping\Contracts\" />
     <Folder Include="HibernateMapping\Goods\" />
     <Folder Include="Dialogs\Logistic\" />
+    <Folder Include="ViewWidgets\Store\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

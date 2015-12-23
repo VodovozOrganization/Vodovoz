@@ -29,7 +29,6 @@ namespace Vodovoz
 
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 		GenericObservableList<ReceptionItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionItemNode>();
-		GenericObservableList<ReceptionBottleNode> ReceptionBottleList = new GenericObservableList<ReceptionBottleNode>();
 		ReceptionItemNode equipmentToRegister;
 
 		public ReadyForReceptionDlg (int id, Warehouse stock)
@@ -41,17 +40,10 @@ namespace Vodovoz
 
 			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, ShipmentDocumentType.RouteList, id);
 
-			ytreeBottles.ItemsDataSource = ReceptionBottleList;
+			bottleReceptionView.UoW = UoW;
+
 			ytreeEquipment.ItemsDataSource = ReceptionEquipmentList;
 			ytreeReturns.ItemsDataSource = ReceptionReturnsList;
-
-			ytreeBottles.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionBottleNode> ()
-				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Name)
-				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Amount)
-					.Adjustment (new Gtk.Adjustment (0, 0, 9999, 1, 100, 0))
-					.Editing (true)
-				.AddColumn("")
-				.Finish ();
 
 			ytreeEquipment.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionItemNode> ()
 				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Name)
@@ -98,42 +90,23 @@ namespace Vodovoz
 			UpdateItemsList ();
 		}
 
-		void UpdateItemsList(){
-			ReceptionBottleList.Clear ();
+		void UpdateItemsList(){			
 			ReceptionEquipmentList.Clear ();
 			ReceptionReturnsList.Clear ();
 			Warehouse CurrentStock = ycomboboxWarehouse.SelectedItem as Warehouse;
 			if (CurrentStock == null)
 				return;
 			
-			frameBottles.Visible = CurrentStock.CanReceiveBottles;
+			bottleReceptionView.Visible = CurrentStock.CanReceiveBottles;
 			frameEquipment.Visible = CurrentStock.CanReceiveEquipment;
 			buttonAddEquipment.Sensitive = buttonConfirmReception.Sensitive = CanUnload ();
 
-			if (CurrentStock.CanReceiveBottles)
-				ListBottles ();
 			if (CurrentStock.CanReceiveEquipment) {				
 				ListEquipment ();
 				ListTrackableEquipment ();
 				ListNewTrackableEquipment ();
 			}
 			ListReturnableItems ();
-		}
-
-		void ListBottles ()
-		{
-			ReceptionBottleNode resultAlias = null;
-			Nomenclature nomenclatureAlias = null;
-
-			var orderBottles = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias).Where (n => n.Category == NomenclatureCategory.bottle)
-				.SelectList (list => list
-					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
-					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
-				).TransformUsing (Transformers.AliasToBean<ReceptionBottleNode> ())
-				.List<ReceptionBottleNode> ();
-
-			foreach (var bottle in orderBottles)
-				ReceptionBottleList.Add (bottle);			
 		}
 			
 		void ListEquipment(){
@@ -324,7 +297,7 @@ namespace Vodovoz
 			CarUnloadDocumentUoW.Root.RouteList = UoW.GetById<RouteList> (shipmentId);
 			CarUnloadDocumentUoW.Root.Warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
 
-			foreach (ReceptionBottleNode node in ReceptionBottleList) {
+			foreach (Vodovoz.ViewModel.BottleReceptionVMNode node in bottleReceptionView.Items) {
 				if (node.Amount != 0) {
 					var warehouseMovementOperation = UnitOfWorkFactory.CreateWithNewRoot <WarehouseMovementOperation> ();
 					warehouseMovementOperation.Root.Amount = node.Amount;
@@ -386,12 +359,6 @@ namespace Vodovoz
 				Amount = value ? 1 : 0;
 			}
 		}
-	}
-
-	public class ReceptionBottleNode{
-		public int NomenclatureId{get;set;}
-		public string Name{get;set;}
-		public int Amount{get;set;}
 	}
 }
 

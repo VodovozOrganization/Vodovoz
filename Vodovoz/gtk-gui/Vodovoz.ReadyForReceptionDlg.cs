@@ -22,15 +22,7 @@ namespace Vodovoz
 		
 		private global::Gtk.VBox vbox2;
 		
-		private global::Gtk.Frame frameBottles;
-		
-		private global::Gtk.Alignment GtkAlignment2;
-		
-		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-		
-		private global::Gamma.GtkWidgets.yTreeView ytreeBottles;
-		
-		private global::Gtk.Label GtkLabel3;
+		private global::Vodovoz.BottleReceptionView bottleReceptionView;
 		
 		private global::Gtk.Frame frameEquipment;
 		
@@ -138,32 +130,11 @@ namespace Vodovoz
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.frameBottles = new global::Gtk.Frame ();
-			this.frameBottles.Name = "frameBottles";
-			this.frameBottles.ShadowType = ((global::Gtk.ShadowType)(0));
-			// Container child frameBottles.Gtk.Container+ContainerChild
-			this.GtkAlignment2 = new global::Gtk.Alignment (0F, 0F, 1F, 1F);
-			this.GtkAlignment2.Name = "GtkAlignment2";
-			this.GtkAlignment2.LeftPadding = ((uint)(12));
-			// Container child GtkAlignment2.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
-			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
-			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeBottles = new global::Gamma.GtkWidgets.yTreeView ();
-			this.ytreeBottles.CanFocus = true;
-			this.ytreeBottles.Name = "ytreeBottles";
-			this.GtkScrolledWindow.Add (this.ytreeBottles);
-			this.GtkAlignment2.Add (this.GtkScrolledWindow);
-			this.frameBottles.Add (this.GtkAlignment2);
-			this.GtkLabel3 = new global::Gtk.Label ();
-			this.GtkLabel3.Name = "GtkLabel3";
-			this.GtkLabel3.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Тара</b>");
-			this.GtkLabel3.UseMarkup = true;
-			this.frameBottles.LabelWidget = this.GtkLabel3;
-			this.vbox2.Add (this.frameBottles);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.frameBottles]));
-			w10.Position = 0;
+			this.bottleReceptionView = new global::Vodovoz.BottleReceptionView ();
+			this.bottleReceptionView.Name = "bottleReceptionView";
+			this.vbox2.Add (this.bottleReceptionView);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.bottleReceptionView]));
+			w7.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.frameEquipment = new global::Gtk.Frame ();
 			this.frameEquipment.Name = "frameEquipment";
@@ -189,11 +160,11 @@ namespace Vodovoz
 			this.GtkLabel4.UseMarkup = true;
 			this.frameEquipment.LabelWidget = this.GtkLabel4;
 			this.vbox2.Add (this.frameEquipment);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.frameEquipment]));
-			w14.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.frameEquipment]));
+			w11.Position = 1;
 			this.hbox2.Add (this.vbox2);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
-			w15.Position = 0;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
+			w12.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.frameReturns = new global::Gtk.Frame ();
 			this.frameReturns.Name = "frameReturns";
@@ -219,11 +190,11 @@ namespace Vodovoz
 			this.GtkLabel2.UseMarkup = true;
 			this.frameReturns.LabelWidget = this.GtkLabel2;
 			this.hbox2.Add (this.frameReturns);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.frameReturns]));
-			w19.Position = 1;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.frameReturns]));
+			w16.Position = 1;
 			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
-			w20.Position = 1;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			w17.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
@@ -236,10 +207,10 @@ namespace Vodovoz
 			this.buttonAddEquipment.UseUnderline = true;
 			this.buttonAddEquipment.Label = global::Mono.Unix.Catalog.GetString ("Добавить оборудование");
 			this.hbox1.Add (this.buttonAddEquipment);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAddEquipment]));
-			w21.Position = 0;
-			w21.Expand = false;
-			w21.Fill = false;
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAddEquipment]));
+			w18.Position = 0;
+			w18.Expand = false;
+			w18.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonConfirmReception = new global::Gtk.Button ();
 			this.buttonConfirmReception.Sensitive = false;
@@ -247,21 +218,22 @@ namespace Vodovoz
 			this.buttonConfirmReception.Name = "buttonConfirmReception";
 			this.buttonConfirmReception.UseUnderline = true;
 			this.buttonConfirmReception.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить прием");
-			global::Gtk.Image w22 = new global::Gtk.Image ();
-			w22.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.SmallToolbar);
-			this.buttonConfirmReception.Image = w22;
+			global::Gtk.Image w19 = new global::Gtk.Image ();
+			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.SmallToolbar);
+			this.buttonConfirmReception.Image = w19;
 			this.hbox1.Add (this.buttonConfirmReception);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonConfirmReception]));
-			w23.Position = 1;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonConfirmReception]));
+			w20.Position = 1;
 			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w24.Position = 2;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w21.Position = 2;
+			w21.Expand = false;
+			w21.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
+			this.bottleReceptionView.Hide ();
 			this.Hide ();
 			this.ycomboboxWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnYcomboboxWarehouseItemSelected);
 			this.ytreeEquipment.RowActivated += new global::Gtk.RowActivatedHandler (this.OnYtreeEquipmentRowActivated);
