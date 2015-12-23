@@ -51,7 +51,7 @@ namespace Vodovoz.ViewModel
 				.Select (op=>op.IncomingWarehouse)
 				.Take (1);
 			
-			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)//.JoinAlias(()=>orderAlias.OrderEquipments,()=>orderEquipmentsAlias,NHibernate.SqlCommand.JoinType.LeftOuterJoin)				
+			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)
 				.Where(Restrictions.In(Projections.Property(()=>nomenclatureAlias.Category),Nomenclature.GetCategoriesForSale()))
 				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.Serial)
 				.SelectList(list=>list

@@ -169,11 +169,11 @@ namespace Vodovoz
 
 		protected void UpdateStockBalance(){
 			Warehouse warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
-			itemsInStock = warehouse.NomenclaturesInStock (UoW,
+			itemsInStock = Vodovoz.Repository.Store.WarehouseRepository.NomenclatureInStock (UoW,warehouse.Id,
 				ShipmentList.Where(shipment=>!shipment.IsTrackable).Select (shipment => shipment.Id).ToArray());
 			foreach (var item in itemsInStock)
 				ShipmentList.First (shipment => shipment.Id == item.Key).InStock = item.Value;
-			equipmentInStock = warehouse.EquipmentInStock (UoW,
+			equipmentInStock = Vodovoz.Repository.Store.WarehouseRepository.EquipmentInStock (UoW,warehouse.Id,
 				ShipmentList.Where(shipment=>shipment.IsTrackable).Select (shipment => shipment.EquipmentId).ToArray ());
 			foreach (var item in equipmentInStock)
 				ShipmentList.First (shipment => shipment.EquipmentId == item.Key).InStock = item.Value;
@@ -226,14 +226,14 @@ namespace Vodovoz
 			}
 			CarLoadDocumentUoW.Save ();
 
-			UpdateShipmentStatus ();
+			ChangeShipmentStatus ();
 			UoW.Save(routelist);
 			UoW.Commit ();
 		
 			OnCloseTab (false);
 		}			
 
-		protected void UpdateShipmentStatus ()
+		protected void ChangeShipmentStatus ()
 		{
 			var warehousesLeft = Vodovoz.Repository.Store.WarehouseRepository.WarehousesNotLoadedFrom (UoW, shipmentType, shipmentId);
 			switch (shipmentType) {
