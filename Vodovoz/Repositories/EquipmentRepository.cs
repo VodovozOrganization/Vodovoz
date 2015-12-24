@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using QSOrmProject;
 using System.Linq;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Repository
 {
@@ -20,21 +21,38 @@ namespace Vodovoz.Repository
 
 		public static Equipment GetEquipmentForSaleByNomenclature (IUnitOfWork uow, Nomenclature nomenclature)
 		{
-			Equipment equipmentAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-
-			var subqueryEquipmentAvailable = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
-				.OrderBy (() => operationAddAlias.OperationTime).Desc
-				.Where (() => equipmentAlias.Id == operationAddAlias.Equipment.Id)
-				.Select (op=>op.IncomingWarehouse)
-				.Take (1);
-
-			return uow.Session.QueryOver<Equipment> (() => equipmentAlias)				
-				.Where (() => equipmentAlias.Nomenclature.Id == nomenclature.Id)
-				.Where (() => !equipmentAlias.OnDuty)
-				.Where (Subqueries.IsNotNull (subqueryEquipmentAvailable.DetachedCriteria))
+			return AvailableEquipmentQuery ().GetExecutableQueryOver (uow.Session)
+				.Where (eq => eq.Nomenclature.Id == nomenclature.Id)
+				.Where (eq => !eq.OnDuty)
 				.Take (1)
 				.List ().First ();
+		}
+
+		public static QueryOver<Equipment> AvailableEquipmentQuery(){
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Equipment equipmentAlias = null;
+			WarehouseMovementOperation operationAddAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+
+			var equipmentInStockCriterion = Subqueries.IsNotNull (
+				                                QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
+				.OrderBy (() => operationAddAlias.OperationTime).Desc
+				.Where (() => equipmentAlias.Id == operationAddAlias.Equipment.Id)
+				.Select (op => op.IncomingWarehouse)
+				.Take (1).DetachedCriteria
+			                                );
+
+			var subqueryAllReservedEquipment = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias)
+				.Where (() => orderAlias.OrderStatus == OrderStatus.Accepted
+					|| orderAlias.OrderStatus == OrderStatus.NewOrder
+					|| orderAlias.OrderStatus == OrderStatus.InTravelList)				
+				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Where (() => orderEquipmentAlias.Direction == Direction.Deliver)
+				.Select (Projections.Property(()=>orderEquipmentAlias.Equipment.Id));
+
+			return QueryOver.Of<Equipment> (() => equipmentAlias)
+				.Where (equipmentInStockCriterion)
+				.WithSubquery.WhereProperty (()=>equipmentAlias.Id).NotIn (subqueryAllReservedEquipment);
 		}
 
 		public static QueryOver<Equipment> GetEquipmentByNomenclature (Nomenclature nomenclature)

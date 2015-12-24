@@ -24,20 +24,18 @@ namespace Vodovoz.ViewModel
 			NomenclatureForSaleVMNode resultAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			OrderItem orderItemsAlias = null;
 
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
+			var subqueryAdded = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
 				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Where (Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse)))
 				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
-			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
+			var subqueryRemoved = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
 				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
 				.Where(Restrictions.IsNotNull (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse)))
 				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
-
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			OrderItem orderItemsAlias = null;
-			Equipment equipmentAlias = null;
 
 			var subqueryReserved = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias)
 				.JoinAlias (() => orderAlias.OrderItems, () => orderItemsAlias)
@@ -45,12 +43,6 @@ namespace Vodovoz.ViewModel
 				.Where(()=>orderAlias.OrderStatus==OrderStatus.NewOrder)
 				.Select (Projections.Sum (() => orderItemsAlias.Count));
 
-			var subqueryEquipmentAvailable = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
-				.OrderBy (() => operationAddAlias.OperationTime).Desc
-				.Where (() => equipmentAlias.Id == operationAddAlias.Equipment.Id)
-				.Select (op=>op.IncomingWarehouse)
-				.Take (1);
-			
 			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)
 				.Where(Restrictions.In(Projections.Property(()=>nomenclatureAlias.Category),Nomenclature.GetCategoriesForSale()))
 				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.Serial)
@@ -60,22 +52,22 @@ namespace Vodovoz.ViewModel
 					.Select(()=>nomenclatureAlias.Category).WithAlias(()=>resultAlias.Category)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
 					.Select(() => unitAlias.Digits).WithAlias(() => resultAlias.UnitDigits)
-					.SelectSubQuery (subqueryAdd).WithAlias(() => resultAlias.Append)
-					.SelectSubQuery (subqueryRemove).WithAlias(() => resultAlias.Removed)
+					.SelectSubQuery (subqueryAdded).WithAlias(() => resultAlias.Added)
+					.SelectSubQuery (subqueryRemoved).WithAlias(() => resultAlias.Removed)
 					.SelectSubQuery(subqueryReserved).WithAlias(()=>resultAlias.Reserved)
 				)
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
 				.List<NomenclatureForSaleVMNode>();						
-			//TODO учитывать зарезервированное оборудование
-			var equipment = UoW.Session.QueryOver<Equipment>(()=>equipmentAlias)
-				.Where(()=>!equipmentAlias.OnDuty)
-				.JoinAlias(()=>equipmentAlias.Nomenclature,()=>nomenclatureAlias)
-				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias)
-				.Where(Subqueries.IsNotNull(subqueryEquipmentAvailable.DetachedCriteria))
+			
+			var equipment = Repository.EquipmentRepository.AvailableEquipmentQuery()
+				.GetExecutableQueryOver(UoW.Session)
+				.Where (eq => !eq.OnDuty)
+				.JoinAlias (eq => eq.Nomenclature, () => nomenclatureAlias)
+				.JoinAlias (() => nomenclatureAlias.Unit, () => unitAlias)
 				.SelectList(list=>list
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
 					.Select(()=>true).WithAlias(()=>resultAlias.IsEquipmentWithSerial)
-					.SelectSum(()=>(decimal)1).WithAlias(()=>resultAlias.Append)
+					.SelectSum(()=>(decimal)1).WithAlias(()=>resultAlias.Added)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(()=>nomenclatureAlias.Category).WithAlias(()=>resultAlias.Category)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
@@ -134,10 +126,10 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		public string Name{get;set;}
 		public NomenclatureCategory Category{ get; set; }
-		public decimal InStock{ get{ return Append - Removed; } }
+		public decimal InStock{ get{ return Added - Removed; } }
 		public int Reserved{ get; set; }
 		public decimal Available{get{ return InStock - Reserved; }}
-		public decimal Append{ get; set; }
+		public decimal Added{ get; set; }
 		public decimal Removed{ get; set; }
 		public string UnitName{ get; set;}
 		public short UnitDigits{ get; set;}
