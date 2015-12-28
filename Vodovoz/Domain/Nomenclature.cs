@@ -143,6 +143,8 @@ namespace Vodovoz.Domain
 
 		public virtual decimal GetPrice (int itemsCount)
 		{
+			if (itemsCount < 1)
+				itemsCount = 1;
 			var price = NomenclaturePrice
 				.OrderByDescending (p => p.MinCount).FirstOrDefault (p => (p.MinCount <= itemsCount));
 
