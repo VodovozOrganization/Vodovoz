@@ -1,10 +1,10 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Orders;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -190,14 +190,14 @@ namespace Vodovoz.Domain.Logistic
 
 			if (Shift == null)
 				yield return new ValidationResult ("Смена маршрутного листа должна быть заполнена.",
-					new[] { this.GetPropertyName (o => o.Shift) });
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName (this, o => o.Shift) });
 
 			if (Driver == null)
 				yield return new ValidationResult ("Не заполнен водитель.",
-					new[] { this.GetPropertyName (o => o.Driver) });
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName (this, o => o.Driver) });
 			if (Car == null)
 				yield return new ValidationResult ("На заполнен автомобиль.",
-					new[] { this.GetPropertyName (o => o.Car) });
+					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName (this, o => o.Car) });
 		}
 
 		#endregion
