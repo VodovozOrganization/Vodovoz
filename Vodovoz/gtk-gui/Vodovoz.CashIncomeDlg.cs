@@ -52,6 +52,14 @@ namespace Vodovoz
 		
 		private global::Gamma.Widgets.yEntryReference yentryEmploeey;
 		
+		private global::Gtk.VBox vboxDebts;
+		
+		private global::Gtk.Label labelTableTitle;
+		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+		
+		private global::Gamma.GtkWidgets.yTreeView ytreeviewDebts;
+		
 		private global::Gtk.Label label6;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -158,6 +166,7 @@ namespace Vodovoz
 			this.enumcomboOperation.ShowSpecialStateAll = false;
 			this.enumcomboOperation.ShowSpecialStateNot = false;
 			this.enumcomboOperation.UseShortTitle = false;
+			this.enumcomboOperation.DefaultFirst = false;
 			this.table1.Add (this.enumcomboOperation);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1 [this.enumcomboOperation]));
 			w10.LeftAttach = ((uint)(1));
@@ -341,15 +350,45 @@ namespace Vodovoz
 			w26.Expand = false;
 			w26.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxDebts = new global::Gtk.VBox ();
+			this.vboxDebts.Name = "vboxDebts";
+			this.vboxDebts.Spacing = 6;
+			this.vboxDebts.BorderWidth = ((uint)(6));
+			// Container child vboxDebts.Gtk.Box+BoxChild
+			this.labelTableTitle = new global::Gtk.Label ();
+			this.labelTableTitle.Name = "labelTableTitle";
+			this.labelTableTitle.Xalign = 0F;
+			this.labelTableTitle.LabelProp = global::Mono.Unix.Catalog.GetString ("Последние выданные авансы:");
+			this.vboxDebts.Add (this.labelTableTitle);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vboxDebts [this.labelTableTitle]));
+			w27.Position = 0;
+			w27.Expand = false;
+			w27.Fill = false;
+			// Container child vboxDebts.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.ytreeviewDebts = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeviewDebts.CanFocus = true;
+			this.ytreeviewDebts.Name = "ytreeviewDebts";
+			this.GtkScrolledWindow1.Add (this.ytreeviewDebts);
+			this.vboxDebts.Add (this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vboxDebts [this.GtkScrolledWindow1]));
+			w29.Position = 1;
+			this.vbox1.Add (this.vboxDebts);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.vboxDebts]));
+			w30.Position = 2;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.label6 = new global::Gtk.Label ();
 			this.label6.Name = "label6";
 			this.label6.Xalign = 0F;
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Основание:");
 			this.vbox1.Add (this.label6);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label6]));
-			w27.Position = 2;
-			w27.Expand = false;
-			w27.Fill = false;
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label6]));
+			w31.Position = 3;
+			w31.Expand = false;
+			w31.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -361,17 +400,22 @@ namespace Vodovoz
 			this.ytextviewDescription.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow.Add (this.ytextviewDescription);
 			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w29.Position = 3;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
+			w33.Position = 4;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
+			this.comboExpense.Hide ();
+			this.labelExpenseTitle.Hide ();
+			this.vboxDebts.Hide ();
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonPrint.Clicked += new global::System.EventHandler (this.OnButtonPrintClicked);
+			this.yentryEmploeey.Changed += new global::System.EventHandler (this.OnYentryEmploeeyChanged);
 			this.enumcomboOperation.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnEnumcomboOperationEnumItemSelected);
+			this.comboExpense.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnComboExpenseItemSelected);
 		}
 	}
 }

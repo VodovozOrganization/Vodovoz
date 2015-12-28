@@ -5,12 +5,16 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
+using Gamma.GtkWidgets;
+using System.Linq;
 
 namespace Vodovoz
 {
 	public partial class CashIncomeDlg : OrmGtkDialogBase<Income>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
+		List<Selectable<Expense>> selectableAdvances;
 
 		public CashIncomeDlg ()
 		{
@@ -65,6 +69,14 @@ namespace Vodovoz
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
+
+			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<Selectable<Expense>> ()
+				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
+				.AddColumn ("Дата").AddTextRenderer (a => a.Value.Date.ToString ())
+				.AddColumn ("Сумма").AddTextRenderer (a => a.Value.Money.ToString ("C"))
+				.AddColumn ("Статья").AddTextRenderer (a => a.Value.ExpenseCategory.Name)
+				.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
+				.Finish ();
 		}
 
 		void OnIncomeCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
@@ -82,9 +94,20 @@ namespace Vodovoz
 			var valid = new QSValidator<Income> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-
-			logger.Info ("Сохраняем Приходный ордер...");
-			UoWGeneric.Save();
+			bool wasNew = UoW.IsNew;
+			logger.Info ("Сохраняем Приходный ордер..."); 
+			UoWGeneric.Save();		
+			if (Entity.TypeOperation == IncomeType.Return && wasNew) {
+				logger.Info ("Закрываем авансы...");
+				foreach(Selectable<Expense> expense in selectableAdvances){
+					if (expense.Selected) {												
+						var advanceClosing = Entity.CloseAdvance (expense.Value);
+						UoWGeneric.Save (advanceClosing);
+						UoWGeneric.Save (expense.Value);
+					}
+				}
+			}
+			UoWGeneric.Commit ();
 			logger.Info ("Ok");
 			return true;
 
@@ -114,6 +137,62 @@ namespace Vodovoz
 			labelIncomeTitle.Visible = comboCategory.Visible = Entity.TypeOperation != IncomeType.Return;
 
 			labelClientTitle.Visible = yentryClient.Visible = Entity.TypeOperation == IncomeType.Payment;
+
+			vboxDebts.Visible = Entity.TypeOperation == IncomeType.Return && UoW.IsNew;
+			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
+
+			FillDebts ();
+		}
+
+		protected void OnYentryEmploeeyChanged (object sender, EventArgs e)
+		{			
+			FillDebts ();
+		}
+
+		protected void OnComboExpenseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			FillDebts ();
+		}
+
+		protected void FillDebts(){
+			if (Entity.TypeOperation == IncomeType.Return && Entity.Employee != null) {
+				var advances = Repository.Cash.AccountableDebtsRepository
+					.UnclosedAdvance (UoW, Entity.Employee, Entity.ExpenseCategory);
+				selectableAdvances = advances.Select (advance => new Selectable<Expense> (advance))
+				.ToList ();
+				selectableAdvances.ForEach (advance => advance.SelectChanged += OnAdvanceSelectionChanged);
+				ytreeviewDebts.ItemsDataSource = selectableAdvances;
+			}
+		}
+
+		protected void OnAdvanceSelectionChanged(object sender, EventArgs args){
+			Entity.Money = selectableAdvances.
+				Where(expense=>expense.Selected)
+				.Sum (selectedExpense => selectedExpense.Value.Money);
+		}
+			
+	}
+
+	public class Selectable<T> {
+
+		private bool selected;
+
+		public bool Selected {
+			get { return selected;}
+			set{ selected = value;
+				if (SelectChanged != null)
+					SelectChanged (this, EventArgs.Empty);
+			}
+		}
+
+		public event EventHandler SelectChanged;
+
+		public T Value { get; set;}
+
+		public Selectable(T obj)
+		{
+			Value = obj;
+			Selected = false;
 		}
 	}
 }

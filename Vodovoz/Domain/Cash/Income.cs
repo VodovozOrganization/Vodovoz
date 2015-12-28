@@ -119,6 +119,18 @@ namespace Vodovoz.Domain.Cash
 		{
 		}
 
+		public AdvanceClosing CloseAdvance(Expense expense)
+		{
+			if (TypeOperation != IncomeType.Return) {
+				throw new InvalidOperationException ("Приходный ордер должен иметь тип '"+Gamma.Utilities.AttributeUtil.GetEnumTitle(IncomeType.Return)+"'");
+			}
+			if (expense.TypeOperation != ExpenseType.Advance) {
+				throw new InvalidOperationException ("Расходный ордер должен иметь тип '"+Gamma.Utilities.AttributeUtil.GetEnumTitle(ExpenseType.Advance)+"'");
+			}
+			expense.AdvanceClosed = true;
+			return new AdvanceClosing (this, expense);
+		}
+
 		#region IValidatableObject implementation
 
 		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -132,6 +144,7 @@ namespace Vodovoz.Domain.Cash
 				if (ExpenseCategory == null)
 					yield return new ValidationResult ("Статья по которой брались деньги должна быть указана.",
 						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
+				
 			}
 
 			if(TypeOperation != IncomeType.Return)

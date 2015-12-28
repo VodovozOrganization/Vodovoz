@@ -14,6 +14,7 @@ namespace Vodovoz.HMap
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			References (x => x.AdvanceExpense).Column ("expense_id").Not.Nullable ();
 			References (x => x.AdvanceReport).Column ("advance_report_id");
+			References (x => x.Income).Column ("income_id");
 		}
 	}
 }

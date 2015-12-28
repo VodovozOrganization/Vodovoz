@@ -7732,6 +7732,7 @@ Patronymic</property>
                             <property name="ShowSpecialStateAll">False</property>
                             <property name="ShowSpecialStateNot">False</property>
                             <property name="UseShortTitle">False</property>
+                            <property name="DefaultFirst">False</property>
                           </widget>
                           <packing>
                             <property name="Position">0</property>
@@ -10638,6 +10639,7 @@ Patronymic</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
             <property name="UseShortTitle">False</property>
+            <property name="DefaultFirst">False</property>
             <signal name="EnumItemSelected" handler="OnEnumcomboDocumentTypeEnumItemSelected" />
           </widget>
           <packing>
@@ -19343,7 +19345,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 355">
+  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 504">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -19472,11 +19474,13 @@ RegistrationNumber</property>
             <child>
               <widget class="Gamma.Widgets.ySpecComboBox" id="comboExpense">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">True</property>
+                <signal name="ItemSelected" handler="OnComboExpenseItemSelected" />
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -19502,6 +19506,7 @@ RegistrationNumber</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
                 <property name="UseShortTitle">False</property>
+                <property name="DefaultFirst">False</property>
                 <signal name="EnumItemSelected" handler="OnEnumcomboOperationEnumItemSelected" />
               </widget>
               <packing>
@@ -19692,6 +19697,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelExpenseTitle">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="Xalign">1</property>
                 <property name="LabelProp" translatable="yes">Статья расхода:</property>
               </widget>
@@ -19797,6 +19803,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yEntryReference" id="yentryEmploeey">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <signal name="Changed" handler="OnYentryEmploeeyChanged" />
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -19823,13 +19830,55 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
+          <widget class="Gtk.VBox" id="vboxDebts">
+            <property name="MemberName" />
+            <property name="Visible">False</property>
+            <property name="Spacing">6</property>
+            <property name="BorderWidth">6</property>
+            <child>
+              <widget class="Gtk.Label" id="labelTableTitle">
+                <property name="MemberName" />
+                <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes">Последние выданные авансы:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
+                <property name="MemberName" />
+                <property name="ShadowType">In</property>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewDebts">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="ShowScrollbars">True</property>
+                  </widget>
+                </child>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gtk.Label" id="label6">
             <property name="MemberName" />
             <property name="Xalign">0</property>
             <property name="LabelProp" translatable="yes">Основание:</property>
           </widget>
           <packing>
-            <property name="Position">2</property>
+            <property name="Position">3</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
@@ -19850,7 +19899,7 @@ RegistrationNumber</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">3</property>
+            <property name="Position">4</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
@@ -19979,6 +20028,7 @@ RegistrationNumber</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
                 <property name="UseShortTitle">False</property>
+                <property name="DefaultFirst">False</property>
                 <signal name="EnumItemSelected" handler="OnEnumcomboOperationEnumItemSelected" />
               </widget>
               <packing>
@@ -21494,6 +21544,7 @@ RegistrationNumber</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
             <property name="UseShortTitle">False</property>
+            <property name="DefaultFirst">False</property>
             <signal name="EnumItemSelected" handler="OnComboPartEnumItemSelected" />
           </widget>
           <packing>
@@ -22038,6 +22089,7 @@ RegistrationNumber</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
             <property name="UseShortTitle">False</property>
+            <property name="DefaultFirst">False</property>
             <signal name="EnumItemSelected" handler="OnComboPartEnumItemSelected" />
           </widget>
           <packing>
@@ -22382,6 +22434,7 @@ RegistrationNumber</property>
                         <property name="ShowSpecialStateAll">False</property>
                         <property name="ShowSpecialStateNot">False</property>
                         <property name="UseShortTitle">False</property>
+                        <property name="DefaultFirst">False</property>
                         <signal name="Changed" handler="OnEnumPaymentTypeChanged" />
                       </widget>
                       <packing>
@@ -22408,6 +22461,7 @@ RegistrationNumber</property>
                         <property name="ShowSpecialStateAll">False</property>
                         <property name="ShowSpecialStateNot">False</property>
                         <property name="UseShortTitle">False</property>
+                        <property name="DefaultFirst">False</property>
                         <signal name="Changed" handler="OnEnumSignatureTypeChanged" />
                       </widget>
                       <packing>
@@ -22434,6 +22488,7 @@ RegistrationNumber</property>
                         <property name="ShowSpecialStateAll">False</property>
                         <property name="ShowSpecialStateNot">False</property>
                         <property name="UseShortTitle">False</property>
+                        <property name="DefaultFirst">False</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">1</property>

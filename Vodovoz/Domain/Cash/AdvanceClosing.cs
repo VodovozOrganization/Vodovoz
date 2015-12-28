@@ -28,6 +28,14 @@ namespace Vodovoz.Domain.Cash
 			get { return advanceReport; }
 			set { SetField (ref advanceReport, value, () => AdvanceReport); }
 		}
+
+		Income income;
+
+		[Display (Name = "Приходной ордер")]
+		public virtual Income Income {
+			get { return income; }
+			set { SetField (ref income, value, () => Income); }
+		}
 			
 		#endregion
 
@@ -41,6 +49,12 @@ namespace Vodovoz.Domain.Cash
 			this.advanceReport = advanceReport;
 		}
 
+		public AdvanceClosing (Income income,  Expense advanceExpense)
+		{
+			this.advanceExpense = advanceExpense;
+			this.income = income;
+		}
+
 		#region IValidatableObject implementation
 
 		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -48,8 +62,8 @@ namespace Vodovoz.Domain.Cash
 			if (AdvanceExpense == null)
 				yield return new ValidationResult ("Выданный аванс должен быть заполнен.",
 					new[] { this.GetPropertyName (o => o.AdvanceExpense) });
-			if (AdvanceReport == null)
-				yield return new ValidationResult ("Авансовый отчет должен быть заполнен.",
+			if (AdvanceReport == null && Income==null)
+				yield return new ValidationResult ("Авансовый отчет или приходной ордер должен быть заполнен.",
 					new[] {this.GetPropertyName (o => o.AdvanceReport) });
 		}
 
