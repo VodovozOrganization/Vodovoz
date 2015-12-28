@@ -116,7 +116,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT nomenclature.id AS id, nomenclature.name AS name, '--' AS unit_code, measurement_units.name AS mu_name, order_items.count AS count, order_items.price AS item_price, order_items.price * order_items.count AS total 
@@ -130,7 +130,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -162,37 +162,42 @@ WHERE order_items.order_id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DepositRefund">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-refund_deposit, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
+deposit_sum,count as deposit_count, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
 FROM
-order_deposit_refund_items
+order_deposit_items
 WHERE
-order_id = @order_id;</CommandText>
+order_id = @order_id
+AND 
+payment_type='ToClient'</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="refund_deposit">
-          <DataField>refund_deposit</DataField>
+      <Fields >
+        <Field Name="deposit_price">
+          <DataField>deposit_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="deposit_type">
           <DataField>deposit_type</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="deposit_count">
+          <DataField>deposit_count</DataField>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="RefundExists">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT * FROM order_deposit_refund_items LIMIT 1;</CommandText>
+        <CommandText>SELECT * FROM order_deposit_items LIMIT 1;</CommandText>
       </Query>
-      <Fields />
+      <Fields  />
     </DataSet>
   </DataSets>
   <PageHeader>
@@ -1107,7 +1112,7 @@ order_id = @order_id;</CommandText>
           <Textbox Name="Textbox11">
             <Height>12.00pt</Height>
             <Width>360.27pt</Width>
-            <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({refund_deposit}, 'DepositRefund'))</Value>
+            <Value>='Предварительно согласованная корректировка суммы: ' + ({total} - Sum({total}, 'Goods') + Sum({deposit_price}*{deposit_count}, 'DepositRefund'))</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>2.7pt</Top>
@@ -1130,8 +1135,8 @@ order_id = @order_id;</CommandText>
         <Width>142.02pt</Width>
         <Value>='Итого: ' + Sum({total}, 'Goods')</Value>
         <ZIndex>1</ZIndex>
-        <Left>460.2pt</Left>
-        <Top>199.9pt</Top>
+        <Left>460.20pt</Left>
+        <Top>199.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1167,7 +1172,7 @@ order_id = @order_id;</CommandText>
         </Style>
         <ReportName>InvoiceDepositRefundTable</ReportName>
         <MergeTransactions>true</MergeTransactions>
-        <Parameters >
+        <Parameters>
           <Parameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </Parameter>

@@ -13,28 +13,34 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="DepositRefund">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
-refund_deposit, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
+deposit_sum,count as deposit_count, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
 FROM
-order_deposit_refund_items
+order_deposit_items
 WHERE
-order_id = @order_id;</CommandText>
+order_id = @order_id
+AND 
+payment_type='ToClient'</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="refund_deposit">
-          <DataField>refund_deposit</DataField>
+      <Fields >
+        <Field Name="deposit_price">
+          <DataField>deposit_sum</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="deposit_type">
           <DataField>deposit_type</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="deposit_count">
+          <DataField>deposit_count</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -51,7 +57,7 @@ order_id = @order_id;</CommandText>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>27.75pt</Height>
         <Width>133.77pt</Width>
-        <Value>='Итого: ' + Sum({refund_deposit}, 'DepositRefund')</Value>
+        <Value>='Итого: ' + Sum({deposit_price}*{deposit_count}, 'DepositRefund')</Value>
         <ZIndex>1</ZIndex>
         <Left>460.2pt</Left>
         <Top>29.6pt</Top>
@@ -69,8 +75,7 @@ order_id = @order_id;</CommandText>
       </Textbox>
       <Table Name="Table1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <DataSetName>DepositRefund</DataSetName>
-        <NoRows>
-        </NoRows>
+        <NoRows>Query returned no rows!</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -80,13 +85,22 @@ order_id = @order_id;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>24.2pt</Width>
+            <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>401.1pt</Width>
+            <Width>305.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>44.7pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>25.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>51.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>46.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -129,6 +143,54 @@ order_id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
+                      <Value>Кол-во</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>Ед.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Цена</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
                       <Value>Сумма</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -154,7 +216,7 @@ order_id = @order_id;</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
+                    <Textbox Name="Textbox8">
                       <Value>=RowNumber()</Value>
                       <Style>
                         <BorderStyle>
@@ -162,6 +224,52 @@ order_id = @order_id;</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>=Fields!deposit_type.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Fields!deposit_count.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>шт</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format># ##0.00</Format>
                         <TextAlign >Center</TextAlign>
                       </Style>
                     </Textbox>
@@ -169,30 +277,30 @@ order_id = @order_id;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox6">
-                      <Value>={deposit_type}</Value>
-                      <CanGrow>true</CanGrow>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!deposit_price.Value</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format># ##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox7">
-                      <Value>={refund_deposit}</Value>
-                      <CanGrow>true</CanGrow>
+                    <Textbox Name="Textbox13">
+                      <Value>={deposit_price} * {deposit_count}</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <Format># ##0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -202,10 +310,7 @@ order_id = @order_id;</CommandText>
           </TableRows>
         </Details>
         <Left>52.9pt</Left>
-        <Top>2.3pt</Top>
-        <Visibility>
-          <Hidden>=Count({deposit_type}, 'DepositRefund') &lt; 1</Hidden>
-        </Visibility>
+        <Top>0pt</Top>
       </Table>
     </ReportItems>
   </Body>
