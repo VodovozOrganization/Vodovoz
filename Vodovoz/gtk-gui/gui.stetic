@@ -16050,11 +16050,11 @@ Patronymic</property>
                 <property name="Xalign">0</property>
                 <property name="UseMarkup">True</property>
                 <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Status</property>
+                <property name="Mappings">StatusString</property>
                 <property name="InheritedBoundaryDataSource">False</property>
                 <property name="Important">False</property>
                 <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Status</property>
+                <property name="Mappings">StatusString</property>
                 <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>

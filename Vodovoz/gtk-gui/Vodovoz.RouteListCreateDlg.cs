@@ -280,11 +280,11 @@ namespace Vodovoz
 			this.labelStatus.Xalign = 0F;
 			this.labelStatus.UseMarkup = true;
 			this.labelStatus.InheritedDataSource = true;
-			this.labelStatus.Mappings = "Status";
+			this.labelStatus.Mappings = "StatusString";
 			this.labelStatus.InheritedBoundaryDataSource = false;
 			this.labelStatus.Important = false;
 			this.labelStatus.InheritedDataSource = true;
-			this.labelStatus.Mappings = "Status";
+			this.labelStatus.Mappings = "StatusString";
 			this.labelStatus.InheritedBoundaryDataSource = false;
 			this.dataRouteList.Add (this.labelStatus);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.labelStatus]));
