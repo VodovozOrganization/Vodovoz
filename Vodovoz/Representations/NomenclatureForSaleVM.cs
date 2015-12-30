@@ -57,8 +57,8 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery(subqueryReserved).WithAlias(()=>resultAlias.Reserved)
 				)
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
-				.List<NomenclatureForSaleVMNode>();						
-			
+				.List<NomenclatureForSaleVMNode>();
+
 			var equipment = Repository.EquipmentRepository.AvailableEquipmentQuery()
 				.GetExecutableQueryOver(UoW.Session)
 				.Where (eq => !eq.OnDuty)
@@ -68,6 +68,7 @@ namespace Vodovoz.ViewModel
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
 					.Select(()=>true).WithAlias(()=>resultAlias.IsEquipmentWithSerial)
 					.SelectSum(()=>(decimal)1).WithAlias(()=>resultAlias.Added)
+					.SelectSubQuery(subqueryReserved).WithAlias(()=>resultAlias.Reserved)
 					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(()=>nomenclatureAlias.Category).WithAlias(()=>resultAlias.Category)
 					.Select(() => unitAlias.Name).WithAlias(() => resultAlias.UnitName)
