@@ -63,6 +63,23 @@ namespace Vodovoz.Repository
 				.JoinAlias (e => e.Nomenclature, () => nomenclatureAlias)
 				.Where (() => nomenclatureAlias.Id == nomenclature.Id);
 		}
+
+		public static QueryOver<Equipment> GetEquipmentAtDeliveryPoint(Counterparty client, DeliveryPoint deliveryPoint)
+		{
+			Equipment equipmentAlias=null;
+			CounterpartyMovementOperation operationAlias = null;
+			CounterpartyMovementOperation subsequentOperationAlias = null;
+
+			var subsequentOperationsSubquery = QueryOver.Of<CounterpartyMovementOperation> (() => subsequentOperationAlias)
+				.Where (() => operationAlias.Id < subsequentOperationAlias.Id && operationAlias.Equipment == subsequentOperationAlias.Equipment)
+				.Select (op=>op.Id);
+			
+			var availableEquipmentIDsSubquery = QueryOver.Of<CounterpartyMovementOperation> (() => operationAlias)
+				.WithSubquery.WhereNotExists(subsequentOperationsSubquery)
+				.Where (() => operationAlias.IncomingCounterparty.Id == client.Id)
+				.Where (() => operationAlias.IncomingDeliveryPoint.Id == deliveryPoint.Id).Select(op=>op.Equipment.Id);
+			return QueryOver.Of<Equipment> (() => equipmentAlias).WithSubquery.WhereProperty (() => equipmentAlias.Id).In (availableEquipmentIDsSubquery);
+		}
 	}
 }
 
