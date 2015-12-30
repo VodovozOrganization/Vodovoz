@@ -12,6 +12,7 @@ using Gtk.DataBindings;
 using Gtk;
 using System.Data.Bindings;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -65,6 +66,8 @@ namespace Vodovoz
 			enumType.DataSource = subjectAdaptor;
 			labelTotalPrice.DataSource = subjectAdaptor;
 
+			enumcomboWithSerial.ItemsEnum = typeof(ServiceClaimComboEnum);
+
 			referenceCounterparty.SubjectType = typeof(Counterparty);
 			referenceEngineer.SubjectType = typeof(Employee);
 			referenceEquipment.SubjectType = typeof(Equipment);
@@ -103,13 +106,8 @@ namespace Vodovoz
 			configureAvailableNextStatus ();
 
 			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService) {
-				datatable1.Remove (referenceDeliveryPoint);
-				datatable1.Remove (labelDeliveryPoint);
-				referenceDeliveryPoint.Destroy ();
-				labelDeliveryPoint.Destroy ();
-
-				datatable1.Remove (referenceCounterparty);
-				datatable1.Attach (referenceCounterparty, 1, 4, 3, 4, AttachOptions.Fill, AttachOptions.Shrink, 0, 0);
+				referenceDeliveryPoint.Visible = false;
+				labelDeliveryPoint.Visible = false;
 			}
 			datePickUpDate.IsEditable = Entity.ServiceClaimType != ServiceClaimType.RegularService;
 		}
@@ -157,20 +155,19 @@ namespace Vodovoz
 
 		protected void OnReferenceNomenclatureChanged (object sender, EventArgs e)
 		{
-			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
+			FixNomenclatureAndEquipmentSensitivity ();
 
 			if (UoWGeneric.Root.Equipment != null &&
 			    UoWGeneric.Root.Equipment.Nomenclature.Id != UoWGeneric.Root.Nomenclature.Id) {
 			
 				UoWGeneric.Root.Equipment = null;
 			}
-			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentByNomenclature (UoWGeneric.Root.Nomenclature);
 		}
 
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
 		{
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
-				
+			FixNomenclatureAndEquipmentSensitivity ();
 			if (UoWGeneric.Root.DeliveryPoint != null &&
 			    UoWGeneric.Root.DeliveryPoint.Counterparty.Id != UoWGeneric.Root.Counterparty.Id) {
 
@@ -294,6 +291,37 @@ namespace Vodovoz
 		{
 			throw new NotImplementedException ();
 		}
+			
+		protected void OnReferenceEquipmentChanged (object sender, EventArgs e)
+		{
+			referenceNomenclature.Subject = (referenceEquipment.Subject as Equipment).Nomenclature;
+		}
+			
+		protected void OnEnumcomboWithSerialEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			FixNomenclatureAndEquipmentSensitivity ();
+		}
+			
+		protected void OnReferenceDeliveryPointChanged (object sender, EventArgs e)
+		{
+			FixNomenclatureAndEquipmentSensitivity ();
+			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentAtDeliveryPoint (UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
+		}
+
+		protected void FixNomenclatureAndEquipmentSensitivity(){
+			bool withSerial = ((ServiceClaimComboEnum)enumcomboWithSerial.SelectedItem) == ServiceClaimComboEnum.WithSerial;		 
+			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && UoWGeneric.Root.DeliveryPoint !=null;
+			referenceNomenclature.Sensitive = !withSerial && UoWGeneric.Root.Counterparty!=null;
+		}
+	}
+
+	enum ServiceClaimComboEnum
+	{
+		[Display (Name="с серийным номером")]
+		WithSerial,
+		[Display (Name="без серийного номера")]
+		WithoutSerial
+
 	}
 }
 
