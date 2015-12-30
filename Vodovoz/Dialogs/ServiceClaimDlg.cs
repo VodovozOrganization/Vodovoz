@@ -294,7 +294,8 @@ namespace Vodovoz
 			
 		protected void OnReferenceEquipmentChanged (object sender, EventArgs e)
 		{
-			referenceNomenclature.Subject = (referenceEquipment.Subject as Equipment).Nomenclature;
+			Equipment selectedEquipment = referenceEquipment.Subject as Equipment;
+			referenceNomenclature.Subject = selectedEquipment != null ? selectedEquipment.Nomenclature : null;
 		}
 			
 		protected void OnEnumcomboWithSerialEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
