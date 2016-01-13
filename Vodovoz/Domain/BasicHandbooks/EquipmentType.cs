@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings;
 
 namespace Vodovoz.Domain
 {
@@ -22,11 +23,33 @@ namespace Vodovoz.Domain
 			set { SetField (ref name, value, () => Name); }
 		}
 
+		WarrantyCardType warrantyCardType;
+		[Display (Name="Тип гарантийного талона")]
+		public virtual WarrantyCardType WarrantyCardType{
+			get{ return warrantyCardType; }
+			set{ SetField (ref warrantyCardType, value, () => WarrantyCardType); }
+		}
 		#endregion
 
 		public EquipmentType ()
 		{
 			Name = String.Empty;
+		}
+	}
+
+	public enum WarrantyCardType{
+		[Display(Name="Нет")]
+		WithoutCard,
+		[Display (Name = "Гарrантийный талон на кулера")]
+		CoolerWarranty,
+		[Display (Name = "Гарантийный талон на помпы")]
+		PumpWarranty
+	}
+
+	public class WarrantyCardTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public WarrantyCardTypeStringType () : base (typeof(WarrantyCardType))
+		{
 		}
 	}
 }

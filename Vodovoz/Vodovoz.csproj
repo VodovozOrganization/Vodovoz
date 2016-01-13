@@ -448,6 +448,8 @@
     <Compile Include="ViewWidgets\Store\BottleReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.BottleReceptionView.cs" />
     <Compile Include="Representations\BottleReceptionVM.cs" />
+    <Compile Include="Dialogs\EquipmentTypeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.EquipmentTypeDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

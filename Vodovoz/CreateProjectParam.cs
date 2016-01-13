@@ -42,7 +42,6 @@ namespace Vodovoz
 				new OrmObjectMapping<CullingCategory> (null, "{Vodovoz.Domain.CullingCategory} Name[Название];"),
 				new OrmObjectMapping<Nationality> (null, "{Vodovoz.Domain.Nationality} Name[Название];"),
 				new OrmObjectMapping<Manufacturer> (null, "{Vodovoz.Domain.Manufacturer} Name[Название];"),
-				new OrmObjectMapping<EquipmentType> (null, "{Vodovoz.Domain.EquipmentType} Name[Название];"),
 				new OrmObjectMapping<EquipmentColors> (null, "{Vodovoz.Domain.EquipmentColors} Id[Код]; Name[Название];"),
 				new OrmObjectMapping<Post> (null, "{QSContacts.Post} Name[Должность];"),
 				new OrmObjectMapping<CounterpartyStatus> (null, "{Vodovoz.Domain.CounterpartyStatus} Name[Название];"),
@@ -80,6 +79,7 @@ namespace Vodovoz
 				new OrmObjectMapping<Organization> (typeof(OrganizationDlg), "{Vodovoz.Domain.Organization} Name[Название];"),
 				new OrmObjectMapping<DeliverySchedule> (typeof(DeliveryScheduleDlg), "{Vodovoz.Domain.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
 				new OrmObjectMapping<ProductSpecification> (typeof(ProductSpecificationDlg), "{Vodovoz.Domain.ProductSpecification} Id[Код]; Name[Название];"),
+				OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView().Column("Название",equipmentType=>equipmentType.Name).End(),
 				// Документы
 				new OrmObjectMapping<IncomingInvoice> (typeof(IncomingInvoiceDlg), "{Vodovoz.Domain.Documents.IncomingInvoice} Id[Номер];"),
 				new OrmObjectMapping<IncomingWater> (typeof(IncomingWaterDlg), "{Vodovoz.Domain.Documents.IncomingWater} Id[Номер];"),
