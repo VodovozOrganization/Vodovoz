@@ -13,16 +13,14 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, 
 counterparty.full_name AS client_name, counterparty.jur_address AS client_address, 
-counterparty.inn, counterparty.kpp,
-phones.number AS phone
+counterparty.inn, counterparty.kpp
 FROM orders 
 LEFT JOIN counterparty ON orders.client_id = counterparty.id
-LEFT JOIN phones ON counterparty.id = phones.counterparty_id
 WHERE orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
@@ -30,7 +28,7 @@ WHERE orders.id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -47,10 +45,6 @@ WHERE orders.id = @order_id;</CommandText>
           <DataField>order_date</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="phone">
-          <DataField>phone</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="INN">
           <DataField>inn</DataField>
           <TypeName>System.String</TypeName>
@@ -62,7 +56,7 @@ WHERE orders.id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT nomenclature.id AS id, nomenclature.name AS name, '--' AS unit_code, measurement_units.name AS mu_name, order_items.count AS count, equipment.id as serial, '12 мес' as warranty
@@ -80,7 +74,7 @@ AND equipment_type.warranty_card_type='CoolerWarranty'</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -112,12 +106,12 @@ AND equipment_type.warranty_card_type='CoolerWarranty'</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 organizations.full_name, organizations.INN, organizations.KPP, organizations.jur_address AS address, organizations.email AS email, 
 phones.number AS phone, 
-banks.name, banks.bik, banks.cor_account, banks.city,
+banks.name AS bank, banks.bik, banks.cor_account, banks.city,
 accounts.number,
 leader.last_name AS leader_last_name, leader.name AS leader_name, leader.patronymic AS leader_patronymic,
 buh.last_name AS buh_last_name, buh.name AS buh_name, buh.patronymic AS buh_patronymic
@@ -134,7 +128,7 @@ WHERE organizations.id = @organization_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -153,10 +147,6 @@ WHERE organizations.id = @organization_id;</CommandText>
         </Field>
         <Field Name="phone">
           <DataField>phone</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="name">
-          <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="bik">
@@ -203,6 +193,10 @@ WHERE organizations.id = @organization_id;</CommandText>
           <DataField>email</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="bank">
+          <DataField>bank</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -212,7 +206,7 @@ WHERE organizations.id = @organization_id;</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>1231.8pt</Height>
+    <Height>1011.3pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Image Name="Image1">
@@ -408,7 +402,7 @@ WHERE organizations.id = @organization_id;</CommandText>
           </TableRows>
         </Details>
         <Left>21.1pt</Left>
-        <Top>194.5pt</Top>
+        <Top>156.1pt</Top>
         <ZIndex>1</ZIndex>
       </Table>
       <Textbox Name="Textbox15">
@@ -418,7 +412,7 @@ WHERE organizations.id = @organization_id;</CommandText>
 Настоящий акт составлен в двух экземплярах, один из которых находится у Фирмы, другой – у Клиента.</Value>
         <ZIndex>1</ZIndex>
         <Left>20.6pt</Left>
-        <Top>249.3pt</Top>
+        <Top>212.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -426,218 +420,11 @@ WHERE organizations.id = @organization_id;</CommandText>
           <FontSize>8pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox16">
-        <Height>21.10pt</Height>
-        <Width>560.00pt</Width>
-        <Value>Правила гарантийного обслуживания  аппаратов.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15pt</Left>
-        <Top>310.10pt</Top>
-        <Style>
-          <TextAlign>Center</TextAlign>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox17">
-        <Height>49.69pt</Height>
-        <Width>558.50pt</Width>
-        <Value>При обнаружении заводского брака, Товар в течение 14 дней с момента его отгрузки Покупателю, возможно, заменить, при условии наличия данной продукции на складе Поставщика. Устранение недостатков оборудования, возникших по вине Фирмы или изготовителя оборудования, производится в течение 12 месяцев с момента передачи оборудования Клиенту. В этом случае претензии принимаются только при наличии следующих документов:									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.00pt</Left>
-        <Top>332.40pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox19">
-        <Height>13.58pt</Height>
-        <Width>465.31pt</Width>
-        <Value>1.           документ, подтверждающий приобретение Товара</Value>
-        <ZIndex>1</ZIndex>
-        <Left>18.3pt</Left>
-        <Top>371.8pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox24">
-        <Height>34.61pt</Height>
-        <Width>560.00pt</Width>
-        <Value>Товар принимается в оригинальной заводской упаковке (коробка, полный набор пенопластовых уплотнителей, наличие пластиковых крышек), в полной комплектности и в товарном виде (отсутствие следов использования- капли, брызги, царапины, следы упаковочного скотча, отсутствие воды в системе аппарата, без признаков самостоятельного ремонта).									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>382.3pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox21">
-        <Height>10.50pt</Height>
-        <Width>560.00pt</Width>
-        <Value>Решение о замене может быть принято только после осмотра Товара специалистом сервисного центра.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>410.7pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox23">
-        <Height>38.42pt</Height>
-        <Width>560.00pt</Width>
-        <Value>При наступлении гарантийного случая в течение всего гарантийного срока поставщик обязуется произвести бесплатный ремонт Товара или обеспечить необходимыми запасными частями безвозмездно при наличии претензии в письменном виде и при условии, что не были нарушены правила и условия эксплуатации Товара, изложенные в Инструкции по эксплуатации, а так же отсутствуют следы попыток неквалифицированного ремонта со стороны Покупателя.									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>420.9pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox25">
-        <Height>18.73pt</Height>
-        <Width>560.00pt</Width>
-        <Value>Доставка товара до склада или сервисного центра Поставщика для обмена или гарантийного ремонта и обратно производится силами и за счет Покупателя.									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>458.9pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox26">
-        <Height>20.99pt</Height>
-        <Width>560.00pt</Width>
-        <Value>В случае если не указывается характер поломки, сервисный центр, вправе взять плату за диагностику аппарата. Стоимость диагностики определяется в соответствии с действующим прайс-листом сервисного центра.									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>479.5pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox27">
-        <Height>115.28pt</Height>
-        <Width>562.25pt</Width>
-        <Value> -если дефекты аппарата вызваны нарушением правил установки,эксплуатации,хранения или транспортировки изложенных в инструкции по эксплуатации.									
--        при наличии механических, химических и термических повреждений изделия и его составных частей;									
--         при повреждении аппарата вследствие обстоятельств непреодолимой силы (пожар, стихия, молния и тд.)									
--         при повреждениях аппарата вызванных попаданием внутрь аппарата посторонних предметов, жидкостей, насекомых, животных, в т.ч. излишнего количества пыли.									
--         при эксплуатации изделия в электрической сети с отсутствием контура заземления;									
--         при повреждениях, вызванных несоответствием государственным стандартам питания телекоммуникационных, кабельных сетей и др.;									
--         при обнаружении у изделия следов перегрева электронных компонентов из-за электрического перенапряжения;									
--         в случае наличия сильной накипи в нагревательном баке, ответственность несет производитель воды;									
--         при использовании небутилированной воды.									
-Внимание!!! Гарантийному ремонту не подлежит замена бака нагрева, платы Пельтье, и кранов холодной и горячей воды,замена вентелятора.									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.00pt</Left>
-        <Top>518.10pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox28">
-        <Height>60.12pt</Height>
-        <Width>560.00pt</Width>
-        <Value>6.       Включите кулер в электрическую сеть с напряжением 220 В 50 Гц.									
-7.       Включите нагрев воды, (тумблер включения/выключения нагрева находится на задней панели кулера).									
-8.       Через 30 минут кулер готов к работе.									
-9.       После замены пустой бутыли на полную проверить заполнение кулера по пункту 5.									
-10.    В случаях отсутствия в бутыли воды либо утечки воды необходимо отключить кулер от электрической сети.									
-11.    Обо всех неисправностях в работе кулера сообщите по телефону 493-50-93.									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>956.6pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox29">
-        <Height>20.31pt</Height>
-        <Width>284.65pt</Width>
-        <Value>ПРАВИЛА ЭКСПЛУАТАЦИИ КУЛЕРА									</Value>
-        <ZIndex>1</ZIndex>
-        <Left>142.8pt</Left>
-        <Top>659.5pt</Top>
-        <Style>
-          <TextAlign>Center</TextAlign>
-          <TextDecoration>Underline</TextDecoration>
-          <FontStyle>Italic</FontStyle>
-          <FontSize>12pt</FontSize>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
-          <FontFamily>Tahoma</FontFamily>
-        </Style>
-      </Textbox>
-      <List Name="List1">
-        <Height>80.65pt</Height>
-        <Width>563.97pt</Width>
-        <Left>20.00pt</Left>
-        <Top>79.90pt</Top>
-        <Style>
-          <BorderStyle>
-            <Default>Dotted</Default>
-            <Left>Dotted</Left>
-            <Right>Dotted</Right>
-            <Top>Dotted</Top>
-            <Bottom>Dotted</Bottom>
-          </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-        <ReportItems>
-          <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>64.75pt</Height>
-            <Width>562.27pt</Width>
-            <Value>={full_name} + ', ИНН ' + {INN} + ', КПП ' + {KPP} + '\n' + {address} + 
-Iif({phone} = null, '', '\nтел. ') + {phone} + 
-Iif({email} = null, '', '\nE-mail: ') + {email}
-+'в лице Генерального директора Сосновцева С.С., действующего на основании Устава, передал в собственность клиенту:'</Value>
-            <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>0.00pt</Top>
-            <Style>
-              <FontWeight>Bold</FontWeight>
-              <BorderStyle />
-              <BorderColor />
-              <BorderWidth />
-            </Style>
-            <CanGrow>true</CanGrow>
-          </Textbox>
-        </ReportItems>
-        <DataSetName>Organization</DataSetName>
-      </List>
       <List Name="List2">
         <Height>16.63pt</Height>
         <Width>557.02pt</Width>
         <Left>20.5pt</Left>
-        <Top>163.6pt</Top>
+        <Top>122.0pt</Top>
         <Style>
           <BorderStyle>
             <Default>Dotted</Default>
@@ -655,8 +442,8 @@ Iif({email} = null, '', '\nE-mail: ') + {email}
             <Width>507.30pt</Width>
             <Value>=First({client_name}, 'Order')</Value>
             <ZIndex>1</ZIndex>
-            <Left>4.70pt</Left>
-            <Top>0.80pt</Top>
+            <Left>4.7pt</Left>
+            <Top>0.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -673,8 +460,8 @@ Iif({email} = null, '', '\nE-mail: ') + {email}
         <Width>215.36pt</Width>
         <Value>='Гарантийный талон на кулера №' + Parameters!order_id.Value</Value>
         <ZIndex>1</ZIndex>
-        <Left>146.4pt</Left>
-        <Top>10.6pt</Top>
+        <Left>146.40pt</Left>
+        <Top>10.60pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -683,64 +470,338 @@ Iif({email} = null, '', '\nE-mail: ') + {email}
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox4">
+      <List Name="List1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>34.07pt</Height>
+        <Width>563.96pt</Width>
+        <Left>20pt</Left>
+        <Top>79.90pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Dotted</Default>
+            <Left>Dotted</Left>
+            <Right>Dotted</Right>
+            <Top>Dotted</Top>
+            <Bottom>Dotted</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportItems>
+          <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>31.65pt</Height>
+            <Width>561.52pt</Width>
+            <Value>='ФИРМА: '+{full_name} + '; ИНН: ' + {INN} + '; КПП: ' + {KPP} + ';\nЮр. адрес:' + {address} + 
++'; Р/С '+{number}+' в '+{bank}+';  К/С ' + {cor_account}+'; БИК '+{bik}
++'; в лице Генерального директора Сосновцева С.С., действующего на основании Устава, передал в собственность клиенту:'</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.00pt</Left>
+            <Top>0.00pt</Top>
+            <Style>
+              <FontWeight>Bold</FontWeight>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <CanGrow>true</CanGrow>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>Organization</DataSetName>
+      </List>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>21.10pt</Height>
+        <Width>560.00pt</Width>
+        <Value>Правила гарантийного обслуживания  аппаратов.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>252.24pt</Top>
+        <Style>
+          <TextAlign>Center</TextAlign>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>36.92pt</Height>
+        <Width>556.25pt</Width>
+        <Value>При обнаружении заводского брака, Товар в течение 14 дней с момента его отгрузки Покупателю, возможно, заменить, при условии наличия данной продукции на складе Поставщика. Устранение недостатков оборудования, возникших по вине Фирмы или изготовителя оборудования, производится в течение 12 месяцев с момента передачи оборудования Клиенту. В этом случае претензии принимаются только при наличии следующих документов:									</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>274.54pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox6" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.58pt</Height>
+        <Width>465.31pt</Width>
+        <Value>1.           документ, подтверждающий приобретение Товара</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>312.74pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>27.11pt</Height>
+        <Width>560.00pt</Width>
+        <Value>Товар принимается в оригинальной заводской упаковке (коробка, полный набор пенопластовых уплотнителей, наличие пластиковых крышек), в полной комплектности и в товарном виде (отсутствие следов использования- капли, брызги, царапины, следы упаковочного скотча, отсутствие воды в системе аппарата, без признаков самостоятельного ремонта).									</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>323.71pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>10.50pt</Height>
+        <Width>560.00pt</Width>
+        <Value>Решение о замене может быть принято только после осмотра Товара специалистом сервисного центра.</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>352.11pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox9" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>38.42pt</Height>
+        <Width>560.00pt</Width>
+        <Value>При наступлении гарантийного случая в течение всего гарантийного срока поставщик обязуется произвести бесплатный ремонт Товара или обеспечить необходимыми запасными частями безвозмездно при наличии претензии в письменном виде и при условии, что не были нарушены правила и условия эксплуатации Товара, изложенные в Инструкции по эксплуатации, а так же отсутствуют следы попыток неквалифицированного ремонта со стороны Покупателя.									</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>362.31pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox10" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.73pt</Height>
+        <Width>560.00pt</Width>
+        <Value>Доставка товара до склада или сервисного центра Поставщика для обмена или гарантийного ремонта и обратно производится силами и за счет Покупателя.									</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>400.31pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox11" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.99pt</Height>
+        <Width>560.00pt</Width>
+        <Value>В случае если не указывается характер поломки, сервисный центр, вправе взять плату за диагностику аппарата. Стоимость диагностики определяется в соответствии с действующим прайс-листом сервисного центра.									</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>420.91pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox12" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>21.05pt</Height>
         <Width>560.00pt</Width>
         <Value>Сильно загрязненные аппараты на бесплатный гарантийный ремонт не принимаются!
 Товар снимается с гарантийного обслуживания в следующих случаях:</Value>
         <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>499.2pt</Top>
+        <Left>15pt</Left>
+        <Top>440.61pt</Top>
         <Style>
           <FontSize>8pt</FontSize>
           <BorderStyle />
           <BorderColor />
-          <BorderWidth />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox5">
+      <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>115.28pt</Height>
+        <Width>562.25pt</Width>
+        <Value> -если дефекты аппарата вызваны нарушением правил установки,эксплуатации,хранения или транспортировки изложенных в инструкции по эксплуатации.									
+-        при наличии механических, химических и термических повреждений изделия и его составных частей;									
+-         при повреждении аппарата вследствие обстоятельств непреодолимой силы (пожар, стихия, молния и тд.)									
+-         при повреждениях аппарата вызванных попаданием внутрь аппарата посторонних предметов, жидкостей, насекомых, животных, в т.ч. излишнего количества пыли.									
+-         при эксплуатации изделия в электрической сети с отсутствием контура заземления;									
+-         при повреждениях, вызванных несоответствием государственным стандартам питания телекоммуникационных, кабельных сетей и др.;									
+-         при обнаружении у изделия следов перегрева электронных компонентов из-за электрического перенапряжения;									
+-         в случае наличия сильной накипи в нагревательном баке, ответственность несет производитель воды;									
+-         при использовании небутилированной воды.									
+Внимание!!! Гарантийному ремонту не подлежит замена бака нагрева, платы Пельтье, и кранов холодной и горячей воды,замена вентелятора.									</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>459.51pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>20.31pt</Height>
+        <Width>560.00pt</Width>
+        <Value>ПРАВИЛА ЭКСПЛУАТАЦИИ КУЛЕРА									</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>600.91pt</Top>
+        <Style>
+          <TextAlign>Center</TextAlign>
+          <TextDecoration>Underline</TextDecoration>
+          <FontStyle>Italic</FontStyle>
+          <FontSize>12pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+          <FontWeight>Bold</FontWeight>
+          <FontFamily>Tahoma</FontFamily>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>9.00pt</Height>
         <Width>557.76pt</Width>
         <Value>Как любой сложный прибор, кулер требует соблюдения определенных правил эксплуатации – они описаны в инструкции по эксплуатации.</Value>
         <ZIndex>1</ZIndex>
-        <Left>14.24pt</Left>
-        <Top>687.10pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox6">
-        <Height>11.29pt</Height>
-        <Width>557.00pt</Width>
-        <Value>Пользуясь кулером, следует помнить некоторые важные правила:</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.00pt</Left>
-        <Top>698.90pt</Top>
+        <Left>15pt</Left>
+        <Top>628.51pt</Top>
         <Style>
           <FontSize>8pt</FontSize>
           <BorderStyle />
           <BorderColor />
-          <BorderWidth />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>11.29pt</Height>
+        <Width>557.00pt</Width>
+        <Value>Пользуясь кулером, следует помнить некоторые важные правила:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>15pt</Left>
+        <Top>640.31pt</Top>
+        <Style>
+          <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox7">
+      <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.07pt</Height>
         <Width>560.00pt</Width>
         <Value>-Кулер нельзя включать, если в нем нет воды – это выведет из строя систему кипячения и охлаждения!</Value>
         <ZIndex>1</ZIndex>
         <Left>15pt</Left>
-        <Top>711.2pt</Top>
+        <Top>652.61pt</Top>
         <Style>
           <FontSize>8pt</FontSize>
           <BorderStyle />
           <BorderColor />
-          <BorderWidth />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox8">
+      <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>111.42pt</Height>
         <Width>560.00pt</Width>
         <Value>– вспомните чайник, который подогревают без воды…(проверить наличие воды в кулере очень просто – установите на кулер бутыль с водой, подождите пока вода стечет в накопительный бачок, затем последовательно нажмите на горячий и холодный краны – из кранов должна потечь вода.)
@@ -750,69 +811,138 @@ Iif({email} = null, '', '\nE-mail: ') + {email}
 -Перевозить кулер рекомендуется в вертикальном положении. Если же кулер при транспортировке находился в горизонтальном положении, после установки необходимо дать отстояться кулеру для воды несколько часов в вертикальном положении.
 -Кулеру необходима регулярная санитарная обработка в специализированных сервисных центрах для удаления накипи, возможных загрязнений механического и микробиологического происхождения – это гарантирует отсутствие несвойственных чистой воде изменений вкуса и цвета.</Value>
         <ZIndex>1</ZIndex>
-        <Left>15.00pt</Left>
-        <Top>722.60pt</Top>
+        <Left>15pt</Left>
+        <Top>664.01pt</Top>
         <Style>
           <FontStyle>Normal</FontStyle>
           <FontSize>8pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox9">
+      <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>12.01pt</Height>
         <Width>560.00pt</Width>
         <Value>Необходимо строго соблюдать последовательность действий!!!</Value>
         <ZIndex>1</ZIndex>
         <Left>15pt</Left>
-        <Top>832.90pt</Top>
+        <Top>774.31pt</Top>
         <Style>
           <FontSize>8pt</FontSize>
           <BorderStyle />
           <BorderColor />
-          <BorderWidth />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox10">
-        <Height>104.69pt</Height>
-        <Width>560.00pt</Width>
+      <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>170.10pt</Height>
+        <Width>567.50pt</Width>
         <Value>1.       После транспортировки кулера при температуре воздуха ниже 0 С необходимо перед включением в электрическую сеть выдержать его при комнатной температуре не менее 30 минут.
 2.       При первой установке кулера необходимо выполнить следующие действия:
 o Установите кулер на ровную твердую горизонтальную поверхность. Расстояние до стен не должно быть меньше 5 см.
 o Не рекомендуется устанавливать кулер рядом с электрической плитой.
 3.       Для установки бутыли на кулер снимите с пробки бутыли пластиковый стикер (наклейку с изображением логотипа). Термоусадочный колпачок удалять не обязательно.
 4.       Установите бутыль вертикально горлышком вниз.
-5.       Проверьте заполнение внутренней емкости кулера после прекращения выхода воздушных пузырей в бутыль, для чего откройте кран горячей и холодной воды и пропустите по стакану из каждого крана. Вода должна выливаться непрерывной струей.После того, как из крана полилась вода, закройте кран.</Value>
+5.       Проверьте заполнение внутренней емкости кулера после прекращения выхода воздушных пузырей в бутыль, для чего откройте кран горячей и холодной воды и пропустите по стакану из каждого крана. Вода должна выливаться непрерывной струей.После того, как из крана полилась вода, закройте кран.
+Внимание! Не допускайте включение кулера в электрическую сеть без воды в кулере.
+6.       Включите кулер в электрическую сеть с напряжением 220 В 50 Гц.									
+7.       Включите нагрев воды, (тумблер включения/выключения нагрева находится на задней панели кулера).									
+8.       Через 30 минут кулер готов к работе.									
+9.       После замены пустой бутыли на полную проверить заполнение кулера по пункту 5.									
+10.    В случаях отсутствия в бутыли воды либо утечки воды необходимо отключить кулер от электрической сети.									
+11.    Обо всех неисправностях в работе кулера сообщите по телефону 493-50-93.</Value>
         <ZIndex>1</ZIndex>
-        <Left>15pt</Left>
-        <Top>843.20pt</Top>
-        <Style>
-          <FontSize>8pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox11">
-        <Height>14.29pt</Height>
-        <Width>560.00pt</Width>
-        <Value>Внимание! Не допускайте включение кулера в электрическую сеть без воды в кулере.</Value>
-        <ZIndex>1</ZIndex>
-        <Left>15.0pt</Left>
-        <Top>945.5pt</Top>
+        <Left>15.00pt</Left>
+        <Top>784.61pt</Top>
         <Style>
           <FontSize>8pt</FontSize>
           <BorderStyle />
           <BorderColor />
-          <BorderWidth />
-          <FontWeight>Bold</FontWeight>
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox12">
+      <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>14.25pt</Height>
         <Width>563.88pt</Width>
         <Value>Генеральный директор_____________        От Клиента________________________   
 </Value>
         <ZIndex>1</ZIndex>
-        <Left>21.40pt</Left>
-        <Top>1044.00pt</Top>
+        <Left>15pt</Left>
+        <Top>985.41pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth>
+            <Default>1pt</Default>
+            <Left>1pt</Left>
+            <Right>1pt</Right>
+            <Top>1pt</Top>
+            <Bottom>1pt</Bottom>
+          </BorderWidth>
+        </Style>
       </Textbox>
+      <List Name="List3" >
+        <Height>30.13pt</Height>
+        <Width>118.28pt</Width>
+        <Left>479.00pt</Left>
+        <Top>6.00pt</Top>
+        <Style>
+          <BorderStyle>
+            <Default>Dotted</Default>
+            <Left>Dotted</Left>
+            <Right>Dotted</Right>
+            <Top>Dotted</Top>
+            <Bottom>Dotted</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportItems>
+          <Textbox Name="Textbox14">
+            <Height>13.51pt</Height>
+            <Width>122.70pt</Width>
+            <Value>г. Санкт-Петербург</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox13">
+            <Height>11.24pt</Height>
+            <Width>122.70pt</Width>
+            <Value>=Fields!order_date.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>10.1pt</Top>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>Order</DataSetName>
+        <DataInstanceElementOutput>Output</DataInstanceElementOutput>
+      </List>
     </ReportItems>
   </Body>
   <PageFooter>
