@@ -735,6 +735,26 @@ namespace Vodovoz
 					}
 				};
 				break;
+			case PrintDocuments.CoolerWarranty:
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("Гарантийный талон на кулера №{0}", Entity.Id),
+					Identifier = "CoolerWarranty",
+					Parameters = new Dictionary<string, object> {
+						{ "order_id", Entity.Id },
+						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}
+					}
+				};
+				break;
+			case PrintDocuments.PumpWarranty:
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("Гарантийный талон на помпы №{0}", Entity.Id),
+					Identifier = "PumpWarranty",
+					Parameters = new Dictionary<string, object> {
+						{ "order_id", Entity.Id },
+						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}
+					}
+				};
+				break;
 			default:
 				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
 			}
@@ -851,6 +871,10 @@ namespace Vodovoz
 		[Display (Name = "Накладная (безденежно)")]
 		InvoiceBarter,
 		[Display (Name = "УПД")]
-		UPD
+		UPD,
+		[Display(Name="Гарантийный талон для кулеров")]
+		CoolerWarranty,
+		[Display(Name="Гарантийный талон для помп")]
+		PumpWarranty
 	}
 }
