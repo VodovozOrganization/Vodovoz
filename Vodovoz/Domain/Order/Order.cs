@@ -617,6 +617,16 @@ namespace Vodovoz.Domain.Orders
 						Reason = Reason.Service
 					});
 				}
+				if (service.ReplacementEquipment != null) {
+					observableOrderEquipments.Add (new OrderEquipment {
+						Order=this,
+						Direction = Direction.Deliver,
+						Equipment=service.ReplacementEquipment,
+						NewEquipmentNomenclature = null,
+						OrderItem=null,
+						Reason = Reason.Service
+					});				
+				}
 				if (ObservableInitialOrderService.FirstOrDefault (sc => sc.Id == service.Id) == null)
 					ObservableInitialOrderService.Add (service);
 			}
