@@ -681,6 +681,9 @@ namespace Vodovoz
 			QSReport.ReportInfo reportInfo = null;
 			PrintDocuments selected = (PrintDocuments)e.ItemEnum;
 
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Order), selected.GetEnumTitle ()))
+				UoWGeneric.Save ();
+			
 			switch (selected) {
 			case PrintDocuments.Bill:
 				reportInfo = new QSReport.ReportInfo {
@@ -758,9 +761,7 @@ namespace Vodovoz
 			default:
 				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
 			}
-			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Order), selected.GetEnumTitle ()))
-				UoWGeneric.Save ();
-			
+
 			if (reportInfo != null) {
 				report = new QSReport.ReportViewDlg (reportInfo);
 				TabParent.AddTab (report, this, false);
