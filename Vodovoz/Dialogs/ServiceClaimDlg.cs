@@ -75,7 +75,9 @@ namespace Vodovoz
 
 			yentryEquipmentReplacement.ItemsQuery = EquipmentRepository.AvailableOnDutyEquipmentQuery ();
 			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment> (e => e.Title);
-			yentryEquipmentReplacement.Binding.AddBinding (UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject);
+			yentryEquipmentReplacement.Binding
+				.AddBinding (UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject)
+				.InitializeFromSource();
 
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
