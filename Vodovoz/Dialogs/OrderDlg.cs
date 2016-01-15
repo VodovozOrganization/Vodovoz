@@ -719,7 +719,16 @@ namespace Vodovoz
 				};
 				break;
 			case PrintDocuments.EquipmentTransfer:
-				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
+				reportInfo = new QSReport.ReportInfo {
+					Title = String.Format ("Акт приема-передачи оборудования"),
+					Identifier = "EquipmentTransfer",
+					Parameters = new Dictionary<string,object> {
+						{ "order_id",Entity.Id },
+						{"service_claim_id",27} //TODO передавать id заявки(возможно печать организовать иначе)
+						//TODO телефон указывать точки доставки(если есть и контактное лицо + телефон клиента)
+					}
+				};
+				break;
 			case PrintDocuments.Invoice:
 				reportInfo = new QSReport.ReportInfo {
 					Title = String.Format ("Накладная №{0} от {1:d}", Entity.Id, Entity.DeliveryDate),

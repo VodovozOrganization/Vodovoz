@@ -19,14 +19,21 @@
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, 
 counterparty.full_name AS client_name, counterparty.jur_address AS client_address, 
 counterparty.inn, counterparty.kpp,
-phones.number AS phone
+delivery_points.phone AS phone,
+delivery_points.compiled_address as delivery_address
 FROM orders 
 LEFT JOIN counterparty ON orders.client_id = counterparty.id
 LEFT JOIN phones ON counterparty.id = phones.counterparty_id
-WHERE orders.id = @order_id;</CommandText>
+LEFT JOIN service_claims on service_claims.id = @service_claim_id
+LEFT JOIN delivery_points on delivery_points.id = service_claims.delivery_point_id
+WHERE orders.id = @order_id
+limit 1;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="service_claim_id">
+            <Value>=Parameters!service_claim_id.Value</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -59,10 +66,14 @@ WHERE orders.id = @order_id;</CommandText>
           <DataField>kpp</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="delivery_address">
+          <DataField>delivery_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="ServiceClaim">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
 nomenclature.name,
@@ -71,7 +82,7 @@ nomenclature.category,
 service_claims.reason,
 service_claims.diagnostics_result,
 service_claims.kit,
-service_claims.replacement_equipment_id as return_cooler
+service_claims.replacement_equipment_id as replacement_serial
 from service_claims
 JOIN equipment on equipment.id = service_claims.replacement_equipment_id
 JOIN nomenclature on nomenclature.id = equipment.nomenclature_id
@@ -82,7 +93,7 @@ WHERE service_claims.id = @service_claim_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="serial">
           <DataField>serial</DataField>
           <TypeName>System.Int32</TypeName>
@@ -107,8 +118,8 @@ WHERE service_claims.id = @service_claim_id</CommandText>
           <DataField>kit</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="return_cooler">
-          <DataField>return_cooler</DataField>
+        <Field Name="replacement_serial">
+          <DataField>replacement_serial</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
@@ -274,7 +285,7 @@ where service_claim_id = @service_claim_id</CommandText>
           <Textbox Name="Textbox8">
             <Height>12.00pt</Height>
             <Width>289.00pt</Width>
-            <Value>={client_address}</Value>
+            <Value>={delivery_address}</Value>
             <ZIndex>1</ZIndex>
             <Left>160.50pt</Left>
             <Top>30.00pt</Top>
@@ -286,7 +297,7 @@ where service_claim_id = @service_claim_id</CommandText>
           <Textbox Name="Textbox9">
             <Height>12.00pt</Height>
             <Width>289pt</Width>
-            <Value>=First({phone})</Value>
+            <Value>={phone}</Value>
             <ZIndex>1</ZIndex>
             <Left>160.5pt</Left>
             <Top>45.00pt</Top>
@@ -298,7 +309,7 @@ where service_claim_id = @service_claim_id</CommandText>
           <Textbox Name="Textbox10">
             <Height>12.00pt</Height>
             <Width>133.02pt</Width>
-            <Value>=Parameters!service_claim_id.Value</Value>
+            <Value>={order_date}</Value>
             <ZIndex>1</ZIndex>
             <Left>462.80pt</Left>
             <Top>0.00pt</Top>
@@ -328,8 +339,8 @@ where service_claim_id = @service_claim_id</CommandText>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontWeight>Normal</FontWeight>
-          <FontSize>10pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <FontSize>12pt</FontSize>
           <TextDecoration>Underline</TextDecoration>
           <TextAlign>Center</TextAlign>
         </Style>
@@ -732,7 +743,7 @@ where service_claim_id = @service_claim_id</CommandText>
           <BorderWidth />
         </Style>
         <Visibility>
-          <Hidden>=First(Fields!return_cooler.IsMissing, 'ServiceClaim')</Hidden>
+          <Hidden>=First(Fields!replacement_serial.IsMissing, 'ServiceClaim')</Hidden>
         </Visibility>
       </Textbox>
       <Textbox Name="Textbox39" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -748,7 +759,7 @@ where service_claim_id = @service_claim_id</CommandText>
           <BorderWidth />
         </Style>
         <Visibility>
-          <Hidden>=First(Fields!return_cooler.IsMissing, 'ServiceClaim')</Hidden>
+          <Hidden>=First(Fields!replacement_serial.IsMissing, 'ServiceClaim')</Hidden>
         </Visibility>
       </Textbox>
       <Textbox Name="Textbox40" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -764,7 +775,7 @@ where service_claim_id = @service_claim_id</CommandText>
           <BorderWidth />
         </Style>
         <Visibility>
-          <Hidden>=First(Fields!return_cooler.IsMissing, 'ServiceClaim')</Hidden>
+          <Hidden>=First(Fields!replacement_serial.IsMissing, 'ServiceClaim')</Hidden>
         </Visibility>
       </Textbox>
       <List Name="List2">
