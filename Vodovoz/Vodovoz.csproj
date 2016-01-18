@@ -250,7 +250,6 @@
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Representations\CounterpartyVM.cs" />
     <Compile Include="Domain\Order\Order.cs" />
-    <Compile Include="Domain\Order\OrderDocument.cs" />
     <Compile Include="Domain\Order\OrderEquipment.cs" />
     <Compile Include="Domain\Order\OrderItem.cs" />
     <Compile Include="Representations\DocumentsVM.cs" />
@@ -450,6 +449,17 @@
     <Compile Include="Representations\BottleReceptionVM.cs" />
     <Compile Include="Dialogs\EquipmentTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentTypeDlg.cs" />
+    <Compile Include="Domain\Order\Documents\OrderDocument.cs" />
+    <Compile Include="Domain\Order\Documents\OrderAgreement.cs" />
+    <Compile Include="Domain\Order\Documents\OrderContract.cs" />
+    <Compile Include="Domain\Order\Documents\DoneWorkDocument.cs" />
+    <Compile Include="Domain\Order\Documents\BillDocument.cs" />
+    <Compile Include="Domain\Order\Documents\EquipmentTransfer.cs" />
+    <Compile Include="Domain\Order\Documents\InvoiceDocument.cs" />
+    <Compile Include="Domain\Order\Documents\InvoiceBarter.cs" />
+    <Compile Include="Domain\Order\Documents\UPDDocument.cs" />
+    <Compile Include="Domain\Order\Documents\CoolerWarrantyDocument.cs" />
+    <Compile Include="Domain\Order\Documents\PumpWarrantyDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -582,6 +592,7 @@
     <Folder Include="HibernateMapping\Goods\" />
     <Folder Include="Dialogs\Logistic\" />
     <Folder Include="ViewWidgets\Store\" />
+    <Folder Include="Domain\Order\Documents\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

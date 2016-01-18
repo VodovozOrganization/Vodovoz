@@ -13,6 +13,7 @@ using Gtk;
 using System.Data.Bindings;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz
 {

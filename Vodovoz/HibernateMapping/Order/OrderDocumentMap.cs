@@ -1,5 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz.HMap
 {
@@ -33,4 +33,5 @@ namespace Vodovoz.HMap
 			References (x => x.Contract).Column ("contract_id");
 		}
 	}
+
 }

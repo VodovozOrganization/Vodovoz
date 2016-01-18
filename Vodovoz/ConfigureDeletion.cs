@@ -10,6 +10,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Accounting;
+using Vodovoz.Domain.Orders.Documents;
 
 namespace Vodovoz
 {
