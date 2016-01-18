@@ -58,7 +58,6 @@ namespace Vodovoz
 			set { speccomboStock.SelectedItem = value;
 				speccomboStock.Sensitive = false;
 			}
-		
 		}
 
 		protected void OnSpeccomboStockItemSelected (object sender, EnumItemClickedEventArgs e)
