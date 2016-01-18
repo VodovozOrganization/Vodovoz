@@ -41,6 +41,10 @@ namespace Vodovoz.Domain.Orders.Documents
 			throw new NotImplementedException ();
 		}
 
+		public virtual QSReport.ReportInfo GetReportInfoForPreview(){
+			return GetReportInfo ();
+		}
+
 		public virtual PrinterType PrintType {
 			get {
 				return PrinterType.None;

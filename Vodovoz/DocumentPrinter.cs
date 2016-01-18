@@ -21,7 +21,7 @@ namespace Vodovoz
 		}
 		public static QSTDI.TdiTabBase PreviewTab(IPrintableDocument document)
 		{
-			return new QSReport.ReportViewDlg (document.GetReportInfo());				
+			return new QSReport.ReportViewDlg (document.GetReportInfoForPreview());				
 		}
 	}
 
@@ -29,6 +29,7 @@ namespace Vodovoz
 	{
 		PrinterType PrintType{ get; }
 		QSReport.ReportInfo GetReportInfo ();
+		QSReport.ReportInfo GetReportInfoForPreview();
 	}
 
 	public enum PrinterType{
