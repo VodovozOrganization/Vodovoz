@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderDoneWorkDocument:OrderDocument
+	public class DoneWorkDocument:OrderDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -43,6 +43,12 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override string DocumentDate {
 			get { return String.Format ("от {0}", serviceClaim.ServiceStartDate ); }
+		}
+
+		public override PrinterType PrintType {
+			get {
+				return PrinterType.RDL;
+			}
 		}
 	}
 }

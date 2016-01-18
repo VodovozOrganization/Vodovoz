@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class InvoiceBarter:OrderDocument
+	public class InvoiceBarterDocument:OrderDocument
 	{
 		#region implemented abstract members of OrderDocument
 		public override QSReport.ReportInfo GetReportInfo ()
@@ -24,6 +24,12 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		public override string Name { get { return "Накладная (безденежно)"; } }
+
+		public override PrinterType PrintType {
+			get {
+				return PrinterType.RDL;
+			}
+		}
 	}
 }
 

@@ -22,6 +22,14 @@ namespace Vodovoz.Domain.Orders.Documents
 			set { SetField (ref order, value, () => Order); }
 		}
 
+		Order attachedToOrder;
+
+		[Display (Name = "Заказ")]
+		public virtual Order AttachedToOrder {
+			get { return order; }
+			set { SetField (ref attachedToOrder, value, () => AttachedToOrder); }
+		}
+
 		public abstract OrderDocumentType Type{ get; }
 
 		public virtual string Name { get { return "Не указан"; } }
@@ -66,16 +74,6 @@ namespace Vodovoz.Domain.Orders.Documents
 		CoolerWarranty,
 		[Display(Name="Гарантийный талон для помп")]
 		PumpWarranty
-	}
-		
-	public interface IPrintableDocument
-	{
-		PrinterType PrintType{ get; }
-		QSReport.ReportInfo GetReportInfo ();
-	}		
-
-	public enum PrinterType{
-		None, RDL
 	}
 
 }

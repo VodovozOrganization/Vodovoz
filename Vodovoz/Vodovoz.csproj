@@ -454,12 +454,13 @@
     <Compile Include="Domain\Order\Documents\OrderContract.cs" />
     <Compile Include="Domain\Order\Documents\DoneWorkDocument.cs" />
     <Compile Include="Domain\Order\Documents\BillDocument.cs" />
-    <Compile Include="Domain\Order\Documents\EquipmentTransfer.cs" />
     <Compile Include="Domain\Order\Documents\InvoiceDocument.cs" />
-    <Compile Include="Domain\Order\Documents\InvoiceBarter.cs" />
     <Compile Include="Domain\Order\Documents\UPDDocument.cs" />
     <Compile Include="Domain\Order\Documents\CoolerWarrantyDocument.cs" />
     <Compile Include="Domain\Order\Documents\PumpWarrantyDocument.cs" />
+    <Compile Include="DocumentPrinter.cs" />
+    <Compile Include="Domain\Order\Documents\InvoiceBarterDocument.cs" />
+    <Compile Include="Domain\Order\Documents\EquipmentTransferDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -311,8 +311,7 @@ namespace Vodovoz.Domain.Orders
 				return observableFinalOrderService;
 			}
 		}
-
-
+			
 		public Order ()
 		{
 			Comment = String.Empty;
@@ -399,6 +398,21 @@ namespace Vodovoz.Domain.Orders
 					Reason = Reason.Sale
 				});
 			}
+			if (nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty) {
+				if (!ObservableOrderDocuments.Any (doc => doc.Type == OrderDocumentType.CoolerWarranty)) {
+					ObservableOrderDocuments.Add (new CoolerWarrantyDocument {
+						Order=this
+					});
+				}
+			} else
+				if (nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty) {
+				if (!ObservableOrderDocuments.Any (doc => doc.Type == OrderDocumentType.PumpWarranty)) {
+					ObservableOrderDocuments.Add (new PumpWarrantyDocument {
+						Order=this
+					});
+				}
+			}
+			UpdateSalesDocuments ();
 		}
 
 		public void AddAdditionalNomenclatureForSale (Nomenclature nomenclature)
@@ -413,6 +427,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice (1)
 			});
+			UpdateSalesDocuments ();
 		}
 
 		public void AddWaterForSale (Nomenclature nomenclature, WaterSalesAgreement wsa)
@@ -430,6 +445,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.GetPrice (1)
 			});
+			UpdateSalesDocuments ();
 		}
 
 		public void RecalcBottlesDeposits (IUnitOfWork uow)
@@ -595,6 +611,7 @@ namespace Vodovoz.Domain.Orders
 					);
 				}
 			}
+			UpdateSalesDocuments ();
 		}
 
 		public void RemoveItem (OrderItem item)
@@ -603,6 +620,7 @@ namespace Vodovoz.Domain.Orders
 			foreach (var equip in ObservableOrderEquipments.Where (e => e.OrderItem == item).ToList ()) {
 				ObservableOrderEquipments.Remove (equip);
 			}
+			UpdateSalesDocuments ();
 		}
 
 		public void AddServiceClaimAsInitial (ServiceClaim service)
@@ -620,6 +638,13 @@ namespace Vodovoz.Domain.Orders
 				}
 				if (ObservableInitialOrderService.FirstOrDefault (sc => sc.Id == service.Id) == null)
 					ObservableInitialOrderService.Add (service);
+				if (ObservableOrderDocuments.Where (doc => doc.Type == OrderDocumentType.EquipmentTransfer).Cast<EquipmentTransferDocument> ()
+					.FirstOrDefault (doc => doc.ServiceClaim.Id == service.Id) == null) {
+					ObservableOrderDocuments.Add (new EquipmentTransferDocument {
+						Order = this,
+						ServiceClaim = service
+					});
+				}
 			}
 		}
 
@@ -635,9 +660,45 @@ namespace Vodovoz.Domain.Orders
 						Reason = Reason.Service
 					});
 				}
+				if (ObservableOrderDocuments.Where (doc => doc.Type == OrderDocumentType.DoneWorkReport).Cast<DoneWorkDocument> ()
+					.FirstOrDefault (doc => doc.ServiceClaim.Id == service.Id) == null) {
+					ObservableOrderDocuments.Add (new DoneWorkDocument {
+						Order = this,
+						ServiceClaim = service
+					});
+				}
 			}
 			//TODO FIXME Добавить строку сервиса OrderItems
 			//И вообще много чего тут сделать.
+		}
+
+		public void UpdateSalesDocuments()
+		{
+			var currentOrderDocuments = ObservableOrderDocuments.Where (doc => doc.Order.Id == Id);
+			if (ObservableOrderItems.Count > 0) {
+				if (!currentOrderDocuments.Any (doc => doc.Type == OrderDocumentType.Bill))
+					ObservableOrderDocuments.Add (new BillDocument {
+						Order = this
+					});
+				if (!currentOrderDocuments.Any (doc => doc.Type == OrderDocumentType.Invoice))
+					ObservableOrderDocuments.Add (new InvoiceDocument {
+						Order = this
+					});
+				if (!currentOrderDocuments.Any (doc => doc.Type == OrderDocumentType.UPD))
+					ObservableOrderDocuments.Add (new UPDDocument {
+						Order = this
+					});
+			} else {
+				ObservableOrderDocuments.Remove (
+					currentOrderDocuments.FirstOrDefault(doc=>doc.Type == OrderDocumentType.Bill)
+				);
+				ObservableOrderDocuments.Remove (
+					currentOrderDocuments.FirstOrDefault(doc=>doc.Type == OrderDocumentType.Invoice)
+				);
+				ObservableOrderDocuments.Remove (
+					currentOrderDocuments.FirstOrDefault(doc=>doc.Type == OrderDocumentType.UPD)
+				);
+			}
 		}
 
 		public void Close()

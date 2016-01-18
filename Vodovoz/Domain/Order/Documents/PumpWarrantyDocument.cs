@@ -27,6 +27,12 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		public override string Name { get { return "Гарантийный талон на помпы"; } }
+
+		public override PrinterType PrintType {
+			get {
+				return PrinterType.RDL;
+			}
+		}
 	}
 }
 

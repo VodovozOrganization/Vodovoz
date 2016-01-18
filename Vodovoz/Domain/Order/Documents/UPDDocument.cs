@@ -27,6 +27,12 @@ namespace Vodovoz.Domain.Orders.Documents
 		#endregion
 
 		public override string Name { get { return "УПД"; } }
+
+		public override PrinterType PrintType {
+			get {
+				return PrinterType.RDL;
+			}
+		}
 	}
 }
 

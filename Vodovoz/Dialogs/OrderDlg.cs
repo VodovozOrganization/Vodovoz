@@ -52,6 +52,7 @@ namespace Vodovoz
 
 		public void ConfigureDlg ()
 		{
+			treeDocuments.Selection.Mode=SelectionMode.Multiple;
 			if (UoWGeneric.Root.PreviousOrder != null) {
 				labelPreviousOrder.Text = "Посмотреть предыдущий заказ";
 //TODO Make it clickable.
@@ -198,6 +199,9 @@ namespace Vodovoz
 				.Finish ();
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument> ()
+				//.AddColumn("").AddToggleRenderer(node=>node.PrintType!=PrinterType.None)
+				//.AddColumn ("Тип документа")
+				//	.AddTextRenderer(node => Gamma.Utilities.AttributeUtil.GetEnumTitle(node.Type))
 				.AddColumn ("Документ").SetDataProperty (node => node.Name)
 				.AddColumn ("Дата").SetDataProperty (node => node.DocumentDate)
 				.Finish ();
@@ -767,6 +771,13 @@ namespace Vodovoz
 				report = new QSReport.ReportViewDlg (reportInfo);
 				TabParent.AddTab (report, this, false);
 			}
+		}
+
+		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
+		{
+			treeDocuments.GetSelectedObjects ().Cast<OrderDocument> ().Where (doc => doc.PrintType != PrinterType.None).ToList ().ForEach (
+				doc=>TabParent.AddTab(DocumentPrinter.PreviewTab(doc),this,false)
+			);
 		}
 
 		protected void OnTreeServiceClaimRowActivated (object o, RowActivatedArgs args)

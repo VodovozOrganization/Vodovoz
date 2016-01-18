@@ -17736,7 +17736,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -22320,6 +22319,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -22407,7 +22407,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">4</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -23546,7 +23546,7 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.HBox" id="hbox6">
+                          <widget class="Gtk.HBox" id="hbox13">
                             <property name="MemberName" />
                             <property name="Spacing">6</property>
                             <child>
@@ -23581,6 +23581,24 @@ RegistrationNumber</property>
                               <packing>
                                 <property name="PackType">End</property>
                                 <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gtk.Button" id="buttonPrintSelected">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Type">TextAndIcon</property>
+                                <property name="Icon">stock:gtk-print Menu</property>
+                                <property name="Label" translatable="yes">Печать</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Clicked" handler="OnButtonPrintSelectedClicked" />
+                              </widget>
+                              <packing>
+                                <property name="PackType">End</property>
+                                <property name="Position">2</property>
                                 <property name="AutoSize">True</property>
                                 <property name="Expand">False</property>
                                 <property name="Fill">False</property>

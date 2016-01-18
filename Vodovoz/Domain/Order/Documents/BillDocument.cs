@@ -33,6 +33,12 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override string Name {
 			get { return String.Format ("Счет №{0}", Order.Id); }
 		}			
+
+		public override PrinterType PrintType {
+			get {
+				return PrinterType.RDL;
+			}
+		}
 	}
 }
 

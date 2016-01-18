@@ -28,6 +28,12 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		public override string Name { get { return "Накладная"; } }
 
+		public override PrinterType PrintType {
+			get {
+				return PrinterType.RDL;
+			}
+		}
+
 	}
 }
 
