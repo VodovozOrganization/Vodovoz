@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using System.Linq;
 using Gtk;
 using NLog;
@@ -16,6 +15,7 @@ using Vodovoz.Repository;
 using QSSupportLib;
 using Gamma.GtkWidgets;
 using Vodovoz.Domain.Orders.Documents;
+using Gamma.Utilities;
 
 namespace Vodovoz
 {
@@ -199,9 +199,6 @@ namespace Vodovoz
 				.Finish ();
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument> ()
-				//.AddColumn("").AddToggleRenderer(node=>node.PrintType!=PrinterType.None)
-				//.AddColumn ("Тип документа")
-				//	.AddTextRenderer(node => Gamma.Utilities.AttributeUtil.GetEnumTitle(node.Type))
 				.AddColumn ("Документ").SetDataProperty (node => node.Name)
 				.AddColumn ("Дата").SetDataProperty (node => node.DocumentDate)
 				.Finish ();
@@ -788,9 +785,20 @@ namespace Vodovoz
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
-			treeDocuments.GetSelectedObjects ().Cast<OrderDocument> ().Where (doc => doc.PrintType != PrinterType.None).ToList ().ForEach (
-				doc=>TabParent.AddTab(DocumentPrinter.PreviewTab(doc),this,false)
-			);
+			var selectedPrintableDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
+				.Where(doc => doc.PrintType != PrinterType.None).ToList();
+			if (selectedPrintableDocuments.Count > 0)
+			{
+				string whatToPrint = selectedPrintableDocuments.Count > 1 
+					? "документов" 
+					: "документа \""+selectedPrintableDocuments.First().Type.GetEnumTitle()+"\"";
+				if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+					UoWGeneric.Save();
+			
+				selectedPrintableDocuments.ForEach(
+					doc => TabParent.AddTab(DocumentPrinter.PreviewTab(doc), this, false)
+				);
+			}
 		}
 
 		protected void OnTreeServiceClaimRowActivated (object o, RowActivatedArgs args)
