@@ -28,7 +28,11 @@ namespace Vodovoz.Repository
 				.List ().First ();
 		}
 
-		public static QueryOver<Equipment> AvailableEquipmentQuery(){
+		public static QueryOver<Equipment> AvailableOnDutyEquipmentQuery(){
+			return AvailableEquipmentQuery ().Where (equipment => equipment.OnDuty);
+		}
+
+		public static QueryOver<Equipment,Equipment> AvailableEquipmentQuery(){
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			Equipment equipmentAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;

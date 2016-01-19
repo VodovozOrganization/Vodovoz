@@ -74,8 +74,15 @@ namespace Vodovoz
 			referenceEquipment.SubjectType = typeof(Equipment);
 			referenceNomenclature.SubjectType = typeof(Nomenclature);
 
+			yentryEquipmentReplacement.ItemsQuery = EquipmentRepository.AvailableOnDutyEquipmentQuery ();
+			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment> (e => e.Title);
+			yentryEquipmentReplacement.Binding
+				.AddBinding (UoWGeneric.Root, serviceClaim => serviceClaim.ReplacementEquipment, widget => widget.Subject)
+				.InitializeFromSource();
+
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
+			yentryEquipmentReplacement.Sensitive = (UoWGeneric.Root.Nomenclature!=null);
 
 			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
 
@@ -312,7 +319,7 @@ namespace Vodovoz
 
 		protected void FixNomenclatureAndEquipmentSensitivity(){
 			bool withSerial = ((ServiceClaimComboEnum)enumcomboWithSerial.SelectedItem) == ServiceClaimComboEnum.WithSerial;		 
-			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && UoWGeneric.Root.DeliveryPoint !=null;
+			yentryEquipmentReplacement.Sensitive = referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && UoWGeneric.Root.DeliveryPoint !=null;
 			referenceNomenclature.Sensitive = !withSerial && UoWGeneric.Root.Counterparty!=null;
 		}
 	}

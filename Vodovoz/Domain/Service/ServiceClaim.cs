@@ -62,6 +62,13 @@ namespace Vodovoz.Domain.Service
 			set	{ SetField (ref equipment, value, () => Equipment); }
 		}
 
+		Equipment replacementEquipment;
+
+		public virtual Equipment ReplacementEquipment{
+			get{ return replacementEquipment; }
+			set{ SetField (ref replacementEquipment, value, () => ReplacementEquipment); }
+		}
+
 		Counterparty counterparty;
 
 		public virtual Counterparty Counterparty { 

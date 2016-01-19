@@ -26,6 +26,7 @@ namespace Vodovoz
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.Nomenclature).Column ("nomenclature_id");
 			References (x => x.Equipment).Column ("equipment_id");
+			References (x => x.ReplacementEquipment).Column ("replacement_equipment_id");
 			References (x => x.DeliveryPoint).Column ("delivery_point_id");
 			References (x => x.Engineer).Column ("engineer_id");
 			References (x => x.InitialOrder).Column ("initial_order_id");
