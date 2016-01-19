@@ -672,117 +672,6 @@ namespace Vodovoz
 			UpdateProxyInfo ();
 		}
 
-		protected void OnButtonPrintEnumItemClicked (object sender, EnumItemClickedEventArgs e)
-		{
-			QSReport.ReportViewDlg report = null;
-			QSReport.ReportInfo reportInfo = null;
-			PrintDocuments selected = (PrintDocuments)e.ItemEnum;
-
-			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(Order), selected.GetEnumTitle ()))
-				UoWGeneric.Save ();
-			
-			switch (selected) {
-			case PrintDocuments.Bill:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Счет №{0} от {1:d}", Entity.Id, Entity.DeliveryDate),
-					Identifier = "Bill",
-					Parameters = new Dictionary<string, object> {
-						{ "order_id",  Entity.Id },
-						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
-						{ "hide_signature", false }
-					}
-				};
-				break;
-			case PrintDocuments.BillWithoutSignature:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Счет №{0} от {1:d} (без печати и подписи)", Entity.Id, Entity.DeliveryDate),
-					Identifier = "Bill",
-					Parameters = new Dictionary<string, object> {
-						{ "order_id",  Entity.Id },
-						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])  },
-						{ "hide_signature", true }
-					}
-				};
-				break;
-			case PrintDocuments.DoneWorkReport:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Акт выполненных работ"),
-					Identifier = "DoneWorkReport",
-					Parameters = new Dictionary<string,object> {
-						{ "order_id",Entity.Id },
-						{"service_claim_id",27} //TODO передавать id заявки(возможно печать организовать иначе)
-						//TODO телефон указывать точки доставки(если есть и контактное лицо + телефон клиента)
-					}
-				};
-				break;
-			case PrintDocuments.EquipmentTransfer:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Акт приема-передачи оборудования"),
-					Identifier = "EquipmentTransfer",
-					Parameters = new Dictionary<string,object> {
-						{ "order_id",Entity.Id },
-						{"service_claim_id",27} //TODO передавать id заявки(возможно печать организовать иначе)
-						//TODO телефон указывать точки доставки(если есть и контактное лицо + телефон клиента)
-					}
-				};
-				break;
-			case PrintDocuments.Invoice:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Накладная №{0} от {1:d}", Entity.Id, Entity.DeliveryDate),
-					Identifier = "Invoice",
-					Parameters = new Dictionary<string, object> {
-						{ "order_id",  Entity.Id }
-					}
-				};
-				break;
-			case PrintDocuments.InvoiceBarter:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Накладная №{0} от {1:d} (безденежно)", Entity.Id, Entity.DeliveryDate),
-					Identifier = "InvoiceBarter",
-					Parameters = new Dictionary<string, object> {
-						{ "order_id",  Entity.Id }
-					}
-				};
-				break;
-			case PrintDocuments.UPD:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("УПД {0} от {1:d}", Entity.Id, Entity.DeliveryDate),
-					Identifier = "UPD",
-					Parameters = new Dictionary<string, object> {
-						{ "order_id", Entity.Id }
-					}
-				};
-				break;
-			case PrintDocuments.CoolerWarranty:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Гарантийный талон на кулера №{0}", Entity.Id),
-					Identifier = "CoolerWarranty",
-					Parameters = new Dictionary<string, object> {
-						{ "order_id", Entity.Id },
-						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}
-					}
-				};
-				break;
-			case PrintDocuments.PumpWarranty:
-				reportInfo = new QSReport.ReportInfo {
-					Title = String.Format ("Гарантийный талон на помпы №{0}", Entity.Id),
-					Identifier = "PumpWarranty",
-					Parameters = new Dictionary<string, object> {
-						{ "order_id", Entity.Id },
-						{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}
-					}
-				};
-				break;
-			default:
-				throw new InvalidOperationException (String.Format ("Тип документа еще не поддерживается: {0}", selected));
-			}
-
-			if (reportInfo != null) {
-				report = new QSReport.ReportViewDlg (reportInfo);
-				TabParent.AddTab (report, this, false);
-			}
-		}
-
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
 			var selectedPrintableDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
@@ -796,7 +685,7 @@ namespace Vodovoz
 					UoWGeneric.Save();
 			
 				selectedPrintableDocuments.ForEach(
-					doc => TabParent.AddTab(DocumentPrinter.PreviewTab(doc), this, false)
+					doc => TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false)
 				);
 			}
 		}
@@ -888,27 +777,5 @@ namespace Vodovoz
 		{
 			UpdateProxyInfo ();
 		}
-	}
-
-	public enum PrintDocuments
-	{
-		[Display (Name = "Счет")]
-		Bill,
-		[Display (Name = "Счет (Без печати и подписи)")]
-		BillWithoutSignature,
-		[Display (Name = "Акт выполненных работ")]
-		DoneWorkReport,
-		[Display (Name = "Акт приема-передачи оборудования")]
-		EquipmentTransfer,
-		[Display (Name = "Накладная (нал.)")]
-		Invoice,
-		[Display (Name = "Накладная (безденежно)")]
-		InvoiceBarter,
-		[Display (Name = "УПД")]
-		UPD,
-		[Display(Name="Гарантийный талон для кулеров")]
-		CoolerWarranty,
-		[Display(Name="Гарантийный талон для помп")]
-		PumpWarranty
 	}
 }

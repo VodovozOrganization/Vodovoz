@@ -19,7 +19,7 @@ namespace Vodovoz
 				Print (i.Current);
 			}
 		}
-		public static QSTDI.TdiTabBase PreviewTab(IPrintableDocument document)
+		public static QSTDI.TdiTabBase GetPreviewTab(IPrintableDocument document)
 		{
 			return new QSReport.ReportViewDlg (document.GetReportInfoForPreview());				
 		}
