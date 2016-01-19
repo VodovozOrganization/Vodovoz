@@ -7,10 +7,7 @@ namespace Vodovoz.Repository
 	{
 		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, PaymentType paymentType)
 		{
-			Organization organization = 
-				(paymentType == PaymentType.cash 
-				? OrganizationRepository.GetCashOrganization (uow)
-				: OrganizationRepository.GetCashlessOrganization (uow));
+			Organization organization = OrganizationRepository.GetOrganizationByPaymentType (uow,paymentType);
 
 			Counterparty counterpartyAlias = null;
 			Organization organizationAlias = null;

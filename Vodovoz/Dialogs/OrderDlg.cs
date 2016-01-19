@@ -484,9 +484,7 @@ namespace Vodovoz
 			var response = AskCreateContract ();
 			if (response == (int)ResponseType.Yes) {
 				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
-					(UoWGeneric.Root.PaymentType == PaymentType.cash ?
-						OrganizationRepository.GetCashOrganization (UoWGeneric) :
-						OrganizationRepository.GetCashlessOrganization (UoWGeneric)),
+					OrganizationRepository.GetOrganizationByPaymentType (UoWGeneric, UoWGeneric.Root.PaymentType),
 					UoWGeneric.Root.DeliveryDate);
 				(dlg as IContractSaved).ContractSaved += OnContractSaved;
 				TabParent.AddSlaveTab (this, dlg);
@@ -513,11 +511,9 @@ namespace Vodovoz
 		}
 
 		protected void RunContractAndWaterAgreementDialog(){
-			ITdiTab dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client, 
-				(UoWGeneric.Root.PaymentType == PaymentType.cash ?
-					OrganizationRepository.GetCashOrganization (UoWGeneric) :
-					OrganizationRepository.GetCashlessOrganization (UoWGeneric)),
-					UoWGeneric.Root.DeliveryDate);
+			ITdiTab dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client,
+				              OrganizationRepository.GetOrganizationByPaymentType (UoWGeneric, UoWGeneric.Root.PaymentType),
+				              UoWGeneric.Root.DeliveryDate);
 			(dlg as IContractSaved).ContractSaved += OnContractSaved;
 			dlg.CloseTab += (sender, e) => {
 				CounterpartyContract contract =
@@ -562,9 +558,8 @@ namespace Vodovoz
 			CounterpartyContract result;
 			using (var uow = CounterpartyContract.Create (UoWGeneric.Root.Client)) {
 				var contract = uow.Root;
-				contract.Organization = (UoWGeneric.Root.PaymentType == PaymentType.cash ?
-					OrganizationRepository.GetCashOrganization (UoWGeneric) :
-					OrganizationRepository.GetCashlessOrganization (UoWGeneric));
+				contract.Organization = OrganizationRepository
+					.GetOrganizationByPaymentType (UoWGeneric, UoWGeneric.Root.PaymentType);
 				contract.IsArchive = false;
 				contract.IssueDate = UoWGeneric.Root.DeliveryDate;
 				contract.AdditionalAgreements = new List<AdditionalAgreement> ();

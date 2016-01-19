@@ -11,23 +11,23 @@ namespace Vodovoz.Repository
 		public const string CashOrganization = "cash_organization_id";
 		public const string CashlessOrganization = "cashless_organization_id";
 
-		public static Organization GetCashOrganization (IUnitOfWork uow)
+		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow,PaymentType paymentType)
 		{
-			if (MainSupport.BaseParameters.All.ContainsKey (CashOrganization)) {
-				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [CashOrganization]);
-				if (id == -1)
-					return null;
-				return uow.GetById<Organization> (id);
+			string organizationParameter="";
+			switch (paymentType) {
+			case PaymentType.cash:
+				organizationParameter = CashOrganization;
+				break;
+			case PaymentType.cashless:
+				organizationParameter = CashlessOrganization;
+				break;
+			case PaymentType.barter:
+				organizationParameter = CashlessOrganization;
+				break;
 			}
-			return null;
-		}
-
-		public static Organization GetCashlessOrganization (IUnitOfWork uow)
-		{
-			if (MainSupport.BaseParameters.All.ContainsKey (CashlessOrganization)) {
+			if (MainSupport.BaseParameters.All.ContainsKey (organizationParameter)) {
 				int id = -1;
-				id = int.Parse (MainSupport.BaseParameters.All [CashlessOrganization]);
+				id = int.Parse (MainSupport.BaseParameters.All [organizationParameter]);
 				if (id == -1)
 					return null;
 				return uow.GetById<Organization> (id);

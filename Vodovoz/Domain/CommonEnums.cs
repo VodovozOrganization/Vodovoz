@@ -28,7 +28,10 @@ namespace Vodovoz.Domain
 		cash,
 		[Display (Name = "Безналичная")]
 		[ItemTitleAttribute ("Безналичная")]
-		cashless
+		cashless,
+		[Display (Name="Бартер")]
+		[ItemTitleAttribute("Бартер")]
+		barter
 	}
 
 	public class PaymentTypeStringType : NHibernate.Type.EnumStringType

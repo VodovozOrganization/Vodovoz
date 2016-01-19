@@ -187,14 +187,24 @@ namespace Vodovoz
 		void RunContractCreateDialog ()
 		{
 			ITdiTab dlg;
+			string paymentTypeString="";
+			switch (UoWGeneric.Root.Payment) {
+			case PaymentType.cash:
+				paymentTypeString = "наличной";
+				break;
+			case PaymentType.cashless:
+				paymentTypeString = "безналичной";
+				break;
+			case PaymentType.barter:
+				paymentTypeString = "бартерной";
+				break;
+			}
 			string question = "Отсутствует договор с клиентом для " +
-			                  (UoWGeneric.Root.Payment == PaymentType.cash ? "наличной" : "безналичной") +
+			                  paymentTypeString +
 			                  " формы оплаты. Создать?";
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
 				dlg = new CounterpartyContractDlg (UoWGeneric.Root.Counterparty, 
-					(UoWGeneric.Root.Payment == PaymentType.cash ?
-							OrganizationRepository.GetCashOrganization (UoWGeneric) :
-							OrganizationRepository.GetCashlessOrganization (UoWGeneric)));
+					OrganizationRepository.GetOrganizationByPaymentType(UoWGeneric,UoWGeneric.Root.Payment));	
 				(dlg as IContractSaved).ContractSaved += (sender, e) => {
 					if (UoWGeneric.Root.InitialOrder != null)
 						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderContract { 
@@ -209,8 +219,20 @@ namespace Vodovoz
 		void RunAgreementCreateDialog (CounterpartyContract contract)
 		{
 			ITdiTab dlg;
+			string paymentTypeString="";
+			switch (UoWGeneric.Root.Payment) {
+			case PaymentType.cash:
+				paymentTypeString = "наличной";
+				break;
+			case PaymentType.cashless:
+				paymentTypeString = "безналичной";
+				break;
+			case PaymentType.barter:
+				paymentTypeString = "бартерной";
+				break;
+			}
 			string question = "Отсутствует доп. соглашение сервиса с клиентом в договоре для " +
-			                  (UoWGeneric.Root.Payment == PaymentType.cash ? "наличной" : "безналичной") +
+			                  paymentTypeString +
 			                  " формы оплаты. Создать?";
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
 				dlg = new AdditionalAgreementRepair (contract);
