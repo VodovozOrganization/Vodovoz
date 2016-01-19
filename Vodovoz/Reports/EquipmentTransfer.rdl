@@ -86,7 +86,7 @@ service_claims.replacement_equipment_id as replacement_cooler,
 replacement_equipment.id as replacement_serial,
 replacement_nomenclature.name as replacement_name
 from service_claims
-JOIN equipment on equipment.id = service_claims.replacement_equipment_id
+JOIN equipment equipment on equipment.id = service_claims.equipment_id
 JOIN nomenclature on nomenclature.id = equipment.nomenclature_id
 JOIN equipment AS replacement_equipment ON service_claims.replacement_equipment_id = replacement_equipment.id
 JOIN nomenclature AS replacement_nomenclature ON replacement_nomenclature.id = replacement_equipment.nomenclature_id

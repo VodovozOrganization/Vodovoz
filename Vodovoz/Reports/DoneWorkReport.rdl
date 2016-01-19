@@ -84,7 +84,7 @@ service_claims.diagnostics_result,
 service_claims.kit,
 service_claims.replacement_equipment_id as replacement_serial
 from service_claims
-JOIN equipment on equipment.id = service_claims.replacement_equipment_id
+JOIN equipment on equipment.id = service_claims.equipment_id
 JOIN nomenclature on nomenclature.id = equipment.nomenclature_id
 WHERE service_claims.id = @service_claim_id</CommandText>
         <QueryParameters>
