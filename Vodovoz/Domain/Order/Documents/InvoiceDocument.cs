@@ -26,7 +26,11 @@ namespace Vodovoz.Domain.Orders.Documents
 
 		#endregion
 
-		public override string Name { get { return "Накладная"; } }
+		public override string Name { get { return String.Format ("Накладная №{0}",Order.Id); } }
+
+		public override string DocumentDate {
+			get { return String.Format ("от {0}", Order.DeliveryDate.ToShortDateString ()); }
+		}
 
 		public override PrinterType PrintType {
 			get {

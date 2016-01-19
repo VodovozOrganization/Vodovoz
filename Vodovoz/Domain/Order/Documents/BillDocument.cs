@@ -47,6 +47,10 @@ namespace Vodovoz.Domain.Orders.Documents
 			get { return String.Format ("Счет №{0}", Order.Id); }
 		}			
 
+		public override string DocumentDate {
+			get { return String.Format ("от {0}", Order.DeliveryDate.ToShortDateString ()); }
+		}
+			
 		public override PrinterType PrintType {
 			get {
 				return PrinterType.RDL;
