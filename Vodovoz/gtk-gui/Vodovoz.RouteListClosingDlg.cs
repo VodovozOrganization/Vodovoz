@@ -422,7 +422,10 @@ namespace Vodovoz
 			w27.Expand = false;
 			w27.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.createroutelistitemsview1 = null;
+			this.createroutelistitemsview1 = new global::Vodovoz.RouteListClosingItemsView ();
+			this.createroutelistitemsview1.HeightRequest = 150;
+			this.createroutelistitemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.createroutelistitemsview1.Name = "createroutelistitemsview1";
 			this.vbox1.Add (this.createroutelistitemsview1);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.createroutelistitemsview1]));
 			w28.Position = 1;

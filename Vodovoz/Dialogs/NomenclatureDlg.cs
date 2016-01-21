@@ -40,8 +40,10 @@ namespace Vodovoz
 
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
-			enumType.DataSource = subjectAdaptor;
 			enumVAT.DataSource = subjectAdaptor;
+
+			enumType.ItemsEnum = typeof(NomenclatureCategory);
+			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
 			referenceUnit.PropertyMapping<Nomenclature> (n => n.Unit);
 			referenceType.PropertyMapping<Nomenclature> (n => n.Type);
@@ -50,7 +52,7 @@ namespace Vodovoz
 			referenceRouteColumn.PropertyMapping<Nomenclature> (n => n.RouteListColumn);
 			referenceManufacturer.PropertyMapping<Nomenclature> (n => n.Manufacturer);
 
-			ConfigureInputs ((NomenclatureCategory)enumType.Active);
+			ConfigureInputs (Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
 			if (UoWGeneric.Root.NomenclaturePrice == null)
@@ -72,7 +74,7 @@ namespace Vodovoz
 
 		protected void OnEnumTypeChanged (object sender, EventArgs e)
 		{
-			ConfigureInputs ((NomenclatureCategory)enumType.Active);
+			ConfigureInputs (Entity.Category);
 		}
 
 		protected void ConfigureInputs (NomenclatureCategory selected)

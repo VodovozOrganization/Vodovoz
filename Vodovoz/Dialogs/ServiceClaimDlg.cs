@@ -63,11 +63,13 @@ namespace Vodovoz
 			datatable2.DataSource = subjectAdaptor;
 			datatable3.DataSource = subjectAdaptor;
 			enumPaymentType.DataSource = subjectAdaptor;
-			enumStatus.DataSource = subjectAdaptor;
-			enumType.DataSource = subjectAdaptor;
 			labelTotalPrice.DataSource = subjectAdaptor;
 
 			enumcomboWithSerial.ItemsEnum = typeof(ServiceClaimComboEnum);
+			enumStatus.ItemsEnum = typeof(ServiceClaimStatus);
+			enumStatus.Binding.AddBinding(Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
+			enumType.ItemsEnum = typeof(ServiceClaimType);
+			enumType.Binding.AddBinding(Entity, e => e.ServiceClaimType, w => w.SelectedItem).InitializeFromSource();
 
 			referenceCounterparty.SubjectType = typeof(Counterparty);
 			referenceEngineer.SubjectType = typeof(Employee);

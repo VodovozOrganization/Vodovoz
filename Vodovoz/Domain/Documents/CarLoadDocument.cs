@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {

@@ -5,6 +5,7 @@ using System.Data.Bindings;
 using QSContacts;
 using QSOrmProject;
 using QSValidation.Attributes;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain
 {

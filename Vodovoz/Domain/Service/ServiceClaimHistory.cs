@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Service
 {

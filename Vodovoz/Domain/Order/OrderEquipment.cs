@@ -1,7 +1,7 @@
 ﻿using System;
 using QSOrmProject;
-using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -94,8 +94,8 @@ namespace Vodovoz.Domain.Orders
 
 	public enum Direction
 	{
-		[ItemTitleAttribute ("Доставить")]Deliver,
-		[ItemTitleAttribute ("Забрать")]PickUp
+		[Display (Name = "Доставить")]Deliver,
+		[Display (Name = "Забрать")]PickUp
 	}
 
 	public class DirectionStringType : NHibernate.Type.EnumStringType
@@ -107,10 +107,10 @@ namespace Vodovoz.Domain.Orders
 
 	public enum Reason
 	{
-		[ItemTitleAttribute ("Сервис")]Service,
-		[ItemTitleAttribute ("Аренда")]Rent,
-		[ItemTitleAttribute ("Расторжение")]Cancellation,
-		[ItemTitleAttribute ("Продажа")]Sale
+		[Display (Name= "Сервис")]Service,
+		[Display (Name= "Аренда")]Rent,
+		[Display (Name= "Расторжение")]Cancellation,
+		[Display (Name= "Продажа")]Sale
 	}
 
 	public class ReasonStringType : NHibernate.Type.EnumStringType

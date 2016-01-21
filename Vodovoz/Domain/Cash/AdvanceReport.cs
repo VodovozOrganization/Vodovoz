@@ -3,6 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Cash
 {

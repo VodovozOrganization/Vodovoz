@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain
 {
@@ -194,15 +194,15 @@ namespace Vodovoz.Domain
 
 	public enum NomenclatureCategory
 	{
-		[ItemTitleAttribute ("Аренда")] rent,
-		[ItemTitleAttribute ("Вода в многооборотной таре")] water,
-		[ItemTitleAttribute ("Залог")] deposit,
-		[ItemTitleAttribute ("Запчасти")] spare_parts,
-		[ItemTitleAttribute ("Оборудование")] equipment,
-		[ItemTitleAttribute ("Товары")] additional,
-		[ItemTitleAttribute ("Услуга")] service,
-		[ItemTitleAttribute ("Тара")] bottle,
-		[ItemTitleAttribute ("Сырьё")] material
+		[Display (Name= "Аренда")] rent,
+		[Display (Name= "Вода в многооборотной таре")] water,
+		[Display (Name= "Залог")] deposit,
+		[Display (Name= "Запчасти")] spare_parts,
+		[Display (Name= "Оборудование")] equipment,
+		[Display (Name= "Товары")] additional,
+		[Display (Name= "Услуга")] service,
+		[Display (Name= "Тара")] bottle,
+		[Display (Name= "Сырьё")] material
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType

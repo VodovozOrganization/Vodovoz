@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Service
 {
@@ -328,37 +328,26 @@ namespace Vodovoz.Domain.Service
 	public enum ServiceClaimStatus
 	{
 		[Display (Name = "Забрать у клиента")]
-		[ItemTitleAttribute ("Забрать у клиента")]
 		PickUp,
 		[Display (Name = "Принят на склад")]
-		[ItemTitleAttribute ("Принят на склад")]
 		DeliveredToWarehouse,
 		[Display (Name = "На диагностике")]
-		[ItemTitleAttribute ("На диагностике")]
 		Diagnostics,
 		[Display (Name = "Согласование")]
-		[ItemTitleAttribute ("Согласование")]
 		Negotiation,
 		[Display (Name = "Ожидается оплата")]
-		[ItemTitleAttribute ("Ожидается оплата")]
 		PaymentPending,
 		[Display (Name = "В ремонте")]
-		[ItemTitleAttribute ("В ремонте")]
 		Service,
 		[Display (Name = "Отправлен в сервисный центр")]
-		[ItemTitleAttribute ("Отправлен в сервисный центр")]
 		SendedToSC,
 		[Display (Name = "Забрать из сервисного центра")]
-		[ItemTitleAttribute ("Забрать из сервисного центра")]
 		PickUpFromSC,
 		[Display (Name = "Отправлен клиенту")]
-		[ItemTitleAttribute ("Отправлен клиенту")]
 		SendedToClient,
 		[Display (Name = "Закрыта (Наш кулер)")]
-		[ItemTitleAttribute ("Закрыта (Наш кулер)")]
 		ClosedAsOurCooler,
 		[Display (Name = "Готов")]
-		[ItemTitleAttribute ("Готов")]
 		Ready
 	}
 
@@ -371,13 +360,10 @@ namespace Vodovoz.Domain.Service
 
 	public enum ServiceClaimType
 	{
-		[ItemTitleAttribute ("Сервис (доставка и забор)")]
 		[Display (Name = "Сервис (доставка и забор)")]
 		RegularService,
-		[ItemTitleAttribute ("Только сервис")]
 		[Display (Name = "Только сервис")]
 		JustService,
-		[ItemTitleAttribute ("Выезд мастера")]
 		[Display (Name = "Выезд мастера")]
 		RepairmanCall
 	}

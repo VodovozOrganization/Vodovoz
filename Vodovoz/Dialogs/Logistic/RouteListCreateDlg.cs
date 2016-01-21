@@ -11,6 +11,7 @@ using Vodovoz.Repository.Logistics;
 using System.IO;
 using QSReport;
 using QSTDI;
+using Gamma.Utilities;
 
 namespace Vodovoz
 {
