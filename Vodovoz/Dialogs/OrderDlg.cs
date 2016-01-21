@@ -447,6 +447,20 @@ namespace Vodovoz
 					TabParent.AddSlaveTab (this, dlg);
 				}
 			}
+
+			var selectedPrintableDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
+				.Where(doc => doc.PrintType != PrinterType.None).ToList();
+			if (selectedPrintableDocuments.Count > 0)
+			{
+				string whatToPrint = selectedPrintableDocuments.Count > 1 
+					? "документов" 
+					: "документа \""+selectedPrintableDocuments.First().Type.GetEnumTitle()+"\"";
+				if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+					UoWGeneric.Save();								
+				selectedPrintableDocuments.ForEach(
+					doc => TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false)
+				);
+			}
 		}
 
 		protected void OnButtonFillCommentClicked (object sender, EventArgs e)
@@ -683,10 +697,7 @@ namespace Vodovoz
 					: "документа \""+selectedPrintableDocuments.First().Type.GetEnumTitle()+"\"";
 				if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
 					UoWGeneric.Save();
-			
-				selectedPrintableDocuments.ForEach(
-					doc => TabParent.AddTab(DocumentPrinter.GetPreviewTab(doc), this, false)
-				);
+				DocumentPrinter.PrintAll(selectedPrintableDocuments);
 			}
 		}
 

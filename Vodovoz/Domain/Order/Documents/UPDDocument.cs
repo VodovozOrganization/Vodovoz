@@ -37,6 +37,14 @@ namespace Vodovoz.Domain.Orders.Documents
 				return PrinterType.RDL;
 			}
 		}
+
+		public override DocumentOrientation Orientation
+		{
+			get
+			{
+				return DocumentOrientation.Landscape;
+			}
+		}
 	}
 }
 

@@ -50,6 +50,12 @@ namespace Vodovoz.Domain.Orders.Documents
 				return PrinterType.None;
 			}
 		}
+
+		public virtual DocumentOrientation Orientation{
+			get{
+				return DocumentOrientation.Portrait;
+			}
+		}
 		#endregion
 	}
 		

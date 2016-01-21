@@ -63,6 +63,7 @@
     <Reference Include="FluentNHibernate">
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -466,6 +467,7 @@
     <Compile Include="Representations\RouteListsVM.cs" />
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
+    <Compile Include="BatchRDLRenderer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
