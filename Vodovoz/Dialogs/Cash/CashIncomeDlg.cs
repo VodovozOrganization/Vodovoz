@@ -140,6 +140,7 @@ namespace Vodovoz
 
 			vboxDebts.Visible = Entity.TypeOperation == IncomeType.Return && UoW.IsNew;
 			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
+			yspinMoney.ValueAsDecimal = 0;
 
 			FillDebts ();
 		}
