@@ -503,9 +503,18 @@ namespace Vodovoz
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(AdvanceReport),
 				SqlSelect = "SELECT id, date FROM @tablename ",
-				DisplayString = "Авансовый отчет №{0} от {1:d}"
+				DisplayString = "Авансовый отчет №{0} от {1:d}",
+				DeleteItems = new List<DeleteDependenceInfo> {
+					DeleteDependenceInfo.Create<AdvanceClosing> (item => item.AdvanceReport) //FIXME Запустить перерасчет калки закрытия. 
+				}
 			}.FillFromMetaInfo ()
 			);
+
+			DeleteConfig.AddDeleteInfo(new DeleteInfo {
+				ObjectClass = typeof(AdvanceClosing),
+				SqlSelect = "SELECT id FROM @tablename ",
+				DisplayString = "Строка закрытия аванса №{0} на сумму #FIXME",
+			}.FillFromMetaInfo ());
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(IncomeCategory),
