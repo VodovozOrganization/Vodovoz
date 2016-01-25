@@ -12,6 +12,8 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
+using QSProjectsLib;
+using System.ComponentModel;
 
 namespace Vodovoz
 {
@@ -19,6 +21,8 @@ namespace Vodovoz
 	public partial class RouteListClosingItemsView : WidgetOnTdiTabBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		IList<RouteListItem> items;
 
 		private int goodsColumnsCount = -1;
 
@@ -41,10 +45,20 @@ namespace Vodovoz
 					return;
 				routeListUoW = value;
 				if (RouteListUoW.Root.Addresses == null)
-					RouteListUoW.Root.Addresses = new List<RouteListItem> ();
-				items = RouteListUoW.Root.ObservableAddresses;
-				items.ElementChanged += Items_ElementChanged;
-				items.ListChanged += Items_ListChanged;
+					RouteListUoW.Root.Addresses = new List<RouteListItem> ();				
+				//UpdateNodes();
+
+				items=RouteListUoW.Root.Addresses;
+				foreach (RouteListItem routeListitem in items)
+				{
+					routeListitem.BottlesReturned = routeListitem.Order.BottlesReturn;
+					routeListitem.DepositsCollected = routeListitem.Order.OrderDepositItems.Sum(depositItem => depositItem.Deposit);
+					routeListitem.TotalPrice = routeListitem.Order.TotalSum;
+				}
+
+
+				RouteListUoW.Root.ObservableAddresses.ElementChanged += Items_ElementChanged;
+				RouteListUoW.Root.ObservableAddresses.ListChanged += Items_ListChanged;
 
 				UpdateColumns ();
 
@@ -56,7 +70,24 @@ namespace Vodovoz
 
 		void Items_ListChanged (object aList)
 		{
+			//UpdateNodes();
 			UpdateColumns ();
+		}
+
+		private void UpdateNodes()
+		{
+			logger.Info("Redundant UpdateNodes call");
+			/*
+			items = new List<RouteListItemClosingNode>();
+			foreach (RouteListItem routeListitem in RouteListUoW.Root.ObservableAddresses)
+			{
+				items.Add(new RouteListItemClosingNode{
+					item = routeListitem,
+					BottlesReturned=routeListitem.Order.BottlesReturn,
+					DepositsCollected=routeListitem.Order.OrderDepositItems.Sum(depositItem=>depositItem.Deposit)
+				});
+			}
+			*/
 		}
 
 		private void UpdateColumns ()
@@ -67,31 +98,41 @@ namespace Vodovoz
 
 			goodsColumnsCount = goodsColumns.Length;
 
-			var config = ColumnsConfigFactory.Create<RouteListItem> ()
-				.AddColumn ("Заказ").SetDataProperty (node => node.Order.Id)
-				.AddColumn ("Адрес").AddTextRenderer (node => String.Format ("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-				.AddColumn ("Время").AddTextRenderer (node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
+			var config = ColumnsConfigFactory.Create<RouteListItem>()
+				.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id.ToString())
+				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+				.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
+			
 			foreach (var column in columnsInfo) {
 				if (!goodsColumns.Contains (column.Id))
 					continue;
 				int id = column.Id;
-				config = config.AddColumn (column.Name).AddTextRenderer (a => a.GetGoodsAmountForColumn (id).ToString ());
+				config.AddColumn (column.Name).AddTextRenderer (a => a.GetGoodsAmountForColumn (id).ToString ());
 			}
-			//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
-			//						"Не указан" : 
-			//						node.Order.DeliveryPoint.LogisticsArea.Name)
+
+			config
+				.AddColumn("Пустых бутылей")
+					.AddNumericRenderer(node => node.BottlesReturned).Editing(true).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
+					.AddTextRenderer(node => "шт", false)
+				.AddColumn("Залоги за бутыли")
+					.AddNumericRenderer(node => node.DepositsCollected)
+						.Editing(true)
+						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))									
+					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)					
+				.AddColumn("Итого")
+					.AddNumericRenderer(node => node.TotalPrice)
+						.Editing(true)
+						.Adjustment(new Adjustment(0,0,100000,100,100,1))
+				.AddColumn("").AddTextRenderer();
+
 			ytreeviewItems.ColumnsConfig = 
 				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish ();
-		}
-
-		public void IsEditable (bool val = false)
-		{
-			enumbuttonAddOrder.Sensitive = buttonDelete.Sensitive = val;
-		}
+		}			
 
 		void Items_ElementChanged (object aList, int[] aIdx)
 		{
+			UpdateNodes();
 			CalculateTotal ();
 		}
 
@@ -103,82 +144,17 @@ namespace Vodovoz
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonDelete.Sensitive = ytreeviewItems.Selection.CountSelectedRows () > 0;
-		}
-
-		GenericObservableList<RouteListItem> items;
-
-		protected void OnButtonDeleteClicked (object sender, EventArgs e)
-		{
-			RouteListUoW.Root.RemoveAddress (ytreeviewItems.GetSelectedObject () as RouteListItem);
-			CalculateTotal ();
-		}
-
-		protected void OnEnumbuttonAddOrderEnumItemClicked (object sender, EnumItemClickedEventArgs e)
-		{
-			AddOrderEnum choice = (AddOrderEnum)e.ItemEnum;
-			switch (choice) {
-			case AddOrderEnum.AddOne:
-				AddOrder ();
-				break;
-			case AddOrderEnum.AddAllForRegion:
-				AddOrdersFromRegion ();
-				break;
-			default:
-				break;
-			}
-		}
-
-		protected void AddOrder ()
-		{
-			var filter = new OrdersFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date;
-			filter.RestrictStatus = OrderStatus.Accepted;
-
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ObjectSelected += (s, ea) => {
-				var order = RouteListUoW.GetById<Order> (ea.ObjectId);
-				RouteListUoW.Root.AddAddressFromOrder (order);
-			};
-			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
-		}
-
-		protected void AddOrdersFromRegion ()
-		{
-			OrmReference SelectDialog = new OrmReference (typeof(LogisticsArea), RouteListUoW);
-			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
-			SelectDialog.ObjectSelected += (s, ea) => {
-				if (ea.Subject != null) {
-					foreach (var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as LogisticsArea))
-						RouteListUoW.Root.AddAddressFromOrder (order);
-				}
-			};
-			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
-		}
+			
+		}						
 
 		void CalculateTotal ()
 		{
-/*			decimal total = 0;
-			foreach (var item in routeListUoW.Root.Items) {
-				total += item.Sum;
-			}
-
-			labelSum.LabelProp = String.Format ("Итого: {0}", CurrencyWorks.GetShortCurrencyString (total));
-*/
-		}
-
-		protected void OnTreeItemsListRowActivated (object o, RowActivatedArgs args)
-		{
-/*			var selected = treeItemsList.GetSelectedObject ();
-			if (selected != null) {
-				ITdiDialog dlg = null;
-				dlg = OrmMain.CreateObjectDialog ((selected as RouteListItem).Order);
-				MyTab.TabParent.AddSlaveTab (MyTab, dlg);
-			}
-*/
-		}
+			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
+			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
+			decimal total = items.Sum(item => item.TotalPrice);
+			labelTotal.Text = String.Format("Итого бутылей:{0}\tИтого залогов:{1}\tИтого сдано:{2}",bottlesReturnedTotal,depositsCollectedTotal,total);
+		}			
 	}
+
 }
 

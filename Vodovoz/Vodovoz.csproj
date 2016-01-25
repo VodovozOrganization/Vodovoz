@@ -468,6 +468,8 @@
     <Compile Include="JournalFilters\RouteListsFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListsFilter.cs" />
     <Compile Include="BatchRDLRenderer.cs" />
+    <Compile Include="JournalViewers\RouteListClosingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListClosingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

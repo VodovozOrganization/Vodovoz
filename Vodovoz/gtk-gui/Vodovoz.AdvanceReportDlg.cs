@@ -143,6 +143,7 @@ namespace Vodovoz
 			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
+			this.yspinMoney.ValueAsInt = 0;
 			this.hbox5.Add (this.yspinMoney);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.yspinMoney]));
 			w7.Position = 0;

@@ -95,6 +95,7 @@ namespace Vodovoz {
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.yentryreferenceShift.Changed += new global::System.EventHandler (this.OnYentryreferenceShiftChanged);
 			this.enumcomboStatus.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs>(this.OnEnumcomboStatusEnumItemSelected);
 			this.dateperiodOrders.PeriodChanged += new global::System.EventHandler(this.OnDateperiodOrdersPeriodChanged);
 		}

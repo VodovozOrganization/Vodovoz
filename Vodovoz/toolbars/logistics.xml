@@ -1,5 +1,6 @@
 ﻿<ui>
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionRouteListTable' action='ActionRouteListTable'/>
+		<toolitem name='ActionRouteListClosingTable' action='ActionRouteListClosingTable'/>
 	</toolbar>
 </ui>

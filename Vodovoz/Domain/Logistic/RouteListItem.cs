@@ -44,6 +44,40 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		int bottlesReturned;
+
+		public int BottlesReturned{
+			get{
+				return bottlesReturned; 
+			}
+			set{ 
+				SetField(ref bottlesReturned, value, () => BottlesReturned);	
+			}
+		}
+
+		decimal depositsCollected;
+
+		public decimal DepositsCollected{
+			get{
+				return depositsCollected; 
+			}
+			set{ 
+				SetField(ref depositsCollected, value, () => DepositsCollected);	
+			}
+		}
+
+		decimal totalPrice;
+
+		public decimal TotalPrice{
+			get{
+				return totalPrice;
+			}
+			set{
+				SetField(ref totalPrice, value, () => TotalPrice);
+			}
+
+		}
+
 		private Dictionary<int, int> goodsByRouteColumns;
 
 		public Dictionary<int, int> GoodsByRouteColumns{
