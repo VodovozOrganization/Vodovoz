@@ -14592,12 +14592,20 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <placeholder />
-            </child>
-            <child>
               <widget class="Gtk.Label" id="labelTotal">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Итого:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VSeparator" id="vseparator1">
+                <property name="MemberName" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -14607,13 +14615,28 @@ Patronymic</property>
               </packing>
             </child>
             <child>
+              <widget class="Gtk.Label" id="labelWage">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Зарплата:</property>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">2</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>

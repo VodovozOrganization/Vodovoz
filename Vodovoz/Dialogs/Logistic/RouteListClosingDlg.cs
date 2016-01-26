@@ -133,16 +133,36 @@ namespace Vodovoz
 
 			logger.Info(nomenclaturesReturned && equipmentsReturned);
 
-			var bottlesReturned = routelistclosingitemsview1.Items.Sum(item => item.BottlesReturned);
-			var bottlesReturnedToWarehouse = GetTotalWarehouseIncome(UoW, UoWGeneric.Root.Id, new NomenclatureCategory[]{ NomenclatureCategory.bottle })
+			var totalBottlesReturned = routelistclosingitemsview1.Items.Sum(item => item.BottlesReturned);
+			var totalBottlesReturnedToWarehouse = GetTotalWarehouseIncome(UoW, UoWGeneric.Root.Id, new NomenclatureCategory[]{ NomenclatureCategory.bottle })
 				.Sum(item=>item.Amount);
-			//var bottlesReturnedFromOrders = routelistclosingitemsview1.Items.Sum(item => item.RouteListItem.Order.BottlesReturn);
 			// TODO для каждого заказа проверить возврат бутылей и залогов
+			foreach(var item in routelistclosingitemsview1.Items){
+				var expectedBottlesReturnedCount = item.OrderClosingItems.Sum(orderClosing => orderClosing.OrderItem.Order.BottlesReturn);
+				if (item.BottlesReturned != expectedBottlesReturnedCount)
+				{
+					MessageDialogWorks.RunWarningDialog(String.Format("Сумма возврата бутылей не соответствует заказу #{0}",item.RouteListItem.Order.Id));
+					//break;
+					//TODO нужно как-то пометить(или исправить) проблемные заказы
+				}
+				var expectedDeposit = item.RouteListItem.Order.OrderItems
+					.Where(orderItem => orderItem.Nomenclature.Category == NomenclatureCategory.deposit)
+					.Sum(orderItem => orderItem.Count * orderItem.Price);
+
+			}
+
+			var expectedDepositsSum = routelistclosingitemsview1.Items.SelectMany(item=>item.RouteListItem.Order.OrderItems)
+				.Where(orderItem=>NomenclatureCategory.deposit==orderItem.Nomenclature.Category).Sum(orderItem=>orderItem.Count*orderItem.Price);
+			var reportedDepositsSum = routelistclosingitemsview1.Items.Sum(item => item.DepositsCollected);
+			if (expectedDepositsSum != reportedDepositsSum)
+			{
+				MessageDialogWorks.RunWarningDialog("Сумма полученных залогов не соответствует заказам");
+			}
 			// в orderItems добавить дополнительную колонку (было изначально) а текущая - по факту
 
-			if (bottlesReturned != bottlesReturnedToWarehouse)
+			if (totalBottlesReturned != totalBottlesReturnedToWarehouse)
 			{
-				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата бутылей не согласуется с документом выгрузки! Указано: {0} Выгружено: {1}", bottlesReturned, bottlesReturnedToWarehouse));
+				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата бутылей не согласуется с документом выгрузки! Указано: {0} Выгружено: {1}", totalBottlesReturned, totalBottlesReturnedToWarehouse));
 			}
 
 			return false;
@@ -150,15 +170,14 @@ namespace Vodovoz
 			UoWGeneric.Root.Status = RouteListStatus.Closed;
 			foreach (var item in UoWGeneric.Root.Addresses)
 			{
-				//item.Order.OrderStatus = Vodovoz.Domain.Orders.OrderStatus.Closed; //??
-
+				//item.Order.OrderStatus = Vodovoz.Domain.Orders.OrderStatus.Closed; //??			
 			}
 			var valid = new QSValidator<RouteList> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 			UoWGeneric.Save();
 			return true;
-		}			
+		}	
 
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{

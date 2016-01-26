@@ -107,15 +107,23 @@ namespace Vodovoz
 
 			config
 				.AddColumn("Пустых бутылей")
-				.AddNumericRenderer(node => node.BottlesReturned).Editing(true).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
+					.AddNumericRenderer(node => node.BottlesReturned).Editing(true).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 					.AddTextRenderer(node => "шт", false)
 				.AddColumn("Залоги за бутыли")
-				.AddNumericRenderer(node => node.DepositsCollected)
+					.AddNumericRenderer(node => node.DepositsCollected)
 						.Editing(true)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))									
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)					
 				.AddColumn("Итого")
 					.AddNumericRenderer(node => node.TotalPrice)
+						.Editing(true)
+						.Adjustment(new Adjustment(0,0,100000,100,100,1))
+				.AddColumn("Доп. ЗП водителя")
+					.AddNumericRenderer(node=>node.DriverWageCorrection)
+						.Editing(true)
+						.Adjustment(new Adjustment(0,0,100000,100,100,1))
+				.AddColumn("Доп. ЗП экспедитора")
+					.AddNumericRenderer(node=>node.ForwarderWageCorrection)
 						.Editing(true)
 						.Adjustment(new Adjustment(0,0,100000,100,100,1))
 				.AddColumn("").AddTextRenderer();
@@ -146,8 +154,42 @@ namespace Vodovoz
 			int bottlesReturnedTotal = Items.Sum(item => item.RouteListItem.BottlesReturned);
 			decimal depositsCollectedTotal = Items.Sum(item => item.RouteListItem.DepositsCollected);
 			decimal total = Items.Sum(item => item.RouteListItem.TotalPrice);
+			decimal driverWage = CalculateDriverWage();
+			decimal forwarderWage = CalculateForwarderWage();
 			labelTotal.Text = String.Format("Итого бутылей:{0}\tИтого залогов:{1}\tИтого сдано:{2}",bottlesReturnedTotal,depositsCollectedTotal,total);
+			labelWage.Text = String.Format("Зарплата водителя:{0}{2}\tЗарплата экспедитора:{1}{2}", driverWage, forwarderWage,CurrencyWorks.CurrencyShortName);
 		}		
+
+		protected decimal CalculateDriverWage(){
+			//?? оплата за доставленные бутыли или за перевезенные? (оплачиваем ли недовоз?)
+			decimal phoneServiceCompensationRate=2;
+			decimal fullBottleRate = 15;
+			decimal emptyBottleRate = 5;
+			decimal coolerRate = 30;
+			decimal onlyOneAddressRate = 50;
+			decimal largeOrderFullBottleRate = 9;
+			decimal largeOrderEmptyBottleRate = 1;
+			int largeOrderMinimumBottles = 100;
+
+			var phoneServiceCompensation = Items.Count * phoneServiceCompensationRate;
+			//?? как определить бутыль 19л??
+			var paymentForWater = Items.SelectMany(item => item.OrderClosingItems)
+				.Where(item => item.OrderItem.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum(item=>(item.OrderItem.Count-item.Amount)*fullBottleRate);
+			var paymentForEmptyBottles = Items.Sum(item => item.BottlesReturned*emptyBottleRate);
+			var extraPayment = Items.Count == 1 ? onlyOneAddressRate : 0;
+			var paymentForEquipment = 0;
+			var paymentForCancelation = 0;
+			var paymentCorrection = Items.Sum(item => item.DriverWageCorrection);
+
+			return phoneServiceCompensation + paymentForWater + paymentForEmptyBottles
+				+ paymentForEquipment + paymentForCancelation + extraPayment + paymentCorrection;
+		}
+
+		protected decimal CalculateForwarderWage(){
+			return 0;
+		}
+
 
 		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
 		{
@@ -162,6 +204,8 @@ namespace Vodovoz
 	{
 		public RouteListItem RouteListItem{ get; set; }
 		public List<OrderClosingItem> OrderClosingItems{ get; set;}
+		public decimal DriverWageCorrection{ get; set; }
+		public decimal ForwarderWageCorrection{ get; set; }
 
 		public decimal DepositsCollected{
 			get{
