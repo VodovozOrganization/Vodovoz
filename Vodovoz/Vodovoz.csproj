@@ -470,6 +470,8 @@
     <Compile Include="BatchRDLRenderer.cs" />
     <Compile Include="JournalViewers\RouteListClosingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingView.cs" />
+    <Compile Include="ViewWidgets\Logistics\OrderClosingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.OrderClosingView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

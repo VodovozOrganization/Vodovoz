@@ -40,6 +40,8 @@ namespace Vodovoz
 		
 		private global::Gamma.GtkWidgets.ySpinButton yspinPlannedDistance;
 		
+		private global::Gtk.HBox hbox6;
+		
 		private global::Vodovoz.RouteListClosingItemsView routelistclosingitemsview1;
 		
 		private global::Gtk.HBox hbox8;
@@ -261,12 +263,19 @@ namespace Vodovoz
 			w17.Expand = false;
 			w17.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox6 = new global::Gtk.HBox ();
+			this.hbox6.Name = "hbox6";
+			this.hbox6.Spacing = 6;
+			// Container child hbox6.Gtk.Box+BoxChild
 			this.routelistclosingitemsview1 = new global::Vodovoz.RouteListClosingItemsView ();
 			this.routelistclosingitemsview1.Events = ((global::Gdk.EventMask)(256));
 			this.routelistclosingitemsview1.Name = "routelistclosingitemsview1";
-			this.vbox1.Add (this.routelistclosingitemsview1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.routelistclosingitemsview1]));
-			w18.Position = 1;
+			this.hbox6.Add (this.routelistclosingitemsview1);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.routelistclosingitemsview1]));
+			w18.Position = 0;
+			this.vbox1.Add (this.hbox6);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox6]));
+			w19.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox8 = new global::Gtk.HBox ();
 			this.hbox8.Name = "hbox8";
@@ -277,20 +286,20 @@ namespace Vodovoz
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
-			global::Gtk.Image w19 = new global::Gtk.Image ();
-			w19.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w19;
+			global::Gtk.Image w20 = new global::Gtk.Image ();
+			w20.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w20;
 			this.hbox8.Add (this.buttonAccept);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonAccept]));
-			w20.PackType = ((global::Gtk.PackType)(1));
-			w20.Position = 1;
-			w20.Expand = false;
-			w20.Fill = false;
-			this.vbox1.Add (this.hbox8);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
-			w21.Position = 2;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonAccept]));
+			w21.PackType = ((global::Gtk.PackType)(1));
+			w21.Position = 1;
 			w21.Expand = false;
 			w21.Fill = false;
+			this.vbox1.Add (this.hbox8);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			w22.Position = 2;
+			w22.Expand = false;
+			w22.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
