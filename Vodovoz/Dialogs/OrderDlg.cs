@@ -332,6 +332,12 @@ namespace Vodovoz
 
 		protected void OnButtonAddForSaleClicked (object sender, EventArgs e)
 		{
+			if (UoWGeneric.Root.Client == null)
+			{
+				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				return;
+			}
+
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.NomenclatureForSaleVM (UoWGeneric));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Номенклатура на продажу";
