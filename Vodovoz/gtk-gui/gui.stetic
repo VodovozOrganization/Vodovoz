@@ -691,7 +691,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3687,6 +3686,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3952,16 +3952,14 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumPayment">
+                          <widget class="Gamma.Widgets.yEnumComboBox" id="enumPayment">
                             <property name="MemberName" />
                             <property name="IsTextCombo">False</property>
                             <property name="Items" translatable="yes" />
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">False</property>
-                            <property name="Mappings">PaymentMethod</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">False</property>
-                            <property name="Mappings">PaymentMethod</property>
+                            <property name="ShowSpecialStateAll">False</property>
+                            <property name="ShowSpecialStateNot">False</property>
+                            <property name="UseShortTitle">False</property>
+                            <property name="DefaultFirst">False</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">9</property>

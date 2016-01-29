@@ -48,7 +48,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataEnumComboBox enumCounterpartyType;
 		
-		private global::Gtk.DataBindings.DataEnumComboBox enumPayment;
+		private global::Gamma.Widgets.yEnumComboBox enumPayment;
 		
 		private global::Gtk.DataBindings.DataEnumComboBox enumPersonType;
 		
@@ -425,14 +425,12 @@ namespace Vodovoz
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.enumPayment = new global::Gtk.DataBindings.DataEnumComboBox ();
+			this.enumPayment = new global::Gamma.Widgets.yEnumComboBox ();
 			this.enumPayment.Name = "enumPayment";
-			this.enumPayment.InheritedBoundaryDataSource = false;
-			this.enumPayment.InheritedDataSource = false;
-			this.enumPayment.Mappings = "PaymentMethod";
-			this.enumPayment.InheritedBoundaryDataSource = false;
-			this.enumPayment.InheritedDataSource = false;
-			this.enumPayment.Mappings = "PaymentMethod";
+			this.enumPayment.ShowSpecialStateAll = false;
+			this.enumPayment.ShowSpecialStateNot = false;
+			this.enumPayment.UseShortTitle = false;
+			this.enumPayment.DefaultFirst = false;
 			this.datatable1.Add (this.enumPayment);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.enumPayment]));
 			w23.TopAttach = ((uint)(9));

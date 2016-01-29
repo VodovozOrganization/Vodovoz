@@ -59,8 +59,12 @@ namespace Vodovoz
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			//Setting up fields sources
 			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = subjectAdaptor;
-			enumPayment.DataSource = enumPersonType.DataSource = enumCounterpartyType.DataSource = subjectAdaptor;
+			enumPersonType.DataSource = enumCounterpartyType.DataSource = subjectAdaptor;
 			validatedINN.DataSource = validatedKPP.DataSource = subjectAdaptor;
+
+			enumPayment.ItemsEnum = typeof(PaymentType);
+			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
+
 			//Setting subjects
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
