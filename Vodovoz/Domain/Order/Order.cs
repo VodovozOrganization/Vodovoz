@@ -391,13 +391,6 @@ namespace Vodovoz.Domain.Orders
 					Nomenclature = nomenclature,
 					Price = nomenclature.GetPrice (1)
 				});
-				ObservableOrderEquipments.Add (new OrderEquipment {
-					Order = this,
-					Direction = Vodovoz.Domain.Orders.Direction.Deliver,
-					Equipment = eq,
-					OrderItem = ObservableOrderItems [ItemId],
-					Reason = Reason.Sale
-				});
 			}
 			UpdateDocuments ();
 		}
@@ -671,15 +664,21 @@ namespace Vodovoz.Domain.Orders
 			
 		public void UpdateDocuments()
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
-			if (ObservableOrderItems.Count > 0)
+			if (ObservableOrderItems.Count > 0 && PaymentType == PaymentType.cashless)
+			{
+				AddDocumentIfNotExist(new BillDocument
+					{
+						Order = this
+					});
+			}
+			else
+				RemoveDocumentByType(OrderDocumentType.Bill);
+			
+			if (ObservableOrderItems.Count > 0 && OrderStatus==OrderStatus.Accepted)
 			{
 				if (paymentType == PaymentType.cashless)
 				{
-					AddDocumentIfNotExist(new BillDocument
-						{
-							Order = this
-						});
+		
 					AddDocumentIfNotExist(new UPDDocument
 						{
 							Order = this
@@ -697,12 +696,11 @@ namespace Vodovoz.Domain.Orders
 					AddDocumentIfNotExist(new InvoiceBarterDocument
 						{
 							Order = this
-						});					
-				}					
+						});
+				}
 			}
 			else
 			{
-				RemoveDocumentByType(OrderDocumentType.Bill);
 				RemoveDocumentByType(OrderDocumentType.Invoice);
 				RemoveDocumentByType(OrderDocumentType.InvoiceBarter);
 				RemoveDocumentByType(OrderDocumentType.UPD);
@@ -713,7 +711,7 @@ namespace Vodovoz.Domain.Orders
 					orderEquipment.Reason == Reason.Sale)
 				.Where(orderEquipment => 
 					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
-			if (equipmentforSaleWithCoolerWarranty.Count()>0)
+			if (equipmentforSaleWithCoolerWarranty.Count()>0 && OrderStatus==OrderStatus.Accepted)
 			{				
 				AddDocumentIfNotExist(new CoolerWarrantyDocument
 					{
@@ -728,8 +726,8 @@ namespace Vodovoz.Domain.Orders
 					orderEquipment.Reason == Reason.Sale)
 				.Where(orderEquipment => 
 					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
-			if (equipmentforSaleWithPumpWarranty.Count() > 0)
-			{			
+			if (equipmentforSaleWithPumpWarranty.Count() > 0 && OrderStatus==OrderStatus.Accepted)
+			{
 				AddDocumentIfNotExist(new PumpWarrantyDocument
 					{
 						Order = this

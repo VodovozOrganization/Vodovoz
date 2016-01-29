@@ -27,6 +27,17 @@ namespace Vodovoz.Repository
 				.Take (1)
 				.List ().First ();
 		}
+			
+		public static IList<Equipment> GetEquipmentForSaleByNomenclature(IUnitOfWork uow, Nomenclature nomenclature, int count=0, int[] exceptIDs=null){
+			if(exceptIDs==null) exceptIDs=new int[0];
+			return (count > 0) ? AvailableEquipmentQuery().GetExecutableQueryOver(uow.Session)
+				.Where(eq => eq.Nomenclature.Id == nomenclature.Id)
+				.Where(eq => !eq.OnDuty)
+				.Where(eq => !eq.Id.IsIn(exceptIDs))
+				.Take(count)
+				.List()
+					: new List<Equipment>();
+		}
 
 		public static QueryOver<Equipment> AvailableOnDutyEquipmentQuery(){
 			return AvailableEquipmentQuery ().Where (equipment => equipment.OnDuty);
@@ -48,8 +59,7 @@ namespace Vodovoz.Repository
 
 			var subqueryAllReservedEquipment = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias)
 				.Where (() => orderAlias.OrderStatus == OrderStatus.Accepted
-					|| orderAlias.OrderStatus == OrderStatus.NewOrder
-					|| orderAlias.OrderStatus == OrderStatus.InTravelList)				
+					|| orderAlias.OrderStatus == OrderStatus.InTravelList)
 				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.Where (() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select (Projections.Property(()=>orderEquipmentAlias.Equipment.Id));

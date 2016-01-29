@@ -631,8 +631,38 @@ namespace Vodovoz
 					if (!MessageDialogWorks.RunQuestionDialog ("Указано нулевое количество бутылей на возврат. Вы действительно хотите продолжить?"))
 						return;
 				}
-				
+
+				foreach (OrderItem item in UoWGeneric.Root.ObservableOrderItems)
+				{
+					if (item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.Serial)
+					{
+						int[] alreadyAdded = UoWGeneric.Root.OrderEquipments.Select(orderEquipment => orderEquipment.Equipment.Id).ToArray();
+						int equipmentCount = UoWGeneric.Root.OrderEquipments.Count(orderEquipment => orderEquipment?.Equipment?.Nomenclature?.Id == item.Nomenclature.Id);
+						int equipmentToAddCount = item.Count - equipmentCount;
+						var equipmentToAdd = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, item.Nomenclature, equipmentToAddCount, alreadyAdded);
+						for (int i = 0; i < equipmentToAddCount; i++)
+						{
+							UoWGeneric.Root.ObservableOrderEquipments.Add(new OrderEquipment
+								{
+									Order = UoWGeneric.Root,
+									Direction = Vodovoz.Domain.Orders.Direction.Deliver,
+									Equipment = equipmentToAdd[i],
+									OrderItem = item,
+									Reason = Reason.Sale
+								});
+						}
+						for (; equipmentCount > item.Count; equipmentCount--)
+						{
+							UoWGeneric.Root.ObservableOrderEquipments.Remove(
+								UoWGeneric.Root.ObservableOrderEquipments.Where(orderEquipment => orderEquipment.Reason == Reason.Sale && orderEquipment.Equipment.Nomenclature.Id == item.Nomenclature.Id).First()
+							);
+						}
+					}						
+				}
+
 				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
+				UoWGeneric.Root.UpdateDocuments();
+
 				IsEditable ();
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
