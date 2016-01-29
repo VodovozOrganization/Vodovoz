@@ -34,7 +34,7 @@ namespace Vodovoz
 		
 		private global::Gamma.Widgets.yEnumComboBox enumType;
 		
-		private global::Gtk.DataBindings.DataEnumComboBox enumVAT;
+		private global::Gamma.Widgets.yEnumComboBox enumVAT;
 		
 		private global::Gtk.Label label3;
 		
@@ -282,14 +282,12 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.enumVAT = new global::Gtk.DataBindings.DataEnumComboBox ();
+			this.enumVAT = new global::Gamma.Widgets.yEnumComboBox ();
 			this.enumVAT.Name = "enumVAT";
-			this.enumVAT.InheritedBoundaryDataSource = false;
-			this.enumVAT.InheritedDataSource = true;
-			this.enumVAT.Mappings = "VAT";
-			this.enumVAT.InheritedBoundaryDataSource = false;
-			this.enumVAT.InheritedDataSource = true;
-			this.enumVAT.Mappings = "VAT";
+			this.enumVAT.ShowSpecialStateAll = false;
+			this.enumVAT.ShowSpecialStateNot = false;
+			this.enumVAT.UseShortTitle = false;
+			this.enumVAT.DefaultFirst = true;
 			this.datatable1.Add (this.enumVAT);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.enumVAT]));
 			w15.TopAttach = ((uint)(10));

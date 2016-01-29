@@ -40,7 +40,9 @@ namespace Vodovoz
 
 			datatable1.DataSource = subjectAdaptor;
 			datatable2.DataSource = subjectAdaptor;
-			enumVAT.DataSource = subjectAdaptor;
+
+			enumVAT.ItemsEnum = typeof(VAT);
+			enumVAT.Binding.AddBinding(Entity, e => e.VAT, w => w.SelectedItem).InitializeFromSource();
 
 			enumType.ItemsEnum = typeof(NomenclatureCategory);
 			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();

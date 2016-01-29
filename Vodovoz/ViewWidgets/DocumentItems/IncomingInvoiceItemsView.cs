@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using Gamma.ColumnConfig;
 using Gtk;
-using Gtk.DataBindings;
 using NHibernate;
 using NHibernate.Criterion;
 using NLog;
@@ -32,7 +32,7 @@ namespace Vodovoz
 				items = DocumentUoW.Root.ObservableItems;
 				items.ElementChanged += Items_ElementChanged;
 
-				treeItemsList.ColumnMappingConfig = FluentMappingConfig<IncomingInvoiceItem>.Create ()
+				treeItemsList.ColumnsConfig =  FluentColumnsConfig<IncomingInvoiceItem>.Create ()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
 					.AddColumn ("% НДС").AddEnumRenderer (i => i.VAT).Editing ()

@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView treeItemsList;
+		private global::Gamma.GtkWidgets.yTreeView treeItemsList;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -47,15 +47,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeItemsList = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeItemsList = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeItemsList.CanFocus = true;
 			this.treeItemsList.Name = "treeItemsList";
-			this.treeItemsList.CursorPointsEveryType = false;
-			this.treeItemsList.InheritedDataSource = false;
-			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.InheritedDataSource = false;
-			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.ColumnMappings = "";
 			this.GtkScrolledWindow.Add (this.treeItemsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -127,7 +121,7 @@ namespace Vodovoz
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.Hide ();
+			this.Show ();
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonCreate.Clicked += new global::System.EventHandler (this.OnButtonCreateClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);

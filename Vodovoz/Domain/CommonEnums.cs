@@ -1,15 +1,14 @@
-﻿using System.Data.Bindings;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain
 {
 	public enum VAT
 	{
-		[ItemTitleAttribute ("Без НДС")]
+		[Display (Name = "Без НДС")]
 		No,
-		[ItemTitleAttribute ("НДС 10%")]
+		[Display (Name = "НДС 10%")]
 		Vat10,
-		[ItemTitleAttribute ("НДС 18%")]
+		[Display (Name = "НДС 18%")]
 		Vat18
 	}
 
@@ -22,15 +21,11 @@ namespace Vodovoz.Domain
 
 	public enum PaymentType
 	{
-		//FIXME Удалить ItemTitleAttribute после полного перехода на GammaBinding
 		[Display (Name = "Наличная")]
-		[ItemTitleAttribute ("Наличная")]
 		cash,
 		[Display (Name = "Безналичная")]
-		[ItemTitleAttribute ("Безналичная")]
 		cashless,
 		[Display (Name="Бартер")]
-		[ItemTitleAttribute("Бартер")]
 		barter
 	}
 

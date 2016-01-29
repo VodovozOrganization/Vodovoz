@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -10,7 +11,6 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {

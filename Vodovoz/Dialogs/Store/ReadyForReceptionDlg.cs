@@ -1,22 +1,20 @@
 ﻿using System;
-using QSOrmProject;
-using QSTDI;
-using Vodovoz.Domain.Store;
-using Vodovoz.Domain;
-using Gamma.Widgets;
-using Vodovoz.Domain.Logistic;
-using System.Data.Bindings;
 using System.Collections.Generic;
-using NHibernate.Criterion;
-using NHibernate.Transform;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
-using Vodovoz.Domain.Service;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using Vodovoz.Domain.Operations;
+using Gamma.Widgets;
+using NHibernate.Criterion;
+using NHibernate.Transform;
+using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {	

@@ -3,7 +3,6 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using Vodovoz.Domain.Service;
-using System.Collections.Generic;
 
 namespace Vodovoz.Domain.Orders.Documents
 {

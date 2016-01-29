@@ -1,4 +1,3 @@
-using System.Data.Bindings;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Domain.Orders
@@ -39,15 +38,11 @@ namespace Vodovoz.Domain.Orders
 
 	public enum OrderSignatureType
 	{
-		//FIXME Удалить ItemTitleAttribute после полного перехода на GammaBinding
 		[Display (Name = "По печати")]
-		[ItemTitleAttribute ("По печати")]
 		BySeal,
 		[Display (Name = "По доверенности")]
-		[ItemTitleAttribute ("По доверенности")]
 		ByProxy,
 		[Display (Name = "Доверенность на адресе")]
-		[ItemTitleAttribute ("Доверенность на адресе")]
 		ProxyOnDeliveryPoint
 	}
 

@@ -64,12 +64,12 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnEnumDocTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnYspeccomboWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			UpdateCreteria ();
 		}
 
-		protected void OnYspeccomboWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		protected void OnEnumDocTypeChanged (object sender, EventArgs e)
 		{
 			UpdateCreteria ();
 		}
