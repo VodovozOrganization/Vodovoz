@@ -60,8 +60,6 @@ namespace Vodovoz.ViewModel
 				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse && orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select (i => i.Order);
 
-
-
 				var queryRoutes = UoW.Session.QueryOver<RouteList> (() => routeListAlias)
 					.JoinAlias (rl => rl.Driver, () => employeeAlias)
 					.JoinAlias (rl => rl.Car, () => carAlias)
@@ -79,7 +77,7 @@ namespace Vodovoz.ViewModel
 
 				items.AddRange (
 					queryRoutes.SelectList (list => list
-						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)						
+						.SelectGroup (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)						
 						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.Name)
 						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.LastName)
 						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.Patronymic)

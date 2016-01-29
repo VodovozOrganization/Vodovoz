@@ -84,7 +84,7 @@ namespace Vodovoz.ViewModel
 				
 				items.AddRange (
 				queryRoutes.SelectList (list => list
-						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)
+						.SelectGroup (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => ShipmentDocumentType.RouteList).WithAlias (() => resultAlias.TypeEnum)
 						.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.Name)
 						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.LastName)

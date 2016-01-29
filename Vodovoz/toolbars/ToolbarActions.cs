@@ -33,7 +33,7 @@ public partial class MainWindow : Window
 		//Склад
 		ActionWarehouseDocuments = new Action ("ActionWarehouseDocuments", "Журнал документов", null, "table");
 		ActionReadyForShipment = new Action ("ActionReadyForShipment", "Готовые к погрузке", null, "table");
-		ActionReadyForReception = new Action("ActionReadyForReception", "Готовые к сдаче", null, "table");
+		ActionReadyForReception = new Action("ActionReadyForReception", "Готовые к разгрузке", null, "table");
 		ActionWarehouseStock = new Action ("ActionWarehouseStock", "Складские остатки", null, "table");
 		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
