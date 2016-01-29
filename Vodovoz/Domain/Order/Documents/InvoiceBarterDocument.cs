@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		}
 		#endregion
 
-		public override string Name { get { return "Накладная (безденежно)"; } }
+		public override string Name { get { return String.Format ("Накладная №{0} (бартер)",Order.Id); }  }
 
 		public override PrinterType PrintType {
 			get {

@@ -399,21 +399,7 @@ namespace Vodovoz.Domain.Orders
 					Reason = Reason.Sale
 				});
 			}
-			if (nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty) {
-				if (!ObservableOrderDocuments.Any (doc => doc.Type == OrderDocumentType.CoolerWarranty)) {
-					ObservableOrderDocuments.Add (new CoolerWarrantyDocument {
-						Order=this
-					});
-				}
-			} else
-				if (nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty) {
-				if (!ObservableOrderDocuments.Any (doc => doc.Type == OrderDocumentType.PumpWarranty)) {
-					ObservableOrderDocuments.Add (new PumpWarrantyDocument {
-						Order=this
-					});
-				}
-			}
-			UpdateSalesDocuments ();
+			UpdateDocuments ();
 		}
 
 		public void AddAdditionalNomenclatureForSale (Nomenclature nomenclature)
@@ -428,7 +414,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice (1)
 			});
-			UpdateSalesDocuments ();
+			UpdateDocuments ();
 		}
 
 		public void AddWaterForSale (Nomenclature nomenclature, WaterSalesAgreement wsa)
@@ -446,7 +432,7 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.GetPrice (1)
 			});
-			UpdateSalesDocuments ();
+			UpdateDocuments ();
 		}
 
 		public void RecalcBottlesDeposits (IUnitOfWork uow)
@@ -612,7 +598,7 @@ namespace Vodovoz.Domain.Orders
 					);
 				}
 			}
-			UpdateSalesDocuments ();
+			UpdateDocuments ();
 		}
 
 		public void RemoveItem (OrderItem item)
@@ -621,7 +607,7 @@ namespace Vodovoz.Domain.Orders
 			foreach (var equip in ObservableOrderEquipments.Where (e => e.OrderItem == item).ToList ()) {
 				ObservableOrderEquipments.Remove (equip);
 			}
-			UpdateSalesDocuments ();
+			UpdateDocuments ();
 		}
 
 		public void AddServiceClaimAsInitial (ServiceClaim service)
@@ -682,34 +668,90 @@ namespace Vodovoz.Domain.Orders
 			//TODO FIXME Добавить строку сервиса OrderItems
 			//И вообще много чего тут сделать.
 		}
-
-		public void UpdateSalesDocuments()
+			
+		public void UpdateDocuments()
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where (doc => doc.Order.Id == Id);
-			if (ObservableOrderItems.Count > 0) {
-				if (!currentOrderDocuments.Any (doc => doc.Type == OrderDocumentType.Bill))
-					ObservableOrderDocuments.Add (new BillDocument {
-						Order = this
-					});
-				if (!currentOrderDocuments.Any (doc => doc.Type == OrderDocumentType.Invoice))
-					ObservableOrderDocuments.Add (new InvoiceDocument {
-						Order = this
-					});
-				if (!currentOrderDocuments.Any (doc => doc.Type == OrderDocumentType.UPD))
-					ObservableOrderDocuments.Add (new UPDDocument {
-						Order = this
-					});
-			} else {
-				ObservableOrderDocuments.Remove (
-					currentOrderDocuments.FirstOrDefault(doc=>doc.Type == OrderDocumentType.Bill)
-				);
-				ObservableOrderDocuments.Remove (
-					currentOrderDocuments.FirstOrDefault(doc=>doc.Type == OrderDocumentType.Invoice)
-				);
-				ObservableOrderDocuments.Remove (
-					currentOrderDocuments.FirstOrDefault(doc=>doc.Type == OrderDocumentType.UPD)
-				);
+			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
+			if (ObservableOrderItems.Count > 0)
+			{
+				if (paymentType == PaymentType.cashless)
+				{
+					AddDocumentIfNotExist(new BillDocument
+						{
+							Order = this
+						});
+					AddDocumentIfNotExist(new UPDDocument
+						{
+							Order = this
+						});					
+				}
+				if (paymentType == PaymentType.cash)
+				{
+					AddDocumentIfNotExist(new InvoiceDocument
+						{
+							Order = this
+						});					
+				}
+				if (paymentType == PaymentType.barter)
+				{
+					AddDocumentIfNotExist(new InvoiceBarterDocument
+						{
+							Order = this
+						});					
+				}					
 			}
+			else
+			{
+				RemoveDocumentByType(OrderDocumentType.Bill);
+				RemoveDocumentByType(OrderDocumentType.Invoice);
+				RemoveDocumentByType(OrderDocumentType.InvoiceBarter);
+				RemoveDocumentByType(OrderDocumentType.UPD);
+			}
+
+			var equipmentforSaleWithCoolerWarranty = ObservableOrderEquipments
+				.Where(orderEquipment => 
+					orderEquipment.Reason == Reason.Sale)
+				.Where(orderEquipment => 
+					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+			if (equipmentforSaleWithCoolerWarranty.Count()>0)
+			{				
+				AddDocumentIfNotExist(new CoolerWarrantyDocument
+					{
+						Order = this
+					});				
+			}
+			else
+				RemoveDocumentByType(OrderDocumentType.CoolerWarranty);
+				
+			var equipmentforSaleWithPumpWarranty = ObservableOrderEquipments
+				.Where(orderEquipment => 
+					orderEquipment.Reason == Reason.Sale)
+				.Where(orderEquipment => 
+					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			if (equipmentforSaleWithPumpWarranty.Count() > 0)
+			{			
+				AddDocumentIfNotExist(new PumpWarrantyDocument
+					{
+						Order = this
+					});
+			}
+			else
+				RemoveDocumentByType(OrderDocumentType.PumpWarranty);
+		}
+
+		protected void AddDocumentIfNotExist(OrderDocument document)
+		{
+			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
+			if (!currentOrderDocuments.Any(doc => doc.Type == document.Type))
+				ObservableOrderDocuments.Add(document);
+		}
+
+		protected void RemoveDocumentByType(OrderDocumentType type)
+		{
+			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
+			ObservableOrderDocuments.Remove(
+				currentOrderDocuments.FirstOrDefault(doc => doc.Type == type)
+			);
 		}
 
 		public void Close()
