@@ -62,7 +62,6 @@ namespace Vodovoz
 			set { entryreferencePoint.Subject = value;
 				entryreferencePoint.Sensitive = false;
 			}
-
 		}
 
 		protected void OnEntryreferencePointChanged (object sender, EventArgs e)
@@ -70,7 +69,7 @@ namespace Vodovoz
 			OnRefiltered ();
 		}
 
-		protected void OnEnumcomboDocumentTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumcomboDocumentTypeChanged (object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

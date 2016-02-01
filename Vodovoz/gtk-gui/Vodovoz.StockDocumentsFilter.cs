@@ -8,7 +8,7 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.EntryReferenceVM entryreferencePoint;
 		
-		private global::QSOrmProject.EnumComboBox enumcomboDocumentType;
+		private global::Gamma.Widgets.yEnumComboBox enumcomboDocumentType;
 		
 		private global::Gtk.Label label1;
 		
@@ -36,10 +36,12 @@ namespace Vodovoz
 			w1.RightAttach = ((uint)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.enumcomboDocumentType = new global::QSOrmProject.EnumComboBox ();
+			this.enumcomboDocumentType = new global::Gamma.Widgets.yEnumComboBox ();
 			this.enumcomboDocumentType.Name = "enumcomboDocumentType";
 			this.enumcomboDocumentType.ShowSpecialStateAll = true;
 			this.enumcomboDocumentType.ShowSpecialStateNot = false;
+			this.enumcomboDocumentType.UseShortTitle = false;
+			this.enumcomboDocumentType.DefaultFirst = false;
 			this.table1.Add (this.enumcomboDocumentType);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1 [this.enumcomboDocumentType]));
 			w2.LeftAttach = ((uint)(1));
@@ -69,7 +71,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
-			this.enumcomboDocumentType.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnEnumcomboDocumentTypeEnumItemSelected);
+			this.enumcomboDocumentType.Changed += new global::System.EventHandler (this.OnEnumcomboDocumentTypeChanged);
 		}
 	}
 }
