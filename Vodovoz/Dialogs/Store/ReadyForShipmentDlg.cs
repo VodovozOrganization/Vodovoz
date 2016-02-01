@@ -18,6 +18,8 @@ namespace Vodovoz
 {
 	public partial class ReadyForShipmentDlg : TdiTabBase
 	{
+		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
 		private Dictionary<int,decimal> itemsInStock;
@@ -231,6 +233,19 @@ namespace Vodovoz
 			ChangeShipmentStatus ();
 			UoW.Save(routelist);
 			UoW.Commit ();
+
+			logger.Info("Печать погрузочного талона...");
+
+			var reportInfo = new QSReport.ReportInfo {
+				Title = CarLoadDocumentUoW.Root.Title,
+				Identifier = "Store.CarLoadDoc",
+				Parameters = new Dictionary<string, object> {
+					{ "id",  CarLoadDocumentUoW.Root.Id }
+				}
+			};
+
+			var report = new QSReport.ReportViewDlg (reportInfo);
+			TabParent.AddTab (report, this, false);
 		
 			OnCloseTab (false);
 		}			

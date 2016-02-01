@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    nomenclature.name AS nomenclature,
+    measurement_units.name as unit,
+    equipment.serial_number,
+    warehouse_movement_operations.amount
+FROM
+    car_load_document_items
+        LEFT JOIN
+    warehouse_movement_operations ON car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+        LEFT JOIN
+    nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON measurement_units.id = nomenclature.unit_id
+        LEFT JOIN
+    equipment ON equipment.id = warehouse_movement_operations.equipment_id
+WHERE
+    car_load_document_items.car_load_document_id = @id
+    ORDER BY nomenclature, serial_number;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="id">
+            <Value>=Parameters!id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="nomenclature">
+          <DataField>nomenclature</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="unit">
+          <DataField>unit</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="serial_number">
+          <DataField>serial_number</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="amount">
+          <DataField>amount</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Doc">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    car_load_documents.id,
+    route_lists.id AS route_list_id,
+    route_lists.date AS route_list_date,
+    warehouses.name AS warehouse,
+    CONCAT_WS('',
+            CONCAT(storekeepers.last_name, ' '),
+            IF(storekeepers.name = '',
+                '',
+                CONCAT(LEFT(storekeepers.name, 1), '.')),
+            IF(storekeepers.patronymic = '',
+                '',
+                CONCAT(LEFT(storekeepers.patronymic, 1), '.'))) AS storekeeper,
+    CONCAT_WS('',
+            CONCAT(drivers.last_name, ' '),
+            IF(drivers.name = '',
+                '',
+                CONCAT(LEFT(drivers.name, 1), '.')),
+            IF(drivers.patronymic = '',
+                '',
+                CONCAT(LEFT(drivers.patronymic, 1), '.'))) AS driver,
+    CONCAT_WS('',
+            CONCAT(forwaders.last_name, ' '),
+            IF(forwaders.name = '',
+                '',
+                CONCAT(LEFT(forwaders.name, 1), '.')),
+            IF(forwaders.patronymic = '',
+                '',
+                CONCAT(LEFT(forwaders.patronymic, 1), '.'))) AS forwader,
+    cars.model,
+    cars.reg_number
+FROM
+    car_load_documents
+        LEFT JOIN
+    employees AS storekeepers ON storekeepers.id = car_load_documents.storekeeper_id
+        LEFT JOIN
+    warehouses ON warehouses.id = car_load_documents.warehouse_id
+        LEFT JOIN
+    route_lists ON route_lists.id = car_load_documents.route_list_id
+        LEFT JOIN
+    employees AS drivers ON drivers.id = route_lists.driver_id
+        LEFT JOIN
+    employees AS forwaders ON forwaders.id = route_lists.forwarder_id
+        LEFT JOIN
+    cars ON cars.id = route_lists.car_id
+WHERE
+    car_load_documents.id = @id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@id">
+            <Value>={?id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="route_list_id">
+          <DataField>route_list_id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="route_list_date">
+          <DataField>route_list_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="warehouse">
+          <DataField>warehouse</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="storekeeper">
+          <DataField>storekeeper</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="driver">
+          <DataField>driver</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="forwader">
+          <DataField>forwader</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="model">
+          <DataField>model</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="reg_number">
+          <DataField>reg_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>231.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>110.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>91.7pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>13.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>Название</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Серийный номер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Количество</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>14.4pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="id">
+                      <Value>={nomenclature}</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="car_load_document_id">
+                      <Value>={serial_number}</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="warehouse_movement_operation_id">
+                      <Value>={amount} + " " + {unit}</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <FontSize >11pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>8.0pt</Left>
+        <Top>113.2pt</Top>
+      </Table>
+      <Table Name="Table2" >
+        <DataSetName>Doc</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>128.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>169.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>95.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>146.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+<TableRow><Height>17.6pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox4"><Value>Склад:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Bold</FontWeight><Color>Crimson</Color><BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox16"><Value>={warehouse}</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Normal</FontWeight><Color>Black</Color><BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox28"><Value>Автомобиль:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Bold</FontWeight><Color>Crimson</Color><BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox40"><Value>={model} +" ("+ {reg_number}+ ")"</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Normal</FontWeight><Color>Black</Color><BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>18.4pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox5"><Value>Кладовщик</Value><CanGrow>true</CanGrow><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><Color>Crimson</Color><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox17"><Value>={storekeeper}</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontSize>12pt</FontSize><BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox29"><Value>Водитель:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><BorderColor /><BorderWidth /><Color>Crimson</Color><FontWeight>Bold</FontWeight><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox41"><Value>={driver}</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontSize>12pt</FontSize><BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow><TableRow><Height>15.9pt</Height><TableCells><TableCell><ReportItems><Textbox Name="Textbox6"><Value>Маршрутный лист:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Bold</FontWeight><Color>Crimson</Color><BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox18"><Value>= "№" + {route_list_id} + " от " + Format({route_list_date}, "D")</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Normal</FontWeight><Color>Black</Color><FontSize>12pt</FontSize><BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox30"><Value>Экпедитор:</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Bold</FontWeight><Color>Crimson</Color><BorderColor /><BorderWidth /><FontSize>12pt</FontSize></Style></Textbox></ReportItems></TableCell><TableCell><ReportItems><Textbox Name="Textbox42"><Value>={forwader}</Value><Style><BorderStyle><Default>None</Default></BorderStyle><FontWeight>Normal</FontWeight><Color>Black</Color><FontSize>12pt</FontSize><BorderColor /><BorderWidth /></Style></Textbox></ReportItems></TableCell></TableCells></TableRow></TableRows>
+        </Details>
+        <Left>13.3pt</Left>
+        <Top>21.2pt</Top>
+      </Table>
+      <Textbox Name="Textbox52" >
+        <Height>21.01pt</Height>
+        <Width>104.61pt</Width>
+        <Value>Отгрузка:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>8.1pt</Left>
+        <Top>89.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox53" >
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Водитель</Value>
+        <ZIndex>1</ZIndex>
+        <Left>66.2pt</Left>
+        <Top>162.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox54" >
+        <Height>12pt</Height>
+        <Width>1in</Width>
+        <Value>Кладовщик</Value>
+        <ZIndex>1</ZIndex>
+        <Left>66.2pt</Left>
+        <Top>191.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox55" >
+        <Height>14.24pt</Height>
+        <Width>261.19pt</Width>
+        <Value>= "____________________ (" + First({driver}, "Doc") + ")"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>133.7pt</Left>
+        <Top>162.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox56" >
+        <Height>14.24pt</Height>
+        <Width>261.19pt</Width>
+        <Value>= "____________________ (" + First({storekeeper}, "Doc") + ")"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>133.7pt</Left>
+        <Top>191.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>11pt</FontSize>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <Height>229.3pt</Height>
+  </Body>
+  <PageFooter>
+    <Height>0.0pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <ReportParameters >
+    <ReportParameter Name="id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>22</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>

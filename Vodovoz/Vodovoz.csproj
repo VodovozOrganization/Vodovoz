@@ -599,6 +599,7 @@
     <Folder Include="Dialogs\Logistic\" />
     <Folder Include="ViewWidgets\Store\" />
     <Folder Include="Domain\Order\Documents\" />
+    <Folder Include="Reports\Store\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -689,6 +690,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\CoolerWarranty.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Store\CarLoadDoc.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

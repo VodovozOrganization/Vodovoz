@@ -3686,7 +3686,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -19340,31 +19339,17 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Button" id="buttonPrint">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-print SmallToolbar</property>
-                <property name="Label" translatable="yes"> Печать погрузочного талона</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.Button" id="buttonConfirmShipment">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-apply SmallToolbar</property>
-                <property name="Label" translatable="yes">Подтвердить отгрузку</property>
+                <property name="Label" translatable="yes">Подтвердить отгрузку и Печать погрузочного талона</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonConfirmShipmentClicked" />
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">0</property>
                 <property name="AutoSize">False</property>
               </packing>
             </child>
