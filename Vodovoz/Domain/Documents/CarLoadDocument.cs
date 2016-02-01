@@ -79,7 +79,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public virtual string Title { 
-			get { return String.Format ("Погрузочный талон №{0} от {1:d}", Id, TimeStamp); }
+			get { return String.Format ("Талон погрузки №{0} от {1:d}", Id, TimeStamp); }
 		}
 
 		#region IDocument implementation

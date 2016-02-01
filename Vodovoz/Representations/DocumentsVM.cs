@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate;
 using NHibernate.Criterion;
@@ -8,8 +9,9 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Gamma.ColumnConfig;
+using QSProjectsLib;
 
 namespace Vodovoz.ViewModel
 {
@@ -36,6 +38,12 @@ namespace Vodovoz.ViewModel
 			Counterparty secondCounterpartyAlias = null;
 			Warehouse warehouseAlias = null;
 			Warehouse secondWarehouseAlias = null;
+
+			CarLoadDocument loadCarAlias = null;
+			RouteList routeListAlias = null;
+			Car carAlias = null;
+			Employee driverAlias = null;
+			Domain.Orders.Order orderAlias = null;
 
 			List<DocumentVMNode> result = new List<DocumentVMNode> ();
 
@@ -143,6 +151,31 @@ namespace Vodovoz.ViewModel
 				result.AddRange (writeoffList);
 			}
 
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.CarLoadDocument) {
+				var carLoadList = UoW.Session.QueryOver<CarLoadDocument> (() => loadCarAlias)
+					.JoinQueryOver (() => loadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => loadCarAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => orderAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => loadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => loadCarAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => loadCarAlias.TimeStamp).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.CarLoadDocument).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
+						.Select (() => carAlias.Model).WithAlias (() => resultAlias.CarModel)
+						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.CarNumber)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DirverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode> ();
+
+				result.AddRange (carLoadList);
+			}
+
 			result.Sort ((x, y) => { 
 				if (x.Date > y.Date)
 					return 1;
@@ -190,7 +223,9 @@ namespace Vodovoz.ViewModel
 			typeof(IncomingInvoice),
 			typeof(IncomingWater),
 			typeof(MovementDocument),
-			typeof(WriteoffDocument))
+			typeof(WriteoffDocument),
+			typeof(CarLoadDocument)
+		)
 		{
 			this.UoW = uow;
 		}
@@ -226,6 +261,10 @@ namespace Vodovoz.ViewModel
 					if (Counterparty != String.Empty)
 						return String.Format ("От клиента \"{0}\"", Counterparty);
 					return "";
+				case DocumentType.CarLoadDocument:
+						return Counterparty != null ? String.Format("Самовывоз клиента: {0}", Counterparty)
+								: String.Format("Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
+									StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic));
 				default:
 					return "";
 				}
@@ -241,6 +280,14 @@ namespace Vodovoz.ViewModel
 		public string SecondWarehouse { get; set; }
 
 		public int Amount { get; set; } 
+
+		public string CarModel { get; set; }
+
+		public string CarNumber { get; set; }
+
+		public string DirverSurname { get; set; }
+		public string DirverName { get; set; }
+		public string DirverPatronymic { get; set; }
 
 		public MovementDocumentCategory MDCategory { get; set; }
 	}

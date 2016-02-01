@@ -13,6 +13,8 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
+		IUnitOfWork uow;
+
 		public WarehouseDocumentsView ()
 		{
 			this.Build ();
@@ -21,6 +23,7 @@ namespace Vodovoz
 			hboxFilter.Add (tableDocuments.RepresentationModel.RepresentationFilter as Widget);
 			(tableDocuments.RepresentationModel.RepresentationFilter as Widget).Show ();
 			tableDocuments.RepresentationModel.UpdateNodes ();
+			uow = tableDocuments.RepresentationModel.UoW;
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
 		}
@@ -54,6 +57,9 @@ namespace Vodovoz
 			case DocumentType.WriteoffDocument:
 				document = new WriteoffDocument ();
 				break;
+			case DocumentType.CarLoadDocument:
+				TabParent.AddTab(new ReadyForShipmentView(), this, false);
+				return;
 			default:
 				throw new NotSupportedException ("Тип документа не поддерживается.");
 			}
@@ -86,6 +92,18 @@ namespace Vodovoz
 				case DocumentType.WriteoffDocument:
 					dlg = new WriteoffDocumentDlg (id);
 					break;
+					case DocumentType.CarLoadDocument:
+						var doc = uow.GetById<CarLoadDocument>(id);
+						var reportInfo = new QSReport.ReportInfo {
+							Title = doc.Title,
+							Identifier = "Store.CarLoadDoc",
+							Parameters = new System.Collections.Generic.Dictionary<string, object> {
+								{ "id",  id }
+							}
+						};
+
+						TabParent.AddTab (new QSReport.ReportViewDlg (reportInfo) , this);
+						return;
 				default:
 					return;
 				}
