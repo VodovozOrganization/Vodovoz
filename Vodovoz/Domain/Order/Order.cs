@@ -187,6 +187,17 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		BottlesMovementOperation bottlesMovementOperation;
+
+		public virtual BottlesMovementOperation BottlesMovementOperation{
+			get{
+				return bottlesMovementOperation;
+			}
+			set{
+				SetField(ref bottlesMovementOperation, value, () => BottlesMovementOperation);
+			}
+		}
+
 		public bool CanChangePaymentType ()
 		{
 			if ((NHibernate.NHibernateUtil.IsInitialized (OrderItems) && OrderItems.Count > 0) ||

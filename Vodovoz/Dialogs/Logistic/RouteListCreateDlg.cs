@@ -101,8 +101,6 @@ namespace Vodovoz
 			speccomboShift.Sensitive = val;
 			datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = val;
 			spinPlannedDistance.Sensitive = val;
-			spinActualDistance.Sensitive = val ||
-			(UoWGeneric.Root.Status == RouteListStatus.Closed || UoWGeneric.Root.Status == RouteListStatus.NotDelivered);
 			createroutelistitemsview1.IsEditable (val);
 		}
 

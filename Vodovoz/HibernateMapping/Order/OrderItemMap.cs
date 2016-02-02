@@ -15,6 +15,7 @@ namespace Vodovoz.HMap
 
 			Map (x => x.Price).Column ("price");
 			Map (x => x.Count).Column ("count");
+			Map (x => x.ActualCount).Column("actual_count");
 
 			References (x => x.Order).Column ("order_id");
 			References (x => x.AdditionalAgreement).Column ("additional_agreement_id");

@@ -12,230 +12,376 @@ using System.IO;
 using QSReport;
 using QSTDI;
 using Gamma.Utilities;
+using NHibernate.Criterion;
+using Vodovoz.Domain.Orders;
+using NHibernate.Transform;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Operations;
+using Gamma.GtkWidgets;
+using System.Linq;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
-	public partial class RouteListClosingDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListClosingDlg : OrmGtkDialogBase<RouteListClosing>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		public RouteListClosingDlg ()
-		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
-			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if (Entity.Logistican == null) {
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
-				FailInitialize = true;
-				return;
-			}
-			UoWGeneric.Root.Date = DateTime.Now;
-			ConfigureDlg ();
-		}
-
-		public RouteListClosingDlg (RouteList sub) : this (sub.Id)
-		{
-		}
+		RouteList routelist;
+		List<TotalReturnsNode> allReturnsToWarehouse;
 
 		public RouteListClosingDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteListClosing> ();
+			routelist = UoW.GetById<RouteList>(id);
+			Entity.RouteList = routelist;
+			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if(Entity.Cashier == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+				FailInitialize = true;
+				return;
+			}
+			TabName = String.Format("Закрытие маршрутного листа №{0}",routelist.Id);
 			ConfigureDlg ();
 		}
 
 		private void ConfigureDlg ()
-		{
-			subjectAdaptor.Target = UoWGeneric.Root;
-
-			dataRouteList.DataSource = subjectAdaptor;
-
-			referenceCar.SubjectType = typeof(Car);
+		{			
+			referenceCar.Binding.AddBinding(routelist, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
+			referenceCar.Sensitive = false;
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
-			referenceDriver.PropertyMapping<RouteList> (r => r.Driver);
+			referenceDriver.Binding.AddBinding(routelist, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			referenceDriver.Sensitive = false;
 
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
-			referenceForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
+			referenceForwarder.Binding.AddBinding(routelist, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			referenceForwarder.Sensitive = false;
 
+			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
+			referenceLogistican.Binding.AddBinding(routelist, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
+			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceLogistican.Sensitive = false;
-			referenceLogistican.PropertyMapping<RouteList> (r => r.Logistican);
-			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
-			speccomboShift.Mappings = Entity.GetPropertyName (r => r.Shift);
-			speccomboShift.ColumnMappings = PropertyUtil.GetName<DeliveryShift> (s => s.Name);
-			speccomboShift.ItemsDataSource = DeliveryShiftRepository.ActiveShifts (UoW);
+			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
+			speccomboShift.Binding.AddBinding(routelist, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
+			speccomboShift.Sensitive = false;
 
+			yspinPlannedDistance.Binding.AddBinding(routelist, rl => rl.PlannedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
+			yspinPlannedDistance.Sensitive = false;
 
-			referenceDriver.Sensitive = false;
-			buttonPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;
+			yspinActualDistance.Binding.AddBinding(routelist, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
+			yspinActualDistance.IsEditable = true;
 
-			createroutelistitemsview1.RouteListUoW = UoWGeneric;
+			datePickerDate.Binding.AddBinding(routelist, rl => rl.Date, widget => widget.Date).InitializeFromSource();
+			datePickerDate.Sensitive = false;
 
-			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.Ready);
-			if (UoWGeneric.Root.Status == RouteListStatus.Ready) {
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonAccept.Label = "Редактировать";
-			}
-			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New);
+			routeListAddressesView.UoW = UoW;
+			routeListAddressesView.RouteList = routelist;
+			InitializeWithNoReturns(routeListAddressesView.Items);
+
+			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
 		}
 
-		public override bool Save ()
+		protected void InitializeWithNoReturns(IList<RouteListItem> items)
 		{
-			var valid = new QSValidator<RouteList> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
-				return false;
+			foreach (var routeListItem in items)
+			{
+				var nomenclatures = routeListItem.Order.OrderItems
+					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+					.Where(item => !item.Nomenclature.Serial).ToList();
+				foreach(var item in nomenclatures)
+				{
+					item.ActualCount = item.Count;	
+				}
+				var equipments = routeListItem.Order.OrderEquipments;					
+				foreach(var item in equipments)
+				{
+					item.Confirmed = true;
+				}
+			}
+		}
+			
+		protected bool FindNomenclatureDiscrepancy(
+			List<TotalReturnsNode> fromClient, List<TotalReturnsNode> toWarehouse,
+			out TotalReturnsNode nodeFrom, out TotalReturnsNode nodeTo)
+		{
+			for (int i = 0; i < fromClient.Count; i++)
+			{
+				var sameNomenclatureToWarehouse = toWarehouse.FirstOrDefault(t => t.NomenclatureId == fromClient[i].NomenclatureId);
+				if (sameNomenclatureToWarehouse == null)
+				{
+					nodeFrom = fromClient[i];
+					nodeTo = null;
+					return true;
+				}					
+				if (fromClient[i].Amount != sameNomenclatureToWarehouse.Amount)
+				{
+					nodeFrom = fromClient[i];
+					nodeTo = sameNomenclatureToWarehouse;
+					return true;
+				}
+			}
 
-			logger.Info ("Сохраняем маршрутный лист...");
-			UoWGeneric.Save ();
-			logger.Info ("Ok");
+			for (int i = 0; i < toWarehouse.Count; i++)
+			{
+				if (!fromClient.Any(f => f.NomenclatureId == toWarehouse[i].NomenclatureId))
+				{
+					nodeFrom = null;
+					nodeTo = toWarehouse[i];
+					return true;
+				}
+			}
+			nodeFrom = null;
+			nodeTo = null;
+			return false;
+		}
+
+		protected bool FindEquipmentDiscrepancy(
+			List<TotalReturnsNode> fromClient, List<TotalReturnsNode> toWarehouse,
+			out TotalReturnsNode nodeFrom, out TotalReturnsNode nodeTo)
+		{
+			for (int i = 0; i < fromClient.Count; i++)
+			{
+				var sameEquipmentToWarehouse = toWarehouse.FirstOrDefault(t => t.Id == fromClient[i].Id);
+				if (sameEquipmentToWarehouse == null)
+				{
+					nodeFrom = fromClient[i];
+					nodeTo = null;
+					return true;
+				}					
+				if (fromClient[i].Amount != sameEquipmentToWarehouse.Amount)
+				{
+					nodeFrom = fromClient[i];
+					nodeTo = sameEquipmentToWarehouse;
+					return true;
+				}
+			}
+
+			for (int i = 0; i < toWarehouse.Count; i++)
+			{
+				if (!fromClient.Any(f => f.Id == toWarehouse[i].Id))
+				{
+					nodeFrom = null;
+					nodeTo = toWarehouse[i];
+					return true;
+				}
+			}
+			nodeFrom = null;
+			nodeTo = null;
+			return false;
+		}
+
+		protected bool isConsistentWithUnloadDocument(){
+			var orderClosingItems = routeListAddressesView.Items
+				.SelectMany(item => item.Order.OrderItems)
+				.Where(item=>Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				.ToList();
+			var nomenclatureItems = orderClosingItems.Where(item => !item.Nomenclature.Serial);
+			var nomenclatureReturnedFromClient = 
+				nomenclatureItems.GroupBy(item => item.Nomenclature,
+					item => item.ReturnedCount,
+					(nomenclature, amounts) => new
+					TotalReturnsNode
+					{
+						Name = nomenclature.Name,
+						NomenclatureId = nomenclature.Id,
+						NomenclatureCategory = nomenclature.Category,	
+						Amount = amounts.Sum(i => i)
+					}).Where(item=>item.Amount>0).ToList();
+							
+			var nomenclatureReturnedToWarehouse = allReturnsToWarehouse.Where(item=>!item.Trackable).ToList();
+			TotalReturnsNode fromClient;
+			TotalReturnsNode toWarehouse;
+			if (FindNomenclatureDiscrepancy(nomenclatureReturnedFromClient,
+				   nomenclatureReturnedToWarehouse, out fromClient, out toWarehouse))
+			{
+				var name = fromClient != null ? fromClient.Name : toWarehouse.Name;
+				var fromClientAmount = fromClient != null ? fromClient.Amount : 0;
+				var toWarehouseAmount = toWarehouse != null ? toWarehouse.Amount : 0;
+				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата не согласуется с документом выгрузки!" +
+					" Пожалуйста укажите по какому заказу был осуществлен недовоз \"{0}\"." +
+					"Указано: {1}, Выгружено: {2}",
+					name,
+					fromClientAmount,
+					toWarehouseAmount));
+				return false;
+			}
+
+			var equipmentItems = routeListAddressesView.Items
+				.SelectMany(item => item.Order.OrderEquipments).ToList();			
+			var equipmentReturnedFromClient = 
+				equipmentItems.GroupBy(item => item.Equipment,
+					item => item.Confirmed ? 0 : 1,
+					(equipment, amounts) => new 
+					TotalReturnsNode
+					{
+						Id = equipment.Id,
+						Name = equipment.NomenclatureName,
+						NomenclatureCategory = equipment.Nomenclature.Category,							
+						Amount = amounts.Sum(i => i)
+					}).Where(item=>item.Amount>0).ToList();
+			
+			var equipmentReturnedToWarehouse = allReturnsToWarehouse.Where(item=>item.Trackable).ToList();
+			if (FindEquipmentDiscrepancy(equipmentReturnedFromClient,
+				equipmentReturnedToWarehouse, out fromClient, out toWarehouse))
+			{
+				var name = fromClient != null 
+					? fromClient.Name+"(с/н: "+fromClient.Id+")" 
+					: toWarehouse.Name+"(с/н: "+toWarehouse.Id+")";
+				var fromClientAmount = fromClient != null ? fromClient.Amount : 0;
+				var toWarehouseAmount = toWarehouse != null ? toWarehouse.Amount : 0;
+				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата не согласуется с документом выгрузки!" +
+					" Пожалуйста укажите по какому заказу был осуществлен недовоз \"{0}\"." +
+					"Указано: {1}, Выгружено: {2}",
+					name,
+					fromClientAmount,
+					toWarehouseAmount
+					));
+				return false;
+			}
+
+			var totalBottlesReturned = routeListAddressesView.Items.Sum(item => item.BottlesReturned);
+			var totalBottlesReturnedToWarehouse = GetReturnsToWarehouseByCategory(Entity.RouteList.Id,
+				new NomenclatureCategory[]{ NomenclatureCategory.bottle })
+				.Sum(item => item.Amount);
+			bool bottleDiscrepency = totalBottlesReturned != totalBottlesReturnedToWarehouse;
+			if (bottleDiscrepency)
+			{
+				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата бутылей не" +
+					" согласуется с документом выгрузки! Указано: {0} Выгружено: {1}",
+					totalBottlesReturned, totalBottlesReturnedToWarehouse));
+				return false;
+			}	
+
 			return true;
 		}
 
-		private void IsEditable (bool val = false)
+		protected void CheckBottlesAndDeposits(){
+			foreach(RouteListItem item in routeListAddressesView.Items){
+				if (item.Order.PaymentType == PaymentType.cash)
+				{
+					var totalBottlesReceived = item.Order.OrderItems
+						.Where(orderItem => orderItem.Nomenclature.Category == NomenclatureCategory.water)
+						.Sum(orderItem => orderItem.ActualCount);
+					var expectedDepositsCount = totalBottlesReceived - item.BottlesReturned;
+					var expectedDeposits = 
+						NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(1)*expectedDepositsCount;
+					/*if (expectedDeposits != item.DepositsCollected)
+					{
+						MessageDialogWorks.RunWarningDialog(String.Format("Сумма полученных залогов" +
+							" не верна для заказа №{0}", item.Order.Id));
+						return;
+					}
+					*/
+				}
+			}
+		}
+			
+
+		public override bool Save ()
 		{
-			speccomboShift.Sensitive = val;
-			datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = val;
-			spinPlannedDistance.Sensitive = val;
-			spinActualDistance.Sensitive = val ||
-			(UoWGeneric.Root.Status == RouteListStatus.Closed || UoWGeneric.Root.Status == RouteListStatus.NotDelivered);
-			createroutelistitemsview1.IsEditable (val);
+			var valid = new QSValidator<RouteListClosing> (Entity);
+			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+				return false;
+
+			CheckBottlesAndDeposits();
+			if (!isConsistentWithUnloadDocument())
+				return false;
+			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
+			bottleMovementOperations.ForEach(op => UoW.Save(op));
+
+			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
+			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
+
+			Entity.CloseRouteList();
+
+			UoW.Save();
+			return true;
 		}
 
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
-
-			if (UoWGeneric.Root.Status == RouteListStatus.New) {
-				var valid = new QSValidator<RouteList> (UoWGeneric.Root, 
-					            new Dictionary<object, object> {
-						{ "NewStatus", RouteListStatus.Ready }
-					});
-				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
-					return;
-
-				UoWGeneric.Root.Status = RouteListStatus.Ready;
-				IsEditable ();
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonPrint.Sensitive = true;
-				buttonAccept.Label = "Редактировать";
-				return;
-			}
-			if (UoWGeneric.Root.Status == RouteListStatus.Ready) {
-				UoWGeneric.Root.Status = RouteListStatus.New;
-				IsEditable (true);
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonPrint.Sensitive = false;
-				buttonAccept.Label = "Подтвердить";
-				return;
-			}
+			Save();
 		}
 
-		protected void OnButtonPrintClicked (object sender, EventArgs e)
+		public List<TotalReturnsNode> GetReturnsToWarehouseByCategory(int routeListId,NomenclatureCategory[] categories)
 		{
-			var RouteColumns = RouteColumnRepository.ActiveColumns (UoW);
+			List<TotalReturnsNode> result = new List<TotalReturnsNode>();		
+			Nomenclature nomenclatureAlias = null;
+			TotalReturnsNode resultAlias = null;
+			Equipment equipmentAlias = null;
+			CarUnloadDocumentItem carUnloadItemsAlias = null;
+			WarehouseMovementOperation movementOperationAlias = null;
 
-			if (RouteColumns.Count < 1)
-				throw new Exception ("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
+			var returnableItems = UoW.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
+				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
+				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				.Where(Restrictions.IsNotNull(Projections.Property(()=>movementOperationAlias.IncomingWarehouse)))
+				.JoinAlias(() => movementOperationAlias.Nomenclature, ()=>nomenclatureAlias)
+				.Where (() => !nomenclatureAlias.Serial)		
+				.Where (() => nomenclatureAlias.Category.IsIn(categories))
+				.SelectList (list => list
+					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
+					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
+					.Select (() => false).WithAlias (() => resultAlias.Trackable)
+					.Select (() => nomenclatureAlias.Category).WithAlias (() => resultAlias.NomenclatureCategory)
+					.SelectSum(()=>movementOperationAlias.Amount).WithAlias(()=>resultAlias.Amount)
+				)
+				.TransformUsing (Transformers.AliasToBean<TotalReturnsNode> ())
+				.List<TotalReturnsNode> ();
 
-			string RdlText = String.Empty;
-			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/RouteList.rdl"))) {
-				RdlText = rdr.ReadToEnd ();
-			}
-			//Для уникальности номеров Textbox.
-			int TextBoxNumber = 100;
+			var returnableEquipment = UoW.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
+				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
+				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
+				.Where(Restrictions.IsNotNull(Projections.Property(()=>movementOperationAlias.IncomingWarehouse)))
+				.JoinAlias(()=>movementOperationAlias.Equipment,()=>equipmentAlias)
+				.JoinAlias (() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where (() => nomenclatureAlias.Category.IsIn(categories))
+				.SelectList (list => list
+					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)				
+					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
+					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
+					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
+					.Select (() => nomenclatureAlias.Category).WithAlias (() => resultAlias.NomenclatureCategory)
+					.SelectSum(()=>movementOperationAlias.Amount).WithAlias(()=>resultAlias.Amount)
+				)
+				.TransformUsing (Transformers.AliasToBean<TotalReturnsNode> ())
+				.List<TotalReturnsNode> ();
 
-			//Шаблон стандартной ячейки
-			const string CellTemplate = "<TableCell><ReportItems>" +
-			                            "<Textbox Name=\"Textbox{0}\">" +
-			                            "<Value>{1}</Value>" +
-			                            "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-			                            "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth />" +
-			                            "<TextAlign>Center</TextAlign></Style></Textbox></ReportItems></TableCell>";
-			
-			//Расширяем требуемые колонки на нужную ширину
-			RdlText = RdlText.Replace ("<!--colspan-->", String.Format ("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
-
-			//Расширяем таблицу
-			string columnsXml = "<TableColumn><Width>20pt</Width></TableColumn>";
-			string columns = String.Empty;
-			for (int i = 0; i < RouteColumns.Count; i++) {
-				columns += columnsXml;
-			}
-			RdlText = RdlText.Replace ("<!--table_column-->", columns);
-
-			//Создаем колонки, дополняем запрос и тд.
-			string CellColumnHeader = String.Empty;
-			string CellColumnValue = String.Empty;
-			string CellColumnStock = String.Empty;
-			string CellColumnTotal = String.Empty;
-			string SqlSelect = String.Empty;
-			string SqlSelectSubquery = String.Empty;
-			string Fields = String.Empty;
-			string TotalSum = "= 0";
-			foreach (var column in RouteColumns) {
-				//Заголовки колонок
-				CellColumnHeader += String.Format (
-					"<TableCell><ReportItems>" +
-					"<Textbox Name=\"Textbox{0}\">" +
-					"<Value>{1}</Value>" +
-					"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-					"<BorderStyle><Default>Solid</Default><Top>Solid</Top><Bottom>Solid</Bottom></BorderStyle>" +
-					"<BorderColor /><BorderWidth /><FontSize>8pt</FontSize><TextAlign>Center</TextAlign></Style>" +
-					"<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>", 
-					TextBoxNumber++, column.Name);
-				//Формула для колонки с водой для информации из запроса
-				CellColumnValue += String.Format (CellTemplate,
-					TextBoxNumber++, "={Water" + column.Id.ToString () + "}");
-				//Ячейка с запасом. Пока там единицы.
-				CellColumnStock += String.Format (CellTemplate,
-					TextBoxNumber++, 1);
-				//Ячейка с суммой по бутылям + запасы.
-				CellColumnTotal += String.Format (CellTemplate,
-					TextBoxNumber++, "=Sum({Water" + column.Id.ToString () + "}) + 1");
-				//Запрос..
-				SqlSelect += String.Format (", wt_qry.Water{0}", column.Id.ToString ());
-				SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
-					column.Id, "Water" + column.Id.ToString ());
-				//Линкуем запрос на переменные RDL
-				Fields += String.Format ("" +
-				"<Field Name=\"{0}\">" +
-				"<DataField>{0}</DataField>" +
-				"<TypeName>System.String</TypeName>" +
-				"</Field>", "Water" + column.Id.ToString ());
-				//Формула итоговой суммы по всем бутялым.
-				TotalSum += "+ Sum({Water" + column.Id.ToString () + "})";
-			}
-			RdlText = RdlText.Replace ("<!--table_cell_name-->", CellColumnHeader);
-			RdlText = RdlText.Replace ("<!--table_cell_value-->", CellColumnValue);
-			RdlText = RdlText.Replace ("<!--table_cell_stock-->", CellColumnStock);
-			RdlText = RdlText.Replace ("<!--table_cell_total-->", CellColumnTotal);
-			RdlText = RdlText.Replace ("<!--sql_select-->", SqlSelect);
-			RdlText = RdlText.Replace ("<!--sql_select_subquery-->", SqlSelectSubquery);
-			RdlText = RdlText.Replace ("<!--fields-->", Fields);
-			RdlText = RdlText.Replace ("<!--table_cell_total_without_stock-->", TotalSum);
-
-			var TempFile = System.IO.Path.GetTempFileName ();
-			using (StreamWriter sw = new StreamWriter (TempFile)) {
-				sw.Write (RdlText);
-			}
-			ReportInfo info = new ReportInfo ();
-			info.Parameters = new Dictionary<string, object> ();
-			info.Parameters.Add ("RouteListId", UoWGeneric.Root.Id);
-			info.Title = "Маршрутный лист";
-			info.Path = TempFile;
-			var report = new QSReport.ReportViewDlg (info);
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
-			mytab.TabParent.AddSlaveTab (mytab, report);
+			result.AddRange(returnableItems);
+			result.AddRange(returnableEquipment);
+			return result;
 		}
 	}
+
+	public class TotalReturnsNode{
+		public int Id{get;set;}
+		public NomenclatureCategory NomenclatureCategory{ get; set; }
+		public int NomenclatureId{ get; set; }
+		public string Name{get;set;}
+		public decimal Amount{ get; set;}
+		public bool Trackable{ get; set; }
+		public string Serial{ get { 
+				if (Trackable) {
+					return Id > 0 ? Id.ToString () : "(не определен)";
+				} else
+					return String.Empty;
+			}
+		}
+		public bool Returned {
+			get {
+				return Amount > 0;
+			}
+			set {
+				Amount = value ? 1 : 0;
+			}
+		}
+	}
+
+
 }

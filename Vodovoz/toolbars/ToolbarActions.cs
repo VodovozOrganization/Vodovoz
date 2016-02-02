@@ -11,6 +11,7 @@ public partial class MainWindow : Window
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
 	Action ActionRouteListTable;
+	Action ActionRouteListClosingTable;
 	Action ActionAddOrder;
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -21,6 +22,7 @@ public partial class MainWindow : Window
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
+
 
 	public void BuildToolbarActions ()
 	{
@@ -38,6 +40,7 @@ public partial class MainWindow : Window
 		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
+		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
 		//Касса
 		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -59,6 +62,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionWarehouseStock, null);
 		w1.Add (ActionClientBalance, null);
 		w1.Add (ActionRouteListTable, null);
+		w1.Add (ActionRouteListClosingTable, null);
 		w1.Add (ActionCashDocuments, null);
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionUnclosedAdvances, null);
@@ -78,6 +82,7 @@ public partial class MainWindow : Window
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
+		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
 		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
@@ -126,8 +131,13 @@ public partial class MainWindow : Window
 
 	void ActionRouteListTable_Activated (object sender, System.EventArgs e)
 	{
-		//TODO FIXME Сделать нормальный вид.
-		OrmReference refWin = new OrmReference (typeof(Vodovoz.Domain.Logistic.RouteList));
+		ReferenceRepresentation refWin = new ReferenceRepresentation(new RouteListsVM());	
+		tdiMain.AddTab (refWin);
+	}
+
+	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
+	{
+		var refWin = new RouteListClosingView();	
 		tdiMain.AddTab (refWin);
 	}
 

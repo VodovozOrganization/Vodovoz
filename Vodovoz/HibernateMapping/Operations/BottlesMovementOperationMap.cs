@@ -12,12 +12,11 @@ namespace Vodovoz.HMap
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.OperationTime).Column ("operation_time");
-			Map (x => x.MovedTo).Column ("moved_to");
-			Map (x => x.MovedFrom).Column ("moved_from");
+			Map (x => x.Delivered).Column ("delivered");
+			Map (x => x.Returned).Column ("returned");
 			References (x => x.Order).Column ("order_id");
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.DeliveryPoint).Column ("delivery_point_id");
-			References (x => x.OrderItem).Column ("order_item_id");
 		}
 	}
 }
