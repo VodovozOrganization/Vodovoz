@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Vodovoz.Domain.Orders;
 using Gamma.Utilities;
+using System.Linq;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -104,6 +106,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+	
+
 		GenericObservableList<RouteListItem> observableAddresses;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public GenericObservableList<RouteListItem> ObservableAddresses {
@@ -176,7 +180,6 @@ namespace Vodovoz.Domain.Logistic
 				item.Order.OrderStatus = OrderStatus.OnTheWay;
 			}
 		}
-			
 
 		#region IValidatableObject implementation
 

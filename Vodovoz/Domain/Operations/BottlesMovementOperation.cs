@@ -1,5 +1,6 @@
 ﻿using QSOrmProject;
 using Vodovoz.Domain.Orders;
+using System;
 
 namespace Vodovoz.Domain.Operations
 {
@@ -8,20 +9,11 @@ namespace Vodovoz.Domain.Operations
 		Nominative = "передвижение бутылей")]
 	public class BottlesMovementOperation: OperationBase
 	{
-		//TODO ID Документа перемещения
-
 		Order order;
 
 		public virtual Order Order {
 			get { return order; }
 			set { SetField (ref order, value, () => Order); }
-		}
-
-		OrderItem orderItem;
-
-		public virtual OrderItem OrderItem {
-			get { return orderItem; }
-			set { SetField (ref orderItem, value, () => OrderItem); }
 		}
 
 		Counterparty counterparty;
@@ -38,18 +30,18 @@ namespace Vodovoz.Domain.Operations
 			set { SetField (ref deliveryPoint, value, () => DeliveryPoint); }
 		}
 
-		int movedTo;
+		int delivered;
 
-		public virtual int MovedTo {
-			get { return movedTo; }
-			set { SetField (ref movedTo, value, () => MovedTo); }
+		public virtual int Delivered {
+			get { return delivered; }
+			set { SetField (ref delivered, value, () => Delivered); }
 		}
 
-		int movedFrom;
+		int returned;
 
-		public virtual int MovedFrom {
-			get { return movedFrom; }
-			set { SetField (ref movedFrom, value, () => MovedFrom); }
+		public virtual int Returned {
+			get { return returned; }
+			set { SetField (ref returned, value, () => Returned); }
 		}
 	}
 }

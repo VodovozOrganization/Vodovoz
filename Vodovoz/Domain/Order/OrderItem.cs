@@ -69,7 +69,35 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		protected Decimal GetDefaultPrice(int count){			
+		int actualCount;
+		public virtual int ActualCount{
+			get{
+				return actualCount;
+			}
+			set{
+				SetField(ref actualCount, value, () => ActualCount);
+			}
+		}
+
+		public virtual int ReturnedCount{
+			get{
+				return Count - ActualCount;
+			}
+			set{
+				ActualCount = Count - value;
+			}
+		}
+
+		public virtual bool IsDelivered{
+			get{
+				return ReturnedCount == 0;
+			}
+			set{
+				ReturnedCount = value ? 0 : 1;
+			}
+		}
+
+		protected Decimal GetDefaultPrice(int count){
 			Decimal result=0;
 			if (Nomenclature.Category == NomenclatureCategory.water) {
 				result = Nomenclature.GetPrice (count);
@@ -79,7 +107,7 @@ namespace Vodovoz.Domain.Orders
 			}
 			return result;
 		}
-			
+
 		Decimal defaultPrice=-1;
 
 		public virtual Decimal DefaultPrice {

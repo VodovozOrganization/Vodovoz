@@ -65,6 +65,16 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref reason, value, () => Reason); }
 		}
 
+		bool confirmed;
+		public virtual bool Confirmed{
+			get{
+				return confirmed;
+			}
+			set{
+				SetField(ref confirmed, value, () => Confirmed);
+			}
+		}
+
 		public virtual string NameString {
 			get { 
 				if (Equipment != null)

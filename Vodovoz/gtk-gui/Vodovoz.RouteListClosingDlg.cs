@@ -42,7 +42,7 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox6;
 		
-		private global::Vodovoz.RouteListClosingItemsView routelistclosingitemsview1;
+		private global::Vodovoz.RouteListClosingItemsView routeListAddressesView;
 		
 		private global::Gtk.HBox hbox8;
 		
@@ -267,11 +267,11 @@ namespace Vodovoz
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.routelistclosingitemsview1 = new global::Vodovoz.RouteListClosingItemsView ();
-			this.routelistclosingitemsview1.Events = ((global::Gdk.EventMask)(256));
-			this.routelistclosingitemsview1.Name = "routelistclosingitemsview1";
-			this.hbox6.Add (this.routelistclosingitemsview1);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.routelistclosingitemsview1]));
+			this.routeListAddressesView = new global::Vodovoz.RouteListClosingItemsView ();
+			this.routeListAddressesView.Events = ((global::Gdk.EventMask)(256));
+			this.routeListAddressesView.Name = "routeListAddressesView";
+			this.hbox6.Add (this.routeListAddressesView);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.routeListAddressesView]));
 			w18.Position = 0;
 			this.vbox1.Add (this.hbox6);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox6]));

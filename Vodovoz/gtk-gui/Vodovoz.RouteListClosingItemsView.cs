@@ -58,7 +58,6 @@ namespace Vodovoz
 			this.ytreeviewItems = new global::Gamma.GtkWidgets.yTreeView ();
 			this.ytreeviewItems.CanFocus = true;
 			this.ytreeviewItems.Name = "ytreeviewItems";
-			this.ytreeviewItems.Reorderable = true;
 			this.GtkScrolledWindow.Add (this.ytreeviewItems);
 			this.GtkAlignment.Add (this.GtkScrolledWindow);
 			this.frame2.Add (this.GtkAlignment);
@@ -100,6 +99,7 @@ namespace Vodovoz
 			this.labelWage.LabelProp = global::Mono.Unix.Catalog.GetString ("Зарплата:");
 			this.hbox1.Add (this.labelWage);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelWage]));
+			w8.PackType = ((global::Gtk.PackType)(1));
 			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
@@ -110,7 +110,7 @@ namespace Vodovoz
 			this.hbox1.Add (this.labelSum);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelSum]));
 			w9.PackType = ((global::Gtk.PackType)(1));
-			w9.Position = 4;
+			w9.Position = 3;
 			w9.Expand = false;
 			w9.Fill = false;
 			this.vbox1.Add (this.hbox1);

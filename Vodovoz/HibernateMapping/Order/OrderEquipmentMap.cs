@@ -14,6 +14,7 @@ namespace Vodovoz.HMap
 
 			Map (x => x.Direction).Column ("direction").CustomType<DirectionStringType> ();
 			Map (x => x.Reason).Column ("reason").CustomType<ReasonStringType> ();
+			Map (x => x.Confirmed).Column("confirmed");
 
 			References (x => x.Order).Column ("order_id");
 			References (x => x.Equipment).Column ("equipment_id");

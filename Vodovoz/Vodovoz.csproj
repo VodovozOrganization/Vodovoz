@@ -44,9 +44,6 @@
     <Reference Include="pango-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="gtk-databind-lib">
-      <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="NHibernate">
       <HintPath>..\..\QSProjects\packages\NHibernate.4.0.4.4000\lib\net40\NHibernate.dll</HintPath>
@@ -470,8 +467,10 @@
     <Compile Include="BatchRDLRenderer.cs" />
     <Compile Include="JournalViewers\RouteListClosingView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListClosingView.cs" />
-    <Compile Include="ViewWidgets\Logistics\OrderClosingView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.OrderClosingView.cs" />
+    <Compile Include="Domain\Logistic\RouteListClosing.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListClosingMap.cs" />
+    <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
