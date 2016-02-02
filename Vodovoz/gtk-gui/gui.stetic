@@ -1392,6 +1392,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2050,6 +2051,26 @@
                           </packing>
                         </child>
                         <child>
+                          <widget class="QSOrmProject.PhotoView" id="photoviewEmployee">
+                            <property name="MemberName" />
+                            <property name="Events">ButtonPressMask</property>
+                          </widget>
+                          <packing>
+                            <property name="BottomAttach">6</property>
+                            <property name="LeftAttach">2</property>
+                            <property name="RightAttach">3</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceNationality">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
@@ -2091,85 +2112,6 @@
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
-                            <property name="XOptions">Fill</property>
-                            <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
-                            <property name="XFill">True</property>
-                            <property name="XShrink">False</property>
-                            <property name="YExpand">False</property>
-                            <property name="YFill">True</property>
-                            <property name="YShrink">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.DataBindings.DataVBox" id="vbox3">
-                            <property name="MemberName" />
-                            <property name="Spacing">6</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <child>
-                              <widget class="Gamma.Widgets.yImageViewer" id="yimagePhoto">
-                                <property name="MemberName" />
-                                <property name="VerticalFit">True</property>
-                                <property name="HorizontalFit">False</property>
-                                <signal name="ButtonPressEvent" handler="OnYimagePhotoButtonPressEvent" />
-                              </widget>
-                              <packing>
-                                <property name="Position">0</property>
-                                <property name="AutoSize">False</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="Gtk.HButtonBox" id="hbuttonbox1">
-                                <property name="MemberName" />
-                                <property name="Size">2</property>
-                                <child>
-                                  <widget class="Gtk.Button" id="buttonLoadPhoto">
-                                    <property name="MemberName" />
-                                    <property name="CanFocus">True</property>
-                                    <property name="Type">TextAndIcon</property>
-                                    <property name="Icon">resource:Vodovoz.icons.insert-image.png</property>
-                                    <property name="Label" translatable="yes">Загрузить</property>
-                                    <property name="UseUnderline">True</property>
-                                    <signal name="Clicked" handler="OnButtonLoadClicked" />
-                                  </widget>
-                                  <packing>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="Gtk.Button" id="buttonSavePhoto">
-                                    <property name="MemberName" />
-                                    <property name="Sensitive">False</property>
-                                    <property name="CanFocus">True</property>
-                                    <property name="Type">TextAndIcon</property>
-                                    <property name="Icon">resource:Vodovoz.icons.drive-harddisk.png</property>
-                                    <property name="Label" translatable="yes">Сохранить</property>
-                                    <property name="UseUnderline">True</property>
-                                    <signal name="Clicked" handler="OnButtonSavePhotoClicked" />
-                                  </widget>
-                                  <packing>
-                                    <property name="Position">1</property>
-                                    <property name="Expand">False</property>
-                                    <property name="Fill">False</property>
-                                  </packing>
-                                </child>
-                              </widget>
-                              <packing>
-                                <property name="Position">1</property>
-                                <property name="AutoSize">False</property>
-                                <property name="Expand">False</property>
-                              </packing>
-                            </child>
-                          </widget>
-                          <packing>
-                            <property name="BottomAttach">6</property>
-                            <property name="LeftAttach">2</property>
-                            <property name="RightAttach">3</property>
-                            <property name="AutoSize">False</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
                             <property name="XExpand">False</property>
@@ -2342,7 +2284,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

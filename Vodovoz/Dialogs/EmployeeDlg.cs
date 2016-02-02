@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Gtk;
 using NLog;
+using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
-using QSBanks;
 
 namespace Vodovoz
 {
@@ -52,6 +50,10 @@ namespace Vodovoz
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
+
+			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
+			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
+
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Employee));
 			if (!UoWGeneric.IsNew) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
@@ -64,8 +66,6 @@ namespace Vodovoz
 			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account> (UoWGeneric, o => o.Accounts);
 			accountsView.SetTitle ("Банковские счета сотрудника");
 
-			yimagePhoto.Binding.AddBinding (Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource ();
-			buttonSavePhoto.Sensitive = UoWGeneric.Root.Photo != null;
 			logger.Info ("Ok");
 		}
 
@@ -137,71 +137,6 @@ namespace Vodovoz
 				notebookMain.CurrentPage = 1;
 		}
 
-		protected void OnButtonLoadClicked (object sender, EventArgs e)
-		{
-			FileChooserDialog Chooser = new FileChooserDialog ("Выберите фото для загрузки...", 
-				                            (Window)this.Toplevel,
-				                            FileChooserAction.Open,
-				                            "Отмена", ResponseType.Cancel,
-				                            "Загрузить", ResponseType.Accept);
-
-			FileFilter Filter = new FileFilter ();
-			Filter.AddPixbufFormats ();
-			Filter.Name = "Все изображения";
-			Chooser.AddFilter (Filter);
-
-			if ((ResponseType)Chooser.Run () == ResponseType.Accept) {
-				Chooser.Hide ();
-				logger.Info ("Загрузка фотографии...");
-
-				FileStream fs = new FileStream (Chooser.Filename, FileMode.Open, FileAccess.Read);
-				if (Chooser.Filename.ToLower ().EndsWith (".jpg")) {
-					using (MemoryStream ms = new MemoryStream ()) {
-						fs.CopyTo (ms);
-						UoWGeneric.Root.Photo = ms.ToArray ();
-					}
-				} else {
-					logger.Info ("Конвертация в jpg ...");
-					Gdk.Pixbuf image = new Gdk.Pixbuf (fs);
-					UoWGeneric.Root.Photo = image.SaveToBuffer ("jpeg");
-				}
-				fs.Close ();
-				buttonSavePhoto.Sensitive = true;
-				logger.Info ("Ok");
-			}
-			Chooser.Destroy ();
-
-		}
-
-		protected void OnButtonSavePhotoClicked (object sender, EventArgs e)
-		{
-			FileChooserDialog fc =
-				new FileChooserDialog ("Укажите файл для сохранения фотографии",
-					(Window)this.Toplevel,
-					FileChooserAction.Save,
-					"Отмена", ResponseType.Cancel,
-					"Сохранить", ResponseType.Accept);
-			fc.CurrentName = dataentryLastName.Text + " " + dataentryName.Text + " " + dataentryPatronymic.Text + ".jpg";
-			fc.Show (); 
-			if (fc.Run () == (int)ResponseType.Accept) {
-				fc.Hide ();
-				FileStream fs = new FileStream (fc.Filename, FileMode.Create, FileAccess.Write);
-				fs.Write (UoWGeneric.Root.Photo, 0, UoWGeneric.Root.Photo.Length);
-				fs.Close ();
-			}
-			fc.Destroy ();
-		}
-
-		protected void OnYimagePhotoButtonPressEvent (object o, ButtonPressEventArgs args)
-		{
-			if (((Gdk.EventButton)args.Event).Type == Gdk.EventType.TwoButtonPress) {
-				string filePath = System.IO.Path.Combine (System.IO.Path.GetTempPath (), "temp_img.jpg");
-				FileStream fs = new FileStream (filePath, FileMode.Create, FileAccess.Write);
-				fs.Write (UoWGeneric.Root.Photo, 0, UoWGeneric.Root.Photo.Length);
-				fs.Close ();
-				System.Diagnostics.Process.Start (filePath);
-			}
-		}
 	}
 }
 
