@@ -166,7 +166,7 @@ namespace Vodovoz
 
 			UpdateStockBalance ();
 
-			buttonConfirmShipment.Sensitive = CanLoad ();
+			TestCanLoad ();
 
 			ytreeItems.ItemsDataSource = ShipmentList;
 		}
@@ -183,12 +183,20 @@ namespace Vodovoz
 				ShipmentList.First (shipment => shipment.EquipmentId == item.Key).InStock = item.Value;
 		}
 
-		protected bool CanLoad(){
+		protected void TestCanLoad(){
 			var warehousesLoadedFrom = 
 				Vodovoz.Repository.Store.WarehouseRepository.WarehousesLoadedFrom (UoW, shipmentType, shipmentId);			
 			bool alreadyLoaded = warehousesLoadedFrom.Contains(ycomboboxWarehouse.SelectedItem);
 			bool itemsAvailable = ShipmentList.All(node=>node.IsAvailable);
-			return !alreadyLoaded && itemsAvailable;
+			if(!itemsAvailable)
+				labelStatus.Markup = "<span foreground=\"red\">На складе нет достаточного количества.</span>";
+			if(alreadyLoaded)
+				labelStatus.Markup = "<span foreground=\"red\">Отгрузка с этого склада уже произведена.</span>";
+
+			bool ok = !alreadyLoaded && itemsAvailable;
+
+			labelStatus.Visible = !ok;
+			buttonConfirmShipment.Sensitive = ok;
 		}
 
 		protected void OnYcomboboxWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)

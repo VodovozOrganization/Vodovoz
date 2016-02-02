@@ -11,6 +11,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.ViewModel
 {
@@ -49,6 +50,7 @@ namespace Vodovoz.ViewModel
 			ReadyForShipmentVMNode resultAlias = null;
 			Employee employeeAlias = null;
 			Car carAlias = null;
+			CarLoadDocument carLoadDocAlias = null;
 
 			List<ReadyForShipmentVMNode> items = new List<ReadyForShipmentVMNode> ();
 
@@ -63,6 +65,16 @@ namespace Vodovoz.ViewModel
 				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias)
 				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse && orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select (i => i.Order);
+
+			var alreadyLoadedRouteListsSubquery = QueryOver.Of<CarLoadDocument>(() => carLoadDocAlias)
+				.Where(() => carLoadDocAlias.RouteList.Id == routeListAlias.Id)
+				.Where(() => carLoadDocAlias.Warehouse == Filter.RestrictWarehouse)
+				.Select(doc => doc.Id);
+
+			var alreadyLoadedOrdersSubquery = QueryOver.Of<CarLoadDocument>(() => carLoadDocAlias)
+				.Where(() => carLoadDocAlias.Order.Id == orderAlias.Id)
+				.Where(() => carLoadDocAlias.Warehouse == Filter.RestrictWarehouse)
+				.Select(doc => doc.Id);
 
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == ShipmentDocumentType.RouteList) {
 
@@ -79,7 +91,8 @@ namespace Vodovoz.ViewModel
 						.Where (new Disjunction ()
 							.Add (Subqueries.WhereExists (orderitemsSubqury))
 							.Add (Subqueries.WhereExists (orderEquipmentSubquery))
-						);
+						)
+						.Where(Subqueries.WhereNotExists (alreadyLoadedRouteListsSubquery));
 				}
 				
 				items.AddRange (
@@ -103,7 +116,8 @@ namespace Vodovoz.ViewModel
 					queryOrders.Where (new Disjunction ()
 							.Add (Subqueries.WhereExists (orderitemsSubqury))
 							.Add (Subqueries.WhereExists (orderEquipmentSubquery))
-					);
+					)
+						.Where(Subqueries.WhereNotExists (alreadyLoadedOrdersSubquery));
 				}
 
 				items.AddRange (

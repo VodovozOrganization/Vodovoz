@@ -14,6 +14,8 @@ namespace Vodovoz {
 		
 		private global::Gtk.Label label2;
 		
+		private global::Gtk.Label labelStatus;
+		
 		private global::Gamma.Widgets.ySpecComboBox ycomboboxWarehouse;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -34,7 +36,7 @@ namespace Vodovoz {
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(2)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -80,20 +82,31 @@ namespace Vodovoz {
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
+			this.labelStatus = new global::Gtk.Label();
+			this.labelStatus.Name = "labelStatus";
+			this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString("label1");
+			this.table1.Add(this.labelStatus);
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.labelStatus]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.RightAttach = ((uint)(2));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
 			this.ycomboboxWarehouse = new global::Gamma.Widgets.ySpecComboBox();
 			this.ycomboboxWarehouse.Name = "ycomboboxWarehouse";
 			this.ycomboboxWarehouse.AddIfNotExist = false;
 			this.ycomboboxWarehouse.ShowSpecialStateAll = false;
 			this.ycomboboxWarehouse.ShowSpecialStateNot = false;
 			this.table1.Add(this.ycomboboxWarehouse);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.ycomboboxWarehouse]));
-			w5.LeftAttach = ((uint)(1));
-			w5.RightAttach = ((uint)(2));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.ycomboboxWarehouse]));
+			w6.LeftAttach = ((uint)(1));
+			w6.RightAttach = ((uint)(2));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w6.Position = 0;
-			w6.Expand = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w7.Position = 0;
+			w7.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -104,8 +117,8 @@ namespace Vodovoz {
 			this.ytreeItems.Name = "ytreeItems";
 			this.GtkScrolledWindow.Add(this.ytreeItems);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w8.Position = 1;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w9.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
@@ -116,21 +129,22 @@ namespace Vodovoz {
 			this.buttonConfirmShipment.Name = "buttonConfirmShipment";
 			this.buttonConfirmShipment.UseUnderline = true;
 			this.buttonConfirmShipment.Label = global::Mono.Unix.Catalog.GetString("Подтвердить отгрузку и Печать погрузочного талона");
-			global::Gtk.Image w9 = new global::Gtk.Image();
-			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.SmallToolbar);
-			this.buttonConfirmShipment.Image = w9;
+			global::Gtk.Image w10 = new global::Gtk.Image();
+			w10.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.SmallToolbar);
+			this.buttonConfirmShipment.Image = w10;
 			this.hbox1.Add(this.buttonConfirmShipment);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonConfirmShipment]));
-			w10.Position = 0;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonConfirmShipment]));
+			w11.Position = 0;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w11.Position = 2;
-			w11.Expand = false;
-			w11.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll();
 			}
+			this.labelStatus.Hide();
 			this.Hide();
 			this.ycomboboxWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYcomboboxWarehouseItemSelected);
 			this.buttonConfirmShipment.Clicked += new global::System.EventHandler(this.OnButtonConfirmShipmentClicked);
