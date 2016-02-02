@@ -63,13 +63,21 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref isArchive, value, () => IsArchive); }
 		}
 
+		byte[] photo;
+
+		[Display (Name = "Фотография")]
+		public virtual byte[] Photo {
+			get { return photo; }
+			set { SetField (ref photo, value, () => Photo); }
+		}
+
 		#endregion
 
 		public virtual string Title { 
 			get { return String.Format ("{0} ({1})", Model, RegistrationNumber); } 
 		}
 
-		public string DriverInfo { get { return Driver == null ? String.Empty : Driver.FullName; } }
+		public virtual string DriverInfo { get { return Driver == null ? String.Empty : Driver.FullName; } }
 
 		public Car ()
 		{

@@ -43,6 +43,9 @@ namespace Vodovoz
 			dataentryFuelType.PropertyMapping<Car> (c => c.FuelType);
 			radiobuttonMain.Active = true;
 
+			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
+			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
+
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));
 			if (!UoWGeneric.IsNew) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
