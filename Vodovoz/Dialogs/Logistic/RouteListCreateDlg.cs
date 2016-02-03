@@ -116,6 +116,7 @@ namespace Vodovoz
 					return;
 
 				UoWGeneric.Root.Status = RouteListStatus.Ready;
+				Save();
 				IsEditable ();
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
