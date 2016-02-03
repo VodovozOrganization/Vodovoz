@@ -134,6 +134,7 @@ namespace Vodovoz
 			var filter = new OrdersFilter (UnitOfWorkFactory.CreateWithoutRoot ());
 			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date;
 			filter.RestrictStatus = OrderStatus.Accepted;
+			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
 
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.Select;

@@ -8,6 +8,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
+using System.Linq;
 
 namespace Vodovoz.ViewModel
 {
@@ -55,6 +56,9 @@ namespace Vodovoz.ViewModel
 			{
 				query.Where (o => o.DeliveryDate <= Filter.RestrictEndDate.Value.AddDays (1).AddTicks (-1));
 			}
+
+			if(Filter.ExceptIds!=null && Filter.ExceptIds.Length>0)
+				query.Where(o => !NHibernate.Criterion.RestrictionExtensions.IsIn(o.Id, Filter.ExceptIds));
 
 			var result = query
 				.JoinQueryOver (o => o.Client, () => counterpartyAlias)

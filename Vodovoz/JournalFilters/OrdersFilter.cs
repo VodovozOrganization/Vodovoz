@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -85,6 +86,8 @@ namespace Vodovoz
 				dateperiodOrders.Sensitive = false;
 			}
 		}
+
+		public int[] ExceptIds{ get; set; }
 
 		protected void OnEnumcomboStatusEnumItemSelected (object sender, EnumItemClickedEventArgs e)
 		{
