@@ -59,6 +59,10 @@ namespace Vodovoz
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
 			referenceForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			referenceForwarder.Changed += (sender, args) =>
+			{
+				createroutelistitemsview1.OnForwarderChanged();
+			};
 
 			referenceLogistican.Sensitive = false;
 			referenceLogistican.PropertyMapping<RouteList> (r => r.Logistican);

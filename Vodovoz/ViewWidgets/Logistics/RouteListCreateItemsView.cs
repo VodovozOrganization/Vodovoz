@@ -59,6 +59,11 @@ namespace Vodovoz
 			UpdateColumns ();
 		}
 
+		public void OnForwarderChanged()
+		{
+			UpdateColumns();
+		}
+
 		private void UpdateColumns ()
 		{
 			var goodsColumns = items.SelectMany (i => i.GoodsByRouteColumns.Keys).Distinct ().ToArray ();
@@ -80,6 +85,13 @@ namespace Vodovoz
 			//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
 			//						"Не указан" : 
 			//						node.Order.DeliveryPoint.LogisticsArea.Name)
+			if (RouteListUoW.Root.Forwarder != null)
+			{
+				config
+					.AddColumn("Без экспедитора")
+					.AddToggleRenderer(node => node.WithoutForwarder)			
+					.AddColumn("");
+			}
 			ytreeviewItems.ColumnsConfig = 
 				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish ();

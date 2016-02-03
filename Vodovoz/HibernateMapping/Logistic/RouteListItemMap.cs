@@ -20,6 +20,7 @@ namespace Vodovoz.HMap
 			Map (x => x.TotalCash).Column("total_cash");
 			Map (x => x.DriverWage).Column("driver_wage");
 			Map (x => x.ForwarderWage).Column("forwarder_wage");
+			Map(x => x.WithoutForwarder).Column("without_forwarder");
 		}
 	}
 }

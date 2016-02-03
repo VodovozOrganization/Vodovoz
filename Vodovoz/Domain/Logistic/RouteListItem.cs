@@ -33,6 +33,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		bool withoutForwarder;
+
+		public bool WithoutForwarder{
+			get{
+				return withoutForwarder;
+			}
+			set{
+				SetField(ref withoutForwarder, value, () => WithoutForwarder);
+			}
+		}
+
 		int indexInRoute;
 
 		public int IndexInRoute {
@@ -191,6 +202,8 @@ namespace Vodovoz.Domain.Logistic
 			var fullBottleCount = Order.OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.Count);
+			if (WithoutForwarder)
+				return 0;
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
 			var bottleCollectionOrder = Order.CollectBottles;
