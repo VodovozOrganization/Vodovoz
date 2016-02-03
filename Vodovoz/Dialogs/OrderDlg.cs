@@ -94,6 +94,8 @@ namespace Vodovoz
 			checkSelfDelivery.Binding.AddBinding (Entity, s => s.SelfDelivery, w => w.Active).InitializeFromSource ();
 			checkDelivered.Binding.AddBinding (Entity, s => s.Shipped, w => w.Active).InitializeFromSource ();
 
+			ycheckbuttonCollectBottles.Binding.AddBinding(Entity, s => s.CollectBottles, w => w.Active).InitializeFromSource();
+
 			spinBottlesReturn.Binding.AddBinding (Entity, s => s.BottlesReturn, w => w.ValueAsInt).InitializeFromSource ();
 
 			referenceClient.ItemsQuery = CounterpartyRepository.ActiveClientsQuery ();

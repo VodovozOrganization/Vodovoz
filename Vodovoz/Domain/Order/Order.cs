@@ -198,6 +198,17 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		bool collectBottles;
+
+		public virtual bool CollectBottles{
+			get{
+				return collectBottles;
+			}
+			set{
+				SetField(ref collectBottles, value, () => CollectBottles);
+			}
+		}
+
 		public bool CanChangePaymentType ()
 		{
 			if ((NHibernate.NHibernateUtil.IsInitialized (OrderItems) && OrderItems.Count > 0) ||

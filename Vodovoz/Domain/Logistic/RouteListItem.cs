@@ -161,7 +161,7 @@ namespace Vodovoz.Domain.Logistic
 				.Sum(item => item.Count);
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
-			var contractCancelation = false; // TODO вместо РАСТ в доп оборудовании
+			var bottleCollectionOrder = Order.CollectBottles;
 
 			decimal paymentPerEmptyBottle = largeOrder 
 				? rates.LargeOrderEmptyBottleRate 
@@ -172,11 +172,11 @@ namespace Vodovoz.Domain.Logistic
 
 			var payForEquipment = fullBottleCount == 0
 				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver) > 0
-					|| contractCancelation);
+					|| bottleCollectionOrder);
 			var equpmentPayment = payForEquipment ? rates.CoolerRate : 0;
 
-			var contractCancelationPayment = contractCancelation ? rates.ContractCancelationRate : 0;
-			var emptyBottlesPayment = contractCancelation ? 0 : paymentPerEmptyBottle*bottlesReturned;
+			var contractCancelationPayment = bottleCollectionOrder ? rates.ContractCancelationRate : 0;
+			var emptyBottlesPayment = bottleCollectionOrder ? 0 : paymentPerEmptyBottle*bottlesReturned;
 			var smallFullBottlesPayment = rates.SmallFullBottleRate*Order.OrderItems.Count(item=>item.NomenclatureString=="Вода 6л");
 
 			var wage = equpmentPayment + largeFullBottlesPayment
@@ -193,7 +193,7 @@ namespace Vodovoz.Domain.Logistic
 				.Sum(item => item.Count);
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
-			var contractCancelation = false; // TODO вместо РАСТ в доп оборудовании
+			var bottleCollectionOrder = Order.CollectBottles;
 
 			decimal paymentPerEmptyBottle = largeOrder 
 				? rates.LargeOrderEmptyBottleRate 
@@ -204,11 +204,11 @@ namespace Vodovoz.Domain.Logistic
 			
 			var payForEquipment = fullBottleCount == 0
 			                   && (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver) > 0
-			                   || contractCancelation);
+			                   || bottleCollectionOrder);
 			var equpmentPayment = payForEquipment ? rates.CoolerRate : 0;
 
-			var contractCancelationPayment = contractCancelation ? rates.ContractCancelationRate : 0;
-			var emptyBottlesPayment = contractCancelation ? 0 : paymentPerEmptyBottle*bottlesReturned;
+			var contractCancelationPayment = bottleCollectionOrder ? rates.ContractCancelationRate : 0;
+			var emptyBottlesPayment = bottleCollectionOrder ? 0 : paymentPerEmptyBottle*bottlesReturned;
 			var smallFullBottlesPayment = rates.SmallFullBottleRate*Order.OrderItems.Count(item=>item.NomenclatureString=="Вода 6л"); //TODO Fix
 
 			var wage = equpmentPayment + largeFullBottlesPayment 

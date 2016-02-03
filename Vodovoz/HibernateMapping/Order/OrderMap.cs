@@ -20,6 +20,7 @@ namespace Vodovoz.HMap
 			Map (x => x.SumToReceive).Column ("sum_to_receive");
 			Map (x => x.Shipped).Column ("shipped");
 			Map (x => x.SumDifferenceReason).Column ("sum_difference_reason");
+			Map (x => x.CollectBottles).Column("collect_bottles");
 
 			Map (x => x.OrderStatus).Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType).Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();

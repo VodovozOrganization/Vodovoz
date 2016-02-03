@@ -382,6 +382,4 @@ namespace Vodovoz
 			}
 		}
 	}
-
-
 }

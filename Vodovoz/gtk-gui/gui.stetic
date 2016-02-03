@@ -22222,6 +22222,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -23008,13 +23009,29 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
                         <child>
+                          <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckbuttonCollectBottles">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="Label" translatable="yes">Забор бутылей</property>
+                            <property name="DrawIndicator">True</property>
+                            <property name="HasLabel">True</property>
+                            <property name="UseUnderline">True</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">0</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.Label" id="label12">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
                             <property name="LabelProp" translatable="yes">Сумма:</property>
                           </widget>
                           <packing>
-                            <property name="Position">0</property>
+                            <property name="Position">1</property>
                             <property name="AutoSize">False</property>
                           </packing>
                         </child>
@@ -23025,7 +23042,7 @@ RegistrationNumber</property>
                             <property name="LabelProp" translatable="yes">%$$$%</property>
                           </widget>
                           <packing>
-                            <property name="Position">1</property>
+                            <property name="Position">2</property>
                             <property name="AutoSize">False</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -23036,7 +23053,7 @@ RegistrationNumber</property>
                             <property name="MemberName" />
                           </widget>
                           <packing>
-                            <property name="Position">2</property>
+                            <property name="Position">3</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -23048,7 +23065,7 @@ RegistrationNumber</property>
                             <property name="LabelProp" translatable="yes">Итого:</property>
                           </widget>
                           <packing>
-                            <property name="Position">3</property>
+                            <property name="Position">4</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -23061,7 +23078,7 @@ RegistrationNumber</property>
                             <property name="LabelProp" translatable="yes">%$$$%</property>
                           </widget>
                           <packing>
-                            <property name="Position">4</property>
+                            <property name="Position">5</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
