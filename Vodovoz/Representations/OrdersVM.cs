@@ -30,6 +30,7 @@ namespace Vodovoz.ViewModel
 			OrdersVMNode resultAlias = null;
 			Order orderAlias = null;
 			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
 
 			var query = UoW.Session.QueryOver<Order> (() => orderAlias);
 
@@ -62,12 +63,16 @@ namespace Vodovoz.ViewModel
 				query.Where(o => !NHibernate.Criterion.RestrictionExtensions.IsIn(o.Id, Filter.ExceptIds));
 
 			var result = query
+				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (o => o.Client, () => counterpartyAlias)
 				.SelectList (list => list
 					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => orderAlias.DeliveryDate).WithAlias (() => resultAlias.Date)
 					.Select (() => orderAlias.OrderStatus).WithAlias (() => resultAlias.StatusEnum)
 					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
+					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
+					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
+					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
 				)
 				.TransformUsing (Transformers.AliasToBean<OrdersVMNode> ())
 				.List<OrdersVMNode> ();
@@ -80,6 +85,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToString("d"))
 			.AddColumn ("Статус").SetDataProperty (node => node.StatusEnum.GetEnumTitle ())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
+			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -191,5 +197,12 @@ namespace Vodovoz.ViewModel
 		public DateTime Date { get; set; }
 
 		public string Counterparty { get; set; }
+
+		public string City { get; set; }
+		public string Street { get; set; }
+		public string Building { get; set; }
+
+		public string Address { get{ return String.Format("{0}, {1} д.{2}", City, Street, Building); } }
+
 	}
 }
