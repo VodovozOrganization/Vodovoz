@@ -24,11 +24,15 @@ namespace Vodovoz
 			printOp.Unit = Unit.Points;
 			printOp.UseFullPage = true;
 			printOp.ShowProgress = true;
+			var documentsRDL = documents.Where(doc=>doc.PrintType==PrinterType.RDL);
+			BatchRDLRenderer renderer = new BatchRDLRenderer(documentsRDL);
 
-			BatchRDLRenderer renderer = new BatchRDLRenderer(documents.Where(doc=>doc.PrintType==PrinterType.RDL));
-
-			renderer.PrepareDocuments();
-
+			LongOperationDlg.StartOperation(
+				renderer.PrepareDocuments,
+				"Подготовка к печати...",
+				documentsRDL.Count()
+			);
+			
 			printOp.NPages = renderer.PageCount;
 
 			printOp.DrawPage += renderer.DrawPage;

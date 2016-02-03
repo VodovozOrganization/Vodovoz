@@ -30,22 +30,21 @@ namespace Vodovoz
 			reportPages = new List<Pages>();
 		}
 
-		public void PrepareDocuments()
+		public void PrepareDocuments(IWorker worker)
 		{
-			int i = 1;
+			int step = 0;
 			foreach (var document in documents)
 			{
-				log.Info("Подготовка к печати документа \"{0}\" ({1}/{2})",(document as OrderDocument).Name,i,documents.Count);
+				worker.ReportProgress(step, (document as OrderDocument).Name);
 				Prepare(document);
-				i++;
-			}	
-			log.Info("Подготовка к печати завершена");
-		}			
+				step++;
+			}
+		}
 
 		protected void Prepare(IPrintableDocument document)
 		{
 			if (document.PrintType == PrinterType.RDL)
-			{				
+			{
 				Report report = GetReportFromFile(document.GetReportInfo().GetReportUri().LocalPath);
 				report.RunGetData(document.GetReportInfo().Parameters);
 				reportPages.Add(report.BuildPages());
