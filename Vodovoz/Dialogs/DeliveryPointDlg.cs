@@ -99,7 +99,13 @@ namespace Vodovoz
 		void EntryBuilding_Changed (object sender, EventArgs e)
 		{
 			if (entryBuilding.OsmCompletion.HasValue)
+			{
 				Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
+				decimal? latitude, longitude;
+				entryBuilding.GetCoordinates(out longitude, out latitude);
+				Entity.Latitude = latitude;
+				Entity.Longitude = longitude;
+			}
 		}
 
 		public override bool Save ()

@@ -267,8 +267,6 @@ namespace Vodovoz.Domain
 			Building = String.Empty;
 			Room = String.Empty;
 			Comment = String.Empty;
-			Latitude = String.Empty;
-			Longitude = String.Empty;
 			Phone = String.Empty;
 		}
 

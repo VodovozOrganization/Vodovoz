@@ -486,6 +486,8 @@ namespace Vodovoz
 			this.comboRoomType.Name = "comboRoomType";
 			this.comboRoomType.ShowSpecialStateAll = false;
 			this.comboRoomType.ShowSpecialStateNot = false;
+			this.comboRoomType.UseShortTitle = false;
+			this.comboRoomType.DefaultFirst = false;
 			this.hbox9.Add (this.comboRoomType);
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.comboRoomType]));
 			w32.Position = 0;
