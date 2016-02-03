@@ -180,18 +180,18 @@ namespace Vodovoz.Domain
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		string latitude;
+		decimal? latitude;
 
 		[Display (Name = "Широта")]
-		public virtual string Latitude {
+		public virtual decimal? Latitude {
 			get { return latitude; }
 			set { SetField (ref latitude, value, () => Latitude); }
 		}
 
-		string longitude;
+		decimal? longitude;
 
 		[Display (Name = "Долгота")]
-		public virtual string Longitude {
+		public virtual decimal? Longitude {
 			get { return longitude; }
 			set { SetField (ref longitude, value, () => Longitude); }
 		}
