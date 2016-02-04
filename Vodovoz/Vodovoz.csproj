@@ -164,7 +164,6 @@
     <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
     <Compile Include="Domain\BasicHandbooks\LogisticsArea.cs" />
     <Compile Include="Domain\BasicHandbooks\Manufacturer.cs" />
-    <Compile Include="Domain\BasicHandbooks\MeasurementUnits.cs" />
     <Compile Include="Domain\BasicHandbooks\Nationality.cs" />
     <Compile Include="Domain\BasicHandbooks\Significance.cs" />
     <Compile Include="Domain\Operations\OperationBase.cs" />
@@ -228,8 +227,6 @@
     <Compile Include="ViewWidgets\DocumentItems\IncomingWaterMaterialView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
-    <Compile Include="Dialogs\MeasurementUnitsDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.MeasurementUnitsDlg.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="ViewWidgets\DailyRentPackagesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.DailyRentPackagesView.cs" />
@@ -544,6 +541,10 @@
     <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
       <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
       <Name>QSOsm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBusinessCommon\QSBusinessCommon.csproj">
+      <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
+      <Name>QSBusinessCommon</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

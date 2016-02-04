@@ -4,6 +4,7 @@ using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;

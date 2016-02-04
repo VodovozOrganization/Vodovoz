@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Gamma.Utilities;
+using QSBusinessCommon.Domain;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
-using Gamma.Utilities;
 
 namespace Vodovoz.Domain
 {

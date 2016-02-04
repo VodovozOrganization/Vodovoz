@@ -2,6 +2,7 @@
 using Gtk;
 using NLog;
 using QSBanks;
+using QSBusinessCommon.Domain;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;

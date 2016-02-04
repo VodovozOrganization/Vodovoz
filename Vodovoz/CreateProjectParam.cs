@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using QSBusinessCommon;
+using QSBusinessCommon.Domain;
 using QSContacts;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Accounting;
 
 namespace Vodovoz
 {
@@ -52,7 +54,7 @@ namespace Vodovoz
 				new OrmObjectMapping<DeliveryShift> (null, "{Vodovoz.Domain.Logistic.DeliveryShift} Name[Название]"),
 				//Остальные справочники
 				new OrmObjectMapping<CommentTemplate> (typeof(CommentTemplateDlg), "{Vodovoz.Domain.CommentTemplate} Comment[Шаблон комментария];", new string[] { "Comment" }),
-				new OrmObjectMapping<MeasurementUnits> (typeof(MeasurementUnitsDlg), "{Vodovoz.Domain.MeasurementUnits} OKEI[ОКЕИ]; Name[Название]; Digits[Точность];"),
+				OrmObjectMapping<MeasurementUnits>.Create ().Dialog<MeasurementUnitsDlg>().DefaultTableView().Column("ОКЕИ", x => x.OKEI).Column("Название", x => x.Name).Column("Точность", x => x.Digits).End(),
 				new OrmObjectMapping<Contact> (typeof(ContactDlg), "{Vodovoz.Domain.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] {
 					"Surname",
 					"Name",

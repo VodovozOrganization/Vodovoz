@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
 using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
+using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Operations;
-using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
