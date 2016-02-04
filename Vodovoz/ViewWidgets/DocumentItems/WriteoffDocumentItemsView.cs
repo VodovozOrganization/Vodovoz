@@ -87,11 +87,7 @@ namespace Vodovoz
 		void NomenclatureSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
-			DocumentUoW.Root.AddItem (new WriteoffDocumentItem { 
-				Nomenclature = nomenctature,
-				AmountOnStock = (e.VMNode as ViewModel.StockBalanceVMNode).Amount,
-				Amount = 0
-			});
+			DocumentUoW.Root.AddItem(nomenctature, 0, (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
 		}
 	}
 }

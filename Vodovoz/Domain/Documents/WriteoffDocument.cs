@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -18,8 +20,10 @@ namespace Vodovoz.Domain.Documents
 			set {
 				base.TimeStamp = value;
 				foreach (var item in Items) {
-					if (item.WarehouseWriteoffOperation.OperationTime != TimeStamp)
+					if (item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.OperationTime != TimeStamp)
 						item.WarehouseWriteoffOperation.OperationTime = TimeStamp;
+					if (item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.OperationTime != TimeStamp)
+						item.CounterpartyWriteoffOperation.OperationTime = TimeStamp;			
 				}
 			}
 		}
@@ -53,7 +57,7 @@ namespace Vodovoz.Domain.Documents
 				if (Client == null || !Client.DeliveryPoints.Contains (DeliveryPoint))
 					DeliveryPoint = null;
 				foreach (var item in Items) {
-					if (item.CounterpartyWriteoffOperation.WriteoffCounterparty != client)
+					if (item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.WriteoffCounterparty != client)
 						item.CounterpartyWriteoffOperation.WriteoffCounterparty = client;
 				}
 			}
@@ -67,7 +71,7 @@ namespace Vodovoz.Domain.Documents
 			set { 
 				deliveryPoint = value; 
 				foreach (var item in Items) {
-					if (item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint != deliveryPoint)
+					if (item.CounterpartyWriteoffOperation != null && item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint != deliveryPoint)
 						item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint = deliveryPoint;
 				}
 			}
@@ -84,7 +88,7 @@ namespace Vodovoz.Domain.Documents
 					Client = null;
 				
 				foreach (var item in Items) {
-					if (item.WarehouseWriteoffOperation.WriteoffWarehouse != writeoffWarehouse)
+					if (item.WarehouseWriteoffOperation != null && item.WarehouseWriteoffOperation.WriteoffWarehouse != writeoffWarehouse)
 						item.WarehouseWriteoffOperation.WriteoffWarehouse = writeoffWarehouse;
 				}
 			}
@@ -133,13 +137,19 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		public void AddItem (WriteoffDocumentItem item)
+		public void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
-			item.WarehouseWriteoffOperation.WriteoffWarehouse = WriteoffWarehouse;
-			item.CounterpartyWriteoffOperation.WriteoffCounterparty = Client;
-			item.CounterpartyWriteoffOperation.WriteoffDeliveryPoint = DeliveryPoint;
-			item.WarehouseWriteoffOperation.OperationTime = TimeStamp;
-			item.Document = this;
+			var item = new WriteoffDocumentItem
+			{ 
+				Nomenclature = nomenclature,
+				AmountOnStock = inStock,
+				Amount = amount,
+				Document = this
+			};
+			if (WriteoffWarehouse != null)
+				item.CreateOperation(WriteoffWarehouse, TimeStamp);
+			else
+				item.CreateOperation(Client, DeliveryPoint, TimeStamp);
 			ObservableItems.Add (item);
 		}
 
@@ -149,6 +159,10 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult ("Склад списания или контрагент должны быть заполнены.");
 			if (Client != null && DeliveryPoint == null)
 				yield return new ValidationResult ("Точка доставки должна быть указана.");
+
+			if(Items.Any(i => i.Amount <= 0))
+				yield return new ValidationResult ("В списке списания присутствуют позиции с нулевым количеством.",
+					new[] { this.GetPropertyName (o => o.Items) });
 		}
 
 		public WriteoffDocument ()

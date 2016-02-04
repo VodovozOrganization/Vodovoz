@@ -1,7 +1,9 @@
-using QSOrmProject;
+using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using QSOrmProject;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -22,8 +24,12 @@ namespace Vodovoz.Domain.Documents
 			get { return nomenclature; }
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
-				if (WarehouseWriteoffOperation.Nomenclature != nomenclature)
+
+				if (WarehouseWriteoffOperation != null && WarehouseWriteoffOperation.Nomenclature != nomenclature)
 					WarehouseWriteoffOperation.Nomenclature = nomenclature;
+
+				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Nomenclature != nomenclature)
+					CounterpartyWriteoffOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -34,14 +40,17 @@ namespace Vodovoz.Domain.Documents
 			get { return equipment; }
 			set {
 				SetField (ref equipment, value, () => Equipment);
-				if (WarehouseWriteoffOperation.Equipment != equipment)
+				if (WarehouseWriteoffOperation != null && WarehouseWriteoffOperation.Equipment != equipment)
 					WarehouseWriteoffOperation.Equipment = equipment;
+
+				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Equipment != equipment)
+					CounterpartyWriteoffOperation.Equipment = equipment;
 			}
 		}
 
 		CullingCategory cullingCategory;
 
-		[Display (Name = "Оборудование")]
+		[Display (Name = "Вид выбраковки")]
 		public virtual CullingCategory CullingCategory {
 			get { return cullingCategory; }
 			set { SetField (ref cullingCategory, value, () => CullingCategory); }
@@ -55,8 +64,11 @@ namespace Vodovoz.Domain.Documents
 			get { return amount; }
 			set {
 				SetField (ref amount, value, () => Amount);
-				if (WarehouseWriteoffOperation.Amount != amount)
+				if (WarehouseWriteoffOperation != null && WarehouseWriteoffOperation.Amount != amount)
 					WarehouseWriteoffOperation.Amount = amount;
+
+				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Amount != amount)
+					CounterpartyWriteoffOperation.Amount = amount;
 			}
 		}
 
@@ -87,19 +99,41 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null && !Nomenclature.Serial; }
 		}
 
-		WarehouseMovementOperation warehouseWriteoffOperation = new WarehouseMovementOperation ();
+		WarehouseMovementOperation warehouseWriteoffOperation;
 
 		public WarehouseMovementOperation WarehouseWriteoffOperation {
 			get { return warehouseWriteoffOperation; }
 			set { SetField (ref warehouseWriteoffOperation, value, () => WarehouseWriteoffOperation); }
 		}
 
-		CounterpartyMovementOperation counterpartyWriteoffOperation = new CounterpartyMovementOperation ();
+		CounterpartyMovementOperation counterpartyWriteoffOperation;
 
 		public CounterpartyMovementOperation CounterpartyWriteoffOperation {
 			get { return counterpartyWriteoffOperation; }
 			set { SetField (ref counterpartyWriteoffOperation, value, () => CounterpartyWriteoffOperation); }
 		}
+
+		#region Функции
+
+		public void CreateOperation(Warehouse warehouse, DateTime time)
+		{
+			CounterpartyWriteoffOperation = null;
+			WarehouseWriteoffOperation = new WarehouseMovementOperation
+			{
+				WriteoffWarehouse = warehouse,
+				Amount = Amount,
+				OperationTime = time,
+				Nomenclature = Nomenclature,
+				Equipment = Equipment
+			};
+		}
+
+		public void CreateOperation(Counterparty counterparty, DeliveryPoint piont, DateTime time)
+		{
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 }
 
