@@ -2,5 +2,6 @@
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionRouteListTable' action='ActionRouteListTable'/>
 		<toolitem name='ActionRouteListKeeping' action='ActionRouteListKeeping'/>
+		<toolitem name='ActionRouteListDistanceValidation' action='ActionRouteListDistanceValidation'/>
 	</toolbar>
 </ui>

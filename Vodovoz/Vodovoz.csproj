@@ -471,6 +471,10 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingView.cs" />
     <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListDistanceValidationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListDistanceValidationDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListDistanceValidationView.cs" />
+    <Compile Include="JournalViewers\RouteListDistanceValidationView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

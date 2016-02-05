@@ -87,6 +87,16 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref actualDistance, value, () => ActualDistance); }
 		}
 
+		Decimal confirmedDistance;
+
+		public virtual Decimal ConfirmedDistance {
+			get{ return confirmedDistance; }
+			set
+			{
+				SetField(ref confirmedDistance, value, () => ConfirmedDistance);
+			}
+		}
+
 		RouteListStatus status;
 
 		[Display (Name = "Статус")]
