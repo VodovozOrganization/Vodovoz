@@ -129,9 +129,9 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual void CloseRouteList()
-		{
-			RouteList.Status = RouteListStatus.Closed;
+		public virtual void Confirm()
+		{			
+			RouteList.Status = RouteListStatus.MileageCheck;
 			foreach (var order in RouteList.Addresses.Select(item=>item.Order))
 			{
 				order.OrderStatus = OrderStatus.Closed;

@@ -13,7 +13,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListTable;
 	Action ActionRouteListClosingTable;
 	Action ActionRouteListKeeping;
-	Action ActionRouteListDistanceValidation;
+	Action ActionRouteListMileageCheck;
 	Action ActionAddOrder;
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -44,7 +44,7 @@ public partial class MainWindow : Window
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");
-		ActionRouteListDistanceValidation = new Action("ActionRouteListDistanceValidation", "Контроль за километражом",null,"table");
+		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражом",null,"table");
 		//Касса
 		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -68,7 +68,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionRouteListTable, null);
 		w1.Add (ActionRouteListClosingTable, null);
 		w1.Add (ActionRouteListKeeping, null);
-		w1.Add (ActionRouteListDistanceValidation, null);
+		w1.Add (ActionRouteListMileageCheck, null);
 		w1.Add (ActionCashDocuments, null);
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionUnclosedAdvances, null);
@@ -90,7 +90,7 @@ public partial class MainWindow : Window
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
-		ActionRouteListDistanceValidation.Activated += ActionRouteListDistanceValidation_Activated;
+		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
@@ -157,7 +157,7 @@ public partial class MainWindow : Window
 
 	void ActionRouteListDistanceValidation_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new RouteListDistanceValidationView();
+		var refWin = new RouteListMileageCheckView();
 		tdiMain.AddTab (refWin);
 	}
 

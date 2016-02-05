@@ -191,6 +191,11 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual void ConfirmMileage()
+		{
+			Status = RouteListStatus.Closed;
+		}
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
@@ -229,6 +234,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display (Name = "В пути")] EnRoute,
 		[Display (Name = "Готов к отчету")] ReadyToReport,
 		[Display (Name = "Не сдан")] NotDelivered,
+		[Display (Name = "Проверка километража")] MileageCheck,
 		[Display (Name = "Закрыт")] Closed
 	}
 

@@ -6,7 +6,7 @@ using Vodovoz.Domain.Logistic;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListDistanceValidationView : TdiTabBase
+	public partial class RouteListMileageCheckView : TdiTabBase
 	{
 		private IUnitOfWork uow;
 
@@ -22,13 +22,13 @@ namespace Vodovoz
 				uow = value;
 				viewModel = new ViewModel.RouteListsVM (value);
 				viewModel.Filter = new RouteListsFilter(uow);
-				viewModel.Filter.RestrictStatus = RouteListStatus.Closed;
+				viewModel.Filter.RestrictStatus = RouteListStatus.MileageCheck;
 				treeRouteLists.RepresentationModel = viewModel;
 				treeRouteLists.RepresentationModel.UpdateNodes ();
 			}
 		}
 
-		public RouteListDistanceValidationView()
+		public RouteListMileageCheckView()
 		{
 			this.Build();
 			this.TabName = "Контроль за километражом.";
@@ -44,7 +44,7 @@ namespace Vodovoz
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
 			var node = treeRouteLists.GetSelectedNode () as ViewModel.RouteListsVMNode;
-			var dlg = new RouteListDistanceValidationDlg (node.Id);
+			var dlg = new RouteListMileageCheckDlg (node.Id);
 			TabParent.AddTab (dlg, this);
 		}
 

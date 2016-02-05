@@ -12,9 +12,9 @@ using Vodovoz.Repository.Logistics;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListDistanceValidationDlg : OrmGtkDialogBase<RouteList>
+	public partial class RouteListMileageCheckDlg : OrmGtkDialogBase<RouteList>
 	{
-		public RouteListDistanceValidationDlg(int id)
+		public RouteListMileageCheckDlg(int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
@@ -84,6 +84,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{			
+			Entity.ConfirmMileage();
 			UoWGeneric.Save();
 			return true;
 		}

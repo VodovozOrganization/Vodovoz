@@ -24733,7 +24733,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListDistanceValidationDlg" design-size="637 300">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckDlg" design-size="637 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -25228,7 +25228,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListDistanceValidationView" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckView" design-size="300 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

@@ -298,7 +298,7 @@ namespace Vodovoz
 			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
 
-			Entity.CloseRouteList();
+			Entity.Confirm();
 
 			UoW.Save();
 			return true;
