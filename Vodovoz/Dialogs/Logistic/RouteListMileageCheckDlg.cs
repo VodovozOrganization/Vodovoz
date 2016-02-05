@@ -83,13 +83,24 @@ namespace Vodovoz
 		#region implemented abstract members of OrmGtkDialogBase
 
 		public override bool Save()
-		{			
-			Entity.ConfirmMileage();
+		{
 			UoWGeneric.Save();
 			return true;
 		}
-
 		#endregion
+
+		protected void OnButtonConfirmClicked (object sender, EventArgs e)
+		{
+			Entity.ConfirmedDistance = Entity.ActualDistance;
+		}
+
+		protected void OnButtonCloseRouteListClicked (object sender, EventArgs e)
+		{
+			Entity.ConfirmMileage();
+			buttonCloseRouteList.Sensitive = false;
+			yspinConfirmedDistance.Sensitive = false;
+			buttonConfirm.Sensitive = false;
+		}
 	}
 }
 
