@@ -467,6 +467,10 @@
     <Compile Include="ViewWidgets\Logistics\OrderReturnsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderReturnsView.cs" />
     <Compile Include="Commons\OrderPopupMenu.cs" />
+    <Compile Include="JournalViewers\RouteListKeepingView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListKeepingView.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListKeepingDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListKeepingDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

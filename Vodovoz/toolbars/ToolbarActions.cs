@@ -12,6 +12,7 @@ public partial class MainWindow : Window
 	Action ActionClientBalance;
 	Action ActionRouteListTable;
 	Action ActionRouteListClosingTable;
+	Action ActionRouteListKeeping;
 	Action ActionAddOrder;
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -41,6 +42,7 @@ public partial class MainWindow : Window
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
+		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");
 		//Касса
 		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -63,6 +65,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionClientBalance, null);
 		w1.Add (ActionRouteListTable, null);
 		w1.Add (ActionRouteListClosingTable, null);
+		w1.Add (ActionRouteListKeeping, null);
 		w1.Add (ActionCashDocuments, null);
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionUnclosedAdvances, null);
@@ -83,6 +86,7 @@ public partial class MainWindow : Window
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
+		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
@@ -138,6 +142,12 @@ public partial class MainWindow : Window
 	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
 	{
 		var refWin = new RouteListClosingView();	
+		tdiMain.AddTab (refWin);
+	}
+
+	void ActionRouteListKeeping_Activated(object sender, System.EventArgs e)
+	{
+		var refWin = new RouteListKeepingView();
 		tdiMain.AddTab (refWin);
 	}
 

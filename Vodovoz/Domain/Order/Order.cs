@@ -683,6 +683,11 @@ namespace Vodovoz.Domain.Orders
 			//TODO FIXME Добавить строку сервиса OrderItems
 			//И вообще много чего тут сделать.
 		}
+
+		public void ChangeStatus(OrderStatus newStatus)
+		{
+			OrderStatus = newStatus;
+		}
 			
 		public void UpdateDocuments()
 		{

@@ -33,6 +33,23 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		RouteListItemStatus status;
+
+		public virtual RouteListItemStatus Status {
+			get{ return status; }
+			set{
+				SetField(ref status, value, () => Status);
+			}
+		}
+
+		DateTime? statusLastUpdate;
+		public virtual DateTime? StatusLastUpdate {
+			get{ return statusLastUpdate; }
+			set{
+				SetField(ref statusLastUpdate, value, () => StatusLastUpdate);
+			}
+		}
+
 		bool withoutForwarder;
 
 		public bool WithoutForwarder{
@@ -272,6 +289,24 @@ namespace Vodovoz.Domain.Logistic
 		public void RemovedFromRoute()
 		{
 			Order.OrderStatus = OrderStatus.Accepted;
+		}
+	}
+
+	public enum RouteListItemStatus{
+		[Display(Name="В пути")]
+		EnRoute,
+		[Display(Name="Выполнен")]
+		Completed,
+		[Display(Name="Отмена клиентом")]
+		Canceled,
+		[Display(Name="Опоздали")]
+		Overdue
+	}
+
+	public class RouteListItemStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public RouteListItemStatusStringType () : base (typeof(RouteListItemStatus))
+		{
 		}
 	}
 
