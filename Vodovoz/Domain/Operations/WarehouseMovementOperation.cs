@@ -9,9 +9,7 @@ namespace Vodovoz.Domain.Operations
 		Nominative = "передвижение товаров")]
 	public class WarehouseMovementOperation: OperationBase
 	{
-		//TODO ID Документа перемещения
-
-		//TODO ID Приходной накладной
+		#region Свойства
 
 		Warehouse writeoffWarehouse;
 
@@ -50,6 +48,26 @@ namespace Vodovoz.Domain.Operations
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount); }
 		}
+
+		#endregion
+
+		#region Вычисляемые
+
+		public virtual string Title{
+			get{
+				if (IncomingWarehouse != null && WriteoffWarehouse != null)
+					return string.Format("Перемещение из {0} в {1}, {2} - {3}", WriteoffWarehouse.Name, IncomingWarehouse.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
+				else if (IncomingWarehouse != null)
+					return string.Format("Поступление в {0}, {1} - {2}", IncomingWarehouse.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
+				else if (WriteoffWarehouse != null)
+					return string.Format("Выбытие из {0}, {1} - {2}", WriteoffWarehouse.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
+				else
+					return null;
+			}
+		}
+
+		#endregion
+
 	}
 }
 

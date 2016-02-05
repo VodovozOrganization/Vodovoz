@@ -30,6 +30,28 @@ namespace Vodovoz.Domain.Documents
 		public virtual string DateString { get { return TimeStamp.ToShortDateString () + " " + TimeStamp.ToShortTimeString (); } }
 
 		public virtual string Number { get { return Id.ToString (); } }
+
+		#region static
+
+		public static Type GetDocClass(DocumentType docType)
+		{
+			switch(docType)
+			{
+				case DocumentType.IncomingInvoice:
+					return typeof(IncomingInvoice);
+				case DocumentType.IncomingWater:
+					return typeof(IncomingWater);
+				case DocumentType.MovementDocument:
+					return typeof(MovementDocument);
+				case DocumentType.WriteoffDocument:
+					return typeof(WriteoffDocument);
+				case DocumentType.CarLoadDocument:
+					return typeof(CarLoadDocument);
+			}
+			throw new NotSupportedException();
+		}
+
+		#endregion
 	}
 
 	public interface IDocument

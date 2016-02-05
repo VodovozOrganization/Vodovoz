@@ -113,14 +113,15 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			OrmMain.DeleteObject (tableDocuments.GetSelectedObjects () [0]);
+			var item = tableDocuments.GetSelectedObject<ViewModel.DocumentVMNode>();
+			if(OrmMain.DeleteObject (Document.GetDocClass(item.DocTypeEnum), item.Id))
+				tableDocuments.RepresentationModel.UpdateNodes ();
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)
 		{
 			hboxFilter.Visible = buttonFilter.Active;
 		}
-
 	}
 }
 
