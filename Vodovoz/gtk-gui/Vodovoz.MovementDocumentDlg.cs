@@ -14,7 +14,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable tableCommon;
 		
-		private global::Gtk.DataBindings.DataEnumComboBox enumMovementType;
+		private global::Gamma.Widgets.yEnumComboBox enumMovementType;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
@@ -132,20 +132,19 @@ namespace Vodovoz
 			this.tableCommon.InheritedDataSource = false;
 			this.tableCommon.InheritedBoundaryDataSource = false;
 			// Container child tableCommon.Gtk.Table+TableChild
-			this.enumMovementType = new global::Gtk.DataBindings.DataEnumComboBox ();
+			this.enumMovementType = new global::Gamma.Widgets.yEnumComboBox ();
 			this.enumMovementType.Name = "enumMovementType";
-			this.enumMovementType.InheritedBoundaryDataSource = false;
-			this.enumMovementType.InheritedDataSource = true;
-			this.enumMovementType.Mappings = "Category";
-			this.enumMovementType.InheritedBoundaryDataSource = false;
-			this.enumMovementType.InheritedDataSource = true;
-			this.enumMovementType.Mappings = "Category";
+			this.enumMovementType.ShowSpecialStateAll = false;
+			this.enumMovementType.ShowSpecialStateNot = false;
+			this.enumMovementType.UseShortTitle = false;
+			this.enumMovementType.DefaultFirst = true;
 			this.tableCommon.Add (this.enumMovementType);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableCommon [this.enumMovementType]));
 			w6.TopAttach = ((uint)(1));
 			w6.BottomAttach = ((uint)(2));
 			w6.LeftAttach = ((uint)(1));
 			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();

@@ -39,7 +39,6 @@ namespace Vodovoz
 			tableSender.DataSource = subjectAdaptor;
 			tableCommon.DataSource = subjectAdaptor;
 			tableReceiver.DataSource = subjectAdaptor;
-			enumMovementType.DataSource = subjectAdaptor;
 			referenceCounterpartyTo.SubjectType = typeof(Counterparty);
 			referenceCounterpartyFrom.SubjectType = typeof(Counterparty);
 			referenceCounterpartyTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<Counterparty> ()
@@ -53,6 +52,10 @@ namespace Vodovoz
 			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceEmployee.SubjectType = typeof(Employee);
+
+			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
+			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+
 			movementdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
 

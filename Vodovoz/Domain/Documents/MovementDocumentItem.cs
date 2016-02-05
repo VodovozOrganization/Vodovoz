@@ -2,6 +2,8 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Store;
+using System;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -22,8 +24,11 @@ namespace Vodovoz.Domain.Documents
 			get { return nomenclature; }
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
-				if (WarehouseMovementOperation.Nomenclature != nomenclature)
+				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Nomenclature != nomenclature)
 					WarehouseMovementOperation.Nomenclature = nomenclature;
+
+				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Nomenclature != nomenclature)
+					CounterpartyMovementOperation.Nomenclature = nomenclature;
 			}
 		}
 
@@ -34,8 +39,11 @@ namespace Vodovoz.Domain.Documents
 			get { return equipment; }
 			set {
 				SetField (ref equipment, value, () => Equipment);
-				if (WarehouseMovementOperation.Equipment != equipment)
+				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Equipment != equipment)
 					WarehouseMovementOperation.Equipment = equipment;
+
+				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Equipment != equipment)
+					CounterpartyMovementOperation.Equipment = equipment;
 			}
 		}
 
@@ -47,8 +55,11 @@ namespace Vodovoz.Domain.Documents
 			get { return amount; }
 			set {
 				SetField (ref amount, value, () => Amount);
-				if (WarehouseMovementOperation.Amount != amount)
+				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Amount != amount)
 					WarehouseMovementOperation.Amount = amount;
+
+				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Amount != amount)
+					CounterpartyMovementOperation.Amount = amount;
 			}
 		}
 
@@ -75,21 +86,53 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null && !Nomenclature.Serial; }
 		}
 
-		WarehouseMovementOperation warehouseMovementOperation = new WarehouseMovementOperation ();
+		WarehouseMovementOperation warehouseMovementOperation;
 
 		public WarehouseMovementOperation WarehouseMovementOperation {
 			get { return warehouseMovementOperation; }
 			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
 		}
 
-		CounterpartyMovementOperation counterpartyMovementOperation = new CounterpartyMovementOperation ();
+		CounterpartyMovementOperation counterpartyMovementOperation;
 
 		public CounterpartyMovementOperation CounterpartyMovementOperation {
 			get { return counterpartyMovementOperation; }
 			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
 		}
 
+		#region Функции
 
+		public void CreateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time)
+		{
+			CounterpartyMovementOperation = null;
+			WarehouseMovementOperation = new WarehouseMovementOperation
+				{
+					WriteoffWarehouse = warehouseSrc,
+					IncomingWarehouse = warehouseDst,
+					Amount = Amount,
+					OperationTime = time,
+					Nomenclature = Nomenclature,
+					Equipment = Equipment
+				};
+		}
+
+		public void CreateOperation(Counterparty counterpartySrc, DeliveryPoint pointSrc, Counterparty counterpartyDst, DeliveryPoint pointDst, DateTime time)
+		{
+			WarehouseMovementOperation = null;
+			CounterpartyMovementOperation = new CounterpartyMovementOperation
+				{
+					IncomingCounterparty = counterpartyDst,
+					IncomingDeliveryPoint = pointDst,
+					WriteoffCounterparty = counterpartySrc,
+					WriteoffDeliveryPoint = pointSrc,
+					Amount = Amount,
+					OperationTime = time,
+					Nomenclature = Nomenclature,
+					Equipment = Equipment
+				};
+		}
+
+		#endregion
 	}
 }
 
