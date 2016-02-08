@@ -59,11 +59,11 @@ WHERE order_items.order_id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET lc_time_names = 'ru_RU';
 SELECT 
-orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d %M %Yг.') AS order_date,
+orders.id AS order_id, orders.delivery_date AS order_date,
 counterparty_contract.number AS contract_number, DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
 counterparty.full_name AS client_name, counterparty.jur_address AS client_address, counterparty.inn AS client_inn, counterparty.kpp AS client_kpp, organizations.full_name AS org_name, organizations.jur_address as org_address, organizations.INN AS org_inn, organizations.KPP AS org_kpp,
 buhgalter.last_name AS buh_last_name, LEFT(buhgalter.name, 1) AS buh_name, LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
@@ -82,10 +82,22 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
@@ -143,18 +155,6 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <DataField>leader_patronymic</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="order_date">
-          <DataField>order_date</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="contract_number">
-          <DataField>contract_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="contract_date">
-          <DataField>contract_date</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -170,8 +170,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
       <List Name="List2">
         <Height>167.90pt</Height>
         <Width>664.81pt</Width>
-        <Left>145.8pt</Left>
-        <Top>2.0pt</Top>
+        <Left>145.80pt</Left>
+        <Top>2.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox5">
             <Height>12.00pt</Height>
@@ -386,6 +386,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <Format >dd MMMM yyyy г.</Format>
             </Style>
           </Textbox>
           <Textbox Name="Textbox40">
@@ -754,28 +755,53 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
               <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
+          <CustomReportItem Name="CustomReportItem1" >
+            <Type>BarCode39</Type>
+            <Height>27.16pt</Height>
+            <Width>141.03pt</Width>
+            <CustomProperties>
+              <CustomProperty>
+                <Name>Code</Name>
+                <Value>=Format({order_date}, "ddMMyy")+ "-"+ {order_id}</Value>
+              </CustomProperty>
+            </CustomProperties>
+            <Left>322.50pt</Left>
+            <Top>17.50pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+            <ZIndex>1</ZIndex>
+          </CustomReportItem>
         </ReportItems>
         <Style>
-          <BorderStyle />
+          <BorderStyle>
+            <Default >Dashed</Default>
+            <Left >Dashed</Left>
+            <Right >Dashed</Right>
+            <Top >Dashed</Top>
+            <Bottom >Dashed</Bottom>
+          </BorderStyle>
           <BorderColor />
           <BorderWidth />
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
       <Textbox Name="Textbox45">
-        <Height>28.65pt</Height>
-        <Width>228.37pt</Width>
+        <Height>25.64pt</Height>
+        <Width>199.00pt</Width>
         <Value>Приложение №1
 к постановлению Правительства Российской Федерации
 от 26 декабря 2011 г. № 1137</Value>
         <ZIndex>1</ZIndex>
-        <Left>561.9pt</Left>
-        <Top>17.8pt</Top>
+        <Left>599.27pt</Left>
+        <Top>12.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <FontSize>8pt</FontSize>
+          <FontSize>7pt</FontSize>
           <TextAlign>Right</TextAlign>
         </Style>
       </Textbox>
