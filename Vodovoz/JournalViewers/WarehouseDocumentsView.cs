@@ -60,6 +60,9 @@ namespace Vodovoz
 			case DocumentType.CarLoadDocument:
 				TabParent.AddTab(new ReadyForShipmentView(), this, false);
 				return;
+			case DocumentType.CarUnloadDocument:
+				TabParent.AddTab(new ReadyForReceptionView(), this, false);
+				return;
 			default:
 				throw new NotSupportedException ("Тип документа не поддерживается.");
 			}
@@ -103,6 +106,18 @@ namespace Vodovoz
 						};
 
 						TabParent.AddTab (new QSReport.ReportViewDlg (reportInfo) , this);
+						return;
+					case DocumentType.CarUnloadDocument:
+						var unloadDoc = uow.GetById<CarUnloadDocument>(id);
+						var unloadReportInfo = new QSReport.ReportInfo {
+							Title = unloadDoc.Title,
+							Identifier = "Store.CarUnloadDoc",
+							Parameters = new System.Collections.Generic.Dictionary<string, object> {
+								{ "id",  id }
+							}
+						};
+
+						TabParent.AddTab (new QSReport.ReportViewDlg (unloadReportInfo) , this);
 						return;
 				default:
 					return;

@@ -40,6 +40,7 @@ namespace Vodovoz.ViewModel
 			Warehouse secondWarehouseAlias = null;
 
 			CarLoadDocument loadCarAlias = null;
+			CarUnloadDocument unloadCarAlias = null;
 			RouteList routeListAlias = null;
 			Car carAlias = null;
 			Employee driverAlias = null;
@@ -176,6 +177,28 @@ namespace Vodovoz.ViewModel
 				result.AddRange (carLoadList);
 			}
 
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.CarUnloadDocument) {
+				var carUnloadList = UoW.Session.QueryOver<CarUnloadDocument> (() => unloadCarAlias)
+					.JoinQueryOver (() => unloadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => unloadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver (() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => unloadCarAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => unloadCarAlias.TimeStamp).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.CarUnloadDocument).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => carAlias.Model).WithAlias (() => resultAlias.CarModel)
+						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.CarNumber)
+						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DirverSurname)
+						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
+						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode> ();
+
+				result.AddRange (carUnloadList);
+			}
+
 			result.Sort ((x, y) => { 
 				if (x.Date > y.Date)
 					return 1;
@@ -265,6 +288,9 @@ namespace Vodovoz.ViewModel
 						return Counterparty != null ? String.Format("Самовывоз клиента: {0}", Counterparty)
 								: String.Format("Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
 									StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic));
+					case DocumentType.CarUnloadDocument:
+						return String.Format("Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
+							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic));
 				default:
 					return "";
 				}

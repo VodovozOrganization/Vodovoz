@@ -191,6 +191,13 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual void Receive(){
+			Status = RouteListStatus.ReadyToReport;
+			foreach (var item in Addresses) {
+				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
+			}
+		}
+
 		public virtual void ConfirmMileage()
 		{
 			Status = RouteListStatus.Closed;

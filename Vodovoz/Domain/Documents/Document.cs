@@ -72,7 +72,9 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Акт списания")]
 		WriteoffDocument,
 		[Display (Name = "Талон погрузки")]
-		CarLoadDocument
+		CarLoadDocument,
+		[Display (Name = "Талон разгрузки")]
+		CarUnloadDocument
 	}
 
 	public class DocumentTypeStringType : NHibernate.Type.EnumStringType
