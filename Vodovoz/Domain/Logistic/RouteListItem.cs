@@ -178,7 +178,11 @@ namespace Vodovoz.Domain.Logistic
 			bool withForwarder = RouteList.Forwarder!=null;
 			var rates = Wages.GetDriverRates(withForwarder);
 
+			if (Status != RouteListItemStatus.Completed)
+				return 0;
+			
 			var firstOrderForAddress = RouteList.Addresses
+				.Where(address=>address.Status==RouteListItemStatus.Completed)
 				.Select(item => item.Order)
 				.First(ord => ord.DeliveryPoint.Id == Order.DeliveryPoint.Id).Id == Order.Id;
 
@@ -221,6 +225,10 @@ namespace Vodovoz.Domain.Logistic
 				.Sum(item => item.Count);
 			if (WithoutForwarder)
 				return 0;
+
+			if (Status != RouteListItemStatus.Completed)
+				return 0;
+			
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
 			var bottleCollectionOrder = Order.CollectBottles;
