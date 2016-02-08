@@ -37,6 +37,8 @@ namespace Vodovoz.Domain.Documents
 				SetField (ref amount, value, () => Amount);
 				if (ProduceOperation.Amount != Amount)
 					ProduceOperation.Amount = Amount;
+				if (!NHibernate.NHibernateUtil.IsInitialized(Materials))
+					return;
 				foreach (var item in Materials) {
 					if (item.OneProductAmount.HasValue)
 						item.Amount = item.OneProductAmount.Value * Amount;
@@ -66,7 +68,7 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref writeOffWarehouse, value, () => WriteOffWarehouse); 
 				foreach (var item in Materials) {
-					if (item.ConsumptionMaterialOperation.WriteoffWarehouse != WriteOffWarehouse)
+					if (item.ConsumptionMaterialOperation != null && item.ConsumptionMaterialOperation.WriteoffWarehouse != WriteOffWarehouse)
 						item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
 				}
 			}
@@ -120,14 +122,30 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public void AddMaterial (IncomingWaterMaterial item)
+		public void AddMaterial (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
-			item.ConsumptionMaterialOperation.WriteoffWarehouse = WriteOffWarehouse;
-			item.ConsumptionMaterialOperation.OperationTime = TimeStamp;
-			item.Document = this;
+			var item = new IncomingWaterMaterial{
+				Document = this,
+				Nomenclature = nomenclature,
+				Amount = amount,
+				AmountOnSource = inStock,
+			};
+			item.CreateOperation(WriteOffWarehouse, TimeStamp);
 			ObservableMaterials.Add (item);
 		}
 
+		public void AddMaterial (ProductSpecificationMaterial material)
+		{
+			var item = new IncomingWaterMaterial{
+				Document = this,
+				Nomenclature = material.Material,
+				OneProductAmount = material.Amount,
+			};
+			item.CreateOperation(WriteOffWarehouse, TimeStamp);
+			ObservableMaterials.Add (item);
+		}
+
+	
 	}
 }
 

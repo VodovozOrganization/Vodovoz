@@ -66,7 +66,7 @@ namespace Vodovoz
 			UoWGeneric.Root.Product = spec.Product;
 			UoWGeneric.Root.ObservableMaterials.Clear ();
 			foreach (var material in spec.Materials) {
-				UoWGeneric.Root.AddMaterial (new IncomingWaterMaterial (UoWGeneric.Root, material));
+				UoWGeneric.Root.AddMaterial (material);
 			}
 		}
 	}

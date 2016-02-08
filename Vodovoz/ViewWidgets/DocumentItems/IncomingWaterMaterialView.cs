@@ -106,11 +106,7 @@ namespace Vodovoz
 		void NomenclatureSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
-			DocumentUoW.Root.AddMaterial (new IncomingWaterMaterial { 
-				Nomenclature = nomenctature,
-				AmountOnSource = (e.VMNode as ViewModel.StockBalanceVMNode).Amount,
-				Amount = 1
-			});
+			DocumentUoW.Root.AddMaterial (nomenctature, 1 , (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
 		}
 
 		void CalculateTotal ()

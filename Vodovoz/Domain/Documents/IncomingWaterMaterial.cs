@@ -2,6 +2,8 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Store;
+using System;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -21,7 +23,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set { SetField (ref nomenclature, value, () => Nomenclature);
-				if (ConsumptionMaterialOperation.Nomenclature != nomenclature)
+				if (ConsumptionMaterialOperation != null && ConsumptionMaterialOperation.Nomenclature != nomenclature)
 					ConsumptionMaterialOperation.Nomenclature = nomenclature;
 			}
 		}
@@ -32,7 +34,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal? OneProductAmount {
 			get { return oneProductAmount; }
 			set { SetField (ref oneProductAmount, value, () => OneProductAmount);
-				if(oneProductAmount.HasValue)
+				if(oneProductAmount.HasValue && Document != null)
 				{
 					Amount = OneProductAmount.Value * Document.Amount;
 				}
@@ -52,7 +54,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual decimal Amount {
 			get { return amount; }
 			set { SetField (ref amount, value, () => Amount);
-				if (ConsumptionMaterialOperation.Amount != amount)
+				if (ConsumptionMaterialOperation != null && ConsumptionMaterialOperation.Amount != amount)
 					ConsumptionMaterialOperation.Amount = amount;
 			}
 		}
@@ -72,7 +74,7 @@ namespace Vodovoz.Domain.Documents
 			get { return Nomenclature != null ? Nomenclature.Name : ""; }
 		}
 
-		WarehouseMovementOperation consumptionMaterialOperation = new WarehouseMovementOperation ();
+		WarehouseMovementOperation consumptionMaterialOperation;
 
 		public WarehouseMovementOperation ConsumptionMaterialOperation {
 			get { return consumptionMaterialOperation; }
@@ -81,12 +83,20 @@ namespace Vodovoz.Domain.Documents
 
 		public IncomingWaterMaterial() {}
 
-		public IncomingWaterMaterial(IncomingWater doc, ProductSpecificationMaterial specMaterial)
+		#region Функции
+
+		public void CreateOperation(Warehouse warehouseSrc, DateTime time)
 		{
-			Document = doc;
-			Nomenclature = specMaterial.Material;
-			OneProductAmount = specMaterial.Amount;
+			ConsumptionMaterialOperation = new WarehouseMovementOperation
+				{
+					WriteoffWarehouse = warehouseSrc,
+					Amount = Amount,
+					OperationTime = time,
+					Nomenclature = Nomenclature
+				};
 		}
+
+		#endregion
 	}
 }
 
