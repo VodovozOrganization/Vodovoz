@@ -190,7 +190,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var fullBottleCount = Order.OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.Sum(item => item.Count);
+				.Sum(item => item.ActualCount);
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
 
 			var bottleCollectionOrder = Order.CollectBottles;
@@ -222,7 +222,7 @@ namespace Vodovoz.Domain.Logistic
 			var rates = Wages.GetForwarderRates();
 			var fullBottleCount = Order.OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.Sum(item => item.Count);
+				.Sum(item => item.ActualCount);
 			if (WithoutForwarder)
 				return 0;
 
