@@ -204,7 +204,14 @@ namespace Vodovoz.Domain.Logistic
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items ["NewStatus"];
 				if (newStatus == RouteListStatus.Ready) {
 				}
+				if (newStatus == RouteListStatus.Closed)
+				{
+					if (ConfirmedDistance <= 0)
+						yield return new ValidationResult("Подтвержденное расстояние не может быть меньше 0",
+							new[] {Gamma.Utilities.PropertyUtil.GetPropertyName(this, o=>o.ConfirmedDistance)});
+				}
 			}
+
 
 			if (Shift == null)
 				yield return new ValidationResult ("Смена маршрутного листа должна быть заполнена.",

@@ -8,6 +8,7 @@ using Gamma.GtkWidgets;
 using Gtk;
 using System.Linq;
 using Vodovoz.Repository.Logistics;
+using QSValidation;
 
 namespace Vodovoz
 {
@@ -96,10 +97,19 @@ namespace Vodovoz
 
 		protected void OnButtonCloseRouteListClicked (object sender, EventArgs e)
 		{
-			Entity.ConfirmMileage();
-			buttonCloseRouteList.Sensitive = false;
+			var valid = new QSValidator<RouteList>(Entity, 
+				             new Dictionary<object, object>
+				{
+					{ "NewStatus", RouteListStatus.Closed }
+				});
+			if (valid.RunDlgIfNotValid((Window)this.Toplevel))
+				return;
+
 			yspinConfirmedDistance.Sensitive = false;
 			buttonConfirm.Sensitive = false;
+			buttonCloseRouteList.Sensitive = false;
+
+			Entity.ConfirmMileage();
 		}
 	}
 }
