@@ -112,6 +112,8 @@ namespace Vodovoz
 			}
 			var colorBlack = new Gdk.Color (0, 0, 0);
 			var colorBlue = new Gdk.Color (0, 0, 0xff);
+			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			config
 				.AddColumn("Пустых бутылей")
 					.AddNumericRenderer(node => node.BottlesReturned).Editing(true).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
@@ -138,10 +140,12 @@ namespace Vodovoz
 						.AddSetter((cell, node) => cell.Visible = !node.WithoutForwarder)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedForwarderWage() ? colorBlue : colorBlack)
-						.AddSetter((c,node)=>c.Alignment=Pango.Alignment.Right)
+						.AddSetter((c, node) => c.Alignment = Pango.Alignment.Right)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-						.AddSetter((cell,node)=>cell.Visible=!node.WithoutForwarder)
-				.AddColumn("").AddTextRenderer();
+						.AddSetter((cell, node) => cell.Visible = !node.WithoutForwarder)
+				.AddColumn("").AddTextRenderer()
+				.RowCells()
+				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.Status==RouteListItemStatus.Completed ? colorWhite : colorRed);
 			ytreeviewItems.ColumnsConfig = config.Finish();
 		}
 
@@ -187,8 +191,12 @@ namespace Vodovoz
 
 		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
 		{
-			var dlg = new OrderReturnsView(ytreeviewItems.GetSelectedObject() as RouteListItem);
-			MyTab.TabParent.AddSlaveTab(MyTab, dlg);
+			var node = ytreeviewItems.GetSelectedObject() as RouteListItem;
+			if (node.Status == RouteListItemStatus.Completed)
+			{
+				var dlg = new OrderReturnsView(ytreeviewItems.GetSelectedObject() as RouteListItem);
+				MyTab.TabParent.AddSlaveTab(MyTab, dlg);
+			}
 		}
 	}
 
