@@ -83,6 +83,11 @@ namespace Vodovoz
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = routelist;
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
+			foreach (RouteListItem item in routeListAddressesView.Items)
+			{
+				item.Order.ObservableOrderItems.ElementChanged += OnOrderReturnsChanged;
+				item.Order.ObservableOrderEquipments.ElementChanged += OnOrderReturnsChanged;
+			}
 			Initialize(routeListAddressesView.Items);
 
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
@@ -110,9 +115,18 @@ namespace Vodovoz
 		}
 
 		void OnRouteListItemChanged (object aList, int[] aIdx)
-		{
+		{			
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
+			CalculateTotal();
+		}
+
+		void OnOrderReturnsChanged(object aList, int[] aIdx)
+		{
+			foreach (var item in routeListAddressesView.Items)
+			{
+				(item as RouteListItem).RecalculateWages();
+			}
 			CalculateTotal();
 		}
 
