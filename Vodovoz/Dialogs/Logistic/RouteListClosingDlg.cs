@@ -309,6 +309,7 @@ namespace Vodovoz
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
 			Save();
+			buttonAccept.Sensitive = false;
 		}
 
 		public List<TotalReturnsNode> GetReturnsToWarehouseByCategory(int routeListId,NomenclatureCategory[] categories)
