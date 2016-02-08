@@ -59,15 +59,12 @@ namespace Vodovoz
 					routeList.Addresses = new List<RouteListItem> ();				
 				UpdateNodes();
 
-				routeList.ObservableAddresses.ElementChanged += Items_ElementChanged;
 				routeList.ObservableAddresses.ListChanged += Items_ListChanged;
 
 				UpdateColumns ();
 
 				ytreeviewItems.ItemsDataSource = Items;
 				ytreeviewItems.Reorderable = true;
-
-				CalculateTotal ();	
 			}
 		}
 
@@ -137,56 +134,23 @@ namespace Vodovoz
 				.AddColumn("ЗП экспедитора") 
 					.AddNumericRenderer(node => node.ForwarderWage)
 						.AddSetter((cell, node) => cell.Editable = !node.WithoutForwarder)
-						.AddSetter((cell, node) => cell.Visible = !node.WithoutForwarder)
+						.AddSetter((cell,node)=>cell.Sensitive = !node.WithoutForwarder)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedForwarderWage() ? colorBlue : colorBlack)
 						.AddSetter((c, node) => c.Alignment = Pango.Alignment.Right)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-						.AddSetter((cell, node) => cell.Visible = !node.WithoutForwarder)
+						.AddSetter((cell,node)=>cell.Sensitive = !node.WithoutForwarder)
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.Status==RouteListItemStatus.Completed ? colorWhite : colorRed);
 			ytreeviewItems.ColumnsConfig = config.Finish();
 		}
 
-		void Items_ElementChanged (object aList, int[] aIdx)
-		{
-			var item = Items[aIdx[0]];
-			item.RecalculateWages();
-			CalculateTotal ();
-		}
+
 
 		public RouteListClosingItemsView ()
 		{
 			this.Build ();
-			ytreeviewItems.Selection.Changed += OnSelectionChanged;
-		}
-
-		void OnSelectionChanged (object sender, EventArgs e)
-		{
-			
-		}
-
-		void CalculateTotal ()
-		{
-			int bottlesReturnedTotal = Items.Sum(item => item.BottlesReturned);
-			decimal depositsCollectedTotal = Items.Sum(item => item.DepositsCollected);
-			decimal total = Items.Sum(item => item.TotalCash);
-			decimal driverWage = Items.Sum(item => item.DriverWage);
-			decimal forwarderWage = Items.Sum(item => item.ForwarderWage);
-			labelTotal.Text = String.Format(
-				"Итого бутылей:{0}\tИтого залогов:{1}{3}\tИтого(нал.):{2}{3}",
-				bottlesReturnedTotal,
-				depositsCollectedTotal,
-				total,
-				CurrencyWorks.CurrencyShortName
-			);
-			labelWage.Text = String.Format(
-				"Зарплата водителя:{0}{2}\tЗарплата экспедитора:{1}{2}",
-				driverWage,
-				forwarderWage,
-				CurrencyWorks.CurrencyShortName
-			);
 		}
 
 		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)

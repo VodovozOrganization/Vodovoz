@@ -82,6 +82,7 @@ namespace Vodovoz
 
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = routelist;
+			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			Initialize(routeListAddressesView.Items);
 
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
@@ -106,6 +107,61 @@ namespace Vodovoz
 				routeListItem.BottlesReturned = routeListItem.Order.BottlesReturn;
 				routeListItem.TotalCash = routeListItem.Order.SumToReceive;
 			}
+		}
+
+		void OnRouteListItemChanged (object aList, int[] aIdx)
+		{
+			var item = routeListAddressesView.Items[aIdx[0]];
+			item.RecalculateWages();
+			CalculateTotal();
+		}
+
+		void CalculateTotal ()
+		{
+			var Items = routeListAddressesView.Items;
+			int bottlesReturnedTotal = Items.Sum(item => item.BottlesReturned);
+			int fullBottlesTotal = Items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum(item => item.ActualCount);
+			decimal depositsCollectedTotal = Items.Sum(item => item.DepositsCollected);
+			decimal totalCollected = Items.Sum(item => item.TotalCash);
+			decimal driverWage = Items.Sum(item => item.DriverWage);
+			decimal forwarderWage = Items.Sum(item => item.ForwarderWage);
+			int addressCount = Items.Count(item => item.Status == RouteListItemStatus.Completed);
+			decimal phoneSum = Wages.GetDriverRates().PhoneServiceCompensationRate * addressCount;
+			labelAddressCount.Text = String.Format("Адресов:{0}", addressCount);
+			labelPhone.Text = String.Format(
+				"Сот. связь:{0} {1}",
+				phoneSum,
+				CurrencyWorks.CurrencyShortName
+			);
+			labelFullBottles.Text = String.Format("Полн. бутылей:{0}", fullBottlesTotal);
+			labelEmptyBottles.Text = String.Format("Пуст. бутылей:{0}", bottlesReturnedTotal);
+			labelDeposits.Text = String.Format(
+				"Залогов:{0} {1}",
+				depositsCollectedTotal,
+				CurrencyWorks.CurrencyShortName
+			);
+			labelCash.Text = String.Format(
+				"Итого(нал.){0} {1}", 
+				totalCollected,
+				CurrencyWorks.CurrencyShortName
+			);
+			labelTotalCollected.Text = String.Format(
+				"Итого сдано:{0} {1}", 
+				totalCollected + depositsCollectedTotal,
+				CurrencyWorks.CurrencyShortName
+			);
+			labelTotal.Markup = String.Format(
+				"Итого: <b>{0}</b> {1}",
+				totalCollected+depositsCollectedTotal-phoneSum,
+				CurrencyWorks.CurrencyShortName
+			);
+			labelWage1.Markup = String.Format(
+				"Зарплата водителя:<b>{0}</b> {2}" + "  " + "Зарплата экспедитора:<b>{1}</b> {2}", 
+				driverWage,
+				forwarderWage,
+				CurrencyWorks.CurrencyShortName
+			);
 		}
 			
 		protected bool FindNomenclatureDiscrepancy(

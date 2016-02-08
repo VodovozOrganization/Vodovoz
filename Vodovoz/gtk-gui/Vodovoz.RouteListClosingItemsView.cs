@@ -17,16 +17,6 @@ namespace Vodovoz
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewItems;
 		
 		private global::Gtk.Label GtkLabel;
-		
-		private global::Gtk.HBox hbox1;
-		
-		private global::Gtk.Label labelTotal;
-		
-		private global::Gtk.VSeparator vseparator1;
-		
-		private global::Gtk.Label labelWage;
-		
-		private global::Gtk.Label labelSum;
 
 		protected virtual void Build ()
 		{
@@ -72,52 +62,6 @@ namespace Vodovoz
 			this.vbox1.Add (this.hbox3);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
 			w5.Position = 0;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.labelTotal = new global::Gtk.Label ();
-			this.labelTotal.Name = "labelTotal";
-			this.labelTotal.LabelProp = global::Mono.Unix.Catalog.GetString ("Итого:");
-			this.hbox1.Add (this.labelTotal);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelTotal]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.vseparator1 = new global::Gtk.VSeparator ();
-			this.vseparator1.Name = "vseparator1";
-			this.hbox1.Add (this.vseparator1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vseparator1]));
-			w7.Position = 1;
-			w7.Expand = false;
-			w7.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.labelWage = new global::Gtk.Label ();
-			this.labelWage.Name = "labelWage";
-			this.labelWage.LabelProp = global::Mono.Unix.Catalog.GetString ("Зарплата:");
-			this.hbox1.Add (this.labelWage);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelWage]));
-			w8.PackType = ((global::Gtk.PackType)(1));
-			w8.Position = 2;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.labelSum = new global::Gtk.Label ();
-			this.labelSum.Name = "labelSum";
-			this.labelSum.Xalign = 1F;
-			this.hbox1.Add (this.labelSum);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelSum]));
-			w9.PackType = ((global::Gtk.PackType)(1));
-			w9.Position = 3;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w10.Position = 1;
-			w10.Expand = false;
-			w10.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
