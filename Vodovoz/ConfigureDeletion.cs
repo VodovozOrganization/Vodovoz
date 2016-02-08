@@ -34,7 +34,8 @@ namespace Vodovoz
 				.AddDeleteDependence<IncomingInvoiceItem> (item => item.Nomenclature)
 				.AddDeleteDependence<IncomingWater>(x => x.Product)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.Nomenclature)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.Nomenclature);
+				.AddDeleteDependence<MovementDocumentItem>(x => x.Nomenclature)
+				.AddDeleteDependence<WriteoffDocumentItem>(x => x.Nomenclature);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(EquipmentColors),
@@ -66,7 +67,8 @@ namespace Vodovoz
 				.AddDeleteDependence<PaidRentEquipment> (item => item.Equipment)
 				.AddDeleteDependence<WarehouseMovementOperation> (item => item.Equipment)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.Equipment)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.Equipment);
+				.AddDeleteDependence<MovementDocumentItem>(x => x.Equipment)
+				.AddDeleteDependence<WriteoffDocumentItem>(x => x.Equipment);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(Manufacturer),
@@ -101,7 +103,11 @@ namespace Vodovoz
 				.AddDeleteDependence<IncomingWater>(x => x.IncomingWarehouse)
 				.AddDeleteDependence<IncomingWater>(x => x.WriteOffWarehouse)
 				.AddDeleteDependence<MovementDocument>(x => x.FromWarehouse)
-				.AddDeleteDependence<MovementDocument>(x => x.ToWarehouse);
+				.AddDeleteDependence<MovementDocument>(x => x.ToWarehouse)
+				.AddDeleteDependence<WarehouseMovementOperation>(x => x.IncomingWarehouse)
+				.AddDeleteDependence<WarehouseMovementOperation>(x => x.WriteoffWarehouse)
+				.AddDeleteDependence<WriteoffDocument>(x => x.WriteoffWarehouse)
+				.AddClearDependence<Nomenclature>(x => x.Warehouse);
 
 			DeleteConfig.AddHibernateDeleteInfo<CullingCategory>()
 				.AddClearDependence<WriteoffDocumentItem>(x => x.CullingCategory);
@@ -127,34 +133,28 @@ namespace Vodovoz
 
 			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Organization> (item => item.DefaultAccount));
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Employee),
-				SqlSelect = "SELECT id, last_name, name, patronymic FROM @tablename ",
-				DisplayString = "{1} {2} {3}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.CreateFromBag<Employee> (item => item.Phones),
-					DeleteDependenceInfo.CreateFromBag<Employee> (item => item.Accounts),
-					DeleteDependenceInfo.Create<Income> (item => item.Casher),
-					DeleteDependenceInfo.Create<Expense> (item => item.Casher),
-					DeleteDependenceInfo.Create<AdvanceReport> (item => item.Casher),
-					DeleteDependenceInfo.Create<AdvanceReport> (item => item.Accountable),
-				},
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<Car> (item => item.Driver),
-					ClearDependenceInfo.Create<Counterparty> (item => item.Accountant),
-					ClearDependenceInfo.Create<Counterparty> (item => item.SalesManager),
-					ClearDependenceInfo.Create<Counterparty> (item => item.BottlesManager),
-					ClearDependenceInfo.Create<MovementDocument> (item => item.ResponsiblePerson),
-					ClearDependenceInfo.Create<WriteoffDocument> (item => item.ResponsibleEmployee),
-					ClearDependenceInfo.Create<Organization> (item => item.Leader),
-					ClearDependenceInfo.Create<Organization> (item => item.Buhgalter),
-					ClearDependenceInfo.Create<Income> (item => item.Employee),
-					ClearDependenceInfo.Create<Expense> (item => item.Employee),
-					ClearDependenceInfo.Create<AccountExpense> (item => item.Employee),
-					ClearDependenceInfo.Create<CarLoadDocument> (item => item.Storekeeper),
-				}
-			}.FillFromMetaInfo ()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<Employee>()
+				.AddDeleteDependenceFromBag (item => item.Phones)
+				.AddDeleteDependenceFromBag(item => item.Accounts)
+				.AddDeleteDependence<Income> (item => item.Casher)
+				.AddDeleteDependence<Expense> (item => item.Casher)
+				.AddDeleteDependence<AdvanceReport> (item => item.Casher)
+				.AddDeleteDependence<AdvanceReport> (item => item.Accountable)
+				.AddDeleteDependence<RouteList>(x => x.Driver)
+				.AddDeleteDependence<RouteList>(x => x.Forwarder)
+				.AddDeleteDependence<RouteList>(x => x.Logistican)
+				.AddClearDependence<Car> (item => item.Driver)
+				.AddClearDependence<Counterparty> (item => item.Accountant)
+				.AddClearDependence<Counterparty> (item => item.SalesManager)
+				.AddClearDependence<Counterparty> (item => item.BottlesManager)
+				.AddClearDependence<MovementDocument> (item => item.ResponsiblePerson)
+				.AddClearDependence<WriteoffDocument> (item => item.ResponsibleEmployee)
+				.AddClearDependence<Organization> (item => item.Leader)
+				.AddClearDependence<Organization> (item => item.Buhgalter)
+				.AddClearDependence<Income> (item => item.Employee)
+				.AddClearDependence<Expense> (item => item.Employee)
+				.AddClearDependence<AccountExpense> (item => item.Employee)
+				.AddClearDependence<CarLoadDocument> (item => item.Storekeeper);
 
 			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Employee> (item => item.DefaultAccount));
 
@@ -300,29 +300,23 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 				
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(DeliveryPoint),
-				SqlSelect = "SELECT id, compiled_address FROM @tablename ",
-				DisplayString = "{1}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.Create<AdditionalAgreement> (item => item.DeliveryPoint),
-					DeleteDependenceInfo.Create<BottlesMovementOperation> (item => item.DeliveryPoint),
-					DeleteDependenceInfo.Create<DepositOperation> (item => item.DeliveryPoint),
-					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.WriteoffDeliveryPoint),
-					DeleteDependenceInfo.Create<CounterpartyMovementOperation> (item => item.IncomingDeliveryPoint),
-					DeleteDependenceInfo.Create<Proxy> (item => item.DeliveryPoint)
-				}
-			}.FillFromMetaInfo ()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryPoint>()
+				.AddDeleteDependence<AdditionalAgreement> (item => item.DeliveryPoint)
+				.AddDeleteDependence<BottlesMovementOperation> (item => item.DeliveryPoint)
+				.AddDeleteDependence<DepositOperation> (item => item.DeliveryPoint)
+				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.WriteoffDeliveryPoint)
+				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.IncomingDeliveryPoint)
+				.AddDeleteDependence<Proxy> (item => item.DeliveryPoint)
+				.AddDeleteDependence<MovementDocument>(x => x.FromDeliveryPoint)
+				.AddDeleteDependence<MovementDocument>(x => x.ToDeliveryPoint)
+				.AddDeleteDependence<WriteoffDocument>(x => x.DeliveryPoint);
+			
 			#endregion
 				
 			#region Logistics
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Car),
-				SqlSelect = "SELECT id, model, reg_number FROM @tablename ",
-				DisplayString = "Автомобиль {1} ({2})"
-			}.FillFromMetaInfo ()
-			);
+
+			DeleteConfig.AddHibernateDeleteInfo<Car>()
+				.AddDeleteDependence<RouteList>(x => x.Car);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelType>()
 				.AddClearDependence<Car>(x => x.FuelType);
@@ -340,7 +334,8 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 
-			DeleteConfig.AddHibernateDeleteInfo<DeliveryShift>();
+			DeleteConfig.AddHibernateDeleteInfo<DeliveryShift>()
+				.AddClearDependence<RouteList>(x => x.Shift);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(LogisticsArea),
@@ -354,6 +349,9 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteList>()
 				.AddDeleteDependence<CarLoadDocument>(x => x.RouteList);
+
+			DeleteConfig.AddHibernateDeleteInfo<RouteColumn>()
+				.AddClearDependence<Nomenclature>(x => x.RouteListColumn);
 
 			#endregion
 
@@ -460,10 +458,12 @@ namespace Vodovoz
 				.AddDeleteDependence<IncomingInvoiceItem>(x => x.IncomeGoodsOperation)
 				.AddDeleteDependence<IncomingWater>(x => x.ProduceOperation)
 				.AddDeleteDependence<IncomingWaterMaterial>(x => x.ConsumptionMaterialOperation)
-				.AddDeleteDependence<MovementDocumentItem>(x => x.WarehouseMovementOperation);
+				.AddDeleteDependence<MovementDocumentItem>(x => x.WarehouseMovementOperation)
+				.AddDeleteDependence<WriteoffDocumentItem>(x => x.WarehouseWriteoffOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyMovementOperation>()
-				.AddDeleteDependence<MovementDocumentItem>(x => x.CounterpartyMovementOperation);
+				.AddDeleteDependence<MovementDocumentItem>(x => x.CounterpartyMovementOperation)
+				.AddDeleteDependence<WriteoffDocumentItem>(x => x.CounterpartyWriteoffOperation);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(MoneyMovementOperation),
