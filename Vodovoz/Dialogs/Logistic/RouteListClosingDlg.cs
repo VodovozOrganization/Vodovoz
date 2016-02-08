@@ -82,12 +82,12 @@ namespace Vodovoz
 
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = routelist;
-			InitializeWithNoReturns(routeListAddressesView.Items);
+			Initialize(routeListAddressesView.Items);
 
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
 		}
 
-		protected void InitializeWithNoReturns(IList<RouteListItem> items)
+		protected void Initialize(IList<RouteListItem> items)
 		{
 			foreach (var routeListItem in items)
 			{
@@ -96,13 +96,15 @@ namespace Vodovoz
 					.Where(item => !item.Nomenclature.Serial).ToList();
 				foreach(var item in nomenclatures)
 				{
-					item.ActualCount = item.Count;	
+					item.ActualCount = routeListItem.Status==RouteListItemStatus.Completed ? item.Count : 0;
 				}
-				var equipments = routeListItem.Order.OrderEquipments;					
+				var equipments = routeListItem.Order.OrderEquipments;
 				foreach(var item in equipments)
 				{
-					item.Confirmed = true;
+					item.Confirmed = routeListItem.Status==RouteListItemStatus.Completed;
 				}
+				routeListItem.BottlesReturned = routeListItem.Order.BottlesReturn;
+				routeListItem.TotalCash = routeListItem.Order.SumToReceive;
 			}
 		}
 			
