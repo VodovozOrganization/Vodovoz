@@ -37,6 +37,8 @@ namespace Vodovoz
 			{
 				worker.ReportProgress(step, (document as OrderDocument).Name);
 				Prepare(document);
+				if (worker.IsCancelled)
+					return;
 				step++;
 			}
 		}

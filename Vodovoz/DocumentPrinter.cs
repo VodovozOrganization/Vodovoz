@@ -27,11 +27,13 @@ namespace Vodovoz
 			var documentsRDL = documents.Where(doc=>doc.PrintType==PrinterType.RDL);
 			BatchRDLRenderer renderer = new BatchRDLRenderer(documentsRDL);
 
-			LongOperationDlg.StartOperation(
+			var result = LongOperationDlg.StartOperation(
 				renderer.PrepareDocuments,
 				"Подготовка к печати...",
 				documentsRDL.Count()
 			);
+			if (result == LongOperationResult.Canceled)
+				return;
 			
 			printOp.NPages = renderer.PageCount;
 
