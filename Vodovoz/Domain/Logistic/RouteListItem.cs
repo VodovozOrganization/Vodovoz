@@ -209,7 +209,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var contractCancelationPayment = bottleCollectionOrder ? rates.ContractCancelationRate : 0;
 			var emptyBottlesPayment = bottleCollectionOrder ? 0 : paymentPerEmptyBottle*bottlesReturned;
-			var smallFullBottlesPayment = rates.SmallFullBottleRate*Order.OrderItems.Count(item=>item.NomenclatureString=="Вода 6л");
+			var smallFullBottlesPayment = rates.SmallFullBottleRate*Order.OrderItems.Count(item=>item.Nomenclature.Category==NomenclatureCategory.disposableBottleWater);
 
 			var wage = equpmentPayment + largeFullBottlesPayment
 			           + contractCancelationPayment + emptyBottlesPayment
@@ -247,7 +247,7 @@ namespace Vodovoz.Domain.Logistic
 
 			var contractCancelationPayment = bottleCollectionOrder ? rates.ContractCancelationRate : 0;
 			var emptyBottlesPayment = bottleCollectionOrder ? 0 : paymentPerEmptyBottle*bottlesReturned;
-			var smallFullBottlesPayment = rates.SmallFullBottleRate*Order.OrderItems.Count(item=>item.NomenclatureString=="Вода 6л"); //TODO Fix
+			var smallFullBottlesPayment = rates.SmallFullBottleRate*Order.OrderItems.Count(item=>item.Nomenclature.Category==NomenclatureCategory.disposableBottleWater);
 
 			var wage = equpmentPayment + largeFullBottlesPayment 
 				+ contractCancelationPayment + emptyBottlesPayment 
