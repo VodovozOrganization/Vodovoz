@@ -100,6 +100,7 @@ namespace Vodovoz
 			var colorBlue = new Gdk.Color (0, 0, 0xff);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
+			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
 			config
 				.AddColumn("Пустых бутылей")
 					.AddNumericRenderer(node => node.BottlesReturned).Editing(true).Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
@@ -131,7 +132,21 @@ namespace Vodovoz
 						.AddSetter((cell,node)=>cell.Sensitive = !node.WithoutForwarder)
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
-				.AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.Status==RouteListItemStatus.Completed ? colorWhite : colorRed);
+				.AddSetter<CellRenderer>((cell, node) => {
+					var color = colorWhite;
+					if(node.Status!=RouteListItemStatus.Completed) color = colorRed;
+					else {
+						var itemChanged =node.Order.OrderItems
+							.Where(item=>!item.Nomenclature.Serial)
+							.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+							.Any(item=>item.Count!=item.ActualCount);
+						var equipmentChanged = node.Order.OrderEquipments							
+							.Any(eq=>!eq.Confirmed);
+						if(itemChanged || equipmentChanged)
+							color=colorLightBlue;
+					}
+					cell.CellBackgroundGdk = color;
+				});
 			ytreeviewItems.ColumnsConfig = config.Finish();
 		}
 
