@@ -13,32 +13,43 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    cash_advance_report.cash_expense_category_id as CategoryId,
-	cash_expense_category.name as Category,
-	cash_advance_report.money as Sum,
+    cash_advance_report.id AS report_id,
+    cash_advance_report.cash_expense_category_id AS CategoryId,
+    cash_expense_category.name AS Category,
+    cash_advance_report.money AS Sum,
     cash_advance_report.description,
-    cash_advance_report.date as date,
+    cash_advance_report.date AS date,
     CONCAT_WS('',
             CONCAT(employees.last_name, ' '),
-            if(employees.name = '',
+            IF(employees.name = '',
                 '',
                 CONCAT(LEFT(employees.name, 1), '.')),
-            if(employees.patronymic = '',
+            IF(employees.patronymic = '',
                 '',
-                CONCAT(LEFT(employees.patronymic, 1), '.'))) as employee
+                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS employee,
+                cash_expense.date as expense_date,
+                cash_expense.money as expense_money,
+                cash_expense.description as expense_desc
 FROM
     cash_advance_report
         LEFT JOIN
     cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_advance_report.employee_id
-WHERE cash_advance_report.date &gt;= @startDate AND cash_advance_report.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
- AND if (@expenseCategory = -1, cash_expense_category.id, @expenseCategory) = cash_expense_category.id
-
-ORDER BY Category, employee;</CommandText>
+        LEFT JOIN
+    cash_advance_closing ON cash_advance_closing.advance_report_id = cash_advance_report.id
+        LEFT JOIN
+    cash_expense ON cash_expense.id = cash_advance_closing.expense_id
+WHERE
+    cash_advance_report.date &gt;= @startDate
+        AND cash_advance_report.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+        AND IF(@expenseCategory = - 1,
+        cash_expense_category.id,
+        @expenseCategory) = cash_expense_category.id
+ORDER BY Category , employee;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
@@ -51,7 +62,11 @@ ORDER BY Category, employee;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
+        <Field Name="report_id">
+          <DataField>report_id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -60,7 +75,7 @@ ORDER BY Category, employee;</CommandText>
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="sum">
+        <Field Name="Sum">
           <DataField>Sum</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
@@ -68,13 +83,25 @@ ORDER BY Category, employee;</CommandText>
           <DataField>description</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
         <Field Name="employee">
           <DataField>employee</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="date">
-          <DataField>date</DataField>
+        <Field Name="expense_date">
+          <DataField>expense_date</DataField>
           <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="expense_money">
+          <DataField>expense_money</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="expense_desc">
+          <DataField>expense_desc</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -213,7 +240,7 @@ ORDER BY Category, employee;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>={date}</Value>
+                      <Value>={expense_date}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -222,6 +249,7 @@ ORDER BY Category, employee;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <Format>dd.MM.yyyy</Format>
+                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -229,7 +257,8 @@ ORDER BY Category, employee;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>={employee}</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -237,6 +266,7 @@ ORDER BY Category, employee;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -245,7 +275,7 @@ ORDER BY Category, employee;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                      <Value>={description}</Value>
+                      <Value>={expense_desc}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -254,6 +284,7 @@ ORDER BY Category, employee;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -261,7 +292,7 @@ ORDER BY Category, employee;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>=Fields!sum.Value</Value>
+                      <Value>={expense_money}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -271,6 +302,7 @@ ORDER BY Category, employee;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -280,7 +312,7 @@ ORDER BY Category, employee;</CommandText>
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>5.1pt</Top>
+        <Top>7.8pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -348,7 +380,7 @@ ORDER BY Category, employee;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <FontWeight>Bold</FontWeight>
                       </Style>
-                      <Value>=sum(Fields!sum.Value)</Value>
+                      <Value>=sum(Fields!Sum.Value)</Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -406,7 +438,7 @@ ORDER BY Category, employee;</CommandText>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Bottom</VerticalAlign>
                           </Style>
-                          <Value>=sum(Fields!sum.Value)</Value>
+                          <Value>=sum(Fields!Sum.Value)</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -421,10 +453,91 @@ ORDER BY Category, employee;</CommandText>
               </SortBy>
             </Sorting>
           </TableGroup>
+          <TableGroup>
+            <Grouping Name="ExpenseGroup">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={report_id}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox14">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <Format>dd.MM.yyyy</Format>
+                            <PaddingLeft>2pt</PaddingLeft>
+                          </Style>
+                          <Value>={date}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox19">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <PaddingLeft>2pt</PaddingLeft>
+                          </Style>
+                          <Value>={employee}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox21">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <PaddingLeft>2pt</PaddingLeft>
+                          </Style>
+                          <Value>={description}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox22">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <TextAlign>Right</TextAlign>
+                          </Style>
+                          <Value>={Sum}</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+          </TableGroup>
         </TableGroups>
       </Table>
     </ReportItems>
-    <Height>80.1pt</Height>
+    <Height>95.6pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -454,12 +567,12 @@ ORDER BY Category, employee;</CommandText>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=192.168.1.5</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -477,7 +590,7 @@ ORDER BY Category, employee;</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2015-11-01</Value>
+          <Value>2016-03-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -496,7 +609,8 @@ ORDER BY Category, employee;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
