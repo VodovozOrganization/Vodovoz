@@ -49,8 +49,6 @@ namespace Vodovoz
 			ytreeview2.ColumnsConfig  = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
-				.AddColumn("Серийный номер")
-					.AddTextRenderer()
 				.AddColumn("Кол-во")
 					.AddNumericRenderer(node => node.Count)
 						.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
