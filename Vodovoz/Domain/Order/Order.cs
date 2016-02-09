@@ -432,6 +432,20 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments ();
 		}
 
+		public void AddDisposableBottleWater(Nomenclature nomenclature){
+			if (nomenclature.Category != NomenclatureCategory.disposableBottleWater)
+				return;
+			ObservableOrderItems.Add (new OrderItem {
+				Order = this,
+				AdditionalAgreement = null,
+				Count = 0,
+				Equipment = null,
+				Nomenclature = nomenclature,
+				Price = nomenclature.GetPrice (1)
+			});
+			UpdateDocuments ();
+		}
+
 		public void AddWaterForSale (Nomenclature nomenclature, WaterSalesAgreement wsa)
 		{
 			if (nomenclature.Category != NomenclatureCategory.water)

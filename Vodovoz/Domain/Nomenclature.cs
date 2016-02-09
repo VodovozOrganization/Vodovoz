@@ -169,7 +169,7 @@ namespace Vodovoz.Domain
 
 		public static NomenclatureCategory[] GetCategoriesForShipment ()
 		{
-			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water };
+			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater };
 		}
 
 		public static NomenclatureCategory[] GetCategoriesForProductMaterial ()
@@ -179,17 +179,16 @@ namespace Vodovoz.Domain
 
 		public static NomenclatureCategory[] GetCategoriesForSale ()
 		{
-			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water };
+			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater };
 		}
 
 		public static NomenclatureCategory[] GetCategoriesForGoods ()
 		{
 			return new [] { NomenclatureCategory.bottle, NomenclatureCategory.additional, 
 				NomenclatureCategory.equipment, NomenclatureCategory.material, 
-				NomenclatureCategory.spare_parts, NomenclatureCategory.water
+				NomenclatureCategory.spare_parts, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater
 			};
-		}
-
+		}			
 		#endregion
 	}
 
@@ -203,7 +202,8 @@ namespace Vodovoz.Domain
 		[Display (Name= "Товары")] additional,
 		[Display (Name= "Услуга")] service,
 		[Display (Name= "Тара")] bottle,
-		[Display (Name= "Сырьё")] material
+		[Display (Name= "Сырьё")] material,
+		[Display (Name= "Вода в одноразовой таре")] disposableBottleWater
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType
