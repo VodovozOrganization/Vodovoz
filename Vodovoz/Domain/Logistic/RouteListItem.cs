@@ -203,7 +203,7 @@ namespace Vodovoz.Domain.Logistic
 				: fullBottleCount * rates.FullBottleRate;
 
 			var payForEquipment = fullBottleCount == 0
-				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver) > 0
+				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver && item.Confirmed) > 0
 					|| bottleCollectionOrder);
 			var equpmentPayment = payForEquipment ? rates.CoolerRate : 0;
 
@@ -241,7 +241,7 @@ namespace Vodovoz.Domain.Logistic
 				: fullBottleCount * rates.FullBottleRate;
 			
 			var payForEquipment = fullBottleCount == 0
-			                   && (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver) > 0
+				&& (Order.OrderEquipments.Count(item => item.Direction == Direction.Deliver && item.Confirmed) > 0
 			                   || bottleCollectionOrder);
 			var equpmentPayment = payForEquipment ? rates.CoolerRate : 0;
 
