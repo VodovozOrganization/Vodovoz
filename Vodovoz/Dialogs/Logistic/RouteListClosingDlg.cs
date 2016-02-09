@@ -232,11 +232,7 @@ namespace Vodovoz
 			var equipmentReturnedFromClient = 
 				equipmentItems.GroupBy(item => item.Equipment,
 					item => {
-						if(item.Confirmed && item.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
-							return 0;
-						if(item.Confirmed && item.Direction == Vodovoz.Domain.Orders.Direction.PickUp)
-							return 1;
-						return 0;
+						return item.Confirmed ^ item.Direction==Vodovoz.Domain.Orders.Direction.Deliver ? 1 : 0;
 					},
 					(equipment, amounts) => new 
 					TotalReturnsNode
