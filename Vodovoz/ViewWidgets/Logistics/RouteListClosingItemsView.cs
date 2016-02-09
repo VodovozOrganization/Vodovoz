@@ -122,7 +122,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Итого(нал.)")
 					.AddNumericRenderer(node => node.TotalCash)
-						.Editing(true)
+						.AddSetter((cell,node)=>cell.Editable=node.Order.PaymentType==PaymentType.cash)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("ЗП водителя")
