@@ -57,7 +57,7 @@ namespace Vodovoz
 			this.frame1.Add (this.GtkAlignment);
 			this.GtkLabel = new global::Gtk.Label ();
 			this.GtkLabel.Name = "GtkLabel";
-			this.GtkLabel.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Недовоз</b>");
+			this.GtkLabel.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Клиенту</b>");
 			this.GtkLabel.UseMarkup = true;
 			this.frame1.LabelWidget = this.GtkLabel;
 			this.hbox1.Add (this.frame1);
@@ -84,7 +84,7 @@ namespace Vodovoz
 			this.frame2.Add (this.GtkAlignment1);
 			this.GtkLabel1 = new global::Gtk.Label ();
 			this.GtkLabel1.Name = "GtkLabel1";
-			this.GtkLabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Недозабор</b>");
+			this.GtkLabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>От клиента</b>");
 			this.GtkLabel1.UseMarkup = true;
 			this.frame2.LabelWidget = this.GtkLabel1;
 			this.hbox1.Add (this.frame2);

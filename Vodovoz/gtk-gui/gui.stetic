@@ -24309,7 +24309,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="GtkLabel">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">&lt;b&gt;Недовоз&lt;/b&gt;</property>
+                <property name="LabelProp" translatable="yes">&lt;b&gt;Клиенту&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -24350,7 +24350,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="GtkLabel1">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">&lt;b&gt;Недозабор&lt;/b&gt;</property>
+                <property name="LabelProp" translatable="yes">&lt;b&gt;От клиента&lt;/b&gt;</property>
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
