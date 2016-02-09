@@ -57,7 +57,7 @@ namespace Vodovoz
 				routeList = value;
 				if (routeList.Addresses == null)
 					routeList.Addresses = new List<RouteListItem> ();				
-				UpdateNodes();
+				Items = routeList.ObservableAddresses;
 
 				routeList.ObservableAddresses.ListChanged += Items_ListChanged;
 
@@ -71,17 +71,6 @@ namespace Vodovoz
 		void Items_ListChanged (object aList)
 		{
 			UpdateColumns ();
-		}
-
-		private void UpdateNodes()
-		{
-			Items = routeList.ObservableAddresses;
-			foreach (RouteListItem routeListitem in routeList.ObservableAddresses)
-			{
-				routeListitem.BottlesReturned = routeListitem.Order.BottlesReturn;
-				routeListitem.DepositsCollected = routeListitem.Order.OrderDepositItems.Sum(depositItem => depositItem.Deposit);
-				routeListitem.RecalculateWages();
-			}
 		}
 
 		private void UpdateColumns ()

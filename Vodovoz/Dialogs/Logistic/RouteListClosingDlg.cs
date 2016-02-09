@@ -109,8 +109,14 @@ namespace Vodovoz
 				{
 					item.Confirmed = routeListItem.Status==RouteListItemStatus.Completed;
 				}
-				routeListItem.BottlesReturned = routeListItem.Order.BottlesReturn;
-				routeListItem.TotalCash = routeListItem.Order.SumToReceive;
+				routeListItem.BottlesReturned = routeListItem.Status == RouteListItemStatus.Completed
+					? routeListItem.Order.BottlesReturn : 0;
+				routeListItem.TotalCash = routeListItem.Status ==
+					RouteListItemStatus.Completed && routeListItem.Order.PaymentType==PaymentType.cash
+					? routeListItem.Order.SumToReceive : 0;
+				routeListItem.DepositsCollected = routeListItem.Status == RouteListItemStatus.Completed
+					? routeListItem.Order.OrderDepositItems.Sum(depositItem => depositItem.Deposit) : 0;
+				routeListItem.RecalculateWages();
 			}
 		}
 
@@ -132,7 +138,7 @@ namespace Vodovoz
 
 		void CalculateTotal ()
 		{
-			var Items = routeListAddressesView.Items;
+			var Items = routeListAddressesView.Items.Where(item=>item.Status==RouteListItemStatus.Completed);
 			int bottlesReturnedTotal = Items.Sum(item => item.BottlesReturned);
 			int fullBottlesTotal = Items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
