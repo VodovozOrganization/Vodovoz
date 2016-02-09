@@ -257,7 +257,6 @@
     <Compile Include="gtk-gui\Vodovoz.LoadFrom1cDlg.cs" />
     <Compile Include="Domain\Logistic\RouteColumn.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
-    <Compile Include="HibernateMapping\NomenclatureMap.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingInvoiceItemsView.cs" />
     <Compile Include="Domain\Logistic\RouteListItem.cs" />
     <Compile Include="Domain\Logistic\RouteList.cs" />
@@ -475,6 +474,7 @@
     <Compile Include="Dialogs\Logistic\RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckView.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
