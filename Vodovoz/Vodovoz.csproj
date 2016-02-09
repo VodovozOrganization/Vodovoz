@@ -475,6 +475,8 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RouteListMileageCheckView.cs" />
     <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CashExpenseCategoryDlg.cs" />
+    <Compile Include="Dialogs\Cash\CashExpenseCategoryDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

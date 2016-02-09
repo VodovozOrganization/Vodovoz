@@ -4,7 +4,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
+	
 	public partial class WarehouseDlg : OrmGtkDialogBase<Warehouse>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
