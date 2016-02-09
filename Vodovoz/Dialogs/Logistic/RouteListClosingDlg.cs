@@ -29,6 +29,7 @@ namespace Vodovoz
 
 		RouteList routelist;
 		List<TotalReturnsNode> allReturnsToWarehouse;
+		List<Discrepancy> discrepancies;
 
 		public RouteListClosingDlg (int id)
 		{
@@ -88,9 +89,9 @@ namespace Vodovoz
 				item.Order.ObservableOrderItems.ElementChanged += OnOrderReturnsChanged;
 				item.Order.ObservableOrderEquipments.ElementChanged += OnOrderReturnsChanged;
 			}
-			Initialize(routeListAddressesView.Items);
-
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
+			Initialize(routeListAddressesView.Items);
+			OnItemsUpdated();
 		}
 
 		protected void Initialize(IList<RouteListItem> items)
@@ -124,7 +125,7 @@ namespace Vodovoz
 		{			
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
-			CalculateTotal();
+			OnItemsUpdated();
 		}
 
 		void OnOrderReturnsChanged(object aList, int[] aIdx)
@@ -133,7 +134,13 @@ namespace Vodovoz
 			{
 				(item as RouteListItem).RecalculateWages();
 			}
+			OnItemsUpdated();
+		}			
+
+		void OnItemsUpdated(){
 			CalculateTotal();
+			routelistdiscrepancyview.Items = FindDiscrepancies();
+			buttonAccept.Sensitive = isConsistentWithUnloadDocument();
 		}
 
 		void CalculateTotal ()
@@ -183,160 +190,86 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 		}
-			
-		protected bool FindNomenclatureDiscrepancy(
-			List<TotalReturnsNode> fromClient, List<TotalReturnsNode> toWarehouse,
-			out TotalReturnsNode nodeFrom, out TotalReturnsNode nodeTo)
-		{
-			for (int i = 0; i < fromClient.Count; i++)
-			{
-				var sameNomenclatureToWarehouse = toWarehouse.FirstOrDefault(t => t.NomenclatureId == fromClient[i].NomenclatureId);
-				if (sameNomenclatureToWarehouse == null)
-				{
-					nodeFrom = fromClient[i];
-					nodeTo = null;
-					return true;
-				}					
-				if (fromClient[i].Amount != sameNomenclatureToWarehouse.Amount)
-				{
-					nodeFrom = fromClient[i];
-					nodeTo = sameNomenclatureToWarehouse;
-					return true;
-				}
-			}
 
-			for (int i = 0; i < toWarehouse.Count; i++)
-			{
-				if (!fromClient.Any(f => f.NomenclatureId == toWarehouse[i].NomenclatureId))
-				{
-					nodeFrom = null;
-					nodeTo = toWarehouse[i];
-					return true;
-				}
-			}
-			nodeFrom = null;
-			nodeTo = null;
-			return false;
-		}
-
-		protected bool FindEquipmentDiscrepancy(
-			List<TotalReturnsNode> fromClient, List<TotalReturnsNode> toWarehouse,
-			out TotalReturnsNode nodeFrom, out TotalReturnsNode nodeTo)
-		{
-			for (int i = 0; i < fromClient.Count; i++)
-			{
-				var sameEquipmentToWarehouse = toWarehouse.FirstOrDefault(t => t.Id == fromClient[i].Id);
-				if (sameEquipmentToWarehouse == null)
-				{
-					nodeFrom = fromClient[i];
-					nodeTo = null;
-					return true;
-				}					
-				if (fromClient[i].Amount != sameEquipmentToWarehouse.Amount)
-				{
-					nodeFrom = fromClient[i];
-					nodeTo = sameEquipmentToWarehouse;
-					return true;
-				}
-			}
-
-			for (int i = 0; i < toWarehouse.Count; i++)
-			{
-				if (!fromClient.Any(f => f.Id == toWarehouse[i].Id))
-				{
-					nodeFrom = null;
-					nodeTo = toWarehouse[i];
-					return true;
-				}
-			}
-			nodeFrom = null;
-			nodeTo = null;
-			return false;
-		}
-
-		protected bool isConsistentWithUnloadDocument(){
+		protected List<Discrepancy> FindDiscrepancies(){
+			var discrepancies = new List<Discrepancy>();
 			var orderClosingItems = routeListAddressesView.Items
 				.SelectMany(item => item.Order.OrderItems)
-				.Where(item=>Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.ToList();
-			var nomenclatureItems = orderClosingItems.Where(item => !item.Nomenclature.Serial);
-			var nomenclatureReturnedFromClient = 
-				nomenclatureItems.GroupBy(item => item.Nomenclature,
-					item => item.ReturnedCount,
-					(nomenclature, amounts) => new
-					TotalReturnsNode
-					{
-						Name = nomenclature.Name,
-						NomenclatureId = nomenclature.Id,
-						NomenclatureCategory = nomenclature.Category,	
-						Amount = amounts.Sum(i => i)
-					}).Where(item=>item.Amount>0).ToList();
-							
-			var nomenclatureReturnedToWarehouse = allReturnsToWarehouse.Where(item=>!item.Trackable).ToList();
-			TotalReturnsNode fromClient;
-			TotalReturnsNode toWarehouse;
-			if (FindNomenclatureDiscrepancy(nomenclatureReturnedFromClient,
-				   nomenclatureReturnedToWarehouse, out fromClient, out toWarehouse))
+			var goodsReturnedFromClient = orderClosingItems.Where(item => !item.Nomenclature.Serial)
+				.GroupBy(item => item.Nomenclature,
+			item => item.ReturnedCount,
+			(nomenclature, amounts) => new
+			TotalReturnsNode
 			{
-				var name = fromClient != null ? fromClient.Name : toWarehouse.Name;
-				var fromClientAmount = fromClient != null ? fromClient.Amount : 0;
-				var toWarehouseAmount = toWarehouse != null ? toWarehouse.Amount : 0;
-				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата не согласуется с документом выгрузки!" +
-					" Пожалуйста укажите по какому заказу был осуществлен недовоз \"{0}\"." +
-					"Указано: {1}, Выгружено: {2}",
-					name,
-					fromClientAmount,
-					toWarehouseAmount));
-				return false;
+				Name = nomenclature.Name,
+				NomenclatureId = nomenclature.Id,
+				NomenclatureCategory = nomenclature.Category,
+				Amount = amounts.Sum(i => i),
+				Trackable=false
+			}).ToList();
+			var goodsToWarehouse = allReturnsToWarehouse.Where(item => !item.Trackable);
+			foreach (var itemFromClient in goodsReturnedFromClient)
+			{
+				var itemToWarehouse = 
+					goodsToWarehouse.FirstOrDefault(item => item.NomenclatureId == itemFromClient.NomenclatureId);
+				if (itemToWarehouse == null)
+					continue;
+				if (itemToWarehouse.Amount != itemFromClient.Amount)
+					discrepancies.Add(new Discrepancy
+						{
+							Name = itemFromClient.Name,
+							NomenclatureId = itemFromClient.NomenclatureId,
+							FromClient=itemFromClient.Amount,
+							ToWarehouse = itemToWarehouse.Amount,
+							Trackable = false,
+						});
 			}
 
 			var equipmentItems = routeListAddressesView.Items
-				.SelectMany(item => item.Order.OrderEquipments).ToList();			
+				.SelectMany(item => item.Order.OrderEquipments).Where(item=>item.Equipment!=null).ToList();
 			var equipmentReturnedFromClient = 
 				equipmentItems.GroupBy(item => item.Equipment,
-					item => item.Confirmed ? 0 : 1,
+					item => {
+						if(item.Confirmed && item.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+							return 0;
+						if(item.Confirmed && item.Direction == Vodovoz.Domain.Orders.Direction.PickUp)
+							return 1;
+						return 0;
+					},
 					(equipment, amounts) => new 
 					TotalReturnsNode
 					{
 						Id = equipment.Id,
 						Name = equipment.NomenclatureName,
-						NomenclatureCategory = equipment.Nomenclature.Category,							
+						NomenclatureCategory = equipment.Nomenclature.Category,
 						Amount = amounts.Sum(i => i)
-					}).Where(item=>item.Amount>0).ToList();
-			
+					}).ToList();
 			var equipmentReturnedToWarehouse = allReturnsToWarehouse.Where(item=>item.Trackable).ToList();
-			if (FindEquipmentDiscrepancy(equipmentReturnedFromClient,
-				equipmentReturnedToWarehouse, out fromClient, out toWarehouse))
+			foreach (var itemFromClient in equipmentReturnedFromClient)
 			{
-				var name = fromClient != null 
-					? fromClient.Name+"(с/н: "+fromClient.Id+")" 
-					: toWarehouse.Name+"(с/н: "+toWarehouse.Id+")";
-				var fromClientAmount = fromClient != null ? fromClient.Amount : 0;
-				var toWarehouseAmount = toWarehouse != null ? toWarehouse.Amount : 0;
-				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата не согласуется с документом выгрузки!" +
-					" Пожалуйста укажите по какому заказу был осуществлен недовоз \"{0}\"." +
-					"Указано: {1}, Выгружено: {2}",
-					name,
-					fromClientAmount,
-					toWarehouseAmount
-					));
-				return false;
+				var itemToWarehouse = 
+					equipmentReturnedToWarehouse.FirstOrDefault(item => item.Id == itemFromClient.Id);
+				if (itemToWarehouse == null)
+					continue;
+				if (itemToWarehouse.Amount != itemFromClient.Amount)
+					discrepancies.Add(new Discrepancy
+						{
+							Name = itemFromClient.Name,
+							NomenclatureId = itemFromClient.NomenclatureId,
+							FromClient=itemFromClient.Amount,
+							ToWarehouse = itemToWarehouse.Amount,
+							Trackable = true,
+						});
 			}
+			return discrepancies;
+		}
 
-			var totalBottlesReturned = routeListAddressesView.Items.Sum(item => item.BottlesReturned);
-			var totalBottlesReturnedToWarehouse = GetReturnsToWarehouseByCategory(Entity.RouteList.Id,
-				new NomenclatureCategory[]{ NomenclatureCategory.bottle })
-				.Sum(item => item.Amount);
-			bool bottleDiscrepency = totalBottlesReturned != totalBottlesReturnedToWarehouse;
-			if (bottleDiscrepency)
-			{
-				MessageDialogWorks.RunErrorDialog(String.Format("Сумма возврата бутылей не" +
-					" согласуется с документом выгрузки! Указано: {0} Выгружено: {1}",
-					totalBottlesReturned, totalBottlesReturnedToWarehouse));
-				return false;
-			}	
 
-			return true;
+
+		protected bool isConsistentWithUnloadDocument(){						
+			return routelistdiscrepancyview.Items.Count == 0;
 		}
 
 		protected void CheckBottlesAndDeposits(){

@@ -477,6 +477,8 @@
     <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
     <Compile Include="gtk-gui\Vodovoz.CashExpenseCategoryDlg.cs" />
     <Compile Include="Dialogs\Cash\CashExpenseCategoryDlg.cs" />
+    <Compile Include="ViewWidgets\Logistics\RouteListDiscrepancyView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
