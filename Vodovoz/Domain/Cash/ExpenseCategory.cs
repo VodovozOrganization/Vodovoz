@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -12,6 +13,22 @@ namespace Vodovoz.Domain.Cash
 		#region Свойства
 
 		public virtual int Id { get; set; }
+
+		ExpenseCategory parent;
+
+		[Display (Name = "Родитель")]
+		public virtual ExpenseCategory Parent {
+			get { return parent; }
+			set { SetField (ref parent, value, () => Parent); }
+		}
+
+		IList<ExpenseCategory> childs;
+
+		[Display (Name = "Дочерние категории")]
+		public virtual IList<ExpenseCategory> Childs {
+			get { return childs; }
+			set { SetField (ref childs, value, () => Childs); }
+		}
 
 		string name;
 
