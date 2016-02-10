@@ -89,11 +89,6 @@ namespace Vodovoz
 
 		public int[] ExceptIds{ get; set; }
 
-		protected void OnEnumcomboStatusEnumItemSelected (object sender, EnumItemClickedEventArgs e)
-		{
-			OnRefiltered ();
-		}
-
 		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
 		{
 			entryreferencePoint.Sensitive = RestrictCounterparty != null;
@@ -112,6 +107,11 @@ namespace Vodovoz
 		}
 
 		protected void OnDateperiodOrdersPeriodChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnEnumcomboStatusChanged (object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

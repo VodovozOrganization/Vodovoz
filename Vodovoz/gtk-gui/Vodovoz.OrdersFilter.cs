@@ -12,7 +12,7 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.EntryReferenceVM entryreferencePoint;
 		
-		private global::QSOrmProject.EnumComboBox enumcomboStatus;
+		private global::Gamma.Widgets.yEnumComboBox enumcomboStatus;
 		
 		private global::Gtk.Label label1;
 		
@@ -68,10 +68,12 @@ namespace Vodovoz
 			w3.RightAttach = ((uint)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.enumcomboStatus = new global::QSOrmProject.EnumComboBox ();
+			this.enumcomboStatus = new global::Gamma.Widgets.yEnumComboBox ();
 			this.enumcomboStatus.Name = "enumcomboStatus";
 			this.enumcomboStatus.ShowSpecialStateAll = true;
 			this.enumcomboStatus.ShowSpecialStateNot = false;
+			this.enumcomboStatus.UseShortTitle = false;
+			this.enumcomboStatus.DefaultFirst = false;
 			this.table1.Add (this.enumcomboStatus);
 			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1 [this.enumcomboStatus]));
 			w4.LeftAttach = ((uint)(1));
@@ -125,7 +127,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
-			this.enumcomboStatus.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnEnumcomboStatusEnumItemSelected);
+			this.enumcomboStatus.Changed += new global::System.EventHandler (this.OnEnumcomboStatusChanged);
 			this.entryreferencePoint.Changed += new global::System.EventHandler (this.OnEntryreferencePointChanged);
 			this.entryreferenceClient.Changed += new global::System.EventHandler (this.OnEntryreferenceClientChanged);
 			this.dateperiodOrders.PeriodChanged += new global::System.EventHandler (this.OnDateperiodOrdersPeriodChanged);
