@@ -2,12 +2,11 @@
 using NLog;
 using QSContacts;
 using QSOrmProject;
-using Vodovoz.Domain;
 using QSValidation;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ContactDlg : OrmGtkDialogBase<Contact>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
@@ -33,10 +32,15 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
-			entrySurname.IsEditable = entryName.IsEditable = entryLastname.IsEditable = true;
-			dataComment.Editable = true;
 			referencePost.SubjectType = typeof(Post);
+			referencePost.Binding.AddBinding(Entity, e => e.Post, w => w.Subject).InitializeFromSource();
+
+			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			entrySurname.Binding.AddBinding(Entity, e => e.Surname, w => w.Text).InitializeFromSource();
+			entryPatronymic.Binding.AddBinding(Entity, e => e.Patronymic, w => w.Text).InitializeFromSource();
+
+			checkbuttonFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
+
 			emailsView.Session = UoWGeneric.Session;
 			if (UoWGeneric.Root.Emails == null)
 				UoWGeneric.Root.Emails = new List<Email> ();

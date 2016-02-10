@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSContacts;
 using QSOrmProject;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
@@ -19,6 +20,15 @@ namespace Vodovoz.Domain
 
 		public virtual int Id { get; set; }
 
+		string surname;
+
+		[PropertyChangedAlso ("FullName")]
+		[Display (Name = "Фамилия")]
+		public virtual string Surname {
+			get { return surname; }
+			set { SetField (ref surname, value, () => Surname); }
+		}
+
 		string name;
 
 		[PropertyChangedAlso ("FullName")]
@@ -28,22 +38,13 @@ namespace Vodovoz.Domain
 			set { SetField (ref name, value, () => Name); }
 		}
 
-		string lastName;
-
-		[PropertyChangedAlso ("FullName")]
-		[Display (Name = "Фамилия")]
-		public virtual string Lastname {
-			get { return lastName; }
-			set { SetField (ref lastName, value, () => Lastname); }
-		}
-
-		string surname;
+		string patronymic;
 
 		[PropertyChangedAlso ("FullName")]
 		[Display (Name = "Отчество")]
-		public virtual string Surname {
-			get { return surname; }
-			set { SetField (ref surname, value, () => Surname); }
+		public virtual string Patronymic {
+			get { return patronymic; }
+			set { SetField (ref patronymic, value, () => Patronymic); }
 		}
 
 		string comment;
@@ -54,12 +55,12 @@ namespace Vodovoz.Domain
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		bool fired;
+		bool isFired;
 
 		[Display (Name = "Уволенный")]
-		public virtual bool Fired {
-			get { return fired; }
-			set { SetField (ref fired, value, () => Fired); }
+		public virtual bool IsFired {
+			get { return isFired; }
+			set { SetField (ref isFired, value, () => IsFired); }
 		}
 
 		Post post;
@@ -90,7 +91,7 @@ namespace Vodovoz.Domain
 
 		#endregion
 
-		public string PointCurator {
+		public virtual string PointCurator {
 			get {
 				if (DeliveryPoints == null || DeliveryPoints.Count <= 0)
 					return String.Empty;
@@ -104,16 +105,16 @@ namespace Vodovoz.Domain
 		{
 			Name = String.Empty;
 			Surname = String.Empty;
-			Lastname = String.Empty;
+			Patronymic = String.Empty;
 			Comment = String.Empty;
-			Fired = false;
+			IsFired = false;
 		}
 
-		public string FullName { get { return String.Format ("{0} {1} {2}", Surname, Name, Lastname); } }
+		public virtual string FullName { get { return StringWorks.PersonFullName (Surname, Name, Patronymic); } }
 
-		public string Title {get {return FullName;}}
+		public virtual string Title {get {return FullName;}}
 
-		public string MainPhoneString { 
+		public virtual string MainPhoneString { 
 			get { 
 				if (Phones.Count > 0 && Phones [0].Number != String.Empty)
 					return String.Format ("{0}{1}", 
@@ -122,15 +123,6 @@ namespace Vodovoz.Domain
 				else
 					return String.Empty; 
 			} 
-		}
-
-		public string PostName {
-			get { 
-				if (Post == null)
-					return String.Empty;
-				else
-					return Post.Name;
-			}
 		}
 
 		public override bool Equals (Object obj)

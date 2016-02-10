@@ -14,19 +14,19 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
 		
-		private global::Gtk.DataBindings.DataCheckButton checkbuttonFired;
+		private global::Gamma.GtkWidgets.yCheckButton checkbuttonFired;
 		
 		private global::QSContacts.EmailsView emailsView;
 		
-		private global::Gtk.DataBindings.DataEntry entryLastname;
+		private global::Gamma.GtkWidgets.yEntry entryName;
 		
-		private global::Gtk.DataBindings.DataEntry entryName;
+		private global::Gamma.GtkWidgets.yEntry entryPatronymic;
 		
-		private global::Gtk.DataBindings.DataEntry entrySurname;
+		private global::Gamma.GtkWidgets.yEntry entrySurname;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTextView dataComment;
+		private global::Gamma.GtkWidgets.yTextView dataComment;
 		
 		private global::Gtk.Label label1;
 		
@@ -46,7 +46,7 @@ namespace Vodovoz
 		
 		private global::QSContacts.PhonesView phonesView;
 		
-		private global::Gtk.DataBindings.DataEntryReference referencePost;
+		private global::Gamma.Widgets.yEntryReference referencePost;
 
 		protected virtual void Build ()
 		{
@@ -109,20 +109,12 @@ namespace Vodovoz
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.checkbuttonFired = new global::Gtk.DataBindings.DataCheckButton ();
+			this.checkbuttonFired = new global::Gamma.GtkWidgets.yCheckButton ();
 			this.checkbuttonFired.CanFocus = true;
 			this.checkbuttonFired.Name = "checkbuttonFired";
 			this.checkbuttonFired.Label = "";
 			this.checkbuttonFired.DrawIndicator = true;
 			this.checkbuttonFired.UseUnderline = true;
-			this.checkbuttonFired.InheritedDataSource = true;
-			this.checkbuttonFired.Mappings = "Fired";
-			this.checkbuttonFired.InheritedBoundaryDataSource = false;
-			this.checkbuttonFired.Editable = true;
-			this.checkbuttonFired.AutomaticTitle = false;
-			this.checkbuttonFired.InheritedBoundaryDataSource = false;
-			this.checkbuttonFired.InheritedDataSource = true;
-			this.checkbuttonFired.Mappings = "Fired";
 			this.datatable1.Add (this.checkbuttonFired);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.checkbuttonFired]));
 			w6.TopAttach = ((uint)(4));
@@ -144,58 +136,39 @@ namespace Vodovoz
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entryLastname = new global::Gtk.DataBindings.DataEntry ();
-			this.entryLastname.CanFocus = true;
-			this.entryLastname.Name = "entryLastname";
-			this.entryLastname.IsEditable = true;
-			this.entryLastname.InvisibleChar = '●';
-			this.entryLastname.InheritedDataSource = true;
-			this.entryLastname.Mappings = "Lastname";
-			this.entryLastname.InheritedBoundaryDataSource = false;
-			this.entryLastname.InheritedDataSource = true;
-			this.entryLastname.Mappings = "Lastname";
-			this.entryLastname.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.entryLastname);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryLastname]));
-			w8.TopAttach = ((uint)(2));
-			w8.BottomAttach = ((uint)(3));
+			this.entryName = new global::Gamma.GtkWidgets.yEntry ();
+			this.entryName.CanFocus = true;
+			this.entryName.Name = "entryName";
+			this.entryName.IsEditable = true;
+			this.entryName.InvisibleChar = '●';
+			this.datatable1.Add (this.entryName);
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
+			w8.TopAttach = ((uint)(1));
+			w8.BottomAttach = ((uint)(2));
 			w8.LeftAttach = ((uint)(1));
 			w8.RightAttach = ((uint)(2));
 			w8.XOptions = ((global::Gtk.AttachOptions)(4));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entryName = new global::Gtk.DataBindings.DataEntry ();
-			this.entryName.CanFocus = true;
-			this.entryName.Name = "entryName";
-			this.entryName.IsEditable = true;
-			this.entryName.InvisibleChar = '●';
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.entryName);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
-			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(2));
+			this.entryPatronymic = new global::Gamma.GtkWidgets.yEntry ();
+			this.entryPatronymic.CanFocus = true;
+			this.entryPatronymic.Name = "entryPatronymic";
+			this.entryPatronymic.IsEditable = true;
+			this.entryPatronymic.InvisibleChar = '●';
+			this.datatable1.Add (this.entryPatronymic);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryPatronymic]));
+			w9.TopAttach = ((uint)(2));
+			w9.BottomAttach = ((uint)(3));
 			w9.LeftAttach = ((uint)(1));
 			w9.RightAttach = ((uint)(2));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entrySurname = new global::Gtk.DataBindings.DataEntry ();
-			this.entrySurname.WidthRequest = 350;
+			this.entrySurname = new global::Gamma.GtkWidgets.yEntry ();
 			this.entrySurname.CanFocus = true;
 			this.entrySurname.Name = "entrySurname";
 			this.entrySurname.IsEditable = true;
 			this.entrySurname.InvisibleChar = '●';
-			this.entrySurname.InheritedDataSource = true;
-			this.entrySurname.Mappings = "Surname";
-			this.entrySurname.InheritedBoundaryDataSource = false;
-			this.entrySurname.InheritedDataSource = true;
-			this.entrySurname.Mappings = "Surname";
-			this.entrySurname.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.entrySurname);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entrySurname]));
 			w10.LeftAttach = ((uint)(1));
@@ -207,16 +180,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.dataComment = new global::Gtk.DataBindings.DataTextView ();
+			this.dataComment = new global::Gamma.GtkWidgets.yTextView ();
 			this.dataComment.CanFocus = true;
 			this.dataComment.Name = "dataComment";
-			this.dataComment.Editable = false;
-			this.dataComment.InheritedDataSource = true;
-			this.dataComment.Mappings = "Comment";
-			this.dataComment.InheritedBoundaryDataSource = false;
-			this.dataComment.InheritedDataSource = true;
-			this.dataComment.Mappings = "Comment";
-			this.dataComment.InheritedBoundaryDataSource = false;
+			this.dataComment.WrapMode = ((global::Gtk.WrapMode)(2));
 			this.GtkScrolledWindow.Add (this.dataComment);
 			this.datatable1.Add (this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.GtkScrolledWindow]));
@@ -324,16 +291,9 @@ namespace Vodovoz
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referencePost = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referencePost = new global::Gamma.Widgets.yEntryReference ();
 			this.referencePost.Events = ((global::Gdk.EventMask)(256));
 			this.referencePost.Name = "referencePost";
-			this.referencePost.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referencePost.InheritedDataSource = true;
-			this.referencePost.Mappings = "Post";
-			this.referencePost.InheritedBoundaryDataSource = false;
-			this.referencePost.CursorPointsEveryType = false;
 			this.datatable1.Add (this.referencePost);
 			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referencePost]));
 			w22.TopAttach = ((uint)(3));

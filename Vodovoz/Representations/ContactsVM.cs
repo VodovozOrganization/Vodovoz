@@ -63,7 +63,7 @@ namespace Vodovoz.ViewModel
 				.SelectList (list => list
 					.SelectGroup (() => contactAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => contactAlias.Name).WithAlias (() => resultAlias.Name)
-					.Select (() => contactAlias.Lastname).WithAlias (() => resultAlias.Lastname)
+					.Select (() => contactAlias.Patronymic).WithAlias (() => resultAlias.Lastname)
 					.Select (() => contactAlias.Surname).WithAlias (() => resultAlias.Surname)
 					.Select (() => contactAlias.Comment).WithAlias (() => resultAlias.Comment)
 					.Select (() => postAlias.Name).WithAlias (() => resultAlias.Post)
