@@ -12,12 +12,14 @@ using System.IO;
 using QSReport;
 using QSTDI;
 using Gamma.Utilities;
+using System.Linq;
 
 namespace Vodovoz
 {
 	public partial class RouteListCreateDlg : OrmGtkDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		public bool transfer;
 
 		public RouteListCreateDlg ()
 		{
@@ -33,8 +35,28 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public RouteListCreateDlg (RouteList sub) : this (sub.Id)
+		public RouteListCreateDlg (RouteList routeList, IEnumerable<RouteListItem> addresses)
 		{
+			this.Build();
+			transfer = true;
+			buttonAccept.Sensitive = false;
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
+
+			Entity.Forwarder = routeList.Forwarder;
+			Entity.Shift = routeList.Shift;
+			Entity.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Status = routeList.Status;
+			for(var address=addresses.GetEnumerator();address.MoveNext();)
+				Entity.AddAddressFromOrder(address.Current.Order);
+			
+			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if (Entity.Logistican == null) {
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
+				FailInitialize = true;
+				return;
+			}
+			UoWGeneric.Root.Date = DateTime.Now;
+			ConfigureDlg ();
 		}
 
 		public RouteListCreateDlg (int id)
@@ -43,6 +65,8 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList> (id);
 			ConfigureDlg ();
 		}
+
+
 
 		private void ConfigureDlg ()
 		{
@@ -85,7 +109,7 @@ namespace Vodovoz
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 			}
-			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New);
+			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New || transfer);
 		}
 
 		public override bool Save ()
@@ -121,7 +145,7 @@ namespace Vodovoz
 
 				UoWGeneric.Root.Status = RouteListStatus.Ready;
 				Save();
-				IsEditable ();
+				IsEditable (transfer);
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;

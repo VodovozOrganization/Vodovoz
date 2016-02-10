@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Gtk;
 using System.Globalization;
 using System.Linq;
+using QSTDI;
 
 namespace Vodovoz
 {
@@ -71,12 +72,20 @@ namespace Vodovoz
 				.RowCells ()
 					.AddSetter<CellRenderer> ((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
-			
+			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
+			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
+			UpdateNodes();
+		}
+
+		public void UpdateNodes(){
 			items = new List<RouteListKeepingItemNode>();
 			foreach (var item in Entity.Addresses)
-				items.Add(new RouteListKeepingItemNode{RouteListItem=item});
-			
+				items.Add(new RouteListKeepingItemNode{ RouteListItem = item });
 			ytreeviewAddresses.ItemsDataSource = items;
+		}
+
+		public void OnSelectionChanged(object sender, EventArgs args){
+			buttonNewRouteList.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -105,8 +114,39 @@ namespace Vodovoz
 			UoWGeneric.Save();
 			return true;
 		}
-
 		#endregion
+
+		protected void OnButtonNewRouteListClicked (object sender, EventArgs e)
+		{
+			if (TabParent.CheckClosingSlaveTabs(this))
+				return;
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforeCreateSlaveEntity(EntityObject.GetType(), typeof(RouteList)))
+			{
+				if (!Save())
+					return;
+			}
+			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
+			var selectedAddreses = selectedObjects
+				.Cast<RouteListKeepingItemNode>()
+				.Select(item=>item.RouteListItem)
+				.Where(item=>item.Status==RouteListItemStatus.EnRoute);
+
+			var dlg = new RouteListCreateDlg(Entity, selectedAddreses);
+			dlg.EntitySaved += OnNewRouteListCreated;
+			TabParent.AddSlaveTab(this,dlg);
+		}
+
+		public void OnNewRouteListCreated(object sender, EntitySavedEventArgs args){
+			var newRouteList = args.Entity as RouteList;
+			foreach (var address in newRouteList.Addresses)
+			{
+				var transferedAddress = Entity.ObservableAddresses.FirstOrDefault(item => item.Order.Id == address.Order.Id);
+				if (transferedAddress != null)
+					Entity.RemoveAddress(transferedAddress);
+			}
+			UpdateNodes();
+			Save();
+		}
 	}	
 
 	public class RouteListKeepingItemNode {

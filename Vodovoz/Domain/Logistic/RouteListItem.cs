@@ -292,6 +292,10 @@ namespace Vodovoz.Domain.Logistic
 				this.order = order;
 				order.OrderStatus = OrderStatus.InTravelList;
 			}
+			if (routeList.Status == RouteListStatus.EnRoute)
+			{
+				this.Order = order;
+			}
 		}
 
 		public void RemovedFromRoute()
