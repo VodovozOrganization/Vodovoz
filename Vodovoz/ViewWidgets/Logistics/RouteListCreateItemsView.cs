@@ -67,24 +67,27 @@ namespace Vodovoz
 		private void UpdateColumns ()
 		{
 			var goodsColumns = items.SelectMany (i => i.GoodsByRouteColumns.Keys).Distinct ().ToArray ();
-			if (goodsColumnsCount == goodsColumns.Length)
-				return;
+		
+				var config = ColumnsConfigFactory.Create<RouteListItem>()
+				.AddColumn("Заказ").SetDataProperty(node => node.Order.Id)
+				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+				.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
+			if (goodsColumnsCount != goodsColumns.Length)
+			{
 
-			goodsColumnsCount = goodsColumns.Length;
+				goodsColumnsCount = goodsColumns.Length;
 
-			var config = ColumnsConfigFactory.Create<RouteListItem> ()
-				.AddColumn ("Заказ").SetDataProperty (node => node.Order.Id)
-				.AddColumn ("Адрес").AddTextRenderer (node => String.Format ("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-				.AddColumn ("Время").AddTextRenderer (node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
-			foreach (var column in columnsInfo) {
-				if (!goodsColumns.Contains (column.Id))
-					continue;
-				int id = column.Id;
-				config = config.AddColumn (column.Name).AddTextRenderer (a => a.GetGoodsAmountForColumn (id).ToString ());
+				foreach (var column in columnsInfo)
+				{
+					if (!goodsColumns.Contains(column.Id))
+						continue;
+					int id = column.Id;
+					config = config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString());
+				}
 			}
 			//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
 			//						"Не указан" : 
-			//						node.Order.DeliveryPoint.LogisticsArea.Name)
+			//						node.Order.DeliveryPoint.LogisticsArea.Name)			
 			if (RouteListUoW.Root.Forwarder != null)
 			{
 				config
@@ -104,6 +107,7 @@ namespace Vodovoz
 
 		void Items_ElementChanged (object aList, int[] aIdx)
 		{
+			UpdateColumns();
 			CalculateTotal ();
 		}
 
