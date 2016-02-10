@@ -50,6 +50,16 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		string comment;
+		public virtual string Comment
+		{
+			get{ return comment; }
+			set
+			{
+				SetField(ref comment, value, () => Comment);
+			}
+		}
+
 		bool withoutForwarder;
 
 		public bool WithoutForwarder{

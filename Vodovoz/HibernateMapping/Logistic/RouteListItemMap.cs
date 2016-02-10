@@ -21,7 +21,8 @@ namespace Vodovoz.HMap
 			Map (x => x.DriverWage).Column("driver_wage");
 			Map (x => x.ForwarderWage).Column("forwarder_wage");
 			Map (x => x.WithoutForwarder).Column("without_forwarder");
-			Map(x => x.StatusLastUpdate).Column("status_last_update");
+			Map (x => x.StatusLastUpdate).Column("status_last_update");
+			Map (x => x.Comment).Column("comment");
 			Map(x => x.Status).Column("status").CustomType<RouteListItemStatusStringType>();
 		}
 	}

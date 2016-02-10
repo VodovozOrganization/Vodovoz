@@ -46,9 +46,11 @@ namespace Vodovoz
 			Entity.Shift = routeList.Shift;
 			Entity.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.Status = routeList.Status;
-			for(var address=addresses.GetEnumerator();address.MoveNext();)
-				Entity.AddAddressFromOrder(address.Current.Order);
-			
+			for (var address = addresses.GetEnumerator(); address.MoveNext();)
+			{
+				var newAddress = Entity.AddAddressFromOrder(address.Current.Order);
+				newAddress.Comment = address.Current.Comment;
+			}
 			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if (Entity.Logistican == null) {
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");

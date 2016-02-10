@@ -69,6 +69,9 @@ namespace Vodovoz
 					.AddEnumRenderer(node => node.Status).Editing(true)					
 				.AddColumn("Последнее редактирование")
 					.AddTextRenderer(node => node.LastUpdate)
+				.AddColumn("Комментарий")
+					.AddTextRenderer(node => node.Comment)
+						.Editable(true)
 				.RowCells ()
 					.AddSetter<CellRenderer> ((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
@@ -174,6 +177,13 @@ namespace Vodovoz
 				RouteListItem.Status = value;
 				HasChanged = true;
 				RouteListItem.StatusLastUpdate = DateTime.Now;
+			}
+		}
+
+		public string Comment{
+			get { return RouteListItem.Comment; }
+			set{
+				RouteListItem.Comment = value;
 			}
 		}
 
