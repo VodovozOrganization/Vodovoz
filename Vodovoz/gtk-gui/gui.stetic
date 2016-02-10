@@ -15395,7 +15395,7 @@ Patronymic</property>
                 <property name="Events">ButtonPressMask</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
-                <property name="AutoSeparation">False</property>
+                <property name="AutoSeparation">True</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Date</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -22668,7 +22668,7 @@ RegistrationNumber</property>
                         <property name="Events">ButtonPressMask</property>
                         <property name="Date">0</property>
                         <property name="IsEditable">True</property>
-                        <property name="AutoSeparation">False</property>
+                        <property name="AutoSeparation">True</property>
                         <signal name="DateChanged" handler="OnPickerDeliveryDateDateChanged" />
                       </widget>
                       <packing>

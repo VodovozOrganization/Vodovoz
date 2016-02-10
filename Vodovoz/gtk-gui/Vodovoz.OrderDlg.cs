@@ -565,7 +565,7 @@ namespace Vodovoz
 			this.pickerDeliveryDate.Name = "pickerDeliveryDate";
 			this.pickerDeliveryDate.Date = new global::System.DateTime (0);
 			this.pickerDeliveryDate.IsEditable = true;
-			this.pickerDeliveryDate.AutoSeparation = false;
+			this.pickerDeliveryDate.AutoSeparation = true;
 			this.table1.Add (this.pickerDeliveryDate);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1 [this.pickerDeliveryDate]));
 			w34.TopAttach = ((uint)(7));

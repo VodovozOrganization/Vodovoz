@@ -84,7 +84,7 @@ namespace Vodovoz
 			this.datepickerDate.Name = "datepickerDate";
 			this.datepickerDate.Date = new global::System.DateTime (0);
 			this.datepickerDate.IsEditable = true;
-			this.datepickerDate.AutoSeparation = false;
+			this.datepickerDate.AutoSeparation = true;
 			this.datepickerDate.InheritedDataSource = true;
 			this.datepickerDate.Mappings = "Date";
 			this.datepickerDate.InheritedBoundaryDataSource = false;
