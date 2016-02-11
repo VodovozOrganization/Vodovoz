@@ -39,75 +39,61 @@ namespace Vodovoz
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
 			});
-			OrmMain.ClassMappingList = new System.Collections.Generic.List<IOrmObjectMapping> {
+			OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
 				//Простые справочники
-				new OrmObjectMapping<CullingCategory> (null, "{Vodovoz.Domain.CullingCategory} Name[Название];"),
-				new OrmObjectMapping<Nationality> (null, "{Vodovoz.Domain.Nationality} Name[Название];"),
-				new OrmObjectMapping<Manufacturer> (null, "{Vodovoz.Domain.Manufacturer} Name[Название];"),
-				new OrmObjectMapping<EquipmentColors> (null, "{Vodovoz.Domain.EquipmentColors} Id[Код]; Name[Название];"),
-				new OrmObjectMapping<Post> (null, "{QSContacts.Post} Name[Должность];"),
-				new OrmObjectMapping<CounterpartyStatus> (null, "{Vodovoz.Domain.CounterpartyStatus} Name[Название];"),
-				new OrmObjectMapping<Significance> (null, "{Vodovoz.Domain.Significance} Name[Значимость клиента];"),
-				new OrmObjectMapping<User> (null, "{Vodovoz.Domain.User} Name[Название];"),
-				new OrmObjectMapping<LogisticsArea> (null, "{Vodovoz.Domain.LogisticsArea} Name[Название]"),
-				new OrmObjectMapping<FuelType> (null, "{Vodovoz.Domain.Logistic.FuelType} Name[Название]"),
-				new OrmObjectMapping<DeliveryShift> (null, "{Vodovoz.Domain.Logistic.DeliveryShift} Name[Название]"),
+				OrmObjectMapping<CullingCategory>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<Nationality>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<Manufacturer>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<Post>.Create().DefaultTableView().SearchColumn("Должность", x => x.Name).End(),
+				OrmObjectMapping<CounterpartyStatus>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<Significance>.Create().DefaultTableView().SearchColumn("Значимость клиента", x => x.Name).End(),
+				OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<LogisticsArea>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<FuelType>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<DeliveryShift>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
-				new OrmObjectMapping<CommentTemplate> (typeof(CommentTemplateDlg), "{Vodovoz.Domain.CommentTemplate} Comment[Шаблон комментария];", new string[] { "Comment" }),
-				OrmObjectMapping<MeasurementUnits>.Create ().Dialog<MeasurementUnitsDlg>().DefaultTableView().Column("ОКЕИ", x => x.OKEI).Column("Название", x => x.Name).Column("Точность", x => x.Digits).End(),
-				new OrmObjectMapping<Contact> (typeof(ContactDlg), "{Vodovoz.Domain.Contact} Surname[Фамилия]; Name[Имя]; Lastname[Отчество]; Post[Должность]", new string[] {
-					"Surname",
-					"Name",
-					"Lastname",
-					"Post"
-				}),
-				new OrmObjectMapping<Car> (typeof(CarsDlg), "{Vodovoz.Domain.Logistic.Car} Model[Модель а/м]; RegistrationNumber[Гос. номер]; DriverInfo[Водитель];", new string[] {
-					"Model",
-					"RegistrationNumber",
-					"DriverInfo"
-				}),
-				new OrmObjectMapping<Proxy> (typeof(ProxyDlg), "{Vodovoz.Domain.Proxy} Number[Номер]; StartDate[С]; ExpirationDate[По];", new string[] { "Number" }),
-				new OrmObjectMapping<Order> (typeof(OrderDlg), "{Vodovoz.Domain.Orders.Order} Id[Номер]; StatusString[Статус]; ClientString[Клиент];").PopupMenu(OrderPopupMenu.GetPopupMenu),
-				new OrmObjectMapping<DeliveryPoint> (typeof(DeliveryPointDlg), "{Vodovoz.Domain.DeliveryPoint} Name[Название];"),
-				new OrmObjectMapping<PaidRentPackage> (typeof(PaidRentPackageDlg), "{Vodovoz.Domain.PaidRentPackage} Name[Название]; PriceDailyString[Цена в сутки]; PriceMonthlyString[Цена в месяц]; "),
-				new OrmObjectMapping<FreeRentPackage> (typeof(FreeRentPackageDlg), "{Vodovoz.Domain.FreeRentPackage} Name[Название];"),
-				new OrmObjectMapping<FreeRentAgreement> (typeof(AdditionalAgreementFreeRent), "{Vodovoz.Domain.FreeRentAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
-				new OrmObjectMapping<DailyRentAgreement> (typeof(AdditionalAgreementDailyRent), "{Vodovoz.Domain.DailyRentAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
-				new OrmObjectMapping<NonfreeRentAgreement> (typeof(AdditionalAgreementNonFreeRent), "{Vodovoz.Domain.NonfreeRentAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
-				new OrmObjectMapping<WaterSalesAgreement> (typeof(AdditionalAgreementWater), "{Vodovoz.Domain.WaterSalesAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
-				new OrmObjectMapping<RepairAgreement> (typeof(AdditionalAgreementRepair), "{Vodovoz.Domain.RepairAgreement} AgreementNumber[Номер];", new string[] { "AgreementNumber" }),
-				new OrmObjectMapping<Counterparty> (typeof(CounterpartyDlg), "{Vodovoz.Domain.Counterparty} Name[Наименование];"),
-				new OrmObjectMapping<CounterpartyContract> (typeof(CounterpartyContractDlg), "{Vodovoz.Domain.CounterpartyContract} Number[Номер договора];"),
-				new OrmObjectMapping<Organization> (typeof(OrganizationDlg), "{Vodovoz.Domain.Organization} Name[Название];"),
-				new OrmObjectMapping<DeliverySchedule> (typeof(DeliveryScheduleDlg), "{Vodovoz.Domain.DeliverySchedule} Name[Название]; DeliveryTime[Время доставки];"),
-				new OrmObjectMapping<ProductSpecification> (typeof(ProductSpecificationDlg), "{Vodovoz.Domain.ProductSpecification} Id[Код]; Name[Название];"),
+				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Comment).End(),
+				OrmObjectMapping<MeasurementUnits>.Create ().Dialog<MeasurementUnitsDlg>().DefaultTableView().SearchColumn("ОКЕИ", x => x.OKEI).SearchColumn("Название", x => x.Name).Column("Точность", x => x.Digits).End(),
+				OrmObjectMapping<Contact>.Create().Dialog <ContactDlg>()
+					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name).SearchColumn("Отчество", x => x.Patronymic).End(),
+				OrmObjectMapping<Car>.Create().Dialog<CarsDlg>()
+					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.DriverInfo).End(),
+				OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
+					.DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate).SearchColumn("По", x => x.ExpirationDate).End(),
+				OrmObjectMapping<Order>.Create().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
+				OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>(),
+				OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
+					.DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Цена в сутки", x => x.PriceDailyString).SearchColumn("Цена в месяц", x => x.PriceMonthlyString).End(),
+				OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<FreeRentAgreement>.Create().Dialog<AdditionalAgreementFreeRent>(),
+				OrmObjectMapping<DailyRentAgreement>.Create().Dialog<AdditionalAgreementDailyRent>(),
+				OrmObjectMapping<NonfreeRentAgreement>.Create().Dialog<AdditionalAgreementNonFreeRent>(),
+				OrmObjectMapping<WaterSalesAgreement>.Create().Dialog<AdditionalAgreementWater>(),
+				OrmObjectMapping<RepairAgreement>.Create().Dialog<AdditionalAgreementRepair>(),
+				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
+				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
+				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
+				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id).SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView().Column("Название",equipmentType=>equipmentType.Name).End(),
 				// Документы
-				new OrmObjectMapping<IncomingInvoice> (typeof(IncomingInvoiceDlg), "{Vodovoz.Domain.Documents.IncomingInvoice} Id[Номер];"),
-				new OrmObjectMapping<IncomingWater> (typeof(IncomingWaterDlg), "{Vodovoz.Domain.Documents.IncomingWater} Id[Номер];"),
-				new OrmObjectMapping<MovementDocument> (typeof(MovementDocumentDlg), "{Vodovoz.Domain.Documents.MovementDocument} Id[Номер];"),
-				new OrmObjectMapping<WriteoffDocument> (typeof(WriteoffDocumentDlg), "{Vodovoz.Domain.Documents.WriteoffDocument} Id[Номер];"),
+				OrmObjectMapping<IncomingInvoice>.Create().Dialog<IncomingInvoiceDlg>(),
+					OrmObjectMapping<IncomingWater>.Create().Dialog<IncomingWaterDlg>(),
+					OrmObjectMapping<MovementDocument>.Create().Dialog<MovementDocumentDlg>(),
+					OrmObjectMapping<WriteoffDocument>.Create().Dialog<WriteoffDocumentDlg>(),
 				//Справочники с фильтрами
-				new OrmObjectMapping<Nomenclature> (typeof(NomenclatureDlg), typeof(NomenclatureFilter), "{Vodovoz.Domain.Nomenclature} Id[Код]; Name[Название]; CategoryString[Тип];", new string[] {
-					"Name",
-					"CategoryString"
-				}),
-				new OrmObjectMapping<Equipment> (typeof(EquipmentDlg), typeof(EquipmentFilter), "{Vodovoz.Domain.Equipment} NomenclatureName[Номенклатура]; Type[Тип]; Serial[Серийный номер]; LastServiceDateString[Дата последней обработки];", new string[] {
-					"Serial",
-					"Type",
-					"NomenclatureName",
-					"LastServiceDateString"
-				}),
-				new OrmObjectMapping<Employee> (typeof(EmployeeDlg), typeof(EmployeeFilter), "{Vodovoz.Domain.Employee} LastName[Фамилия]; Name[Имя]; Patronymic[Отчество];", new string[] {
-					"Name",
-					"LastName",
-					"Patronymic"
-				}),
+				OrmObjectMapping<Nomenclature>.Create().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End(),
+				OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
+					.DefaultTableView().SearchColumn("Номенклатура", x => x.NomenclatureName).Column("Тип", x => x.Type).SearchColumn("Серийный номер", x => x.Serial).Column("Дата последней обработки", x => x.LastServiceDateString).End(),
+				OrmObjectMapping<Employee>.Create().Dialog<EmployeeDlg>().JournalFilter<EmployeeFilter>()
+					.DefaultTableView().SearchColumn("Ф.И.О.", x => x.FullName).End(),
 				//Логисткика
-				new OrmObjectMapping<RouteList> (typeof(RouteListCreateDlg), "{Vodovoz.Domain.Logistic.RouteList} Id[Номер]; DateString[Дата]; StatusString[Статус]; DriverInfo[Водитель];"),
-				new OrmObjectMapping<RouteColumn> (null, "{Vodovoz.Domain.Logistic.RouteColumn} Name[Название];"),
+				OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
+					.DefaultTableView().SearchColumn("Номер", x => x.Id).Column("Дата", x => x.DateString).Column("Статус", x => x.StatusString).Column("Водитель", x => x.DriverInfo).End(),
+				OrmObjectMapping<RouteColumn>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Сервис
-				new OrmObjectMapping<ServiceClaim> (typeof(ServiceClaimDlg), "{Vodovoz.Domain.Service.ServiceClaim} Id[Номер];"),
+				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>(),
 				//Касса
 				OrmObjectMapping<IncomeCategory>.Create ().EditPermision ("money_manage").DefaultTableView ().Column ("Название", e => e.Name).End (),
 				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().EditPermision ("money_manage").DefaultTableView ().Column ("Название", e => e.Name).End (),
