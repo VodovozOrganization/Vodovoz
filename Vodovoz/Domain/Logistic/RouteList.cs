@@ -141,12 +141,6 @@ namespace Vodovoz.Domain.Logistic
 			CheckAddressOrder ();
 		}
 
-		public virtual string DateString { get { return Date.ToShortDateString (); } }
-
-		public virtual string StatusString { get { return Status.GetEnumTitle (); } }
-
-		public virtual string DriverInfo { get { return String.Format ("{0} - {1}", Driver.FullName, Car.Title); } }
-
 		public virtual string Title { get { return String.Format ("Маршрутный лист №{0}", Id); } }
 
 		public RouteListItem AddAddressFromOrder (Order order)

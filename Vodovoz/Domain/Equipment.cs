@@ -1,9 +1,9 @@
 ﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
-using NHibernate.Criterion;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using NHibernate;
+using NHibernate.Criterion;
+using QSOrmProject;
 
 namespace Vodovoz.Domain
 {
@@ -72,11 +72,7 @@ namespace Vodovoz.Domain
 			get { return Nomenclature == null ? String.Empty : String.Format ("{0} (с/н: {1})", Nomenclature.Model, Serial); } 
 		}
 
-		public virtual string Type { get { return Nomenclature == null ? String.Empty : Nomenclature.Type.Name; } }
-
 		public virtual string NomenclatureName { get { return Nomenclature == null ? String.Empty : Nomenclature.Name; } }
-
-		public virtual string LastServiceDateString { get { return LastServiceDate.ToShortDateString (); } }
 
 		public Equipment ()
 		{

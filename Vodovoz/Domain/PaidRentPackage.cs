@@ -1,6 +1,6 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using QSOrmProject;
 using QSProjectsLib;
 
 namespace Vodovoz.Domain
@@ -87,11 +87,5 @@ namespace Vodovoz.Domain
 		{
 			Name = String.Empty;
 		}
-
-		public virtual string PriceDailyString { get { return CurrencyWorks.GetShortCurrencyString (PriceDaily); } }
-
-		public virtual string PriceMonthlyString { get { return CurrencyWorks.GetShortCurrencyString (PriceMonthly); } }
-
-
 	}
 }

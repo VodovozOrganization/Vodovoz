@@ -77,8 +77,6 @@ namespace Vodovoz.Domain.Logistic
 			get { return String.Format ("{0} ({1})", Model, RegistrationNumber); } 
 		}
 
-		public virtual string DriverInfo { get { return Driver == null ? String.Empty : Driver.FullName; } }
-
 		public Car ()
 		{
 			Model = String.Empty;

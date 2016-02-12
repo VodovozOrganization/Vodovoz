@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gamma.Utilities;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
@@ -54,17 +55,17 @@ namespace Vodovoz
 				OrmObjectMapping<DeliveryShift>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Comment).End(),
-				OrmObjectMapping<MeasurementUnits>.Create ().Dialog<MeasurementUnitsDlg>().DefaultTableView().SearchColumn("ОКЕИ", x => x.OKEI).SearchColumn("Название", x => x.Name).Column("Точность", x => x.Digits).End(),
+				OrmObjectMapping<MeasurementUnits>.Create ().Dialog<MeasurementUnitsDlg>().DefaultTableView().SearchColumn("ОКЕИ", x => x.OKEI).SearchColumn("Название", x => x.Name).Column("Точность", x => x.Digits.ToString()).End(),
 				OrmObjectMapping<Contact>.Create().Dialog <ContactDlg>()
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name).SearchColumn("Отчество", x => x.Patronymic).End(),
 				OrmObjectMapping<Car>.Create().Dialog<CarsDlg>()
-					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.DriverInfo).End(),
+					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.Driver.FullName).End(),
 				OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
-					.DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate).SearchColumn("По", x => x.ExpirationDate).End(),
+					.DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate.ToShortDateString()).SearchColumn("По", x => x.ExpirationDate.ToShortDateString()).End(),
 				OrmObjectMapping<Order>.Create().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
 				OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>(),
 				OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
-					.DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Цена в сутки", x => x.PriceDailyString).SearchColumn("Цена в месяц", x => x.PriceMonthlyString).End(),
+					.DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString (x.PriceDaily)).SearchColumn("Цена в месяц", x => CurrencyWorks.GetShortCurrencyString (x.PriceMonthly)).End(),
 				OrmObjectMapping<FreeRentPackage>.Create().Dialog<FreeRentPackageDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<FreeRentAgreement>.Create().Dialog<AdditionalAgreementFreeRent>(),
 				OrmObjectMapping<DailyRentAgreement>.Create().Dialog<AdditionalAgreementDailyRent>(),
@@ -75,7 +76,7 @@ namespace Vodovoz
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
 				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
-				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id).SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView().Column("Название",equipmentType=>equipmentType.Name).End(),
 				// Документы
 				OrmObjectMapping<IncomingInvoice>.Create().Dialog<IncomingInvoiceDlg>(),
@@ -85,12 +86,12 @@ namespace Vodovoz
 				//Справочники с фильтрами
 				OrmObjectMapping<Nomenclature>.Create().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End(),
 				OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()
-					.DefaultTableView().SearchColumn("Номенклатура", x => x.NomenclatureName).Column("Тип", x => x.Type).SearchColumn("Серийный номер", x => x.Serial).Column("Дата последней обработки", x => x.LastServiceDateString).End(),
+					.DefaultTableView().SearchColumn("Номенклатура", x => x.NomenclatureName).Column("Тип", x => x.Nomenclature.Type.Name).SearchColumn("Серийный номер", x => x.Serial).Column("Дата последней обработки", x => x.LastServiceDate.ToShortDateString ()).End(),
 				OrmObjectMapping<Employee>.Create().Dialog<EmployeeDlg>().JournalFilter<EmployeeFilter>()
 					.DefaultTableView().SearchColumn("Ф.И.О.", x => x.FullName).End(),
 				//Логисткика
 				OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
-					.DefaultTableView().SearchColumn("Номер", x => x.Id).Column("Дата", x => x.DateString).Column("Статус", x => x.StatusString).Column("Водитель", x => x.DriverInfo).End(),
+					.DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString()).Column("Статус", x => x.Status.GetEnumTitle ()).Column("Водитель", x => String.Format ("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
 				OrmObjectMapping<RouteColumn>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Сервис
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>(),
