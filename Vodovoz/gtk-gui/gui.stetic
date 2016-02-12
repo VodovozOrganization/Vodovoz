@@ -15673,17 +15673,9 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataLabel" id="labelStatus">
+              <widget class="Gamma.GtkWidgets.yLabel" id="labelStatus">
                 <property name="MemberName" />
-                <property name="Xalign">0</property>
-                <property name="UseMarkup">True</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">StatusString</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="Important">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">StatusString</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="LabelProp" translatable="yes">--</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -15691,8 +15683,9 @@ Patronymic</property>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">False</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>

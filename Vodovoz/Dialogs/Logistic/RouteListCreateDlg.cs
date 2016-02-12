@@ -98,6 +98,7 @@ namespace Vodovoz
 			speccomboShift.ColumnMappings = PropertyUtil.GetName<DeliveryShift> (s => s.Name);
 			speccomboShift.ItemsDataSource = DeliveryShiftRepository.ActiveShifts (UoW);
 
+			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 
 			referenceDriver.Sensitive = false;
 			buttonPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;

@@ -36,7 +36,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label9;
 		
-		private global::Gtk.DataBindings.DataLabel labelStatus;
+		private global::Gamma.GtkWidgets.yLabel labelStatus;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceCar;
 		
@@ -246,23 +246,16 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.labelStatus = new global::Gtk.DataBindings.DataLabel ();
+			this.labelStatus = new global::Gamma.GtkWidgets.yLabel ();
 			this.labelStatus.Name = "labelStatus";
-			this.labelStatus.Xalign = 0F;
-			this.labelStatus.UseMarkup = true;
-			this.labelStatus.InheritedDataSource = true;
-			this.labelStatus.Mappings = "StatusString";
-			this.labelStatus.InheritedBoundaryDataSource = false;
-			this.labelStatus.Important = false;
-			this.labelStatus.InheritedDataSource = true;
-			this.labelStatus.Mappings = "StatusString";
-			this.labelStatus.InheritedBoundaryDataSource = false;
+			this.labelStatus.LabelProp = global::Mono.Unix.Catalog.GetString ("--");
 			this.dataRouteList.Add (this.labelStatus);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.labelStatus]));
 			w17.TopAttach = ((uint)(2));
 			w17.BottomAttach = ((uint)(3));
 			w17.LeftAttach = ((uint)(1));
 			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
 			this.referenceCar = new global::Gtk.DataBindings.DataEntryReference ();
