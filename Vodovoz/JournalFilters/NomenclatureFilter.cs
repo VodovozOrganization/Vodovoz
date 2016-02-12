@@ -60,7 +60,7 @@ namespace Vodovoz
 			OnRefiltered ();
 		}
 
-		protected void OnEnumcomboTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumcomboTypeChanged (object sender, EventArgs e)
 		{
 			UpdateCreteria ();
 		}

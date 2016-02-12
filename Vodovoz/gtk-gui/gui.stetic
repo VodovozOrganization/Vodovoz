@@ -10858,13 +10858,15 @@ Patronymic</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
         <child>
-          <widget class="QSOrmProject.EnumComboBox" id="enumcomboType">
+          <widget class="Gamma.Widgets.yEnumComboBox" id="enumcomboType">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
-            <signal name="EnumItemSelected" handler="OnEnumcomboTypeEnumItemSelected" />
+            <property name="UseShortTitle">False</property>
+            <property name="DefaultFirst">False</property>
+            <signal name="Changed" handler="OnEnumcomboTypeChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">1</property>
