@@ -28,8 +28,10 @@ namespace Vodovoz.Domain.Documents
 			get { return base.TimeStamp; }
 			set {
 				base.TimeStamp = value;
+				if (!NHibernate.NHibernateUtil.IsInitialized(Items))
+					return;
 				foreach (var item in Items) {
-					if (item.MovementOperation.OperationTime != TimeStamp)
+					if (item.MovementOperation != null && item.MovementOperation.OperationTime != TimeStamp)
 						item.MovementOperation.OperationTime = TimeStamp;
 				}
 			}
