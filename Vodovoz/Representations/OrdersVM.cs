@@ -39,6 +39,11 @@ namespace Vodovoz.ViewModel
 				query.Where (o => o.OrderStatus == Filter.RestrictStatus);
 			}
 
+			if(Filter.RestrictSelfDelivery != null)
+			{
+				query.Where (o => o.SelfDelivery == Filter.RestrictSelfDelivery);
+			}
+
 			if(Filter.RestrictCounterparty != null)
 			{
 				query.Where (o => o.Client == Filter.RestrictCounterparty);

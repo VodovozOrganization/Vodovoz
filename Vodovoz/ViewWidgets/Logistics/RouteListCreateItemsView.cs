@@ -151,6 +151,7 @@ namespace Vodovoz
 			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date;
 			filter.RestrictStatus = OrderStatus.Accepted;
 			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
+			filter.RestrictSelfDelivery = false;
 
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
 			SelectDialog.Mode = OrmReferenceMode.MultiSelect;

@@ -86,6 +86,8 @@ namespace Vodovoz
 			}
 		}
 
+		public bool? RestrictSelfDelivery { get; set;}
+
 		public int[] ExceptIds{ get; set; }
 
 		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
