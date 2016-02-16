@@ -43,6 +43,13 @@ namespace Vodovoz.Domain
 
 		#endregion
 
+		public string Title{
+			get{
+				return String.Format("Спецификация на <{0}>", Product.Name);
+			}
+		}
+
+
 		public ProductSpecification ()
 		{
 			Name = String.Empty;

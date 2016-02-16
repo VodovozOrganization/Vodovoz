@@ -69,6 +69,24 @@ namespace Vodovoz
 			get { return forRent; }
 			set { SetField (ref forRent, value, () => ForRent); }
 		}
+
+		#region Вычисляемые
+
+		public virtual string Title{
+			get{
+				if (IncomingCounterparty != null && WriteoffCounterparty != null)
+					return string.Format("Перемещение из {0}({4}) в {1}({5}), {2} - {3}", WriteoffCounterparty.Name, IncomingCounterparty.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount), IncomingDeliveryPoint.CompiledAddress, WriteoffDeliveryPoint.CompiledAddress);
+				else if (IncomingCounterparty != null)
+					return string.Format("Поступление клиенту {0}, {1} - {2}", IncomingCounterparty.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
+				else if (WriteoffCounterparty != null)
+					return string.Format("Забор от клиента {0}, {1} - {2}", WriteoffCounterparty.Name, Nomenclature.Name, Nomenclature.Unit.MakeAmountShortStr(Amount));
+				else
+					return null;
+			}
+		}
+
+		#endregion
+
 	}
 }
 

@@ -1,6 +1,7 @@
 ﻿using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using System;
 
 namespace Vodovoz.Domain
 {
@@ -36,6 +37,12 @@ namespace Vodovoz.Domain
 
 		public string NomenclatureName {
 			get { return Material.Name;}
+		}
+
+		public string Title{
+			get{
+				return String.Format("Материал <{0}> из спецификации на производства", Material.Name);
+			}
 		}
 
 		public ProductSpecificationMaterial ()
