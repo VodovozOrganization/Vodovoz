@@ -188,11 +188,11 @@ namespace Vodovoz.Domain.Logistic
 			bool withForwarder = RouteList.Forwarder!=null;
 			var rates = Wages.GetDriverRates(withForwarder);
 
-			if (Status != RouteListItemStatus.Completed)
+			if (!IsDelivered())
 				return 0;
 			
 			var firstOrderForAddress = RouteList.Addresses
-				.Where(address=>address.Status==RouteListItemStatus.Completed)
+				.Where(address=>address.IsDelivered())
 				.Select(item => item.Order)
 				.First(ord => ord.DeliveryPoint.Id == Order.DeliveryPoint.Id).Id == Order.Id;
 
@@ -236,7 +236,7 @@ namespace Vodovoz.Domain.Logistic
 			if (WithoutForwarder)
 				return 0;
 
-			if (Status != RouteListItemStatus.Completed)
+			if (!IsDelivered())
 				return 0;
 			
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
@@ -341,6 +341,14 @@ namespace Vodovoz.Domain.Logistic
 					.Where(item=>item.Equipment!=null)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
+		}
+
+		public bool IsDelivered()
+		{
+			var routeListUnloaded = (RouteList.Status == RouteListStatus.ReadyToReport) || 
+				(RouteList.Status == RouteListStatus.MileageCheck) ||
+				(RouteList.Status==RouteListStatus.Closed);
+			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded;
 		}
 
 		public int GetFullBottlesDeliveredCount(){

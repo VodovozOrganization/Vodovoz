@@ -105,7 +105,7 @@ namespace Vodovoz
 			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(routelist.Id, new []{NomenclatureCategory.bottle})
 				.Sum(item=>item.Amount);
 			var returnableOrderItems = routeListAddressesView.Items
-				.Where(address => address.Status == RouteListItemStatus.Completed)
+				.Where(address => address.IsDelivered())
 				.SelectMany(address => address.Order.OrderItems)
 				.Where(orderItem=>!orderItem.Nomenclature.Serial)
 				.Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
@@ -133,22 +133,22 @@ namespace Vodovoz
 					.Where(item => !item.Nomenclature.Serial).ToList();
 				foreach(var item in nomenclatures)
 				{
-					item.ActualCount = routeListItem.Status==RouteListItemStatus.Completed ? item.Count : 0;
+					item.ActualCount = routeListItem.IsDelivered() ? item.Count : 0;
 				}
 				var equipments = routeListItem.Order.OrderEquipments.Where(orderEq=>orderEq.Equipment!=null);
 				foreach(var item in equipments)
 				{
 					var returnedToWarehouse = allReturnsToWarehouse.Any(ret => ret.Id == item.Equipment.Id && ret.Amount > 0);
-					item.Confirmed = routeListItem.Status == RouteListItemStatus.Completed
+					item.Confirmed = routeListItem.IsDelivered()
 						&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
 							|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
 				}
-				routeListItem.BottlesReturned = routeListItem.Status == RouteListItemStatus.Completed
+				routeListItem.BottlesReturned = routeListItem.IsDelivered()
 					? routeListItem.Order.BottlesReturn : 0;
-				routeListItem.TotalCash = routeListItem.Status ==
-					RouteListItemStatus.Completed && routeListItem.Order.PaymentType==PaymentType.cash
+				routeListItem.TotalCash = routeListItem.IsDelivered() && 
+					routeListItem.Order.PaymentType==PaymentType.cash
 					? routeListItem.Order.SumToReceive : 0;
-				routeListItem.DepositsCollected = routeListItem.Status == RouteListItemStatus.Completed
+				routeListItem.DepositsCollected = routeListItem.IsDelivered()
 					? routeListItem.Order.OrderDepositItems.Sum(depositItem => depositItem.Deposit) : 0;
 				routeListItem.RecalculateWages();
 			}
@@ -157,11 +157,8 @@ namespace Vodovoz
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
 		{			
 			var node = routeListAddressesView.GetSelectedRouteListItem();
-			if (node.Status == RouteListItemStatus.Completed)
-			{
-				var dlg = new OrderReturnsView(node);
-				TabParent.AddSlaveTab(this, dlg);
-			}
+			var dlg = new OrderReturnsView(node);
+			TabParent.AddSlaveTab(this, dlg);
 		}
 
 		void OnRouteListItemChanged (object aList, int[] aIdx)
@@ -188,7 +185,7 @@ namespace Vodovoz
 
 		void CalculateTotal ()
 		{
-			var items = routeListAddressesView.Items.Where(item=>item.Status==RouteListItemStatus.Completed);
+			var items = routeListAddressesView.Items.Where(item=>item.IsDelivered());
 			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
@@ -196,7 +193,7 @@ namespace Vodovoz
 			decimal totalCollected = items.Sum(item => item.TotalCash);
 			decimal driverWage = items.Sum(item => item.DriverWage);
 			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
-			int addressCount = items.Count(item => item.Status == RouteListItemStatus.Completed);
+			int addressCount = items.Count(item => item.IsDelivered());
 			decimal phoneSum = Wages.GetDriverRates().PhoneServiceCompensationRate * addressCount;
 			labelAddressCount.Text = String.Format("Адресов:{0}", addressCount);
 			labelPhone.Text = String.Format(
@@ -242,7 +239,7 @@ namespace Vodovoz
 
 		protected bool isConsistentWithUnloadDocument(){
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
-			var items = routeListAddressesView.Items.Where(item=>item.Status==RouteListItemStatus.Completed);
+			var items = routeListAddressesView.Items.Where(item=>item.IsDelivered());
 			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
 			return !hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies;

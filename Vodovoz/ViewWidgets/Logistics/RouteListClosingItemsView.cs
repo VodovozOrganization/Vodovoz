@@ -114,13 +114,13 @@ namespace Vodovoz
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
 				.AddColumn("Пустых \nбутылей")
 					.AddNumericRenderer(node => node.BottlesReturned)
-						.AddSetter((cell, node) => cell.Editable = node.Status==RouteListItemStatus.Completed)
+						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 					.AddTextRenderer(node => "шт", false)
 				.AddColumn("Залоги \nза бутыли")
 					.AddNumericRenderer(node => node.DepositsCollected)
 						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
-						.AddSetter((cell, node) => cell.Editable = node.Status==RouteListItemStatus.Completed)
+						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.AddSetter((cell,node) => {
 					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
 					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
@@ -128,15 +128,15 @@ namespace Vodovoz
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Итого\n(нал.)")
 					.AddNumericRenderer(node => node.TotalCash)
-						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash
-					                                 && node.Status==RouteListItemStatus.Completed)
+						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 
+													node.IsDelivered())
 						.AddSetter((cell,node)=>cell.Sensitive = node.Order.PaymentType == PaymentType.cash)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("З/П \nводителя")
 					.AddNumericRenderer(node => node.DriverWage)						
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
-						.AddSetter((cell, node) => cell.Editable = node.Status==RouteListItemStatus.Completed)
+						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedDriverWage() ? colorBlue : colorBlack)
 						.AddSetter((cell,node)=>cell.IsExpanded=false)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
@@ -154,24 +154,20 @@ namespace Vodovoz
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
 					var color = colorWhite;
-					if (node.Status != RouteListItemStatus.Completed)
-						color = colorRed;
+						if (!node.IsDelivered())
+							color = colorRed;
 					else
 					{
 						var itemChanged = node.Order.OrderItems
 							.Where(item => !item.Nomenclature.Serial)
 							.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 							.Any(item => item.Count != item.ActualCount);
-						var equipmentChanged = node.Order.OrderEquipments							
+						var equipmentChanged = node.Order.OrderEquipments
 							.Any(eq => !eq.Confirmed);
 						if (itemChanged || equipmentChanged)
 							color = colorLightBlue;
 					}
 					cell.CellBackgroundGdk = color;
-				})
-				.AddSetter<CellRenderer>((cell, node) =>
-				{
-					cell.Sensitive = node.Status==RouteListItemStatus.Completed;
 				});
 				
 			ytreeviewItems.ColumnsConfig = config.Finish();

@@ -76,7 +76,7 @@ namespace Vodovoz
 					goodsToWarehouse.FirstOrDefault(item => item.NomenclatureId == itemFromClient.NomenclatureId);
 				if (itemToWarehouse == null)
 					continue;
-				var failedDeliveryGoodsCount = items.Where(item => item.Status != RouteListItemStatus.Completed)
+				var failedDeliveryGoodsCount = items.Where(item => !item.IsDelivered())
 					.SelectMany(item => item.Order.OrderItems)
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 					.Where(item => item.Nomenclature.Id == itemFromClient.NomenclatureId)
