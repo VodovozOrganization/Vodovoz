@@ -119,11 +119,11 @@ namespace Vodovoz
 					.AddTextRenderer(node => "шт", false)
 				.AddColumn("Залоги \nза бутыли")
 					.AddNumericRenderer(node => node.DepositsCollected)
-						.Adjustment(new Adjustment(0, 0, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
+						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
 						.AddSetter((cell, node) => cell.Editable = node.Status==RouteListItemStatus.Completed)
 						.AddSetter((cell,node) => {
 					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
-					cell.Foreground = expectedDeposits!=node.DepositsCollected ? "red" : "black";
+					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
 					})
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Итого\n(нал.)")
@@ -184,7 +184,7 @@ namespace Vodovoz
 			{
 				var formatString = item.CoolersToClient < item.PlannedCoolersToClient
 						? "Кулеры:<b>{0}</b>({1})" 
-						: "Кулеры:{0}({1})";
+						: "Кулеры:<b>{0}</b>";
 				var coolerString = String.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient);
 				stringParts.Add(coolerString);
 			}
@@ -192,7 +192,7 @@ namespace Vodovoz
 			{
 				var formatString = item.PumpsToClient < item.PlannedPumpsToClient
 						? "Помпы:<b>{0}</b>({1})" 
-						: "Помпы:{0}({1})";
+						: "Помпы:<b>{0}</b>";
 				var coolerString = String.Format(formatString, item.PumpsToClient, item.PlannedPumpsToClient);						
 				stringParts.Add(coolerString);
 			}
@@ -200,7 +200,7 @@ namespace Vodovoz
 			{					
 				var formatString = item.UncategorisedEquipmentToClient < item.PlannedUncategorisedEquipmentToClient
 						? "Другое:<b>{0}</b>({1})" 
-						: "Другое:{0}({1})";
+						: "Другое:<b>{0}</b>";
 				var coolerString = String.Format(formatString, item.UncategorisedEquipmentToClient, item.PlannedUncategorisedEquipmentToClient);						
 				stringParts.Add(coolerString);
 			}
@@ -215,7 +215,7 @@ namespace Vodovoz
 			{
 				var formatString = item.CoolersFromClient < item.PlannedCoolersFromClient 
 						? "Кулеры:<b>{0}</b>({1})" 
-						: "Кулеры:{0}({1})";
+						: "Кулеры:<b>{0}</b>";
 				var coolerString = String.Format(formatString, item.CoolersFromClient, item.PlannedCoolersFromClient);						
 				stringParts.Add(coolerString);
 			}
@@ -223,7 +223,7 @@ namespace Vodovoz
 			{
 				var formatString = item.PumpsFromClient < item.PlannedPumpsFromClient 
 						? "Помпы:<b>{0}</b>({1})" 
-						: "Помпы:{0}({1})";
+						: "Помпы:<b>{0}</b>";
 				var pumpString = String.Format(formatString, item.PumpsFromClient, item.PlannedPumpsFromClient);						
 				stringParts.Add(pumpString);
 			}
