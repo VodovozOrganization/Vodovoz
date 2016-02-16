@@ -16265,10 +16265,38 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="labelEmptyBottles1">
+                  <widget class="Gtk.HBox" id="hbox11">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes">Тара</property>
-                    <property name="UseMarkup">True</property>
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Label" id="labelEmptyBottles1">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Тара</property>
+                        <property name="UseMarkup">True</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="labelBottleDifference">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">(разница)</property>
+                        <property name="UseMarkup">True</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
                   </widget>
                   <packing>
                     <property name="Position">1</property>

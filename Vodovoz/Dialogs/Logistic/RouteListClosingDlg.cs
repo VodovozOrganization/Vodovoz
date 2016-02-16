@@ -231,12 +231,14 @@ namespace Vodovoz
 				forwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelEmptyBottles1.Markup = String.Format("Тара: <b>{0}</b><sub>(выгружено)</sub> - <b>{1}</b><sub>(итого сдано)</sub> = <b>{2}</b><sub>(осталось)</sub>",
+			labelEmptyBottles1.Markup = String.Format("Тара: <b>{0}</b><sub>(выгружено)</sub> - <b>{1}</b><sub>(итого сдано)</sub> =",
 				bottlesReturnedToWarehouse,
-				bottlesReturnedTotal,
-				bottlesReturnedToWarehouse-bottlesReturnedTotal
+				bottlesReturnedTotal
 			);
-		}			
+			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
+			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
+			labelBottleDifference.Markup = String.Format(bottleDifferenceFormat, bottlesReturnedToWarehouse-bottlesReturnedTotal, differenceAttributes);
+		}
 
 		protected bool isConsistentWithUnloadDocument(){
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
