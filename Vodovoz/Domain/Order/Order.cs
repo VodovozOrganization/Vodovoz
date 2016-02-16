@@ -339,7 +339,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			Comment = String.Empty;
 			OrderStatus = OrderStatus.NewOrder;
-			DeliveryDate = DateTime.Now;
+			DeliveryDate = DateTime.Today;
 			SumDifferenceReason = String.Empty;
 			DeliveryDate = DateTime.Now.AddDays (1);
 		}

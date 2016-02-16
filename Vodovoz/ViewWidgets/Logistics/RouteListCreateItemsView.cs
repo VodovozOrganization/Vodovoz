@@ -148,7 +148,7 @@ namespace Vodovoz
 		protected void AddOrders ()
 		{
 			var filter = new OrdersFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date;
+			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
 			filter.RestrictStatus = OrderStatus.Accepted;
 			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
 			filter.RestrictSelfDelivery = false;

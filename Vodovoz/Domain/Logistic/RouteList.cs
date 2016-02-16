@@ -230,7 +230,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public RouteList ()
 		{
-			Date = DateTime.Now;
+			Date = DateTime.Today;
 		}
 	}
 
