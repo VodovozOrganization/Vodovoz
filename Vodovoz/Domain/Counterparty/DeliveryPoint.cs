@@ -1,6 +1,7 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using Gamma.Utilities;
+using QSOrmProject;
 using QSOsm.DTO;
 
 namespace Vodovoz.Domain
@@ -183,6 +184,7 @@ namespace Vodovoz.Domain
 		decimal? latitude;
 
 		[Display (Name = "Широта")]
+		[PropertyChangedAlso ("СoordinatesText")]
 		public virtual decimal? Latitude {
 			get { return latitude; }
 			set { SetField (ref latitude, value, () => Latitude); }
@@ -191,6 +193,7 @@ namespace Vodovoz.Domain
 		decimal? longitude;
 
 		[Display (Name = "Долгота")]
+		[PropertyChangedAlso ("СoordinatesText")]
 		public virtual decimal? Longitude {
 			get { return longitude; }
 			set { SetField (ref longitude, value, () => Longitude); }
@@ -255,6 +258,18 @@ namespace Vodovoz.Domain
 
 		//Масштаб карты
 		//Файл схемы проезда
+
+		#endregion
+
+		#region Расчетные
+
+		public virtual string СoordinatesText{
+			get{
+				if (Latitude == null || Longitude == null)
+					return String.Empty;
+				return String.Format("(ш. {0:F5}, д. {1:F5})", Latitude, Longitude);
+			}
+		}
 
 		#endregion
 

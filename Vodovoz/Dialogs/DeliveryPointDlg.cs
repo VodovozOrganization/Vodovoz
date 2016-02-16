@@ -56,7 +56,9 @@ namespace Vodovoz
 				.InitializeFromSource ();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
-				entity => entity.FoundOnOsm ? String.Empty : "<span foreground='red'>Не найден на карте.</span>",
+				entity => entity.FoundOnOsm 
+				? String.Format("<span foreground='green'>{0}</span>", entity.СoordinatesText) 
+				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
 				.InitializeFromSource ();
 
