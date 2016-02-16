@@ -57,6 +57,11 @@ namespace Vodovoz
 
 		protected void Configure()
 		{
+			yentryCounterparty.Binding.AddBinding(routeListItem.Order, o => o.Client, w => w.Subject).InitializeFromSource();
+			yentryCounterparty.CanEditReference = false;
+			yentryDeliveryPoint.Binding.AddBinding(routeListItem.Order, o => o.DeliveryPoint, w => w.Subject).InitializeFromSource();
+			yentryDeliveryPoint.CanEditReference = false;
+
 			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
