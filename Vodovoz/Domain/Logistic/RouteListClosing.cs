@@ -171,12 +171,13 @@ namespace Vodovoz.Domain.Logistic
 						{
 							Order = item.Order,
 							OperationTime = DateTime.Now,
-							DepositType = DepositType.Equipment,
+							DepositType = DepositType.Bottles,
 							Counterparty = item.Order.Client,
 							DeliveryPoint = item.Order.DeliveryPoint,
 							ReceivedDeposit = item.DepositsCollected
 						};
-					result.Add(bottleDepositsOperation);
+					if(bottleDepositsOperation.ReceivedDeposit!=0)
+						result.Add(bottleDepositsOperation);
 				}
 			}
 			return result;
