@@ -134,8 +134,8 @@ namespace Vodovoz
 		{
 			AddOrderEnum choice = (AddOrderEnum)e.ItemEnum;
 			switch (choice) {
-			case AddOrderEnum.AddOne:
-				AddOrder ();
+			case AddOrderEnum.AddOrders:
+				AddOrders ();
 				break;
 			case AddOrderEnum.AddAllForRegion:
 				AddOrdersFromRegion ();
@@ -145,7 +145,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void AddOrder ()
+		protected void AddOrders ()
 		{
 			var filter = new OrdersFilter (UnitOfWorkFactory.CreateWithoutRoot ());
 			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date;
@@ -153,10 +153,13 @@ namespace Vodovoz
 			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
 
 			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
-			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.Mode = OrmReferenceMode.MultiSelect;
 			SelectDialog.ObjectSelected += (s, ea) => {
-				var order = RouteListUoW.GetById<Order> (ea.ObjectId);
-				RouteListUoW.Root.AddAddressFromOrder (order);
+				foreach(var selected in ea.Selected)
+				{
+					var order = RouteListUoW.GetById<Order> (selected.EntityId);
+					RouteListUoW.Root.AddAddressFromOrder (order);
+				}
 			};
 			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
 		}
@@ -200,7 +203,7 @@ namespace Vodovoz
 
 	public enum AddOrderEnum
 	{
-		[Display (Name = "Один заказ")] AddOne,
+		[Display (Name = "Выбрать заказы...")] AddOrders,
 		[Display (Name = "Все заказы для логистического района")]AddAllForRegion
 	}
 
