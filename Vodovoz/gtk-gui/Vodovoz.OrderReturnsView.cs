@@ -12,7 +12,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gamma.GtkWidgets.yTreeView ytreeview2;
+		private global::Gamma.GtkWidgets.yTreeView ytreeToClient;
 		
 		private global::Gtk.Label GtkLabel;
 		
@@ -49,10 +49,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview2 = new global::Gamma.GtkWidgets.yTreeView ();
-			this.ytreeview2.CanFocus = true;
-			this.ytreeview2.Name = "ytreeview2";
-			this.GtkScrolledWindow.Add (this.ytreeview2);
+			this.ytreeToClient = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeToClient.CanFocus = true;
+			this.ytreeToClient.Name = "ytreeToClient";
+			this.GtkScrolledWindow.Add (this.ytreeToClient);
 			this.GtkAlignment.Add (this.GtkScrolledWindow);
 			this.frame1.Add (this.GtkAlignment);
 			this.GtkLabel = new global::Gtk.Label ();

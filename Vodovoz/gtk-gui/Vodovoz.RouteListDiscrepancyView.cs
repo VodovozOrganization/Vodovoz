@@ -42,7 +42,7 @@ namespace Vodovoz
 			this.frame1.Add (this.GtkAlignment);
 			this.LabelDiscrepancy = new global::Gtk.Label ();
 			this.LabelDiscrepancy.Name = "LabelDiscrepancy";
-			this.LabelDiscrepancy.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Расхождения</b>");
+			this.LabelDiscrepancy.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Возвраты/недовозы</b>");
 			this.LabelDiscrepancy.UseMarkup = true;
 			this.frame1.LabelWidget = this.LabelDiscrepancy;
 			this.Add (this.frame1);

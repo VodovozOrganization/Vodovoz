@@ -22,6 +22,8 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
+		public event RowActivatedHandler OnClosingItemActivated;
+
 		public GenericObservableList<RouteListItem> Items{ get; set; }
 
 		private int goodsColumnsCount = -1;
@@ -36,6 +38,8 @@ namespace Vodovoz
 			}
 		}
 
+		private decimal bottleDepositPrice;
+
 		IUnitOfWork uow;
 		public IUnitOfWork UoW{ 
 			get{
@@ -43,6 +47,7 @@ namespace Vodovoz
 			}
 			set{
 				uow = value;
+				bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(1);
 			}
 		}
 
@@ -57,7 +62,7 @@ namespace Vodovoz
 				routeList = value;
 				if (routeList.Addresses == null)
 					routeList.Addresses = new List<RouteListItem> ();				
-				Items = routeList.ObservableAddresses;
+				Items = routeList.ObservableAddresses;			
 
 				routeList.ObservableAddresses.ListChanged += Items_ListChanged;
 
@@ -83,9 +88,8 @@ namespace Vodovoz
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
 				.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id.ToString())
-				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-				.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
-
+				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building));
+			
 			if (columnsInfo != null)
 			{
 				foreach (var column in columnsInfo)
@@ -102,30 +106,41 @@ namespace Vodovoz
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
 			config
-				.AddColumn("Пустых бутылей")
+				.AddColumn("Доп. оборудование \n клиенту")
+					.AddTextRenderer()
+						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
+				.AddColumn("Доп. оборуд. \n от клиента")
+					.AddTextRenderer()
+						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
+				.AddColumn("Пустых \nбутылей")
 					.AddNumericRenderer(node => node.BottlesReturned)
 						.AddSetter((cell, node) => cell.Editable = node.Status==RouteListItemStatus.Completed)
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 					.AddTextRenderer(node => "шт", false)
-				.AddColumn("Залоги за бутыли")
-					.AddNumericRenderer(node => node.DepositsCollected)						
-						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
+				.AddColumn("Залоги \nза бутыли")
+					.AddNumericRenderer(node => node.DepositsCollected)
+						.Adjustment(new Adjustment(0, 0, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
 						.AddSetter((cell, node) => cell.Editable = node.Status==RouteListItemStatus.Completed)
+						.AddSetter((cell,node) => {
+					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
+					cell.Foreground = expectedDeposits!=node.DepositsCollected ? "red" : "black";
+					})
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("Итого(нал.)")
+				.AddColumn("Итого\n(нал.)")
 					.AddNumericRenderer(node => node.TotalCash)
 						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash
 					                                 && node.Status==RouteListItemStatus.Completed)
 						.AddSetter((cell,node)=>cell.Sensitive = node.Order.PaymentType == PaymentType.cash)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("ЗП водителя")
+				.AddColumn("З/П \nводителя")
 					.AddNumericRenderer(node => node.DriverWage)						
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 						.AddSetter((cell, node) => cell.Editable = node.Status==RouteListItemStatus.Completed)
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedDriverWage() ? colorBlue : colorBlack)
+						.AddSetter((cell,node)=>cell.IsExpanded=false)
 					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-				.AddColumn("ЗП экспедитора") 
+				.AddColumn("З/П \nэкспедитора")
 					.AddNumericRenderer(node => node.ForwarderWage)
 						.AddSetter((cell, node) => cell.Editable = !node.WithoutForwarder)
 						.AddSetter((cell, node) => cell.Sensitive = !node.WithoutForwarder)
@@ -162,7 +177,58 @@ namespace Vodovoz
 			ytreeviewItems.ColumnsConfig = config.Finish();
 		}
 
+		public string ToClientString(RouteListItem item)
+		{
+			var stringParts = new List<string>();
+			if (item.PlannedCoolersToClient > 0)
+			{
+				var formatString = item.CoolersToClient < item.PlannedCoolersToClient
+						? "Кулеры:<b>{0}</b>({1})" 
+						: "Кулеры:{0}({1})";
+				var coolerString = String.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient);
+				stringParts.Add(coolerString);
+			}
+			if (item.PlannedPumpsToClient > 0)
+			{
+				var formatString = item.PumpsToClient < item.PlannedPumpsToClient
+						? "Помпы:<b>{0}</b>({1})" 
+						: "Помпы:{0}({1})";
+				var coolerString = String.Format(formatString, item.PumpsToClient, item.PlannedPumpsToClient);						
+				stringParts.Add(coolerString);
+			}
+			if (item.UncategorisedEquipmentToClient > 0)
+			{					
+				var formatString = item.UncategorisedEquipmentToClient < item.PlannedUncategorisedEquipmentToClient
+						? "Другое:<b>{0}</b>({1})" 
+						: "Другое:{0}({1})";
+				var coolerString = String.Format(formatString, item.UncategorisedEquipmentToClient, item.PlannedUncategorisedEquipmentToClient);						
+				stringParts.Add(coolerString);
+			}
 
+			return String.Join(",", stringParts);
+		}	
+
+		public string FromClientString(RouteListItem item)
+		{
+			var stringParts = new List<string>();
+			if (item.PlannedCoolersFromClient > 0)
+			{
+				var formatString = item.CoolersFromClient < item.PlannedCoolersFromClient 
+						? "Кулеры:<b>{0}</b>({1})" 
+						: "Кулеры:{0}({1})";
+				var coolerString = String.Format(formatString, item.CoolersFromClient, item.PlannedCoolersFromClient);						
+				stringParts.Add(coolerString);
+			}
+			if (item.PlannedPumpsFromClient > 0)
+			{
+				var formatString = item.PumpsFromClient < item.PlannedPumpsFromClient 
+						? "Помпы:<b>{0}</b>({1})" 
+						: "Помпы:{0}({1})";
+				var pumpString = String.Format(formatString, item.PumpsFromClient, item.PlannedPumpsFromClient);						
+				stringParts.Add(pumpString);
+			}
+			return String.Join(",", stringParts);
+		}
 
 		public RouteListClosingItemsView ()
 		{
@@ -171,14 +237,13 @@ namespace Vodovoz
 
 		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
 		{
-			var node = ytreeviewItems.GetSelectedObject() as RouteListItem;
-			if (node.Status == RouteListItemStatus.Completed)
-			{
-				var dlg = new OrderReturnsView(ytreeviewItems.GetSelectedObject() as RouteListItem);
-				MyTab.TabParent.AddSlaveTab(MyTab, dlg);
-			}
+			OnClosingItemActivated(sender, args);
 		}
-	}
 
+		public RouteListItem GetSelectedRouteListItem()
+		{
+			return (ytreeviewItems.GetSelectedObject() as RouteListItem);
+		}
+	}		
 }
 

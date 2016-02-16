@@ -132,6 +132,56 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
+		public virtual List<DepositOperation> CreateDepositOperations(){
+			var result = new List<DepositOperation>();
+			foreach (RouteListItem item in RouteList.Addresses)
+			{
+				if (item.Order.PaymentType == PaymentType.cash)
+				{
+					var deliveredEquipmentForRent = item.Order.OrderEquipments.Where(eq => eq.Confirmed)
+						.Where(eq => eq.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
+						.Where(eq => eq.Reason == Reason.Rent);
+
+					var paidRentDeposits = item.Order.OrderDepositItems
+						.Where(deposit => deposit.PaymentDirection == PaymentDirection.FromClient)
+						.Where(deposit => deposit.PaidRentItem != null
+						                       && deliveredEquipmentForRent.Any(eq => eq.Id == deposit.PaidRentItem.Equipment.Id));
+
+					var freeRentDeposits = item.Order.OrderDepositItems
+						.Where(deposit => deposit.PaymentDirection == PaymentDirection.FromClient)
+						.Where(deposit => deposit.FreeRentItem != null
+						                       && deliveredEquipmentForRent.Any(eq => eq.Id == deposit.FreeRentItem.Equipment.Id));
+
+					foreach (var deposit in paidRentDeposits.Union(freeRentDeposits))
+					{
+						var operation = new DepositOperation
+						{
+							Order = item.Order,
+							OperationTime = DateTime.Now,
+							DepositType = DepositType.Equipment,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = deposit.Total
+						};
+						deposit.DepositOperation = operation;
+						result.Add(operation);
+					}
+
+					var bottleDepositsOperation = new DepositOperation
+						{
+							Order = item.Order,
+							OperationTime = DateTime.Now,
+							DepositType = DepositType.Equipment,
+							Counterparty = item.Order.Client,
+							DeliveryPoint = item.Order.DeliveryPoint,
+							ReceivedDeposit = item.DepositsCollected
+						};
+					result.Add(bottleDepositsOperation);
+				}
+			}
+			return result;
+		}
+
 		public virtual void Confirm()
 		{			
 			RouteList.Status = RouteListStatus.MileageCheck;

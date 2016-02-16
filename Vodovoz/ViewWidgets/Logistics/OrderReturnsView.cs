@@ -13,40 +13,51 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderReturnsView : TdiTabBase
 	{
-		List<OrderEquipment> equipmentFromClient;
-		List<OrderItemReturnsNode> items;
+		List<OrderItemReturnsNode> equipmentFromClient;
+		List<OrderItemReturnsNode> itemsToClient;
 
 		RouteListItem routeListItem;
 
 		public OrderReturnsView(RouteListItem routeListItem)
 		{
 			this.routeListItem = routeListItem;	
-			equipmentFromClient = routeListItem.Order.OrderEquipments
-				.Where(equipment=>equipment.Direction==Vodovoz.Domain.Orders.Direction.PickUp).ToList();
+
+			
 			this.TabName = "Недовоз заказа №" + routeListItem.Order.Id;
 			this.Build();
 			Configure();
-			items = new List<OrderItemReturnsNode>();
+			itemsToClient = new List<OrderItemReturnsNode>();
 			var nomenclatures = routeListItem.Order.OrderItems
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item => !item.Nomenclature.Serial).ToList();
 			foreach(var item in nomenclatures)
 			{
-				items.Add(new OrderItemReturnsNode(item));
+				itemsToClient.Add(new OrderItemReturnsNode(item));
 			}
 			var equipments = routeListItem.Order.OrderEquipments
 				.Where(item => item.Direction == Vodovoz.Domain.Orders.Direction.Deliver);
 			foreach(var item in equipments)
 			{
-				items.Add(new OrderItemReturnsNode(item));
+				var newOrderEquipmentNode = new OrderItemReturnsNode(item);
+				itemsToClient.Add(newOrderEquipmentNode);
 			}
-			ytreeview2.ItemsDataSource = items;
+
+			equipmentFromClient = new List<OrderItemReturnsNode>();
+			var fromClient = routeListItem.Order.OrderEquipments
+				.Where(equipment => equipment.Direction == Vodovoz.Domain.Orders.Direction.PickUp).ToList();
+			foreach (var item in fromClient)
+			{
+				var newOrderEquipmentNode = new OrderItemReturnsNode(item);
+				equipmentFromClient.Add(newOrderEquipmentNode);
+			}
+				
+			ytreeToClient.ItemsDataSource = itemsToClient;
 			ytreeFromClient.ItemsDataSource = equipmentFromClient;
 		}
 
 		protected void Configure()
 		{
-			ytreeview2.ColumnsConfig  = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
+			ytreeToClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
 				.AddColumn("Кол-во")
@@ -54,21 +65,21 @@ namespace Vodovoz
 						.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Кол-во по факту:")
-					.AddToggleRenderer(node => node.IsDelivered, false)						
-						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.Serial || node.Nomenclature.Category==Vodovoz.Domain.NomenclatureCategory.rent)
+					.AddToggleRenderer(node => node.IsDelivered, false)
+						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.Serial || node.Nomenclature.Category == Vodovoz.Domain.NomenclatureCategory.rent)
 					.AddNumericRenderer(node => node.ActualCount, false)
-						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))					
+						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell,node)=>cell.Adjustment= new Gtk.Adjustment(0,0,node.Count,1,1,0))
-						.AddSetter((cell, node) => cell.Editable = !node.Nomenclature.Serial && node.Nomenclature.Category!=Vodovoz.Domain.NomenclatureCategory.rent)
+						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("")
-				.Finish();			
+				.Finish();
 
-			ytreeFromClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
+			ytreeFromClient.ColumnsConfig = ColumnsConfigFactory.Create<OrderItemReturnsNode>()
 				.AddColumn("Название")
-					.AddTextRenderer(node => node.NameString)
+					.AddTextRenderer(node => node.Name)
 				.AddColumn("Забрано у клиента")
-					.AddToggleRenderer(node => node.Confirmed)
+					.AddToggleRenderer(node => node.IsDelivered)
 				.AddColumn("")
 				.Finish();
 		}			
@@ -96,7 +107,7 @@ namespace Vodovoz
 			get{
 				return ActualCount > 0;
 			}
-			set{
+			set{				
 				ActualCount = value ? 1 : 0;
 			}
 		}
@@ -140,7 +151,7 @@ namespace Vodovoz
 			get{
 				return IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
 			}
-		}
+		}			
 	}
 }
 

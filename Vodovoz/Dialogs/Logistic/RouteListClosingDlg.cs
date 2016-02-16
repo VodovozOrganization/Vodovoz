@@ -28,14 +28,25 @@ namespace Vodovoz
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		RouteList routelist;
-		List<TotalReturnsNode> allReturnsToWarehouse;
-		List<Discrepancy> discrepancies;
+		List<ReturnsNode> allReturnsToWarehouse;
+		int bottlesReturnedToWarehouse;
 
-		public RouteListClosingDlg (int id)
+		public RouteListClosingDlg(RouteListClosing closing)
+		{
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteListClosing>(closing.Id);
+			routelist = UoW.GetById<RouteList>(closing.RouteList.Id);
+			TabName = String.Format("Закрытие маршрутного листа №{0}",routelist.Id);
+			ConfigureDlg ();
+		}
+
+		public RouteListClosingDlg (int routeListId)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteListClosing> ();
-			routelist = UoW.GetById<RouteList>(id);
+
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteListClosing>();
+			routelist = UoW.GetById<RouteList>(routeListId);
+
 			Entity.RouteList = routelist;
 			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Cashier == null)
@@ -83,14 +94,33 @@ namespace Vodovoz
 
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = routelist;
-			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			foreach (RouteListItem item in routeListAddressesView.Items)
 			{
 				item.Order.ObservableOrderItems.ElementChanged += OnOrderReturnsChanged;
 				item.Order.ObservableOrderEquipments.ElementChanged += OnOrderReturnsChanged;
 			}
+			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
+			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
-			Initialize(routeListAddressesView.Items);
+			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(routelist.Id, new []{NomenclatureCategory.bottle})
+				.Sum(item=>item.Amount);
+			var returnableOrderItems = routeListAddressesView.Items
+				.Where(address => address.Status == RouteListItemStatus.Completed)
+				.SelectMany(address => address.Order.OrderItems)
+				.Where(orderItem=>!orderItem.Nomenclature.Serial)
+				.Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
+			foreach(var item in returnableOrderItems){
+				if (allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
+					allReturnsToWarehouse.Add(new ReturnsNode{
+						Name=item.Nomenclature.Name,
+						Trackable=item.Nomenclature.Serial,
+						NomenclatureId = item.Nomenclature.Id,
+						Amount=0
+					});
+			}
+			if(UoW.IsNew)
+				Initialize(routeListAddressesView.Items);
+			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
 		}
 
@@ -105,10 +135,13 @@ namespace Vodovoz
 				{
 					item.ActualCount = routeListItem.Status==RouteListItemStatus.Completed ? item.Count : 0;
 				}
-				var equipments = routeListItem.Order.OrderEquipments;
+				var equipments = routeListItem.Order.OrderEquipments.Where(orderEq=>orderEq.Equipment!=null);
 				foreach(var item in equipments)
 				{
-					item.Confirmed = routeListItem.Status==RouteListItemStatus.Completed;
+					var returnedToWarehouse = allReturnsToWarehouse.Any(ret => ret.Id == item.Equipment.Id && ret.Amount > 0);
+					item.Confirmed = routeListItem.Status == RouteListItemStatus.Completed
+						&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
+							|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
 				}
 				routeListItem.BottlesReturned = routeListItem.Status == RouteListItemStatus.Completed
 					? routeListItem.Order.BottlesReturn : 0;
@@ -118,6 +151,16 @@ namespace Vodovoz
 				routeListItem.DepositsCollected = routeListItem.Status == RouteListItemStatus.Completed
 					? routeListItem.Order.OrderDepositItems.Sum(depositItem => depositItem.Deposit) : 0;
 				routeListItem.RecalculateWages();
+			}
+		}
+
+		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
+		{			
+			var node = routeListAddressesView.GetSelectedRouteListItem();
+			if (node.Status == RouteListItemStatus.Completed)
+			{
+				var dlg = new OrderReturnsView(node);
+				TabParent.AddSlaveTab(this, dlg);
 			}
 		}
 
@@ -134,26 +177,26 @@ namespace Vodovoz
 			{
 				(item as RouteListItem).RecalculateWages();
 			}
+			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
 		}			
 
 		void OnItemsUpdated(){
 			CalculateTotal();
-			routelistdiscrepancyview.Items = FindDiscrepancies();
 			buttonAccept.Sensitive = isConsistentWithUnloadDocument();
 		}
 
 		void CalculateTotal ()
 		{
-			var Items = routeListAddressesView.Items.Where(item=>item.Status==RouteListItemStatus.Completed);
-			int bottlesReturnedTotal = Items.Sum(item => item.BottlesReturned);
-			int fullBottlesTotal = Items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+			var items = routeListAddressesView.Items.Where(item=>item.Status==RouteListItemStatus.Completed);
+			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
+			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
-			decimal depositsCollectedTotal = Items.Sum(item => item.DepositsCollected);
-			decimal totalCollected = Items.Sum(item => item.TotalCash);
-			decimal driverWage = Items.Sum(item => item.DriverWage);
-			decimal forwarderWage = Items.Sum(item => item.ForwarderWage);
-			int addressCount = Items.Count(item => item.Status == RouteListItemStatus.Completed);
+			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
+			decimal totalCollected = items.Sum(item => item.TotalCash);
+			decimal driverWage = items.Sum(item => item.DriverWage);
+			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
+			int addressCount = items.Count(item => item.Status == RouteListItemStatus.Completed);
 			decimal phoneSum = Wages.GetDriverRates().PhoneServiceCompensationRate * addressCount;
 			labelAddressCount.Text = String.Format("Адресов:{0}", addressCount);
 			labelPhone.Text = String.Format(
@@ -162,7 +205,6 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelFullBottles.Text = String.Format("Полн. бутылей:{0}", fullBottlesTotal);
-			labelEmptyBottles.Text = String.Format("Пуст. бутылей:{0}", bottlesReturnedTotal);
 			labelDeposits.Text = String.Format(
 				"Залогов:{0} {1}",
 				depositsCollectedTotal,
@@ -189,83 +231,19 @@ namespace Vodovoz
 				forwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
-		}
+			labelEmptyBottles1.Markup = String.Format("Тара: <b>{0}</b><sub>(выгружено)</sub> - <b>{1}</b><sub>(итого сдано)</sub> = <b>{2}</b><sub>(осталось)</sub>",
+				bottlesReturnedToWarehouse,
+				bottlesReturnedTotal,
+				bottlesReturnedToWarehouse-bottlesReturnedTotal
+			);
+		}			
 
-		protected List<Discrepancy> FindDiscrepancies(){
-			var discrepancies = new List<Discrepancy>();
-			var orderClosingItems = routeListAddressesView.Items
-				.SelectMany(item => item.Order.OrderItems)
-				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.ToList();
-			var goodsReturnedFromClient = orderClosingItems.Where(item => !item.Nomenclature.Serial)
-				.GroupBy(item => item.Nomenclature,
-			item => item.ReturnedCount,
-			(nomenclature, amounts) => new
-			TotalReturnsNode
-			{
-				Name = nomenclature.Name,
-				NomenclatureId = nomenclature.Id,
-				NomenclatureCategory = nomenclature.Category,
-				Amount = amounts.Sum(i => i),
-				Trackable=false
-			}).ToList();
-			var goodsToWarehouse = allReturnsToWarehouse.Where(item => !item.Trackable);
-			foreach (var itemFromClient in goodsReturnedFromClient)
-			{
-				var itemToWarehouse = 
-					goodsToWarehouse.FirstOrDefault(item => item.NomenclatureId == itemFromClient.NomenclatureId);
-				if (itemToWarehouse == null)
-					continue;
-				if (itemToWarehouse.Amount != itemFromClient.Amount)
-					discrepancies.Add(new Discrepancy
-						{
-							Name = itemFromClient.Name,
-							NomenclatureId = itemFromClient.NomenclatureId,
-							FromClient=itemFromClient.Amount,
-							ToWarehouse = itemToWarehouse.Amount,
-							Trackable = false,
-						});
-			}
-
-			var equipmentItems = routeListAddressesView.Items
-				.SelectMany(item => item.Order.OrderEquipments).Where(item=>item.Equipment!=null).ToList();
-			var equipmentReturnedFromClient = 
-				equipmentItems.GroupBy(item => item.Equipment,
-					item => {
-						return item.Confirmed ^ item.Direction==Vodovoz.Domain.Orders.Direction.Deliver ? 1 : 0;
-					},
-					(equipment, amounts) => new 
-					TotalReturnsNode
-					{
-						Id = equipment.Id,
-						Name = equipment.NomenclatureName,
-						NomenclatureCategory = equipment.Nomenclature.Category,
-						Amount = amounts.Sum(i => i)
-					}).ToList();
-			var equipmentReturnedToWarehouse = allReturnsToWarehouse.Where(item=>item.Trackable).ToList();
-			foreach (var itemFromClient in equipmentReturnedFromClient)
-			{
-				var itemToWarehouse = 
-					equipmentReturnedToWarehouse.FirstOrDefault(item => item.Id == itemFromClient.Id);
-				if (itemToWarehouse == null)
-					continue;
-				if (itemToWarehouse.Amount != itemFromClient.Amount)
-					discrepancies.Add(new Discrepancy
-						{
-							Name = itemFromClient.Name,
-							NomenclatureId = itemFromClient.NomenclatureId,
-							FromClient=itemFromClient.Amount,
-							ToWarehouse = itemToWarehouse.Amount,
-							Trackable = true,
-						});
-			}
-			return discrepancies;
-		}
-
-
-
-		protected bool isConsistentWithUnloadDocument(){						
-			return routelistdiscrepancyview.Items.Count == 0;
+		protected bool isConsistentWithUnloadDocument(){
+			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
+			var items = routeListAddressesView.Items.Where(item=>item.Status==RouteListItemStatus.Completed);
+			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
+			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
+			return !hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies;
 		}
 
 		protected void CheckBottlesAndDeposits(){
@@ -275,16 +253,18 @@ namespace Vodovoz
 					var totalBottlesReceived = item.Order.OrderItems
 						.Where(orderItem => orderItem.Nomenclature.Category == NomenclatureCategory.water)
 						.Sum(orderItem => orderItem.ActualCount);
+
 					var expectedDepositsCount = totalBottlesReceived - item.BottlesReturned;
 					var expectedDeposits = 
 						NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(1)*expectedDepositsCount;
-					/*if (expectedDeposits != item.DepositsCollected)
+
+					if (expectedDeposits != item.DepositsCollected)
 					{
 						MessageDialogWorks.RunWarningDialog(String.Format("Сумма полученных залогов" +
 							" не верна для заказа №{0}", item.Order.Id));
 						return;
 					}
-					*/
+
 				}
 			}
 		}
@@ -296,32 +276,37 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			CheckBottlesAndDeposits();
-			if (!isConsistentWithUnloadDocument())
-				return false;
-			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
-			bottleMovementOperations.ForEach(op => UoW.Save(op));
-
-			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
-			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-
-			Entity.Confirm();
-
 			UoW.Save();
 			return true;
 		}
 
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
-			Save();
+			CheckBottlesAndDeposits();
+			if (!isConsistentWithUnloadDocument())
+				return;
+
+			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
+			bottleMovementOperations.ForEach(op => UoW.Save(op));
+
+			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
+			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
+
+			var depositsOperations = Entity.CreateDepositOperations();
+			depositsOperations.ForEach(op => UoW.Save(op));
+
+			Entity.Confirm();
+
+			UoW.Save();
+
 			buttonAccept.Sensitive = false;
 		}
 
-		public List<TotalReturnsNode> GetReturnsToWarehouseByCategory(int routeListId,NomenclatureCategory[] categories)
+		public List<ReturnsNode> GetReturnsToWarehouseByCategory(int routeListId,NomenclatureCategory[] categories)
 		{
-			List<TotalReturnsNode> result = new List<TotalReturnsNode>();		
+			List<ReturnsNode> result = new List<ReturnsNode>();		
 			Nomenclature nomenclatureAlias = null;
-			TotalReturnsNode resultAlias = null;
+			ReturnsNode resultAlias = null;
 			Equipment equipmentAlias = null;
 			CarUnloadDocumentItem carUnloadItemsAlias = null;
 			WarehouseMovementOperation movementOperationAlias = null;
@@ -340,26 +325,27 @@ namespace Vodovoz
 					.Select (() => nomenclatureAlias.Category).WithAlias (() => resultAlias.NomenclatureCategory)
 					.SelectSum(()=>movementOperationAlias.Amount).WithAlias(()=>resultAlias.Amount)
 				)
-				.TransformUsing (Transformers.AliasToBean<TotalReturnsNode> ())
-				.List<TotalReturnsNode> ();
+				.TransformUsing (Transformers.AliasToBean<ReturnsNode> ())
+				.List<ReturnsNode> ();
 
 			var returnableEquipment = UoW.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
 				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
 				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
-				.Where(Restrictions.IsNotNull(Projections.Property(()=>movementOperationAlias.IncomingWarehouse)))
-				.JoinAlias(()=>movementOperationAlias.Equipment,()=>equipmentAlias)
-				.JoinAlias (() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => nomenclatureAlias.Category.IsIn(categories))
-				.SelectList (list => list
-					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)				
-					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
-					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
-					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
-					.Select (() => nomenclatureAlias.Category).WithAlias (() => resultAlias.NomenclatureCategory)
-					.SelectSum(()=>movementOperationAlias.Amount).WithAlias(()=>resultAlias.Amount)
-				)
-				.TransformUsing (Transformers.AliasToBean<TotalReturnsNode> ())
-				.List<TotalReturnsNode> ();
+				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
+				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
+				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category.IsIn(categories))
+				.SelectList(list => list
+					.Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.Id)				
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => nomenclatureAlias.Serial).WithAlias(() => resultAlias.Trackable)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+					.Select(() => nomenclatureAlias.Type).WithAlias(() => resultAlias.EquipmentType)
+			                          )
+				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
+				.List<ReturnsNode>();
 
 			result.AddRange(returnableItems);
 			result.AddRange(returnableEquipment);
@@ -367,13 +353,14 @@ namespace Vodovoz
 		}
 	}
 
-	public class TotalReturnsNode{
+	public class ReturnsNode{
 		public int Id{get;set;}
 		public NomenclatureCategory NomenclatureCategory{ get; set; }
 		public int NomenclatureId{ get; set; }
 		public string Name{get;set;}
 		public decimal Amount{ get; set;}
 		public bool Trackable{ get; set; }
+		public EquipmentType EquipmentType{get;set;}
 		public string Serial{ get { 
 				if (Trackable) {
 					return Id > 0 ? Id.ToString () : "(не определен)";

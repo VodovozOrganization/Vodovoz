@@ -2,6 +2,7 @@
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using QSTDI;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -45,7 +46,10 @@ namespace Vodovoz
 		protected void OnButtonCloseRouteListClicked (object sender, EventArgs e)
 		{
 			var node = treeRouteLists.GetSelectedNode () as ViewModel.RouteListsVMNode;
-			var dlg = new RouteListClosingDlg (node.Id);
+			var closing = uow.Session.QueryOver<RouteListClosing>()
+				.Where(item => item.RouteList.Id == node.Id)
+				.Take(1).List().FirstOrDefault();
+			var dlg = closing != null ? new RouteListClosingDlg(closing) : new RouteListClosingDlg(node.Id);
 			TabParent.AddTab (dlg, this);
 		}
 

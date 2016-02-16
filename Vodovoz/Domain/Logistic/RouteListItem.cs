@@ -265,7 +265,88 @@ namespace Vodovoz.Domain.Logistic
 			
 			return wage;
 		}
-			
+
+		public int CoolersToClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+					.Where(item => item.Confirmed)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+			}
+		}
+
+		public int PlannedCoolersToClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+			}
+		}
+
+		public int PumpsToClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+					.Where(item => item.Confirmed)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			}
+		}
+
+		public int PlannedPumpsToClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			}
+		}
+
+		public int UncategorisedEquipmentToClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+					.Where(item => item.Confirmed)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
+			}
+		}
+
+		public int PlannedUncategorisedEquipmentToClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
+			}
+		}			
+
+		public int CoolersFromClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
+					.Where(item => item.Confirmed).Where(item=>item.Equipment!=null)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+			}
+		}
+
+		public int PumpsFromClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
+					.Where(item => item.Confirmed).Where(item=>item.Equipment!=null)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			}
+		}
+
+		public int PlannedCoolersFromClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
+					.Where(item=>item.Equipment!=null)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+			}
+		}
+
+		public int PlannedPumpsFromClient{
+			get{
+				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
+					.Where(item=>item.Equipment!=null)
+					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			}
+		}
+
+		public int GetFullBottlesDeliveredCount(){
+			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum(item => item.ActualCount);
+		}
 
 		private Dictionary<int, int> goodsByRouteColumns;
 
