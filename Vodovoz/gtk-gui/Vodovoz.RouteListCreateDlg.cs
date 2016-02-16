@@ -334,7 +334,7 @@ namespace Vodovoz
 			w22.RightAttach = ((uint)(2));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.spinPlannedDistance = new global::Gtk.DataBindings.DataSpinButton (0, 100, 1);
+			this.spinPlannedDistance = new global::Gtk.DataBindings.DataSpinButton (0, 10000, 1);
 			this.spinPlannedDistance.CanFocus = true;
 			this.spinPlannedDistance.Name = "spinPlannedDistance";
 			this.spinPlannedDistance.Adjustment.PageIncrement = 10;

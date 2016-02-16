@@ -269,7 +269,7 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinActualDistance = new global::Gamma.GtkWidgets.ySpinButton (0, 100, 1);
+			this.yspinActualDistance = new global::Gamma.GtkWidgets.ySpinButton (0, 10000, 1);
 			this.yspinActualDistance.CanFocus = true;
 			this.yspinActualDistance.Name = "yspinActualDistance";
 			this.yspinActualDistance.Adjustment.PageIncrement = 10;
@@ -286,7 +286,7 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinPlannedDistance = new global::Gamma.GtkWidgets.ySpinButton (0, 100, 1);
+			this.yspinPlannedDistance = new global::Gamma.GtkWidgets.ySpinButton (0, 10000, 1);
 			this.yspinPlannedDistance.CanFocus = true;
 			this.yspinPlannedDistance.Name = "yspinPlannedDistance";
 			this.yspinPlannedDistance.Adjustment.PageIncrement = 10;

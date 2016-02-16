@@ -15725,7 +15725,7 @@ RegistrationNumber</property>
               <widget class="Gtk.DataBindings.DataSpinButton" id="spinPlannedDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -16176,7 +16176,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinActualDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -16204,7 +16204,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinPlannedDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -24813,7 +24813,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinActualDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -24841,7 +24841,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinPlannedDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -25338,7 +25338,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinActualDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -25366,7 +25366,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinConfirmedDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -25394,7 +25394,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinPlannedDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
