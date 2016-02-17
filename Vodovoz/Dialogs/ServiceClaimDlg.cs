@@ -85,7 +85,6 @@ namespace Vodovoz
 
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
-			yentryEquipmentReplacement.Sensitive = (UoWGeneric.Root.Nomenclature!=null);
 
 			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
 
@@ -344,7 +343,7 @@ namespace Vodovoz
 
 		protected void FixNomenclatureAndEquipmentSensitivity(){
 			bool withSerial = ((ServiceClaimComboEnum)enumcomboWithSerial.SelectedItem) == ServiceClaimComboEnum.WithSerial;		 
-			yentryEquipmentReplacement.Sensitive = referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && UoWGeneric.Root.DeliveryPoint !=null;
+			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && UoWGeneric.Root.DeliveryPoint !=null;
 			referenceNomenclature.Sensitive = !withSerial && UoWGeneric.Root.Counterparty!=null;
 		}
 	}
