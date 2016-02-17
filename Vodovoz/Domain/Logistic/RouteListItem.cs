@@ -378,6 +378,13 @@ namespace Vodovoz.Domain.Logistic
 				return 0;
 		}
 
+		public int GetGoodsActualAmountForColumn(int columnId)
+		{
+			return Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
+				.Where(i => i.Nomenclature.RouteListColumn.Id == columnId)
+				.Sum(i => i.ActualCount);
+		}
+
 		public RouteListItem ()
 		{
 		}

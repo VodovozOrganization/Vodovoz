@@ -97,7 +97,9 @@ namespace Vodovoz
 					if (!goodsColumns.Contains(column.Id))
 						continue;
 					int id = column.Id;
-					config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString());
+					config.AddColumn(column.Name)
+						.AddTextRenderer()
+							.AddSetter((cell,node)=>cell.Markup = WaterToClientString(node,id));
 				}
 			}
 			var colorBlack = new Gdk.Color (0, 0, 0);
@@ -173,15 +175,25 @@ namespace Vodovoz
 			ytreeviewItems.ColumnsConfig = config.Finish();
 		}
 
+		public string WaterToClientString(RouteListItem item, int id)
+		{
+			var planned = item.GetGoodsAmountForColumn(id);
+			var actual = item.GetGoodsActualAmountForColumn(id);
+			var formatString = actual < planned
+				? "<b>{0}</b>({1})" 
+				: "<b>{0}</b>";
+			return String.Format(formatString, actual, planned-actual);
+		}
+
 		public string ToClientString(RouteListItem item)
 		{
 			var stringParts = new List<string>();
 			if (item.PlannedCoolersToClient > 0)
-			{
+			{				
 				var formatString = item.CoolersToClient < item.PlannedCoolersToClient
 						? "Кулеры:<b>{0}</b>({1})" 
 						: "Кулеры:<b>{0}</b>";
-				var coolerString = String.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient);
+				var coolerString = String.Format(formatString, item.CoolersToClient, item.PlannedCoolersToClient-item.CoolersToClient);
 				stringParts.Add(coolerString);
 			}
 			if (item.PlannedPumpsToClient > 0)
@@ -189,7 +201,10 @@ namespace Vodovoz
 				var formatString = item.PumpsToClient < item.PlannedPumpsToClient
 						? "Помпы:<b>{0}</b>({1})" 
 						: "Помпы:<b>{0}</b>";
-				var coolerString = String.Format(formatString, item.PumpsToClient, item.PlannedPumpsToClient);						
+				var coolerString = String.Format(formatString,
+					item.PumpsToClient,
+					item.PlannedPumpsToClient-item.PumpsToClient
+				);						
 				stringParts.Add(coolerString);
 			}
 			if (item.UncategorisedEquipmentToClient > 0)
@@ -197,7 +212,10 @@ namespace Vodovoz
 				var formatString = item.UncategorisedEquipmentToClient < item.PlannedUncategorisedEquipmentToClient
 						? "Другое:<b>{0}</b>({1})" 
 						: "Другое:<b>{0}</b>";
-				var coolerString = String.Format(formatString, item.UncategorisedEquipmentToClient, item.PlannedUncategorisedEquipmentToClient);						
+				var coolerString = String.Format(formatString,
+					item.UncategorisedEquipmentToClient,
+					item.PlannedUncategorisedEquipmentToClient-item.UncategorisedEquipmentToClient
+				);
 				stringParts.Add(coolerString);
 			}
 
@@ -212,7 +230,10 @@ namespace Vodovoz
 				var formatString = item.CoolersFromClient < item.PlannedCoolersFromClient 
 						? "Кулеры:<b>{0}</b>({1})" 
 						: "Кулеры:<b>{0}</b>";
-				var coolerString = String.Format(formatString, item.CoolersFromClient, item.PlannedCoolersFromClient);						
+				var coolerString = String.Format(formatString,
+					item.CoolersFromClient,
+					item.PlannedCoolersFromClient-item.CoolersFromClient
+				);
 				stringParts.Add(coolerString);
 			}
 			if (item.PlannedPumpsFromClient > 0)
@@ -220,7 +241,10 @@ namespace Vodovoz
 				var formatString = item.PumpsFromClient < item.PlannedPumpsFromClient 
 						? "Помпы:<b>{0}</b>({1})" 
 						: "Помпы:<b>{0}</b>";
-				var pumpString = String.Format(formatString, item.PumpsFromClient, item.PlannedPumpsFromClient);						
+				var pumpString = String.Format(formatString,
+					item.PumpsFromClient,
+					item.PlannedPumpsFromClient-item.PumpsFromClient
+				);
 				stringParts.Add(pumpString);
 			}
 			return String.Join(",", stringParts);
