@@ -69,7 +69,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.Count)
 						.AddSetter((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
-				.AddColumn("Кол-во по факту:")
+				.AddColumn("Кол-во по факту")
 					.AddToggleRenderer(node => node.IsDelivered, false)
 						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.Serial || node.Nomenclature.Category == Vodovoz.Domain.NomenclatureCategory.rent)
 					.AddNumericRenderer(node => node.ActualCount, false)
@@ -77,6 +77,10 @@ namespace Vodovoz
 						.AddSetter((cell,node)=>cell.Adjustment= new Gtk.Adjustment(0,0,node.Count,1,1,0))
 						.AddSetter((cell, node) => cell.Editable = !node.IsEquipment)
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
+				.AddColumn("Цена")
+					.AddNumericRenderer(node=>node.Price)
+						.Adjustment(new Gtk.Adjustment(0,0,99999,1,100,0))
+						.AddSetter((cell,node)=>cell.Editable = node.HasPrice)
 				.AddColumn("")
 				.Finish();
 
@@ -156,7 +160,33 @@ namespace Vodovoz
 			get{
 				return IsEquipment ? orderEquipment.NameString : orderItem.NomenclatureString;
 			}
-		}			
+		}
+
+		public bool HasPrice{
+			get{
+				return !IsEquipment || orderEquipment.OrderItem != null;
+			}
+		}
+
+		public decimal Price{
+			get{
+				if (IsEquipment)
+				{
+					return orderEquipment.OrderItem != null ? orderEquipment.OrderItem.Price : 0;
+				}
+				else
+					return orderItem.Price;
+			}
+			set{
+				if (IsEquipment)
+				{
+					if (orderEquipment.OrderItem != null)
+						orderEquipment.OrderItem.Price = value;					
+				}
+				else
+					orderItem.Price = value;
+			}
+		}
 	}
 }
 
