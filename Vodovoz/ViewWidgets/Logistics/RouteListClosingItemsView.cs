@@ -65,6 +65,7 @@ namespace Vodovoz
 				Items = routeList.ObservableAddresses;			
 
 				routeList.ObservableAddresses.ListChanged += Items_ListChanged;
+				RouteList.ObservableAddresses.ElementChanged += OnRouteListItemChanged;
 
 				UpdateColumns ();
 
@@ -76,6 +77,18 @@ namespace Vodovoz
 		void Items_ListChanged (object aList)
 		{
 			UpdateColumns ();
+		}
+
+		void OnRouteListItemChanged(object aList, int[] aIdx)
+		{
+			foreach (int id in aIdx)
+			{
+				if (RouteList.ObservableAddresses[id].DepositsCollected % bottleDepositPrice != 0)
+				{
+					var fullDepositsCount = Math.Truncate(RouteList.ObservableAddresses[id].DepositsCollected / bottleDepositPrice);
+					RouteList.ObservableAddresses[id].DepositsCollected = fullDepositsCount * bottleDepositPrice;
+				}
+			}
 		}
 
 		private void UpdateColumns ()
