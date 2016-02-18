@@ -6,6 +6,7 @@ using Vodovoz.Domain.Operations;
 using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -132,53 +133,152 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual List<DepositOperation> CreateDepositOperations(){
+		private void AddOrUpdateDeposit(Order order,DepositOperation depositOperation){
+
+			order.OrderDepositItems.FirstOrDefault(deposit => deposit.DepositType == DepositType.Bottles);
+		}
+
+		public virtual List<DepositOperation> CreateDepositOperations(IUnitOfWork UoW){
 			var result = new List<DepositOperation>();
-			foreach (RouteListItem item in RouteList.Addresses)
+			var bottleDepositNomenclature = NomenclatureRepository.GetBottleDeposit(UoW);
+			var bottleDepositPrice = bottleDepositNomenclature.GetPrice(1);
+			foreach (RouteListItem item in RouteList.Addresses.Where(address=>address.Order.PaymentType==PaymentType.cash))
 			{
-				if (item.Order.PaymentType == PaymentType.cash)
-				{
-					var deliveredEquipmentForRent = item.Order.OrderEquipments.Where(eq => eq.Confirmed)
+				var deliveredEquipmentForRent = item.Order.OrderEquipments.Where(eq => eq.Confirmed)
 						.Where(eq => eq.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
 						.Where(eq => eq.Reason == Reason.Rent);
 
-					var paidRentDeposits = item.Order.OrderDepositItems
+				var paidRentDepositsFromClient = item.Order.OrderDepositItems
 						.Where(deposit => deposit.PaymentDirection == PaymentDirection.FromClient)
 						.Where(deposit => deposit.PaidRentItem != null
-						                       && deliveredEquipmentForRent.Any(eq => eq.Id == deposit.PaidRentItem.Equipment.Id));
+					                       && deliveredEquipmentForRent.Any(eq => eq.Id == deposit.PaidRentItem.Equipment.Id));
 
-					var freeRentDeposits = item.Order.OrderDepositItems
+				var freeRentDepositsFromClient = item.Order.OrderDepositItems
 						.Where(deposit => deposit.PaymentDirection == PaymentDirection.FromClient)
 						.Where(deposit => deposit.FreeRentItem != null
-						                       && deliveredEquipmentForRent.Any(eq => eq.Id == deposit.FreeRentItem.Equipment.Id));
+					                       && deliveredEquipmentForRent.Any(eq => eq.Id == deposit.FreeRentItem.Equipment.Id));
 
-					foreach (var deposit in paidRentDeposits.Union(freeRentDeposits))
+				foreach (var deposit in paidRentDepositsFromClient.Union(freeRentDepositsFromClient))
+				{
+					var operation = new DepositOperation
 					{
-						var operation = new DepositOperation
+						Order = item.Order,
+						OperationTime = DateTime.Now,
+						DepositType = DepositType.Equipment,
+						Counterparty = item.Order.Client,
+						DeliveryPoint = item.Order.DeliveryPoint,
+						ReceivedDeposit = deposit.Total			
+					};
+					deposit.DepositOperation = operation;
+					result.Add(operation);
+				}
+
+				var pickedUpEquipmentForRent = item.Order.OrderEquipments.Where(eq => eq.Confirmed)
+					.Where(eq => eq.Direction == Vodovoz.Domain.Orders.Direction.PickUp)
+					.Where(eq => eq.Reason == Reason.Rent);
+
+				var paidRentDepositsToClient = item.Order.OrderDepositItems
+					.Where(deposit => deposit.PaymentDirection == PaymentDirection.ToClient)
+					.Where(deposit => deposit.PaidRentItem != null
+						&& pickedUpEquipmentForRent.Any(eq => eq.Id == deposit.PaidRentItem.Equipment.Id));
+
+				var freeRentDepositsToClient = item.Order.OrderDepositItems
+					.Where(deposit => deposit.PaymentDirection == PaymentDirection.ToClient)
+					.Where(deposit => deposit.FreeRentItem != null
+						&& pickedUpEquipmentForRent.Any(eq => eq.Id == deposit.FreeRentItem.Equipment.Id));
+				
+				foreach (var deposit in paidRentDepositsToClient.Union(freeRentDepositsToClient))
+				{
+					var operation = new DepositOperation
 						{
 							Order = item.Order,
 							OperationTime = DateTime.Now,
 							DepositType = DepositType.Equipment,
 							Counterparty = item.Order.Client,
 							DeliveryPoint = item.Order.DeliveryPoint,
-							ReceivedDeposit = deposit.Total
+							RefundDeposit = deposit.Total			
 						};
-						deposit.DepositOperation = operation;
-						result.Add(operation);
-					}
+					deposit.DepositOperation = operation;
+					result.Add(operation);
+				}					
 
-					var bottleDepositsOperation = new DepositOperation
-						{
+				var bottleDepositsOperation = new DepositOperation()
+				{
+					Order = item.Order,
+					OperationTime = DateTime.Now,
+					DepositType = DepositType.Bottles,
+					Counterparty = item.Order.Client,
+					DeliveryPoint = item.Order.DeliveryPoint,
+					ReceivedDeposit = item.DepositsCollected>0 ? item.DepositsCollected : 0,
+					RefundDeposit = item.DepositsCollected<0 ? -item.DepositsCollected : 0
+				};					
+				
+				var depositsCount = (int)(Math.Abs(item.DepositsCollected) / bottleDepositPrice);
+				var depositOrderItem = item.Order.ObservableOrderItems.FirstOrDefault (i => i.Nomenclature.Id == bottleDepositNomenclature.Id);
+				var depositItem = item.Order.ObservableOrderDepositItems.FirstOrDefault (i => i.DepositType == DepositType.Bottles);
+
+				if (item.DepositsCollected>0) {
+					if (depositItem != null) {
+						depositItem.Deposit = bottleDepositPrice;
+						depositItem.Count = depositsCount;
+						depositItem.PaymentDirection = PaymentDirection.FromClient;
+						depositItem.DepositOperation = bottleDepositsOperation;
+					}
+					if (depositOrderItem != null)
+					{
+						depositOrderItem.Count = depositsCount;
+						depositOrderItem.ActualCount = depositsCount;
+					}
+					else {
+						item.Order.ObservableOrderItems.Add (new OrderItem {
 							Order = item.Order,
-							OperationTime = DateTime.Now,
+							AdditionalAgreement = null,
+							Count = depositsCount,
+							ActualCount = depositsCount,
+							Equipment = null,
+							Nomenclature = bottleDepositNomenclature,
+							Price = bottleDepositPrice
+						});
+						item.Order.ObservableOrderDepositItems.Add (new OrderDepositItem {
+							Order = item.Order,
+							Count = depositsCount,
+							Deposit = bottleDepositPrice,
+							DepositOperation = bottleDepositsOperation,
 							DepositType = DepositType.Bottles,
-							Counterparty = item.Order.Client,
-							DeliveryPoint = item.Order.DeliveryPoint,
-							ReceivedDeposit = item.DepositsCollected
-						};
-					if(bottleDepositsOperation.ReceivedDeposit!=0)
-						result.Add(bottleDepositsOperation);
+							FreeRentItem = null,
+							PaidRentItem = null,
+							PaymentDirection = PaymentDirection.FromClient
+						});
+					}
 				}
+				if (item.DepositsCollected==0) {
+					if (depositItem != null)
+						item.Order.ObservableOrderDepositItems.Remove (depositItem);
+					if (depositOrderItem != null)
+						item.Order.ObservableOrderItems.Remove (depositOrderItem);					
+				}
+				if (item.DepositsCollected<0) {
+					if (depositOrderItem != null)
+						item.Order.ObservableOrderItems.Remove (depositOrderItem);
+					if (depositItem != null) {
+						depositItem.Deposit = bottleDepositPrice;
+						depositItem.Count = depositsCount;
+						depositItem.PaymentDirection = PaymentDirection.ToClient;
+						depositItem.DepositOperation = bottleDepositsOperation;
+					} else
+						item.Order.ObservableOrderDepositItems.Add (new OrderDepositItem {
+							Order = item.Order,
+							DepositOperation = bottleDepositsOperation,
+							DepositType = DepositType.Bottles,
+							Deposit = bottleDepositPrice,
+							PaidRentItem = null,
+							FreeRentItem = null,
+							PaymentDirection = PaymentDirection.ToClient,
+							Count = depositsCount
+						});					
+				}
+
+				result.Add(bottleDepositsOperation);
 			}
 			return result;
 		}

@@ -245,30 +245,6 @@ namespace Vodovoz
 			return !hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies;
 		}
 
-		protected void CheckBottlesAndDeposits(){
-			foreach(RouteListItem item in routeListAddressesView.Items){
-				if (item.Order.PaymentType == PaymentType.cash)
-				{
-					var totalBottlesReceived = item.Order.OrderItems
-						.Where(orderItem => orderItem.Nomenclature.Category == NomenclatureCategory.water)
-						.Sum(orderItem => orderItem.ActualCount);
-
-					var expectedDepositsCount = totalBottlesReceived - item.BottlesReturned;
-					var expectedDeposits = 
-						NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(1)*expectedDepositsCount;
-
-					if (expectedDeposits != item.DepositsCollected)
-					{
-						MessageDialogWorks.RunWarningDialog(String.Format("Сумма полученных залогов" +
-							" не верна для заказа №{0}", item.Order.Id));
-						return;
-					}
-
-				}
-			}
-		}
-			
-
 		public override bool Save ()
 		{
 			var valid = new QSValidator<RouteListClosing> (Entity);
@@ -281,7 +257,6 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
-			CheckBottlesAndDeposits();
 			if (!isConsistentWithUnloadDocument())
 				return;
 
@@ -291,7 +266,7 @@ namespace Vodovoz
 			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
 
-			var depositsOperations = Entity.CreateDepositOperations();
+			var depositsOperations = Entity.CreateDepositOperations(UoW);
 			depositsOperations.ForEach(op => UoW.Save(op));
 
 			Entity.Confirm();
