@@ -89,18 +89,19 @@ namespace Vodovoz
 			UpdateItemsList ();
 		}
 
-		void UpdateItemsList(){			
+		void UpdateItemsList(){
 			ReceptionEquipmentList.Clear ();
 			ReceptionReturnsList.Clear ();
 			Warehouse CurrentStock = ycomboboxWarehouse.SelectedItem as Warehouse;
+			buttonAddEquipment.Sensitive = buttonConfirmReception.Sensitive = CurrentStock != null;
 			if (CurrentStock == null)
 				return;
 			
 			bottleReceptionView.Visible = CurrentStock.CanReceiveBottles;
 			frameEquipment.Visible = CurrentStock.CanReceiveEquipment;
-			buttonAddEquipment.Sensitive = buttonConfirmReception.Sensitive = CanUnload ();
 
-			if (CurrentStock.CanReceiveEquipment) {				
+
+			if (CurrentStock.CanReceiveEquipment) {
 				ListEquipment ();
 				ListTrackableEquipment ();
 				ListNewTrackableEquipment ();
@@ -234,15 +235,7 @@ namespace Vodovoz
 			
 			foreach (var item in returnableItems.Union(returnableEquipment)) {			 
 				ReceptionReturnsList.Add (item);
-			}				
-		}
-
-		protected bool CanUnload(){
-			var warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
-			return UoW.Session.QueryOver<CarUnloadDocument> ()
-				.Where (doc => doc.Warehouse.Id == warehouse.Id)
-				.And (doc => doc.RouteList.Id == shipmentId)
-				.RowCount()==0;
+			}
 		}
 
 		protected void OnButtonAddEquipmentClicked (object sender, EventArgs e)
@@ -289,7 +282,7 @@ namespace Vodovoz
 
 			CarUnloadDocumentUoW.Root.Storekeeper = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if (CarUnloadDocumentUoW.Root.Storekeeper == null) {
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете загружать автомобили, так как некого указывать в качестве кладовщика.");
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете разгружать автомобили, так как некого указывать в качестве кладовщика.");
 				return;
 			}
 
@@ -320,33 +313,32 @@ namespace Vodovoz
 					CarUnloadDocumentUoW.Root.AddItem (new CarUnloadDocumentItem { MovementOperation = warehouseMovementOperation.Root });
 				}
 			}
-			CarUnloadDocumentUoW.Save ();
+			if(CarUnloadDocumentUoW.Root.Items.Count>0)
+				CarUnloadDocumentUoW.Save ();
 
-			routelist.Receive();
+			if(checkbuttonFinalUnloading.Active)
+				routelist.Receive();
 			UoW.Save (routelist);
 			UoW.Commit ();
 
-			logger.Info("Печать разгрузочного талона...");
+			if (CarUnloadDocumentUoW.Root.Items.Count > 0)
+			{
+				logger.Info("Печать разгрузочного талона...");
 
-			var reportInfo = new QSReport.ReportInfo {
-				Title = CarUnloadDocumentUoW.Root.Title,
-				Identifier = "Store.CarUnloadDoc",
-				Parameters = new Dictionary<string, object> {
-					{ "id",  CarUnloadDocumentUoW.Root.Id }
-				}
-			};
+				var reportInfo = new QSReport.ReportInfo
+				{
+					Title = CarUnloadDocumentUoW.Root.Title,
+					Identifier = "Store.CarUnloadDoc",
+					Parameters = new Dictionary<string, object>
+					{
+						{ "id",  CarUnloadDocumentUoW.Root.Id }
+					}
+				};
 
-			var report = new QSReport.ReportViewDlg (reportInfo);
-			TabParent.AddTab (report, this, false);
-
-			OnCloseTab (false);
-		}
-
-		protected void ChangeRouteListStatus(RouteList routelist){
-			routelist.Status = RouteListStatus.ReadyToReport;
-			foreach (var item in routelist.Addresses) {
-				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
+				var report = new QSReport.ReportViewDlg(reportInfo);
+				TabParent.AddTab(report, this, false);
 			}
+			OnCloseTab (false);
 		}
 	}
 
