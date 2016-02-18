@@ -118,6 +118,8 @@ namespace Vodovoz
 			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService) {
 				referenceDeliveryPoint.Visible = false;
 				labelDeliveryPoint.Visible = false;
+				yentryEquipmentReplacement.Visible = false;
+				labelReplacement.Visible = false;
 			}
 			datePickUpDate.IsEditable = Entity.ServiceClaimType != ServiceClaimType.RegularService;
 		}
@@ -342,8 +344,9 @@ namespace Vodovoz
 		}
 
 		protected void FixNomenclatureAndEquipmentSensitivity(){
-			bool withSerial = ((ServiceClaimComboEnum)enumcomboWithSerial.SelectedItem) == ServiceClaimComboEnum.WithSerial;		 
-			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && UoWGeneric.Root.DeliveryPoint !=null;
+			bool withSerial = ((ServiceClaimComboEnum)enumcomboWithSerial.SelectedItem) == ServiceClaimComboEnum.WithSerial;
+			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && 
+				(UoWGeneric.Root.DeliveryPoint !=null || UoWGeneric.Root.ServiceClaimType==ServiceClaimType.JustService);
 			referenceNomenclature.Sensitive = !withSerial && UoWGeneric.Root.Counterparty!=null;
 		}
 	}
