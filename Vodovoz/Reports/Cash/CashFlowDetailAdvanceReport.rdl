@@ -250,7 +250,7 @@ ORDER BY Category , employee;</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <Format>dd.MM.yyyy</Format>
-                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
+                        <BackgroundColor>LightCyan</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -267,7 +267,7 @@ ORDER BY Category , employee;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
+                        <BackgroundColor>LightCyan</BackgroundColor>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -285,7 +285,7 @@ ORDER BY Category , employee;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
+                        <BackgroundColor>LightCyan</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -303,7 +303,7 @@ ORDER BY Category , employee;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor>PaleTurQuoise</BackgroundColor>
+                        <BackgroundColor>LightCyan</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
