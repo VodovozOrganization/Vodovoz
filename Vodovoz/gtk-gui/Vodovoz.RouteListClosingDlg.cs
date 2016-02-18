@@ -93,6 +93,8 @@ namespace Vodovoz
 		private global::Gtk.Label labelTotal;
 		
 		private global::Gtk.Button buttonAccept;
+		
+		private global::Gtk.Button buttonBackToUnloading;
 
 		protected virtual void Build ()
 		{
@@ -554,11 +556,26 @@ namespace Vodovoz
 			w46.Position = 3;
 			w46.Expand = false;
 			w46.Fill = false;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.buttonBackToUnloading = new global::Gtk.Button ();
+			this.buttonBackToUnloading.CanFocus = true;
+			this.buttonBackToUnloading.Name = "buttonBackToUnloading";
+			this.buttonBackToUnloading.UseUnderline = true;
+			this.buttonBackToUnloading.Label = global::Mono.Unix.Catalog.GetString ("Отправить на доразгрузку");
+			global::Gtk.Image w47 = new global::Gtk.Image ();
+			w47.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-undo", global::Gtk.IconSize.Button);
+			this.buttonBackToUnloading.Image = w47;
+			this.hbox9.Add (this.buttonBackToUnloading);
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.buttonBackToUnloading]));
+			w48.PackType = ((global::Gtk.PackType)(1));
+			w48.Position = 4;
+			w48.Expand = false;
+			w48.Fill = false;
 			this.vbox1.Add (this.hbox9);
-			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox9]));
-			w47.Position = 4;
-			w47.Expand = false;
-			w47.Fill = false;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox9]));
+			w49.Position = 4;
+			w49.Expand = false;
+			w49.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -566,6 +583,7 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
+			this.buttonBackToUnloading.Clicked += new global::System.EventHandler (this.OnButtonBackToUnloadingClicked);
 			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
 		}
 	}

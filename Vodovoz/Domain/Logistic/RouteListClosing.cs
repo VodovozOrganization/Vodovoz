@@ -292,6 +292,11 @@ namespace Vodovoz.Domain.Logistic
 			}
 			ClosingDate = DateTime.Now;
 		}
+
+		public virtual void RequestAdditionalUnloading()
+		{
+			RouteList.Status = RouteListStatus.EnRoute;
+		}
 	}
 }
 

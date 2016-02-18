@@ -276,6 +276,13 @@ namespace Vodovoz
 			buttonAccept.Sensitive = false;
 		}
 
+		protected void OnButtonBackToUnloadingClicked(object sender, EventArgs args)
+		{
+			Entity.RequestAdditionalUnloading();
+			UoW.Save();
+			buttonAccept.Sensitive = buttonBackToUnloading.Sensitive = false;
+		}
+
 		public List<ReturnsNode> GetReturnsToWarehouseByCategory(int routeListId,NomenclatureCategory[] categories)
 		{
 			List<ReturnsNode> result = new List<ReturnsNode>();		

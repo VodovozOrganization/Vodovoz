@@ -16520,6 +16520,24 @@ RegistrationNumber</property>
                 <property name="Fill">False</property>
               </packing>
             </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonBackToUnloading">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-undo Button</property>
+                <property name="Label" translatable="yes">Отправить на доразгрузку</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonBackToUnloadingClicked" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">4</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">4</property>
