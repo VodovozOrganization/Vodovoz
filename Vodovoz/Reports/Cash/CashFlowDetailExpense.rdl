@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.cash_expense_category_id as CategoryId,
@@ -37,7 +37,7 @@ FROM
     employees ON employees.id = cash_expense.employee_id
 WHERE cash_expense.type &lt;&gt; 'Advance' AND
     cash_expense.date &gt;= @startDate AND cash_expense.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
- AND if (@expenseCategory = -1, cash_expense_category.id, @expenseCategory) = cash_expense_category.id
+ AND IF(@expenseCategoryUsed, cash_expense_category.id IN (@expenseCategory), 1)
 
 ORDER BY Category, employee;</CommandText>
         <QueryParameters>
@@ -50,9 +50,12 @@ ORDER BY Category, employee;</CommandText>
           <QueryParameter Name="expenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </QueryParameter>
+          <QueryParameter Name="expenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="CategoryId">
           <DataField>CategoryId</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -460,7 +463,7 @@ ORDER BY Category, employee;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -478,7 +481,7 @@ ORDER BY Category, employee;</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2015-11-01</Value>
+          <Value>2016-06-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -494,10 +497,24 @@ ORDER BY Category, employee;</CommandText>
           <Value>-1</Value>
         </Values>
       </DefaultValue>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpenseCategoryUsed">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

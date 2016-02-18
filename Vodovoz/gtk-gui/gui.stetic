@@ -21238,7 +21238,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.CashFlow" design-size="298 223">
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.CashFlow" design-size="298 251">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -21301,13 +21301,10 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.ySpecComboBox" id="comboExpenseCategory">
+          <widget class="Gtk.ComboBox" id="comboExpenseCategory">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
-            <property name="AddIfNotExist">False</property>
-            <property name="ShowSpecialStateAll">True</property>
-            <property name="ShowSpecialStateNot">False</property>
           </widget>
           <packing>
             <property name="TopAttach">4</property>

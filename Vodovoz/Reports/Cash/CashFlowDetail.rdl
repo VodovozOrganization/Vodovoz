@@ -130,6 +130,9 @@
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
+          <Parameter Name="ExpenseCategoryUsed" >
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
       <Subreport Name="Subreport2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -154,6 +157,9 @@
           </Parameter>
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed" >
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -195,6 +201,9 @@
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
+          <Parameter Name="ExpenseCategoryUsed" >
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
       <Textbox Name="Textbox3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -234,6 +243,9 @@
           </Parameter>
           <Parameter Name="ExpenseCategory" >
             <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed" >
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -307,10 +319,24 @@
           <Value>-1</Value>
         </Values>
       </DefaultValue>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpenseCategoryUsed">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataElementName>Report</DataElementName>

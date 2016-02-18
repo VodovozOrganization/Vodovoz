@@ -37,7 +37,7 @@ FROM
     employees ON employees.id = cash_expense.employee_id
 WHERE cash_expense.type = 'Advance' AND
     cash_expense.date &gt;= @startDate AND cash_expense.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND if (@expenseCategory = -1, cash_expense_category.id, @expenseCategory) = cash_expense_category.id
+AND IF(@expenseCategoryUsed, cash_expense_category.id IN (@expenseCategory), 1)
 
 ORDER BY Category, employee;</CommandText>
         <QueryParameters>
@@ -49,6 +49,9 @@ ORDER BY Category, employee;</CommandText>
           </QueryParameter>
           <QueryParameter Name="expenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
+          </QueryParameter>
+          <QueryParameter Name="expenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -487,17 +490,31 @@ ORDER BY Category, employee;</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
-    <ReportParameter Name="ExpenseCategory">
+   <ReportParameter Name="ExpenseCategory">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
           <Value>-1</Value>
         </Values>
       </DefaultValue>
+      <Nullable>true</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>true</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ExpenseCategoryUsed">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

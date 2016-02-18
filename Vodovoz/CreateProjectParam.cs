@@ -15,6 +15,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using Gamma.Binding;
 
 namespace Vodovoz
 {
@@ -97,7 +98,7 @@ namespace Vodovoz
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>(),
 				//Касса
 				OrmObjectMapping<IncomeCategory>.Create ().EditPermision ("money_manage").DefaultTableView ().Column ("Название", e => e.Name).End (),
-				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().EditPermision ("money_manage").DefaultTableView ().Column ("Название", e => e.Name).End (),
+				OrmObjectMapping<ExpenseCategory>.Create ().Dialog<CashExpenseCategoryDlg>().EditPermision ("money_manage").DefaultTableView ().SearchColumn ("Название", e => e.Name).TreeConfig(new RecursiveTreeConfig<ExpenseCategory>(x => x.Parent, x => x.Childs)).End (),
 				OrmObjectMapping<Income>.Create ().Dialog<CashIncomeDlg> (),
 				OrmObjectMapping<Expense>.Create ().Dialog<CashExpenseDlg> (),
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),

@@ -1,23 +1,45 @@
 ﻿using System;
-using QSReport;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Gamma.Binding;
+using Gtk;
 using QSOrmProject;
-using Vodovoz.Repository.Cash;
+using QSReport;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Reports
 {
 	public partial class CashFlow : Gtk.Bin, IParametersWidget
 	{
+		ExpenseCategory allItem = new ExpenseCategory{
+			Name = "Все"
+		};
+
 		public CashFlow ()
 		{
 			this.Build ();
 			var uow = UnitOfWorkFactory.CreateWithoutRoot ();
 			comboPart.ItemsEnum = typeof(ReportParts);
-			comboExpenseCategory.ItemsList = CategoryRepository.ExpenseCategories (uow);
 			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
+
+			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
+			var list = CategoryRepository.ExpenseCategories(uow);
+			list.Insert(0, allItem);
+			var model = recurciveConfig.CreateModel((IList)list);
+			comboExpenseCategory.Model = model.Adapter;
+			comboExpenseCategory.PackStart(new CellRendererText(), true);
+			comboExpenseCategory.SetCellDataFunc(comboExpenseCategory.Cells[0], HandleCellLayoutDataFunc);
+			comboExpenseCategory.SetActiveIter(model.IterFromNode(allItem));
+		}
+
+		void HandleCellLayoutDataFunc (Gtk.CellLayout cell_layout, CellRenderer cell, Gtk.TreeModel tree_model, Gtk.TreeIter iter)
+		{
+			string text = DomainHelper.GetObjectTilte(tree_model.GetValue(iter, 0));
+			(cell as CellRendererText).Text = text;
 		}
 
 		#region IParametersWidget implementation
@@ -74,11 +96,16 @@ namespace Vodovoz.Reports
 				|| comboIncomeCategory.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All)
 				? -1
 				: (comboIncomeCategory.SelectedItem as IncomeCategory).Id;
-			var exCat = 
-				comboExpenseCategory.SelectedItem == null
-				|| comboExpenseCategory.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All)
-				? -1
-				: (comboExpenseCategory.SelectedItem as ExpenseCategory).Id;
+
+			TreeIter iter;
+			comboExpenseCategory.GetActiveIter(out iter);
+			var exCategory = (ExpenseCategory)comboExpenseCategory.Model.GetValue(iter, 0);
+			bool exCategorySelected = exCategory != allItem;
+			var ids = new List<int>();
+			if (exCategorySelected)
+				FineIds(ids, exCategory);
+			else
+				ids.Add(0); //Add fake value
 			
 			return new ReportInfo {
 				Identifier = ReportName,
@@ -86,9 +113,22 @@ namespace Vodovoz.Reports
 					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
 					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
 					{ "IncomeCategory", inCat },
-					{ "ExpenseCategory", exCat }
+					{ "ExpenseCategory", ids },
+					{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 }
 				}
 			};
+		}
+
+		private void FineIds(IList<int> result, ExpenseCategory cat)
+		{
+			result.Add(cat.Id);
+			if (cat.Childs == null)
+				return;
+
+			foreach(var childCat in cat.Childs)
+			{
+				FineIds(result, childCat);
+			}
 		}
 
 		protected void OnDateperiodpicker1PeriodChanged (object sender, EventArgs e)
