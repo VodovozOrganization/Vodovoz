@@ -76,6 +76,7 @@ namespace Vodovoz.ViewModel
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
 					.Select (e => e.Money).WithAlias (() => resultAlias.Append)
+					.Select (e => e.Description).WithAlias(() => resultAlias.Description)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
 				.List<AccountableSlipsVMNode>();
@@ -86,6 +87,7 @@ namespace Vodovoz.ViewModel
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
 					.Select (e => e.Money).WithAlias (() => resultAlias.Removed)
+					.Select (e => e.Description).WithAlias(() => resultAlias.Description)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
 				.List<AccountableSlipsVMNode>();
@@ -96,6 +98,7 @@ namespace Vodovoz.ViewModel
 					.Select (e => e.Id).WithAlias (() => resultAlias.Id)
 					.Select (e => e.Date).WithAlias (() => resultAlias.Date)
 					.Select (e => e.Money).WithAlias (() => resultAlias.Removed)
+					.Select (e => e.Description).WithAlias(() => resultAlias.Description)
 				)
 				.TransformUsing(Transformers.AliasToBean<AccountableSlipsVMNode>())
 				.List<AccountableSlipsVMNode>();
@@ -118,7 +121,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Дата").SetDataProperty (node => node.DateText)
 			.AddColumn ("Получено").SetDataProperty (node => node.AppendText)
 			.AddColumn ("Закрыто").SetDataProperty (node => node.RemovedText)
-			//.RowCells ().AddSetter<Gtk.CellRendererText> ((c, n) => c.Foreground = n.RowColor)
+			.AddColumn ("Основание").SetDataProperty (node => node.Description)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -170,6 +173,8 @@ namespace Vodovoz.ViewModel
 		public decimal Append { get; set;}
 
 		public decimal Removed { get; set;}
+
+		public string Description { get; set;}
 
 		public string DateText{
 			get { return Date.ToShortDateString ();
