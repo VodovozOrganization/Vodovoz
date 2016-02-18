@@ -33,6 +33,10 @@ namespace Vodovoz
 			yentryIncome.ItemsQuery = Repository.Cash.CategoryRepository.IncomeCategoriesQuery ();
 			yentryExpense.ItemsQuery = Repository.Cash.CategoryRepository.ExpenseCategoriesQuery ();
 			entryEmployee.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery ();
+
+			//Последние 30 дней.
+			dateperiodDocs.StartDateOrNull = DateTime.Today.AddDays(-30);
+			dateperiodDocs.EndDateOrNull = DateTime.Today.AddDays(1);
 		}
 
 		#region IReferenceFilter implementation
