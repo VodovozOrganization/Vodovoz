@@ -673,6 +673,10 @@ namespace Vodovoz
 				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
 				UoWGeneric.Root.UpdateDocuments();
 
+				treeItems.Selection.UnselectAll();
+				treeEquipment.Selection.UnselectAll();
+				treeDepositRefundItems.Selection.UnselectAll();
+
 				IsEditable ();
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
