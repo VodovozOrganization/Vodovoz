@@ -389,6 +389,20 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual decimal ActualTotalSum{
+			get {
+				Decimal sum = 0;
+				foreach (OrderItem item in ObservableOrderItems) {
+					sum += item.Price * item.ActualCount;
+				}
+				foreach (OrderDepositItem dep in ObservableOrderDepositItems) {
+					if (dep.PaymentDirection == PaymentDirection.ToClient)
+						sum -= dep.Deposit * dep.Count;
+				}
+				return sum;
+			}
+		}
+
 		public void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)
 		{
 			if (nomenclature.Category != NomenclatureCategory.equipment)

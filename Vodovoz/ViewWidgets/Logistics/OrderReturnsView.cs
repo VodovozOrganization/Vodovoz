@@ -7,6 +7,8 @@ using System.Linq;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using System.Data.Bindings.Collections.Generic;
+using System.ComponentModel;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -33,13 +35,14 @@ namespace Vodovoz
 			foreach(var item in nomenclatures)
 			{
 				itemsToClient.Add(new OrderItemReturnsNode(item));
+				item.PropertyChanged += OnOrderChanged;
 			}
 			var equipments = routeListItem.Order.OrderEquipments
 				.Where(item => item.Direction == Vodovoz.Domain.Orders.Direction.Deliver);
 			foreach(var item in equipments)
-			{
-				var newOrderEquipmentNode = new OrderItemReturnsNode(item);
-				itemsToClient.Add(newOrderEquipmentNode);
+			{				
+				itemsToClient.Add(new OrderItemReturnsNode(item));
+				item.PropertyChanged += OnOrderChanged;
 			}
 
 			equipmentFromClient = new List<OrderItemReturnsNode>();
@@ -50,15 +53,24 @@ namespace Vodovoz
 				var newOrderEquipmentNode = new OrderItemReturnsNode(item);
 				equipmentFromClient.Add(newOrderEquipmentNode);
 			}
-				
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualTotalSum);
+
 			ytreeToClient.ItemsDataSource = itemsToClient;
 			ytreeFromClient.ItemsDataSource = equipmentFromClient;
 		}
 
+		public void OnOrderChanged(object sender, PropertyChangedEventArgs args)
+		{
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualTotalSum);
+		}
+
 		protected void Configure()
 		{
+			yentryCounterparty.SubjectType = typeof(Counterparty);
 			yentryCounterparty.Binding.AddBinding(routeListItem.Order, o => o.Client, w => w.Subject).InitializeFromSource();
 			yentryCounterparty.CanEditReference = false;
+
+			yentryDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			yentryDeliveryPoint.Binding.AddBinding(routeListItem.Order, o => o.DeliveryPoint, w => w.Subject).InitializeFromSource();
 			yentryDeliveryPoint.CanEditReference = false;
 
@@ -81,6 +93,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node=>node.Price)
 						.Adjustment(new Gtk.Adjustment(0,0,99999,1,100,0))
 						.AddSetter((cell,node)=>cell.Editable = node.HasPrice)
+					.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("")
 				.Finish();
 
@@ -91,7 +104,7 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.IsDelivered)
 				.AddColumn("")
 				.Finish();
-		}			
+		}
 	}
 
 	public class OrderItemReturnsNode{
@@ -187,6 +200,7 @@ namespace Vodovoz
 					orderItem.Price = value;
 			}
 		}
+
 	}
 }
 
