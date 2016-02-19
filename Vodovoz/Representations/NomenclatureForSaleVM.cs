@@ -40,7 +40,7 @@ namespace Vodovoz.ViewModel
 			var subqueryReserved = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias)
 				.JoinAlias (() => orderAlias.OrderItems, () => orderItemsAlias)
 				.Where (()=>orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.Where(()=>orderAlias.OrderStatus==OrderStatus.NewOrder)
+				.Where(()=>orderAlias.OrderStatus==OrderStatus.Accepted)
 				.Select (Projections.Sum (() => orderItemsAlias.Count));
 
 			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)

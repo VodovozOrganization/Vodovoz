@@ -481,6 +481,7 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListDiscrepancyView.cs" />
     <Compile Include="HibernateMapping\Counterparty\ContactMap.cs" />
     <Compile Include="Domain\Wages.cs" />
+    <Compile Include="Repositories\StockRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -174,11 +174,11 @@ namespace Vodovoz
 
 		protected void UpdateStockBalance(){
 			Warehouse warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
-			itemsInStock = Vodovoz.Repository.Store.WarehouseRepository.NomenclatureInStock (UoW,warehouse.Id,
+			itemsInStock = Vodovoz.Repository.StockRepository.NomenclatureInStock (UoW,warehouse.Id,
 				ShipmentList.Where(shipment=>!shipment.IsTrackable).Select (shipment => shipment.Id).ToArray());
 			foreach (var item in itemsInStock)
 				ShipmentList.First (shipment => shipment.Id == item.Key).InStock = item.Value;
-			equipmentInStock = Vodovoz.Repository.Store.WarehouseRepository.EquipmentInStock (UoW,warehouse.Id,
+			equipmentInStock = Vodovoz.Repository.StockRepository.EquipmentInStock (UoW,warehouse.Id,
 				ShipmentList.Where(shipment=>shipment.IsTrackable).Select (shipment => shipment.EquipmentId).ToArray ());
 			foreach (var item in equipmentInStock)
 				ShipmentList.First (shipment => shipment.EquipmentId == item.Key).InStock = item.Value;
