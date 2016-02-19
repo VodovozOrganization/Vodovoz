@@ -37,6 +37,16 @@ namespace Vodovoz.Domain.Cash
 			get { return income; }
 			set { SetField (ref income, value, () => Income); }
 		}
+
+		decimal money;
+
+		[Display (Name = "Сумма")]
+		public virtual decimal Money {
+			get { return money; }
+			set {
+				SetField (ref money, value, () => Money); 
+			}
+		}
 			
 		#endregion
 
@@ -58,7 +68,7 @@ namespace Vodovoz.Domain.Cash
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (AdvanceExpense == null)
 				yield return new ValidationResult ("Выданный аванс должен быть заполнен.",
