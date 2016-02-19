@@ -2,6 +2,7 @@
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Logistic;
+using Gamma.Widgets;
 
 namespace Vodovoz
 {
@@ -75,7 +76,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnEnumcomboStatusEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumcomboStatusEnumItemSelected (object sender, ItemSelectedEventArgs e)
 		{
 			OnRefiltered ();
 		}
