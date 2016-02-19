@@ -47,6 +47,7 @@ namespace Vodovoz
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytreeviewItems = new global::Gamma.GtkWidgets.yTreeView ();
 			this.ytreeviewItems.CanFocus = true;
+			this.ytreeviewItems.Events = ((global::Gdk.EventMask)(256));
 			this.ytreeviewItems.Name = "ytreeviewItems";
 			this.GtkScrolledWindow.Add (this.ytreeviewItems);
 			this.GtkAlignment.Add (this.GtkScrolledWindow);
@@ -68,6 +69,7 @@ namespace Vodovoz
 			}
 			this.Hide ();
 			this.ytreeviewItems.RowActivated += new global::Gtk.RowActivatedHandler (this.OnYtreeviewItemsRowActivated);
+			this.ytreeviewItems.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler (this.OnYtreeviewItemsButtonPressEvent);
 		}
 	}
 }

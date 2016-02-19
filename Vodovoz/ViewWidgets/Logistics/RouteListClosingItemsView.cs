@@ -24,6 +24,8 @@ namespace Vodovoz
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
+		private Menu menu;
+
 		public GenericObservableList<RouteListItem> Items{ get; set; }
 
 		private int goodsColumnsCount = -1;
@@ -266,6 +268,31 @@ namespace Vodovoz
 		public RouteListClosingItemsView ()
 		{
 			this.Build ();
+			ConfigureMenu();
+		}
+
+		public void ConfigureMenu()
+		{
+			MenuItem openReserved;
+			menu = new Menu();
+
+			var openReturns = new MenuItem("Открыть недовозы");
+			openReturns.Activated += (s, args) =>
+				{
+					OnClosingItemActivated(this,null);
+				};
+			menu.Append(openReturns);
+			openReturns.Show();
+
+			var openOrder = new MenuItem("Открыть заказ");
+			openOrder.Activated += (s, args) =>
+				{
+					var dlg = new OrderDlg(GetSelectedRouteListItem().Order);
+					dlg.Show();
+					MyTab.TabParent.AddTab(dlg, MyTab);
+				};
+			menu.Append(openOrder);
+			openOrder.Show();
 		}
 
 		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
@@ -277,6 +304,18 @@ namespace Vodovoz
 		{
 			return (ytreeviewItems.GetSelectedObject() as RouteListItem);
 		}
+
+		[GLib.ConnectBefore]
+		protected void OnYtreeviewItemsButtonPressEvent (object o, ButtonPressEventArgs buttonPressArgs)
+		{
+			if (buttonPressArgs.Event.Button == 3)
+			{
+				var selectedItem = GetSelectedRouteListItem();
+				if (selectedItem != null)
+				{
+					menu.Popup();
+				}
+			}
+		}
 	}		
 }
-

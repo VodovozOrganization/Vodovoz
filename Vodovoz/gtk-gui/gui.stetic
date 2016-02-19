@@ -14384,8 +14384,10 @@ Patronymic</property>
                           <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewItems">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
+                            <property name="Events">ButtonPressMask</property>
                             <property name="ShowScrollbars">True</property>
                             <signal name="RowActivated" handler="OnYtreeviewItemsRowActivated" />
+                            <signal name="ButtonPressEvent" handler="OnYtreeviewItemsButtonPressEvent" />
                           </widget>
                         </child>
                       </widget>
