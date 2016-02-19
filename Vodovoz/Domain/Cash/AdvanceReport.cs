@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Cash
 		private DateTime date;
 
 		[Display (Name = "Дата")]
-		public DateTime Date {
+		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
 		}
@@ -84,7 +84,7 @@ namespace Vodovoz.Domain.Cash
 		{
 		}
 
-		public List<AdvanceClosing> CloseAdvances(out Expense surcharge, out Income returnChange, List<Expense> advances )
+		public virtual List<AdvanceClosing> CloseAdvances(out Expense surcharge, out Income returnChange, List<Expense> advances )
 		{
 			if (advances.Any (a => a.ExpenseCategory != ExpenseCategory))
 				throw new InvalidOperationException ("Нельзя что бы авансовый отчет, закрывал авансы выданные по другим статьям.");
@@ -134,7 +134,7 @@ namespace Vodovoz.Domain.Cash
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (Accountable == null)
 				yield return new ValidationResult ("Подотчетное лицо должно быть указано.",

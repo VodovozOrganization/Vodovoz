@@ -9,7 +9,6 @@ namespace Vodovoz.HMap
 		public ExpenseMap ()
 		{
 			Table("cash_expense");
-			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.TypeOperation).Column ("type").CustomType<ExpenseTypeStringType> ();
@@ -20,6 +19,8 @@ namespace Vodovoz.HMap
 			Map (x => x.Money).Column ("money");
 			Map (x => x.AdvanceClosed).Column ("advance_closed");
 			Map (x => x.Description).Column ("description");
+
+			HasMany (x => x.AdvanceCloseItems).Cascade.AllDeleteOrphan ().Inverse ().LazyLoad ().KeyColumn ("expense_id");
 		}
 	}
 }

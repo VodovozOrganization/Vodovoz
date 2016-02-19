@@ -17,7 +17,7 @@ namespace Vodovoz.Domain.Cash
 		private DateTime date;
 
 		[Display (Name = "Дата")]
-		public DateTime Date {
+		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
 		}
@@ -25,7 +25,7 @@ namespace Vodovoz.Domain.Cash
 		private IncomeType typeOperation;
 
 		[Display (Name = "Тип операции")]
-		public IncomeType TypeOperation {
+		public virtual IncomeType TypeOperation {
 			get { return typeOperation; }
 			set { 
 				if(SetField (ref typeOperation, value, () => TypeOperation))
@@ -110,17 +110,23 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		#endregion
+
 		public virtual string Title { 
 			get { return String.Format ("Приходный ордер №{0} от {1:d}", Id, Date); }
 		}
 			
+		#region RunTimeOnly
+
+		public virtual bool NoCloseAdvance { get; set;}
+
 		#endregion
 
 		public Income ()
 		{
 		}
 
-		public AdvanceClosing CloseAdvance(Expense expense)
+		public virtual AdvanceClosing CloseAdvance(Expense expense)
 		{
 			if (TypeOperation != IncomeType.Return) {
 				throw new InvalidOperationException ("Приходный ордер должен иметь тип '"+Gamma.Utilities.AttributeUtil.GetEnumTitle(IncomeType.Return)+"'");
@@ -134,7 +140,7 @@ namespace Vodovoz.Domain.Cash
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if(TypeOperation == IncomeType.Return)
 			{

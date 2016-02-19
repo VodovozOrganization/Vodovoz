@@ -9,7 +9,6 @@ namespace Vodovoz.HMap
 		public IncomeMap ()
 		{
 			Table("cash_income");
-			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.TypeOperation).Column ("type").CustomType<IncomeTypeStringType> ();

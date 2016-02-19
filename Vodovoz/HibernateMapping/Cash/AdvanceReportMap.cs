@@ -9,7 +9,6 @@ namespace Vodovoz.HMap
 		public AdvanceReportMap ()
 		{
 			Table("cash_advance_report");
-			Not.LazyLoad ();
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map (x => x.Date).Column ("date");
