@@ -656,7 +656,7 @@ namespace Vodovoz.Domain.Orders
 		public void AddServiceClaimAsInitial (ServiceClaim service)
 		{
 			if (service.InitialOrder != null && service.InitialOrder.Id == Id) {
-				if (ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
+				if (service.Equipment==null || ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
 					ObservableOrderEquipments.Add (new OrderEquipment { 
 						Order = this,
 						Direction = Direction.PickUp,
