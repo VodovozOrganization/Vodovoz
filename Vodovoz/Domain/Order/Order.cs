@@ -712,6 +712,18 @@ namespace Vodovoz.Domain.Orders
 			//И вообще много чего тут сделать.
 		}
 
+		public void FillNewEquipment(Equipment registeredEquipment)
+		{
+			var newEquipment = ObservableOrderEquipments
+				.Where(orderEq=>orderEq.NewEquipmentNomenclature!=null)
+				.FirstOrDefault(orderEq => orderEq.NewEquipmentNomenclature.Id == registeredEquipment.Nomenclature.Id);
+			if (newEquipment != null)
+			{
+				newEquipment.Equipment = registeredEquipment;
+				newEquipment.NewEquipmentNomenclature = null;
+			}
+		}
+
 		public void ChangeStatus(OrderStatus newStatus)
 		{
 			OrderStatus = newStatus;

@@ -15,6 +15,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz
 {	
@@ -25,6 +26,7 @@ namespace Vodovoz
 
 		int shipmentId;
 		RouteList routelist;
+		IList<ServiceClaim> serviceClaims;
 
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 		GenericObservableList<ReceptionItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionItemNode>();
@@ -38,6 +40,8 @@ namespace Vodovoz
 			this.TabName = "Прием машины";
 
 			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, ShipmentDocumentType.RouteList, id);
+			routelist = UoW.GetById<RouteList> (id);
+			serviceClaims = routelist.Addresses.SelectMany(address => address.Order.InitialOrderService).ToList();
 
 			bottleReceptionView.UoW = UoW;
 
@@ -53,6 +57,17 @@ namespace Vodovoz
 					.AddNumericRenderer (node => node.Amount, false)
 					.Adjustment (new Gtk.Adjustment (0, 0, 9999, 1, 100, 0))
 						.AddSetter ((cell, node) => cell.Editable = !node.Trackable)
+				.AddColumn("Заявка на сервис")
+					.AddComboRenderer(node=>node.ServiceClaim)
+						.Editing()
+						.SetDisplayFunc(service=>{
+							var serviceClaim = service as ServiceClaim;
+							var orderId = serviceClaim.InitialOrder.Id;
+							return String.Format("Заявка №{0}, заказ №{1}",serviceClaim.Id,orderId);
+						})
+						.FillItems<ServiceClaim>(serviceClaims)
+						.AddSetter((cell,node)=>cell.Sensitive = node.IsNew)
+						.AddSetter((cell,node)=>cell.Editable = node.IsNew)
 				.AddColumn("")
 				.Finish ();
 			
@@ -64,14 +79,13 @@ namespace Vodovoz
 						.AddSetter ((cell, node) => cell.Visible = node.Trackable)
 					.AddNumericRenderer (node => node.Amount, false)
 						.Adjustment (new Gtk.Adjustment (0, 0, 9999, 1, 100, 0))
-						.AddSetter ((cell, node) => cell.Editable = !node.Trackable)
+						.AddSetter ((cell, node) => cell.Editable = node.Id==0)
 				.AddColumn ("")
 				.Finish ();
 
 			if (stock != null)
 				ycomboboxWarehouse.SelectedItem = stock;
 
-			routelist = UoW.GetById<RouteList> (id);
 			textviewShipmentInfo.Buffer.Text =
 					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 				id,
@@ -105,6 +119,16 @@ namespace Vodovoz
 				ListEquipment ();
 				ListTrackableEquipment ();
 				ListNewTrackableEquipment ();
+				foreach (var eqObj in ReceptionEquipmentList)
+				{
+					var eq = eqObj as ReceptionItemNode;
+					if (!eq.IsNew)
+					{
+						eq.ServiceClaim = serviceClaims
+							.Where(service=>service.Equipment!=null)
+							.FirstOrDefault(service => service.Equipment.Id == eq.Id);
+					}
+				}
 			}
 			ListReturnableItems ();
 		}
@@ -175,6 +199,7 @@ namespace Vodovoz
 					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)		
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
 					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
+					.Select (() => true).WithAlias (() => resultAlias.IsNew)
 				)
 				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
 				.List<ReceptionItemNode> ();
@@ -261,7 +286,7 @@ namespace Vodovoz
 		protected void OnYtreeEquipmentRowActivated (object o, Gtk.RowActivatedArgs args)
 		{
 			var itemNode = ytreeEquipment.GetSelectedObject () as ReceptionItemNode;
-			if (itemNode.Trackable && itemNode.Id==0) {
+			if (itemNode.IsNew && itemNode.Id==0) {
 				var dlg = EquipmentGenerator.CreateOne (itemNode.NomenclatureId);
 				dlg.EquipmentCreated += OnEquipmentRegistered;
 				if (!TabParent.CheckClosingSlaveTabs (this)) {					
@@ -272,6 +297,7 @@ namespace Vodovoz
 		}
 
 		protected void OnEquipmentRegistered(object o, EquipmentCreatedEventArgs args){
+			equipmentToRegister.NewEquipment = args.Equipment[0];
 			equipmentToRegister.Id = args.Equipment [0].Id;
 			equipmentToRegister.Returned = true;
 		}
@@ -316,6 +342,11 @@ namespace Vodovoz
 			if(CarUnloadDocumentUoW.Root.Items.Count>0)
 				CarUnloadDocumentUoW.Save ();
 
+			foreach (var node in ReceptionEquipmentList.Where(eq=>eq.IsNew && eq.ServiceClaim!=null))
+			{
+				node.ServiceClaim.FillNewEquipment(node.NewEquipment);
+			}
+
 			if(checkbuttonFinalUnloading.Active)
 				routelist.Receive();
 			UoW.Save (routelist);
@@ -356,6 +387,9 @@ namespace Vodovoz
 					return String.Empty;
 			}
 		}
+		public ServiceClaim ServiceClaim{ get; set; }
+		public bool IsNew{ get; set; }
+		public Equipment NewEquipment{get;set;}
 		public bool Returned {
 			get {
 				return Amount > 0;

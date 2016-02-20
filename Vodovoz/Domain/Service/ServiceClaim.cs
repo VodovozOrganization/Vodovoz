@@ -227,6 +227,12 @@ namespace Vodovoz.Domain.Service
 			ObservableServiceClaimItems.Remove (item);
 		}
 
+		public void FillNewEquipment(Equipment registeredEquipment)
+		{
+			Equipment = registeredEquipment;
+			InitialOrder.FillNewEquipment(registeredEquipment);
+		}
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
