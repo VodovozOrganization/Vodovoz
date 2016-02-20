@@ -20962,6 +20962,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Button" id="buttonReturn">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Возват в кассу</property>
@@ -20978,6 +20979,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Button" id="buttonClose">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Авансовый отчет</property>

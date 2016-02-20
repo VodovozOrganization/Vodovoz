@@ -55,6 +55,7 @@ namespace Vodovoz
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonReturn = new global::Gtk.Button ();
+			this.buttonReturn.Sensitive = false;
 			this.buttonReturn.CanFocus = true;
 			this.buttonReturn.Name = "buttonReturn";
 			this.buttonReturn.UseUnderline = true;
@@ -66,6 +67,7 @@ namespace Vodovoz
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonClose = new global::Gtk.Button ();
+			this.buttonClose.Sensitive = false;
 			this.buttonClose.CanFocus = true;
 			this.buttonClose.Name = "buttonClose";
 			this.buttonClose.UseUnderline = true;
