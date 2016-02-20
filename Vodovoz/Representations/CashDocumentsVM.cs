@@ -164,10 +164,10 @@ namespace Vodovoz.ViewModel
 			//.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Тип документа").SetDataProperty (node => node.DocTypeString)
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
-			.AddColumn ("Кассир").SetDataProperty (node => node.CasherString)
+			.AddColumn ("Сотрудник").SetDataProperty (node => node.EmployeeString)
 			.AddColumn ("Статья").SetDataProperty (node => node.Category)
 			.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Money))
-			.AddColumn ("Сотрудник").SetDataProperty (node => node.EmployeeString)
+			.AddColumn ("Кассир").SetDataProperty (node => node.CasherString)
 			.AddColumn ("Основание").SetDataProperty (node => node.Description)
 			.Finish ();
 

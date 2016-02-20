@@ -10,6 +10,7 @@ using Vodovoz.Domain.Cash;
 using NHibernate;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
+using NHibernate.Criterion;
 
 namespace Vodovoz.ViewModel
 {
@@ -35,6 +36,8 @@ namespace Vodovoz.ViewModel
 			Expense expenseAlias = null;
 			ExpenseCategory expenseCategoryAlias = null;
 
+			AdvanceClosing clousingAliace = null;
+
 			var expense = UoW.Session.QueryOver<Expense> (() => expenseAlias)
 				.Where (e => e.AdvanceClosed == false && e.TypeOperation == ExpenseType.Advance);
 
@@ -42,6 +45,10 @@ namespace Vodovoz.ViewModel
 				expense.Where (i => i.ExpenseCategory == Filter.RestrictExpenseCategory);
 			if (Filter.RestrictAccountable != null)
 				expense.Where (o => o.Employee == Filter.RestrictAccountable);
+
+			var subqueryClosed = QueryOver.Of<AdvanceClosing>(() => clousingAliace)
+				.Where(() => clousingAliace.AdvanceExpense.Id == expenseAlias.Id)
+				.Select (Projections.Sum<AdvanceClosing> (o => o.Money));
 
 			var expenseList = expense
 				.JoinQueryOver (() => expenseAlias.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -59,6 +66,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => casherAlias.LastName).WithAlias (() => resultAlias.CasherSurname)
 					.Select (() => casherAlias.Patronymic).WithAlias (() => resultAlias.CasherPatronymic)
 					.Select (() => expenseCategoryAlias.Name).WithAlias (() => resultAlias.Category)
+					.SelectSubQuery(subqueryClosed).WithAlias (() => resultAlias.СloseMoney)
 				)
 				.TransformUsing (Transformers.AliasToBean<UnclosedAdvancesVMNode> ())
 				.List<UnclosedAdvancesVMNode> ();
@@ -69,10 +77,11 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig treeViewConfig = ColumnsConfigFactory.Create<UnclosedAdvancesVMNode>()
 			//.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
-			.AddColumn ("Кассир").SetDataProperty (node => node.CasherString)
-			.AddColumn ("Статья").SetDataProperty (node => node.Category)
-			.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Money))
 			.AddColumn ("Сотрудник").SetDataProperty (node => node.EmployeeString)
+			.AddColumn ("Статья").SetDataProperty (node => node.Category)
+			.AddColumn ("Получено").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Money))
+			.AddColumn ("Непогашено").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.UncloseMoney))
+			.AddColumn ("Кассир").SetDataProperty (node => node.CasherString)
 			.AddColumn ("Основание").SetDataProperty (node => node.Description)
 			.Finish ();
 
@@ -142,6 +151,16 @@ namespace Vodovoz.ViewModel
 		public string Description { get; set; }
 
 		public decimal Money { get; set; } 
+
+		public decimal СloseMoney { get; set; } 
+
+		public decimal UncloseMoney
+		{
+			get
+			{
+				return Money - СloseMoney;
+			}
+		} 
 	}
 }
 
