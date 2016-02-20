@@ -102,7 +102,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew)
+			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew && selectableAdvances != null)
 				Entity.PrepareCloseAdvance(selectableAdvances.Where(x => x.Selected).Select(x => x.Value).ToList());
 
 			var valid = new QSValidator<Income> (UoWGeneric.Root);
