@@ -1,7 +1,9 @@
 ﻿using System;
-using QSOrmProject;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Gamma.Utilities;
+using QSOrmProject;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -17,7 +19,7 @@ namespace Vodovoz.Domain.Cash
 		private DateTime date;
 
 		[Display (Name = "Дата")]
-		public DateTime Date {
+		public virtual DateTime Date {
 			get { return date; }
 			set { SetField (ref date, value, () => Date); }
 		}
@@ -25,7 +27,7 @@ namespace Vodovoz.Domain.Cash
 		private ExpenseType typeOperation;
 
 		[Display (Name = "Тип операции")]
-		public ExpenseType TypeOperation {
+		public virtual ExpenseType TypeOperation {
 			get { return typeOperation; }
 			set {
 				if(SetField (ref typeOperation, value, () => TypeOperation))
@@ -88,10 +90,81 @@ namespace Vodovoz.Domain.Cash
 			set { SetField (ref advanceClosed, value, () => AdvanceClosed); }
 		}
 
+		IList<AdvanceClosing> advanceCloseItems;
+
+		[Display (Name = "Документы закрытия аванса")]
+		public virtual IList<AdvanceClosing> AdvanceCloseItems {
+			get { return advanceCloseItems; }
+			set { SetField (ref advanceCloseItems, value, () => AdvanceCloseItems); }
+		}
+
+		#endregion
+
+		#region Вычисляемые
+
 		public virtual string Title { 
 			get { return String.Format ("Расходный ордер №{0} от {1:d}", Id, Date); }
 		}
+
+		public virtual decimal ClosedMoney{
+			get{
+				if (AdvanceCloseItems == null)
+					return 0;
+
+				return AdvanceCloseItems.Sum(x => x.Money);
+			}
+		}
+
+		public virtual decimal UnclosedMoney{
+			get{
+				return Money - ClosedMoney;
+			}
+		}
+
+		#endregion
+
+		#region Функции
+
+		public virtual void CalculateCloseState()
+		{
+			if (TypeOperation != ExpenseType.Advance)
+				throw new InvalidOperationException("Метод CalculateCloseState() можно вызываться только для выдачи аванса.");
+
+			if (AdvanceCloseItems == null)
+			{
+				AdvanceClosed = false;
+				return;
+			}
+
+			AdvanceClosed = ClosedMoney == Money;
+		}
+
+		public virtual AdvanceClosing AddAdvanceCloseItem(Income income, decimal sum)
+		{
+			if (TypeOperation != ExpenseType.Advance)
+				throw new InvalidOperationException("Метод AddAdvanceCloseItem() можно вызываться только для выдачи аванса.");
 			
+			var closing = new AdvanceClosing(this, income, sum);
+			if (AdvanceCloseItems == null)
+				AdvanceCloseItems = new List<AdvanceClosing>();
+			AdvanceCloseItems.Add(closing);
+			CalculateCloseState();
+			return closing;
+		}
+
+		public virtual AdvanceClosing AddAdvanceCloseItem(AdvanceReport report, decimal sum)
+		{
+			if (TypeOperation != ExpenseType.Advance)
+				throw new InvalidOperationException("Метод AddAdvanceCloseItem() можно вызываться только для выдачи аванса.");
+
+			var closing = new AdvanceClosing(this, report, sum);
+			if (AdvanceCloseItems == null)
+				AdvanceCloseItems = new List<AdvanceClosing>();
+			AdvanceCloseItems.Add(closing);
+			CalculateCloseState();
+			return closing;
+		}
+
 		#endregion
 
 		public Expense ()
@@ -100,7 +173,7 @@ namespace Vodovoz.Domain.Cash
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if(TypeOperation == ExpenseType.Advance)
 			{

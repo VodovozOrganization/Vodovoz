@@ -66,6 +66,8 @@ namespace Vodovoz
 			OnIncomeCategoryUpdated (null, null);
 			comboCategory.Binding.AddBinding (Entity, s => s.IncomeCategory, w => w.SelectedItem).InitializeFromSource ();
 
+			checkNoClose.Binding.AddBinding(Entity, e => e.NoFullCloseMode, w => w.Active);
+
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
@@ -73,7 +75,8 @@ namespace Vodovoz
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<Selectable<Expense>> ()
 				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
 				.AddColumn ("Дата").AddTextRenderer (a => a.Value.Date.ToString ())
-				.AddColumn ("Сумма").AddTextRenderer (a => a.Value.Money.ToString ("C"))
+				.AddColumn ("Получено").AddTextRenderer (a => a.Value.Money.ToString ("C"))
+				.AddColumn ("Непогашено").AddTextRenderer (a => a.Value.UnclosedMoney.ToString ("C"))
 				.AddColumn ("Статья").AddTextRenderer (a => a.Value.ExpenseCategory.Name)
 				.AddColumn ("Основание").AddTextRenderer (a => a.Value.Description)
 				.Finish ();
@@ -91,26 +94,21 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew)
+				Entity.PrepareCloseAdvance(selectableAdvances.Where(x => x.Selected).Select(x => x.Value).ToList());
+
 			var valid = new QSValidator<Income> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
-			bool wasNew = UoW.IsNew;
+
 			logger.Info ("Сохраняем Приходный ордер..."); 
-			UoWGeneric.Save();		
-			if (Entity.TypeOperation == IncomeType.Return && wasNew) {
+			if (Entity.TypeOperation == IncomeType.Return && UoW.IsNew) {
 				logger.Info ("Закрываем авансы...");
-				foreach(Selectable<Expense> expense in selectableAdvances){
-					if (expense.Selected) {												
-						var advanceClosing = Entity.CloseAdvance (expense.Value);
-						UoWGeneric.Save (advanceClosing);
-						UoWGeneric.Save (expense.Value);
-					}
-				}
+				Entity.CloseAdvances(UoW);
 			}
-			UoWGeneric.Commit ();
+			UoWGeneric.Save();
 			logger.Info ("Ok");
 			return true;
-
 		}
 			
 		protected void OnButtonPrintClicked (object sender, EventArgs e)
@@ -138,7 +136,7 @@ namespace Vodovoz
 
 			labelClientTitle.Visible = yentryClient.Visible = Entity.TypeOperation == IncomeType.Payment;
 
-			vboxDebts.Visible = Entity.TypeOperation == IncomeType.Return && UoW.IsNew;
+			vboxDebts.Visible = checkNoClose.Visible = Entity.TypeOperation == IncomeType.Return && UoW.IsNew;
 			yspinMoney.Sensitive = Entity.TypeOperation != IncomeType.Return;
 			yspinMoney.ValueAsDecimal = 0;
 
@@ -167,11 +165,32 @@ namespace Vodovoz
 		}
 
 		protected void OnAdvanceSelectionChanged(object sender, EventArgs args){
+			if(checkNoClose.Active && (sender as Selectable<Expense>).Selected)
+			{
+				selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
+			}
+
 			Entity.Money = selectableAdvances.
 				Where(expense=>expense.Selected)
-				.Sum (selectedExpense => selectedExpense.Value.Money);
+				.Sum (selectedExpense => selectedExpense.Value.UnclosedMoney);
 		}
 			
+		protected void OnCheckNoCloseToggled(object sender, EventArgs e)
+		{
+			if (selectableAdvances == null)
+				return;
+			if(checkNoClose.Active && selectableAdvances.Count(x => x.Selected) > 1)
+			{
+				MessageDialogWorks.RunWarningDialog("Частично вернуть можно только один аванс.");
+				checkNoClose.Active = false;
+				return;
+			}
+			yspinMoney.Sensitive = checkNoClose.Active;
+			if(!checkNoClose.Active)
+			{
+				yspinMoney.ValueAsDecimal = selectableAdvances.Where(x => x.Selected).Sum(x => x.Value.UnclosedMoney);
+			}
+		}
 	}
 
 	public class Selectable<T> {
@@ -187,6 +206,11 @@ namespace Vodovoz
 		}
 
 		public event EventHandler SelectChanged;
+
+		public void SilentUnselect()
+		{
+			selected = false;
+		}
 
 		public T Value { get; set;}
 

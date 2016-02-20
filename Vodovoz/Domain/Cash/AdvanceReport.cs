@@ -107,7 +107,7 @@ namespace Vodovoz.Domain.Cash
 					Description = String.Format ("Доплата денежных средств сотруднику по авансовому отчету №{0}", Id),
 					AdvanceClosed = true
 				};
-				resultClosing.Add (new AdvanceClosing(this, surcharge));
+				resultClosing.Add (surcharge.AddAdvanceCloseItem(this, surcharge.Money));
 			}
 			else if(balance > 0)
 			{
@@ -125,8 +125,7 @@ namespace Vodovoz.Domain.Cash
 
 			foreach(var adv in advances)
 			{
-				adv.AdvanceClosed = true;
-				resultClosing.Add (new AdvanceClosing(this, adv));
+				resultClosing.Add (adv.AddAdvanceCloseItem(this, adv.UnclosedMoney));
 			}
 
 			return resultClosing;

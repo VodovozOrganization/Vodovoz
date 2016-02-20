@@ -54,16 +54,18 @@ namespace Vodovoz.Domain.Cash
 		{
 		}
 
-		public AdvanceClosing (AdvanceReport advanceReport,  Expense advanceExpense)
+		public AdvanceClosing (Expense advanceExpense, AdvanceReport advanceReport, decimal sum)
 		{
 			this.advanceExpense = advanceExpense;
 			this.advanceReport = advanceReport;
+			this.money = sum;
 		}
 
-		public AdvanceClosing (Income income,  Expense advanceExpense)
+		public AdvanceClosing (Expense advanceExpense, Income income, decimal sum)
 		{
 			this.advanceExpense = advanceExpense;
 			this.income = income;
+			this.money = sum;
 		}
 
 		#region IValidatableObject implementation

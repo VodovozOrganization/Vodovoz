@@ -1,7 +1,9 @@
 ﻿using System;
-using QSOrmProject;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Gamma.Utilities;
+using QSOrmProject;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -118,7 +120,9 @@ namespace Vodovoz.Domain.Cash
 			
 		#region RunTimeOnly
 
-		public virtual bool NoCloseAdvance { get; set;}
+		public virtual List<Expense> AdvanceForClosing { get; protected set;}
+
+		public virtual bool NoFullCloseMode { get; set;}
 
 		#endregion
 
@@ -126,17 +130,39 @@ namespace Vodovoz.Domain.Cash
 		{
 		}
 
-		public virtual AdvanceClosing CloseAdvance(Expense expense)
+		#region Функции
+
+		public virtual void PrepareCloseAdvance(List<Expense> advances)
+		{
+			if (TypeOperation != IncomeType.Return)
+				throw new InvalidOperationException("Метод PrepareCloseAdvance() можно вызываться только для возврата аванса.");
+
+			AdvanceForClosing = advances;
+		}
+
+		public virtual void CloseAdvances(IUnitOfWork uow)
 		{
 			if (TypeOperation != IncomeType.Return) {
 				throw new InvalidOperationException ("Приходный ордер должен иметь тип '"+Gamma.Utilities.AttributeUtil.GetEnumTitle(IncomeType.Return)+"'");
 			}
-			if (expense.TypeOperation != ExpenseType.Advance) {
-				throw new InvalidOperationException ("Расходный ордер должен иметь тип '"+Gamma.Utilities.AttributeUtil.GetEnumTitle(ExpenseType.Advance)+"'");
+
+			if(NoFullCloseMode)
+			{
+				var advance = AdvanceForClosing.First();
+				advance.AddAdvanceCloseItem(this, Money);
+				uow.Save(advance);
 			}
-			expense.AdvanceClosed = true;
-			return new AdvanceClosing (this, expense);
+			else
+			{
+				foreach(var advance in AdvanceForClosing)
+				{
+					advance.AddAdvanceCloseItem(this, advance.Money - advance.ClosedMoney);
+					uow.Save(advance);
+				}
+			}
 		}
+
+		#endregion
 
 		#region IValidatableObject implementation
 
@@ -151,7 +177,28 @@ namespace Vodovoz.Domain.Cash
 				if (ExpenseCategory == null)
 					yield return new ValidationResult ("Статья по которой брались деньги должна быть указана.",
 						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
-				
+
+				if (AdvanceForClosing == null || AdvanceForClosing.Count == 0)
+				{
+					yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
+						new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
+				}
+				else
+				{
+					if(NoFullCloseMode)
+					{
+						var advance = AdvanceForClosing.First();
+						if(Money > advance.UnclosedMoney)
+							yield return new ValidationResult("Сумма возврата не должна превышать сумму которую брал человек за вычетом уже возвращенных средств.",
+								new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
+					}
+					else
+					{
+						decimal closedSum = AdvanceForClosing.Sum(x => x.UnclosedMoney);
+						if (closedSum != Money)
+							throw new InvalidOperationException("Сумма закрытых авансов должна соответствовать сумме возврата.");
+					}
+				}
 			}
 
 			if(TypeOperation != IncomeType.Return)
@@ -178,7 +225,6 @@ namespace Vodovoz.Domain.Cash
 		}
 
 		#endregion
-
 	}
 
 	public enum IncomeType
