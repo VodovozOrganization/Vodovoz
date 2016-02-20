@@ -38,6 +38,14 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
+		public CashIncomeDlg (Expense advance) : this () 
+		{
+			Entity.TypeOperation = IncomeType.Return;
+			Entity.ExpenseCategory = advance.ExpenseCategory;
+			Entity.Employee = advance.Employee;
+			selectableAdvances.Find(x => x.Value.Id == advance.Id).Selected = true;
+		}
+
 		public CashIncomeDlg (Income sub) : this (sub.Id) {}
 
 		void ConfigureDlg()

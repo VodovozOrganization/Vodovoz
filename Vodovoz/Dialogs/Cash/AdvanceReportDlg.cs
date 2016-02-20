@@ -41,6 +41,11 @@ namespace Vodovoz
 			}
 		}
 
+		public AdvanceReportDlg (Expense advance) : this(advance.Employee, advance.ExpenseCategory, advance.UnclosedMoney)
+		{
+			advanceList.Find(x => x.Advance.Id == advance.Id).Selected = true;
+		}
+
 		public AdvanceReportDlg (Employee accountable, ExpenseCategory expenseCategory, decimal money) : this()
 		{
 			Entity.Accountable = accountable;

@@ -12,13 +12,11 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.RepresentationTreeView representationUnclosed;
 		
-		private global::Gtk.HBox hbox4;
+		private global::Gtk.HBox hbox3;
 		
-		private global::Gtk.Label labelCurrentDebt;
+		private global::Gtk.Button buttonReturn;
 		
-		private global::Gtk.Label labelRecived;
-		
-		private global::Gtk.Label labelClosed;
+		private global::Gtk.Button buttonClose;
 
 		protected virtual void Build ()
 		{
@@ -52,48 +50,43 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
 			w3.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox4 = new global::Gtk.HBox ();
-			this.hbox4.Name = "hbox4";
-			this.hbox4.Spacing = 6;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.labelCurrentDebt = new global::Gtk.Label ();
-			this.labelCurrentDebt.Name = "labelCurrentDebt";
-			this.labelCurrentDebt.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
-			this.hbox4.Add (this.labelCurrentDebt);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.labelCurrentDebt]));
+			this.hbox3 = new global::Gtk.HBox ();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.buttonReturn = new global::Gtk.Button ();
+			this.buttonReturn.CanFocus = true;
+			this.buttonReturn.Name = "buttonReturn";
+			this.buttonReturn.UseUnderline = true;
+			this.buttonReturn.Label = global::Mono.Unix.Catalog.GetString ("Возват в кассу");
+			this.hbox3.Add (this.buttonReturn);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonReturn]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.labelRecived = new global::Gtk.Label ();
-			this.labelRecived.Name = "labelRecived";
-			this.labelRecived.LabelProp = global::Mono.Unix.Catalog.GetString ("label2");
-			this.hbox4.Add (this.labelRecived);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.labelRecived]));
-			w5.PackType = ((global::Gtk.PackType)(1));
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.buttonClose = new global::Gtk.Button ();
+			this.buttonClose.CanFocus = true;
+			this.buttonClose.Name = "buttonClose";
+			this.buttonClose.UseUnderline = true;
+			this.buttonClose.Label = global::Mono.Unix.Catalog.GetString ("Авансовый отчет");
+			this.hbox3.Add (this.buttonClose);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonClose]));
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
-			// Container child hbox4.Gtk.Box+BoxChild
-			this.labelClosed = new global::Gtk.Label ();
-			this.labelClosed.Name = "labelClosed";
-			this.labelClosed.LabelProp = global::Mono.Unix.Catalog.GetString ("label3");
-			this.hbox4.Add (this.labelClosed);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.labelClosed]));
-			w6.PackType = ((global::Gtk.PackType)(1));
+			this.vbox1.Add (this.hbox3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.vbox1.Add (this.hbox4);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox4]));
-			w7.Position = 2;
-			w7.Expand = false;
-			w7.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.buttonReturn.Clicked += new global::System.EventHandler (this.OnButtonReturnClicked);
+			this.buttonClose.Clicked += new global::System.EventHandler (this.OnButtonCloseClicked);
 		}
 	}
 }
