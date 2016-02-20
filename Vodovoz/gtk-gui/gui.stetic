@@ -692,7 +692,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1394,6 +1393,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1504,6 +1504,32 @@
                           </packing>
                         </child>
                         <child>
+                          <widget class="Gamma.Widgets.yEnumComboBox" id="comboCategory">
+                            <property name="MemberName" />
+                            <property name="IsTextCombo">False</property>
+                            <property name="Items" translatable="yes" />
+                            <property name="ShowSpecialStateAll">False</property>
+                            <property name="ShowSpecialStateNot">False</property>
+                            <property name="UseShortTitle">False</property>
+                            <property name="DefaultFirst">True</property>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">3</property>
+                            <property name="BottomAttach">4</property>
+                            <property name="LeftAttach">1</property>
+                            <property name="RightAttach">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">Fill</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.DataBindings.DataEntry" id="dataentryDrivingNumber">
                             <property name="MemberName" />
                             <property name="Tooltip" translatable="yes">Десять символов серии и номера без пробелов.</property>
@@ -1606,34 +1632,6 @@
                           <packing>
                             <property name="TopAttach">2</property>
                             <property name="BottomAttach">3</property>
-                            <property name="LeftAttach">1</property>
-                            <property name="RightAttach">2</property>
-                            <property name="AutoSize">True</property>
-                            <property name="XOptions">Fill</property>
-                            <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
-                            <property name="XFill">True</property>
-                            <property name="XShrink">False</property>
-                            <property name="YExpand">False</property>
-                            <property name="YFill">True</property>
-                            <property name="YShrink">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.DataBindings.DataEnumComboBox" id="dataenumcomboCategory">
-                            <property name="MemberName" />
-                            <property name="IsTextCombo">False</property>
-                            <property name="Items" translatable="yes" />
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Category</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Category</property>
-                          </widget>
-                          <packing>
-                            <property name="TopAttach">3</property>
-                            <property name="BottomAttach">4</property>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
@@ -8524,13 +8522,15 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EnumComboBox" id="enumcomboCategory">
+          <widget class="Gamma.Widgets.yEnumComboBox" id="enumcomboCategory">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
-            <signal name="EnumItemSelected" handler="OnEnumcomboCategoryEnumItemSelected" />
+            <property name="UseShortTitle">False</property>
+            <property name="DefaultFirst">False</property>
+            <signal name="Changed" handler="OnEnumcomboCategoryChanged" />
           </widget>
           <packing>
             <property name="LeftAttach">1</property>

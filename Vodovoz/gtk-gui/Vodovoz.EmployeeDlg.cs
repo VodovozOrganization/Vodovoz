@@ -30,6 +30,8 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataCheckButton checkIsFired;
 		
+		private global::Gamma.Widgets.yEnumComboBox comboCategory;
+		
 		private global::Gtk.DataBindings.DataEntry dataentryDrivingNumber;
 		
 		private global::Gtk.DataBindings.DataEntry dataentryLastName;
@@ -37,8 +39,6 @@ namespace Vodovoz
 		private global::Gtk.DataBindings.DataEntry dataentryName;
 		
 		private global::Gtk.DataBindings.DataEntry dataentryPatronymic;
-		
-		private global::Gtk.DataBindings.DataEnumComboBox dataenumcomboCategory;
 		
 		private global::Gtk.DataBindings.DataHBox datahbox2;
 		
@@ -238,6 +238,21 @@ namespace Vodovoz
 			w13.RightAttach = ((uint)(3));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
+			this.comboCategory = new global::Gamma.Widgets.yEnumComboBox ();
+			this.comboCategory.Name = "comboCategory";
+			this.comboCategory.ShowSpecialStateAll = false;
+			this.comboCategory.ShowSpecialStateNot = false;
+			this.comboCategory.UseShortTitle = false;
+			this.comboCategory.DefaultFirst = true;
+			this.datatableMain.Add (this.comboCategory);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.comboCategory]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatableMain.Gtk.Table+TableChild
 			this.dataentryDrivingNumber = new global::Gtk.DataBindings.DataEntry ();
 			this.dataentryDrivingNumber.TooltipMarkup = "Десять символов серии и номера без пробелов.";
 			this.dataentryDrivingNumber.CanFocus = true;
@@ -252,13 +267,13 @@ namespace Vodovoz
 			this.dataentryDrivingNumber.Mappings = "DrivingNumber";
 			this.dataentryDrivingNumber.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryDrivingNumber);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryDrivingNumber]));
-			w14.TopAttach = ((uint)(7));
-			w14.BottomAttach = ((uint)(8));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(3));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryDrivingNumber]));
+			w15.TopAttach = ((uint)(7));
+			w15.BottomAttach = ((uint)(8));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(3));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.dataentryLastName = new global::Gtk.DataBindings.DataEntry ();
 			this.dataentryLastName.CanFocus = true;
@@ -272,10 +287,10 @@ namespace Vodovoz
 			this.dataentryLastName.Mappings = "LastName";
 			this.dataentryLastName.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryLastName);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryLastName]));
-			w15.LeftAttach = ((uint)(1));
-			w15.RightAttach = ((uint)(2));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryLastName]));
+			w16.LeftAttach = ((uint)(1));
+			w16.RightAttach = ((uint)(2));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.dataentryName = new global::Gtk.DataBindings.DataEntry ();
 			this.dataentryName.CanFocus = true;
@@ -290,13 +305,13 @@ namespace Vodovoz
 			this.dataentryName.Mappings = "Name";
 			this.dataentryName.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryName);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryName]));
-			w16.TopAttach = ((uint)(1));
-			w16.BottomAttach = ((uint)(2));
-			w16.LeftAttach = ((uint)(1));
-			w16.RightAttach = ((uint)(2));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryName]));
+			w17.TopAttach = ((uint)(1));
+			w17.BottomAttach = ((uint)(2));
+			w17.LeftAttach = ((uint)(1));
+			w17.RightAttach = ((uint)(2));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.dataentryPatronymic = new global::Gtk.DataBindings.DataEntry ();
 			this.dataentryPatronymic.CanFocus = true;
@@ -310,26 +325,9 @@ namespace Vodovoz
 			this.dataentryPatronymic.Mappings = "Patronymic";
 			this.dataentryPatronymic.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryPatronymic);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryPatronymic]));
-			w17.TopAttach = ((uint)(2));
-			w17.BottomAttach = ((uint)(3));
-			w17.LeftAttach = ((uint)(1));
-			w17.RightAttach = ((uint)(2));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataenumcomboCategory = new global::Gtk.DataBindings.DataEnumComboBox ();
-			this.dataenumcomboCategory.Name = "dataenumcomboCategory";
-			this.dataenumcomboCategory.InheritedBoundaryDataSource = false;
-			this.dataenumcomboCategory.InheritedDataSource = true;
-			this.dataenumcomboCategory.Mappings = "Category";
-			this.dataenumcomboCategory.InheritedBoundaryDataSource = false;
-			this.dataenumcomboCategory.InheritedDataSource = true;
-			this.dataenumcomboCategory.Mappings = "Category";
-			this.datatableMain.Add (this.dataenumcomboCategory);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataenumcomboCategory]));
-			w18.TopAttach = ((uint)(3));
-			w18.BottomAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryPatronymic]));
+			w18.TopAttach = ((uint)(2));
+			w18.BottomAttach = ((uint)(3));
 			w18.LeftAttach = ((uint)(1));
 			w18.RightAttach = ((uint)(2));
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));

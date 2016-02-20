@@ -70,7 +70,7 @@ namespace Vodovoz
 			UpdateCreteria ();
 		}
 
-		protected void OnEnumcomboCategoryEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumcomboCategoryChanged(object sender, EventArgs e)
 		{
 			UpdateCreteria ();
 		}

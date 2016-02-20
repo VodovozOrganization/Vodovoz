@@ -1,10 +1,9 @@
 ﻿using System;
-using QSOrmProject;
-using System.Data.Bindings;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
-using QSProjectsLib;
+using System.ComponentModel.DataAnnotations;
 using QSBanks;
+using QSOrmProject;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain
 {
@@ -184,11 +183,11 @@ namespace Vodovoz.Domain
 
 	public enum EmployeeCategory
 	{
-		[ItemTitleAttribute ("Офисный работник")]
+		[Display (Name = "Офисный работник")]
 		office,
-		[ItemTitleAttribute ("Водитель")]
+		[Display (Name = "Водитель")]
 		driver,
-		[ItemTitleAttribute ("Экспедитор")]
+		[Display (Name = "Экспедитор")]
 		forwarder
 	}
 

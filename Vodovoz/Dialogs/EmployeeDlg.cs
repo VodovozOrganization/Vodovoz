@@ -39,7 +39,6 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			datatableMain.DataSource = subjectAdaptor;
-			dataenumcomboCategory.DataSource = subjectAdaptor;
 			entryInn.DataSource = subjectAdaptor;
 			dataentryPassportSeria.MaxLength = 5;
 			dataentryPassportNumber.MaxLength = 6;
@@ -50,6 +49,9 @@ namespace Vodovoz
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
+
+			comboCategory.ItemsEnum = typeof(EmployeeCategory);
+			comboCategory.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
