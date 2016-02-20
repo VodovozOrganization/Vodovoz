@@ -644,7 +644,7 @@ namespace Vodovoz
 
 				var itemWithBlankWarehouse = Entity.OrderItems
 					.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
-					.FirstOrDefault(orderItem => orderItem.Nomenclature.Warehouse!=null);
+					.FirstOrDefault(orderItem => orderItem.Nomenclature.Warehouse==null);
 				if (itemWithBlankWarehouse!=null)
 				{
 					MessageDialogWorks.RunErrorDialog(
