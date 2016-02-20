@@ -91,7 +91,7 @@ namespace Vodovoz.Domain.Cash
 
 			surcharge = null; returnChange = null;
 
-			decimal totalExpense = advances.Sum (a => a.Money);
+			decimal totalExpense = advances.Sum (a => a.UnclosedMoney);
 			decimal balance = totalExpense - Money;
 			List<AdvanceClosing> resultClosing = new List<AdvanceClosing> ();
 

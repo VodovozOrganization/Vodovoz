@@ -101,7 +101,8 @@ namespace Vodovoz
 			ytreeviewDebts.ColumnsConfig = ColumnsConfigFactory.Create<RecivedAdvance> ()
 				.AddColumn ("Закрыть").AddToggleRenderer (a => a.Selected).Editing ()
 				.AddColumn ("Дата").AddTextRenderer (a => a.Advance.Date.ToString ())
-				.AddColumn ("Сумма").AddTextRenderer (a => a.Advance.Money.ToString ("C"))
+				.AddColumn ("Получено").AddTextRenderer (a => a.Advance.Money.ToString ("C"))
+				.AddColumn ("Непогашено").AddTextRenderer (a => a.Advance.UnclosedMoney.ToString ("C"))
 				.AddColumn ("Статья").AddTextRenderer (a => a.Advance.ExpenseCategory.Name)
 				.AddColumn ("Основание").AddTextRenderer (a => a.Advance.Description)
 				.Finish ();
@@ -208,7 +209,7 @@ namespace Vodovoz
 
 			var advaces = Repository.Cash.AccountableDebtsRepository.UnclosedAdvance (UoW, Entity.Accountable, Entity.ExpenseCategory);
 
-			Debt = advaces.Sum (a => a.Money);
+			Debt = advaces.Sum (a => a.UnclosedMoney);
 
 			advanceList = new List<RecivedAdvance> ();
 
@@ -222,7 +223,7 @@ namespace Vodovoz
 
 		void I_SelectChanged (object sender, EventArgs e)
 		{
-			ClosingSum = advanceList.Where (a => a.Selected).Sum (a => a.Advance.Money);
+			ClosingSum = advanceList.Where (a => a.Selected).Sum (a => a.Advance.UnclosedMoney);
 		}
 
 		protected void OnYentryEmploeeyChanged (object sender, EventArgs e)
