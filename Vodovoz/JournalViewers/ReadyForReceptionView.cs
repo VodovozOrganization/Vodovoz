@@ -1,6 +1,7 @@
 ﻿using System;
 using QSTDI;
 using QSOrmProject;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -39,6 +40,7 @@ namespace Vodovoz
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
 			buttonOpen.Sensitive = tableReadyForReception.Selection.CountSelectedRows () > 0;
+			buttonConfirmReception.Sensitive = tableReadyForReception.Selection.CountSelectedRows() > 0;
 		}
 
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
@@ -53,6 +55,14 @@ namespace Vodovoz
 			buttonOpen.Click ();
 		}
 
+		protected void OnButtonConfirmReceptionClicked (object sender, EventArgs e)
+		{
+			var node = tableReadyForReception.GetSelectedNode () as ViewModel.ReadyForReceptionVMNode;
+			var routeList = UoW.GetById<RouteList>(node.Id);
+			routeList.ConfirmReception();
+			UoW.Save(routeList);
+			UoW.Commit();
+		}
 	}
 }
 

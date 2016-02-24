@@ -185,7 +185,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual void Receive(){
+		public virtual void ConfirmReception(){
 			Status = RouteListStatus.ReadyToReport;
 			foreach (var item in Addresses) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;

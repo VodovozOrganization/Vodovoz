@@ -348,7 +348,7 @@ namespace Vodovoz
 			}
 
 			if(checkbuttonFinalUnloading.Active)
-				routelist.Receive();
+				routelist.ConfirmReception();
 			UoW.Save (routelist);
 			UoW.Commit ();
 
