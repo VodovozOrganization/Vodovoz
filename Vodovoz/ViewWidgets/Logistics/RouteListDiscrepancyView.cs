@@ -53,6 +53,19 @@ namespace Vodovoz
 
 		public void FindDiscrepancies(IList<RouteListItem> items, List<ReturnsNode> allReturnsToWarehouse){
 			var discrepancies = new List<Discrepancy>();
+
+			var goodsDiscrepancies = GetGoodsDiscrepancies(items, allReturnsToWarehouse);
+			var equipmentDiscrepancies = GetEquipmentDiscrepancies(items, allReturnsToWarehouse);
+
+			discrepancies.AddRange(goodsDiscrepancies);
+			discrepancies.AddRange(equipmentDiscrepancies);
+
+			Items = discrepancies;
+		}
+
+		IList<Discrepancy> GetGoodsDiscrepancies(IList<RouteListItem> items, List<ReturnsNode> allReturnsToWarehouse)
+		{
+			var discrepancies = new List<Discrepancy>();
 			var orderClosingItems = items
 				.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
@@ -91,8 +104,13 @@ namespace Vodovoz
 						Trackable = false,
 					});
 			}
+			return discrepancies;
+		}
 
-			var equipmentRejectedItems = items				
+		IList<Discrepancy> GetEquipmentDiscrepancies(IList<RouteListItem> items, List<ReturnsNode> allReturnsToWarehouse)
+		{
+			var discrepancies = new List<Discrepancy>();
+			var equipmentRejectedItems = items
 				.SelectMany(item => item.Order.OrderEquipments).Where(item => item.Equipment != null)
 				.Where(item=>item.Direction==Vodovoz.Domain.Orders.Direction.Deliver)
 				.ToList();
@@ -103,29 +121,25 @@ namespace Vodovoz
 				.ToList();
 
 			var equipmentRejectedTypes = equipmentRejectedItems
-				.GroupBy(item => item.Equipment.Nomenclature.Type,					
+				.GroupBy(
+					item => item.Equipment.Nomenclature.Type,
 					item => item.Confirmed ? 0 : 1,
-					(equipmentType, amounts) => new 
-					{
-						EquipmentType=equipmentType,
-						Amount=amounts.Sum()
-					}).Where(item=>item.Amount>0);
+					EquipmentTypeGroupingResult.Selector
+				).Where(item=>item.Amount>0);
 
 			var equipmentPickedUpTypes = equipmentPickedUpItems
-				.GroupBy(item => item.Equipment.Nomenclature.Type,					
+				.GroupBy(
+					item => item.Equipment.Nomenclature.Type,
 					item => item.Confirmed ? 1 : 0,
-					(equipmentType, amounts) => new 
-					{
-						EquipmentType=equipmentType,
-						Amount=amounts.Sum()
-					}).Where(item=>item.Amount>0);
-					
-			var equipmentToWarehouseTypes = allReturnsToWarehouse.Where(item=>item.Trackable).GroupBy(item => item.EquipmentType,
-				                           item => item.Amount,
-				                           (equipmentType, amounts) => new{
-					EquipmentType = equipmentType,
-					Amount = amounts.Sum()
-			}).Where(item=>item.Amount>0);
+					EquipmentTypeGroupingResult.Selector
+				).Where(item => item.Amount > 0);
+
+			var equipmentToWarehouseTypes = allReturnsToWarehouse.Where(item => item.Trackable)
+				.GroupBy(
+					item => item.EquipmentType,
+					item => (int)item.Amount,
+					EquipmentTypeGroupingResult.Selector
+				).Where(item => item.Amount > 0);
 
 			foreach (var fromClient in equipmentRejectedTypes)
 			{
@@ -177,12 +191,26 @@ namespace Vodovoz
 						});
 				}
 			}
-
-			Items = discrepancies;
+			return discrepancies;
 		}
 	}
 
-	public class Discrepancy{
+	public class EquipmentTypeGroupingResult
+	{
+		public EquipmentType EquipmentType{get;set;}
+		public int Amount{get;set;}
+		public static EquipmentTypeGroupingResult Selector(EquipmentType type, IEnumerable<int> amounts)
+		{
+			return new EquipmentTypeGroupingResult
+			{
+				EquipmentType = type,
+				Amount = amounts.Sum()
+			};
+		}
+	}
+
+	public class Discrepancy
+	{
 		public string Name{get;set;}
 		public int NomenclatureId{get;set;}
 		public int Id{get;set;}

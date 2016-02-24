@@ -133,11 +133,6 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		private void AddOrUpdateDeposit(Order order,DepositOperation depositOperation){
-
-			order.OrderDepositItems.FirstOrDefault(deposit => deposit.DepositType == DepositType.Bottles);
-		}
-
 		public virtual List<DepositOperation> CreateDepositOperations(IUnitOfWork UoW){
 			var result = new List<DepositOperation>();
 			var bottleDepositNomenclature = NomenclatureRepository.GetBottleDeposit(UoW);
