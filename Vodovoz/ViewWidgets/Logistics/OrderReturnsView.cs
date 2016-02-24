@@ -94,6 +94,9 @@ namespace Vodovoz
 						.Adjustment(new Gtk.Adjustment(0,0,99999,1,100,0))
 						.AddSetter((cell,node)=>cell.Editable = node.HasPrice)
 					.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("Стоимость")
+					.AddNumericRenderer(node=>node.Sum)
+					.AddTextRenderer(node=>CurrencyWorks.CurrencyShortName)
 				.AddColumn("")
 				.Finish();
 
@@ -198,6 +201,11 @@ namespace Vodovoz
 				}
 				else
 					orderItem.Price = value;
+			}
+		}
+		public decimal Sum{
+			get{ 
+				return Price * ActualCount; 
 			}
 		}
 
