@@ -344,6 +344,18 @@ namespace Vodovoz.Domain.Orders
 			DeliveryDate = DateTime.Now.AddDays (1);
 		}
 
+		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author){
+			var order = new Order();
+			order.client = service.Counterparty;
+			order.DeliveryPoint = service.DeliveryPoint;
+			order.DeliveryDate = service.ServiceStartDate;
+			order.PaymentType = service.Payment;
+			order.Author = author;
+			order.AddServiceClaimAsInitial(service);
+			service.InitialOrder = order;
+			return order;
+		}
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

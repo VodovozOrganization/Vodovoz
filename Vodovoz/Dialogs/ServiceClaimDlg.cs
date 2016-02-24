@@ -48,7 +48,21 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<ServiceClaim>(new ServiceClaim (type));
+			if (type == ServiceClaimType.RegularService)
+				EntitySaved += (sender,args)=>CreateOrder();
+			Entity.ServiceStartDate = DateTime.Today;
+			Entity.ServiceStartDate = DateTime.Now.AddDays (1);
 			ConfigureDlg ();
+		}
+
+		void CreateOrder()
+		{
+			var employee = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+			var order = Order.CreateFromServiceClaim(Entity, employee);
+			UoWGeneric.Save(order);
+			UoWGeneric.Commit();
+			var orderDlg = new OrderDlg(order);
+			TabParent.AddTab(orderDlg, this);
 		}
 
 		void ConfigureDlg ()
@@ -121,7 +135,7 @@ namespace Vodovoz
 				yentryEquipmentReplacement.Visible = false;
 				labelReplacement.Visible = false;
 			}
-			datePickUpDate.IsEditable = Entity.ServiceClaimType != ServiceClaimType.RegularService;
+			datePickUpDate.IsEditable = Entity.InitialOrder==null;
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase

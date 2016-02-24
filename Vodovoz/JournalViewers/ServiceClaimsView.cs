@@ -40,17 +40,10 @@ namespace Vodovoz
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			ServiceClaimDlg dlg = new ServiceClaimDlg (ServiceClaimType.JustService);
-			var type = (ServiceClaimTypesForAdding)e.ItemEnum;
+			var type = (ServiceClaimType)e.ItemEnum;
 
-			switch (type) {
-			case ServiceClaimTypesForAdding.JustService:
-				dlg = new ServiceClaimDlg (ServiceClaimType.JustService);
-				break;
-			case ServiceClaimTypesForAdding.RepairmanCall:
-				dlg = new ServiceClaimDlg (ServiceClaimType.RepairmanCall);
-				break;
-			}
+			var dlg = new ServiceClaimDlg(type);
+
 			TabParent.AddTab (dlg, this);
 		}
 
