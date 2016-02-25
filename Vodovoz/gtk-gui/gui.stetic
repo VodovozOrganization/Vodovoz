@@ -692,6 +692,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18902,10 +18903,9 @@ RegistrationNumber</property>
                 <property name="TopAttach">2</property>
                 <property name="BottomAttach">3</property>
                 <property name="RightAttach">2</property>
-                <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
+                <property name="AutoSize">False</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -23809,7 +23809,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReadyForReceptionDlg" design-size="666 356">
+  <widget class="Gtk.Bin" id="Vodovoz.ReadyForReceptionDlg" design-size="666 381">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -23957,6 +23957,19 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
+          <widget class="Gtk.Label" id="labelError">
+            <property name="MemberName" />
+            <property name="Xalign">0</property>
+            <property name="LabelProp" translatable="yes">label1</property>
+            <property name="UseMarkup">True</property>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">False</property>
+            <property name="Expand">False</property>
+          </packing>
+        </child>
+        <child>
           <widget class="Gtk.HBox" id="hbox2">
             <property name="MemberName" />
             <property name="Spacing">6</property>
@@ -24065,7 +24078,7 @@ RegistrationNumber</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">2</property>
+            <property name="Position">3</property>
             <property name="AutoSize">True</property>
           </packing>
         </child>
@@ -24108,7 +24121,7 @@ RegistrationNumber</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">3</property>
+            <property name="Position">4</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

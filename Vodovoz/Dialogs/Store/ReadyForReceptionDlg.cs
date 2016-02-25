@@ -16,6 +16,8 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Service;
+using Gtk;
+using Gamma.GtkWidgets.Cells;
 
 namespace Vodovoz
 {	
@@ -41,12 +43,16 @@ namespace Vodovoz
 
 			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, ShipmentDocumentType.RouteList, id);
 			routelist = UoW.GetById<RouteList> (id);
-			serviceClaims = routelist.Addresses.SelectMany(address => address.Order.InitialOrderService).ToList();
+			serviceClaims = routelist.Addresses
+				.SelectMany(address => address.Order.InitialOrderService)
+				.ToList();
 
 			bottleReceptionView.UoW = UoW;
 
 			ytreeEquipment.ItemsDataSource = ReceptionEquipmentList;
 			ytreeReturns.ItemsDataSource = ReceptionReturnsList;
+
+			ReceptionEquipmentList.ElementChanged += (list, aIdx) => OnEquipmentListChanged();
 
 			ytreeEquipment.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionItemNode> ()
 				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Name)
@@ -65,7 +71,7 @@ namespace Vodovoz
 							var orderId = serviceClaim.InitialOrder.Id;
 							return String.Format("Заявка №{0}, заказ №{1}",serviceClaim.Id,orderId);
 						})
-						.FillItems<ServiceClaim>(serviceClaims)
+						.FillItems<ServiceClaim>(serviceClaims.Where(sc=>sc.Equipment==null).ToList())
 						.AddSetter((cell,node)=>cell.Sensitive = node.IsNew)
 						.AddSetter((cell,node)=>cell.Editable = node.IsNew)
 				.AddColumn("")
@@ -98,9 +104,45 @@ namespace Vodovoz
 			TabName = String.Format ("Выгрузка маршрутного листа №{0}", id);
 		}
 
+		void OnEquipmentListChanged()
+		{
+			var noSerialCount = ReceptionEquipmentList
+				.Where(item => item.Returned)
+				.Where(item => item.Id == 0)
+				.Count();
+
+			var noServiceClaimCount = ReceptionEquipmentList
+				.Where(item=>item.Returned)
+				.Where(item => item.IsNew && item.ServiceClaim == null)
+				.Count();
+
+			var hasDublicateServiceClaims = ReceptionEquipmentList
+				.Where(item => item.ServiceClaim != null)
+				.GroupBy(item => item.ServiceClaim)
+				.Any(g => g.Count() > 1);
+
+			if (noSerialCount > 0)
+			{
+				labelError.Markup = "<span foreground=\"#ff0000\">Необходимо зарегистрировать поступившее на склад оборудование!</span>";
+			}
+			else if (noServiceClaimCount > 0)
+			{
+				labelError.Markup = "<span foreground=\"#ff0000\">Не для всего оборудования указана заявка по которой оно поступило на склад!</span>";
+			}
+			else if (hasDublicateServiceClaims)
+			{
+				labelError.Markup = "<span foreground=\"#ff0000\">Заявка на сервис должна соответствовать только одной единице оборудования!</span>";
+			}
+			else
+				labelError.Markup = "";
+			var isValid = noSerialCount==0 && noServiceClaimCount==0;
+			buttonConfirmReception.Sensitive = isValid;
+		}
+
 		protected void OnYcomboboxWarehouseItemSelected (object sender, ItemSelectedEventArgs e)
 		{
 			UpdateItemsList ();
+			OnEquipmentListChanged();
 		}
 
 		void UpdateItemsList(){
@@ -125,7 +167,7 @@ namespace Vodovoz
 					if (!eq.IsNew)
 					{
 						eq.ServiceClaim = serviceClaims
-							.Where(service=>service.Equipment!=null)
+							.Where(service => service.Equipment != null)
 							.FirstOrDefault(service => service.Equipment.Id == eq.Id);
 					}
 				}
@@ -300,6 +342,7 @@ namespace Vodovoz
 			equipmentToRegister.NewEquipment = args.Equipment[0];
 			equipmentToRegister.Id = args.Equipment [0].Id;
 			equipmentToRegister.Returned = true;
+			OnEquipmentListChanged();
 		}
 
 		protected void OnButtonConfirmReceptionClicked (object sender, EventArgs e)
@@ -342,7 +385,7 @@ namespace Vodovoz
 			if(CarUnloadDocumentUoW.Root.Items.Count>0)
 				CarUnloadDocumentUoW.Save ();
 
-			foreach (var node in ReceptionEquipmentList.Where(eq=>eq.IsNew && eq.ServiceClaim!=null))
+			foreach (var node in ReceptionEquipmentList.Where(item=>item.Amount>0).Where(eq=>eq.IsNew && eq.ServiceClaim!=null))
 			{
 				node.ServiceClaim.FillNewEquipment(node.NewEquipment);
 			}
@@ -373,12 +416,21 @@ namespace Vodovoz
 		}
 	}
 
-	public class ReceptionItemNode{
+	public class ReceptionItemNode:PropertyChangedBase{
 		public int Id{get;set;}
 		public NomenclatureCategory NomenclatureCategory{ get; set; }
 		public int NomenclatureId{ get; set; }
 		public string Name{get;set;}
-		public int Amount{ get; set;}
+
+		int amount;
+
+		public virtual int Amount {
+			get{ return amount;}
+			set{
+				SetField(ref amount, value, ()=>Amount);
+			}
+		}
+
 		public bool Trackable{ get; set; }
 		public string Serial{ get { 			
 				if (Trackable) {
@@ -387,7 +439,16 @@ namespace Vodovoz
 					return String.Empty;
 			}
 		}
-		public ServiceClaim ServiceClaim{ get; set; }
+
+		ServiceClaim serviceClaim;
+
+		public virtual ServiceClaim ServiceClaim {
+			get{ return serviceClaim;}
+			set{
+				SetField(ref serviceClaim, value, ()=>ServiceClaim);
+			}
+		}
+
 		public bool IsNew{ get; set; }
 		public Equipment NewEquipment{get;set;}
 		public bool Returned {

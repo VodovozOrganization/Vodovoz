@@ -22,6 +22,8 @@ namespace Vodovoz
 		
 		private global::Gamma.GtkWidgets.yCheckButton checkbuttonFinalUnloading;
 		
+		private global::Gtk.Label labelError;
+		
 		private global::Gtk.HBox hbox2;
 		
 		private global::Gtk.VBox vbox2;
@@ -148,6 +150,16 @@ namespace Vodovoz
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.labelError = new global::Gtk.Label ();
+			this.labelError.Name = "labelError";
+			this.labelError.Xalign = 0F;
+			this.labelError.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
+			this.labelError.UseMarkup = true;
+			this.vbox1.Add (this.labelError);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.labelError]));
+			w9.Position = 2;
+			w9.Expand = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox ();
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
@@ -159,8 +171,8 @@ namespace Vodovoz
 			this.bottleReceptionView = new global::Vodovoz.BottleReceptionView ();
 			this.bottleReceptionView.Name = "bottleReceptionView";
 			this.vbox2.Add (this.bottleReceptionView);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.bottleReceptionView]));
-			w9.Position = 0;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.bottleReceptionView]));
+			w10.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.frameEquipment = new global::Gtk.Frame ();
 			this.frameEquipment.Name = "frameEquipment";
@@ -186,11 +198,11 @@ namespace Vodovoz
 			this.GtkLabel4.UseMarkup = true;
 			this.frameEquipment.LabelWidget = this.GtkLabel4;
 			this.vbox2.Add (this.frameEquipment);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.frameEquipment]));
-			w13.Position = 1;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.frameEquipment]));
+			w14.Position = 1;
 			this.hbox2.Add (this.vbox2);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
-			w14.Position = 0;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
+			w15.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.frameReturns = new global::Gtk.Frame ();
 			this.frameReturns.Name = "frameReturns";
@@ -216,11 +228,11 @@ namespace Vodovoz
 			this.GtkLabel2.UseMarkup = true;
 			this.frameReturns.LabelWidget = this.GtkLabel2;
 			this.hbox2.Add (this.frameReturns);
-			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.frameReturns]));
-			w18.Position = 1;
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.frameReturns]));
+			w19.Position = 1;
 			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
-			w19.Position = 2;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			w20.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
@@ -233,10 +245,10 @@ namespace Vodovoz
 			this.buttonAddEquipment.UseUnderline = true;
 			this.buttonAddEquipment.Label = global::Mono.Unix.Catalog.GetString ("Добавить оборудование");
 			this.hbox1.Add (this.buttonAddEquipment);
-			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAddEquipment]));
-			w20.Position = 0;
-			w20.Expand = false;
-			w20.Fill = false;
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAddEquipment]));
+			w21.Position = 0;
+			w21.Expand = false;
+			w21.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonConfirmReception = new global::Gtk.Button ();
 			this.buttonConfirmReception.Sensitive = false;
@@ -244,17 +256,17 @@ namespace Vodovoz
 			this.buttonConfirmReception.Name = "buttonConfirmReception";
 			this.buttonConfirmReception.UseUnderline = true;
 			this.buttonConfirmReception.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить прием");
-			global::Gtk.Image w21 = new global::Gtk.Image ();
-			w21.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.SmallToolbar);
-			this.buttonConfirmReception.Image = w21;
+			global::Gtk.Image w22 = new global::Gtk.Image ();
+			w22.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.SmallToolbar);
+			this.buttonConfirmReception.Image = w22;
 			this.hbox1.Add (this.buttonConfirmReception);
-			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonConfirmReception]));
-			w22.Position = 1;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonConfirmReception]));
+			w23.Position = 1;
 			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w23.Position = 3;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w24.Position = 4;
+			w24.Expand = false;
+			w24.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
