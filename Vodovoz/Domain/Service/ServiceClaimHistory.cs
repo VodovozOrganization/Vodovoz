@@ -47,6 +47,12 @@ namespace Vodovoz.Domain.Service
 			set { SetField (ref serviceClaim, value, () => ServiceClaim); }
 		}
 
+		public virtual string Title{
+			get{
+				return String.Format("{0}: {1}", Status.GetEnumTitle(), Comment);
+			}
+		}
+
 		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (Comment.Length > 200)

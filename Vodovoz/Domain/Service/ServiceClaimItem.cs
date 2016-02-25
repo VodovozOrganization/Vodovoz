@@ -1,10 +1,12 @@
-﻿using QSOrmProject;
+﻿using System;
+using QSOrmProject;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain.Service
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
-		NominativePlural = "заявки на обслуживание",
-		Nominative = "заявка на обслуживание")]
+	[OrmSubject (Gender = GrammaticalGender.Feminine,
+		NominativePlural = "строки заявки на обслуживание",
+		Nominative = "строка заявки на обслуживание")]
 	public class ServiceClaimItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -38,6 +40,12 @@ namespace Vodovoz.Domain.Service
 		}
 
 		public virtual decimal Total { get { return Price * Count; } }
+
+		public virtual string Title{
+			get{
+				return String.Format("{0} - {1}", Nomenclature.Name, CurrencyWorks.GetShortCurrencyString(Total));
+			}
+		}
 	}
 }
 

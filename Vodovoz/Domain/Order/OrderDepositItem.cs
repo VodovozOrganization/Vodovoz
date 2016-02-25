@@ -1,10 +1,15 @@
 ﻿using System;
-using Vodovoz.Domain.Operations;
+using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
-using System.Data.Bindings;
+using QSProjectsLib;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Orders
 {
+	[OrmSubject (Gender = GrammaticalGender.Masculine,
+		NominativePlural = "залоги в заказе",
+		Nominative = "залог в заказе"
+	)]
 	public class OrderDepositItem : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
@@ -83,12 +88,18 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		public virtual Decimal Total { get { return Deposit * Count; } }
+
+		public string Title {
+			get{
+				return String.Format("{0} на сумму {1}", DepositTypeString, CurrencyWorks.GetShortCurrencyString(Total));
+			}
+		}
 	}
 
 	public enum PaymentDirection
 	{
-		[ItemTitleAttribute ("Клиенту")]ToClient,
-		[ItemTitleAttribute ("От клиента")]FromClient
+		[Display (Name = "Клиенту")]ToClient,
+		[Display (Name = "От клиента")]FromClient
 	}
 
 	public class PaymentDirectionStringType : NHibernate.Type.EnumStringType

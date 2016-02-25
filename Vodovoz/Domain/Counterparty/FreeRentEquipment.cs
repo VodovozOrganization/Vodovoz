@@ -62,6 +62,8 @@ namespace Vodovoz.Domain
 
 		public virtual string WaterAmountString { get { return String.Format ("{0} " + RusNumber.Case (WaterAmount, "бутыль", "бутыли", "бутылей"), WaterAmount); } }
 
+		public virtual string Title {get { return String.Format("Бесплатная аренда {0}", EquipmentName); }}
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

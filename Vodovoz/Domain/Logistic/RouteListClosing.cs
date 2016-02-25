@@ -47,6 +47,11 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual string Title{
+			get{
+				return String.Format("Закрытие маршрутного листа №{0}", RouteList.Id);
+			}
+		}
 
 		public virtual List<BottlesMovementOperation> CreateBottlesMovementOperation(){
 			var result = new List<BottlesMovementOperation>();

@@ -60,6 +60,8 @@ namespace Vodovoz.Domain
 
 		public virtual string PriceString { get { return CurrencyWorks.GetShortCurrencyString (Price); } }
 
+		public virtual string Title {get { return String.Format("Платная аренда {0}", EquipmentName); }}
+
 		#region IValidatableObject implementation
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

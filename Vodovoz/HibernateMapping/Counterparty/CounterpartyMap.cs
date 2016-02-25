@@ -39,7 +39,7 @@ namespace Vodovoz.HMap
 				.KeyColumn ("counterparty_id");
 			HasMany (x => x.Accounts).Cascade.AllDeleteOrphan ().LazyLoad ()
 				.KeyColumn ("counterparty_id");
-			HasMany (x => x.DeliveryPoints).Cascade.AllDeleteOrphan ().LazyLoad ()
+			HasMany (x => x.DeliveryPoints).Inverse().Cascade.AllDeleteOrphan ().LazyLoad ()
 				.KeyColumn ("counterparty_id");
 			HasMany (x => x.Emails).Cascade.AllDeleteOrphan ().LazyLoad ()
 				.KeyColumn ("counterparty_id");

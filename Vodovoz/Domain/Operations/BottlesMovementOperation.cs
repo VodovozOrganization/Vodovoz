@@ -43,6 +43,12 @@ namespace Vodovoz.Domain.Operations
 			get { return returned; }
 			set { SetField (ref returned, value, () => Returned); }
 		}
+
+		public virtual string Title{
+			get{
+				return String.Format("Движения тары к контрагенту {1} от контрагента {2} бутылей", Delivered, Returned);
+			}
+		}
 	}
 }
 
