@@ -188,7 +188,17 @@ namespace Vodovoz.Domain
 				NomenclatureCategory.equipment, NomenclatureCategory.material, 
 				NomenclatureCategory.spare_parts, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater
 			};
-		}			
+		}
+
+		public static NomenclatureCategory[] GetCategoriesWithEditablePrice()
+		{
+			return new [] {
+				NomenclatureCategory.bottle, NomenclatureCategory.additional, 
+				NomenclatureCategory.equipment, NomenclatureCategory.material, 
+				NomenclatureCategory.spare_parts, NomenclatureCategory.water,
+				NomenclatureCategory.disposableBottleWater, NomenclatureCategory.service
+			};
+		}
 		#endregion
 	}
 

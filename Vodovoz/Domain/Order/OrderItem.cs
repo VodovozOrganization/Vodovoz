@@ -99,8 +99,8 @@ namespace Vodovoz.Domain.Orders
 
 		protected Decimal GetDefaultPrice(int count){
 			Decimal result=0;
+			result = Nomenclature.GetPrice(count);
 			if (Nomenclature.Category == NomenclatureCategory.water) {
-				result = Nomenclature.GetPrice (count);
 				var waterSalesAgreement = AdditionalAgreement as WaterSalesAgreement;
 				if (waterSalesAgreement.IsFixedPrice)
 					result = waterSalesAgreement.FixedPrice;
