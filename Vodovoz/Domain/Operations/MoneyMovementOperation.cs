@@ -16,25 +16,11 @@ namespace Vodovoz.Domain.Operations
 			set { SetField (ref order, value, () => Order); }
 		}
 
-		OrderItem orderItem;
-
-		public virtual OrderItem OrderItem {
-			get { return orderItem; }
-			set { SetField (ref orderItem, value, () => OrderItem); }
-		}
-
 		Counterparty counterparty;
 
 		public virtual Counterparty Counterparty {
 			get { return counterparty; }
 			set { SetField (ref counterparty, value, () => Counterparty); }
-		}
-
-		DeliveryPoint deliveryPoint;
-
-		public virtual DeliveryPoint DeliveryPoint {
-			get { return deliveryPoint; }
-			set { SetField (ref deliveryPoint, value, () => DeliveryPoint); }
 		}
 
 		Decimal debt;
@@ -56,13 +42,6 @@ namespace Vodovoz.Domain.Operations
 		public virtual Decimal Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }
-		}
-
-		DepositType depositType;
-
-		public virtual DepositType DepositType {
-			get { return depositType; }
-			set { SetField (ref depositType, value, () => DepositType); }
 		}
 
 		PaymentType paymentType;

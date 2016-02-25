@@ -1,7 +1,7 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
+using QSOrmProject;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
@@ -19,26 +19,12 @@ namespace Vodovoz.Domain.Operations
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			return null;
 		}
 
 		#endregion
-	}
-
-	public enum DepositType
-	{
-		[ItemTitleAttribute ("Отсутствует")] None,
-		[ItemTitleAttribute ("Тара")] Bottles,
-		[ItemTitleAttribute ("Оборудование")] Equipment
-	}
-
-	public class DepositTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public DepositTypeStringType () : base (typeof(DepositType))
-		{
-		}
 	}
 }
 

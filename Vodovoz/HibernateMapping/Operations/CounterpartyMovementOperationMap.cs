@@ -8,7 +8,6 @@ namespace Vodovoz
 		public CounterpartyMovementOperationMap ()
 		{
 			Table ("counterparty_movement_operations");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.OperationTime).Column ("operation_time").Not.Nullable ();

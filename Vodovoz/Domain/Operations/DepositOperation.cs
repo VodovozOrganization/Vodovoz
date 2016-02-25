@@ -1,6 +1,9 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using Vodovoz.Domain.Orders;
+using Gamma.Utilities;
+using QSProjectsLib;
 
 namespace Vodovoz.Domain.Operations
 {
@@ -14,13 +17,6 @@ namespace Vodovoz.Domain.Operations
 		public virtual Order Order {
 			get { return order; }
 			set { SetField (ref order, value, () => Order); }
-		}
-
-		OrderItem orderItem;
-
-		public virtual OrderItem OrderItem {
-			get { return orderItem; }
-			set { SetField (ref orderItem, value, () => OrderItem); }
 		}
 
 		DepositType depositType;
@@ -57,6 +53,32 @@ namespace Vodovoz.Domain.Operations
 			get { return refundDeposit; }
 			set { SetField (ref refundDeposit, value, () => RefundDeposit); }
 		}
+
+		public virtual string Title {get { 
+				if(RefundDeposit > 0)
+					return String.Format("Возврат залога за {0} на сумму {1}",
+						DepositType.GetEnumTitle(),
+						CurrencyWorks.GetShortCurrencyString(RefundDeposit)); 
+				else
+					return String.Format("Получение залога за {0} на сумму {1}",
+						DepositType.GetEnumTitle(),
+						CurrencyWorks.GetShortCurrencyString(ReceivedDeposit)); 
+			}}
 	}
+
+	public enum DepositType
+	{
+		[Display(Name = "Отсутствует")] None,
+		[Display(Name = "Тара")] Bottles,
+		[Display(Name = "Оборудование")] Equipment
+	}
+
+	public class DepositTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DepositTypeStringType () : base (typeof(DepositType))
+		{
+		}
+	}
+
 }
 
