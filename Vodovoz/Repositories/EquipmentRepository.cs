@@ -5,6 +5,9 @@ using QSOrmProject;
 using System.Linq;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.Repository
 {
@@ -93,6 +96,18 @@ namespace Vodovoz.Repository
 				.Where (() => operationAlias.IncomingCounterparty.Id == client.Id)
 				.Where (() => operationAlias.IncomingDeliveryPoint.Id == deliveryPoint.Id).Select(op=>op.Equipment.Id);
 			return QueryOver.Of<Equipment> (() => equipmentAlias).WithSubquery.WhereProperty (() => equipmentAlias.Id).In (availableEquipmentIDsSubquery);
+		}
+
+		public static IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, Warehouse warehouse, RouteList routeList){
+			CarUnloadDocumentItem unloadItemAlias = null;
+			WarehouseMovementOperation operationAlias = null;
+			Equipment equipmentAlias = null;
+			var unloadedEquipmentIdsQuery = QueryOver.Of<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeList.Id)
+				.JoinAlias(doc => doc.Items, () => unloadItemAlias)
+				.JoinAlias(() => unloadItemAlias.MovementOperation, () => operationAlias)
+				.JoinAlias(() => operationAlias.Equipment, () => equipmentAlias)
+				.Select(op => equipmentAlias.Id);
+			return uow.Session.QueryOver<Equipment>(()=>equipmentAlias).WithSubquery.WhereProperty(() => equipmentAlias.Id).In(unloadedEquipmentIdsQuery).List();
 		}
 	}
 }

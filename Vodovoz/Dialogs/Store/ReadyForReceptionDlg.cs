@@ -27,11 +27,14 @@ namespace Vodovoz
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
 		int shipmentId;
+		Warehouse warehouse;
 		RouteList routelist;
 		IList<ServiceClaim> serviceClaims;
 
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 		GenericObservableList<ReceptionItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionItemNode>();
+		IList<Equipment> alreadyUnloadedEquipment;
+
 		ReceptionItemNode equipmentToRegister;
 
 		public ReadyForReceptionDlg (int id, Warehouse stock)
@@ -42,6 +45,7 @@ namespace Vodovoz
 			this.TabName = "Прием машины";
 
 			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, ShipmentDocumentType.RouteList, id);
+			warehouse = UoW.GetById<Warehouse>(shipmentId);
 			routelist = UoW.GetById<RouteList> (id);
 			serviceClaims = routelist.Addresses
 				.SelectMany(address => address.Order.InitialOrderService)
@@ -153,6 +157,7 @@ namespace Vodovoz
 			if (CurrentStock == null)
 				return;
 			
+			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, warehouse, routelist);
 			bottleReceptionView.Visible = CurrentStock.CanReceiveBottles;
 			frameEquipment.Visible = CurrentStock.CanReceiveEquipment;
 
@@ -221,9 +226,10 @@ namespace Vodovoz
 					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
 				)
 				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
-				.List<ReceptionItemNode> ();
+				.List<ReceptionItemNode> ();			
 			foreach (var equipment in equipmentItems)
-				ReceptionEquipmentList.Add (equipment);	
+				if(!alreadyUnloadedEquipment.Any(eq=>eq.Id==equipment.Id))
+					ReceptionEquipmentList.Add (equipment);	
 		}
 
 		void ListNewTrackableEquipment(){
@@ -300,9 +306,15 @@ namespace Vodovoz
 				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
 				.List<ReceptionItemNode> ();
 			
-			foreach (var item in returnableItems.Union(returnableEquipment)) {			 
+			foreach (var item in returnableItems) {
 				ReceptionReturnsList.Add (item);
 			}
+			foreach (var equipment in returnableEquipment)
+			{
+				if (!alreadyUnloadedEquipment.Any(eq => eq.Id == equipment.Id))
+					ReceptionReturnsList.Add(equipment);
+			}
+
 		}
 
 		protected void OnButtonAddEquipmentClicked (object sender, EventArgs e)
