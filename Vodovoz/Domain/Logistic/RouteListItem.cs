@@ -233,7 +233,7 @@ namespace Vodovoz.Domain.Logistic
 			var fullBottleCount = Order.OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
-			if (WithoutForwarder)
+			if (WithoutForwarder || RouteList.Forwarder==null)
 				return 0;
 
 			if (Status != RouteListItemStatus.Completed)
