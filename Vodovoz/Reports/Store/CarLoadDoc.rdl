@@ -26,7 +26,7 @@
         <CommandText>SELECT 
     nomenclature.name AS nomenclature,
     measurement_units.name as unit,
-    equipment.serial_number,
+    equipment.id as serial_number,
     warehouse_movement_operations.amount
 FROM
     car_load_document_items
