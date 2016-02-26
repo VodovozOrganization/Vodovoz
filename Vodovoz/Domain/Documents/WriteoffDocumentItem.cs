@@ -113,6 +113,14 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref counterpartyWriteoffOperation, value, () => CounterpartyWriteoffOperation); }
 		}
 
+		public virtual string Title {
+			get{
+				return String.Format("{0} - {1}", 
+					Nomenclature.Name, 
+					Nomenclature.Unit.MakeAmountShortStr(Amount));
+			}
+		}
+
 		#region Функции
 
 		public void CreateOperation(Warehouse warehouse, DateTime time)

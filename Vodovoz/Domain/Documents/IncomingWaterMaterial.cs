@@ -81,6 +81,14 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
 		}
 
+		public virtual string Title {
+			get{
+				return String.Format("{0} - {1}", 
+					Nomenclature.Name, 
+					Nomenclature.Unit.MakeAmountShortStr(Amount));
+			}
+		}
+
 		public IncomingWaterMaterial() {}
 
 		#region Функции

@@ -24,6 +24,14 @@ namespace Vodovoz.Domain.Documents
 			get { return movementOperation; }
 			set { SetField (ref movementOperation, value, () => MovementOperation); }
 		}
+
+		public virtual string Title {
+			get{
+				return String.Format("{0} - {1}", 
+					MovementOperation.Nomenclature.Name, 
+					MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount));
+			}
+		}
 	}
 }
 

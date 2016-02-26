@@ -1,6 +1,7 @@
-using QSOrmProject;
+using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using QSOrmProject;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents
@@ -89,6 +90,14 @@ namespace Vodovoz.Domain.Documents
 		public WarehouseMovementOperation IncomeGoodsOperation {
 			get { return incomeGoodsOperation; }
 			set { SetField (ref incomeGoodsOperation, value, () => IncomeGoodsOperation); }
+		}
+
+		public virtual string Title {
+			get{
+				return String.Format("{0} - {1}", 
+					Nomenclature.Name, 
+					Nomenclature.Unit.MakeAmountShortStr(Amount));
+			}
 		}
 
 	}

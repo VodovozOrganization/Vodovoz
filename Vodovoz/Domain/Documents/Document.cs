@@ -47,6 +47,8 @@ namespace Vodovoz.Domain.Documents
 					return typeof(WriteoffDocument);
 				case DocumentType.CarLoadDocument:
 					return typeof(CarLoadDocument);
+				case DocumentType.CarUnloadDocument:
+					return typeof(CarUnloadDocument);
 			}
 			throw new NotSupportedException();
 		}

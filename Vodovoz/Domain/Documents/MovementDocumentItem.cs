@@ -100,6 +100,14 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
 		}
 
+		public virtual string Title {
+			get{
+				return String.Format("{0} - {1}", 
+					Nomenclature.Name, 
+					Nomenclature.Unit.MakeAmountShortStr(Amount));
+			}
+		}
+
 		#region Функции
 
 		public void CreateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time)
