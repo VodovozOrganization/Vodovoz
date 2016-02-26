@@ -17457,11 +17457,28 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
+              <widget class="QSWidgetLib.MenuButton" id="menuActions">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">resource:Vodovoz.icons.buttons.menu.png</property>
+                <property name="Label" translatable="yes" />
+                <property name="UseUnderline">True</property>
+                <property name="UseMarkup">False</property>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.VSeparator" id="vseparator1">
                 <property name="MemberName" />
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17472,6 +17489,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -17479,7 +17497,7 @@ RegistrationNumber</property>
                 <signal name="Toggled" handler="OnToggleInfoToggled" />
               </widget>
               <packing>
-                <property name="Position">3</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
               </packing>
             </child>
@@ -17495,7 +17513,7 @@ RegistrationNumber</property>
                 <signal name="Toggled" handler="OnToggleServicesAndWorksToggled" />
               </widget>
               <packing>
-                <property name="Position">4</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
               </packing>
             </child>
@@ -17511,7 +17529,7 @@ RegistrationNumber</property>
                 <signal name="Toggled" handler="OnToggleHistoryToggled" />
               </widget>
               <packing>
-                <property name="Position">5</property>
+                <property name="Position">6</property>
                 <property name="AutoSize">True</property>
               </packing>
             </child>

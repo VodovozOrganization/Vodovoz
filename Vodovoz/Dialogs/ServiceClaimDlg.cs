@@ -136,6 +136,30 @@ namespace Vodovoz
 				labelReplacement.Visible = false;
 			}
 			datePickUpDate.IsEditable = Entity.InitialOrder==null;
+			Menu menu = new Menu();
+			var menuItemInitial = new MenuItem ("Перейти к начальному заказу");
+			menuItemInitial.Sensitive = Entity.InitialOrder != null;
+			menuItemInitial.Activated += MenuInitialOrderActivated;
+			menu.Add (menuItemInitial);
+			var menuItemFinal = new MenuItem("Перейти к финальному заказу");
+			menuItemFinal.Sensitive = Entity.FinalOrder != null;
+			menuItemFinal.Activated += MenuFinalOrderActivated;
+			menu.Add(menuItemFinal);
+			menuActions.Menu = menu;
+			menu.ShowAll();
+		}
+
+		public void MenuInitialOrderActivated(object sender, EventArgs args)
+		{
+
+			var orderDlg = new OrderDlg(Entity.InitialOrder);
+			TabParent.AddTab(orderDlg, this);
+		}
+
+		public void MenuFinalOrderActivated(object sender, EventArgs args)
+		{
+			var orderDlg = new OrderDlg(Entity.FinalOrder);
+			TabParent.AddTab(orderDlg, this);
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
