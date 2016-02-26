@@ -53,7 +53,7 @@ namespace Vodovoz
 				var newOrderEquipmentNode = new OrderItemReturnsNode(item);
 				equipmentFromClient.Add(newOrderEquipmentNode);
 			}
-			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualTotalSum);
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum);
 
 			ytreeToClient.ItemsDataSource = itemsToClient;
 			ytreeFromClient.ItemsDataSource = equipmentFromClient;
@@ -61,7 +61,7 @@ namespace Vodovoz
 
 		public void OnOrderChanged(object sender, PropertyChangedEventArgs args)
 		{
-			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualTotalSum);
+			entryTotal.Text = CurrencyWorks.GetShortCurrencyString(routeListItem.Order.ActualGoodsTotalSum);
 		}
 
 		protected void Configure()

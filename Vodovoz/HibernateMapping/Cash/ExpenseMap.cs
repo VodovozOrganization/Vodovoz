@@ -16,6 +16,7 @@ namespace Vodovoz.HMap
 			References (x => x.Casher).Column ("casher_employee_id");
 			References (x => x.Employee).Column ("employee_id");
 			References (x => x.ExpenseCategory).Column ("cash_expense_category_id");
+			References (x => x.RouteListClosing).Column("route_list_closing_id");
 			Map (x => x.Money).Column ("money");
 			Map (x => x.AdvanceClosed).Column ("advance_closed");
 			Map (x => x.Description).Column ("description");

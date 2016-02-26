@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -96,6 +97,17 @@ namespace Vodovoz.Domain.Cash
 		public virtual IList<AdvanceClosing> AdvanceCloseItems {
 			get { return advanceCloseItems; }
 			set { SetField (ref advanceCloseItems, value, () => AdvanceCloseItems); }
+		}
+
+		RouteListClosing routeListClosing;
+
+		public virtual RouteListClosing RouteListClosing
+		{
+			get{ return routeListClosing; }
+			set
+			{
+				SetField(ref routeListClosing, value, () => RouteListClosing);
+			}
 		}
 
 		#endregion

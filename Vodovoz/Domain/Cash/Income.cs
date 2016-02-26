@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -109,6 +110,17 @@ namespace Vodovoz.Domain.Cash
 			get { return money; }
 			set {
 				SetField (ref money, value, () => Money); 
+			}
+		}
+
+		RouteListClosing routeListClosing;
+
+		public virtual RouteListClosing RouteListClosing
+		{
+			get{ return routeListClosing; }
+			set
+			{
+				SetField(ref routeListClosing, value, () => RouteListClosing);
 			}
 		}
 
@@ -233,8 +245,8 @@ namespace Vodovoz.Domain.Cash
 		Common,
 		[Display (Name = "Оплата покупателя")]
 		Payment,
-//		[Display (Name = "Приход от водителя")]   Временно пока не используется в закрытии маршрутника.
-//		DriverReport,
+		[Display (Name = "Приход от водителя")]
+		DriverReport,
 		[Display (Name = "Возврат от подотчетного лица")]
 		Return,
 	}

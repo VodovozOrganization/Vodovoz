@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -50,6 +51,27 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string Title{
 			get{
 				return String.Format("Закрытие маршрутного листа №{0}", RouteList.Id);
+			}
+		}
+
+		public virtual decimal AddressCount
+		{
+			get{
+				return RouteList.Addresses.Count(item => item.IsDelivered());
+			}
+		}
+
+		public virtual decimal PhoneSum
+		{
+			get{
+				return Wages.GetDriverRates().PhoneServiceCompensationRate * AddressCount;
+			}
+		}
+
+		public virtual decimal Total
+		{
+			get{
+				return RouteList.Addresses.Sum(address => address.TotalCash + address.DepositsCollected) - PhoneSum;
 			}
 		}
 
@@ -275,16 +297,70 @@ namespace Vodovoz.Domain.Logistic
 							FreeRentItem = null,
 							PaymentDirection = PaymentDirection.ToClient,
 							Count = depositsCount
-						});					
+						});
 				}
+				if(bottleDepositsOperation.RefundDeposit!=0 || bottleDepositsOperation.ReceivedDeposit!=0)
+					result.Add(bottleDepositsOperation);
+			}
+			return result;
+		}
 
-				result.Add(bottleDepositsOperation);
+		public virtual List<MoneyMovementOperation> CreateMoneyMovementOperations(IUnitOfWork uow, ref Income cashIncome, ref Expense cashExpense)
+		{
+			var result = new List<MoneyMovementOperation>();
+			foreach (var address in routeList.Addresses)
+			{
+				var order = address.Order;
+				var depositsTotal = order.OrderDepositItems.Sum(dep => dep.Count * dep.Deposit);
+				Decimal? money = null;
+				if (order.PaymentType == PaymentType.cash)
+					money = address.TotalCash;
+				var moneyMovementOperation = new MoneyMovementOperation()
+				{
+					OperationTime = DateTime.Now,
+					Order = order,
+					Counterparty = order.Client,
+					PaymentType = order.PaymentType,
+					Debt = order.ActualGoodsTotalSum,
+					Money = money,
+					Deposit = depositsTotal
+				};				
+				order.MoneyMovementOperation = moneyMovementOperation;
+				result.Add(moneyMovementOperation);
+			}
+			if (Total > 0)
+			{
+				cashIncome = new Income
+				{
+					IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(uow),
+					TypeOperation = IncomeType.DriverReport,
+					Date = DateTime.Now,
+					Casher = cashier,
+					Employee = RouteList.Driver,
+					Description =$"Закрытие МЛ #{RouteList.Id}",
+					Money = Total,
+				};
+				cashIncome.RouteListClosing = this;
+			}
+			else
+			{
+				cashExpense = new Expense
+					{
+						ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(uow),
+						TypeOperation = ExpenseType.Expense,
+						Date = DateTime.Now,
+						Casher = cashier,
+						Employee = RouteList.Driver,
+						Description =$"Закрытие МЛ #{RouteList.Id}",
+						Money = -Total,
+					};
+				cashExpense.RouteListClosing = this;
 			}
 			return result;
 		}
 
 		public virtual void Confirm()
-		{			
+		{
 			RouteList.Status = RouteListStatus.MileageCheck;
 			foreach (var order in RouteList.Addresses.Select(item=>item.Order))
 			{

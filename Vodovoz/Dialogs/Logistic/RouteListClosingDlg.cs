@@ -20,6 +20,7 @@ using Vodovoz.Domain.Operations;
 using Gamma.GtkWidgets;
 using System.Linq;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz
 {
@@ -155,7 +156,7 @@ namespace Vodovoz
 		}
 
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
-		{			
+		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 			var dlg = new OrderReturnsView(node);
 			TabParent.AddSlaveTab(this, dlg);
@@ -193,12 +194,10 @@ namespace Vodovoz
 			decimal totalCollected = items.Sum(item => item.TotalCash);
 			decimal driverWage = items.Sum(item => item.DriverWage);
 			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
-			int addressCount = items.Count(item => item.IsDelivered());
-			decimal phoneSum = Wages.GetDriverRates().PhoneServiceCompensationRate * addressCount;
-			labelAddressCount.Text = String.Format("Адресов:{0}", addressCount);
+			labelAddressCount.Text = String.Format("Адресов:{0}", Entity.AddressCount);
 			labelPhone.Text = String.Format(
 				"Сот. связь:{0} {1}",
-				phoneSum,
+				Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelFullBottles.Text = String.Format("Полн. бутылей:{0}", fullBottlesTotal);
@@ -219,7 +218,7 @@ namespace Vodovoz
 			);
 			labelTotal.Markup = String.Format(
 				"Итого: <b>{0}</b> {1}",
-				totalCollected+depositsCollectedTotal-phoneSum,
+				Entity.Total,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = String.Format(
@@ -261,19 +260,27 @@ namespace Vodovoz
 				return;
 
 			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
-			bottleMovementOperations.ForEach(op => UoW.Save(op));
-
 			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
-			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-
 			var depositsOperations = Entity.CreateDepositOperations(UoW);
+
+			Income cashIncome=null;
+			Expense cashExpense=null;
+			var moneyMovementOperations = Entity.CreateMoneyMovementOperations(UoW, ref cashIncome, ref cashExpense);
+			bottleMovementOperations.ForEach(op => UoW.Save(op));
+			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
 			depositsOperations.ForEach(op => UoW.Save(op));
+			moneyMovementOperations.ForEach(op => UoW.Save(op));
+			if (cashIncome != null)
+				UoW.Save(cashIncome);
+			if (cashExpense != null)
+				UoW.Save(cashExpense);
 
 			Entity.Confirm();
 
 			UoW.Save();
 
 			buttonAccept.Sensitive = false;
+			buttonBackToUnloading.Sensitive = false;
 		}
 
 		protected void OnButtonBackToUnloadingClicked(object sender, EventArgs args)

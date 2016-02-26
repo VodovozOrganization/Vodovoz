@@ -23,23 +23,23 @@ namespace Vodovoz.Domain.Operations
 			set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
-		Decimal debt;
+		Decimal? debt;
 
-		public virtual Decimal Debt {
+		public virtual Decimal? Debt {
 			get { return debt; }
 			set { SetField (ref debt, value, () => Debt); }
 		}
 
-		Decimal money;
+		Decimal? money;
 
-		public virtual Decimal Money {
+		public virtual Decimal? Money {
 			get { return money; }
 			set { SetField (ref money, value, () => Money); }
 		}
 
-		Decimal deposit;
+		Decimal? deposit;
 
-		public virtual Decimal Deposit {
+		public virtual Decimal? Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }
 		}

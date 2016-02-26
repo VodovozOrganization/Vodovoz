@@ -179,6 +179,17 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		MoneyMovementOperation moneyMovementOperation;
+
+		public virtual MoneyMovementOperation MoneyMovementOperation
+		{
+			get{ return moneyMovementOperation; }
+			set
+			{
+				SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation);
+			}
+		}
+
 		BottlesMovementOperation bottlesMovementOperation;
 
 		public virtual BottlesMovementOperation BottlesMovementOperation{
@@ -404,6 +415,13 @@ namespace Vodovoz.Domain.Orders
 						sum -= dep.Deposit * dep.Count;
 				}
 				return sum;
+			}
+		}
+
+		public virtual decimal ActualGoodsTotalSum
+		{
+			get{
+				return OrderItems.Sum(item => item.Price * item.ActualCount);
 			}
 		}
 
