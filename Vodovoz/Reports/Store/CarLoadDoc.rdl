@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     nomenclature.name AS nomenclature,
@@ -47,7 +47,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -75,6 +75,7 @@ WHERE
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
     warehouses.name AS warehouse,
+    warehouses.can_receive_equipment as can_receive_equipment,
     CONCAT_WS('',
             CONCAT(storekeepers.last_name, ' '),
             IF(storekeepers.name = '',
@@ -164,6 +165,10 @@ WHERE
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
+        <Field Name="can_receive_equipment">
+          <DataField>can_receive_equipment</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -181,6 +186,8 @@ WHERE
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -188,6 +195,9 @@ WHERE
           </TableColumn>
           <TableColumn>
             <Width>110.8pt</Width>
+            <Visibility >
+              <Hidden>=!First(Fields!can_receive_equipment, 'Doc')</Hidden>
+            </Visibility>
           </TableColumn>
           <TableColumn>
             <Width>91.7pt</Width>
@@ -341,7 +351,7 @@ WHERE
         </TableColumns>
         <Details>
           <TableRows>
-            <TableRow >
+            <TableRow>
               <Height>17.6pt</Height>
               <TableCells>
                 <TableCell>
@@ -708,7 +718,7 @@ WHERE
         </Style>
       </Textbox>
     </ReportItems>
-    <Height>229.3pt</Height>
+    <Height>285.6pt</Height>
   </Body>
   <PageFooter>
     <Height>0.0pt</Height>

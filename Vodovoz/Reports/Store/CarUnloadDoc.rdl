@@ -27,7 +27,7 @@
     nomenclature.name AS nomenclature,
     nomenclature.category as category,
     measurement_units.name as unit,
-    equipment.serial_number,
+    equipment.id as serial_number,
     warehouse_movement_operations.amount
 FROM
     car_unload_document_items
@@ -72,10 +72,11 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     car_unload_documents.id,
-    DATE_FORMAT(car_load_documents.time_stamp, '%d.%m.%y') as date,
+    DATE_FORMAT(car_unload_documents.time_stamp, '%d.%m.%y') as date,
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
     warehouses.name AS warehouse,
+    warehouses.can_receive_equipment AS can_receive_equipment,
     CONCAT_WS('',
             CONCAT(storekeepers.last_name, ' '),
             IF(storekeepers.name = '',
@@ -165,6 +166,10 @@ WHERE
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
+        <Field Name="can_receive_equipment">
+          <DataField>can_receive_equipment</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -182,6 +187,8 @@ WHERE
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -189,6 +196,9 @@ WHERE
           </TableColumn>
           <TableColumn>
             <Width>110.8pt</Width>
+            <Visibility >
+              <Hidden>=!First(Fields!can_receive_equipment, 'Doc')</Hidden>
+            </Visibility>
           </TableColumn>
           <TableColumn>
             <Width>91.7pt</Width>
