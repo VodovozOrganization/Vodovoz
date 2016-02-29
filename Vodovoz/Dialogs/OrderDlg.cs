@@ -423,13 +423,14 @@ namespace Vodovoz
 
 		void AgreementSaved (object sender, AgreementSavedEventArgs e)
 		{
+			var agreement = UoWGeneric.Session.Merge(e.Agreement);
 			UoWGeneric.Root.ObservableOrderDocuments.Add (new OrderAgreement { 
 				Order = UoWGeneric.Root,
-				AdditionalAgreement = e.Agreement
+				AdditionalAgreement = agreement
 			});
-			UoWGeneric.Root.FillItemsFromAgreement (e.Agreement);
+			UoWGeneric.Root.FillItemsFromAgreement (agreement);
 			UpdateSum ();
-			CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType).AdditionalAgreements.Add (e.Agreement);
+			CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType).AdditionalAgreements.Add (agreement);
 		}
 
 		void UpdateSum ()
