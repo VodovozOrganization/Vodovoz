@@ -240,7 +240,10 @@ namespace Vodovoz
 			CarLoadDocumentUoW.Save ();
 
 			ChangeShipmentStatus ();
-			UoW.Save(routelist);
+			if (shipmentType == ShipmentDocumentType.RouteList)
+				UoW.Save(routelist);
+			else
+				UoW.Save(order);
 			UoW.Commit ();
 
 			logger.Info("Печать погрузочного талона...");
