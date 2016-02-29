@@ -72,6 +72,7 @@ WHERE
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     car_unload_documents.id,
+    DATE_FORMAT(car_load_documents.time_stamp, '%d.%m.%y') as date,
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
     warehouses.name AS warehouse,
@@ -159,6 +160,10 @@ WHERE
         <Field Name="reg_number">
           <DataField>reg_number</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -311,7 +316,7 @@ WHERE
           </TableRows>
         </Details>
         <Left>8.0pt</Left>
-        <Top>113.2pt</Top>
+        <Top>129.2pt</Top>
       </Table>
       <Table Name="Table2">
         <DataSetName>Doc</DataSetName>
@@ -337,6 +342,81 @@ WHERE
         </TableColumns>
         <Details>
           <TableRows>
+            <TableRow >
+              <Height>17.6pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <Color>Crimson</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <Color>Black</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Дата:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <Color>Crimson</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>={date}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                        </BorderStyle>
+                        <FontWeight>Normal</FontWeight>
+                        <Color>Black</Color>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>12pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
             <TableRow>
               <Height>17.6pt</Height>
               <TableCells>
@@ -564,7 +644,7 @@ WHERE
         <Value>Разгрузка:</Value>
         <ZIndex>1</ZIndex>
         <Left>8.1pt</Left>
-        <Top>89.3pt</Top>
+        <Top>105.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -578,7 +658,7 @@ WHERE
         <Value>Водитель</Value>
         <ZIndex>1</ZIndex>
         <Left>66.2pt</Left>
-        <Top>162.0pt</Top>
+        <Top>178.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -592,7 +672,7 @@ WHERE
         <Value>Кладовщик</Value>
         <ZIndex>1</ZIndex>
         <Left>66.2pt</Left>
-        <Top>191.0pt</Top>
+        <Top>207.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -606,7 +686,7 @@ WHERE
         <Value>= "____________________ (" + First({driver}, "Doc") + ")"</Value>
         <ZIndex>1</ZIndex>
         <Left>133.7pt</Left>
-        <Top>162.0pt</Top>
+        <Top>178.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -620,7 +700,7 @@ WHERE
         <Value>= "____________________ (" + First({storekeeper}, "Doc") + ")"</Value>
         <ZIndex>1</ZIndex>
         <Left>133.7pt</Left>
-        <Top>191.0pt</Top>
+        <Top>207.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
