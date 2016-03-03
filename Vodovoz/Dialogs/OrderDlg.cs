@@ -641,31 +641,6 @@ namespace Vodovoz
 						return;
 				}
 
-				var itemWithBlankWarehouse = Entity.OrderItems
-					.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
-					.FirstOrDefault(orderItem => orderItem.Nomenclature.Warehouse==null);
-				if (itemWithBlankWarehouse!=null)
-				{
-					MessageDialogWorks.RunErrorDialog(
-						String.Format("Невозможно подтвердить заказ т.к. у товара \"{0}\" не указан склад отгрузки",
-							itemWithBlankWarehouse.NomenclatureString)
-					);
-					return;
-				}
-				var orderItemsForShipment = Entity.OrderItems
-					.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
-					.Where(orderItem => orderItem.Nomenclature.Warehouse!=null);
-				foreach (var item in orderItemsForShipment)
-				{
-					var amount = Repository.StockRepository.NomenclatureInStock(UoW, item.Nomenclature);
-					var reserved = Repository.StockRepository.NomenclatureReserved(UoW, item.Nomenclature);
-					if (reserved>=amount)
-					{
-						MessageDialogWorks.RunErrorDialog(String.Format("Невозможно подтвердить заказ т.к. товара \"{0}\" нет в наличии на складе \"{1}\"", item.NomenclatureString, item.Nomenclature.Warehouse.Name));
-						return;
-					}
-				}
-
 				foreach (OrderItem item in UoWGeneric.Root.ObservableOrderItems)
 				{
 					if (item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.Serial)

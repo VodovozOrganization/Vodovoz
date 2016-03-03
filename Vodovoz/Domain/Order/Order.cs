@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "заказе",
 		PrepositionalPlural = "заказах"
 	)]
-	public class Order: PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Order: BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -372,6 +372,38 @@ namespace Vodovoz.Domain.Orders
 					if (!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult ("Не указано время доставки.",
 							new[] { this.GetPropertyName (o => o.DeliverySchedule) });
+
+					//Проверка товаров
+					var itemsWithBlankWarehouse = OrderItems
+						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
+						.Where(orderItem => orderItem.Nomenclature.Warehouse==null);
+					foreach(var itemWithBlankWarehouse in itemsWithBlankWarehouse)
+					{
+						yield return new ValidationResult (
+							String.Format("Невозможно подтвердить заказ т.к. у товара \"{0}\" не указан склад отгрузки.",
+							itemWithBlankWarehouse.NomenclatureString),
+							new[] { this.GetPropertyName (o => o.OrderItems) });						
+					}
+
+					var orderItemsForShipment = OrderItems
+						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
+						.Where(orderItem => orderItem.Nomenclature.Warehouse!=null);
+					foreach (var item in orderItemsForShipment)
+					{
+						var inStock = Repository.StockRepository.NomenclatureInStock(UoW, item.Nomenclature);
+						var reserved = Repository.StockRepository.NomenclatureReserved(UoW, item.Nomenclature);
+						if (inStock-reserved < item.Count)
+						{
+							yield return new ValidationResult (
+								String.Format("Товара \"{0}\" нет на складе \"{1}\" в достаточном количестве(на складе: {2}, в резерве: {3}).",
+									item.NomenclatureString,
+									item.Nomenclature.Warehouse.Name,
+									item.Nomenclature.Unit.MakeAmountShortStr(inStock),
+									item.Nomenclature.Unit.MakeAmountShortStr(reserved)
+								),
+								new[] { this.GetPropertyName (o => o.OrderItems) });						
+						}
+					}
 				}
 			}
 
