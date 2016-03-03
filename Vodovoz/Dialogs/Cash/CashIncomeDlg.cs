@@ -178,6 +178,9 @@ namespace Vodovoz
 				selectableAdvances.Where(x => x != sender).ToList().ForEach(x => x.SilentUnselect());
 			}
 
+			if (checkNoClose.Active)
+				return;
+
 			Entity.Money = selectableAdvances.
 				Where(expense=>expense.Selected)
 				.Sum (selectedExpense => selectedExpense.Value.UnclosedMoney);
