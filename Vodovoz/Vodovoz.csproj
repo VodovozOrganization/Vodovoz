@@ -200,7 +200,6 @@
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
     <Compile Include="ViewWidgets\DocumentItems\IncomingInvoiceItemsView.cs" />
-    <Compile Include="Repositories\Registration\GoodsRepository.cs" />
     <Compile Include="Repositories\NomenclatureRepository.cs" />
     <Compile Include="Dialogs\OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
@@ -579,7 +578,6 @@
     <Folder Include="ViewWidgets\" />
     <Folder Include="ViewWidgets\DocumentItems\" />
     <Folder Include="Repositories\" />
-    <Folder Include="Repositories\Registration\" />
     <Folder Include="HibernateMapping\" />
     <Folder Include="Domain\Order\" />
     <Folder Include="Repositories\BasicHandbooks\" />
