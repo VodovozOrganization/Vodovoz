@@ -69,7 +69,10 @@ namespace Vodovoz.Domain
 		#endregion
 
 		public virtual string Title { 
-			get { return Nomenclature == null ? String.Empty : String.Format ("{0} (с/н: {1})", Nomenclature.Model, Serial); } 
+			get { return Nomenclature == null ? String.Empty : 
+				String.Format ("{0} (с/н: {1})", 
+					String.IsNullOrWhiteSpace(Nomenclature.Model) ? Nomenclature.Name : Nomenclature.Model,
+					Serial); } 
 		}
 
 		public virtual string NomenclatureName { get { return Nomenclature == null ? String.Empty : Nomenclature.Name; } }
