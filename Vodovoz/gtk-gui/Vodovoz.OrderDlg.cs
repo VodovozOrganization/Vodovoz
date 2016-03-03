@@ -1117,6 +1117,7 @@ namespace Vodovoz
 			this.toggleDocuments.Toggled += new global::System.EventHandler (this.OnToggleDocumentsToggled);
 			this.referenceDeliveryPoint.Changed += new global::System.EventHandler (this.OnReferenceDeliveryPointChanged);
 			this.referenceClient.Changed += new global::System.EventHandler (this.OnReferenceClientChanged);
+			this.referenceClient.ChangedByUser += new global::System.EventHandler (this.OnReferenceClientChangedByUser);
 			this.pickerDeliveryDate.DateChanged += new global::System.EventHandler (this.OnPickerDeliveryDateDateChanged);
 			this.buttonFillComment.Clicked += new global::System.EventHandler (this.OnButtonFillCommentClicked);
 			this.enumSignatureType.Changed += new global::System.EventHandler (this.OnEnumSignatureTypeChanged);

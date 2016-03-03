@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QSOrmProject;
@@ -10,12 +11,9 @@ using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
-using QSSupportLib;
-using Gamma.GtkWidgets;
-using Vodovoz.Domain.Orders.Documents;
-using Gamma.Utilities;
 
 namespace Vodovoz
 {
@@ -857,6 +855,16 @@ namespace Vodovoz
 		protected void OnPickerDeliveryDateDateChanged (object sender, EventArgs e)
 		{
 			UpdateProxyInfo ();
+		}
+
+		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
+		{
+			if(Entity.DeliveryPoint == null && Entity.Client != null && Entity.Client.DeliveryPoints != null 
+				&& Entity.OrderStatus == OrderStatus.NewOrder && !Entity.SelfDelivery
+				&& Entity.Client.DeliveryPoints.Count == 1)
+			{
+				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
+			}
 		}
 	}
 }
