@@ -60,12 +60,12 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnComboStatusEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnComboTypeChanged(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}
 
-		protected void OnComboTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnComboStatusChanged(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

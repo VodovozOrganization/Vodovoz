@@ -8,11 +8,11 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label2;
 		
-		private global::QSOrmProject.EnumComboBox comboType;
+		private global::Gamma.Widgets.yEnumComboBox comboType;
 		
 		private global::Gtk.Label label1;
 		
-		private global::QSOrmProject.EnumComboBox comboStatus;
+		private global::Gamma.Widgets.yEnumComboBox comboStatus;
 
 		protected virtual void Build ()
 		{
@@ -34,10 +34,12 @@ namespace Vodovoz
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.comboType = new global::QSOrmProject.EnumComboBox ();
+			this.comboType = new global::Gamma.Widgets.yEnumComboBox ();
 			this.comboType.Name = "comboType";
 			this.comboType.ShowSpecialStateAll = true;
 			this.comboType.ShowSpecialStateNot = false;
+			this.comboType.UseShortTitle = false;
+			this.comboType.DefaultFirst = false;
 			this.hbox1.Add (this.comboType);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.comboType]));
 			w2.Position = 1;
@@ -51,10 +53,12 @@ namespace Vodovoz
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.comboStatus = new global::QSOrmProject.EnumComboBox ();
+			this.comboStatus = new global::Gamma.Widgets.yEnumComboBox ();
 			this.comboStatus.Name = "comboStatus";
 			this.comboStatus.ShowSpecialStateAll = true;
 			this.comboStatus.ShowSpecialStateNot = false;
+			this.comboStatus.UseShortTitle = false;
+			this.comboStatus.DefaultFirst = false;
 			this.hbox1.Add (this.comboStatus);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.comboStatus]));
 			w4.Position = 3;
@@ -63,8 +67,8 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
-			this.comboType.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnComboTypeEnumItemSelected);
-			this.comboStatus.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnComboStatusEnumItemSelected);
+			this.comboType.Changed += new global::System.EventHandler (this.OnComboTypeChanged);
+			this.comboStatus.Changed += new global::System.EventHandler (this.OnComboStatusChanged);
 		}
 	}
 }

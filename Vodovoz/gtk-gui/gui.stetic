@@ -17488,6 +17488,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -19026,13 +19027,15 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EnumComboBox" id="comboType">
+          <widget class="Gamma.Widgets.yEnumComboBox" id="comboType">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
-            <signal name="EnumItemSelected" handler="OnComboTypeEnumItemSelected" />
+            <property name="UseShortTitle">False</property>
+            <property name="DefaultFirst">False</property>
+            <signal name="Changed" handler="OnComboTypeChanged" />
           </widget>
           <packing>
             <property name="Position">1</property>
@@ -19052,13 +19055,15 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EnumComboBox" id="comboStatus">
+          <widget class="Gamma.Widgets.yEnumComboBox" id="comboStatus">
             <property name="MemberName" />
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
-            <signal name="EnumItemSelected" handler="OnComboStatusEnumItemSelected" />
+            <property name="UseShortTitle">False</property>
+            <property name="DefaultFirst">False</property>
+            <signal name="Changed" handler="OnComboStatusChanged" />
           </widget>
           <packing>
             <property name="Position">3</property>
@@ -22204,7 +22209,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
