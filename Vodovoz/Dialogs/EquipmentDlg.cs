@@ -27,6 +27,7 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Equipment> (id);
 			ConfigureDlg ();
+			FillLocation();
 		}
 
 		public EquipmentDlg (Equipment sub): this(sub.Id) {}
@@ -89,6 +90,12 @@ namespace Vodovoz
 				"&dup=0";
 			string reportPath = System.IO.Path.Combine (Directory.GetCurrentDirectory (), "Reports", "Equipment" + ".rdl");
 			reportviewerSticker.LoadReport (new Uri (reportPath), param, QSMain.ConnectionString);
+		}
+
+		void FillLocation()
+		{
+			var location = Repository.EquipmentRepository.GetLocation(UoW, Entity);
+			labelWhere.LabelProp = location.Title;
 		}
 	}
 }

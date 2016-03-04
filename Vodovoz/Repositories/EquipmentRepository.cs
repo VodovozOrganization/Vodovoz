@@ -1,13 +1,14 @@
-﻿using NHibernate.Criterion;
-using Vodovoz.Domain;
+﻿using System;
 using System.Collections.Generic;
-using QSOrmProject;
 using System.Linq;
+using NHibernate.Criterion;
+using QSOrmProject;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.Repository
 {
@@ -108,6 +109,84 @@ namespace Vodovoz.Repository
 				.JoinAlias(() => operationAlias.Equipment, () => equipmentAlias)
 				.Select(op => equipmentAlias.Id);
 			return uow.Session.QueryOver<Equipment>(()=>equipmentAlias).WithSubquery.WhereProperty(() => equipmentAlias.Id).In(unloadedEquipmentIdsQuery).List();
+		}
+
+		public static EquipmentLocation GetLocation(IUnitOfWork uow, Equipment equ)
+		{
+			var result = new EquipmentLocation();
+			var lastWarehouseOp = uow.Session.QueryOver<WarehouseMovementOperation>()
+				.Where(o => o.Equipment == equ)
+				.OrderBy(o => o.OperationTime).Desc
+				.Take(1)
+				.SingleOrDefault();
+			var lastCouterpartyOp = uow.Session.QueryOver<CounterpartyMovementOperation>()
+				.Where(o => o.Equipment == equ)
+				.OrderBy(o => o.OperationTime).Desc
+				.Take(1)
+				.SingleOrDefault();
+
+			if (lastWarehouseOp == null && lastCouterpartyOp == null)
+				result.Type = EquipmentLocation.LocationType.NoMovements;
+			else if (lastWarehouseOp != null && lastWarehouseOp.IncomingWarehouse != null 
+				&& (lastCouterpartyOp == null || lastCouterpartyOp.OperationTime < lastWarehouseOp.OperationTime))
+			{
+				result.Type = EquipmentLocation.LocationType.Warehouse;
+				result.Warehouse = lastWarehouseOp.IncomingWarehouse;
+				result.Operation = lastWarehouseOp;
+			}
+			else if( lastCouterpartyOp != null && lastCouterpartyOp.IncomingCounterparty != null 
+				&& (lastWarehouseOp == null || lastWarehouseOp.OperationTime < lastCouterpartyOp.OperationTime))
+			{
+				result.Type = EquipmentLocation.LocationType.Couterparty;
+				result.Operation = lastCouterpartyOp;
+				result.Counterparty = lastCouterpartyOp.IncomingCounterparty;
+				result.DeliveryPoint = lastCouterpartyOp.IncomingDeliveryPoint;
+			}
+			else
+			{
+				result.Type = EquipmentLocation.LocationType.Superposition;
+			}
+
+			return result;
+		}
+
+		public class EquipmentLocation{
+
+			public LocationType Type { get; set;}
+
+			public OperationBase Operation { get; set;}
+
+			public Warehouse Warehouse { get; set;}
+
+			public Counterparty Counterparty { get; set;}
+
+			public DeliveryPoint DeliveryPoint { get; set;}
+
+			public enum LocationType
+			{
+				NoMovements,
+				Warehouse,
+				Couterparty,
+				Superposition //Like Quantum
+			}
+
+			public string Title{
+				get{
+					switch (Type)
+					{
+						case LocationType.NoMovements:
+							return "Нет движений в БД";
+						case LocationType.Warehouse:
+							return String.Format("На складе: {0}", Warehouse.Name);
+						case LocationType.Couterparty:
+							return String.Format("У {0}{1}", Counterparty.Name,
+								DeliveryPoint != null ? " на адресе " + DeliveryPoint.Title : String.Empty);
+						case LocationType.Superposition:
+							return "В состоянии суперпозиции (как кот Шрёдингера)";
+					}
+					return null;
+				}
+			}
 		}
 	}
 }
