@@ -18,7 +18,25 @@
         <CommandText>SELECT 
     cash_advance_report.id AS report_id,
     cash_advance_report.cash_expense_category_id AS CategoryId,
-    cash_expense_category.name AS Category,
+        IF(cat1.parent_id IS NULL,
+        cat1.name,
+        CONCAT((SELECT 
+                        IF(cat2.parent_id IS NULL,
+                                cat2.name,
+                                CONCAT((SELECT 
+                                                CONCAT(IF(parent_id IS NULL, '', '... '), name)
+                                            FROM
+                                                cash_expense_category AS cat3
+                                            WHERE
+                                                id = cat2.parent_id),
+                                        ' → ',
+                                        cat2.name))
+                    FROM
+                        cash_expense_category AS cat2
+                    WHERE
+                        id = cat1.parent_id),
+                ' → ',
+                cat1.name)) AS Category,
     cash_advance_report.money AS Sum,
     cash_advance_report.description,
     cash_advance_report.date AS date,
@@ -36,7 +54,7 @@
 FROM
     cash_advance_report
         LEFT JOIN
-    cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
+    cash_expense_category AS cat1 ON cat1.id = cash_advance_report.cash_expense_category_id
         LEFT JOIN
     employees ON employees.id = cash_advance_report.employee_id
         LEFT JOIN
