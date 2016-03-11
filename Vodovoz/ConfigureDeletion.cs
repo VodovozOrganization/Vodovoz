@@ -265,15 +265,8 @@ namespace Vodovoz
 				.AddDeleteDependence<AdditionalAgreement> (item => item.Contract)
 				.AddDeleteDependence<OrderContract>(x => x.Contract);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(AdditionalAgreement),
-				SqlSelect = "SELECT id, number FROM @tablename ",
-				DisplayString = "Доп. соглашение №{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<OrderItem> (item => item.AdditionalAgreement)
-				}
-			}.FillFromMetaInfo ()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<AdditionalAgreement>().HasSubclasses()
+				.AddClearDependence<OrderItem> (item => item.AdditionalAgreement);
 
 			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreement>();
 
@@ -395,12 +388,7 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(OrderDocument),
-				SqlSelect = "SELECT id, order_id FROM @tablename ",
-				DisplayString = "Документ к заказу №{1}"
-			}.FillFromMetaInfo ()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<OrderDocument>().HasSubclasses();
 
 			DeleteConfig.AddHibernateDeleteInfo<OrderDepositItem>()
 				.AddDeleteCascadeDependence(x => x.DepositOperation);

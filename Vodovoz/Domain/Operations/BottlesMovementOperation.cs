@@ -46,7 +46,7 @@ namespace Vodovoz.Domain.Operations
 
 		public virtual string Title{
 			get{
-				return String.Format("Движения тары к контрагенту {1} от контрагента {2} бутылей", Delivered, Returned);
+				return String.Format("Движения тары к контрагенту {0} от контрагента {1} бутылей", Delivered, Returned);
 			}
 		}
 	}

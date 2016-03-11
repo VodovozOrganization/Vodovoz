@@ -65,6 +65,8 @@ namespace Vodovoz.Domain
 
 		public virtual string DocumentDate { get { return String.Format ("От {0}", StartDate.ToShortDateString ()); } }
 
+		public virtual string Title { get { return String.Format ("Доп. соглашение №{0} от {1}", AgreementNumber, StartDate.ToShortDateString ()); } }
+
 		public AdditionalAgreement ()
 		{
 			AgreementNumber = String.Empty;
