@@ -13,6 +13,8 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.ViewModel;
+using QSTDI;
+using Vodovoz.Panel;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -57,6 +59,27 @@ public partial class MainWindow: Gtk.Window
 		ActionAccounting.Sensitive = QSMain.User.Permissions ["money_manage"];
 		ActionLogistics.Sensitive = QSMain.User.Permissions ["logistican"];
 		BanksUpdater.Update (false);
+	}
+
+	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
+	{
+		var currentTab = args.Tab;
+		if (currentTab is IInfoProvider)
+			(currentTab as IInfoProvider).CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
+	}
+
+	public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
+	{
+		var closedTab = args.Tab;
+		if(closedTab is IInfoProvider)
+			infopanel.OnInfoProviderDisposed(closedTab as IInfoProvider);
+	}
+
+	public void OnTdiMainTabSwitched(object sender, TabSwitchedEventArgs args)
+	{
+		var currentTab = args.Tab;
+		if (currentTab is IInfoProvider)
+			infopanel.SetInfoProvider(currentTab as IInfoProvider);
 	}
 
 	void HandleKeyReleaseEvent (object o, KeyReleaseEventArgs args)

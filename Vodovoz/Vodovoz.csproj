@@ -98,6 +98,8 @@
     <EmbeddedResource Include="toolbars\accounting.xml">
       <LogicalName>accounting.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="icons\buttons\pin-down.png" />
+    <EmbeddedResource Include="icons\buttons\pin-up.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -482,6 +484,13 @@
     <Compile Include="HibernateMapping\Counterparty\ContactMap.cs" />
     <Compile Include="Domain\Wages.cs" />
     <Compile Include="Repositories\StockRepository.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Panel.InfoPanel.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Panel.PanelViewContainer.cs" />
+    <Compile Include="SidePanel\InfoProviders\IInfoProvider.cs" />
+    <Compile Include="SidePanel\PanelViewContainer.cs" />
+    <Compile Include="SidePanel\IPanelView.cs" />
+    <Compile Include="SidePanel\PanelViewFactory.cs" />
+    <Compile Include="SidePanel\InfoPanel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -621,6 +630,9 @@
     <Folder Include="Domain\Order\Documents\" />
     <Folder Include="Reports\Store\" />
     <Folder Include="Commons\" />
+    <Folder Include="SidePanel\" />
+    <Folder Include="SidePanel\PanelWidgets\" />
+    <Folder Include="SidePanel\InfoProviders\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

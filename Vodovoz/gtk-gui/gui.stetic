@@ -80,7 +80,7 @@
       </source>
     </icon-set>
   </icon-factory>
-  <widget class="Gtk.Window" id="MainWindow" design-size="862 530">
+  <widget class="Gtk.Window" id="MainWindow" design-size="950 530">
     <action-group name="Default">
       <action id="ActionBaseMenu">
         <property name="Type">Action</property>
@@ -456,160 +456,126 @@
     <property name="WindowPosition">Center</property>
     <signal name="DeleteEvent" handler="OnDeleteEvent" />
     <child>
-      <widget class="Gtk.VBox" id="vbox1">
+      <widget class="Gtk.HBox" id="hbox1">
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.MenuBar" id="menubarMain">
-            <property name="MemberName" />
-            <node name="menubarMain" type="Menubar">
-              <node type="Menu" action="ActionBaseMenu">
-                <node type="Menuitem" action="dialogAuthenticationAction" />
-                <node type="Menuitem" action="UsersAction" />
-                <node type="Separator" />
-                <node type="Menuitem" action="ActionParameters" />
-                <node type="Separator" />
-                <node type="Menuitem" action="quitAction" />
-              </node>
-              <node type="Menu" action="Action">
-                <node type="Menu" action="ActionOrgMenu">
-                  <node type="Menuitem" action="ActionOrg" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionEmploey" />
-                  <node type="Menuitem" action="ActionNationality" />
-                  <node type="Menuitem" action="ActionWarehouses" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionPhoneTypes" />
-                  <node type="Menuitem" action="ActionEMailTypes" />
-                </node>
-                <node type="Menu" action="ActionTMC">
-                  <node type="Menuitem" action="ActionNomenclature" />
-                  <node type="Menuitem" action="ActionUnits" />
-                  <node type="Menuitem" action="ActionEquipment" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionEquipmentTypes" />
-                  <node type="Menuitem" action="ActionManufacturers" />
-                  <node type="Menuitem" action="ActionColors" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionProductSpecification" />
-                  <node type="Menuitem" action="ActionCullingCategory" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionFreeRentPackage" />
-                  <node type="Menuitem" action="ActionPaidRentPackage" />
-                </node>
-                <node type="Menu" action="ActionBanksMenu">
-                  <node type="Menuitem" action="ActionBanksRF" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionUpdateBanks" />
-                </node>
-                <node type="Menu" action="Action13">
-                  <node type="Menuitem" action="Action14" />
-                  <node type="Menuitem" action="Action15" />
-                </node>
-                <node type="Menu" action="ActionCounterparty1">
-                  <node type="Menuitem" action="ActionCounterpartyHandbook" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionSignificance" />
-                  <node type="Menuitem" action="ActionStatus" />
-                  <node type="Menuitem" action="ActionCounterpartyPost" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionLoad1c" />
-                </node>
-                <node type="Menu" action="ActionMenuLogistic">
-                  <node type="Menuitem" action="ActionDeliverySchedule" />
-                  <node type="Menuitem" action="ActionLogisticsArea" />
-                  <node type="Menuitem" action="ActionDeliveryShift" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionCar" />
-                  <node type="Menuitem" action="ActionFuelType" />
-                  <node type="Separator" />
-                  <node type="Menuitem" action="ActionRouteColumns" />
-                </node>
-                <node type="Menu" action="Action12">
-                  <node type="Menuitem" action="ActionCommentTemplates" />
-                </node>
-              </node>
-              <node type="Menu" action="ActionAbout">
-                <node type="Menuitem" action="aboutAction" />
-              </node>
-            </node>
-          </widget>
-          <packing>
-            <property name="Position">0</property>
-            <property name="AutoSize">False</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.Toolbar" id="toolbarMain">
-            <property name="MemberName" />
-            <property name="ShowArrow">False</property>
-            <property name="ButtonStyle">Both</property>
-            <property name="IconSize">Dialog</property>
-            <node name="toolbarMain" type="Toolbar">
-              <node type="Toolitem" action="ActionOrders" />
-              <node type="Toolitem" action="ActionServices" />
-              <node type="Toolitem" action="ActionLogistics" />
-              <node type="Toolitem" action="ActionStock" />
-              <node type="Toolitem" action="ActionCash" />
-              <node type="Toolitem" action="ActionAccounting" />
-              <node type="Toolitem" action="ActionReports" />
-              <node type="Toolitem" action="ActionArchive" />
-            </node>
-          </widget>
-          <packing>
-            <property name="Position">1</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.Toolbar" id="toolbarSub">
-            <property name="MemberName" />
-            <property name="ShowArrow">False</property>
-            <property name="ButtonStyle">Text</property>
-            <property name="IconSize">SmallToolbar</property>
-            <node name="toolbarSub" type="Toolbar" />
-          </widget>
-          <packing>
-            <property name="Position">2</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="QSTDI.TdiNotebook" id="tdiMain">
-            <property name="MemberName" />
-            <property name="CurrentPage">0</property>
-            <property name="ShowTabs">False</property>
-            <property name="Scrollable">True</property>
-          </widget>
-          <packing>
-            <property name="Position">3</property>
-            <property name="AutoSize">False</property>
-          </packing>
-        </child>
-        <child>
-          <widget class="Gtk.Statusbar" id="statusbarMain">
+          <widget class="Gtk.VBox" id="vbox1">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Label" id="labelUser">
+              <widget class="Gtk.MenuBar" id="menubarMain">
                 <property name="MemberName" />
+                <node name="menubarMain" type="Menubar">
+                  <node type="Menu" action="ActionBaseMenu">
+                    <node type="Menuitem" action="dialogAuthenticationAction" />
+                    <node type="Menuitem" action="UsersAction" />
+                    <node type="Separator" />
+                    <node type="Menuitem" action="ActionParameters" />
+                    <node type="Separator" />
+                    <node type="Menuitem" action="quitAction" />
+                  </node>
+                  <node type="Menu" action="Action">
+                    <node type="Menu" action="ActionOrgMenu">
+                      <node type="Menuitem" action="ActionOrg" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionEmploey" />
+                      <node type="Menuitem" action="ActionNationality" />
+                      <node type="Menuitem" action="ActionWarehouses" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionPhoneTypes" />
+                      <node type="Menuitem" action="ActionEMailTypes" />
+                    </node>
+                    <node type="Menu" action="ActionTMC">
+                      <node type="Menuitem" action="ActionNomenclature" />
+                      <node type="Menuitem" action="ActionUnits" />
+                      <node type="Menuitem" action="ActionEquipment" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionEquipmentTypes" />
+                      <node type="Menuitem" action="ActionManufacturers" />
+                      <node type="Menuitem" action="ActionColors" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionProductSpecification" />
+                      <node type="Menuitem" action="ActionCullingCategory" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionFreeRentPackage" />
+                      <node type="Menuitem" action="ActionPaidRentPackage" />
+                    </node>
+                    <node type="Menu" action="ActionBanksMenu">
+                      <node type="Menuitem" action="ActionBanksRF" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionUpdateBanks" />
+                    </node>
+                    <node type="Menu" action="Action13">
+                      <node type="Menuitem" action="Action14" />
+                      <node type="Menuitem" action="Action15" />
+                    </node>
+                    <node type="Menu" action="ActionCounterparty1">
+                      <node type="Menuitem" action="ActionCounterpartyHandbook" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionSignificance" />
+                      <node type="Menuitem" action="ActionStatus" />
+                      <node type="Menuitem" action="ActionCounterpartyPost" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionLoad1c" />
+                    </node>
+                    <node type="Menu" action="ActionMenuLogistic">
+                      <node type="Menuitem" action="ActionDeliverySchedule" />
+                      <node type="Menuitem" action="ActionLogisticsArea" />
+                      <node type="Menuitem" action="ActionDeliveryShift" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionCar" />
+                      <node type="Menuitem" action="ActionFuelType" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionRouteColumns" />
+                    </node>
+                    <node type="Menu" action="Action12">
+                      <node type="Menuitem" action="ActionCommentTemplates" />
+                    </node>
+                  </node>
+                  <node type="Menu" action="ActionAbout">
+                    <node type="Menuitem" action="aboutAction" />
+                  </node>
+                </node>
               </widget>
               <packing>
                 <property name="Position">0</property>
+                <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Toolbar" id="toolbarMain">
+                <property name="MemberName" />
+                <property name="ShowArrow">False</property>
+                <property name="ButtonStyle">Both</property>
+                <property name="IconSize">Dialog</property>
+                <node name="toolbarMain" type="Toolbar">
+                  <node type="Toolitem" action="ActionOrders" />
+                  <node type="Toolitem" action="ActionServices" />
+                  <node type="Toolitem" action="ActionLogistics" />
+                  <node type="Toolitem" action="ActionStock" />
+                  <node type="Toolitem" action="ActionCash" />
+                  <node type="Toolitem" action="ActionAccounting" />
+                  <node type="Toolitem" action="ActionReports" />
+                  <node type="Toolitem" action="ActionArchive" />
+                </node>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="labelStatus">
+              <widget class="Gtk.Toolbar" id="toolbarSub">
                 <property name="MemberName" />
+                <property name="ShowArrow">False</property>
+                <property name="ButtonStyle">Text</property>
+                <property name="IconSize">SmallToolbar</property>
+                <node name="toolbarSub" type="Toolbar" />
               </widget>
               <packing>
                 <property name="Position">2</property>
@@ -618,11 +584,70 @@
                 <property name="Fill">False</property>
               </packing>
             </child>
+            <child>
+              <widget class="QSTDI.TdiNotebook" id="tdiMain">
+                <property name="MemberName" />
+                <property name="CurrentPage">0</property>
+                <property name="ShowTabs">False</property>
+                <property name="Scrollable">True</property>
+                <signal name="TabAdded" handler="OnTdiMainTabAdded" />
+                <signal name="TabSwitched" handler="OnTdiMainTabSwitched" />
+                <signal name="TabClosed" handler="OnTdiMainTabClosed" />
+              </widget>
+              <packing>
+                <property name="Position">3</property>
+                <property name="AutoSize">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Statusbar" id="statusbarMain">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Label" id="labelUser">
+                    <property name="MemberName" />
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Label" id="labelStatus">
+                    <property name="MemberName" />
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">4</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
-            <property name="PackType">End</property>
-            <property name="Position">4</property>
-            <property name="AutoSize">True</property>
+            <property name="Position">0</property>
+            <property name="AutoSize">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Vodovoz.Panel.InfoPanel" id="infopanel">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">False</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
@@ -26005,6 +26030,54 @@ RegistrationNumber</property>
           <packing>
             <property name="Position">1</property>
             <property name="AutoSize">True</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Panel.InfoPanel" design-size="219 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="QSWidgetLib.RightSidePanel" id="rightsidepanel1">
+        <property name="MemberName" />
+        <property name="Events">ButtonPressMask</property>
+        <property name="Title">Информация</property>
+        <property name="IsHided">True</property>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Panel.PanelViewContainer" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.Frame" id="frame1">
+        <property name="MemberName" />
+        <property name="ShadowType">Out</property>
+        <property name="LabelXalign">1</property>
+        <property name="BorderWidth">6</property>
+        <child>
+          <widget class="Gtk.Alignment" id="GtkAlignment1">
+            <property name="MemberName" />
+            <property name="Xalign">0</property>
+            <property name="Yalign">0</property>
+            <property name="LeftPadding">12</property>
+            <property name="RightPadding">5</property>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+        </child>
+        <child>
+          <widget class="Gtk.ToggleButton" id="buttonPin">
+            <property name="MemberName" />
+            <property name="Type">TextAndIcon</property>
+            <property name="Icon">resource:Vodovoz.icons.buttons.pin-up.png</property>
+            <property name="Label" translatable="yes" />
+            <property name="FocusOnClick">False</property>
+          </widget>
+          <packing>
+            <property name="type">label_item</property>
           </packing>
         </child>
       </widget>
