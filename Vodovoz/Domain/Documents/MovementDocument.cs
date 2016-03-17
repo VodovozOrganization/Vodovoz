@@ -169,7 +169,7 @@ namespace Vodovoz.Domain.Documents
 
 		GenericObservableList<MovementDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<MovementDocumentItem> ObservableItems {
+		public virtual GenericObservableList<MovementDocumentItem> ObservableItems {
 			get {
 				if (observableItems == null)
 					observableItems = new GenericObservableList<MovementDocumentItem> (Items);
@@ -203,7 +203,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (Category == MovementDocumentCategory.warehouse && FromWarehouse == ToWarehouse)
 				yield return new ValidationResult ("Склады отправления и получения должны различатся.",
@@ -229,7 +229,7 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		public void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
+		public virtual void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
 			var item = new MovementDocumentItem
 			{

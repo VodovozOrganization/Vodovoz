@@ -96,7 +96,7 @@ namespace Vodovoz.Domain.Documents
 
 		WarehouseMovementOperation produceOperation = new WarehouseMovementOperation ();
 
-		public WarehouseMovementOperation ProduceOperation {
+		public virtual WarehouseMovementOperation ProduceOperation {
 			get { return produceOperation; }
 			set { SetField (ref produceOperation, value, () => ProduceOperation); }
 		}
@@ -114,7 +114,7 @@ namespace Vodovoz.Domain.Documents
 
 		GenericObservableList<IncomingWaterMaterial> observableMaterials;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<IncomingWaterMaterial> ObservableMaterials {
+		public virtual GenericObservableList<IncomingWaterMaterial> ObservableMaterials {
 			get {
 				if (observableMaterials == null)
 					observableMaterials = new GenericObservableList<IncomingWaterMaterial> (Materials);
@@ -122,7 +122,7 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public void AddMaterial (Nomenclature nomenclature, decimal amount, decimal inStock)
+		public virtual void AddMaterial (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
 			var item = new IncomingWaterMaterial{
 				Document = this,
@@ -134,7 +134,7 @@ namespace Vodovoz.Domain.Documents
 			ObservableMaterials.Add (item);
 		}
 
-		public void AddMaterial (ProductSpecificationMaterial material)
+		public virtual void AddMaterial (ProductSpecificationMaterial material)
 		{
 			var item = new IncomingWaterMaterial{
 				Document = this,

@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Documents
 		decimal amountOnSource = 10000000; //FIXME пока не реализуем способ загружать количество на складе на конкретный день
 
 		[Display (Name = "Имеется на складе")]
-		public decimal AmountOnSource {
+		public virtual decimal AmountOnSource {
 			get { return amountOnSource; }
 			set {
 				SetField (ref amountOnSource, value, () => AmountOnSource);
@@ -76,7 +76,7 @@ namespace Vodovoz.Domain.Documents
 
 		WarehouseMovementOperation consumptionMaterialOperation;
 
-		public WarehouseMovementOperation ConsumptionMaterialOperation {
+		public virtual WarehouseMovementOperation ConsumptionMaterialOperation {
 			get { return consumptionMaterialOperation; }
 			set { SetField (ref consumptionMaterialOperation, value, () => ConsumptionMaterialOperation); }
 		}
@@ -93,7 +93,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public void CreateOperation(Warehouse warehouseSrc, DateTime time)
+		public virtual void CreateOperation(Warehouse warehouseSrc, DateTime time)
 		{
 			ConsumptionMaterialOperation = new WarehouseMovementOperation
 				{

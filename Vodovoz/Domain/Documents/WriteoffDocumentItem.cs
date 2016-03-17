@@ -101,14 +101,14 @@ namespace Vodovoz.Domain.Documents
 
 		WarehouseMovementOperation warehouseWriteoffOperation;
 
-		public WarehouseMovementOperation WarehouseWriteoffOperation {
+		public virtual WarehouseMovementOperation WarehouseWriteoffOperation {
 			get { return warehouseWriteoffOperation; }
 			set { SetField (ref warehouseWriteoffOperation, value, () => WarehouseWriteoffOperation); }
 		}
 
 		CounterpartyMovementOperation counterpartyWriteoffOperation;
 
-		public CounterpartyMovementOperation CounterpartyWriteoffOperation {
+		public virtual CounterpartyMovementOperation CounterpartyWriteoffOperation {
 			get { return counterpartyWriteoffOperation; }
 			set { SetField (ref counterpartyWriteoffOperation, value, () => CounterpartyWriteoffOperation); }
 		}
@@ -123,7 +123,7 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public void CreateOperation(Warehouse warehouse, DateTime time)
+		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
 			CounterpartyWriteoffOperation = null;
 			WarehouseWriteoffOperation = new WarehouseMovementOperation
@@ -136,7 +136,7 @@ namespace Vodovoz.Domain.Documents
 			};
 		}
 
-		public void CreateOperation(Counterparty counterparty, DeliveryPoint piont, DateTime time)
+		public virtual void CreateOperation(Counterparty counterparty, DeliveryPoint piont, DateTime time)
 		{
 			throw new NotImplementedException();
 		}

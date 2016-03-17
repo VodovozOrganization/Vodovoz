@@ -107,7 +107,7 @@ namespace Vodovoz.Domain.Documents
 
 		GenericObservableList<WriteoffDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<WriteoffDocumentItem> ObservableItems {
+		public virtual GenericObservableList<WriteoffDocumentItem> ObservableItems {
 			get {
 				if (observableItems == null)
 					observableItems = new GenericObservableList<WriteoffDocumentItem> (Items);
@@ -137,7 +137,7 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		public void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
+		public virtual void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
 			var item = new WriteoffDocumentItem
 			{ 
@@ -153,7 +153,7 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add (item);
 		}
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (WriteoffWarehouse == null && Client == null)
 				yield return new ValidationResult ("Склад списания или контрагент должны быть заполнены.");

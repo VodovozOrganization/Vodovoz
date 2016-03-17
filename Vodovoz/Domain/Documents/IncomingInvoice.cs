@@ -76,7 +76,7 @@ namespace Vodovoz.Domain.Documents
 
 		GenericObservableList<IncomingInvoiceItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<IncomingInvoiceItem> ObservableItems {
+		public virtual GenericObservableList<IncomingInvoiceItem> ObservableItems {
 			get {
 				if (observableItems == null)
 					observableItems = new GenericObservableList<IncomingInvoiceItem> (Items);
@@ -104,7 +104,7 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		public void AddItem (IncomingInvoiceItem item)
+		public virtual void AddItem (IncomingInvoiceItem item)
 		{
 			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
 			item.IncomeGoodsOperation.OperationTime = TimeStamp;

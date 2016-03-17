@@ -8,7 +8,6 @@ namespace Vodovoz.HMap
 		public IncomingInvoiceMap ()
 		{
 			Table ("incoming_invoice");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.TimeStamp).Column ("time_stamp");

@@ -69,7 +69,7 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref vat, value, () => VAT); }
 		}
 
-		public decimal Sum {
+		public virtual decimal Sum {
 			get { return Price * Amount; }
 		}
 
@@ -87,7 +87,7 @@ namespace Vodovoz.Domain.Documents
 
 		WarehouseMovementOperation incomeGoodsOperation = new WarehouseMovementOperation ();
 
-		public WarehouseMovementOperation IncomeGoodsOperation {
+		public virtual WarehouseMovementOperation IncomeGoodsOperation {
 			get { return incomeGoodsOperation; }
 			set { SetField (ref incomeGoodsOperation, value, () => IncomeGoodsOperation); }
 		}

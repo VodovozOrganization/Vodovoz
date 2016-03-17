@@ -9,7 +9,6 @@ namespace Vodovoz.HMap
 		public IncomingInvoiceItemMap ()
 		{
 			Table ("incoming_invoice_items");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Price).Column ("price");

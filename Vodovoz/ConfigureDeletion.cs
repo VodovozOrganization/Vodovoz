@@ -266,6 +266,7 @@ namespace Vodovoz
 				.AddDeleteDependence<OrderContract>(x => x.Contract);
 
 			DeleteConfig.AddHibernateDeleteInfo<AdditionalAgreement>().HasSubclasses()
+				.AddDeleteDependence<OrderAgreement>(x => x.AdditionalAgreement)
 				.AddClearDependence<OrderItem> (item => item.AdditionalAgreement);
 
 			DeleteConfig.AddHibernateDeleteInfo<WaterSalesAgreement>();
@@ -282,7 +283,6 @@ namespace Vodovoz
 				.AddDeleteDependenceFromBag(x => x.Equipment);
 
 			DeleteConfig.AddHibernateDeleteInfo<FreeRentEquipment>()
-				.AddClearDependence<OrderItem> (item => item.AdditionalAgreement)
 				.AddClearDependence<OrderDepositItem>(x => x.FreeRentItem);
 
 			DeleteConfig.AddHibernateDeleteInfo<PaidRentEquipment>()
@@ -343,7 +343,9 @@ namespace Vodovoz
 				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList)
 				.AddDeleteDependence<RouteListClosing>(x => x.RouteList);
 
-			DeleteConfig.AddHibernateDeleteInfo<RouteListClosing>();
+			DeleteConfig.AddHibernateDeleteInfo<RouteListClosing>()
+				.AddClearDependence<Expense>(x => x.RouteListClosing)
+				.AddClearDependence<Income>(x => x.RouteListClosing);
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteColumn>()
 				.AddClearDependence<Nomenclature>(x => x.RouteListColumn);
@@ -366,7 +368,9 @@ namespace Vodovoz
 				.AddDeleteDependence<BottlesMovementOperation>(item => item.Order)
 				.AddDeleteDependence<DepositOperation>(x => x.Order)
 				.AddDeleteDependence<MoneyMovementOperation>(x => x.Order)
+				.AddDeleteDependence<OrderDocument>(x => x.AttachedToOrder)
 				.AddDeleteCascadeDependence(x => x.BottlesMovementOperation)
+				.AddDeleteCascadeDependence(x => x.MoneyMovementOperation)
 				.AddClearDependence<Order>(x => x.PreviousOrder)
 				.AddClearDependence<ServiceClaim>(x => x.InitialOrder)
 				.AddClearDependence<ServiceClaim>(x => x.FinalOrder);
@@ -511,13 +515,8 @@ namespace Vodovoz
 				.AddDeleteDependence<MovementDocumentItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.CounterpartyWriteoffOperation);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(MoneyMovementOperation),
-				SqlSelect = "SELECT id FROM @tablename ",
-				//FIXME Создать грамотную строку отобржения.
-				DisplayString = "Денежная операция {0}"
-			}.FillFromMetaInfo ()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<MoneyMovementOperation>()
+				.AddClearDependence<Order>(x => x.MoneyMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<DepositOperation>()
 				.AddDeleteDependence<OrderDepositItem>(x => x.DepositOperation);

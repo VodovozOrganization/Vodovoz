@@ -16,7 +16,7 @@ namespace Vodovoz.HMap
 			Map (x => x.OnCancellation).Column ("on_cancellation");
 			References (x => x.Organization).Column ("organization_id");
 			References (x => x.Counterparty).Column ("counterparty_id");
-			HasMany (x => x.AdditionalAgreements).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("counterparty_contract_id");
+			HasMany (x => x.AdditionalAgreements).Inverse().Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("counterparty_contract_id");
 		}
 	}
 }

@@ -8,7 +8,6 @@ namespace Vodovoz.HMap
 		public IncomingWaterMap ()
 		{
 			Table ("incoming_water");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Amount).Column ("amount").Not.Nullable ();
