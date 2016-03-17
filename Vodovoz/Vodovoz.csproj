@@ -491,6 +491,7 @@
     <Compile Include="SidePanel\IPanelView.cs" />
     <Compile Include="SidePanel\PanelViewFactory.cs" />
     <Compile Include="SidePanel\InfoPanel.cs" />
+    <Compile Include="Сrutches\WrapLabel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
