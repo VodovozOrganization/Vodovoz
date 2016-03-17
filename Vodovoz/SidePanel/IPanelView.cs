@@ -6,7 +6,7 @@ namespace Vodovoz.Panel
 	{
 		IInfoProvider InfoProvider{get;set;}
 		void Refresh();
-		void OnCurrentObjectChanged(object subject);
+		void OnCurrentObjectChanged(object changedObject);
 	}
 }
 

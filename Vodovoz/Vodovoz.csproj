@@ -491,6 +491,13 @@
     <Compile Include="SidePanel\IPanelView.cs" />
     <Compile Include="SidePanel\PanelViewFactory.cs" />
     <Compile Include="SidePanel\InfoPanel.cs" />
+    <Compile Include="SidePanel\PanelWidgets\CounterpartyPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Panel.CounterpartyPanelView.cs" />
+    <Compile Include="SidePanel\PanelWidgets\DeliveryPointPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Panel.DeliveryPointPanelView.cs" />
+    <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
+    <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
+    <Compile Include="Repositories\MoneyRepository.cs" />
     <Compile Include="Сrutches\WrapLabel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

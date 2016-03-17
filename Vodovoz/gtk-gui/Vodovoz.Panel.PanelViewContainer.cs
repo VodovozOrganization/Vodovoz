@@ -25,7 +25,7 @@ namespace Vodovoz.Panel
 			// Container child frame1.Gtk.Container+ContainerChild
 			this.GtkAlignment1 = new global::Gtk.Alignment (0F, 0F, 1F, 1F);
 			this.GtkAlignment1.Name = "GtkAlignment1";
-			this.GtkAlignment1.LeftPadding = ((uint)(12));
+			this.GtkAlignment1.LeftPadding = ((uint)(5));
 			this.GtkAlignment1.RightPadding = ((uint)(5));
 			this.frame1.Add (this.GtkAlignment1);
 			this.buttonPin = new global::Gtk.ToggleButton ();

@@ -10,6 +10,10 @@ namespace Vodovoz.Panel
 		{
 			switch (type)
 			{
+				case PanelViewType.CounterpartyView:
+					return new CounterpartyPanelView();
+				case PanelViewType.DeliveryPointView:
+					return new DeliveryPointPanelView();
 				default:
 					throw new NotSupportedException();
 			}
@@ -24,6 +28,8 @@ namespace Vodovoz.Panel
 	}
 
 	public enum PanelViewType{
+		CounterpartyView,
+		DeliveryPointView
 	}
 }
 
