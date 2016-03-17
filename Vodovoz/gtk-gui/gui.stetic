@@ -2801,6 +2801,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2972,17 +2973,12 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.DataBindings.DataEntry" id="entryName">
+                          <widget class="Gamma.GtkWidgets.yEntry" id="entryName">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
+                            <property name="MaxLength">220</property>
                             <property name="InvisibleChar">●</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Name</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Name</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
                             <property name="LeftAttach">1</property>
@@ -17488,7 +17484,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

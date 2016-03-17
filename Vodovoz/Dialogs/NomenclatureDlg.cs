@@ -47,6 +47,8 @@ namespace Vodovoz
 			enumType.ItemsEnum = typeof(NomenclatureCategory);
 			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
+			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+
 			referenceUnit.PropertyMapping<Nomenclature> (n => n.Unit);
 			referenceType.PropertyMapping<Nomenclature> (n => n.Type);
 			referenceColor.PropertyMapping<Nomenclature> (n => n.Color);

@@ -21,6 +21,7 @@ namespace Vodovoz.Domain
 		string name;
 
 		[Display (Name = "Название")]
+		[StringLength(220)]
 		[Required (ErrorMessage = "Название номенклатуры должно быть заполнено.")]
 		public virtual string Name {
 			get { return name; }

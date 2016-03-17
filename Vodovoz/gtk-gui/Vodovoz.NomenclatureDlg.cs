@@ -30,7 +30,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataEntry entryModel;
 		
-		private global::Gtk.DataBindings.DataEntry entryName;
+		private global::Gamma.GtkWidgets.yEntry entryName;
 		
 		private global::Gamma.Widgets.yEnumComboBox enumType;
 		
@@ -250,17 +250,12 @@ namespace Vodovoz
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entryName = new global::Gtk.DataBindings.DataEntry ();
+			this.entryName = new global::Gamma.GtkWidgets.yEntry ();
 			this.entryName.CanFocus = true;
 			this.entryName.Name = "entryName";
 			this.entryName.IsEditable = true;
+			this.entryName.MaxLength = 220;
 			this.entryName.InvisibleChar = '●';
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.entryName);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
 			w13.LeftAttach = ((uint)(1));
