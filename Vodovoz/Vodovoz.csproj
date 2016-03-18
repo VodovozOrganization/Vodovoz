@@ -499,6 +499,9 @@
     <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
     <Compile Include="Repositories\MoneyRepository.cs" />
     <Compile Include="Сrutches\WrapLabel.cs" />
+    <Compile Include="SidePanel\PanelWidgets\AdditionalAgreementPanelView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Panel.AdditionalAgreementPanelView.cs" />
+    <Compile Include="Repositories\AdditionalAgreementRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

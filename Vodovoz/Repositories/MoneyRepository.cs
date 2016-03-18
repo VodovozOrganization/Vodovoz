@@ -4,6 +4,9 @@ using QSOrmProject;
 using Vodovoz.Domain;
 using NHibernate.Transform;
 using System.Linq;
+using Vodovoz.Domain.Orders;
+using Order = Vodovoz.Domain.Orders.Order;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Repository
 {
@@ -38,6 +41,8 @@ namespace Vodovoz.Repository
 			var deposits = queryResult.FirstOrDefault()?.Deposits ?? 0;
 			return deposits;
 		}
+
+
 
 		class BottleDepositsQueryResult
 		{

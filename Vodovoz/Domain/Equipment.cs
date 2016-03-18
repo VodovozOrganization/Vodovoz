@@ -68,6 +68,14 @@ namespace Vodovoz.Domain
 
 		#endregion
 
+		public virtual DateTime? NextServiceDate {
+			get{ 
+				if (LastServiceDate == DateTime.MinValue)
+					return null;
+				return LastServiceDate.AddMonths(6);
+			}
+		}
+
 		public virtual string Title { 
 			get { return Nomenclature == null ? String.Empty : String.Format ("{0} (с/н: {1})", Nomenclature.Model, Serial); } 
 		}
