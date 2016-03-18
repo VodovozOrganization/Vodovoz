@@ -14,12 +14,48 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Repository;
+using Vodovoz.Panel;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ServiceClaimDlg : OrmGtkDialogBase<ServiceClaim>
+	public partial class ServiceClaimDlg : OrmGtkDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
+		#region IPanelInfoProvider implementation
+		public PanelViewType[] InfoWidgets{
+			get{
+				return new[]{ 
+					PanelViewType.CounterpartyView,
+					PanelViewType.DeliveryPointView,
+					PanelViewType.AdditionalAgreementPanelView
+				};
+			}
+		}
+
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;	
+
+		#endregion
+
+		#region ICounterpartyInfoProvider implementation
+
+		public Counterparty Counterparty
+		{
+			get
+			{
+				return referenceCounterparty.Subject as Counterparty;
+			}
+		}
+
+		#endregion
+
+		public DeliveryPoint DeliveryPoint
+		{
+			get
+			{
+				return referenceDeliveryPoint.Subject as DeliveryPoint;
+			}
+		}
+
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		bool isEditable = true;
@@ -216,6 +252,8 @@ namespace Vodovoz
 
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
 		{
+			if (CurrentObjectChanged != null)
+				CurrentObjectChanged(this, new CurrentObjectChangedArgs(Counterparty));
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
 			FixNomenclatureAndEquipmentSensitivity ();
 			if (UoWGeneric.Root.DeliveryPoint != null &&
@@ -377,8 +415,10 @@ namespace Vodovoz
 			
 		protected void OnReferenceDeliveryPointChanged (object sender, EventArgs e)
 		{
+			if (CurrentObjectChanged != null)
+				CurrentObjectChanged(this, new CurrentObjectChangedArgs(DeliveryPoint));
 			FixNomenclatureAndEquipmentSensitivity ();
-			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentAtDeliveryPoint (UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
+			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
 		}
 
 		protected void FixNomenclatureAndEquipmentSensitivity(){

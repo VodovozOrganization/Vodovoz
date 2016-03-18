@@ -4,6 +4,8 @@ using QSOrmProject;
 using Vodovoz.Domain;
 using NHibernate.Criterion;
 using System.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Repository
 {
@@ -40,6 +42,26 @@ namespace Vodovoz.Repository
 				.Where (o => o.DeliveryDate.Date == date.Date && point.LogisticsArea.Id == area.Id 
 					&& !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
 				.List<Vodovoz.Domain.Orders.Order> ();
+		}
+
+		public static Vodovoz.Domain.Orders.Order GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
+		{
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			var queryResult = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterparty.Id)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
+				.OrderBy(() => orderAlias.Id).Desc
+				.Take(1).List();
+			return queryResult.FirstOrDefault();
+		}
+
+		public static IList<Vodovoz.Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty)
+		{
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			return UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+				.Where(() => orderAlias.Client.Id == counterparty.Id)
+				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
+				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed).List();
 		}
 	}
 }

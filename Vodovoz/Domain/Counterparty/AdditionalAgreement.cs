@@ -170,6 +170,12 @@ namespace Vodovoz.Domain
 			}
 		}
 
+		public virtual DateTime EndDate{
+			get{
+				return base.StartDate.AddDays(RentDays);
+			}
+		}
+
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))

@@ -82,7 +82,7 @@ namespace Vodovoz.Repository
 				.Where (() => nomenclatureAlias.Id == nomenclature.Id);
 		}
 
-		public static QueryOver<Equipment> GetEquipmentAtDeliveryPoint(Counterparty client, DeliveryPoint deliveryPoint)
+		public static QueryOver<Equipment> GetEquipmentAtDeliveryPointQuery(Counterparty client, DeliveryPoint deliveryPoint)
 		{
 			Equipment equipmentAlias=null;
 			CounterpartyMovementOperation operationAlias = null;
@@ -92,11 +92,29 @@ namespace Vodovoz.Repository
 				.Where (() => operationAlias.Id < subsequentOperationAlias.Id && operationAlias.Equipment == subsequentOperationAlias.Equipment)
 				.Select (op=>op.Id);
 			
-			var availableEquipmentIDsSubquery = QueryOver.Of<CounterpartyMovementOperation> (() => operationAlias)
+			var availableEquipmentIDsSubquery = QueryOver.Of<CounterpartyMovementOperation>(() => operationAlias)
 				.WithSubquery.WhereNotExists(subsequentOperationsSubquery)
-				.Where (() => operationAlias.IncomingCounterparty.Id == client.Id)
-				.Where (() => operationAlias.IncomingDeliveryPoint.Id == deliveryPoint.Id).Select(op=>op.Equipment.Id);
+				.Where (() => operationAlias.IncomingCounterparty.Id == client.Id);
+			if (deliveryPoint != null)
+				availableEquipmentIDsSubquery
+					.Where(() => operationAlias.IncomingDeliveryPoint.Id == deliveryPoint.Id);
+			availableEquipmentIDsSubquery
+				.Select(op=>op.Equipment.Id);
 			return QueryOver.Of<Equipment> (() => equipmentAlias).WithSubquery.WhereProperty (() => equipmentAlias.Id).In (availableEquipmentIDsSubquery);
+		}
+
+		public static IList<Equipment> GetEquipmentAtDeliveryPoint(IUnitOfWork uow, DeliveryPoint deliveryPoint)
+		{
+			return GetEquipmentAtDeliveryPointQuery(deliveryPoint.Counterparty, deliveryPoint)
+				.GetExecutableQueryOver(uow.Session)
+				.List();
+		}
+
+		public static IList<Equipment> GetEquipmentForClient(IUnitOfWork uow, Counterparty counterparty)
+		{
+			return GetEquipmentAtDeliveryPointQuery(counterparty, null)
+				.GetExecutableQueryOver(uow.Session)
+				.List();
 		}
 
 		public static IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, Warehouse warehouse, RouteList routeList){

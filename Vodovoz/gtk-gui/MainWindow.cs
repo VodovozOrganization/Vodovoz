@@ -117,6 +117,8 @@ public partial class MainWindow
 	
 	private global::Gtk.Action Action15;
 	
+	private global::Gtk.HBox hbox1;
+	
 	private global::Gtk.VBox vbox1;
 	
 	private global::Gtk.MenuBar menubarMain;
@@ -132,6 +134,8 @@ public partial class MainWindow
 	private global::Gtk.Label labelUser;
 	
 	private global::Gtk.Label labelStatus;
+	
+	private global::Vodovoz.Panel.InfoPanel infopanel;
 
 	protected virtual void Build ()
 	{
@@ -186,7 +190,7 @@ public partial class MainWindow
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString ("Отчеты");
 		w1.Add (this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction ("ActionArchive", global::Mono.Unix.Catalog.GetString ("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionReports.Group;
+		this.ActionArchive.Group = this.ActionServices.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString ("Архив");
 		w1.Add (this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action ("ActionOrg", global::Mono.Unix.Catalog.GetString ("Организации"), null, null);
@@ -321,7 +325,12 @@ public partial class MainWindow
 		this.Title = global::Mono.Unix.Catalog.GetString ("MainWindow");
 		this.WindowPosition = ((global::Gtk.WindowPosition)(1));
 		// Container child MainWindow.Gtk.Container+ContainerChild
+		this.hbox1 = new global::Gtk.HBox ();
+		this.hbox1.Name = "hbox1";
+		this.hbox1.Spacing = 6;
+		// Container child hbox1.Gtk.Box+BoxChild
 		this.vbox1 = new global::Gtk.VBox ();
+		this.vbox1.Name = "vbox1";
 		this.vbox1.Spacing = 6;
 		// Container child vbox1.Gtk.Box+BoxChild
 		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='ActionBaseMenu' action='ActionBaseMenu'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='ActionParameters' action='ActionParameters'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action' action='Action'><menu name='ActionOrgMenu' action='ActionOrgMenu'><menuitem name='ActionOrg' action='ActionOrg'/><separator/><menuitem name='ActionEmploey' action='ActionEmploey'/><menuitem name='ActionNationality' action='ActionNationality'/><menuitem name='ActionWarehouses' action='ActionWarehouses'/><separator/><menuitem name='ActionPhoneTypes' action='ActionPhoneTypes'/><menuitem name='ActionEMailTypes' action='ActionEMailTypes'/></menu><menu name='ActionTMC' action='ActionTMC'><menuitem name='ActionNomenclature' action='ActionNomenclature'/><menuitem name='ActionUnits' action='ActionUnits'/><menuitem name='ActionEquipment' action='ActionEquipment'/><separator/><menuitem name='ActionEquipmentTypes' action='ActionEquipmentTypes'/><menuitem name='ActionManufacturers' action='ActionManufacturers'/><menuitem name='ActionColors' action='ActionColors'/><separator/><menuitem name='ActionProductSpecification' action='ActionProductSpecification'/><menuitem name='ActionCullingCategory' action='ActionCullingCategory'/><separator/><menuitem name='ActionFreeRentPackage' action='ActionFreeRentPackage'/><menuitem name='ActionPaidRentPackage' action='ActionPaidRentPackage'/></menu><menu name='ActionBanksMenu' action='ActionBanksMenu'><menuitem name='ActionBanksRF' action='ActionBanksRF'/><separator/><menuitem name='ActionUpdateBanks' action='ActionUpdateBanks'/></menu><menu name='Action13' action='Action13'><menuitem name='Action14' action='Action14'/><menuitem name='Action15' action='Action15'/></menu><menu name='ActionCounterparty1' action='ActionCounterparty1'><menuitem name='ActionCounterpartyHandbook' action='ActionCounterpartyHandbook'/><separator/><menuitem name='ActionSignificance' action='ActionSignificance'/><menuitem name='ActionStatus' action='ActionStatus'/><menuitem name='ActionCounterpartyPost' action='ActionCounterpartyPost'/><separator/><menuitem name='ActionLoad1c' action='ActionLoad1c'/></menu><menu name='ActionMenuLogistic' action='ActionMenuLogistic'><menuitem name='ActionDeliverySchedule' action='ActionDeliverySchedule'/><menuitem name='ActionLogisticsArea' action='ActionLogisticsArea'/><menuitem name='ActionDeliveryShift' action='ActionDeliveryShift'/><separator/><menuitem name='ActionCar' action='ActionCar'/><menuitem name='ActionFuelType' action='ActionFuelType'/><separator/><menuitem name='ActionRouteColumns' action='ActionRouteColumns'/></menu><menu name='Action12' action='Action12'><menuitem name='ActionCommentTemplates' action='ActionCommentTemplates'/></menu></menu><menu name='ActionAbout' action='ActionAbout'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
@@ -391,11 +400,23 @@ public partial class MainWindow
 		w8.Position = 4;
 		w8.Expand = false;
 		w8.Fill = false;
-		this.Add (this.vbox1);
+		this.hbox1.Add (this.vbox1);
+		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vbox1]));
+		w9.Position = 0;
+		// Container child hbox1.Gtk.Box+BoxChild
+		this.infopanel = new global::Vodovoz.Panel.InfoPanel ();
+		this.infopanel.Events = ((global::Gdk.EventMask)(256));
+		this.infopanel.Name = "infopanel";
+		this.hbox1.Add (this.infopanel);
+		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.infopanel]));
+		w10.Position = 1;
+		w10.Expand = false;
+		w10.Fill = false;
+		this.Add (this.hbox1);
 		if ((this.Child != null)) {
 			this.Child.ShowAll ();
 		}
-		this.DefaultWidth = 862;
+		this.DefaultWidth = 950;
 		this.DefaultHeight = 530;
 		this.Show ();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler (this.OnDeleteEvent);
@@ -442,5 +463,8 @@ public partial class MainWindow
 		this.ActionParameters.Activated += new global::System.EventHandler (this.OnActionParametersActivated);
 		this.Action14.Activated += new global::System.EventHandler (this.OnAction14Activated);
 		this.Action15.Activated += new global::System.EventHandler (this.OnAction15Activated);
+		this.tdiMain.TabAdded += new global::System.EventHandler<QSTDI.TabAddedEventArgs> (this.OnTdiMainTabAdded);
+		this.tdiMain.TabSwitched += new global::System.EventHandler<QSTDI.TabSwitchedEventArgs> (this.OnTdiMainTabSwitched);
+		this.tdiMain.TabClosed += new global::System.EventHandler<QSTDI.TabClosedEventArgs> (this.OnTdiMainTabClosed);
 	}
 }

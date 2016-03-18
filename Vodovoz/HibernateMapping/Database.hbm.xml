@@ -56,7 +56,8 @@
 		<discriminator column="type" type="String"/>
 		<property name="AgreementNumber" column="number" />
 		<property name="StartDate" column="start_date" />
-		<property name="IssueDate" column="issue_date" /> 
+		<property name="IssueDate" column="issue_date" />
+		<property name="IsCancelled" column="is_cancelled" />
 		<many-to-one name="Contract" class="CounterpartyContract" column="counterparty_contract_id" />
 		<many-to-one name="DeliveryPoint" class="DeliveryPoint" column="delivery_point_id" />
 		<subclass name="NonfreeRentAgreement" discriminator-value="NonfreeRent">
