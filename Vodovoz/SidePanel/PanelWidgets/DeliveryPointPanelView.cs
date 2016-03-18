@@ -27,6 +27,8 @@ namespace Vodovoz.Panel
 		public void Refresh()
 		{
 			DeliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
+			if (DeliveryPoint == null)
+				return;			
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 			var bottlesAtDeliveryPoint = DeliveryPointRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelBottles.Text = bottlesAtDeliveryPoint.ToString()+" шт.";

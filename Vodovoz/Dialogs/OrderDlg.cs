@@ -16,13 +16,44 @@ using QSSupportLib;
 using Gamma.GtkWidgets;
 using Vodovoz.Domain.Orders.Documents;
 using Gamma.Utilities;
+using Vodovoz.Panel;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class OrderDlg : OrmGtkDialogBase<Order>
+	public partial class OrderDlg : OrmGtkDialogBase<Order>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		public PanelViewType[] InfoWidgets
+		{
+			get
+			{
+				return new[]{
+					PanelViewType.CounterpartyView, 
+					PanelViewType.DeliveryPointView, 
+					PanelViewType.AdditionalAgreementPanelView 
+				};
+			}
+		}
+
+		public Counterparty Counterparty
+		{
+			get
+			{
+				return referenceClient.Subject as Counterparty;
+			}
+		}
+
+		public DeliveryPoint DeliveryPoint
+		{
+			get
+			{
+				return referenceDeliveryPoint.Subject as DeliveryPoint;
+			}
+		}
 
 		public OrderDlg ()
 		{
@@ -302,6 +333,8 @@ namespace Vodovoz
 
 		protected void OnReferenceClientChanged (object sender, EventArgs e)
 		{
+			if (CurrentObjectChanged != null)
+				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceClient.Subject));
 			if (UoWGeneric.Root.Client != null) {
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
@@ -753,6 +786,8 @@ namespace Vodovoz
 
 		protected void OnReferenceDeliveryPointChanged (object sender, EventArgs e)
 		{
+			if (CurrentObjectChanged != null)
+				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
 			UpdateProxyInfo ();
 		}
 

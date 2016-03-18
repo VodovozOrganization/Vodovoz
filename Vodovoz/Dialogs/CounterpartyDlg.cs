@@ -9,13 +9,35 @@ using QSValidation;
 using Vodovoz.Domain;
 using QSBanks;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Panel;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class CounterpartyDlg : OrmGtkDialogBase<Counterparty>
+	public partial class CounterpartyDlg : OrmGtkDialogBase<Counterparty>, ICounterpartyInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
+
+		public PanelViewType[] InfoWidgets
+		{
+			get
+			{
+				return new[]
+				{
+					PanelViewType.CounterpartyView,
+				};
+			}
+		}
+
+		public Counterparty Counterparty
+		{
+			get
+			{
+				return UoWGeneric.Root;
+			}
+		}
 
 		public CounterpartyDlg ()
 		{

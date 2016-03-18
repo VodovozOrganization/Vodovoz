@@ -28,6 +28,8 @@ namespace Vodovoz.Panel
 
 		public void Refresh()
 		{
+			if (DeliveryPoint == null)
+				return;
 			var allEquipmentAtDeliveryPoint = EquipmentRepository.GetEquipmentAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelEquipmentCount.Text = allEquipmentAtDeliveryPoint.Count + " шт.";
 			var nextServiceText = "";		

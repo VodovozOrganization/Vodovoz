@@ -46,7 +46,8 @@ namespace Vodovoz.Panel
 		public void Refresh()
 		{
 			Counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
-			Console.WriteLine($"CounterpartyPanelView #{this.GetHashCode()} refreshed");
+			if (Counterparty == null)
+				return;
 			labelName.Text = Counterparty.FullName;
 			labelAddress.Text = Counterparty.Address;
 			textviewComment.Buffer.Text = Counterparty.Comment;

@@ -83,6 +83,7 @@ namespace Vodovoz.Panel
 					.ToList();
 				views.ForEach(v => v.Unpinned += OnContainerUnpinned);
 				views.ForEach(v => v.InfoProvider = provider);
+				views.ForEach(v => (v.Widget as IPanelView)?.Refresh());
 				providerToViewMap.Add(provider, views);
 			}
 
