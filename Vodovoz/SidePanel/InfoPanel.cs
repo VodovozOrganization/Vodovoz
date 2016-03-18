@@ -120,6 +120,7 @@ namespace Vodovoz.Panel
 					content.Remove(view);
 					view.Dispose();
 				}
+				providerToViewMap.Remove(provider);
 			}
 		}
 	}
