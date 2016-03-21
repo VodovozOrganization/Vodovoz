@@ -80,6 +80,8 @@ public partial class MainWindow: Gtk.Window
 		var currentTab = args.Tab;
 		if (currentTab is IInfoProvider)
 			infopanel.SetInfoProvider(currentTab as IInfoProvider);
+		else
+			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
 
 	void HandleKeyReleaseEvent (object o, KeyReleaseEventArgs args)

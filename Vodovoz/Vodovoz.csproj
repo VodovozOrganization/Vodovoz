@@ -501,6 +501,7 @@
     <Compile Include="SidePanel\PanelWidgets\AdditionalAgreementPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Panel.AdditionalAgreementPanelView.cs" />
     <Compile Include="Repositories\AdditionalAgreementRepository.cs" />
+    <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

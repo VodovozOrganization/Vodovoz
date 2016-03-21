@@ -75,6 +75,8 @@ namespace Vodovoz.Panel
 
 		public void SetInfoProvider(IInfoProvider provider)
 		{
+			if (this.currentInfoProvider == provider)
+				return;
 			this.currentInfoProvider = provider;
 			if (!providerToViewMap.ContainsKey(provider))
 			{
