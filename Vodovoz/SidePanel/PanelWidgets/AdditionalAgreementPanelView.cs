@@ -28,6 +28,7 @@ namespace Vodovoz.Panel
 
 		public void Refresh()
 		{
+			DeliveryPoint = (InfoProvider as IDeliveryPointInfoProvider)?.DeliveryPoint;
 			if (DeliveryPoint == null)
 				return;
 			var allEquipmentAtDeliveryPoint = EquipmentRepository.GetEquipmentAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
@@ -80,7 +81,6 @@ namespace Vodovoz.Panel
 			var deliveryPoint = changedObject as DeliveryPoint;
 			if (deliveryPoint!=null)
 			{
-				DeliveryPoint = deliveryPoint;
 				Refresh();
 			}
 		}
