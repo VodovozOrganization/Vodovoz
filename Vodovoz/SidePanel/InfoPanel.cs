@@ -42,18 +42,20 @@ namespace Vodovoz.Panel
 		{
 			var provider = sender as IInfoProvider;
 			var views = GetListeners(provider);
-			foreach (var view in views)
+			foreach (var viewContainer in views)
 			{
-				view.OnCurrentObjectChanged(args.ChangedObject);
+				(viewContainer.Widget as IPanelView)?.OnCurrentObjectChanged(args.ChangedObject);
+				viewContainer.Visible = viewContainer.VisibleOnPanel;
 			}
+			UpdatePanelVisibility();
 		}
 
-		protected IEnumerable<IPanelView> GetListeners(IInfoProvider provider)
+		protected IEnumerable<PanelViewContainer> GetListeners(IInfoProvider provider)
 		{
 			List<PanelViewContainer> views;
 			if (!providerToViewMap.TryGetValue(provider, out views))
-				return Enumerable.Empty<IPanelView>();
-			return views.Where(c => !c.Pinned).Select(c => c.Widget).OfType<IPanelView>();
+				return Enumerable.Empty<PanelViewContainer>();
+			return views.Where(c => !c.Pinned);
 		}
 
 		protected void OnContainerUnpinned(object sender, EventArgs args)
@@ -74,6 +76,7 @@ namespace Vodovoz.Panel
 					container.Visible = container.VisibleOnPanel;
 				}
 			}
+			UpdatePanelVisibility();
 		}
 
 		public void SetInfoProvider(IInfoProvider provider)
@@ -109,7 +112,7 @@ namespace Vodovoz.Panel
 					viewContainer.Visible = viewContainer.VisibleOnPanel;
 				}
 			}
-			rightsidepanel1.IsHided = content.Children.OfType<PanelViewContainer>().All(c => !c.VisibleOnPanel);
+			UpdatePanelVisibility();
 		}
 
 		public void OnInfoProviderDisposed(IInfoProvider provider)
@@ -128,6 +131,12 @@ namespace Vodovoz.Panel
 				}
 				providerToViewMap.Remove(provider);
 			}
+		}
+
+		protected void UpdatePanelVisibility()
+		{
+			var currentViews = content.Children.OfType<PanelViewContainer>();
+			rightsidepanel1.IsHided = !currentViews.Any() || currentViews.All(c => !c.VisibleOnPanel);
 		}
 	}
 }
