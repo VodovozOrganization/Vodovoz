@@ -26,9 +26,8 @@ namespace Vodovoz.Panel
 		}
 
 		void Configure()
-		{			
+		{
 			labelName.LineWrapMode = Pango.WrapMode.WordChar;
-			labelAddress.LineWrapMode = Pango.WrapMode.WordChar;
 			labelLatestOrderDate.LineWrapMode = Pango.WrapMode.WordChar;
 			ytreeCurrentOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
 				.AddColumn("Номер")
@@ -49,7 +48,6 @@ namespace Vodovoz.Panel
 			if (Counterparty == null)
 				return;
 			labelName.Text = Counterparty.FullName;
-			labelAddress.Text = Counterparty.Address;
 			textviewComment.Buffer.Text = Counterparty.Comment;
 			var debt = MoneyRepository.GetCounterpartyDebt(InfoProvider.UoW, Counterparty);
 			labelDebt.Text = CurrencyWorks.GetShortCurrencyString(debt);
@@ -71,6 +69,14 @@ namespace Vodovoz.Panel
 			var currentOrders = OrderRepository.GetCurrentOrders(InfoProvider.UoW, Counterparty);
 			ytreeCurrentOrders.SetItemsSource<Order>(currentOrders);
 			vboxCurrentOrders.Visible = currentOrders.Count > 0;
+		}
+
+		public bool VisibleOnPanel
+		{
+			get
+			{
+				return Counterparty != null;
+			}
 		}
 			
 		public void OnCurrentObjectChanged(object changedObject)

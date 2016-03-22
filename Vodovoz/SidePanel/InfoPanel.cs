@@ -68,8 +68,11 @@ namespace Vodovoz.Panel
 			else
 			{
 				var maybePanelView = container.Widget as IPanelView;
-				if(maybePanelView!=null)
+				if (maybePanelView != null)
+				{
 					maybePanelView.Refresh();
+					container.Visible = container.VisibleOnPanel;
+				}
 			}
 		}
 
@@ -96,16 +99,17 @@ namespace Vodovoz.Panel
 			List<PanelViewContainer> newViews;
 			if (!providerToViewMap.TryGetValue(provider,out newViews))
 				return;
-			foreach (var view in newViews)
+			foreach (var viewContainer in newViews)
 			{
-				bool alreadyOnPanel = view.Pinned;
+				bool alreadyOnPanel = viewContainer.Pinned;
 				if (!alreadyOnPanel)
 				{
-					content.Add(view);
-					content.SetChildPacking(view, false, false, 0, PackType.Start);
-					view.Show();
+					content.Add(viewContainer);
+					content.SetChildPacking(viewContainer, false, false, 0, PackType.Start);
+					viewContainer.Visible = viewContainer.VisibleOnPanel;
 				}
 			}
+			rightsidepanel1.IsHided = content.Children.OfType<PanelViewContainer>().All(c => !c.VisibleOnPanel);
 		}
 
 		public void OnInfoProviderDisposed(IInfoProvider provider)

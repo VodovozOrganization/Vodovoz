@@ -22,23 +22,23 @@ namespace Vodovoz.Panel
 		
 		private global::Gamma.GtkWidgets.yTreeView ytreeCurrentOrders;
 		
+		private global::Gtk.HBox hbox2;
+		
+		private global::Gtk.Label label6;
+		
+		private global::Gtk.Label labelLatestOrderDate;
+		
+		private global::Gtk.Label label4;
+		
 		private global::Gtk.Table table1;
 		
 		private global::Gtk.Label label3;
 		
-		private global::Gtk.Label label4;
-		
-		private global::Vodovoz.WrapLabel labelAddress;
-		
 		private global::Vodovoz.WrapLabel labelDebt;
-		
-		private global::Vodovoz.WrapLabel labelLatestOrderDate;
 		
 		private global::Vodovoz.WrapLabel labelName;
 		
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
-		
-		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
 		protected virtual void Build ()
 		{
@@ -48,7 +48,6 @@ namespace Vodovoz.Panel
 			this.Name = "Vodovoz.Panel.CounterpartyPanelView";
 			// Container child Vodovoz.Panel.CounterpartyPanelView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label ();
@@ -122,44 +121,61 @@ namespace Vodovoz.Panel
 			w8.PackType = ((global::Gtk.PackType)(1));
 			w8.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table (((uint)(4)), ((uint)(2)), false);
+			this.hbox2 = new global::Gtk.HBox ();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.label6 = new global::Gtk.Label ();
+			this.label6.Name = "label6";
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
+			this.hbox2.Add (this.label6);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.label6]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child hbox2.Gtk.Box+BoxChild
+			this.labelLatestOrderDate = new global::Gtk.Label ();
+			this.labelLatestOrderDate.Name = "labelLatestOrderDate";
+			this.labelLatestOrderDate.LabelProp = global::Mono.Unix.Catalog.GetString ("label2");
+			this.hbox2.Add (this.labelLatestOrderDate);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.labelLatestOrderDate]));
+			w10.Position = 1;
+			w10.Expand = false;
+			w10.Fill = false;
+			this.vbox1.Add (this.hbox2);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			w11.PackType = ((global::Gtk.PackType)(1));
+			w11.Position = 4;
+			w11.Expand = false;
+			w11.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.label4 = new global::Gtk.Label ();
+			this.label4.Name = "label4";
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Последний заказ:</b>");
+			this.label4.UseMarkup = true;
+			this.label4.Wrap = true;
+			this.label4.Justify = ((global::Gtk.Justification)(1));
+			this.vbox1.Add (this.label4);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label4]));
+			w12.PackType = ((global::Gtk.PackType)(1));
+			w12.Position = 5;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.table1 = new global::Gtk.Table (((uint)(2)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label ();
 			this.label3.Name = "label3";
+			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("ФИО:");
 			this.label3.UseMarkup = true;
 			this.table1.Add (this.label3);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1 [this.label3]));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.label4 = new global::Gtk.Label ();
-			this.label4.Name = "label4";
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Адрес:");
-			this.label4.Wrap = true;
-			this.table1.Add (this.label4);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1 [this.label4]));
-			w10.TopAttach = ((uint)(1));
-			w10.BottomAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelAddress = new global::Vodovoz.WrapLabel ();
-			this.labelAddress.Name = "labelAddress";
-			this.labelAddress.Xalign = 0F;
-			this.labelAddress.Yalign = 0F;
-			this.labelAddress.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel2");
-			this.labelAddress.Wrap = true;
-			this.table1.Add (this.labelAddress);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelAddress]));
-			w11.TopAttach = ((uint)(1));
-			w11.BottomAttach = ((uint)(2));
-			w11.LeftAttach = ((uint)(1));
-			w11.RightAttach = ((uint)(2));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1 [this.label3]));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelDebt = new global::Vodovoz.WrapLabel ();
 			this.labelDebt.Name = "labelDebt";
@@ -168,27 +184,12 @@ namespace Vodovoz.Panel
 			this.labelDebt.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel3");
 			this.labelDebt.Wrap = true;
 			this.table1.Add (this.labelDebt);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelDebt]));
-			w12.TopAttach = ((uint)(2));
-			w12.BottomAttach = ((uint)(3));
-			w12.LeftAttach = ((uint)(1));
-			w12.RightAttach = ((uint)(2));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelLatestOrderDate = new global::Vodovoz.WrapLabel ();
-			this.labelLatestOrderDate.Name = "labelLatestOrderDate";
-			this.labelLatestOrderDate.Xalign = 0F;
-			this.labelLatestOrderDate.Yalign = 0F;
-			this.labelLatestOrderDate.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel4");
-			this.labelLatestOrderDate.Wrap = true;
-			this.table1.Add (this.labelLatestOrderDate);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelLatestOrderDate]));
-			w13.TopAttach = ((uint)(3));
-			w13.BottomAttach = ((uint)(4));
-			w13.LeftAttach = ((uint)(1));
-			w13.RightAttach = ((uint)(2));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelDebt]));
+			w14.TopAttach = ((uint)(1));
+			w14.BottomAttach = ((uint)(2));
+			w14.LeftAttach = ((uint)(1));
+			w14.RightAttach = ((uint)(2));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelName = new global::Vodovoz.WrapLabel ();
 			this.labelName.Name = "labelName";
@@ -197,37 +198,24 @@ namespace Vodovoz.Panel
 			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel1");
 			this.labelName.Wrap = true;
 			this.table1.Add (this.labelName);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelName]));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelName]));
+			w15.LeftAttach = ((uint)(1));
+			w15.RightAttach = ((uint)(2));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel ();
 			this.ylabel1.Name = "ylabel1";
 			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("Баланс:");
 			this.table1.Add (this.ylabel1);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1 [this.ylabel1]));
-			w15.TopAttach = ((uint)(2));
-			w15.BottomAttach = ((uint)(3));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel ();
-			this.ylabel2.WidthRequest = 80;
-			this.ylabel2.Name = "ylabel2";
-			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString ("Последний заказ:");
-			this.ylabel2.Wrap = true;
-			this.ylabel2.Justify = ((global::Gtk.Justification)(2));
-			this.table1.Add (this.ylabel2);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.ylabel2]));
-			w16.TopAttach = ((uint)(3));
-			w16.BottomAttach = ((uint)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.ylabel1]));
+			w16.TopAttach = ((uint)(1));
+			w16.BottomAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.table1);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.table1]));
 			w17.PackType = ((global::Gtk.PackType)(1));
-			w17.Position = 4;
+			w17.Position = 6;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

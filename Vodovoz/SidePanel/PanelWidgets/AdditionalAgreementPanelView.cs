@@ -76,6 +76,14 @@ namespace Vodovoz.Panel
 			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
 		}
 
+		public bool VisibleOnPanel
+		{
+			get
+			{
+				return DeliveryPoint != null;
+			}
+		}
+
 		public void OnCurrentObjectChanged(object changedObject)
 		{			
 			var deliveryPoint = changedObject as DeliveryPoint;

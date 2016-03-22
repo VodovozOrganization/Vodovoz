@@ -48,6 +48,13 @@ namespace Vodovoz.Panel
 			return InfoProvider==null;
 		}
 
+		public bool VisibleOnPanel
+		{
+			get
+			{
+				return (this.Widget as IPanelView)?.VisibleOnPanel ?? true;
+			}
+		}
 		protected override void OnShown()
 		{
 			base.OnShown();

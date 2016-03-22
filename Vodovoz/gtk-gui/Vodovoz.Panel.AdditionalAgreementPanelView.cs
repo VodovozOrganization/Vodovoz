@@ -36,12 +36,11 @@ namespace Vodovoz.Panel
 			this.Name = "Vodovoz.Panel.AdditionalAgreementPanelView";
 			// Container child Vodovoz.Panel.AdditionalAgreementPanelView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label4 = new global::Gtk.Label ();
 			this.label4.Name = "label4";
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("<b><u>Допсоглашение</u></b>");
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("<b><u>Допсоглашения</u></b>");
 			this.label4.UseMarkup = true;
 			this.vbox1.Add (this.label4);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label4]));

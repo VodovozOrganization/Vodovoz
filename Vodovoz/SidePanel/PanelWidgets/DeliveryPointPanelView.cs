@@ -37,6 +37,14 @@ namespace Vodovoz.Panel
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 		}
 
+		public bool VisibleOnPanel
+		{
+			get
+			{
+				return DeliveryPoint != null;
+			}
+		}
+
 		public void OnCurrentObjectChanged(object changedObject)
 		{
 			var deliveryPoint = changedObject as DeliveryPoint;
