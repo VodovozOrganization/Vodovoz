@@ -136,7 +136,8 @@ namespace Vodovoz.Panel
 		protected void UpdatePanelVisibility()
 		{
 			var currentViews = content.Children.OfType<PanelViewContainer>();
-			rightsidepanel1.IsHided = !currentViews.Any() || currentViews.All(c => !c.VisibleOnPanel);
+			if(!(rightsidepanel1.IsHided && rightsidepanel1.ClosedByUser))
+				rightsidepanel1.IsHided = !currentViews.Any() || currentViews.All(c => !c.VisibleOnPanel);
 		}
 	}
 }
