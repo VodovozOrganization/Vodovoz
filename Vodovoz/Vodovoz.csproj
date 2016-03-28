@@ -502,6 +502,8 @@
     <Compile Include="gtk-gui\Vodovoz.Panel.AdditionalAgreementPanelView.cs" />
     <Compile Include="Repositories\AdditionalAgreementRepository.cs" />
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
+    <Compile Include="ReportsParameters\Revision.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -739,6 +741,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\CarUnloadDoc.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Cash\Revision.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
