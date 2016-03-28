@@ -682,7 +682,10 @@ namespace Vodovoz
 				{
 					if (item.Nomenclature.Category == NomenclatureCategory.equipment && item.Nomenclature.Serial)
 					{
-						int[] alreadyAdded = UoWGeneric.Root.OrderEquipments.Select(orderEquipment => orderEquipment.Equipment.Id).ToArray();
+						int[] alreadyAdded = UoWGeneric.Root.OrderEquipments
+							.Where(orderEquipment => orderEquipment.Direction==Vodovoz.Domain.Orders.Direction.Deliver)
+							.Where(orderEquipment => orderEquipment.Equipment!=null)
+							.Select(orderEquipment => orderEquipment.Equipment.Id).ToArray();
 						int equipmentCount = UoWGeneric.Root.OrderEquipments.Count(orderEquipment => orderEquipment?.Equipment?.Nomenclature?.Id == item.Nomenclature.Id);
 						int equipmentToAddCount = item.Count - equipmentCount;
 						var equipmentToAdd = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, item.Nomenclature, equipmentToAddCount, alreadyAdded);
