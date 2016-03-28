@@ -384,10 +384,8 @@ namespace Vodovoz
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
 			if (!String.IsNullOrWhiteSpace (textComment.Buffer.Text) || MessageDialogWorks.RunQuestionDialog ("Вы не заполнили комментарий. Продолжить?")) {
-
-				var active = enumStatusEditable.Active;
-				var status = (active == -1) ? UoWGeneric.Root.Status : (ServiceClaimStatus)active;
-				UoWGeneric.Root.AddHistoryRecord (status, textComment.Buffer.Text);
+				ServiceClaimStatus newStatus = (ServiceClaimStatus)(enumStatusEditable.SelectedItem ?? UoWGeneric.Root.Status);
+				UoWGeneric.Root.AddHistoryRecord (newStatus, textComment.Buffer.Text);
 			}
 		}
 
