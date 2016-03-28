@@ -21,6 +21,7 @@ public partial class MainWindow : Window
 	Action ActionAccountableDebt;
 	Action ActionUnclosedAdvances;
 	Action ActionCashFlow;
+	Action ActionRevision;
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
@@ -50,6 +51,7 @@ public partial class MainWindow : Window
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
 		ActionUnclosedAdvances = new Action ("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
 		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
+		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionAccountingTable = new Action ("ActionAccountingTable", "Операции по счету", null, "table");
@@ -73,6 +75,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionUnclosedAdvances, null);
 		w1.Add (ActionCashFlow, null);
+		w1.Add (ActionRevision, null);
 		w1.Add (ActionTransferBankDocs, null);
 		w1.Add (ActionAccountingTable, null);
 		w1.Add (ActionAccountFlow, null);
@@ -95,6 +98,7 @@ public partial class MainWindow : Window
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
+		ActionRevision.Activated += ActionRevision_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
@@ -122,6 +126,12 @@ public partial class MainWindow : Window
 	void ActionCashFlow_Activated (object sender, System.EventArgs e)
 	{
 		var report = new QSReport.ReportViewDlg (new Vodovoz.Reports.CashFlow ());
+		tdiMain.AddTab (report);
+	}
+
+	void ActionRevision_Activated(object sender, System.EventArgs e)
+	{
+		var report = new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision());
 		tdiMain.AddTab (report);
 	}
 
