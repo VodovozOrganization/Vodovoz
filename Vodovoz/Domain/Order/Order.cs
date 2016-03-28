@@ -534,36 +534,32 @@ namespace Vodovoz.Domain.Orders
 
 		public void RecalcBottlesDeposits (IUnitOfWork uow)
 		{
-			if (Client.PersonType == PersonType.legal)
-				return;
-			var waterItemsCount = ObservableOrderItems.Select (item => item)
-				.Where (item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.Sum (item => item.Count);
-			
+			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount();
+
 			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == NomenclatureRepository.GetBottleDeposit (uow).Id);
 			var depositRefundItem = ObservableOrderDepositItems.FirstOrDefault (item => item.DepositType == DepositType.Bottles);
 
 			//Надо создать услугу залога
-			if (BottlesReturn < waterItemsCount) {
+			if (expectedBottleDepositsCount>0) {
 				if (depositRefundItem != null) {
-					depositRefundItem.Count = waterItemsCount - BottlesReturn;
+					depositRefundItem.Count = expectedBottleDepositsCount;
 					depositRefundItem.PaymentDirection = PaymentDirection.FromClient;
 				}
 				if (depositPaymentItem != null)
-					depositPaymentItem.Count = waterItemsCount - BottlesReturn;
+					depositPaymentItem.Count = expectedBottleDepositsCount;
 				else {
 					ObservableOrderItems.Add (new OrderItem {
 						Order = this,
 						AdditionalAgreement = null,
-						Count = waterItemsCount - BottlesReturn,
+						Count = expectedBottleDepositsCount,
 						Equipment = null,
 						Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
-						Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (waterItemsCount - BottlesReturn)
+						Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount)
 					});
 					ObservableOrderDepositItems.Add (new OrderDepositItem {
 						Order = this,
-						Count = waterItemsCount - BottlesReturn,
-						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (waterItemsCount - BottlesReturn),
+						Count = expectedBottleDepositsCount,
+						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount),
 						DepositOperation = null,
 						DepositType = DepositType.Bottles,
 						FreeRentItem = null,
@@ -573,32 +569,44 @@ namespace Vodovoz.Domain.Orders
 				}
 				return;
 			}
-			if (BottlesReturn == waterItemsCount) {
+			if (expectedBottleDepositsCount==0) {
 				if (depositRefundItem != null)
 					ObservableOrderDepositItems.Remove (depositRefundItem);
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
 				return;
 			}
-			if (BottlesReturn > waterItemsCount) {
+			if (expectedBottleDepositsCount<0) {
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
 				if (depositRefundItem != null) {
-					depositRefundItem.Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount);
-					depositRefundItem.Count = BottlesReturn - waterItemsCount;
+					depositRefundItem.Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount);
+					depositRefundItem.Count = -expectedBottleDepositsCount;
 				} else
 					ObservableOrderDepositItems.Add (new OrderDepositItem {
 						Order = this,
 						DepositOperation = null,
 						DepositType = DepositType.Bottles,
-						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (BottlesReturn - waterItemsCount),
+						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount),
 						PaidRentItem = null,
 						FreeRentItem = null,
 						PaymentDirection = PaymentDirection.ToClient,
-						Count = BottlesReturn - waterItemsCount
+						Count = -expectedBottleDepositsCount
 					});
 				return;
 			}
+		}
+
+		public int GetExpectedBottlesDepositsCount()
+		{
+			if (Client.PersonType == PersonType.legal)
+				return 0;
+			
+			var waterItemsCount = ObservableOrderItems.Select (item => item)
+				.Where (item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum (item => item.Count);
+
+			return waterItemsCount - BottlesReturn;
 		}
 
 		public void FillItemsFromAgreement (AdditionalAgreement a)

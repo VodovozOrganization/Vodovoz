@@ -149,8 +149,9 @@ namespace Vodovoz
 				routeListItem.TotalCash = routeListItem.IsDelivered() && 
 					routeListItem.Order.PaymentType==PaymentType.cash
 					? routeListItem.Order.SumToReceive : 0;
+				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(routeListItem.Order.BottlesReturn);
 				routeListItem.DepositsCollected = routeListItem.IsDelivered()
-					? routeListItem.Order.OrderDepositItems.Sum(depositItem => depositItem.Deposit) : 0;
+					? routeListItem.Order.GetExpectedBottlesDepositsCount() * bottleDepositPrice : 0;
 				routeListItem.RecalculateWages();
 			}
 		}
