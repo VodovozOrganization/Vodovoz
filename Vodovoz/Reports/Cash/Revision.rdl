@@ -29,7 +29,7 @@ FROM
 where 
 money_movement_operations.counterparty_id=@counterparty_id
 and 
-money_movement_operations.payment_type='cash'
+money_movement_operations.payment_type='cashless'
 and
 @date_start &lt;= operation_time
 and operation_time &lt;= @date_end
@@ -71,14 +71,14 @@ order by date asc
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
 full_name
  from organizations 
 where id = (select str_value from base_parameters where name = "cashless_organization_id")</CommandText>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="org_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -135,7 +135,7 @@ FROM
 where 
 money_movement_operations.counterparty_id=@counterparty_id
 and 
-money_movement_operations.payment_type='cash'
+money_movement_operations.payment_type='cashless'
 and operation_time &lt; @date_start
 </CommandText>
         <QueryParameters>
