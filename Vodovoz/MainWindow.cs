@@ -73,6 +73,8 @@ public partial class MainWindow: Gtk.Window
 		var closedTab = args.Tab;
 		if(closedTab is IInfoProvider)
 			infopanel.OnInfoProviderDisposed(closedTab as IInfoProvider);
+		if (tdiMain.NPages == 0)
+			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
 
 	public void OnTdiMainTabSwitched(object sender, TabSwitchedEventArgs args)
@@ -80,7 +82,7 @@ public partial class MainWindow: Gtk.Window
 		var currentTab = args.Tab;
 		if (currentTab is IInfoProvider)
 			infopanel.SetInfoProvider(currentTab as IInfoProvider);
-		else
+		else			
 			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
 
