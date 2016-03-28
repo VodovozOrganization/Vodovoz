@@ -14,13 +14,16 @@ namespace Vodovoz.Panel
 		IInfoProvider infoProvider;
 		public IInfoProvider InfoProvider{ 
 			get{
-				return infoProvider;
+				return (Widget as IPanelView)?.InfoProvider ?? infoProvider;
 			}
 			set{
-				infoProvider = value;
 				var panelView = Widget as IPanelView;
-				if(panelView!=null)
-					panelView.InfoProvider=value;
+				if (panelView != null)
+					panelView.InfoProvider = value;
+				else
+				{
+					infoProvider = value;
+				}
 			}
 		}
 
