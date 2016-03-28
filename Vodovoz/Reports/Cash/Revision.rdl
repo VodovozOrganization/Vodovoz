@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Operations">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     COALESCE(orders.id,account_income.number) as num,
@@ -33,6 +33,7 @@ money_movement_operations.payment_type='cash'
 and
 @date_start &lt;= operation_time
 and operation_time &lt;= @date_end
+order by date asc
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -46,7 +47,7 @@ and operation_time &lt;= @date_end
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="num">
           <DataField>num</DataField>
           <TypeName>System.String</TypeName>
@@ -124,21 +125,18 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Initial" >
-      <Query>
+    <DataSet Name="Initial">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    IFNULL(SUM(debt) - SUM(money),0) as total
+    IFNULL(SUM(IFNULL(debt,0)) - SUM(IFNULL(money,0)),0) as total
 FROM
     money_movement_operations
-    left join 
-    orders on order_id = orders.id and money_movement_operations.debt is not null
-    left join account_income on account_income.money_movement_operation_id = money_movement_operations.id
 where 
 money_movement_operations.counterparty_id=@counterparty_id
 and 
 money_movement_operations.payment_type='cash'
-and operation_time &lt;= @date_start
+and operation_time &lt; @date_start
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
@@ -149,7 +147,7 @@ and operation_time &lt;= @date_start
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="total">
           <DataField>total</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -209,7 +207,7 @@ and operation_time &lt;= @date_start
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>87.60pt</Top>
-        <Style >
+        <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -222,8 +220,8 @@ and operation_time &lt;= @date_start
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -241,13 +239,13 @@ and operation_time &lt;= @date_start
           <TableColumn>
             <Width>77.3pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>136.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>105.1pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>75.3pt</Width>
           </TableColumn>
         </TableColumns>
@@ -272,7 +270,7 @@ and operation_time &lt;= @date_start
                       <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >4</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -284,12 +282,12 @@ and operation_time &lt;= @date_start
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >4</ColSpan>
+                  <ColSpan>4</ColSpan>
                 </TableCell>
               </TableCells>
             </TableRow>
@@ -368,7 +366,7 @@ and operation_time &lt;= @date_start
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
                       <Value>Документ</Value>
@@ -382,7 +380,7 @@ and operation_time &lt;= @date_start
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
                       <Value>Дебет</Value>
@@ -396,7 +394,7 @@ and operation_time &lt;= @date_start
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
                       <Value>Кредит</Value>
@@ -412,7 +410,7 @@ and operation_time &lt;= @date_start
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>15.2pt</Height>
               <TableCells>
                 <TableCell>
@@ -483,8 +481,8 @@ First(Fields!total,'Initial')&lt;0,
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -539,9 +537,9 @@ First(Fields!total,'Initial')&lt;0,
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <Format >dd.MM.yyyy</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -549,14 +547,14 @@ First(Fields!total,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Iif(Fields!debt.IsMissing, "Оплата", "Продажа") +"№"+ Fields!num.Value</Value>
+                      <Value>=Iif(Fields!debt.IsMissing, "Оплата", "Продажа") +" №"+ Fields!num.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -570,8 +568,8 @@ First(Fields!total,'Initial')&lt;0,
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -585,8 +583,8 @@ First(Fields!total,'Initial')&lt;0,
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -605,7 +603,7 @@ First(Fields!total,'Initial')&lt;0,
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
                       <Value>
@@ -618,7 +616,7 @@ First(Fields!total,'Initial')&lt;0,
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
                       <Value>
@@ -631,7 +629,7 @@ First(Fields!total,'Initial')&lt;0,
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
                       <Value>
@@ -646,7 +644,7 @@ First(Fields!total,'Initial')&lt;0,
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
@@ -657,9 +655,9 @@ First(Fields!total,'Initial')&lt;0,
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <Format >dd.MM.yyyy</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>dd.MM.yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -672,8 +670,8 @@ First(Fields!total,'Initial')&lt;0,
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -692,8 +690,8 @@ Fields!deposit.Value
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -712,8 +710,8 @@ Fields!deposit.Value&lt;0
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -791,13 +789,13 @@ Fields!deposit.Value&lt;0
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -808,9 +806,9 @@ Fields!deposit.Value&lt;0
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -824,9 +822,9 @@ Fields!deposit.Value&lt;0
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -840,15 +838,15 @@ Fields!deposit.Value&lt;0
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
                       <Value>
@@ -861,7 +859,7 @@ Fields!deposit.Value&lt;0
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
                       <Value>
@@ -876,7 +874,7 @@ Fields!deposit.Value&lt;0
                 </TableCell>
               </TableCells>
             </TableRow>
-            <TableRow >
+            <TableRow>
               <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
@@ -887,9 +885,9 @@ Fields!deposit.Value&lt;0
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -917,9 +915,9 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -946,9 +944,9 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -961,9 +959,9 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1002,7 +1000,7 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
         <Left>0.0pt</Left>
         <Top>144.5pt</Top>
       </Table>
-      <Textbox Name="Textbox72" >
+      <Textbox Name="Textbox72">
         <Height>14.28pt</Height>
         <Width>671.55pt</Width>
         <Value>="По данным "+ First(Fields!org_name,'Organization')</Value>
@@ -1010,7 +1008,7 @@ Sum(Iif(Fields!money.IsMissing, 0, Fields!money.Value),'Operations')
         <Left>0.00pt</Left>
         <Top>250.90pt</Top>
       </Textbox>
-      <Textbox Name="Textbox73" >
+      <Textbox Name="Textbox73">
         <Height>52.66pt</Height>
         <Width>461.47pt</Width>
         <Value>="на "+Format(CDate(Parameters!EndDate),"dd.MM.yyyy") + " задолженность в пользу"
@@ -1031,7 +1029,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
 )
 +" )"
 + "\n" +
-"в том числе "+ Sum(Iif(Fields!deposit, 0, Fields!deposit),'Operations') + " руб. залогов."</Value>
+"в том числе "+ Sum(Iif(Fields!deposit.IsMissing, 0, Fields!deposit),'Operations') + " руб. залогов."</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>267.20pt</Top>
@@ -1042,7 +1040,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
           <FontWeight>Bold</FontWeight>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox74" >
+      <Textbox Name="Textbox74">
         <Height>15.02pt</Height>
         <Width>370.43pt</Width>
         <Value>="От "+ First(Fields!org_name, 'Organization')</Value>
@@ -1055,7 +1053,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
           <BorderWidth />
         </Style>
       </Textbox>
-      <Line Name="Line1" >
+      <Line Name="Line1">
         <Height>-0.01pt</Height>
         <Width>113.70pt</Width>
         <Style>
@@ -1066,7 +1064,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Left>0.00pt</Left>
         <Top>359.20pt</Top>
       </Line>
-      <Line Name="Line2" >
+      <Line Name="Line2">
         <Height>0.02pt</Height>
         <Width>201.81pt</Width>
         <Style>
@@ -1077,7 +1075,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Left>0.80pt</Left>
         <Top>382.30pt</Top>
       </Line>
-      <Textbox Name="Textbox75" >
+      <Textbox Name="Textbox75">
         <Height>13.52pt</Height>
         <Width>177.68pt</Width>
         <Value>(____________________________)</Value>
@@ -1090,7 +1088,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox76" >
+      <Textbox Name="Textbox76">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>М.П.</Value>
@@ -1098,7 +1096,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Left>0.0pt</Left>
         <Top>390.0pt</Top>
       </Textbox>
-      <Line Name="Line3" >
+      <Line Name="Line3">
         <Height>-0.01pt</Height>
         <Width>113.70pt</Width>
         <Style>
@@ -1111,7 +1109,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Left>394.9pt</Left>
         <Top>360.3pt</Top>
       </Line>
-      <Line Name="Line4" >
+      <Line Name="Line4">
         <Height>0.02pt</Height>
         <Width>201.81pt</Width>
         <Style>
@@ -1122,7 +1120,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Left>395.7pt</Left>
         <Top>383.4pt</Top>
       </Line>
-      <Textbox Name="Textbox6" >
+      <Textbox Name="Textbox6">
         <Height>13.52pt</Height>
         <Width>177.68pt</Width>
         <Value>(____________________________)</Value>
@@ -1135,7 +1133,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox7" >
+      <Textbox Name="Textbox7">
         <Height>12pt</Height>
         <Width>1in</Width>
         <Value>М.П.</Value>
@@ -1144,7 +1142,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
         <Top>391.1pt</Top>
         <Style />
       </Textbox>
-      <Textbox Name="Textbox8" >
+      <Textbox Name="Textbox8">
         <Height>15.02pt</Height>
         <Width>370.43pt</Width>
         <Value>="От "+ First(Fields!counterparty_name,'Counterparty')</Value>
@@ -1191,7 +1189,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1227,7 +1225,7 @@ Convert.ToString(Math.Abs(First(Fields!total, 'Initial') + Sum(Iif(Fields!debt.I
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <Code >Public Function SummaString_Val(ByVal Summa As String) As String
+  <Code>Public Function SummaString_Val(ByVal Summa As String) As String
         Dim T1Str As String
         Dim T2Str As String
         Dim T3Str As String
