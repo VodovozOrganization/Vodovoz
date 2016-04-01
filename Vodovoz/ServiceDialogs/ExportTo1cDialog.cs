@@ -76,6 +76,7 @@ namespace Vodovoz
 				"Отмена",ResponseType.Cancel,
 				"Сохранить",ResponseType.Accept
 			);
+			fileChooser.CurrentName = "Выгрузка 1с на " + exportData.EndPeriodDate.ToShortDateString()+".xml";
 			var filter = new FileFilter();
 			filter.AddPattern("*.xml");
 			fileChooser.Filter = filter;
