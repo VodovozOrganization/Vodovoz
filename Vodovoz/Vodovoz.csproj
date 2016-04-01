@@ -59,6 +59,7 @@
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.3.0.0.0\lib\net40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -504,6 +505,37 @@
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Exports.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExchangeObject.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExchangeCatalogueObject.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Common1cTypes.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExchangeDocumentSale.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\PropertyValue.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\IXmlConvertable.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\DomainObjectEqualityComparer.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportData.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\PropertyNull.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Currency.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportDefaults\Warehouse1c.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\NomenclatureDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\GenericDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\CounterpartyDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\OrganizationDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\MeasurementUnitsDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\WarehouseDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\BankDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\CurrencyDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\AccountDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\References\ContractDirectory.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportComissionNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportTableRecordNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportTableNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportRulesNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportReferenceNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\ExportPropertyNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Attributes\Code1c.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\Attributes\Value1c.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1c\EnumExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -645,6 +677,10 @@
     <Folder Include="SidePanel\" />
     <Folder Include="SidePanel\PanelWidgets\" />
     <Folder Include="SidePanel\InfoProviders\" />
+    <Folder Include="ServiceDialogs\ExportTo1c\" />
+    <Folder Include="ServiceDialogs\ExportTo1c\ExportDefaults\" />
+    <Folder Include="ServiceDialogs\ExportTo1c\References\" />
+    <Folder Include="ServiceDialogs\ExportTo1c\Attributes\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

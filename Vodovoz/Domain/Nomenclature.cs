@@ -28,6 +28,13 @@ namespace Vodovoz.Domain
 			set { SetField (ref name, value, () => Name); }
 		}
 
+		string code1c;
+		[Display (Name = "Код 1с")]
+		public virtual string Code1c {
+			get { return code1c; }
+			set { SetField (ref code1c, value, () => Code1c); }
+		}
+
 		string model;
 
 		[Display (Name = "Модель оборудования")]
@@ -205,16 +212,36 @@ namespace Vodovoz.Domain
 
 	public enum NomenclatureCategory
 	{
-		[Display (Name= "Аренда")] rent,
-		[Display (Name= "Вода в многооборотной таре")] water,
-		[Display (Name= "Залог")] deposit,
-		[Display (Name= "Запчасти")] spare_parts,
-		[Display (Name= "Оборудование")] equipment,
-		[Display (Name= "Товары")] additional,
-		[Display (Name= "Услуга")] service,
-		[Display (Name= "Тара")] bottle,
-		[Display (Name= "Сырьё")] material,
-		[Display (Name= "Вода в одноразовой таре")] disposableBottleWater
+		[Display (Name= "Аренда кулеров")] 
+		[Code1c("00001301")]
+		rent,
+		[Display (Name= "Вода в многооборотной таре")] 
+		[Code1c("790070")]
+		water,
+		[Display (Name= "Залог")] 
+		[Code1c("00000312")]
+		deposit,
+		[Display (Name= "Запчасти")] 
+		[Code1c("00000939")]
+		spare_parts,
+		[Display (Name= "Оборудование")] 
+		[Code1c("00000959")]
+		equipment,
+		[Display (Name= "Товары")] 
+		[Code1c("00000310")]
+		additional,
+		[Display (Name= "Услуга")] 
+		[Code1c("00000311")]
+		service,
+		[Display (Name= "Тара")] 
+		[Code1c("00000000010")]
+		bottle,
+		[Display (Name= "Сырьё")] 
+		[Code1c("002077")]
+		material,
+		[Display (Name= "Вода в одноразовой таре")] 
+		[Code1c("0790070")]
+		disposableBottleWater
 	}
 
 	public class NomenclatureCategoryStringType : NHibernate.Type.EnumStringType
