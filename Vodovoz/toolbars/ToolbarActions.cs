@@ -2,6 +2,7 @@ using Gtk;
 using QSOrmProject;
 using Vodovoz;
 using Vodovoz.ViewModel;
+using Vodovoz.ExportTo1c;
 
 public partial class MainWindow : Window
 {
@@ -25,6 +26,7 @@ public partial class MainWindow : Window
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
+	Action ActionExportTo1c;
 
 
 	public void BuildToolbarActions ()
@@ -54,6 +56,7 @@ public partial class MainWindow : Window
 		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
+		ActionExportTo1c = new Action ("ActionExportTo1c", "Выгрузка в 1с", null, "table");
 		ActionAccountingTable = new Action ("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action ("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		#endregion
@@ -79,6 +82,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionTransferBankDocs, null);
 		w1.Add (ActionAccountingTable, null);
 		w1.Add (ActionAccountFlow, null);
+		w1.Add (ActionExportTo1c, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -102,6 +106,7 @@ public partial class MainWindow : Window
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
+		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		#endregion
 	}
 
@@ -139,6 +144,12 @@ public partial class MainWindow : Window
 	{
 		var report = new QSReport.ReportViewDlg (new Vodovoz.Reports.AccountFlow ());
 		tdiMain.AddTab (report);
+	}
+		
+	void ActionExportTo1c_Activated (object sender, System.EventArgs e)
+	{
+		var dlg = new ExportTo1cDialog();
+		tdiMain.AddTab(dlg);
 	}
 
 	void ActionAccountableDebt_Activated (object sender, System.EventArgs e)
@@ -196,7 +207,7 @@ public partial class MainWindow : Window
 	}
 
 	void ActionAddOrder_Activated (object sender, System.EventArgs e)
-	{
+	{		
 		var tab = new OrderDlg ();
 		tdiMain.AddTab (tab);
 	}

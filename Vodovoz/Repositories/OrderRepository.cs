@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Orders;
 
+using VodovozOrder=Vodovoz.Domain.Orders.Order;
+
 namespace Vodovoz.Repository
 {
 	public static class OrderRepository
@@ -62,6 +64,14 @@ namespace Vodovoz.Repository
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
 				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed).List();
+		}
+
+		public static IList<VodovozOrder> GetCompleteOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
+		{
+			VodovozOrder orderAlias = null;
+			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
+				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
 	}
 }

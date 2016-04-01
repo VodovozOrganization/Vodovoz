@@ -5,10 +5,13 @@ namespace Vodovoz.Domain
 	public enum VAT
 	{
 		[Display (Name = "Без НДС")]
+		[Value1c("БезНДС")]
 		No,
 		[Display (Name = "НДС 10%")]
+		[Value1c("НДС10")]
 		Vat10,
 		[Display (Name = "НДС 18%")]
+		[Value1c("НДС18")]
 		Vat18
 	}
 

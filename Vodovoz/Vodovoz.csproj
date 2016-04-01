@@ -59,6 +59,7 @@
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.3.0.0.0\lib\net40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -504,6 +505,41 @@
     <Compile Include="SidePanel\InfoProviders\DefaultInfoProvider.cs" />
     <Compile Include="ReportsParameters\Revision.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
+    <Compile Include="ExportTo1c\Common1cTypes.cs" />
+    <Compile Include="ExportTo1c\DomainObjectEqualityComparer.cs" />
+    <Compile Include="ExportTo1c\ExportData.cs" />
+    <Compile Include="ExportTo1c\Exports.cs" />
+    <Compile Include="ExportTo1c\IXmlConvertable.cs" />
+    <Compile Include="ExportTo1c\Attributes\Code1c.cs" />
+    <Compile Include="ExportTo1c\Attributes\Value1c.cs" />
+    <Compile Include="ExportTo1c\Catalogs\AccountCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\BankCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\ContractCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\CounterpartyCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\CurrencyCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\GenericCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\MeasurementUnitsCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\NomenclatureCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\OrganizationCatalog.cs" />
+    <Compile Include="ExportTo1c\Catalogs\WarehouseCatalog.cs" />
+    <Compile Include="ExportTo1c\ExportDefaults\Currency.cs" />
+    <Compile Include="ExportTo1c\ExportDefaults\Warehouse1c.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\CatalogObjectNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\ComissionNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\InvoiceDocumentNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\ObjectNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\PropertyNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\PropertyNullNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\PropertyValueNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\ReferenceNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\RulesNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\SalesDocumentNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\TableNode.cs" />
+    <Compile Include="ExportTo1c\ExportNodes\TableRecordNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
+    <Compile Include="ServiceDialogs\ExportOperation.cs" />
+    <Compile Include="ExportTo1c\EnumExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -645,6 +681,11 @@
     <Folder Include="SidePanel\" />
     <Folder Include="SidePanel\PanelWidgets\" />
     <Folder Include="SidePanel\InfoProviders\" />
+    <Folder Include="ExportTo1c\" />
+    <Folder Include="ExportTo1c\Attributes\" />
+    <Folder Include="ExportTo1c\Catalogs\" />
+    <Folder Include="ExportTo1c\ExportDefaults\" />
+    <Folder Include="ExportTo1c\ExportNodes\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
