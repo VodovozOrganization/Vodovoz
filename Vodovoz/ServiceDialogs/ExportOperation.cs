@@ -29,7 +29,7 @@ namespace Vodovoz.ExportTo1c
 			worker.OperationName = "Подготовка данных";
 			worker.ReportProgress(0, "Загрузка заказов");
 			this.orders = OrderRepository.GetCompleteOrdersBetweenDates(uow, start, end);
-			worker.OperationName = "Выгрузка реализаций и счет-фактур";
+			worker.OperationName = "Выгрузка реализаций и счетов-фактур";
 			worker.StepsCount = this.orders.Count;
 			Result = new ExportData(uow, start, end);
 			int i = 0;
