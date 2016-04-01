@@ -10,7 +10,7 @@ namespace Vodovoz.ExportTo1c
 		{
 			get
 			{
-				return "ДокументСсылка.СчетФактураВыданный";
+				return Common1cTypes.InvoiceDocument;
 			}
 		}
 

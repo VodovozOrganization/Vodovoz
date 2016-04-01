@@ -537,6 +537,9 @@
     <Compile Include="ExportTo1c\ExportNodes\SalesDocumentNode.cs" />
     <Compile Include="ExportTo1c\ExportNodes\TableNode.cs" />
     <Compile Include="ExportTo1c\ExportNodes\TableRecordNode.cs" />
+    <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
+    <Compile Include="ServiceDialogs\ExportOperation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

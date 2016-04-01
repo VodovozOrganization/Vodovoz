@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {
 	public static class Common1cTypes
 	{
@@ -8,6 +8,8 @@ namespace Vodovoz
 		public static readonly string Boolean = "Булево";
 		public static readonly string Numeric = "Число";
 		public static readonly string Date = "Дата";
+		public static readonly string SalesDocument = "ДокументСсылка.РеализацияТоваровУслуг";
+		public static readonly string InvoiceDocument = "ДокументСсылка.СчетФактураВыданный";
 		public static readonly string EnumNaturalOrLegal = "ПеречислениеСсылка.ЮрФизЛицо";
 		public static readonly string EnumWarehouseTypes = "ПеречислениеСсылка.ВидыСкладов";
 		public static readonly string EnumInvoiceType = "ПеречислениеСсылка.ВидСчетаФактурыВыставленного";

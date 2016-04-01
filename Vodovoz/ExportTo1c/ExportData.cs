@@ -94,12 +94,23 @@ namespace Vodovoz.ExportTo1c
 			);
 
 			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client,order.PaymentType);
-			exportInvoiceDocument.Properties.Add(
-				new PropertyNode("ДоговорКонтрагента",
-					Common1cTypes.ReferenceContract,
-					ContractDirectory.GetReferenceTo(contract)
-				)
-			);
+			if (contract != null)
+			{
+				exportInvoiceDocument.Properties.Add(
+					new PropertyNode("ДоговорКонтрагента",
+						Common1cTypes.ReferenceContract,
+						ContractDirectory.GetReferenceTo(contract)
+					)
+				);
+			}
+			else
+			{
+				exportInvoiceDocument.Properties.Add(
+					new PropertyNode("ДоговорКонтрагента",
+						Common1cTypes.ReferenceContract
+					)
+				);
+			}
 
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("ДокументОснование",
@@ -213,12 +224,23 @@ namespace Vodovoz.ExportTo1c
 				)
 			);
 			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client,order.PaymentType);
-			exportSaleDocument.Properties.Add(
-				new PropertyNode("ДоговорКонтрагента",
-					Common1cTypes.ReferenceContract,
-					ContractDirectory.GetReferenceTo(contract)
-				)
-			);
+			if (contract != null)
+			{
+				exportSaleDocument.Properties.Add(
+					new PropertyNode("ДоговорКонтрагента",
+						Common1cTypes.ReferenceContract,
+						ContractDirectory.GetReferenceTo(contract)
+					)
+				);
+			}
+			else
+			{
+				exportSaleDocument.Properties.Add(
+					new PropertyNode("ДоговорКонтрагента",
+						Common1cTypes.ReferenceContract
+					)
+				);
+			}
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("ВалютаДокумента",
 					Common1cTypes.ReferenceCurrency,

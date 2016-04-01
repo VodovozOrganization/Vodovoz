@@ -12,7 +12,7 @@ namespace Vodovoz.ExportTo1c
 		{
 			get
 			{
-				return "ДокументСсылка.РеализацияТоваровУслуг";
+				return Common1cTypes.SalesDocument;
 			}
 		}
 
