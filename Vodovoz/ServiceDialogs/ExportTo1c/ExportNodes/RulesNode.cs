@@ -3,9 +3,9 @@ using System.Xml.Linq;
 
 namespace Vodovoz.ExportTo1c
 {
-	public class ExportRulesNode : IXmlConvertable
+	public class RulesNode : IXmlConvertable
 	{		
-		public ExportRulesNode()
+		public RulesNode()
 		{			
 			
 		}

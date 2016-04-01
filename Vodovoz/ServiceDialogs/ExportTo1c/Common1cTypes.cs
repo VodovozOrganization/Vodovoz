@@ -10,6 +10,8 @@ namespace Vodovoz
 		public static readonly string Date = "Дата";
 		public static readonly string EnumNaturalOrLegal = "ПеречислениеСсылка.ЮрФизЛицо";
 		public static readonly string EnumWarehouseTypes = "ПеречислениеСсылка.ВидыСкладов";
+		public static readonly string EnumInvoiceType = "ПеречислениеСсылка.ВидСчетаФактурыВыставленного";
+		public static readonly string EnumVAT = "ПеречислениеСсылка.СтавкиНДС";
 		public static readonly string EnumContractType = "ПеречислениеСсылка.ВидыДоговоровКонтрагентов";
 		public static readonly string ReferenceAccount = "СправочникСсылка.БанковскиеСчета";
 		public static readonly string ReferenceCountry = "СправочникСсылка.КлассификаторСтранМира";

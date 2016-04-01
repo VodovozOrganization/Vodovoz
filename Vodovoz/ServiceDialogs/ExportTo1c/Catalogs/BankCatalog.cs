@@ -2,11 +2,11 @@
 using QSBanks;
 using System.Collections.Generic;
 
-namespace Vodovoz.ExportTo1c.References
+namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public class BankDirectory:GenericDirectory<Bank>
+	public class BankCatalog:GenericCatalog<Bank>
 	{
-		public BankDirectory(ExportData exportData)
+		public BankCatalog(ExportData exportData)
 			:base(exportData)
 		{			
 		}
@@ -14,58 +14,58 @@ namespace Vodovoz.ExportTo1c.References
 		{
 			get{return "Банки";}
 		}
-		public override ExportReferenceNode GetReferenceTo(Bank bank)
+		public override ReferenceNode GetReferenceTo(Bank bank)
 		{
 			int id = GetReferenceId(bank);
-			return new ExportReferenceNode(id,
-				new ExportPropertyNode("Код",
+			return new ReferenceNode(id,
+				new PropertyNode("Код",
 					Common1cTypes.String,
 					bank.Bik
 				),
-				new ExportPropertyNode("ЭтоГруппа",
+				new PropertyNode("ЭтоГруппа",
 					Common1cTypes.ReferenceCounterparty
 				)
 			);
 		}
-		protected override ExportPropertyNode[] GetProperties(Bank bank)
+		protected override PropertyNode[] GetProperties(Bank bank)
 		{
-			var properties = new List<ExportPropertyNode>();
+			var properties = new List<PropertyNode>();
 			properties.Add(
-				new ExportPropertyNode("ПометкаУдаления",
+				new PropertyNode("ПометкаУдаления",
 					Common1cTypes.Boolean				
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Наименование",
+				new PropertyNode("Наименование",
 					Common1cTypes.String,
 					bank.Name
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Родитель",
+				new PropertyNode("Родитель",
 					Common1cTypes.ReferenceBank
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Город",
+				new PropertyNode("Город",
 					Common1cTypes.String,
 					bank.City
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("КоррСчет",
+				new PropertyNode("КоррСчет",
 					Common1cTypes.String,
 					bank.CorAccount
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Адрес",
+				new PropertyNode("Адрес",
 					Common1cTypes.String,
 					bank.GetRegionString
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Телефоны",
+				new PropertyNode("Телефоны",
 					Common1cTypes.String
 				)
 			);

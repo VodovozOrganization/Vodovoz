@@ -6,7 +6,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain;
 using Vodovoz.Repository;
-using Vodovoz.ExportTo1c.References;
+using Vodovoz.ExportTo1c.Catalogs;
 using QSBusinessCommon.Domain;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,40 +23,39 @@ namespace Vodovoz.ExportTo1c
 		public string ConversionRulesId{get;set;}
 		public string Comment{ get; set;}
 			
-		public List<ExchangeObject> Objects{ get; set;}
-		public ExportRulesNode ExchangeRules{ get; set; }
+		public List<ObjectNode> Objects{ get; set;}
+		public RulesNode ExchangeRules{ get; set; }
 
 		public int objectCounter;
 
 		public IUnitOfWork UoW;
 
-		public AccountDirectory AccountDirectory;
-		public BankDirectory BankDirectory;
-		public ContractDirectory ContractDirectory;
-		public CounterpartyDirectory CounterpartyDirectory;
-		public CurrencyDirectory CurrencyDirectory;
-		public MeasurementUnitsDirectory MeasurementUnitsDirectory;
-		public NomenclatureDirectory NomenclatureDirectory;
-		public OrganizationDirectory OrganizationDirectory;
-		public WarehouseDirectory WarehouseDirectory;
+		public AccountCatalog AccountDirectory;
+		public BankCatalog BankDirectory;
+		public ContractCatalog ContractDirectory;
+		public CounterpartyCatalog CounterpartyDirectory;
+		public CurrencyCatalog CurrencyDirectory;
+		public MeasurementUnitsCatalog MeasurementUnitsDirectory;
+		public NomenclatureCatalog NomenclatureDirectory;
+		public OrganizationCatalog OrganizationDirectory;
+		public WarehouseCatalog WarehouseDirectory;
 
 		public Dictionary<NomenclatureCategory, Nomenclature> CategoryToNomenclatureMap;
 		public Organization CashlessOrganization{ get; private set;}
 
 		public ExportData(IUnitOfWork uow)
-		{
-			this.objectCounter = 0;
-			this.Objects = new List<ExchangeObject>();
+		{			
+			this.Objects = new List<ObjectNode>();
 			this.UoW = uow;
-			this.AccountDirectory = new AccountDirectory(this);
-			this.BankDirectory = new BankDirectory(this);
-			this.ContractDirectory = new ContractDirectory(this);
-			this.CounterpartyDirectory = new CounterpartyDirectory(this);
-			this.CurrencyDirectory = new CurrencyDirectory(this);
-			this.MeasurementUnitsDirectory = new MeasurementUnitsDirectory(this);
-			this.NomenclatureDirectory = new NomenclatureDirectory(this);
-			this.OrganizationDirectory = new OrganizationDirectory(this);
-			this.WarehouseDirectory = new WarehouseDirectory(this);
+			this.AccountDirectory = new AccountCatalog(this);
+			this.BankDirectory = new BankCatalog(this);
+			this.ContractDirectory = new ContractCatalog(this);
+			this.CounterpartyDirectory = new CounterpartyCatalog(this);
+			this.CurrencyDirectory = new CurrencyCatalog(this);
+			this.MeasurementUnitsDirectory = new MeasurementUnitsCatalog(this);
+			this.NomenclatureDirectory = new NomenclatureCatalog(this);
+			this.OrganizationDirectory = new OrganizationCatalog(this);
+			this.WarehouseDirectory = new WarehouseCatalog(this);
 			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PaymentType.cashless);
 			this.CategoryToNomenclatureMap = new Dictionary<NomenclatureCategory, Nomenclature>();
 			int i = 0;
@@ -68,23 +67,117 @@ namespace Vodovoz.ExportTo1c
 				nomenclature.Code1c = category.GetAttribute<Code1c>().Code;
 				this.CategoryToNomenclatureMap.Add(category, nomenclature);
 			}
-			this.ExchangeRules = new ExportRulesNode();
-		}				
+			this.ExchangeRules = new RulesNode();
+		}
 
 		public void AddOrder(Order order)
 		{
-			var goods = order.OrderItems.Where(item => Nomenclature.GetCategoriesForGoods().Contains(item.Nomenclature.Category));
-			var exportSaleDocument = new ExchangeDocumentSale{				
-				DocumentType="РеализацияТоваровУслуг",
-				RuleName = "РеализацияТоваровУслуг",
-			};
-			exportSaleDocument.Id = ++objectCounter;
-			exportSaleDocument.Reference = new ExportReferenceNode(exportSaleDocument.Id,
-				new ExportPropertyNode("Номер", Common1cTypes.String, Exports.VodovozTo1cID(order.Id)),
-				new ExportPropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.ToString("s"))
+			var exportSalesDocument = GetSalesDocument(order);
+			var exportInvoiceDocument = new InvoiceDocumentNode();
+			exportInvoiceDocument.Id = ++objectCounter;
+			exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
+				new PropertyNode("Номер", Common1cTypes.String, order.Id),
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.ToString("s"))
 			);
 
-			var exportGoodsTable = new ExportTableNode{
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("Организация",
+					Common1cTypes.ReferenceOrganization,
+					OrganizationDirectory.GetReferenceTo(CashlessOrganization)
+				)
+			);
+
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("Комментарий",
+					Common1cTypes.String
+				)
+			);
+
+			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client,order.PaymentType);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("ДоговорКонтрагента",
+					Common1cTypes.ReferenceContract,
+					ContractDirectory.GetReferenceTo(contract)
+				)
+			);
+
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("ДокументОснование",
+					"ДокументСсылка.РеализацияТоваровУслуг",
+					exportSalesDocument.Reference
+				)
+			);
+
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("ВидСчетаФактуры",
+					Common1cTypes.EnumInvoiceType,
+					"НаРеализацию"
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("НомерПлатежноРасчетногоДокумента",
+					Common1cTypes.String
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("ДатаПлатежноРасчетногоДокумента",
+					Common1cTypes.Date
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("ВалютаДокумента",
+					Common1cTypes.ReferenceCurrency,
+					CurrencyDirectory.GetReferenceTo(Currency.Default)
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("СтавкаНДС",
+					Common1cTypes.EnumVAT
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("Сумма",
+					Common1cTypes.Numeric
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("СуммаНДС",
+					Common1cTypes.Numeric
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("Контрагент",
+					Common1cTypes.ReferenceCounterparty,
+					CounterpartyDirectory.GetReferenceTo(order.Client)
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("ПометкаУдаления",
+					Common1cTypes.Boolean
+				)
+			);
+			exportInvoiceDocument.Properties.Add(
+				new PropertyNode("Проведен",
+					Common1cTypes.Boolean,
+					"true"
+				)
+			);
+
+			Objects.Add(exportSalesDocument);
+			Objects.Add(exportInvoiceDocument);
+		}
+
+		public SalesDocumentNode GetSalesDocument(Order order)
+		{
+			var goods = order.OrderItems.Where(item => Nomenclature.GetCategoriesForGoods().Contains(item.Nomenclature.Category));
+			var exportSaleDocument = new SalesDocumentNode();
+			exportSaleDocument.Id = ++objectCounter;
+			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
+				new PropertyNode("Номер", Common1cTypes.String, order.Id),
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.ToString("s"))
+			);
+
+			var exportGoodsTable = new TableNode{
 				Name="Товары",
 			};
 
@@ -96,79 +189,79 @@ namespace Vodovoz.ExportTo1c
 			}
 
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("Организация",
+				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
 					OrganizationDirectory.GetReferenceTo(CashlessOrganization)
 				)
 			);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("Комментарий",
+				new PropertyNode("Комментарий",
 					Common1cTypes.String,
 					order.Comment
 				)
 			);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("Склад",
+				new PropertyNode("Склад",
 					Common1cTypes.ReferenceWarehouse,
 					WarehouseDirectory.GetReferenceTo(Warehouse1c.Default)
 				)
 			);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("Контрагент",
+				new PropertyNode("Контрагент",
 					Common1cTypes.ReferenceCounterparty,
 					CounterpartyDirectory.GetReferenceTo(order.Client)
 				)
 			);
 			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client,order.PaymentType);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("ДоговорКонтрагента",
+				new PropertyNode("ДоговорКонтрагента",
 					Common1cTypes.ReferenceContract,
 					ContractDirectory.GetReferenceTo(contract)
 				)
 			);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("ВалютаДокумента",
+				new PropertyNode("ВалютаДокумента",
 					Common1cTypes.ReferenceCurrency,
 					CurrencyDirectory.GetReferenceTo(ExportTo1c.Currency.Default)
 				)
 			);
 
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("УчитыватьНДС",
+				new PropertyNode("УчитыватьНДС",
 					Common1cTypes.Boolean,
 					"true"
 				)
 			);
 
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("СуммаВключаетНДС",
+				new PropertyNode("СуммаВключаетНДС",
 					Common1cTypes.Boolean,
 					"true"
 				)
 			);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("ВидОперации",
+				new PropertyNode("ВидОперации",
 					"ПеречислениеСсылка.ВидыОперацийРеализацияТоваров",
 					"ПродажаКомиссия"
 				)
 			);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("КурсВзаиморасчетов",
+				new PropertyNode("КурсВзаиморасчетов",
 					Common1cTypes.Numeric,
 					1
 				)
 			);
 			exportSaleDocument.Properties.Add(
-				new ExportPropertyNode("КратностьВзаиморасчетов",
+				new PropertyNode("КратностьВзаиморасчетов",
 					Common1cTypes.Numeric,
 					1
 				)
 			);
 
-			var exportServicesTable = new ExportTableNode
-			{
-				Name = "Услуги",
-			};
+			var exportServicesTable = new TableNode
+				{
+					Name = "Услуги",
+				};
 			var services = order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.service);
 			foreach (var serviceItem in services)
 			{
@@ -177,41 +270,40 @@ namespace Vodovoz.ExportTo1c
 			}
 			exportSaleDocument.Tables.Add(exportGoodsTable);
 			exportSaleDocument.Tables.Add(exportServicesTable);		
-	
-			Objects.Add(exportSaleDocument);
+			return exportSaleDocument;
 		}			
 
-		public ExportTableRecordNode GetRecord(OrderItem orderItem)
+		public TableRecordNode GetRecord(OrderItem orderItem)
 		{
-			var record = new ExportTableRecordNode();
+			var record = new TableRecordNode();
 			var nomenclatureReference = NomenclatureDirectory.GetReferenceTo(orderItem.Nomenclature);
 			record.Properties.Add(
-				new ExportPropertyNode("Номенклатура",
+				new PropertyNode("Номенклатура",
 					Common1cTypes.ReferenceNomenclature,
 					nomenclatureReference
 				)
 			);
 			if(orderItem.Nomenclature.Category==NomenclatureCategory.service)
 				record.Properties.Add(
-					new ExportPropertyNode("Содержание",
+					new PropertyNode("Содержание",
 						Common1cTypes.String,
 						orderItem.Nomenclature.Name
 					)
 				);
 			record.Properties.Add(
-				new ExportPropertyNode("Количество",
+				new PropertyNode("Количество",
 					Common1cTypes.Numeric,
 					orderItem.ActualCount
 				)
 			);
 			record.Properties.Add(
-				new ExportPropertyNode("Цена",
+				new PropertyNode("Цена",
 					Common1cTypes.Numeric,
 					orderItem.Price.ToString()
 				)
 			);
 			record.Properties.Add(
-				new ExportPropertyNode("Сумма",
+				new PropertyNode("Сумма",
 					Common1cTypes.Numeric,
 					orderItem.ActualCount*orderItem.Price
 				)
@@ -219,24 +311,24 @@ namespace Vodovoz.ExportTo1c
 
 			var vat = orderItem.Nomenclature.VAT.GetAttribute<Value1c>().Value;
 			record.Properties.Add(
-				new ExportPropertyNode("СтавкаНДС",
-					"ПеречислениеСсылка.СтавкиНДС",
+				new PropertyNode("СтавкаНДС",
+					Common1cTypes.EnumVAT,
 					vat
 				)
 			);
 			record.Properties.Add(
-				new ExportPropertyNode("СуммаНДС",
+				new PropertyNode("СуммаНДС",
 					Common1cTypes.Numeric,
 					orderItem.ActualCount*orderItem.Price*0.18M
 				)
 			);
 			record.Properties.Add(
-				new ExportPropertyNode("НомерГТД",
+				new PropertyNode("НомерГТД",
 					"СправочникСсылка.НомераГТД"
 				)
 			);
 			record.Properties.Add(
-				new ExportPropertyNode("СтранаПроисхождения",
+				new PropertyNode("СтранаПроисхождения",
 					Common1cTypes.ReferenceCountry
 				)
 			);

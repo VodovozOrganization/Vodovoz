@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Xml.Linq;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {
-	public class PropertyValue : IXmlConvertable
+	public class PropertyValueNode : IXmlConvertable
 	{
 		public string Value{get;set;}
 
-		public PropertyValue(string value)
+		public PropertyValueNode(string value)
 		{
 			this.Value = value;	
 		}

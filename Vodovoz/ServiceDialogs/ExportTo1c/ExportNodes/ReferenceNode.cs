@@ -8,26 +8,26 @@ using QSBusinessCommon.Domain;
 using QSBanks;
 using Vodovoz.ExportTo1c;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {	
-	public class ExportReferenceNode:IXmlConvertable
+	public class ReferenceNode:IXmlConvertable
 	{
 		public int Id{ get; set;}
 		private bool skipId;
-		public List<ExportPropertyNode> Properties{get;set;}
-		public ExportReferenceNode()
+		public List<PropertyNode> Properties{get;set;}
+		public ReferenceNode()
 		{
-			Properties = new List<ExportPropertyNode>();
+			Properties = new List<PropertyNode>();
 		}			
 
-		public ExportReferenceNode(params ExportPropertyNode[] properties)
+		public ReferenceNode(params PropertyNode[] properties)
 			:this()
 		{			
 			this.skipId = true;
 			this.Properties.AddRange(properties);
 		}
 
-		public ExportReferenceNode(int id, params ExportPropertyNode[] properties)
+		public ReferenceNode(int id, params PropertyNode[] properties)
 			:this()
 		{
 			this.Id=id;

@@ -2,13 +2,13 @@
 using QSOrmProject;
 using System.Collections.Generic;
 
-namespace Vodovoz.ExportTo1c.References
+namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public abstract class GenericDirectory<T> where T:IDomainObject
+	public abstract class GenericCatalog<T> where T:IDomainObject
 	{
 		protected Dictionary<T, int> items;
 		protected ExportData exportData;
-		public GenericDirectory(ExportData data)
+		public GenericCatalog(ExportData data)
 		{
 			this.items = new Dictionary<T, int>(new DomainObjectEqualityComparer<T>());
 			this.exportData = data;
@@ -16,8 +16,8 @@ namespace Vodovoz.ExportTo1c.References
 
 		protected abstract string Name{ get; }
 
-		protected abstract ExportPropertyNode[] GetProperties(T obj);
-		public abstract ExportReferenceNode GetReferenceTo(T obj);
+		protected abstract PropertyNode[] GetProperties(T obj);
+		public abstract ReferenceNode GetReferenceTo(T obj);
 
 		public int GetReferenceId(T obj)
 		{
@@ -33,7 +33,7 @@ namespace Vodovoz.ExportTo1c.References
 			
 		public void Add(T obj)
 		{
-			var item = new ExchangeCatalogueObject
+			var item = new CatalogObjectNode
 				{				
 					Id = GetReferenceId(obj),
 					CatalogueType = this.Name

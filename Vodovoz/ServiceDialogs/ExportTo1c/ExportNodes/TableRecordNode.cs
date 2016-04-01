@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Xml.Linq;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {	
-	public class ExportTableRecordNode:IXmlConvertable
+	public class TableRecordNode:IXmlConvertable
 	{		
-		public List<ExportPropertyNode> Properties{ get; set;}
-		public ExportTableRecordNode()
+		public List<PropertyNode> Properties{ get; set;}
+		public TableRecordNode()
 		{
-			Properties = new List<ExportPropertyNode>();
+			Properties = new List<PropertyNode>();
 		}			
 
 		public XElement ToXml()

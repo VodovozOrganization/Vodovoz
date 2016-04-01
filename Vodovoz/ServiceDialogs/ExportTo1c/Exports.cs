@@ -10,12 +10,12 @@ using Vodovoz.Repository;
 using QSOrmProject;
 using Vodovoz.ExportTo1c;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {
 	public static class Exports
 	{		
 		public static void TestExport()
-		{			
+		{
 			XmlWriter writer = XmlWriter.Create("test.xml", new XmlWriterSettings
 				{
 					OmitXmlDeclaration = true,
@@ -47,11 +47,6 @@ namespace Vodovoz
 				exportData.AddOrder(order);
 			}
 			return exportData;
-		}
-
-		public static string VodovozTo1cID(int id)
-		{
-			return "V" + id.ToString().PadLeft(7, '0');
 		}
 	}
 }

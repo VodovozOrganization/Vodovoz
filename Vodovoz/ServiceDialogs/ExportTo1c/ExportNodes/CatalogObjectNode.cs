@@ -2,9 +2,9 @@
 using System.Xml.Linq;
 using System.Collections.Generic;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {	
-	public class ExchangeCatalogueObject:ExchangeObject
+	public class CatalogObjectNode:ObjectNode
 	{
 		public override string Type
 		{
@@ -24,13 +24,13 @@ namespace Vodovoz
 
 		public string CatalogueType{ get; set;}
 
-		public ExportReferenceNode Reference{ get; set;}
+		public ReferenceNode Reference{ get; set;}
 
-		public List<ExportPropertyNode> Properties{ get; set;}
+		public List<PropertyNode> Properties{ get; set;}
 
-		public ExchangeCatalogueObject()
+		public CatalogObjectNode()
 		{
-			Properties = new List<ExportPropertyNode>();
+			Properties = new List<PropertyNode>();
 		}
 
 		public override XElement ToXml()

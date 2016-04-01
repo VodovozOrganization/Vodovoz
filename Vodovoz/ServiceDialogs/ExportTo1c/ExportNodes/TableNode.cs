@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using Vodovoz.ExportTo1c;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {	
-	public class ExportTableNode : IXmlConvertable
+	public class TableNode : IXmlConvertable
 	{
 		public string Name{ get; set;}
 
-		public List<ExportTableRecordNode> Records{ get; set; }
+		public List<TableRecordNode> Records{ get; set; }
 
-		public ExportTableNode()
+		public TableNode()
 		{
-			Records = new List<ExportTableRecordNode>();
+			Records = new List<TableRecordNode>();
 		}			
 
 		public XElement ToXml()

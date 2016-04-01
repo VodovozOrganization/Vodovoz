@@ -3,11 +3,11 @@ using QSBanks;
 using System.Collections.Generic;
 using Vodovoz.Domain;
 
-namespace Vodovoz.ExportTo1c.References
+namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public class AccountDirectory : GenericDirectory<Account>
+	public class AccountCatalog : GenericCatalog<Account>
 	{
-		public AccountDirectory(ExportData exportData)
+		public AccountCatalog(ExportData exportData)
 			:base(exportData)
 		{			
 		}
@@ -17,111 +17,111 @@ namespace Vodovoz.ExportTo1c.References
 			get{return "БанковскиеСчета";}
 		}
 
-		public override ExportReferenceNode GetReferenceTo(Account account)
+		public override ReferenceNode GetReferenceTo(Account account)
 		{
 			int id = GetReferenceId(account);
-			return new ExportReferenceNode(id,
-				new ExportPropertyNode("Код",
+			return new ReferenceNode(id,
+				new PropertyNode("Код",
 					Common1cTypes.String,
 					account.Code1c
 				),
-				new ExportPropertyNode("Владелец",
+				new PropertyNode("Владелец",
 					Common1cTypes.ReferenceCounterparty
 				)
 			);
 
 		}
 
-		public ExportReferenceNode GetReferenceTo(Account account, Counterparty owner)
+		public ReferenceNode GetReferenceTo(Account account, Counterparty owner)
 		{
 			int id = GetReferenceId(account, owner);
 			var code1c = account.Code1c ?? account.Id.ToString();
-			return new ExportReferenceNode(id,
-				new ExportPropertyNode("Код",
+			return new ReferenceNode(id,
+				new PropertyNode("Код",
 					Common1cTypes.String,
 					code1c
 				),
-				new ExportPropertyNode("Владелец",
+				new PropertyNode("Владелец",
 					Common1cTypes.ReferenceCounterparty,
 					exportData.CounterpartyDirectory.GetReferenceTo(owner)
 				)
 			);
 
 		}
-		protected override ExportPropertyNode[] GetProperties(Account account)
+		protected override PropertyNode[] GetProperties(Account account)
 		{
-			var properties = new List<ExportPropertyNode>();
+			var properties = new List<PropertyNode>();
 			properties.Add(
-				new ExportPropertyNode("ПометкаУдаления",
+				new PropertyNode("ПометкаУдаления",
 					Common1cTypes.Boolean
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Наименование",
+				new PropertyNode("Наименование",
 					Common1cTypes.String,
 					account.Name
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Банк",
+				new PropertyNode("Банк",
 					Common1cTypes.ReferenceBank,
 					exportData.BankDirectory.GetReferenceTo(account.InBank)
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("БанкДляРасчетов",
+				new PropertyNode("БанкДляРасчетов",
 					Common1cTypes.ReferenceBank
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ВалютаДенежныхСредств",
+				new PropertyNode("ВалютаДенежныхСредств",
 					Common1cTypes.ReferenceCurrency,
 					exportData.CurrencyDirectory.GetReferenceTo(ExportTo1c.Currency.Default)
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ВидСчета",
+				new PropertyNode("ВидСчета",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ДатаЗакрытия",
+				new PropertyNode("ДатаЗакрытия",
 					Common1cTypes.Date
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ДатаОткрытия",
+				new PropertyNode("ДатаОткрытия",
 					Common1cTypes.Date
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("МесяцПрописью",
+				new PropertyNode("МесяцПрописью",
 					Common1cTypes.Boolean
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ТекстНазначения",
+				new PropertyNode("ТекстНазначения",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("НомерИДатаРазрешения",
+				new PropertyNode("НомерИДатаРазрешения",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("НомерСчета",
+				new PropertyNode("НомерСчета",
 					Common1cTypes.String,
 					account.Number
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ТекстКорреспондента",
+				new PropertyNode("ТекстКорреспондента",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("СуммаБезКопеек",
+				new PropertyNode("СуммаБезКопеек",
 					Common1cTypes.Boolean
 				)
 			);
@@ -142,7 +142,7 @@ namespace Vodovoz.ExportTo1c.References
 
 		public void Add(Account account, Counterparty owner)
 		{
-			var item = new ExchangeCatalogueObject
+			var item = new CatalogObjectNode
 				{				
 					Id = GetReferenceId(account,owner),
 					CatalogueType = this.Name
@@ -153,81 +153,81 @@ namespace Vodovoz.ExportTo1c.References
 		}
 
 
-		public ExportPropertyNode[] GetProperties(Account account, Counterparty owner)
+		public PropertyNode[] GetProperties(Account account, Counterparty owner)
 		{
-			var properties = new List<ExportPropertyNode>();
+			var properties = new List<PropertyNode>();
 			properties.Add(
-				new ExportPropertyNode("ПометкаУдаления",
+				new PropertyNode("ПометкаУдаления",
 					Common1cTypes.Boolean
 				)
 			);
 			var name = String.IsNullOrWhiteSpace(account.Name) ? account.Number : account.Name;
 			properties.Add(
-				new ExportPropertyNode("Наименование",
+				new PropertyNode("Наименование",
 					Common1cTypes.String,
 					name
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Банк",
+				new PropertyNode("Банк",
 					Common1cTypes.ReferenceBank,
 					exportData.BankDirectory.GetReferenceTo(account.InBank)
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("БанкДляРасчетов",
+				new PropertyNode("БанкДляРасчетов",
 					Common1cTypes.ReferenceBank
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ВалютаДенежныхСредств",
+				new PropertyNode("ВалютаДенежныхСредств",
 					Common1cTypes.ReferenceCurrency,
 					exportData.CurrencyDirectory.GetReferenceTo(ExportTo1c.Currency.Default)
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ВидСчета",
+				new PropertyNode("ВидСчета",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ДатаЗакрытия",
+				new PropertyNode("ДатаЗакрытия",
 					Common1cTypes.Date
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ДатаОткрытия",
+				new PropertyNode("ДатаОткрытия",
 					Common1cTypes.Date
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("МесяцПрописью",
+				new PropertyNode("МесяцПрописью",
 					Common1cTypes.Boolean
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ТекстНазначения",
+				new PropertyNode("ТекстНазначения",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("НомерИДатаРазрешения",
+				new PropertyNode("НомерИДатаРазрешения",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("НомерСчета",
+				new PropertyNode("НомерСчета",
 					Common1cTypes.String,
 					account.Number
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ТекстКорреспондента",
+				new PropertyNode("ТекстКорреспондента",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("СуммаБезКопеек",
+				new PropertyNode("СуммаБезКопеек",
 					Common1cTypes.Boolean
 				)
 			);

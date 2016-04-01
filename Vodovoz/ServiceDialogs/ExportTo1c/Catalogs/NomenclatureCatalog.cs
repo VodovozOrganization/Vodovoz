@@ -2,11 +2,11 @@
 using Vodovoz.Domain;
 using System.Collections.Generic;
 
-namespace Vodovoz.ExportTo1c.References
+namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public class NomenclatureDirectory:GenericDirectory<Nomenclature>
+	public class NomenclatureCatalog:GenericCatalog<Nomenclature>
 	{
-		public NomenclatureDirectory(ExportData exportData)
+		public NomenclatureCatalog(ExportData exportData)
 			:base(exportData)
 		{			
 		}
@@ -15,19 +15,19 @@ namespace Vodovoz.ExportTo1c.References
 			get{return "Номенклатура";}
 		}
 
-		public override ExportReferenceNode GetReferenceTo(Nomenclature nomenclature)
+		public override ReferenceNode GetReferenceTo(Nomenclature nomenclature)
 		{
 			int id = GetReferenceId(nomenclature);
 			//Если id<=0 то этот объект загружался не из базы -> выгружаем как папку для 1с
 			bool isGroup = nomenclature.Id <= 0;
 			if (isGroup)
 			{
-				return new ExportReferenceNode(id,
-					new ExportPropertyNode("Код",
+				return new ReferenceNode(id,
+					new PropertyNode("Код",
 						Common1cTypes.String,
 						nomenclature.Code1c
 					),
-					new ExportPropertyNode("ЭтоГруппа",
+					new PropertyNode("ЭтоГруппа",
 						Common1cTypes.Boolean,
 						"true"
 					)
@@ -36,23 +36,23 @@ namespace Vodovoz.ExportTo1c.References
 			else
 			{
 				var code1c = String.IsNullOrWhiteSpace(nomenclature.Code1c) ? nomenclature.Id.ToString() : nomenclature.Code1c;
-				return new ExportReferenceNode(id,
-					new ExportPropertyNode("Код",
+				return new ReferenceNode(id,
+					new PropertyNode("Код",
 						Common1cTypes.String,
 						code1c
 					),
-					new ExportPropertyNode("ЭтоГруппа",
+					new PropertyNode("ЭтоГруппа",
 						Common1cTypes.Boolean
 					)
 				);
 			}
 		}
 
-		protected override ExportPropertyNode[] GetProperties(Nomenclature nomenclature)
+		protected override PropertyNode[] GetProperties(Nomenclature nomenclature)
 		{
-			var properties = new List<ExportPropertyNode>();
+			var properties = new List<PropertyNode>();
 			properties.Add(
-				new ExportPropertyNode("Наименование",
+				new PropertyNode("Наименование",
 					Common1cTypes.String,
 					nomenclature.Name
 				)
@@ -63,7 +63,7 @@ namespace Vodovoz.ExportTo1c.References
 			if (exportData.CategoryToNomenclatureMap.TryGetValue(nomenclature.Category, out parentNomenclature) && !isGroup)
 			{
 				properties.Add(
-					new ExportPropertyNode("Родитель",
+					new PropertyNode("Родитель",
 						Common1cTypes.ReferenceNomenclature,	
 						exportData.NomenclatureDirectory.GetReferenceTo(parentNomenclature)
 					)
@@ -72,7 +72,7 @@ namespace Vodovoz.ExportTo1c.References
 			else
 			{
 				properties.Add(
-					new ExportPropertyNode("Родитель",
+					new PropertyNode("Родитель",
 						Common1cTypes.ReferenceNomenclature
 					)
 				);
@@ -80,7 +80,7 @@ namespace Vodovoz.ExportTo1c.References
 			if (nomenclature.Unit != null)
 			{
 				properties.Add(
-					new ExportPropertyNode("БазоваяЕдиницаИзмерения",
+					new PropertyNode("БазоваяЕдиницаИзмерения",
 						Common1cTypes.ReferenceMeasurementUnit,
 						exportData.MeasurementUnitsDirectory.GetReferenceTo(nomenclature.Unit)
 					)
@@ -89,18 +89,18 @@ namespace Vodovoz.ExportTo1c.References
 			else
 			{
 				properties.Add(
-					new ExportPropertyNode("БазоваяЕдиницаИзмерения",
+					new PropertyNode("БазоваяЕдиницаИзмерения",
 						Common1cTypes.ReferenceMeasurementUnit
 					)
 				);
 			}
 			properties.Add(
-				new ExportPropertyNode("Комментарий",
+				new PropertyNode("Комментарий",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("НомерГТД",
+				new PropertyNode("НомерГТД",
 					"СправочникСсылка.НомераГТД"
 				)
 			);
@@ -108,8 +108,8 @@ namespace Vodovoz.ExportTo1c.References
 			{
 				var vat = nomenclature.VAT.GetAttribute<Value1c>().Value;
 				properties.Add(
-					new ExportPropertyNode("СтавкаНДС",
-						"ПеречислениеСсылка.СтавкиНДС",
+					new PropertyNode("СтавкаНДС",
+						Common1cTypes.EnumVAT,
 						vat
 					)
 				);
@@ -118,29 +118,39 @@ namespace Vodovoz.ExportTo1c.References
 			{
 				var vat = nomenclature.VAT.GetAttribute<Value1c>().Value;
 				properties.Add(
-					new ExportPropertyNode("СтавкаНДС",
-						"ПеречислениеСсылка.СтавкиНДС"
+					new PropertyNode("СтавкаНДС",
+						Common1cTypes.EnumVAT
 					)
 				);
 			}
 			properties.Add(
-				new ExportPropertyNode("СтранаПроисхождения",
+				new PropertyNode("СтранаПроисхождения",
 					Common1cTypes.ReferenceCountry
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ПометкаУдаления",
+				new PropertyNode("ПометкаУдаления",
 					Common1cTypes.Boolean
 				)
 			);
+			var isService = nomenclature.Category == NomenclatureCategory.service;
+			if (isService)
+				properties.Add(
+					new PropertyNode("Услуга",
+						Common1cTypes.Boolean,
+						"true"
+					)
+				);
+			else
+				properties.Add(
+					new PropertyNode("Услуга",
+						Common1cTypes.Boolean
+					)
+				);
 			properties.Add(
-				new ExportPropertyNode("Услуга",
-					Common1cTypes.Boolean
-				)
-			);
-			properties.Add(
-				new ExportPropertyNode("НаименованиеПолное",
-					Common1cTypes.String
+				new PropertyNode("НаименованиеПолное",
+					Common1cTypes.String,
+					nomenclature.Name
 				)
 			);
 			return properties.ToArray();

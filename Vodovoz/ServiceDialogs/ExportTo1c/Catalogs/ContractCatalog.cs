@@ -2,11 +2,11 @@
 using Vodovoz.Domain;
 using System.Collections.Generic;
 
-namespace Vodovoz.ExportTo1c.References
+namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public class ContractDirectory : GenericDirectory<CounterpartyContract>
+	public class ContractCatalog : GenericCatalog<CounterpartyContract>
 	{
-		public ContractDirectory(ExportData exportData)
+		public ContractCatalog(ExportData exportData)
 			:base(exportData)
 		{			
 		}
@@ -15,59 +15,59 @@ namespace Vodovoz.ExportTo1c.References
 			get{return "ДоговорыКонтрагентов";}
 		}
 
-		public override ExportReferenceNode GetReferenceTo(CounterpartyContract contract)
+		public override ReferenceNode GetReferenceTo(CounterpartyContract contract)
 		{
 			int id = GetReferenceId(contract);
 			var organization = exportData.CashlessOrganization;
-			return new ExportReferenceNode(
-				new ExportPropertyNode("Наименование",
+			return new ReferenceNode(
+				new PropertyNode("Наименование",
 					Common1cTypes.String,
 					contract.Title
 				),
-				new ExportPropertyNode("ЭтоГруппа",
+				new PropertyNode("ЭтоГруппа",
 					Common1cTypes.Boolean
 				),
-				new ExportPropertyNode("Владелец",
+				new PropertyNode("Владелец",
 					Common1cTypes.ReferenceCounterparty,
 					exportData.CounterpartyDirectory.GetReferenceTo(contract.Counterparty)
 				),
-				new ExportPropertyNode("Организация",
+				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
 					exportData.OrganizationDirectory.GetReferenceTo(organization)
 				),
-				new ExportPropertyNode("ВидДоговора",
+				new PropertyNode("ВидДоговора",
 					Common1cTypes.EnumContractType,
 					"СПокупателем"
 				)
 			);
 		}
-		protected override ExportPropertyNode[] GetProperties(CounterpartyContract contract)
+		protected override PropertyNode[] GetProperties(CounterpartyContract contract)
 		{
-			var properties = new List<ExportPropertyNode>();
+			var properties = new List<PropertyNode>();
 			properties.Add(
-				new ExportPropertyNode("Родитель",
+				new PropertyNode("Родитель",
 					Common1cTypes.ReferenceContract
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ВалютаВзаиморасчетов",
+				new PropertyNode("ВалютаВзаиморасчетов",
 					Common1cTypes.ReferenceCurrency,
 					exportData.CurrencyDirectory.GetReferenceTo(Currency.Default)
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ТипЦен",
+				new PropertyNode("ТипЦен",
 					Common1cTypes.ReferencePriceType
 				)
 			);
 			// TODO WTF!!! там 2 таких: один - null, другой true
 			properties.Add(
-				new ExportPropertyNode("РасчетыВУсловныхЕдиницах",
+				new PropertyNode("РасчетыВУсловныхЕдиницах",
 					Common1cTypes.Boolean
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Код",
+				new PropertyNode("Код",
 					Common1cTypes.String,
 					contract.Id
 				)

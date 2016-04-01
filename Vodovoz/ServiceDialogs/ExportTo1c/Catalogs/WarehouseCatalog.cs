@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Vodovoz.ExportTo1c.References
+namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public class WarehouseDirectory:GenericDirectory<Warehouse1c>
+	public class WarehouseCatalog:GenericCatalog<Warehouse1c>
 	{
-		public WarehouseDirectory(ExportData exportData)
+		public WarehouseCatalog(ExportData exportData)
 			:base(exportData)
 		{			
 		}
@@ -14,30 +14,30 @@ namespace Vodovoz.ExportTo1c.References
 		{
 			get{return "Склады";}
 		}
-		public override ExportReferenceNode GetReferenceTo(Warehouse1c warehouse)
+		public override ReferenceNode GetReferenceTo(Warehouse1c warehouse)
 		{
 			int id = GetReferenceId(warehouse);
-			return new ExportReferenceNode(id,
-				new ExportPropertyNode("Код",
+			return new ReferenceNode(id,
+				new PropertyNode("Код",
 					Common1cTypes.String,
 					warehouse.ExportId
 				),
-				new ExportPropertyNode("ЭтоГруппа",
+				new PropertyNode("ЭтоГруппа",
 					Common1cTypes.Boolean
 				)
 			);
 		}
-		protected override ExportPropertyNode[] GetProperties(Warehouse1c warehouse)
+		protected override PropertyNode[] GetProperties(Warehouse1c warehouse)
 		{
-			var properties = new List<ExportPropertyNode>();
-			var warehouseTypeProperty = new ExportPropertyNode("ВидСклада",
+			var properties = new List<PropertyNode>();
+			var warehouseTypeProperty = new PropertyNode("ВидСклада",
 				Common1cTypes.EnumWarehouseTypes,
 				warehouse.Type
 			);
 			warehouseTypeProperty.AdditionalAttributes.Add(new System.Xml.Linq.XAttribute("НеЗамещать", "true"));
 			properties.Add(warehouseTypeProperty);
 			properties.Add(
-				new ExportPropertyNode("Наименование",
+				new PropertyNode("Наименование",
 					Common1cTypes.String,
 					warehouse.Name
 				)

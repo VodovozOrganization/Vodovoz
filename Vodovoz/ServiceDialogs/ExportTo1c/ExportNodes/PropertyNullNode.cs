@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Xml.Linq;
 
-namespace Vodovoz
+namespace Vodovoz.ExportTo1c
 {
-	public class PropertyNull : IXmlConvertable
+	public class PropertyNullNode : IXmlConvertable
 	{
-		public PropertyNull()
+		public PropertyNullNode()
 		{
 		}			
 

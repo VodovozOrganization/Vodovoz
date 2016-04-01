@@ -4,11 +4,11 @@ using System.Xml.Linq;
 
 namespace Vodovoz.ExportTo1c
 {
-	public class ExportComissionNode : IXmlConvertable
+	public class ComissionNode : IXmlConvertable
 	{
 		public List<int> Comissions{ get; private set;}
 
-		public ExportComissionNode()
+		public ComissionNode()
 		{
 			Comissions = new List<int>();
 		}

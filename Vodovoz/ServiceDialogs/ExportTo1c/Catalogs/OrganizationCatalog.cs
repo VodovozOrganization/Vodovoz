@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using Vodovoz.Domain;
 
-namespace Vodovoz.ExportTo1c.References
+namespace Vodovoz.ExportTo1c.Catalogs
 {
-	public class OrganizationDirectory:GenericDirectory<Organization>
+	public class OrganizationCatalog:GenericCatalog<Organization>
 	{
 		static readonly string defaultOrganizationCode = "00003";
-		public OrganizationDirectory(ExportData exportData)
+		public OrganizationCatalog(ExportData exportData)
 			:base(exportData)
 		{			
 		}
@@ -16,103 +16,103 @@ namespace Vodovoz.ExportTo1c.References
 			get{return "Организации";}
 		}
 
-		public override ExportReferenceNode GetReferenceTo(Organization organization)
+		public override ReferenceNode GetReferenceTo(Organization organization)
 		{
 			int id = GetReferenceId(organization);
 			var code1c = defaultOrganizationCode;
-			return new ExportReferenceNode(id,
-				new ExportPropertyNode("Код",
+			return new ReferenceNode(id,
+				new PropertyNode("Код",
 					Common1cTypes.String,
 					code1c
 				)		
 			);
 		}
 
-		protected override ExportPropertyNode[] GetProperties(Organization organization)
+		protected override PropertyNode[] GetProperties(Organization organization)
 		{
-			var properties = new List<ExportPropertyNode>();
+			var properties = new List<PropertyNode>();
 			properties.Add(
-				new ExportPropertyNode("Наименование",
+				new PropertyNode("Наименование",
 					Common1cTypes.String,
 					organization.FullName
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("Префикс",
+				new PropertyNode("Префикс",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ИНН",
+				new PropertyNode("ИНН",
 					Common1cTypes.String,
 					organization.INN
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ДатаРегистрации",
+				new PropertyNode("ДатаРегистрации",
 					Common1cTypes.Date
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("КодПоОКАТО",
+				new PropertyNode("КодПоОКАТО",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("НаименованиеОКВЭД",
+				new PropertyNode("НаименованиеОКВЭД",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("КодОКОНХ",
+				new PropertyNode("КодОКОНХ",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("КодОКОПФ",
+				new PropertyNode("КодОКОПФ",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("КодПоОКПО",
+				new PropertyNode("КодПоОКПО",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ОГРН",
+				new PropertyNode("ОГРН",
 					Common1cTypes.String,
 					organization.OGRN
 				)
 			);		
 			properties.Add(
-				new ExportPropertyNode("НаименованиеИМНС",
+				new PropertyNode("НаименованиеИМНС",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("КодИМНС",
+				new PropertyNode("КодИМНС",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("НаименованиеПлательщикаПриПеречисленииВБюджет",
+				new PropertyNode("НаименованиеПлательщикаПриПеречисленииВБюджет",
 					Common1cTypes.String
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("КПП",
+				new PropertyNode("КПП",
 					Common1cTypes.String,
 					organization.KPP
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ВидСтавокЕСНиПФР",
+				new PropertyNode("ВидСтавокЕСНиПФР",
 					"ПеречислениеСсылка.ВидыСтавокЕСНиПФР",
 					"ДляНеСельскохозяйственныхПроизводителей"
 				)
 			);
 			properties.Add(
-				new ExportPropertyNode("ЮрФизЛицо",
+				new PropertyNode("ЮрФизЛицо",
 					Common1cTypes.EnumNaturalOrLegal,
 					"ЮрЛицо"
 				)
