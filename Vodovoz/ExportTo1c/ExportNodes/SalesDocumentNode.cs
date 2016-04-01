@@ -50,7 +50,6 @@ namespace Vodovoz.ExportTo1c
 			xml.Add(Tables[0].ToXml());
 			Properties.ForEach(prop => xml.Add(prop.ToXml()));
 			xml.Add(Tables[1].ToXml());
-			//Tables.ForEach(table=>xml.Add(table.ToXml()));
 			return xml;
 		}
 	}

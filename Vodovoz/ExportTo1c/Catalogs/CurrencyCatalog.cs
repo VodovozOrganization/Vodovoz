@@ -13,7 +13,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			get{return "Валюты";}
 		}
-		public override ReferenceNode GetReferenceTo(Currency currency)
+		public override ReferenceNode CreateReferenceTo(Currency currency)
 		{
 			int id = GetReferenceId(currency);
 			return new ReferenceNode(id,

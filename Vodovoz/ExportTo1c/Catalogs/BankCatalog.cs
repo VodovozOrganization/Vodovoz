@@ -14,7 +14,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			get{return "Банки";}
 		}
-		public override ReferenceNode GetReferenceTo(Bank bank)
+		public override ReferenceNode CreateReferenceTo(Bank bank)
 		{
 			int id = GetReferenceId(bank);
 			return new ReferenceNode(id,

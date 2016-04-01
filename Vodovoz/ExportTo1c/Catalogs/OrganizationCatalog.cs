@@ -16,7 +16,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			get{return "Организации";}
 		}
 
-		public override ReferenceNode GetReferenceTo(Organization organization)
+		public override ReferenceNode CreateReferenceTo(Organization organization)
 		{
 			int id = GetReferenceId(organization);
 			var code1c = defaultOrganizationCode;

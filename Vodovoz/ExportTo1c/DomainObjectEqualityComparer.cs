@@ -24,7 +24,7 @@ namespace Vodovoz
 		{
 			// возможно плохая реализация хешкода
 			var prime = 13;
-			var hash = prime * obj.Id + obj.GetType().GetHashCode();
+			var hash = prime * obj.Id.GetHashCode() + obj.GetType().GetHashCode();
 			return hash;
 		}
 		#endregion

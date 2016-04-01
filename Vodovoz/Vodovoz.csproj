@@ -507,7 +507,6 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.Revision.cs" />
     <Compile Include="ExportTo1c\Common1cTypes.cs" />
     <Compile Include="ExportTo1c\DomainObjectEqualityComparer.cs" />
-    <Compile Include="ExportTo1c\EnumExtensions.cs" />
     <Compile Include="ExportTo1c\ExportData.cs" />
     <Compile Include="ExportTo1c\Exports.cs" />
     <Compile Include="ExportTo1c\IXmlConvertable.cs" />
@@ -540,6 +539,7 @@
     <Compile Include="ServiceDialogs\ExportTo1cDialog.cs" />
     <Compile Include="gtk-gui\Vodovoz.ExportTo1cDialog.cs" />
     <Compile Include="ServiceDialogs\ExportOperation.cs" />
+    <Compile Include="ExportTo1c\EnumExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

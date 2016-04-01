@@ -14,7 +14,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			get{return "Склады";}
 		}
-		public override ReferenceNode GetReferenceTo(Warehouse1c warehouse)
+		public override ReferenceNode CreateReferenceTo(Warehouse1c warehouse)
 		{
 			int id = GetReferenceId(warehouse);
 			return new ReferenceNode(id,

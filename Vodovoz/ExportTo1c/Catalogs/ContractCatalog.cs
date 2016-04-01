@@ -15,7 +15,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			get{return "ДоговорыКонтрагентов";}
 		}
 
-		public override ReferenceNode GetReferenceTo(CounterpartyContract contract)
+		public override ReferenceNode CreateReferenceTo(CounterpartyContract contract)
 		{
 			int id = GetReferenceId(contract);
 			var organization = exportData.CashlessOrganization;
@@ -29,11 +29,11 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				),
 				new PropertyNode("Владелец",
 					Common1cTypes.ReferenceCounterparty,
-					exportData.CounterpartyDirectory.GetReferenceTo(contract.Counterparty)
+					exportData.CounterpartyCatalog.CreateReferenceTo(contract.Counterparty)
 				),
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					exportData.OrganizationDirectory.GetReferenceTo(organization)
+					exportData.OrganizationCatalog.CreateReferenceTo(organization)
 				),
 				new PropertyNode("ВидДоговора",
 					Common1cTypes.EnumContractType,
@@ -52,7 +52,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			properties.Add(
 				new PropertyNode("ВалютаВзаиморасчетов",
 					Common1cTypes.ReferenceCurrency,
-					exportData.CurrencyDirectory.GetReferenceTo(Currency.Default)
+					exportData.CurrencyCatalog.CreateReferenceTo(Currency.Default)
 				)
 			);
 			properties.Add(

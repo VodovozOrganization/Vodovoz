@@ -23,41 +23,57 @@ namespace Vodovoz.ExportTo1c
 		public string ConversionRulesId{get;set;}
 		public string Comment{ get; set;}
 			
-		public List<ObjectNode> Objects{ get; set;}
+		public List<ObjectNode> Objects{ get; }
 		public RulesNode ExchangeRules{ get; set; }
 
 		public int objectCounter;
 
-		public IUnitOfWork UoW;
+		public readonly IUnitOfWork UoW;
 
-		public AccountCatalog AccountDirectory;
-		public BankCatalog BankDirectory;
-		public ContractCatalog ContractDirectory;
-		public CounterpartyCatalog CounterpartyDirectory;
-		public CurrencyCatalog CurrencyDirectory;
-		public MeasurementUnitsCatalog MeasurementUnitsDirectory;
-		public NomenclatureCatalog NomenclatureDirectory;
-		public OrganizationCatalog OrganizationDirectory;
-		public WarehouseCatalog WarehouseDirectory;
+		public AccountCatalog AccountCatalog{ get; }
+		public BankCatalog BankCatalog{ get; }
+		public ContractCatalog ContractCatalog{ get; }
+		public CounterpartyCatalog CounterpartyCatalog{ get; }
+		public CurrencyCatalog CurrencyCatalog{ get; }
+		public MeasurementUnitsCatalog MeasurementUnitCatalog{ get; }
+		public NomenclatureCatalog NomenclatureCatalog{ get; }
+		public OrganizationCatalog OrganizationCatalog{ get; }
+		public WarehouseCatalog WarehouseCatalog{ get; }
 
 		public Dictionary<NomenclatureCategory, Nomenclature> CategoryToNomenclatureMap;
-		public Organization CashlessOrganization{ get; private set;}
+		public Organization CashlessOrganization{ get;}
 
-		public ExportData(IUnitOfWork uow)
+		public ExportData(IUnitOfWork uow, DateTime dateStart, DateTime dateEnd)
 		{			
 			this.Objects = new List<ObjectNode>();
 			this.UoW = uow;
-			this.AccountDirectory = new AccountCatalog(this);
-			this.BankDirectory = new BankCatalog(this);
-			this.ContractDirectory = new ContractCatalog(this);
-			this.CounterpartyDirectory = new CounterpartyCatalog(this);
-			this.CurrencyDirectory = new CurrencyCatalog(this);
-			this.MeasurementUnitsDirectory = new MeasurementUnitsCatalog(this);
-			this.NomenclatureDirectory = new NomenclatureCatalog(this);
-			this.OrganizationDirectory = new OrganizationCatalog(this);
-			this.WarehouseDirectory = new WarehouseCatalog(this);
+
+			this.Version = "2.0";
+			this.ExportDate = DateTime.Now;
+			this.StartPeriodDate = dateStart;
+			this.EndPeriodDate = dateEnd;
+			this.SourceName = "Торговля+Склад, редакция 9.2";
+			this.DestinationName = "БухгалтерияПредприятия";
+			this.ConversionRulesId = "70e9dbac-59df-44bb-82c6-7d4f30d37c74";
+			this.Comment = "";
+
+			this.AccountCatalog = new AccountCatalog(this);
+			this.BankCatalog = new BankCatalog(this);
+			this.ContractCatalog = new ContractCatalog(this);
+			this.CounterpartyCatalog = new CounterpartyCatalog(this);
+			this.CurrencyCatalog = new CurrencyCatalog(this);
+			this.MeasurementUnitCatalog = new MeasurementUnitsCatalog(this);
+			this.NomenclatureCatalog = new NomenclatureCatalog(this);
+			this.OrganizationCatalog = new OrganizationCatalog(this);
+			this.WarehouseCatalog = new WarehouseCatalog(this);
 			this.CashlessOrganization = OrganizationRepository.GetOrganizationByPaymentType(uow, PaymentType.cashless);
 			this.CategoryToNomenclatureMap = new Dictionary<NomenclatureCategory, Nomenclature>();
+			// для реализации группировки по категориям 
+			// для каждой категории создадим экземпляр номенклатуры-группы с отрицательным id( других таких быть не может
+			// т.к. NHibernate загружает их с id>=0)
+			// в дальнейшем(при добавлении справочника номенклатуры) из CategoryToNomenclatureMap получим экземпляр 
+			// номенклатуры-группы для указания в качестве родителя,
+			// а по отрицательному id поймем что это номенклатура-группа
 			int i = 0;
 			foreach (NomenclatureCategory category in Enum.GetValues(typeof(NomenclatureCategory)).OfType<NomenclatureCategory>())
 			{
@@ -72,7 +88,7 @@ namespace Vodovoz.ExportTo1c
 
 		public void AddOrder(Order order)
 		{
-			var exportSalesDocument = GetSalesDocument(order);
+			var exportSalesDocument = CreateSalesDocument(order);
 			var exportInvoiceDocument = new InvoiceDocumentNode();
 			exportInvoiceDocument.Id = ++objectCounter;
 			exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
@@ -83,7 +99,7 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					OrganizationDirectory.GetReferenceTo(CashlessOrganization)
+					OrganizationCatalog.CreateReferenceTo(CashlessOrganization)
 				)
 			);
 
@@ -99,7 +115,7 @@ namespace Vodovoz.ExportTo1c
 				exportInvoiceDocument.Properties.Add(
 					new PropertyNode("ДоговорКонтрагента",
 						Common1cTypes.ReferenceContract,
-						ContractDirectory.GetReferenceTo(contract)
+						ContractCatalog.CreateReferenceTo(contract)
 					)
 				);
 			}
@@ -138,7 +154,7 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("ВалютаДокумента",
 					Common1cTypes.ReferenceCurrency,
-					CurrencyDirectory.GetReferenceTo(Currency.Default)
+					CurrencyCatalog.CreateReferenceTo(Currency.Default)
 				)
 			);
 			exportInvoiceDocument.Properties.Add(
@@ -159,7 +175,7 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Properties.Add(
 				new PropertyNode("Контрагент",
 					Common1cTypes.ReferenceCounterparty,
-					CounterpartyDirectory.GetReferenceTo(order.Client)
+					CounterpartyCatalog.CreateReferenceTo(order.Client)
 				)
 			);
 			exportInvoiceDocument.Properties.Add(
@@ -178,7 +194,7 @@ namespace Vodovoz.ExportTo1c
 			Objects.Add(exportInvoiceDocument);
 		}
 
-		public SalesDocumentNode GetSalesDocument(Order order)
+		public SalesDocumentNode CreateSalesDocument(Order order)
 		{
 			var goods = order.OrderItems.Where(item => Nomenclature.GetCategoriesForGoods().Contains(item.Nomenclature.Category));
 			var exportSaleDocument = new SalesDocumentNode();
@@ -194,7 +210,7 @@ namespace Vodovoz.ExportTo1c
 
 			foreach (var orderItem in goods)
 			{
-				var record = GetRecord(orderItem);
+				var record = CreateRecord(orderItem);
 				exportGoodsTable.Records.Add(record);
 				exportSaleDocument.Comission.Comissions.Add(0);
 			}
@@ -202,7 +218,7 @@ namespace Vodovoz.ExportTo1c
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("Организация",
 					Common1cTypes.ReferenceOrganization,
-					OrganizationDirectory.GetReferenceTo(CashlessOrganization)
+					OrganizationCatalog.CreateReferenceTo(CashlessOrganization)
 				)
 			);
 			exportSaleDocument.Properties.Add(
@@ -214,13 +230,13 @@ namespace Vodovoz.ExportTo1c
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("Склад",
 					Common1cTypes.ReferenceWarehouse,
-					WarehouseDirectory.GetReferenceTo(Warehouse1c.Default)
+					WarehouseCatalog.CreateReferenceTo(Warehouse1c.Default)
 				)
 			);
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("Контрагент",
 					Common1cTypes.ReferenceCounterparty,
-					CounterpartyDirectory.GetReferenceTo(order.Client)
+					CounterpartyCatalog.CreateReferenceTo(order.Client)
 				)
 			);
 			var contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoW,order.Client,order.PaymentType);
@@ -229,7 +245,7 @@ namespace Vodovoz.ExportTo1c
 				exportSaleDocument.Properties.Add(
 					new PropertyNode("ДоговорКонтрагента",
 						Common1cTypes.ReferenceContract,
-						ContractDirectory.GetReferenceTo(contract)
+						ContractCatalog.CreateReferenceTo(contract)
 					)
 				);
 			}
@@ -244,7 +260,7 @@ namespace Vodovoz.ExportTo1c
 			exportSaleDocument.Properties.Add(
 				new PropertyNode("ВалютаДокумента",
 					Common1cTypes.ReferenceCurrency,
-					CurrencyDirectory.GetReferenceTo(ExportTo1c.Currency.Default)
+					CurrencyCatalog.CreateReferenceTo(ExportTo1c.Currency.Default)
 				)
 			);
 
@@ -287,7 +303,7 @@ namespace Vodovoz.ExportTo1c
 			var services = order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.service);
 			foreach (var serviceItem in services)
 			{
-				var record = GetRecord(serviceItem);
+				var record = CreateRecord(serviceItem);
 				exportServicesTable.Records.Add(record);
 			}
 			exportSaleDocument.Tables.Add(exportGoodsTable);
@@ -295,10 +311,10 @@ namespace Vodovoz.ExportTo1c
 			return exportSaleDocument;
 		}			
 
-		public TableRecordNode GetRecord(OrderItem orderItem)
+		public TableRecordNode CreateRecord(OrderItem orderItem)
 		{
 			var record = new TableRecordNode();
-			var nomenclatureReference = NomenclatureDirectory.GetReferenceTo(orderItem.Nomenclature);
+			var nomenclatureReference = NomenclatureCatalog.CreateReferenceTo(orderItem.Nomenclature);
 			record.Properties.Add(
 				new PropertyNode("Номенклатура",
 					Common1cTypes.ReferenceNomenclature,

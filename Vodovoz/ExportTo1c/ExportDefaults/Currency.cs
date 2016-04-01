@@ -10,23 +10,17 @@ namespace Vodovoz.ExportTo1c
 		public string Name{ get; set; }
 		public string FullName{ get; set;}
 
-		private static Currency defaultCurrency;
-		public static Currency Default
+		public static Currency Default{ get;}
+
+		static Currency()
 		{
-			get
+			Default = new Currency
 			{
-				if (defaultCurrency == null)
-				{
-					defaultCurrency = new Currency
-					{
-						Id = 643,
-						ExportId = 643,
-						Name = "руб.",
-						FullName = "Российский рубль"
-					};
-				}
-				return defaultCurrency;
-			}
+				Id = 643,
+				ExportId = 643,
+				Name = "руб.",
+				FullName = "Российский рубль"
+			};
 		}
 	}
 }

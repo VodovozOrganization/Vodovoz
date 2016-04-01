@@ -10,23 +10,16 @@ namespace Vodovoz.ExportTo1c
 		public string Name{ get; set; }
 		public string Type{ get; set;}
 
-		private static Warehouse1c defaultCurrency;
-		public static Warehouse1c Default
-		{
-			get
-			{
-				if (defaultCurrency == null)
+		public static Warehouse1c Default{ get;}
+
+		static Warehouse1c(){
+			Default = new Warehouse1c
 				{
-					defaultCurrency = new Warehouse1c
-						{
-							Id = 1,
-							ExportId = "00001",
-							Name = "Основной склад",
-							Type = "Оптовый"
-						};
-				}
-				return defaultCurrency;
-			}
+					Id = 1,
+					ExportId = "00001",
+					Name = "Основной склад",
+					Type = "Оптовый"
+				};
 		}
 	}
 }

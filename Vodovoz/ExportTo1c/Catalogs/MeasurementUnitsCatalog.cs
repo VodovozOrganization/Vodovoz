@@ -15,7 +15,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		{
 			get{return "КлассификаторЕдиницИзмерения";}
 		}
-		public override ReferenceNode GetReferenceTo(MeasurementUnits unit)
+		public override ReferenceNode CreateReferenceTo(MeasurementUnits unit)
 		{			
 			int id = GetReferenceId(unit);
 			return new ReferenceNode(id,

@@ -15,10 +15,10 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			get{return "Номенклатура";}
 		}
 
-		public override ReferenceNode GetReferenceTo(Nomenclature nomenclature)
+		public override ReferenceNode CreateReferenceTo(Nomenclature nomenclature)
 		{
 			int id = GetReferenceId(nomenclature);
-			//Если id<=0 то этот объект загружался не из базы -> выгружаем как папку для 1с
+			//Если id<=0 то этот объект загружался не из базы -> выгружаем как группу для 1с
 			bool isGroup = nomenclature.Id <= 0;
 			if (isGroup)
 			{
@@ -58,14 +58,14 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				)
 			);
 			Nomenclature parentNomenclature;
-			//Если id<=0 то этот объект загружался не из базы -> выгружаем как папку для 1с
+			//Если id<=0 то этот объект загружался не из базы -> выгружаем как группу для 1с
 			bool isGroup = nomenclature.Id <=0;
 			if (exportData.CategoryToNomenclatureMap.TryGetValue(nomenclature.Category, out parentNomenclature) && !isGroup)
 			{
 				properties.Add(
 					new PropertyNode("Родитель",
 						Common1cTypes.ReferenceNomenclature,	
-						exportData.NomenclatureDirectory.GetReferenceTo(parentNomenclature)
+						exportData.NomenclatureCatalog.CreateReferenceTo(parentNomenclature)
 					)
 				);
 			}
@@ -82,7 +82,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				properties.Add(
 					new PropertyNode("БазоваяЕдиницаИзмерения",
 						Common1cTypes.ReferenceMeasurementUnit,
-						exportData.MeasurementUnitsDirectory.GetReferenceTo(nomenclature.Unit)
+						exportData.MeasurementUnitCatalog.CreateReferenceTo(nomenclature.Unit)
 					)
 				);
 			}

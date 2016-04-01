@@ -17,7 +17,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 		protected abstract string Name{ get; }
 
 		protected abstract PropertyNode[] GetProperties(T obj);
-		public abstract ReferenceNode GetReferenceTo(T obj);
+		public abstract ReferenceNode CreateReferenceTo(T obj);
 
 		public int GetReferenceId(T obj)
 		{
@@ -38,7 +38,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 					Id = GetReferenceId(obj),
 					CatalogueType = this.Name
 				};
-			item.Reference = GetReferenceTo(obj);	
+			item.Reference = CreateReferenceTo(obj);	
 			item.Properties.AddRange(GetProperties(obj));
 			exportData.Objects.Add(item);
 		}

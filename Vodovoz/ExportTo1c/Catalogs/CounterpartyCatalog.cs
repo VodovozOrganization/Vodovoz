@@ -15,7 +15,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			get{return "Контрагенты";}
 		}
 			
-		public override ReferenceNode GetReferenceTo(Counterparty counterparty)
+		public override ReferenceNode CreateReferenceTo(Counterparty counterparty)
 		{
 			int id = GetReferenceId(counterparty);
 			var code1c = String.IsNullOrWhiteSpace(counterparty.Code1c) 
@@ -67,7 +67,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 				properties.Add(
 					new PropertyNode("ОсновнойБанковскийСчет",
 						Common1cTypes.ReferenceAccount,
-						exportData.AccountDirectory.GetReferenceTo(counterparty.DefaultAccount,counterparty)
+						exportData.AccountCatalog.CreateReferenceTo(counterparty.DefaultAccount,counterparty)
 					)
 				);
 			properties.Add(

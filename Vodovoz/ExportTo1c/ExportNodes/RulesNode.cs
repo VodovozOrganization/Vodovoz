@@ -4,12 +4,7 @@ using System.Xml.Linq;
 namespace Vodovoz.ExportTo1c
 {
 	public class RulesNode : IXmlConvertable
-	{		
-		public RulesNode()
-		{			
-			
-		}
-
+	{
 		#region IXmlConvertable implementation
 
 		public System.Xml.Linq.XElement ToXml()
@@ -21,7 +16,7 @@ namespace Vodovoz.ExportTo1c
 	}
 	public static class DefaultExchangeStrings{
 		#region rules 
-		public static string DefaultExchangeRules = @"<ПравилаОбмена ВерсияФормата=""2.01"" Ид=""70e9dbac-59df-44bb-82c6-7d4f30d37c74    "" Наименование=""Торговля+Склад, редакция 9.2 --&gt; БухгалтерияПредприятия"" ДатаВремяСоздания=""2012-07-26T17:47:01"" Источник=""Торговля+Склад, редакция 9.2"" Приемник=""БухгалтерияПредприятия""><ПослеЗагрузкиОбъекта>Если ИмяТипаОбъекта = ""Справочник"" ИЛИ ИмяТипаОбъекта = ""ПланВидовХарактеристик"" Тогда
+		public static readonly string DefaultExchangeRules = @"<ПравилаОбмена ВерсияФормата=""2.01"" Ид=""70e9dbac-59df-44bb-82c6-7d4f30d37c74    "" Наименование=""Торговля+Склад, редакция 9.2 --&gt; БухгалтерияПредприятия"" ДатаВремяСоздания=""2012-07-26T17:47:01"" Источник=""Торговля+Склад, редакция 9.2"" Приемник=""БухгалтерияПредприятия""><ПослеЗагрузкиОбъекта>Если ИмяТипаОбъекта = ""Справочник"" ИЛИ ИмяТипаОбъекта = ""ПланВидовХарактеристик"" Тогда
 
 	Если НЕ ЗначениеЗаполнено(Объект.Код) Тогда
 		
