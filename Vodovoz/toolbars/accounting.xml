@@ -3,6 +3,7 @@
 		<toolitem name='ActionTransferBankDocs' action='ActionTransferBankDocs'/>
 		<toolitem name='ActionAccountingTable' action='ActionAccountingTable'/>
 		<toolitem name='ActionAccountFlow' action='ActionAccountFlow'/>
+		<toolitem name='ActionRevision' action='ActionRevision'/>
 		<toolitem name='ActionExportTo1c' action='ActionExportTo1c'/>
 	</toolbar>
 </ui>

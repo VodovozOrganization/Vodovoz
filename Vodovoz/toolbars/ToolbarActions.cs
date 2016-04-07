@@ -53,12 +53,12 @@ public partial class MainWindow : Window
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
 		ActionUnclosedAdvances = new Action ("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
 		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
-		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionExportTo1c = new Action ("ActionExportTo1c", "Выгрузка в 1с", null, "table");
 		ActionAccountingTable = new Action ("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action ("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
+		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
