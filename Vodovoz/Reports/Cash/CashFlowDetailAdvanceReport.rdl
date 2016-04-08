@@ -29,13 +29,13 @@
                                                 cash_expense_category AS cat3
                                             WHERE
                                                 id = cat2.parent_id),
-                                        ' → ',
+                                        ' - ',
                                         cat2.name))
                     FROM
                         cash_expense_category AS cat2
                     WHERE
                         id = cat1.parent_id),
-                ' → ',
+                ' - ',
                 cat1.name)) AS Category,
     cash_advance_report.money AS Sum,
     cash_advance_report.description,
