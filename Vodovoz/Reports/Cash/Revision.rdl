@@ -201,9 +201,9 @@ and operation_time &lt; @date_start
       <Textbox Name="Textbox3">
         <Height>49.02pt</Height>
         <Width>814.53pt</Width>
-        <Value>="Мы, нижеподписавшиеся, __________________ "
-+First(Fields!org_name,'Organization')+" __________________, с одной стороны, и __________________ "
-+First(Fields!counterparty_name,'Counterparty')+" ________________________, с другой стороны, составили настоящий акт сверки в том, что состояние взаимных расчетов по данным учета следующее:"</Value>
+        <Value>="Мы, нижеподписавшиеся, "
++First(Fields!org_name,'Organization')+", с одной стороны, и "
++First(Fields!counterparty_name,'Counterparty')+", с другой стороны, составили настоящий акт сверки в том, что состояние взаимных расчетов по данным учета следующее:"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>87.60pt</Top>
@@ -215,7 +215,7 @@ and operation_time &lt; @date_start
       </Textbox>
       <Table Name="Table1">
         <DataSetName>Operations</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>За указанный период нет движений по контрагенту.</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
