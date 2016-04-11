@@ -25857,6 +25857,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Button" id="buttonOpen">
                 <property name="MemberName" />
+                <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Label" translatable="yes">Открыть</property>

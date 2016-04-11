@@ -42,6 +42,7 @@ namespace Vodovoz
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.buttonOpen = new global::Gtk.Button ();
+			this.buttonOpen.Sensitive = false;
 			this.buttonOpen.CanFocus = true;
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
