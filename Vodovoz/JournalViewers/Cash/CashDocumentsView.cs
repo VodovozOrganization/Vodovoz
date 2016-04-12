@@ -59,25 +59,26 @@ namespace Vodovoz
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			ITdiDialog dlg;
-
 			CashDocumentType type = (CashDocumentType)e.ItemEnum;	
 			switch (type) {
-			case CashDocumentType.Income:
-				dlg = new CashIncomeDlg ();
+				case CashDocumentType.Income:
+					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Income>(0),
+						() => new CashIncomeDlg(), this
+					);
 				break;
 			case CashDocumentType.Expense:
-				dlg = new CashExpenseDlg ();
+					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Expense>(0),
+						() => new CashExpenseDlg(), this
+					);
 				break;
 			case CashDocumentType.AdvanceReport:
-				dlg = new AdvanceReportDlg ();
+					TabParent.OpenTab(OrmMain.GenerateDialogHashName<AdvanceReport>(0),
+						() => new AdvanceReportDlg(), this
+					);
 				break;
 			default:
 				throw new NotSupportedException ("Тип документа не поддерживается.");
 			}
-			if (TabParent.BeforeCreateNewTab ((object)null, null).HasFlag (TdiBeforeCreateResultFlag.Canceled))
-				return;
-			TabParent.AddTab (dlg, this);
 		}
 
 		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
@@ -92,21 +93,25 @@ namespace Vodovoz
 			
 			int id = tableDocuments.GetSelectedId ();
 			var DocType = (tableDocuments.GetSelectedObject () as ViewModel.CashDocumentsVMNode).DocTypeEnum;
-			ITdiDialog dlg;
 			switch (DocType) {
 			case CashDocumentType.Income:
-				dlg = new CashIncomeDlg (id);
+					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Income>(id),
+						() => new CashIncomeDlg(id), this
+					);
 				break;
 			case CashDocumentType.Expense:
-				dlg = new CashExpenseDlg (id);
+					TabParent.OpenTab(OrmMain.GenerateDialogHashName<Expense>(id),
+						() => new CashExpenseDlg(id), this
+					);
 				break;
 			case CashDocumentType.AdvanceReport: 
-				dlg = new AdvanceReportDlg (id);
+					TabParent.OpenTab(OrmMain.GenerateDialogHashName<AdvanceReport>(id),
+						() => new AdvanceReportDlg(id), this
+					);
 				break;
 			default:
-				return;
+				throw new NotSupportedException ("Тип документа не поддерживается.");
 			}
-			TabParent.AddTab (dlg, this);
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)

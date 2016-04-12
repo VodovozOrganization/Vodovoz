@@ -58,17 +58,24 @@ namespace Vodovoz
 				document = new WriteoffDocument ();
 				break;
 			case DocumentType.CarLoadDocument:
-				TabParent.AddTab(new ReadyForShipmentView(), this, false);
+					TabParent.OpenTab(
+						TdiTabBase.GenerateHashName(typeof(ReadyForShipmentView)),
+						() => new ReadyForShipmentView(), this
+					);
 				return;
 			case DocumentType.CarUnloadDocument:
-				TabParent.AddTab(new ReadyForReceptionView(), this, false);
+					TabParent.OpenTab(
+						TdiTabBase.GenerateHashName(typeof(ReadyForReceptionView)),
+						() => new ReadyForReceptionView(), this
+					);
 				return;
 			default:
 				throw new NotSupportedException ("Тип документа не поддерживается.");
 			}
-			if (TabParent.BeforeCreateNewTab ((object)null, null).HasFlag (TdiBeforeCreateResultFlag.Canceled))
-				return;
-			TabParent.AddTab (OrmMain.CreateObjectDialog (document.GetType ()), this);
+			TabParent.OpenTab (
+				OrmMain.GenerateDialogHashName(document.GetType (), 0),
+				() => OrmMain.CreateObjectDialog (document.GetType ()),
+				this);
 		}
 
 		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
@@ -81,48 +88,68 @@ namespace Vodovoz
 			if (tableDocuments.GetSelectedObjects ().GetLength (0) > 0) {
 				int id = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).Id;
 				DocumentType DocType = (tableDocuments.GetSelectedObjects () [0] as ViewModel.DocumentVMNode).DocTypeEnum;
-				ITdiDialog dlg;
+
 				switch (DocType) {
-				case DocumentType.IncomingInvoice:
-					dlg = new IncomingInvoiceDlg (id);
+					case DocumentType.IncomingInvoice:
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<IncomingInvoice>(id),
+							() => new IncomingInvoiceDlg (id),
+							this);
 					break;
 				case DocumentType.IncomingWater:
-					dlg = new IncomingWaterDlg (id);
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<IncomingWater>(id),
+							() => new IncomingWaterDlg (id),
+							this);
 					break;
 				case DocumentType.MovementDocument: 
-					dlg = new MovementDocumentDlg (id);
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<MovementDocument>(id),
+							() => new MovementDocumentDlg (id),
+							this);
 					break;
 				case DocumentType.WriteoffDocument:
-					dlg = new WriteoffDocumentDlg (id);
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<WriteoffDocument>(id),
+							() => new WriteoffDocumentDlg (id),
+							this);
 					break;
 					case DocumentType.CarLoadDocument:
 						var doc = uow.GetById<CarLoadDocument>(id);
-						var reportInfo = new QSReport.ReportInfo {
+						var reportInfo = new QSReport.ReportInfo
+						{
 							Title = doc.Title,
 							Identifier = "Store.CarLoadDoc",
-							Parameters = new System.Collections.Generic.Dictionary<string, object> {
+							Parameters = new System.Collections.Generic.Dictionary<string, object>
+							{
 								{ "id",  id }
 							}
 						};
-
-						TabParent.AddTab (new QSReport.ReportViewDlg (reportInfo) , this);
-						return;
+						TabParent.OpenTab(
+							QSReport.ReportViewDlg.GenerateHashName(reportInfo),
+							() => new QSReport.ReportViewDlg(reportInfo),
+							this);
+						break;
 					case DocumentType.CarUnloadDocument:
 						var unloadDoc = uow.GetById<CarUnloadDocument>(id);
-						var unloadReportInfo = new QSReport.ReportInfo {
+						var unloadReportInfo = new QSReport.ReportInfo
+						{
 							Title = unloadDoc.Title,
 							Identifier = "Store.CarUnloadDoc",
-							Parameters = new System.Collections.Generic.Dictionary<string, object> {
+							Parameters = new System.Collections.Generic.Dictionary<string, object>
+							{
 								{ "id",  id }
 							}
 						};
 
-						TabParent.AddTab (new QSReport.ReportViewDlg (unloadReportInfo) , this);
-						return;
+						TabParent.OpenTab(
+							QSReport.ReportViewDlg.GenerateHashName(unloadReportInfo),
+							() => new QSReport.ReportViewDlg(unloadReportInfo),
+							this);
+						break;
 				default:
-					return;
+					throw new NotSupportedException ("Тип документа не поддерживается.");
 				}
-				TabParent.AddTab (dlg, this);
 			}
 		}
 
