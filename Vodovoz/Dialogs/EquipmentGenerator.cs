@@ -44,6 +44,16 @@ namespace Vodovoz
 			}
 		}
 
+		public bool CompareHashName(string hashName)
+		{
+			return GenerateHashName() == hashName;
+		}
+
+		public static string GenerateHashName()
+		{
+			return typeof(EquipmentGenerator).Name;
+		}
+
 		#endregion
 
 		#region ITdiDialog implementation
