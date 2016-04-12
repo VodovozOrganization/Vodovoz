@@ -162,6 +162,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonAddDoneService;
 		
+		private global::Gtk.Button buttonOpenServiceClaim;
+		
 		private global::Gtk.Label label17;
 		
 		private global::Gtk.VBox vbox5;
@@ -295,7 +297,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 3;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -982,14 +984,26 @@ namespace Vodovoz
 			w79.Position = 1;
 			w79.Expand = false;
 			w79.Fill = false;
-			this.vbox6.Add (this.hbox12);
-			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.vbox6 [this.hbox12]));
-			w80.Position = 1;
+			// Container child hbox12.Gtk.Box+BoxChild
+			this.buttonOpenServiceClaim = new global::Gtk.Button ();
+			this.buttonOpenServiceClaim.Sensitive = false;
+			this.buttonOpenServiceClaim.CanFocus = true;
+			this.buttonOpenServiceClaim.Name = "buttonOpenServiceClaim";
+			this.buttonOpenServiceClaim.UseUnderline = true;
+			this.buttonOpenServiceClaim.Label = global::Mono.Unix.Catalog.GetString ("Открыть заявку");
+			this.hbox12.Add (this.buttonOpenServiceClaim);
+			global::Gtk.Box.BoxChild w80 = ((global::Gtk.Box.BoxChild)(this.hbox12 [this.buttonOpenServiceClaim]));
+			w80.Position = 2;
 			w80.Expand = false;
 			w80.Fill = false;
+			this.vbox6.Add (this.hbox12);
+			global::Gtk.Box.BoxChild w81 = ((global::Gtk.Box.BoxChild)(this.vbox6 [this.hbox12]));
+			w81.Position = 1;
+			w81.Expand = false;
+			w81.Fill = false;
 			this.notebook1.Add (this.vbox6);
-			global::Gtk.Notebook.NotebookChild w81 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox6]));
-			w81.Position = 3;
+			global::Gtk.Notebook.NotebookChild w82 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox6]));
+			w82.Position = 3;
 			// Notebook tab
 			this.label17 = new global::Gtk.Label ();
 			this.label17.Name = "label17";
@@ -1018,8 +1032,8 @@ namespace Vodovoz
 			this.treeDocuments.Name = "treeDocuments";
 			this.GtkScrolledWindow2.Add (this.treeDocuments);
 			this.vbox1.Add (this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w83 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow2]));
-			w83.Position = 0;
+			global::Gtk.Box.BoxChild w84 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow2]));
+			w84.Position = 0;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox13 = new global::Gtk.HBox ();
 			this.hbox13.Name = "hbox13";
@@ -1030,43 +1044,43 @@ namespace Vodovoz
 			this.buttonViewDocument.Name = "buttonViewDocument";
 			this.buttonViewDocument.UseUnderline = true;
 			this.buttonViewDocument.Label = global::Mono.Unix.Catalog.GetString ("Посмотреть документ");
-			global::Gtk.Image w84 = new global::Gtk.Image ();
-			w84.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-find", global::Gtk.IconSize.Menu);
-			this.buttonViewDocument.Image = w84;
+			global::Gtk.Image w85 = new global::Gtk.Image ();
+			w85.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-find", global::Gtk.IconSize.Menu);
+			this.buttonViewDocument.Image = w85;
 			this.hbox13.Add (this.buttonViewDocument);
-			global::Gtk.Box.BoxChild w85 = ((global::Gtk.Box.BoxChild)(this.hbox13 [this.buttonViewDocument]));
-			w85.Position = 0;
-			w85.Expand = false;
-			w85.Fill = false;
+			global::Gtk.Box.BoxChild w86 = ((global::Gtk.Box.BoxChild)(this.hbox13 [this.buttonViewDocument]));
+			w86.Position = 0;
+			w86.Expand = false;
+			w86.Fill = false;
 			// Container child hbox13.Gtk.Box+BoxChild
 			this.buttonPrintSelected = new global::Gtk.Button ();
 			this.buttonPrintSelected.CanFocus = true;
 			this.buttonPrintSelected.Name = "buttonPrintSelected";
 			this.buttonPrintSelected.UseUnderline = true;
 			this.buttonPrintSelected.Label = global::Mono.Unix.Catalog.GetString ("Печать");
-			global::Gtk.Image w86 = new global::Gtk.Image ();
-			w86.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-print", global::Gtk.IconSize.Menu);
-			this.buttonPrintSelected.Image = w86;
+			global::Gtk.Image w87 = new global::Gtk.Image ();
+			w87.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-print", global::Gtk.IconSize.Menu);
+			this.buttonPrintSelected.Image = w87;
 			this.hbox13.Add (this.buttonPrintSelected);
-			global::Gtk.Box.BoxChild w87 = ((global::Gtk.Box.BoxChild)(this.hbox13 [this.buttonPrintSelected]));
-			w87.PackType = ((global::Gtk.PackType)(1));
-			w87.Position = 1;
-			w87.Expand = false;
-			w87.Fill = false;
-			this.vbox1.Add (this.hbox13);
-			global::Gtk.Box.BoxChild w88 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox13]));
+			global::Gtk.Box.BoxChild w88 = ((global::Gtk.Box.BoxChild)(this.hbox13 [this.buttonPrintSelected]));
+			w88.PackType = ((global::Gtk.PackType)(1));
 			w88.Position = 1;
 			w88.Expand = false;
 			w88.Fill = false;
+			this.vbox1.Add (this.hbox13);
+			global::Gtk.Box.BoxChild w89 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox13]));
+			w89.Position = 1;
+			w89.Expand = false;
+			w89.Fill = false;
 			this.hbox9.Add (this.vbox1);
-			global::Gtk.Box.BoxChild w89 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.vbox1]));
-			w89.Position = 0;
-			this.vbox5.Add (this.hbox9);
-			global::Gtk.Box.BoxChild w90 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.hbox9]));
+			global::Gtk.Box.BoxChild w90 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.vbox1]));
 			w90.Position = 0;
+			this.vbox5.Add (this.hbox9);
+			global::Gtk.Box.BoxChild w91 = ((global::Gtk.Box.BoxChild)(this.vbox5 [this.hbox9]));
+			w91.Position = 0;
 			this.notebook1.Add (this.vbox5);
-			global::Gtk.Notebook.NotebookChild w91 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox5]));
-			w91.Position = 4;
+			global::Gtk.Notebook.NotebookChild w92 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vbox5]));
+			w92.Position = 4;
 			// Notebook tab
 			this.label18 = new global::Gtk.Label ();
 			this.label18.Name = "label18";
@@ -1074,8 +1088,8 @@ namespace Vodovoz
 			this.notebook1.SetTabLabel (this.vbox5, this.label18);
 			this.label18.ShowAll ();
 			this.vbox2.Add (this.notebook1);
-			global::Gtk.Box.BoxChild w92 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.notebook1]));
-			w92.Position = 1;
+			global::Gtk.Box.BoxChild w93 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.notebook1]));
+			w93.Position = 1;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.datahbox2 = new global::Gtk.DataBindings.DataHBox ();
 			this.datahbox2.Name = "datahbox2";
@@ -1090,18 +1104,18 @@ namespace Vodovoz
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
-			global::Gtk.Image w93 = new global::Gtk.Image ();
-			w93.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w93;
+			global::Gtk.Image w94 = new global::Gtk.Image ();
+			w94.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w94;
 			this.datahbox2.Add (this.buttonAccept);
-			global::Gtk.Box.BoxChild w94 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.buttonAccept]));
-			w94.Position = 0;
-			w94.Fill = false;
-			this.vbox2.Add (this.datahbox2);
-			global::Gtk.Box.BoxChild w95 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.datahbox2]));
-			w95.Position = 2;
-			w95.Expand = false;
+			global::Gtk.Box.BoxChild w95 = ((global::Gtk.Box.BoxChild)(this.datahbox2 [this.buttonAccept]));
+			w95.Position = 0;
 			w95.Fill = false;
+			this.vbox2.Add (this.datahbox2);
+			global::Gtk.Box.BoxChild w96 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.datahbox2]));
+			w96.Position = 2;
+			w96.Expand = false;
+			w96.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -1128,6 +1142,7 @@ namespace Vodovoz
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 			this.buttonAddServiceClaim.Clicked += new global::System.EventHandler (this.OnButtonAddServiceClaimClicked);
 			this.buttonAddDoneService.Clicked += new global::System.EventHandler (this.OnButtonAddDoneServiceClicked);
+			this.buttonOpenServiceClaim.Clicked += new global::System.EventHandler (this.OnButtonOpenServiceClaimClicked);
 			this.buttonViewDocument.Clicked += new global::System.EventHandler (this.OnButtonViewDocumentClicked);
 			this.buttonPrintSelected.Clicked += new global::System.EventHandler (this.OnButtonPrintSelectedClicked);
 			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);

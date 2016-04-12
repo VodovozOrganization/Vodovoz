@@ -13,12 +13,8 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
-using Vodovoz.Repository;
-using QSSupportLib;
-using Gamma.GtkWidgets;
-using Vodovoz.Domain.Orders.Documents;
-using Gamma.Utilities;
 using Vodovoz.Panel;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -253,6 +249,7 @@ namespace Vodovoz
 				.AddColumn ("Причина").SetDataProperty (node => node.Reason)
 				.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 				.Finish ();
+			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
 			
 			UpdateSum ();
 
@@ -265,6 +262,11 @@ namespace Vodovoz
 		void Entity_UpdateClientCanChange (object aList, int[] aIdx)
 		{
 			referenceClient.Sensitive = Entity.CanChangeContractor ();
+		}
+
+		void TreeServiceClaim_Selection_Changed (object sender, EventArgs e)
+		{
+			buttonOpenServiceClaim.Sensitive = treeServiceClaim.Selection.CountSelectedRows() > 0;
 		}
 
 		void FixPrice (int id)
@@ -882,6 +884,15 @@ namespace Vodovoz
 			{
 				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
 			}
+		}
+
+		protected void OnButtonOpenServiceClaimClicked(object sender, EventArgs e)
+		{
+			var claim = treeServiceClaim.GetSelectedObject<ServiceClaim>();
+			OpenTab(
+				OrmGtkDialogBase<ServiceClaim>.GenerateHashName(claim.Id),
+				() => new ServiceClaimDlg(claim)
+			);
 		}
 	}
 }
