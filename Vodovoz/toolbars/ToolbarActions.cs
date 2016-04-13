@@ -1,8 +1,8 @@
 using Gtk;
 using QSOrmProject;
+using QSTDI;
 using Vodovoz;
 using Vodovoz.ViewModel;
-using Vodovoz.ExportTo1c;
 
 public partial class MainWindow : Window
 {
@@ -112,128 +112,172 @@ public partial class MainWindow : Window
 
 	void ActionAccountingTable_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new AccountingView ();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<AccountingView>(),
+			() => new AccountingView ()
+		);
 	}
 
 	void ActionUnclosedAdvances_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new UnclosedAdvancesView ();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<UnclosedAdvancesView>(),
+			() => new UnclosedAdvancesView ()
+		);
 	}
 
 	void ActionTransferBankDocs_Activated (object sender, System.EventArgs e)
 	{
-		var win = new LoadBankTransferDocumentDlg ();
-		tdiMain.AddTab (win);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<LoadBankTransferDocumentDlg>(),
+			() => new LoadBankTransferDocumentDlg ()
+		);
 	}
 
 	void ActionCashFlow_Activated (object sender, System.EventArgs e)
 	{
-		var report = new QSReport.ReportViewDlg (new Vodovoz.Reports.CashFlow ());
-		tdiMain.AddTab (report);
+		var widget = new Vodovoz.Reports.CashFlow();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
 	}
 
 	void ActionRevision_Activated(object sender, System.EventArgs e)
 	{
-		var report = new QSReport.ReportViewDlg(new Vodovoz.Reports.Revision());
-		tdiMain.AddTab (report);
+		var widget = new Vodovoz.Reports.Revision();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
 	}
 
 	void ActionAccountFlow_Activated (object sender, System.EventArgs e)
 	{
-		var report = new QSReport.ReportViewDlg (new Vodovoz.Reports.AccountFlow ());
-		tdiMain.AddTab (report);
+		var widget = new Vodovoz.Reports.AccountFlow();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
 	}
 		
 	void ActionExportTo1c_Activated (object sender, System.EventArgs e)
 	{
-		var dlg = new ExportTo1cDialog();
-		tdiMain.AddTab(dlg);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ExportTo1cDialog>(),
+			() => new ExportTo1cDialog ()
+		);
 	}
 
 	void ActionAccountableDebt_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new AccountableDebts ();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<AccountableDebts>(),
+			() => new AccountableDebts ()
+		);
 	}
 
 	void ActionRouteListTable_Activated (object sender, System.EventArgs e)
 	{
-		ReferenceRepresentation refWin = new ReferenceRepresentation(new RouteListsVM());	
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<RouteListsVM>(),
+			() => new ReferenceRepresentation(new RouteListsVM())
+		);
 	}
 
 	void ActionRouteListClosingTable_Activated(object sender, System.EventArgs e)
 	{
-		var refWin = new RouteListClosingView();	
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<RouteListClosingView>(),
+			() => new RouteListClosingView ()
+		);
 	}
 
 	void ActionRouteListKeeping_Activated(object sender, System.EventArgs e)
 	{
-		var refWin = new RouteListKeepingView();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<RouteListKeepingView>(),
+			() => new RouteListKeepingView ()
+		);
 	}
 
 	void ActionRouteListDistanceValidation_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new RouteListMileageCheckView();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<RouteListMileageCheckView>(),
+			() => new RouteListMileageCheckView ()
+		);
 	}
 
 	void ActionCashDocuments_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new CashDocumentsView ();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<CashDocumentsView>(),
+			() => new CashDocumentsView ()
+		);
 	}
 
 	void ActionReadyForShipmentActivated (object sender, System.EventArgs e)
 	{
-		var refWin = new ReadyForShipmentView ();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ReadyForShipmentView>(),
+			() => new ReadyForShipmentView ()
+		);
 	}
 
 	void ActionReadyForReceptionActivated(object sender, System.EventArgs e)
 	{
-		var refWin = new ReadyForReceptionView ();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ReadyForReceptionView>(),
+			() => new ReadyForReceptionView ()
+		);
 	}
 
 	void ActionClientBalance_Activated (object sender, System.EventArgs e)
 	{
-		var refWin = new ReferenceRepresentation (new ClientBalanceVM ());
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<ClientBalanceVM>(),
+			() => new ReferenceRepresentation (new ClientBalanceVM ())
+		);
 	}
 
 	void ActionAddOrder_Activated (object sender, System.EventArgs e)
 	{		
-		var tab = new OrderDlg ();
-		tdiMain.AddTab (tab);
+		tdiMain.OpenTab(
+			OrmMain.GenerateDialogHashName<Vodovoz.Domain.Orders.Order>(0),
+			() => new OrderDlg ()
+		);
 	}
 
 	void ActionWarehouseStock_Activated (object sender, System.EventArgs e)
 	{
-		var tab = new StockBalanceView ();
-		tdiMain.AddTab (tab);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<StockBalanceView>(),
+			() => new StockBalanceView ()
+		);
 	}
 
 	void ActionWarehouseDocumentsActivated (object sender, System.EventArgs e)
 	{
-		var tab = new WarehouseDocumentsView ();
-		tdiMain.AddTab (tab);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<WarehouseDocumentsView>(),
+			() => new WarehouseDocumentsView ()
+		);
 	}
 
 	void ActionServiceClaimsActivated (object sender, System.EventArgs e)
 	{
-		var refWin = new ServiceClaimsView ();
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<ServiceClaimsView>(),
+			() => new ServiceClaimsView ()
+		);
 	}
 
 	void ActionOrdersTableActivated (object sender, System.EventArgs e)
 	{
-		ReferenceRepresentation refWin = new ReferenceRepresentation (new OrdersVM ());
-		refWin.TabName = "Журнал заказов";
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
+			() => new ReferenceRepresentation (new OrdersVM ()).CustomTabName("Журнал заказов")
+		);
 	}
 }
