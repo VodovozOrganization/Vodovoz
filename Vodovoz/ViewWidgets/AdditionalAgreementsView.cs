@@ -40,6 +40,7 @@ namespace Vodovoz
 		public AdditionalAgreementsView ()
 		{
 			this.Build ();
+			buttonAdd.ItemsEnum = typeof(AgreementType);
 			buttonAdd.SetSensitive (AgreementType.FreeRent, false);
 			buttonAdd.SetSensitive (AgreementType.DailyRent, false);
 			buttonAdd.SetSensitive (AgreementType.NonfreeRent, false);
