@@ -98,16 +98,17 @@ public partial class MainWindow: Gtk.Window
 		//Kind of Windows or Unix
 		else
 			modifier = Gdk.ModifierType.ControlMask;
+
 		//CTRL+C	
-		if ((args.Event.Key == Gdk.Key.Cyrillic_es || args.Event.Key == Gdk.Key.Cyrillic_ES) && args.Event.State == modifier) {
+		if ((args.Event.Key == Gdk.Key.Cyrillic_es || args.Event.Key == Gdk.Key.Cyrillic_ES) && args.Event.State.HasFlag(modifier)) {
 			Widget w = (o as MainWindow).Focus;
 			CopyToClipboard (w);
 		}//CTRL+X
-		else if ((args.Event.Key == Gdk.Key.Cyrillic_che || args.Event.Key == Gdk.Key.Cyrillic_CHE) && args.Event.State == modifier) {
+		else if ((args.Event.Key == Gdk.Key.Cyrillic_che || args.Event.Key == Gdk.Key.Cyrillic_CHE) && args.Event.State.HasFlag(modifier)) {
 			Widget w = (o as MainWindow).Focus;
 			CutToClipboard (w);
 		}//CTRL+V
-		else if ((args.Event.Key == Gdk.Key.Cyrillic_em || args.Event.Key == Gdk.Key.Cyrillic_EM) && args.Event.State == modifier) {
+		else if ((args.Event.Key == Gdk.Key.Cyrillic_em || args.Event.Key == Gdk.Key.Cyrillic_EM) && args.Event.State.HasFlag(modifier)) {
 			Widget w = (o as MainWindow).Focus;
 			PasteFromClipboard (w);
 		}//CTRL+S || CTRL+ENTER
@@ -115,14 +116,17 @@ public partial class MainWindow: Gtk.Window
 		         || args.Event.Key == Gdk.Key.s
 		         || args.Event.Key == Gdk.Key.Cyrillic_yeru
 		         || args.Event.Key == Gdk.Key.Cyrillic_YERU
-		         || args.Event.Key == Gdk.Key.Return) && args.Event.State == modifier) {
+				|| args.Event.Key == Gdk.Key.Return) && args.Event.State.HasFlag(modifier)) {
 			var w = tdiMain.CurrentPageWidget;
 			if (w is QSTDI.TabVBox) {
 				var tab = (w as QSTDI.TabVBox).Tab;
 				if (tab is QSTDI.TdiSliderTab) {
 					var dialog = (tab as QSTDI.TdiSliderTab).ActiveDialog;
-					//FIXME: Вставить закрытие диалога.
-					dialog.Save ();
+					dialog.SaveAndClose ();
+				}
+				if(tab is ITdiDialog)
+				{
+					(tab as ITdiDialog).SaveAndClose();
 				}
 			}
 		}
