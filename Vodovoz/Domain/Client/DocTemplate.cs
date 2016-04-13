@@ -2,7 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace QSDocTemplates.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны документов",
@@ -21,12 +21,12 @@ namespace QSDocTemplates.Domain
 			set { SetField (ref name, value, () => Name); }
 		}
 
-		TemplateType category;
+		TemplateType templateType;
 
 		[Display (Name = "Тип шаблона")]
-		public virtual TemplateType Category {
-			get { return category; }
-			set { SetField (ref category, value, () => Category); }
+		public virtual TemplateType TemplateType {
+			get { return templateType; }
+			set { SetField (ref templateType, value, () => TemplateType); }
 		}
 
 		byte[] file;
@@ -60,9 +60,9 @@ namespace QSDocTemplates.Domain
 		AgRepair
 	}
 
-	public class EmployeeCategoryStringType : NHibernate.Type.EnumStringType
+	public class TemplateTypeStringType : NHibernate.Type.EnumStringType
 	{
-		public EmployeeCategoryStringType () : base (typeof(TemplateType))
+		public TemplateTypeStringType () : base (typeof(TemplateType))
 		{
 		}
 	}

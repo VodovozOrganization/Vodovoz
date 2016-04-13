@@ -315,14 +315,6 @@
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
     <Compile Include="HibernateMapping\Order\OrderItemMap.cs" />
-    <Compile Include="Domain\Counterparty\AdditionalAgreement.cs" />
-    <Compile Include="Domain\Counterparty\Contact.cs" />
-    <Compile Include="Domain\Counterparty\Counterparty.cs" />
-    <Compile Include="Domain\Counterparty\CounterpartyContract.cs" />
-    <Compile Include="Domain\Counterparty\DeliveryPoint.cs" />
-    <Compile Include="Domain\Counterparty\FreeRentEquipment.cs" />
-    <Compile Include="Domain\Counterparty\PaidRentEquipment.cs" />
-    <Compile Include="Domain\Counterparty\Proxy.cs" />
     <Compile Include="Dialogs\Store\ReadyForShipmentDlg.cs" />
     <Compile Include="Domain\Store\ShipmentDocumentType.cs" />
     <Compile Include="Domain\Store\Warehouse.cs" />
@@ -540,6 +532,22 @@
     <Compile Include="ServiceDialogs\ExportTo1c\ExportNodes\TableRecordNode.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\Exports.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\IXmlConvertable.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DocTemplateMap.cs" />
+    <Compile Include="Dialogs\Counterparty\DocTemplateDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
+    <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\FreeRentEquipmentMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\PaidRentEquipmentMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\ProxyMap.cs" />
+    <Compile Include="Domain\Client\AdditionalAgreement.cs" />
+    <Compile Include="Domain\Client\Contact.cs" />
+    <Compile Include="Domain\Client\Counterparty.cs" />
+    <Compile Include="Domain\Client\CounterpartyContract.cs" />
+    <Compile Include="Domain\Client\DeliveryPoint.cs" />
+    <Compile Include="Domain\Client\FreeRentEquipment.cs" />
+    <Compile Include="Domain\Client\PaidRentEquipment.cs" />
+    <Compile Include="Domain\Client\Proxy.cs" />
+    <Compile Include="Domain\Client\DocTemplate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -653,7 +661,6 @@
     <Folder Include="HibernateMapping\Counterparty\" />
     <Folder Include="JournalViewers\" />
     <Folder Include="JournalFilters\" />
-    <Folder Include="Domain\Counterparty\" />
     <Folder Include="Dialogs\Store\" />
     <Folder Include="Domain\Store\" />
     <Folder Include="HibernateMapping\Store\" />
@@ -682,6 +689,8 @@
     <Folder Include="SidePanel\PanelWidgets\" />
     <Folder Include="SidePanel\InfoProviders\" />
     <Folder Include="ServiceDialogs\ExportTo1c\" />
+    <Folder Include="Dialogs\Counterparty\" />
+    <Folder Include="Domain\Client\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
