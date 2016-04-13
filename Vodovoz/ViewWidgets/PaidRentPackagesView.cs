@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.GtkWidgets;
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
@@ -70,6 +71,13 @@ namespace Vodovoz
 		public PaidRentPackagesView ()
 		{
 			this.Build ();
+
+			treeRentPackages.ColumnsConfig = ColumnsConfigFactory.Create<PaidRentEquipment>()
+				.AddColumn("Пакет").AddTextRenderer(x => x.PackageName)
+				.AddColumn("Оборудование").AddTextRenderer(x => x.EquipmentName)
+				.AddColumn("Цена аренды (в месяц)").AddTextRenderer(x => x.PriceString)
+				.AddColumn("Серийный номер").AddTextRenderer(x => x.EquipmentSerial)
+				.Finish();
 			treeRentPackages.Selection.Changed += OnSelectionChanged;
 			UpdateTotalLabels ();
 		}

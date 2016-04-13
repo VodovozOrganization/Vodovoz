@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.GtkWidgets;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
@@ -72,6 +73,15 @@ namespace Vodovoz
 		public FreeRentPackagesView ()
 		{
 			this.Build ();
+
+			treeRentPackages.ColumnsConfig = ColumnsConfigFactory.Create<FreeRentEquipment>()
+				.AddColumn("Пакет").AddTextRenderer(x => x.PackageName)
+				.AddColumn("Оборудование").AddTextRenderer(x => x.EquipmentName)
+				.AddColumn("Серийный номер").AddTextRenderer(x => x.EquipmentSerial)
+				.AddColumn("Сумма залога").AddTextRenderer(x => x.DepositString)
+				.AddColumn("Минимальное количество воды").AddTextRenderer(x => x.WaterAmountString)
+				.Finish();
+			
 			treeRentPackages.Selection.Changed += OnSelectionChanged;
 			UpdateTotalLabels ();
 		}

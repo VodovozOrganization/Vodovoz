@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView treeRentPackages;
+		private global::Gamma.GtkWidgets.yTreeView treeRentPackages;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -51,15 +51,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeRentPackages = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeRentPackages = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeRentPackages.CanFocus = true;
 			this.treeRentPackages.Name = "treeRentPackages";
-			this.treeRentPackages.CursorPointsEveryType = false;
-			this.treeRentPackages.InheritedDataSource = false;
-			this.treeRentPackages.InheritedBoundaryDataSource = false;
-			this.treeRentPackages.InheritedDataSource = false;
-			this.treeRentPackages.InheritedBoundaryDataSource = false;
-			this.treeRentPackages.ColumnMappings = "{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; PriceString[Цена аренды (в сутки)]; EquipmentSerial[Серийный номер];";
 			this.GtkScrolledWindow.Add (this.treeRentPackages);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

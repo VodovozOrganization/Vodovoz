@@ -450,6 +450,12 @@
         <property name="ShortLabel" translatable="yes">Статьи расходов</property>
         <signal name="Activated" handler="OnAction15Activated" />
       </action>
+      <action id="ActionDocTemplates">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Шаблоны документов</property>
+        <property name="ShortLabel" translatable="yes">Шаблоны документов</property>
+        <signal name="Activated" handler="OnActionDocTemplatesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -516,6 +522,8 @@
                       <node type="Menuitem" action="ActionSignificance" />
                       <node type="Menuitem" action="ActionStatus" />
                       <node type="Menuitem" action="ActionCounterpartyPost" />
+                      <node type="Separator" />
+                      <node type="Menuitem" action="ActionDocTemplates" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionLoad1c" />
                     </node>
@@ -717,6 +725,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5259,7 +5268,7 @@ Patronymic</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.Domain.AgreementType, Vodovoz</property>
+                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -8634,7 +8643,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackagesView" design-size="560 300">
+  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackagesView" design-size="569 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -8659,22 +8668,16 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeRentPackages">
+              <widget class="Gamma.GtkWidgets.yTreeView" id="treeRentPackages">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.FreeRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; EquipmentSerial[Серийный номер]; DepositString[Сумма залога]; WaterAmountString[Минимальное количество воды];</property>
               </widget>
             </child>
           </widget>
           <packing>
             <property name="Position">1</property>
-            <property name="AutoSize">False</property>
+            <property name="AutoSize">True</property>
           </packing>
         </child>
         <child>
@@ -9517,7 +9520,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="451 300">
+  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="456 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -9542,16 +9545,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeRentPackages">
+              <widget class="Gamma.GtkWidgets.yTreeView" id="treeRentPackages">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; PriceString[Цена аренды (в месяц)]; EquipmentSerial[Серийный номер];</property>
               </widget>
             </child>
           </widget>
@@ -15122,7 +15119,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DailyRentPackagesView" design-size="437 300">
+  <widget class="Gtk.Bin" id="Vodovoz.DailyRentPackagesView" design-size="456 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -15147,16 +15144,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeRentPackages">
+              <widget class="Gamma.GtkWidgets.yTreeView" id="treeRentPackages">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings">{Vodovoz.Domain.PaidRentEquipment} PackageName[Пакет]; EquipmentName[Оборудование]; PriceString[Цена аренды (в сутки)]; EquipmentSerial[Серийный номер];</property>
               </widget>
             </child>
           </widget>
@@ -22277,7 +22268,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -27243,6 +27233,13 @@ RegistrationNumber</property>
           </packing>
         </child>
       </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.DocTemplateDlg" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
     </child>
   </widget>
 </stetic-interface>
