@@ -1,16 +1,16 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain.Accounting;
 using System.Collections.Generic;
-using Vodovoz.Domain;
-using QSBanks;
-using NHibernate.Transform;
-using QSProjectsLib;
-using QSOrmProject;
 using System.Linq;
-using Gtk;
-using Vodovoz.Domain.Cash;
 using Gamma.ColumnConfig;
+using NHibernate.Transform;
+using QSBanks;
+using QSOrmProject;
+using QSOrmProject.RepresentationModel;
+using QSProjectsLib;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Accounting;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {

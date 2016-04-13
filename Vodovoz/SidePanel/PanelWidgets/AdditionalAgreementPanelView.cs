@@ -1,8 +1,9 @@
 ﻿using System;
-using Vodovoz.Domain;
-using QSProjectsLib;
-using Vodovoz.Repository;
 using System.Linq;
+using QSProjectsLib;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Panel
 {

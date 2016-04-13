@@ -1,9 +1,10 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using QSOrmProject;
-using Vodovoz.Domain.Orders;
 using Gamma.Utilities;
+using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Operations
 {

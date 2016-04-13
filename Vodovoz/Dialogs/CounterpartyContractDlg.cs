@@ -2,10 +2,10 @@
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CounterpartyContractDlg : OrmGtkDialogBase<CounterpartyContract>, IEditableDialog, IContractSaved
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();

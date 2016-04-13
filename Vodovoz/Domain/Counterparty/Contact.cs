@@ -5,7 +5,7 @@ using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "контакты",

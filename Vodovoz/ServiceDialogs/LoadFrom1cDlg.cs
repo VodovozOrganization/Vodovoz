@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using Gtk;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.LoadFrom1c;
-using System.Linq;
 
 namespace Vodovoz
 {

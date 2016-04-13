@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using Gamma.Utilities;
 using QSOrmProject;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
-using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Service
 {

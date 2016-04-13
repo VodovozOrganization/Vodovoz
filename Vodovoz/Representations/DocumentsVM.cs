@@ -7,11 +7,12 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using QSProjectsLib;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using QSProjectsLib;
 
 namespace Vodovoz.ViewModel
 {

@@ -1,7 +1,7 @@
 ﻿using QSOrmProject;
 using QSBanks;
 using Vodovoz.Domain.Accounting;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Repository
 {

@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using Vodovoz.Domain.Cash;
 using Gamma.Utilities;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (Gender = GrammaticalGender.Masculine,
 		NominativePlural = "контрагенты",

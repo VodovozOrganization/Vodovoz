@@ -4,6 +4,7 @@ using DataAnnotationsExtensions;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Documents
 {

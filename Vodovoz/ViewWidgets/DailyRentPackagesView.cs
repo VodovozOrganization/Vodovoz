@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using NHibernate.Criterion;
+using NLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
-using NLog;
-using NHibernate.Criterion;
-using System.Linq;
+using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
 
 namespace Vodovoz

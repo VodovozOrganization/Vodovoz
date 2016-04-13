@@ -1,6 +1,7 @@
-﻿using QSOrmProject;
+﻿using System;
+using QSOrmProject;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-using System;
 
 namespace Vodovoz.Domain.Operations
 {

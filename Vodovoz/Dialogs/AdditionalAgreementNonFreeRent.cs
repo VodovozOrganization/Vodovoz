@@ -2,12 +2,10 @@
 using NLog;
 using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain;
-using Vodovoz.Repository;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementNonFreeRent : OrmGtkDialogBase<NonfreeRentAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;

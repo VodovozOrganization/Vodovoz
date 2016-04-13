@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using NHibernate.Criterion;
 using NLog;
+using QSBanks;
 using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
-using QSBanks;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Panel;
 
 namespace Vodovoz

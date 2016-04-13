@@ -1,8 +1,9 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {

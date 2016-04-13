@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using NHibernate.Criterion;
 using NLog;
 using QSContacts;
 using QSOrmProject;
-using Vodovoz.Domain;
 using QSValidation;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {

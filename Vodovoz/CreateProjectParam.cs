@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gamma.Binding;
 using Gamma.Utilities;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
@@ -10,12 +11,12 @@ using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Gamma.Binding;
 
 namespace Vodovoz
 {

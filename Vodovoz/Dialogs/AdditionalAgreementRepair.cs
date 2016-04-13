@@ -1,13 +1,11 @@
-﻿using NLog;
+﻿using System;
+using NLog;
 using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain;
-using Vodovoz.Repository;
-using System;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class AdditionalAgreementRepair : OrmGtkDialogBase<RepairAgreement>, IAgreementSaved, IEditableDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();

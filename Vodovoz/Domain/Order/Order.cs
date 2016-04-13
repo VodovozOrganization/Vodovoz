@@ -1,14 +1,15 @@
 ﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Repository;
 using System.Linq;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Service;
-using Vodovoz.Domain.Orders.Documents;
 using Gamma.Utilities;
+using QSOrmProject;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Service;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Orders
 {

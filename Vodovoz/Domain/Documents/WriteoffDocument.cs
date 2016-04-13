@@ -4,9 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using QSOrmProject;
-using Vodovoz.Domain.Store;
 using Gamma.Utilities;
+using QSOrmProject;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {

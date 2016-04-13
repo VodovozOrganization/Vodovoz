@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Gtk;
 using QSBanks;
 using QSBanks.Repository;
 using QSOrmProject;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
-using Vodovoz.Repository;
-using System.Text.RegularExpressions;
-using QSProjectsLib;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
+using Vodovoz.Repository;
 using Vodovoz.Repository.Cash;
 
 namespace Vodovoz

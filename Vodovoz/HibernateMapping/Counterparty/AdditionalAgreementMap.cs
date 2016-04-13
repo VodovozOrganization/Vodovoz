@@ -1,103 +1,72 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Orders.Documents;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HMap
 {
-	public class OrderDocumentMap : ClassMap<OrderDocument>
+	public class AdditionalAgreementMap : ClassMap<AdditionalAgreement>
 	{
-		public OrderDocumentMap ()
+		public AdditionalAgreementMap ()
 		{
-			Table ("order_documents");
-			Not.LazyLoad ();
+			Table ("additional_agreements");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			DiscriminateSubClassesOnColumn ("type");
-			References (x => x.Order).Column ("order_id");
-			References (x => x.AttachedToOrder).Column ("attached_to_order_id");
+			Map(x => x.AgreementNumber).Column("number");
+			Map(x => x.StartDate).Column("start_date");
+			Map(x => x.IssueDate).Column("issue_date");
+			Map(x => x.IsCancelled).Column("is_cancelled");
+
+			References (x => x.Contract).Column ("counterparty_contract_id");
+			References (x => x.DeliveryPoint).Column ("delivery_point_id");
 		}
 	}
 
-	public class OrderAgreementMap : SubclassMap<OrderAgreement>
+	public class NonfreeRentAgreementMap : SubclassMap<NonfreeRentAgreement>
 	{
-		public OrderAgreementMap ()
+		public NonfreeRentAgreementMap ()
 		{
-			DiscriminatorValue ("order_agreement");
-			References (x => x.AdditionalAgreement).Column ("agreement_id");
+			DiscriminatorValue ("NonfreeRent");
+			HasMany (x => x.Equipment).Cascade.AllDeleteOrphan ().LazyLoad ()
+				.KeyColumn ("additional_agreement_id");
 		}
 	}
 
-	public class OrderContractMap : SubclassMap<OrderContract>
+	public class DailyRentAgreementMap : SubclassMap<DailyRentAgreement>
 	{
-		public OrderContractMap ()
+		public DailyRentAgreementMap ()
 		{
-			DiscriminatorValue ("order_contract");
-			References (x => x.Contract).Column ("contract_id");
+			DiscriminatorValue ("DailyRent");
+			Map(x => x.RentDays).Column("rent_days");
+			HasMany (x => x.Equipment).Cascade.AllDeleteOrphan ().LazyLoad ()
+				.KeyColumn ("additional_agreement_id");
 		}
 	}
 
-	public class BillDocumentMap : SubclassMap<BillDocument>
+	public class FreeRentAgreementMap : SubclassMap<FreeRentAgreement>
 	{
-		public BillDocumentMap()
+		public FreeRentAgreementMap()
 		{
-			DiscriminatorValue ("bill_document");
+			DiscriminatorValue ("FreeRent");
+			HasMany (x => x.Equipment).Cascade.AllDeleteOrphan ().LazyLoad ()
+				.KeyColumn ("additional_agreement_id");
 		}
 	}
 
-	public class CoolerWarrantyDocumentMap:SubclassMap<CoolerWarrantyDocument>
+	public class WaterSalesAgreementMap : SubclassMap<WaterSalesAgreement>
 	{
-		public CoolerWarrantyDocumentMap()
+		public WaterSalesAgreementMap()
 		{
-			DiscriminatorValue ("cooler_warranty");
+			DiscriminatorValue ("WaterSales");
+			Map(x => x.IsFixedPrice).Column("water_is_fixed_price");
+			Map(x => x.FixedPrice).Column("water_fixed_price");
 		}
 	}
 
-	public class DoneWorkDocumentMap:SubclassMap<DoneWorkDocument>
+	public class RepairAgreementMap : SubclassMap<RepairAgreement>
 	{
-		public DoneWorkDocumentMap()
+		public RepairAgreementMap()
 		{
-			DiscriminatorValue ("done_work");
-			References (x => x.ServiceClaim).Column ("service_claim_id");
-		}
-	}
-
-	public class EquipmentTransferDocumentMap:SubclassMap<EquipmentTransferDocument>
-	{
-		public EquipmentTransferDocumentMap()
-		{
-			DiscriminatorValue ("equipment_transfer");
-			References (x => x.ServiceClaim).Column ("service_claim_id");
-		}
-	}
-
-	public class InvoiceBarterDocumentMap:SubclassMap<InvoiceBarterDocument>
-	{
-		public InvoiceBarterDocumentMap()
-		{
-			DiscriminatorValue ("invoice_barter");
-		}
-	}
-
-	public class InvoiceDocumentMap:SubclassMap<InvoiceDocument>
-	{
-		public InvoiceDocumentMap()
-		{
-			DiscriminatorValue ("invoice");
-		}
-	}
-
-	public class PumpWarrantyDocumentMap:SubclassMap<PumpWarrantyDocument>
-	{
-		public PumpWarrantyDocumentMap()
-		{
-			DiscriminatorValue ("pump_warranty");
-		}
-	}
-
-	public class UPDDocumentMap:SubclassMap<UPDDocument>
-	{
-		public UPDDocumentMap()
-		{
-			DiscriminatorValue ("upd");
+			DiscriminatorValue ("Repair");
 		}
 	}
 }

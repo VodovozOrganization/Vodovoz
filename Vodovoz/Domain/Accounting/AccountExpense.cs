@@ -1,8 +1,9 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using QSBanks;
+using QSOrmProject;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Accounting
 {

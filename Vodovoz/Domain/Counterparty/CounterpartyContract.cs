@@ -6,7 +6,7 @@ using QSProjectsLib;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (
 		Gender = GrammaticalGender.Masculine,

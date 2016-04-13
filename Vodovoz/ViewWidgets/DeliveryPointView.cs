@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
 using QSTDI;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz

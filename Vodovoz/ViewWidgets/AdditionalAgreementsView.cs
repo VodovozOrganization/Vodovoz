@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
 using Gtk;
 using QSOrmProject;
-using QSTDI;
-using Vodovoz.Domain;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {

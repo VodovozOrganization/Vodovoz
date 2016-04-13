@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using Gamma.GtkWidgets;
-using QSTDI;
-using Vodovoz.Domain.Logistic;
-using System.Linq;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Orders;
-using System.Data.Bindings.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using Gamma.GtkWidgets;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz
 {

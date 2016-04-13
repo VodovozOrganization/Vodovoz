@@ -4,6 +4,7 @@ using System.Linq;
 using NHibernate.Criterion;
 using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;

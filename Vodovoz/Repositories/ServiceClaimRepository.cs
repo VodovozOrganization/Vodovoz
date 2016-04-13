@@ -1,9 +1,9 @@
-﻿using QSOrmProject;
-using System.Collections.Generic;
-using Vodovoz.Domain.Service;
-using Vodovoz.Domain;
+﻿using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Criterion;
+using QSOrmProject;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Repository
 {

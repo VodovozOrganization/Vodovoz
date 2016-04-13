@@ -1,8 +1,8 @@
 ﻿using System;
-using QSReport;
-using QSOrmProject;
 using System.Collections.Generic;
-using Vodovoz.Domain;
+using QSOrmProject;
+using QSReport;
+using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
 
 namespace Vodovoz.Reports

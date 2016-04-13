@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Orders
 {

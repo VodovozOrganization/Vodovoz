@@ -7,10 +7,10 @@ using QSOsm.DTO;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class DeliveryPointDlg : OrmGtkDialogBase<DeliveryPoint>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();

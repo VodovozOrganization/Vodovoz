@@ -10,6 +10,7 @@ using QSProjectsLib;
 using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;

@@ -5,7 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using Gamma.Utilities;
 using QSOrmProject;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
 		NominativePlural = "дополнительные соглашения",

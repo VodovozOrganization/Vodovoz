@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using NHibernate;
 using NHibernate.Criterion;
 using QSOrmProject;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain
 {

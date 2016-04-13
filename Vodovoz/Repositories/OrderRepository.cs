@@ -1,13 +1,13 @@
 ﻿using System;
-using Gtk;
-using QSOrmProject;
-using Vodovoz.Domain;
-using NHibernate.Criterion;
 using System.Collections.Generic;
 using System.Linq;
+using Gtk;
+using NHibernate.Criterion;
+using QSOrmProject;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
-
-using VodovozOrder=Vodovoz.Domain.Orders.Order;
+using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
 namespace Vodovoz.Repository
 {

@@ -1,7 +1,7 @@
 ﻿using System;
-using QSBanks;
 using System.Collections.Generic;
-using Vodovoz.Domain;
+using QSBanks;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ExportTo1c.Catalogs
 {

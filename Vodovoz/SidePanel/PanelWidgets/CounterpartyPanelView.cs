@@ -1,16 +1,11 @@
 ﻿using System;
-using Vodovoz.Domain;
-using QSOrmProject;
-using System.ComponentModel;
-using Vodovoz.Domain.Operations;
-using NHibernate.Transform;
-using System.Linq;
-using QSProjectsLib;
-using Vodovoz.Domain.Orders;
 using System.Collections.Generic;
 using Gamma.GtkWidgets;
-using Vodovoz.Repository;
 using Gamma.Utilities;
+using QSProjectsLib;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Panel
 {

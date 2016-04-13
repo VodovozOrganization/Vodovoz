@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents

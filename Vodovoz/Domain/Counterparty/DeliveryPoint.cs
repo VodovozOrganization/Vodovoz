@@ -4,7 +4,7 @@ using Gamma.Utilities;
 using QSOrmProject;
 using QSOsm.DTO;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "точки доставки",

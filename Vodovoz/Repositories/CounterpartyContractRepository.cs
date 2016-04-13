@@ -1,5 +1,6 @@
 ﻿using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Repository
 {
