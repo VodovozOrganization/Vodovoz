@@ -51,7 +51,7 @@ namespace Vodovoz.Domain
 			set { SetField (ref weight, value, () => Weight); }
 		}
 
-		VAT vAT;
+		VAT vAT = VAT.Vat18;
 
 		[Display (Name = "НДС")]
 		public virtual VAT VAT {
