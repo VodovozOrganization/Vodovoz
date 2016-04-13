@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using QSProjectsLib;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (Gender = GrammaticalGender.Feminine,
 		NominativePlural = "строки БА соглашения",
@@ -66,7 +66,7 @@ namespace Vodovoz.Domain
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (FreeRentPackage == null)
 				yield return new ValidationResult ("Не выбран пакет бесплатной аренды.", new[] { "FreeRentPackage" });

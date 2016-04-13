@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings;
+using Gamma.Utilities;
 using QSContacts;
 using QSOrmProject;
 using QSValidation.Attributes;
-using Gamma.Utilities;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Client
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "доверенности",
@@ -15,7 +14,7 @@ namespace Vodovoz.Domain
 		Genitive = "доверенности",
 		Accusative = "доверенность"
 	)]
-	public class Proxy : BaseNotifyPropertyChanged, IDomainObject, IValidatableObject
+	public class Proxy : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -56,14 +55,14 @@ namespace Vodovoz.Domain
 			get { return String.Format ("Доверенность №{0} от {1:d}", Number, IssueDate); }
 		}
 
-		public bool IsActiveProxy (DateTime onDate)
+		public virtual bool IsActiveProxy (DateTime onDate)
 		{
 			return (onDate >= StartDate && onDate <= ExpirationDate);
 		}
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (StartDate != default(DateTime) && StartDate < IssueDate)
 				yield return new ValidationResult ("Нельзя установить дату начала действия доверенности раньше даты ее выдачи.",
