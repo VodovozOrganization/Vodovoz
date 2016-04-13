@@ -64,6 +64,11 @@ namespace Vodovoz
 			return true;
 		}
 
+		public void SaveAndClose()
+		{
+			buttonAddAndClose.Click ();
+		}
+
 		public bool HasChanges {
 			get { return RegisteredEquipment != null; }
 		}
