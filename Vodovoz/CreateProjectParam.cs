@@ -31,7 +31,6 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("money_manage", new UserPermission ("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
 		}
 
-
 		static void CreateBaseConfig ()
 		{
 			logger.Info ("Настройка параметров базы...");
@@ -62,9 +61,14 @@ namespace Vodovoz
 					.DefaultTableView().SearchColumn("Фамилия", x => x.Surname).SearchColumn("Имя", x => x.Name).SearchColumn("Отчество", x => x.Patronymic).End(),
 				OrmObjectMapping<Car>.Create().Dialog<CarsDlg>()
 					.DefaultTableView().SearchColumn("Модель а/м", x => x.Model).SearchColumn("Гос. номер", x => x.RegistrationNumber).SearchColumn("Водитель", x => x.Driver.FullName).End(),
+				OrmObjectMapping<Order>.Create().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
+				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
+				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView().Column("Название",equipmentType=>equipmentType.Name).End(),
+				//Связанное с клиентом
 				OrmObjectMapping<Proxy>.Create().Dialog<ProxyDlg>()
 					.DefaultTableView().SearchColumn("Номер", x => x.Number).SearchColumn("С", x => x.StartDate.ToShortDateString()).SearchColumn("По", x => x.ExpirationDate.ToShortDateString()).End(),
-				OrmObjectMapping<Order>.Create().Dialog <OrderDlg>().PopupMenu(OrderPopupMenu.GetPopupMenu),
 				OrmObjectMapping<DeliveryPoint>.Create().Dialog<DeliveryPointDlg>(),
 				OrmObjectMapping<PaidRentPackage>.Create().Dialog<PaidRentPackageDlg>()
 					.DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Цена в сутки", x => CurrencyWorks.GetShortCurrencyString (x.PriceDaily)).SearchColumn("Цена в месяц", x => CurrencyWorks.GetShortCurrencyString (x.PriceMonthly)).End(),
@@ -76,10 +80,7 @@ namespace Vodovoz
 				OrmObjectMapping<RepairAgreement>.Create().Dialog<AdditionalAgreementRepair>(),
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
-				OrmObjectMapping<Organization>.Create().Dialog<OrganizationDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<DeliverySchedule>.Create().Dialog<DeliveryScheduleDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Время доставки", x => x.DeliveryTime).End(),
-				OrmObjectMapping<ProductSpecification>.Create().Dialog<ProductSpecificationDlg>().DefaultTableView().SearchColumn("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<EquipmentType>.Create().Dialog<EquipmentTypeDlg>().DefaultTableView().Column("Название",equipmentType=>equipmentType.Name).End(),
+				OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),
 				// Документы
 				OrmObjectMapping<IncomingInvoice>.Create().Dialog<IncomingInvoiceDlg>(),
 					OrmObjectMapping<IncomingWater>.Create().Dialog<IncomingWaterDlg>(),

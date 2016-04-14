@@ -548,6 +548,7 @@
     <Compile Include="Domain\Client\PaidRentEquipment.cs" />
     <Compile Include="Domain\Client\Proxy.cs" />
     <Compile Include="Domain\Client\DocTemplate.cs" />
+    <Compile Include="DocTemplates\ContractParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -627,6 +628,10 @@
       <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
       <Name>QSBusinessCommon</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSDocTemplates\QSDocTemplates.csproj">
+      <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
+      <Name>QSDocTemplates</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="icons\" />
@@ -691,6 +696,7 @@
     <Folder Include="ServiceDialogs\ExportTo1c\" />
     <Folder Include="Dialogs\Counterparty\" />
     <Folder Include="Domain\Client\" />
+    <Folder Include="DocTemplates\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

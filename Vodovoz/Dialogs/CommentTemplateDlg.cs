@@ -6,7 +6,6 @@ using QSValidation;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CommentTemplateDlg : OrmGtkDialogBase<CommentTemplate>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();

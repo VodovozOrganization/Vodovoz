@@ -15,6 +15,7 @@ using Vodovoz.Domain.Store;
 using Vodovoz.ViewModel;
 using QSTDI;
 using Vodovoz.Panel;
+using Vodovoz.Domain.Client;
 
 public partial class MainWindow: Gtk.Window
 {
@@ -453,5 +454,13 @@ public partial class MainWindow: Gtk.Window
 	{
 		if (ActionAccounting.Active)
 			SwitchToUI ("accounting.xml");
+	}
+
+	protected void OnActionDocTemplatesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DocTemplate>(),
+			() => new OrmReference(typeof(DocTemplate))
+		);
 	}
 }
