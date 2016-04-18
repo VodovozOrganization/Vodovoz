@@ -14345,6 +14345,7 @@ Patronymic</property>
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
                 <property name="Reorderable">True</property>
+                <signal name="RowActivated" handler="OnYtreeviewItemsRowActivated" />
               </widget>
             </child>
           </widget>
@@ -14395,7 +14396,21 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <placeholder />
+              <widget class="Gtk.Button" id="buttonOpenOrder">
+                <property name="MemberName" />
+                <property name="Sensitive">False</property>
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Открыть заказ</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonOpenOrderClicked" />
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
             </child>
             <child>
               <widget class="Gtk.Label" id="labelSum">

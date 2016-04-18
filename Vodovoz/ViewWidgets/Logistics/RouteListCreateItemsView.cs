@@ -119,7 +119,7 @@ namespace Vodovoz
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonDelete.Sensitive = ytreeviewItems.Selection.CountSelectedRows () > 0;
+			buttonDelete.Sensitive = buttonOpenOrder.Sensitive = ytreeviewItems.Selection.CountSelectedRows () > 0;
 		}
 
 		GenericObservableList<RouteListItem> items;
@@ -190,15 +190,20 @@ namespace Vodovoz
 */
 		}
 
-		protected void OnTreeItemsListRowActivated (object o, RowActivatedArgs args)
+		protected void OnButtonOpenOrderClicked(object sender, EventArgs e)
 		{
-/*			var selected = treeItemsList.GetSelectedObject ();
+			var selected = ytreeviewItems.GetSelectedObject<RouteListItem> ();
 			if (selected != null) {
-				ITdiDialog dlg = null;
-				dlg = OrmMain.CreateObjectDialog ((selected as RouteListItem).Order);
-				MyTab.TabParent.AddSlaveTab (MyTab, dlg);
+				MyTab.TabParent.OpenTab(
+					OrmMain.GenerateDialogHashName<Order>(selected.Order.Id),
+					() => new OrderDlg(selected.Order)
+				);
 			}
-*/
+		}
+
+		protected void OnYtreeviewItemsRowActivated(object o, RowActivatedArgs args)
+		{
+			buttonOpenOrder.Click();
 		}
 	}
 
