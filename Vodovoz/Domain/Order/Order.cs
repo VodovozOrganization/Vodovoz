@@ -84,13 +84,18 @@ namespace Vodovoz.Domain.Orders
 		public virtual DateTime DeliveryDate {
 			get { return deliveryDate; }
 			set { 
-				SetField (ref deliveryDate, value, () => DeliveryDate); 
-				foreach (OrderDocument document in OrderDocuments) {
-					if (document.Type == OrderDocumentType.AdditionalAgreement) {
-						(document as OrderAgreement).AdditionalAgreement.IssueDate = value;
-						(document as OrderAgreement).AdditionalAgreement.StartDate = value;
+				SetField (ref deliveryDate, value, () => DeliveryDate);
+				if (NHibernate.NHibernateUtil.IsInitialized(OrderDocuments))
+				{
+					foreach (OrderDocument document in OrderDocuments)
+					{
+						if (document.Type == OrderDocumentType.AdditionalAgreement)
+						{
+							(document as OrderAgreement).AdditionalAgreement.IssueDate = value;
+							(document as OrderAgreement).AdditionalAgreement.StartDate = value;
+						}
+						//TODO FIXME Когда сделаю добавление документов для печати - фильтровать их сдесь и не менять им дату.
 					}
-					//TODO FIXME Когда сделаю добавление документов для печати - фильтровать их сдесь и не менять им дату.
 				}
 			}
 		}
