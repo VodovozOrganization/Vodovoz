@@ -122,6 +122,11 @@ namespace Vodovoz.Domain.Logistic
 					result.Add(counterpartyMovementOperation);
 				}
 			}
+
+			//Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
+			if (RouteList.Addresses.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
+				throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
+
 			foreach (var orderEquipment in RouteList.Addresses.SelectMany(item=>item.Order.OrderEquipments)
 				.Where(item=>Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category)))
 			{
