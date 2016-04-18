@@ -56,15 +56,6 @@
  		<property name="Comment" column="comment" />
  	</class>
 
- 	<class name="DeliverySchedule" lazy="false" table="delivery_schedule">
- 		<id name="Id" column="id">
- 			<generator class="native"></generator>
- 		</id>
- 		<property name="Name" column="name" />
- 		<property name="From" column="from_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
- 		<property name="To" column="to_time" type="DataAccess.NhibernateFixes.TimeAsTimeSpanTypeClone, Vodovoz"/>
- 	</class>
-
  	<class name="Equipment" lazy="false" table="equipment">
  		<id name="Id" column="id">
  			<generator class="native"></generator>

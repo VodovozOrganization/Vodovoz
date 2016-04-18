@@ -549,6 +549,7 @@
     <Compile Include="Domain\Client\DocTemplate.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
     <Compile Include="Domain\Logistic\DeliverySchedule.cs" />
+    <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
