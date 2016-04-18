@@ -6,6 +6,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;

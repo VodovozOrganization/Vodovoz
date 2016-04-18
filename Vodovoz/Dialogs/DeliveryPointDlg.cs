@@ -8,6 +8,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {

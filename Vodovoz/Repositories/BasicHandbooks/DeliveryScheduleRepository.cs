@@ -1,6 +1,6 @@
 ﻿using System;
-using Vodovoz.Domain;
 using NHibernate.Criterion;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Repository
 {

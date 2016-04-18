@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using Gamma.Utilities;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Logistic
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "графики доставки",

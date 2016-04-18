@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Gamma.Utilities;
 using QSOrmProject;
 using QSOsm.DTO;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Client
 {

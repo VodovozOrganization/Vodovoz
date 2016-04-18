@@ -152,7 +152,6 @@
     <Compile Include="Dialogs\EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
-    <Compile Include="Domain\DeliverySchedule.cs" />
     <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackagesView.cs" />
@@ -549,6 +548,7 @@
     <Compile Include="Domain\Client\Proxy.cs" />
     <Compile Include="Domain\Client\DocTemplate.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
+    <Compile Include="Domain\Logistic\DeliverySchedule.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
