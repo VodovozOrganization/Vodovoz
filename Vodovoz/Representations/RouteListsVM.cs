@@ -69,7 +69,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
 					.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
 					.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
-				)
+				).OrderBy(rl => rl.Id).Asc
 				.TransformUsing (Transformers.AliasToBean<RouteListsVMNode> ())
 				.List<RouteListsVMNode> ();
 
