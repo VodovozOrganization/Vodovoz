@@ -103,7 +103,7 @@ namespace Vodovoz.Domain.Orders
 			result = Nomenclature.GetPrice(count);
 			if (Nomenclature.Category == NomenclatureCategory.water) {
 				var waterSalesAgreement = AdditionalAgreement as WaterSalesAgreement;
-				if (waterSalesAgreement.IsFixedPrice)
+				if (waterSalesAgreement != null && waterSalesAgreement.IsFixedPrice)
 					result = waterSalesAgreement.FixedPrice;
 			}
 			return result;
