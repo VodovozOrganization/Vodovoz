@@ -171,7 +171,8 @@ namespace Vodovoz.ViewModel
 						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DirverSurname)
 						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
 						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
-						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse))
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId))
 					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 					.List<DocumentVMNode> ();
 
@@ -193,7 +194,8 @@ namespace Vodovoz.ViewModel
 						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DirverSurname)
 						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
 						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
-						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse))
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId))
 					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 					.List<DocumentVMNode> ();
 
@@ -287,11 +289,11 @@ namespace Vodovoz.ViewModel
 					return "";
 				case DocumentType.CarLoadDocument:
 						return Counterparty != null ? String.Format("Самовывоз клиента: {0}", Counterparty)
-								: String.Format("Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
-									StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic));
+								: String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
+									StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
 					case DocumentType.CarUnloadDocument:
-						return String.Format("Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
-							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic));
+						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
+							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
 				default:
 					return "";
 				}
@@ -311,6 +313,8 @@ namespace Vodovoz.ViewModel
 		public string CarModel { get; set; }
 
 		public string CarNumber { get; set; }
+
+		public int RouteListId { get; set; }
 
 		public string DirverSurname { get; set; }
 		public string DirverName { get; set; }
