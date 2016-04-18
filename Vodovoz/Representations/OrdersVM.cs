@@ -9,6 +9,7 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.ViewModel
@@ -31,6 +32,7 @@ namespace Vodovoz.ViewModel
 			Order orderAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
+			DeliverySchedule deliveryScheduleAlias = null;
 
 			var query = UoW.Session.QueryOver<Order> (() => orderAlias);
 
@@ -69,10 +71,12 @@ namespace Vodovoz.ViewModel
 
 			var result = query
 				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (o => o.Client, () => counterpartyAlias)
 				.SelectList (list => list
 					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => orderAlias.DeliveryDate).WithAlias (() => resultAlias.Date)
+					.Select (() => deliveryScheduleAlias.Name).WithAlias (() => resultAlias.DeliveryTime)
 					.Select (() => orderAlias.OrderStatus).WithAlias (() => resultAlias.StatusEnum)
 					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
@@ -88,6 +92,7 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig columnsConfig = FluentColumnsConfig <OrdersVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToString("d"))
+			.AddColumn ("Время").SetDataProperty (node => node.DeliveryTime)
 			.AddColumn ("Статус").SetDataProperty (node => node.StatusEnum.GetEnumTitle ())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
@@ -200,6 +205,7 @@ namespace Vodovoz.ViewModel
 		public OrderStatus StatusEnum { get; set; }
 
 		public DateTime Date { get; set; }
+		public string DeliveryTime { get; set; }
 
 		public string Counterparty { get; set; }
 
