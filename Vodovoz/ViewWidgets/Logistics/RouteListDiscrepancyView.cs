@@ -184,7 +184,7 @@ namespace Vodovoz
 				{
 					discrepancies.Add(new Discrepancy
 						{
-							Name=toWarehouse.EquipmentType.Name,
+							Name = pickedUp.EquipmentType.Name,
 							ClientRejected = 0,
 							ToWarehouse = 0,
 							PickedUpFromClient = pickedUp.Amount
