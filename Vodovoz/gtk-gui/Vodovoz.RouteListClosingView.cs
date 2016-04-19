@@ -6,6 +6,16 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox2;
 		
+		private global::Vodovoz.RouteListsFilter routelistsfilter1;
+		
+		private global::Gtk.HBox hbox4;
+		
+		private global::Gtk.Label label3;
+		
+		private global::Gtk.Entry entrySearch;
+		
+		private global::Gtk.Button buttonClean;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::QSOrmProject.RepresentationTreeView treeRouteLists;
@@ -25,6 +35,56 @@ namespace Vodovoz
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.routelistsfilter1 = new global::Vodovoz.RouteListsFilter ();
+			this.routelistsfilter1.Events = ((global::Gdk.EventMask)(256));
+			this.routelistsfilter1.Name = "routelistsfilter1";
+			this.vbox2.Add (this.routelistsfilter1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.routelistsfilter1]));
+			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox ();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.label3 = new global::Gtk.Label ();
+			this.label3.Name = "label3";
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Поиск:");
+			this.hbox4.Add (this.label3);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.label3]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.entrySearch = new global::Gtk.Entry ();
+			this.entrySearch.CanFocus = true;
+			this.entrySearch.Name = "entrySearch";
+			this.entrySearch.IsEditable = true;
+			this.entrySearch.InvisibleChar = '●';
+			this.hbox4.Add (this.entrySearch);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.entrySearch]));
+			w3.Position = 1;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.buttonClean = new global::Gtk.Button ();
+			this.buttonClean.CanFocus = true;
+			this.buttonClean.Name = "buttonClean";
+			this.buttonClean.UseUnderline = true;
+			this.buttonClean.Label = global::Mono.Unix.Catalog.GetString ("Очистить");
+			global::Gtk.Image w4 = new global::Gtk.Image ();
+			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-clear", global::Gtk.IconSize.Menu);
+			this.buttonClean.Image = w4;
+			this.hbox4.Add (this.buttonClean);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.buttonClean]));
+			w5.Position = 2;
+			w5.Expand = false;
+			w5.Fill = false;
+			this.vbox2.Add (this.hbox4);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox4]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -34,8 +94,8 @@ namespace Vodovoz
 			this.treeRouteLists.Name = "treeRouteLists";
 			this.GtkScrolledWindow.Add (this.treeRouteLists);
 			this.vbox2.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow]));
-			w2.Position = 0;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow]));
+			w8.Position = 2;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
@@ -46,23 +106,25 @@ namespace Vodovoz
 			this.buttonCloseRouteList.Name = "buttonCloseRouteList";
 			this.buttonCloseRouteList.UseUnderline = true;
 			this.buttonCloseRouteList.Label = global::Mono.Unix.Catalog.GetString ("Закрыть МЛ");
-			global::Gtk.Image w3 = new global::Gtk.Image ();
-			this.buttonCloseRouteList.Image = w3;
+			global::Gtk.Image w9 = new global::Gtk.Image ();
+			this.buttonCloseRouteList.Image = w9;
 			this.hbox1.Add (this.buttonCloseRouteList);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonCloseRouteList]));
-			w4.Position = 0;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonCloseRouteList]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.vbox2.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox1]));
-			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox1]));
+			w11.Position = 3;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.entrySearch.Changed += new global::System.EventHandler (this.OnEntrySearchChanged);
+			this.buttonClean.Clicked += new global::System.EventHandler (this.OnButtonCleanClicked);
 			this.treeRouteLists.RowActivated += new global::Gtk.RowActivatedHandler (this.OnRouteListActivated);
 			this.buttonCloseRouteList.Clicked += new global::System.EventHandler (this.OnButtonCloseRouteListClicked);
 		}

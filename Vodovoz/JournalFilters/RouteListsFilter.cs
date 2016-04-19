@@ -7,6 +7,7 @@ using Gamma.Widgets;
 namespace Vodovoz
 {
 	[OrmDefaultIsFiltered (true)]
+	[System.ComponentModel.ToolboxItem (true)]
 	public partial class RouteListsFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;

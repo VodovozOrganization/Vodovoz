@@ -23,7 +23,8 @@ namespace Vodovoz
 					return;
 				uow = value;
 				viewModel = new ViewModel.RouteListsVM (value);
-				viewModel.Filter = new RouteListsFilter(uow);
+				viewModel.Filter = routelistsfilter1;
+				viewModel.Filter.UoW = uow;
 				viewModel.Filter.RestrictStatus = RouteListStatus.ReadyToReport;
 				treeRouteLists.RepresentationModel = viewModel;
 				treeRouteLists.RepresentationModel.UpdateNodes ();
@@ -56,6 +57,16 @@ namespace Vodovoz
 		protected void OnRouteListActivated (object o, Gtk.RowActivatedArgs args)
 		{
 			OnButtonCloseRouteListClicked(o, args);
+		}
+
+		protected void OnButtonCleanClicked(object sender, EventArgs e)
+		{
+			entrySearch.Text = String.Empty;
+		}
+
+		protected void OnEntrySearchChanged(object sender, EventArgs e)
+		{
+			viewModel.SearchString = entrySearch.Text;
 		}
 	}
 }
