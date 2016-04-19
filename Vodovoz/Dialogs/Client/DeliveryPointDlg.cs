@@ -109,6 +109,15 @@ namespace Vodovoz
 				Entity.Latitude = latitude;
 				Entity.Longitude = longitude;
 			}
+			if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name))
+			{
+				labelHouseName.Visible = true;
+				labelHouseName.LabelProp = entryBuilding.OsmHouse.Name;
+			}
+			else
+			{
+				labelHouseName.Visible = false;
+			}
 		}
 
 		public override bool Save ()
