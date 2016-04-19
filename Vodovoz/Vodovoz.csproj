@@ -121,19 +121,14 @@
     <Compile Include="Dialogs\NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="Domain\Nomenclature.cs" />
-    <Compile Include="Dialogs\CounterpartyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
     <Compile Include="Domain\NomenclaturePrice.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementFreeRent.cs" />
-    <Compile Include="Dialogs\AdditionalAgreementNonFreeRent.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementNonFreeRent.cs" />
-    <Compile Include="Dialogs\AdditionalAgreementFreeRent.cs" />
-    <Compile Include="Dialogs\AdditionalAgreementRepair.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementRepair.cs" />
-    <Compile Include="Dialogs\AdditionalAgreementWater.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementWater.cs" />
     <Compile Include="Domain\FreeRentPackage.cs" />
     <Compile Include="Dialogs\FreeRentPackageDlg.cs" />
@@ -142,9 +137,7 @@
     <Compile Include="Dialogs\PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointView.cs" />
-    <Compile Include="Dialogs\DeliveryPointDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointDlg.cs" />
-    <Compile Include="Dialogs\ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
@@ -156,7 +149,6 @@
     <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackagesView.cs" />
     <Compile Include="Сrutches\TimeAsTimeSpanTypeClone.cs" />
-    <Compile Include="Dialogs\AdditionalAgreementDailyRent.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementDailyRent.cs" />
     <Compile Include="Domain\Operations\DepositOperation.cs" />
     <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
@@ -170,9 +162,7 @@
     <Compile Include="Domain\BasicHandbooks\Significance.cs" />
     <Compile Include="Domain\Operations\OperationBase.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
-    <Compile Include="Dialogs\CounterpartyContractDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractsView.cs" />
-    <Compile Include="Dialogs\ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ContactsView.cs" />
     <Compile Include="Domain\Documents\IncomingInvoice.cs" />
@@ -532,7 +522,6 @@
     <Compile Include="ServiceDialogs\ExportTo1c\Exports.cs" />
     <Compile Include="ServiceDialogs\ExportTo1c\IXmlConvertable.cs" />
     <Compile Include="HibernateMapping\Counterparty\DocTemplateMap.cs" />
-    <Compile Include="Dialogs\Counterparty\DocTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.DocTemplateDlg.cs" />
     <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
     <Compile Include="HibernateMapping\Counterparty\FreeRentEquipmentMap.cs" />
@@ -550,6 +539,17 @@
     <Compile Include="DocTemplates\ContractParser.cs" />
     <Compile Include="Domain\Logistic\DeliverySchedule.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
+    <Compile Include="Dialogs\Client\DocTemplateDlg.cs" />
+    <Compile Include="Dialogs\Client\DeliveryPointDlg.cs" />
+    <Compile Include="Dialogs\Client\CounterpartyContractDlg.cs" />
+    <Compile Include="Dialogs\Client\CounterpartyDlg.cs" />
+    <Compile Include="Dialogs\Client\ContactDlg.cs" />
+    <Compile Include="Dialogs\Client\AdditionalAgreementDailyRent.cs" />
+    <Compile Include="Dialogs\Client\AdditionalAgreementFreeRent.cs" />
+    <Compile Include="Dialogs\Client\AdditionalAgreementNonFreeRent.cs" />
+    <Compile Include="Dialogs\Client\AdditionalAgreementRepair.cs" />
+    <Compile Include="Dialogs\Client\AdditionalAgreementWater.cs" />
+    <Compile Include="Dialogs\Client\ProxyDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -695,9 +695,9 @@
     <Folder Include="SidePanel\PanelWidgets\" />
     <Folder Include="SidePanel\InfoProviders\" />
     <Folder Include="ServiceDialogs\ExportTo1c\" />
-    <Folder Include="Dialogs\Counterparty\" />
     <Folder Include="Domain\Client\" />
     <Folder Include="DocTemplates\" />
+    <Folder Include="Dialogs\Client\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
