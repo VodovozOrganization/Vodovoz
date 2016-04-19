@@ -62,7 +62,7 @@ namespace Vodovoz.Domain.Logistic
 
 		bool withoutForwarder;
 
-		public bool WithoutForwarder{
+		public virtual bool WithoutForwarder{
 			get{
 				return withoutForwarder;
 			}
@@ -73,7 +73,7 @@ namespace Vodovoz.Domain.Logistic
 
 		int indexInRoute;
 
-		public int IndexInRoute {
+		public virtual int IndexInRoute {
 			get {
 				return indexInRoute;
 			}
@@ -84,7 +84,7 @@ namespace Vodovoz.Domain.Logistic
 
 		int bottlesReturned;
 
-		public int BottlesReturned{
+		public virtual int BottlesReturned{
 			get{
 				return bottlesReturned; 
 			}
@@ -95,7 +95,7 @@ namespace Vodovoz.Domain.Logistic
 
 		decimal depositsCollected;
 
-		public decimal DepositsCollected{
+		public virtual decimal DepositsCollected{
 			get{
 				return depositsCollected; 
 			}
@@ -106,7 +106,7 @@ namespace Vodovoz.Domain.Logistic
 
 		decimal totalCash;
 
-		public decimal TotalCash{
+		public virtual decimal TotalCash{
 			get{
 				return totalCash;
 			}
@@ -138,7 +138,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public bool HasUserSpecifiedDriverWage(){
+		public virtual bool HasUserSpecifiedDriverWage(){
 			return DriverWage != DefaultDriverWage;
 		}
 
@@ -266,7 +266,7 @@ namespace Vodovoz.Domain.Logistic
 			return wage;
 		}
 
-		public int CoolersToClient{
+		public virtual int CoolersToClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
 					.Where(item => item.Confirmed)
@@ -274,14 +274,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public int PlannedCoolersToClient{
+		public virtual int PlannedCoolersToClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
 			}
 		}
 
-		public int PumpsToClient{
+		public virtual int PumpsToClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
 					.Where(item => item.Confirmed)
@@ -289,14 +289,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public int PlannedPumpsToClient{
+		public virtual int PlannedPumpsToClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
 			}
 		}
 
-		public int UncategorisedEquipmentToClient{
+		public virtual int UncategorisedEquipmentToClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
 					.Where(item => item.Confirmed)
@@ -304,14 +304,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public int PlannedUncategorisedEquipmentToClient{
+		public virtual int PlannedUncategorisedEquipmentToClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.Deliver)
 					.Count(item => item.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.WithoutCard);
 			}
 		}			
 
-		public int CoolersFromClient{
+		public virtual int CoolersFromClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
 					.Where(item => item.Confirmed).Where(item=>item.Equipment!=null)
@@ -319,7 +319,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public int PumpsFromClient{
+		public virtual int PumpsFromClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
 					.Where(item => item.Confirmed).Where(item=>item.Equipment!=null)
@@ -327,7 +327,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public int PlannedCoolersFromClient{
+		public virtual int PlannedCoolersFromClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
 					.Where(item=>item.Equipment!=null)
@@ -335,7 +335,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public int PlannedPumpsFromClient{
+		public virtual int PlannedPumpsFromClient{
 			get{
 				return Order.OrderEquipments.Where(item => item.Direction == Direction.PickUp)
 					.Where(item=>item.Equipment!=null)
@@ -343,7 +343,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public bool IsDelivered()
+		public virtual bool IsDelivered()
 		{
 			var routeListUnloaded = (RouteList.Status == RouteListStatus.ReadyToReport) || 
 				(RouteList.Status == RouteListStatus.MileageCheck) ||
@@ -351,14 +351,14 @@ namespace Vodovoz.Domain.Logistic
 			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded; 
 		}
 
-		public int GetFullBottlesDeliveredCount(){
+		public virtual int GetFullBottlesDeliveredCount(){
 			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
 		}
 
 		private Dictionary<int, int> goodsByRouteColumns;
 
-		public Dictionary<int, int> GoodsByRouteColumns{
+		public virtual Dictionary<int, int> GoodsByRouteColumns{
 			get {
 				if(goodsByRouteColumns == null)
 				{
@@ -370,7 +370,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public int GetGoodsAmountForColumn(int columnId)
+		public virtual int GetGoodsAmountForColumn(int columnId)
 		{
 			if (GoodsByRouteColumns.ContainsKey (columnId))
 				return GoodsByRouteColumns [columnId];
@@ -378,7 +378,7 @@ namespace Vodovoz.Domain.Logistic
 				return 0;
 		}
 
-		public int GetGoodsActualAmountForColumn(int columnId)
+		public virtual int GetGoodsActualAmountForColumn(int columnId)
 		{
 			return Order.OrderItems.Where(i => i.Nomenclature.RouteListColumn != null)
 				.Where(i => i.Nomenclature.RouteListColumn.Id == columnId)
@@ -404,7 +404,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public void RemovedFromRoute()
+		public virtual void RemovedFromRoute()
 		{
 			Order.OrderStatus = OrderStatus.Accepted;
 		}

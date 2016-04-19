@@ -1,12 +1,12 @@
 ﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain.Orders;
-using Gamma.Utilities;
 using System.Linq;
+using Gamma.Utilities;
+using QSOrmProject;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -116,11 +116,9 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-	
-
 		GenericObservableList<RouteListItem> observableAddresses;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<RouteListItem> ObservableAddresses {
+		public virtual GenericObservableList<RouteListItem> ObservableAddresses {
 			get {
 				if (observableAddresses == null) {
 					observableAddresses = new GenericObservableList<RouteListItem> (addresses);
@@ -143,7 +141,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string Title { get { return String.Format ("Маршрутный лист №{0}", Id); } }
 
-		public RouteListItem AddAddressFromOrder (Order order)
+		public virtual RouteListItem AddAddressFromOrder (Order order)
 		{
 			if (order.DeliveryPoint == null)
 				throw new NullReferenceException ("В маршрутный нельзя добавить заказ без точки доставки.");
@@ -152,7 +150,7 @@ namespace Vodovoz.Domain.Logistic
 			return item;
 		}
 
-		public void RemoveAddress (RouteListItem address)
+		public virtual void RemoveAddress (RouteListItem address)
 		{
 			address.RemovedFromRoute ();
 			UoW.Delete (address);
@@ -199,7 +197,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (validationContext.Items.ContainsKey ("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items ["NewStatus"];
