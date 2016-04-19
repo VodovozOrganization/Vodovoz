@@ -23,7 +23,7 @@ namespace Vodovoz
 		public OrderReturnsView(RouteListItem routeListItem)
 		{
 			this.routeListItem = routeListItem;
-			this.TabName = "Недовоз заказа №" + routeListItem.Order.Id;
+			this.TabName = "Изменение заказа №" + routeListItem.Order.Id;
 			this.Build();
 			ytreeToClient.Sensitive = routeListItem.IsDelivered();
 			ytreeFromClient.Sensitive = routeListItem.IsDelivered();
