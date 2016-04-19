@@ -24,11 +24,11 @@ namespace Vodovoz.Domain
 
 	public enum PaymentType
 	{
-		[Display (Name = "Наличная")]
+		[Display (Name = "Наличная", ShortName = "нал." )]
 		cash,
-		[Display (Name = "Безналичная")]
+		[Display (Name = "Безналичная", ShortName = "б/н." )]
 		cashless,
-		[Display (Name="Бартер")]
+		[Display (Name="Бартер", ShortName = "бар." )]
 		barter
 	}
 

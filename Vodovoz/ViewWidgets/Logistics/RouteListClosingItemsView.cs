@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
+using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QSOrmProject;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
-using QSProjectsLib;
-using System.ComponentModel;
 
 namespace Vodovoz
 {
@@ -103,7 +101,8 @@ namespace Vodovoz
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
 				.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id.ToString())
-				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building));
+				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+				.AddColumn("Опл.").AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle());
 			
 			if (columnsInfo != null)
 			{
