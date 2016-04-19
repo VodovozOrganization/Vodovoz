@@ -13,11 +13,9 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Service;
-using Gtk;
-using Gamma.GtkWidgets.Cells;
 
 namespace Vodovoz
 {	
@@ -44,7 +42,7 @@ namespace Vodovoz
 
 			this.TabName = "Прием машины";
 
-			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, ShipmentDocumentType.RouteList, id);
+			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForReception (UoW, ShipmentDocumentType.RouteList, id);
 			warehouse = UoW.GetById<Warehouse>(shipmentId);
 			routelist = UoW.GetById<RouteList> (id);
 			serviceClaims = routelist.Addresses

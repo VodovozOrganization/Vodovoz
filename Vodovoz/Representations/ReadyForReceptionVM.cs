@@ -38,7 +38,7 @@ namespace Vodovoz.ViewModel
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Equipment equipmentAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null;
+			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null, OrderNewEquipmentNomenclatureAlias = null;
 
 			RouteList routeListAlias = null;
 			RouteListItem routeListAddressAlias = null;
@@ -55,9 +55,10 @@ namespace Vodovoz.ViewModel
 				.Select (i => i.Order);
 			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment> (() => orderEquipmentAlias)
 				.Where(() => orderEquipmentAlias.Order.Id == orderAlias.Id)
-				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias)
-				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias)
-				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse && orderEquipmentAlias.Direction == Direction.Deliver)
+				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => orderEquipmentAlias.NewEquipmentNomenclature, () => OrderNewEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse || OrderNewEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse)
 				.Select (i => i.Order);
 
 				var queryRoutes = UoW.Session.QueryOver<RouteList> (() => routeListAlias)
