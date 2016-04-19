@@ -8,13 +8,13 @@ namespace Vodovoz.HMap
 		public OrderEquipmentMap ()
 		{
 			Table ("order_equipment");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
 			Map (x => x.Direction).Column ("direction").CustomType<DirectionStringType> ();
 			Map (x => x.Reason).Column ("reason").CustomType<ReasonStringType> ();
 			Map (x => x.Confirmed).Column("confirmed");
+			Map (x => x.ConfirmedComment).Column("confirmed_comments");
 
 			References (x => x.Order).Column ("order_id");
 			References (x => x.Equipment).Column ("equipment_id");

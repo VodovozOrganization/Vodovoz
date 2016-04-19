@@ -260,6 +260,13 @@ namespace Vodovoz
 			if (!isConsistentWithUnloadDocument())
 				return;
 
+			var valid = new QSValidator<RouteList> (UoWGeneric.Root.RouteList, 
+				new Dictionary<object, object> {
+				{ "NewStatus", RouteListStatus.MileageCheck }
+			});
+			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+				return;
+
 			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
 			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
 			var depositsOperations = Entity.CreateDepositOperations(UoW);

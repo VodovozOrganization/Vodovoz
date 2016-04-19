@@ -412,6 +412,18 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 				}
+
+				if (newStatus == OrderStatus.Closed)
+				{
+					foreach(var equipment in OrderEquipments)
+					{
+						if(!equipment.Confirmed && String.IsNullOrWhiteSpace(equipment.ConfirmedComment))
+							yield return new ValidationResult (
+								String.Format("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
+									equipment.NameString, Id),
+								new[] { this.GetPropertyName (o => o.OrderEquipments) });						
+					}
+				}
 			}
 
 			if (!SelfDelivery && DeliveryPoint == null)

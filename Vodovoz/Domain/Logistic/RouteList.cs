@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
 using QSOrmProject;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using QSValidation;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -209,8 +207,21 @@ namespace Vodovoz.Domain.Logistic
 						yield return new ValidationResult("Подтвержденное расстояние не может быть меньше 0",
 							new[] {Gamma.Utilities.PropertyUtil.GetPropertyName(this, o=>o.ConfirmedDistance)});
 				}
-			}
+				if(newStatus == RouteListStatus.MileageCheck)
+				{
+					foreach(var address in Addresses)
+					{
+						var valid = new QSValidator<Order> (address.Order, 
+							new Dictionary<object, object> {
+							{ "NewStatus", OrderStatus.Closed }
+						});
 
+						foreach(var result in valid.Results){
+							yield return result;
+						}
+					}
+				}
+			}
 
 			if (Shift == null)
 				yield return new ValidationResult ("Смена маршрутного листа должна быть заполнена.",

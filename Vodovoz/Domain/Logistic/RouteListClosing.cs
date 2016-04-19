@@ -366,6 +366,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void Confirm()
 		{
+			if (RouteList.Status != RouteListStatus.ReadyToReport)
+				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.ReadyToReport));
+			
 			RouteList.Status = RouteListStatus.MileageCheck;
 			foreach (var order in RouteList.Addresses.Select(item=>item.Order))
 			{

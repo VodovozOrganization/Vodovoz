@@ -105,7 +105,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Name)
 				.AddColumn("Забрано у клиента")
 					.AddToggleRenderer(node => node.IsDelivered)
-				.AddColumn("")
+				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComments).Editable()
 				.Finish();
 		}
 	}
@@ -181,6 +181,16 @@ namespace Vodovoz
 		public bool HasPrice{
 			get{
 				return !IsEquipment || orderEquipment.OrderItem != null;
+			}
+		}
+
+		public string ConfirmedComments{
+			get{
+				return IsEquipment ? orderEquipment.ConfirmedComment : null;
+			}
+			set{
+				if (IsEquipment)
+					orderEquipment.ConfirmedComment = value;
 			}
 		}
 

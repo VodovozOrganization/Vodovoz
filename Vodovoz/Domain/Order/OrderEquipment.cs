@@ -75,6 +75,18 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		string confirmedComment;
+		[Display (Name = "Комментарий по забору")]
+		[StringLength(200)]
+		public virtual string ConfirmedComment{
+			get{
+				return confirmedComment;
+			}
+			set{
+				SetField(ref confirmedComment, value, () => ConfirmedComment);
+			}
+		}
+
 		public virtual string NameString {
 			get { 
 				if (Equipment != null)
@@ -94,7 +106,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			return null;
 		}
