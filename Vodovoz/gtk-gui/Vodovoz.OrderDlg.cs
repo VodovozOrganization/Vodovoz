@@ -297,7 +297,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 3;
+			this.notebook1.CurrentPage = 1;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -872,7 +872,7 @@ namespace Vodovoz
 			this.enumAddRentButton.Name = "enumAddRentButton";
 			this.enumAddRentButton.UseUnderline = true;
 			this.enumAddRentButton.UseMarkup = false;
-			this.enumAddRentButton.ItemsEnumName = "Vodovoz.Domain.OrderAgreementType, Vodovoz";
+			this.enumAddRentButton.ItemsEnumName = "";
 			this.enumAddRentButton.Label = global::Mono.Unix.Catalog.GetString ("В аренду");
 			global::Gtk.Image w65 = new global::Gtk.Image ();
 			w65.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);

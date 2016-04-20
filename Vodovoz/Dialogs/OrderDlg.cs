@@ -161,6 +161,7 @@ namespace Vodovoz
 
 			treeDocuments.RowActivated += (o, args) => buttonViewDocument.Click ();
 
+			enumAddRentButton.ItemsEnum = typeof(OrderAgreementType);
 			enumAddRentButton.EnumItemClicked += (sender, e) => AddRentAgreement ((OrderAgreementType)e.ItemEnum);
 				
 			checkSelfDelivery.Toggled += (sender, e) => {

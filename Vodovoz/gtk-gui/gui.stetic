@@ -22319,6 +22319,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -22406,7 +22407,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">3</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -23367,11 +23368,11 @@ RegistrationNumber</property>
                         <property name="Label" translatable="yes">В аренду</property>
                         <property name="UseUnderline">True</property>
                         <property name="UseMarkup">False</property>
-                        <property name="ItemsEnumName">Vodovoz.Domain.OrderAgreementType, Vodovoz</property>
+                        <property name="ItemsEnumName" />
                       </widget>
                       <packing>
                         <property name="Position">1</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
                       </packing>
