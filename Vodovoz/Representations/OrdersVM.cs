@@ -200,6 +200,7 @@ namespace Vodovoz.ViewModel
 
 	public class OrdersVMNode
 	{
+		[UseForSearch]
 		public int Id { get; set; }
 
 		public OrderStatus StatusEnum { get; set; }
@@ -207,12 +208,14 @@ namespace Vodovoz.ViewModel
 		public DateTime Date { get; set; }
 		public string DeliveryTime { get; set; }
 
+		[UseForSearch]
 		public string Counterparty { get; set; }
 
 		public string City { get; set; }
 		public string Street { get; set; }
 		public string Building { get; set; }
 
+		[UseForSearch]
 		public string Address { get{ return String.Format("{0}, {1} д.{2}", City, Street, Building); } }
 
 	}
