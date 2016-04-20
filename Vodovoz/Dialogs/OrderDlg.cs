@@ -17,6 +17,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
+using NHibernate.Proxy;
 
 namespace Vodovoz
 {
@@ -486,7 +487,11 @@ namespace Vodovoz
 				ITdiDialog dlg = null;
 				if (treeDocuments.GetSelectedObjects () [0] is OrderAgreement) {
 					var agreement = (treeDocuments.GetSelectedObjects () [0] as OrderAgreement).AdditionalAgreement;
-					dlg = OrmMain.CreateObjectDialog (agreement);
+					var type = NHibernateProxyHelper.GuessClass(agreement);
+					TabParent.OpenTab(
+						OrmMain.GenerateDialogHashName(type, agreement.Id),
+						() => OrmMain.CreateObjectDialog(type, agreement.Id)
+					);
 				} else if (treeDocuments.GetSelectedObjects () [0] is OrderContract) {
 					var contract = (treeDocuments.GetSelectedObjects () [0] as OrderContract).Contract;
 					dlg = OrmMain.CreateObjectDialog (contract);
