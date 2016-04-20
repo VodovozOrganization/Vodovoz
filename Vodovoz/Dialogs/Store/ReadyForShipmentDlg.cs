@@ -194,7 +194,9 @@ namespace Vodovoz
 			if(alreadyLoaded)
 				labelStatus.Markup = "<span foreground=\"red\">Отгрузка с этого склада уже произведена.</span>";
 
-			bool ok = !alreadyLoaded && itemsAvailable;
+			bool warehouseSelected = ycomboboxWarehouse.SelectedItem is Warehouse;
+
+			bool ok = !alreadyLoaded && itemsAvailable && warehouseSelected;
 
 			labelStatus.Visible = !ok;
 			buttonConfirmShipment.Sensitive = ok;

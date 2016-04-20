@@ -726,7 +726,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -16256,6 +16255,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
               </widget>
@@ -18882,6 +18882,7 @@ RegistrationNumber</property>
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="AddIfNotExist">False</property>
+            <property name="DefaultFirst">False</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
             <signal name="ItemSelected" handler="OnYspeccomboWarehouseItemSelected" />
@@ -19037,6 +19038,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">True</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
                 <signal name="ItemSelected" handler="OnYcomboboxWarehouseItemSelected" />
@@ -19445,6 +19447,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">True</property>
               </widget>
@@ -19471,6 +19474,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">True</property>
                 <signal name="ItemSelected" handler="OnComboExpenseItemSelected" />
@@ -19994,6 +19998,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">True</property>
               </widget>
@@ -20393,6 +20398,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">True</property>
                 <signal name="Changed" handler="OnComboExpenseChanged" />
@@ -21555,6 +21561,7 @@ RegistrationNumber</property>
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="AddIfNotExist">False</property>
+            <property name="DefaultFirst">False</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
           </widget>
@@ -22076,6 +22083,7 @@ RegistrationNumber</property>
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="AddIfNotExist">False</property>
+            <property name="DefaultFirst">False</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
           </widget>
@@ -22101,6 +22109,7 @@ RegistrationNumber</property>
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="AddIfNotExist">False</property>
+            <property name="DefaultFirst">False</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
           </widget>
@@ -23808,6 +23817,7 @@ RegistrationNumber</property>
             <property name="IsTextCombo">False</property>
             <property name="Items" translatable="yes" />
             <property name="AddIfNotExist">False</property>
+            <property name="DefaultFirst">False</property>
             <property name="ShowSpecialStateAll">True</property>
             <property name="ShowSpecialStateNot">False</property>
             <signal name="ItemSelected" handler="OnYspeccomboWarehouseItemSelected" />
@@ -24040,6 +24050,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
                 <signal name="ItemSelected" handler="OnYcomboboxWarehouseItemSelected" />
@@ -25237,6 +25248,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
               </widget>
@@ -25762,6 +25774,7 @@ RegistrationNumber</property>
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
                 <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">False</property>
               </widget>
