@@ -550,6 +550,10 @@
     <Compile Include="Dialogs\Client\AdditionalAgreementRepair.cs" />
     <Compile Include="Dialogs\Client\AdditionalAgreementWater.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
+    <Compile Include="Domain\UserSettings.cs" />
+    <Compile Include="Commons\CurrentUserSettings.cs" />
+    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="HibernateMapping\UserSettingsMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

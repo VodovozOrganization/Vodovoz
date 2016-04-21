@@ -59,6 +59,37 @@ public partial class MainWindow: Gtk.Window
 		ActionCash.Sensitive = QSMain.User.Permissions ["money_manage"];
 		ActionAccounting.Sensitive = QSMain.User.Permissions ["money_manage"];
 		ActionLogistics.Sensitive = QSMain.User.Permissions ["logistican"];
+
+		//Читаем настройки пользователя
+		switch(CurrentUserSettings.Settings.ToolbarStyle)
+		{
+			case ToolbarStyle.Both:
+				ActionToolBarBoth.Activate();
+				break;
+			case ToolbarStyle.Icons:
+				ActionToolBarIcon.Activate();
+				break;
+			case ToolbarStyle.Text:
+				ActionToolBarText.Activate();
+				break;
+		}
+
+		switch(CurrentUserSettings.Settings.ToolBarIconsSize)
+		{
+			case IconsSize.ExtraSmall:
+				ActionIconsExtraSmall.Activate();
+				break;
+			case IconsSize.Small:
+				ActionIconsSmall.Activate();
+				break;
+			case IconsSize.Middle:
+				ActionIconsMiddle.Activate();
+				break;
+			case IconsSize.Large:
+				ActionIconsLarge.Activate();
+				break;
+		}
+
 		BanksUpdater.Update (false);
 	}
 
@@ -462,5 +493,83 @@ public partial class MainWindow: Gtk.Window
 			OrmReference.GenerateHashName<DocTemplate>(),
 			() => new OrmReference(typeof(DocTemplate))
 		);
+	}
+
+	protected void OnActionToolBarTextToggled(object sender, EventArgs e)
+	{
+		if (ActionToolBarText.Active)
+			ToolBarMode(ToolbarStyle.Text);
+	}
+
+	private void ToolBarMode(ToolbarStyle style)
+	{
+		if(CurrentUserSettings.Settings.ToolbarStyle != style)
+		{
+			CurrentUserSettings.Settings.ToolbarStyle = style;
+			CurrentUserSettings.SaveSettings();
+		}
+		toolbarMain.ToolbarStyle = style;
+		ActionIconsExtraSmall.Sensitive = ActionIconsSmall.Sensitive = ActionIconsMiddle.Sensitive = ActionIconsLarge.Sensitive =
+			style != ToolbarStyle.Text;
+	}
+
+	private void ToolBarMode(IconsSize size)
+	{
+		if(CurrentUserSettings.Settings.ToolBarIconsSize != size)
+		{
+			CurrentUserSettings.Settings.ToolBarIconsSize = size;
+			CurrentUserSettings.SaveSettings();
+		}
+		switch (size)
+		{
+			case IconsSize.ExtraSmall:
+				toolbarMain.IconSize = IconSize.SmallToolbar;
+				break;
+			case IconsSize.Small:
+				toolbarMain.IconSize = IconSize.LargeToolbar;
+				break;
+			case IconsSize.Middle:
+				toolbarMain.IconSize = IconSize.Dnd;
+				break;
+			case IconsSize.Large:
+				toolbarMain.IconSize = IconSize.Dialog;
+				break;
+		}
+	}
+
+	protected void OnActionToolBarIconToggled(object sender, EventArgs e)
+	{
+		if (ActionToolBarIcon.Active)
+			ToolBarMode(ToolbarStyle.Icons);
+	}
+
+	protected void OnActionToolBarBothToggled(object sender, EventArgs e)
+	{
+		if (ActionToolBarBoth.Active)
+			ToolBarMode(ToolbarStyle.Both);
+	}
+
+	protected void OnActionIconsExtraSmallToggled(object sender, EventArgs e)
+	{
+		if (ActionIconsExtraSmall.Active)
+			ToolBarMode(IconsSize.ExtraSmall);
+	}
+		
+	protected void OnActionIconsSmallToggled(object sender, EventArgs e)
+	{
+		if (ActionIconsSmall.Active)
+			ToolBarMode(IconsSize.Small);
+	}
+
+	protected void OnActionIconsMiddleToggled(object sender, EventArgs e)
+	{
+		if (ActionIconsMiddle.Active)
+			ToolBarMode(IconsSize.Middle);
+	}
+
+	protected void OnActionIconsLargeToggled(object sender, EventArgs e)
+	{
+		if (ActionIconsLarge.Active)
+			ToolBarMode(IconsSize.Large);
 	}
 }

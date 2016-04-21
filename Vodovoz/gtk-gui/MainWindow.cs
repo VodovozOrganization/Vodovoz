@@ -119,6 +119,24 @@ public partial class MainWindow
 	
 	private global::Gtk.Action ActionDocTemplates;
 	
+	private global::Gtk.Action Action18;
+	
+	private global::Gtk.Action Action17;
+	
+	private global::Gtk.RadioAction ActionToolBarText;
+	
+	private global::Gtk.RadioAction ActionToolBarIcon;
+	
+	private global::Gtk.RadioAction ActionToolBarBoth;
+	
+	private global::Gtk.RadioAction ActionIconsExtraSmall;
+	
+	private global::Gtk.RadioAction ActionIconsSmall;
+	
+	private global::Gtk.RadioAction ActionIconsMiddle;
+	
+	private global::Gtk.RadioAction ActionIconsLarge;
+	
 	private global::Gtk.HBox hbox1;
 	
 	private global::Gtk.VBox vbox1;
@@ -172,27 +190,27 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString ("Сервис");
 		w1.Add (this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction ("ActionLogistics", global::Mono.Unix.Catalog.GetString ("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionServices.Group;
+		this.ActionLogistics.Group = this.ActionOrders.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString ("Логистика");
 		w1.Add (this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction ("ActionStock", global::Mono.Unix.Catalog.GetString ("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionServices.Group;
+		this.ActionStock.Group = this.ActionOrders.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString ("Склад");
 		w1.Add (this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction ("ActionCash", global::Mono.Unix.Catalog.GetString ("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionServices.Group;
+		this.ActionCash.Group = this.ActionOrders.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString ("Касса");
 		w1.Add (this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction ("ActionAccounting", global::Mono.Unix.Catalog.GetString ("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionServices.Group;
+		this.ActionAccounting.Group = this.ActionOrders.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString ("Бухгалтерия");
 		w1.Add (this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction ("ActionReports", global::Mono.Unix.Catalog.GetString ("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionServices.Group;
+		this.ActionReports.Group = this.ActionOrders.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString ("Отчеты");
 		w1.Add (this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction ("ActionArchive", global::Mono.Unix.Catalog.GetString ("Архив"), null, "archive", 0);
-		this.ActionArchive.Group = this.ActionServices.Group;
+		this.ActionArchive.Group = this.ActionOrders.Group;
 		this.ActionArchive.ShortLabel = global::Mono.Unix.Catalog.GetString ("Архив");
 		w1.Add (this.ActionArchive, null);
 		this.ActionOrg = new global::Gtk.Action ("ActionOrg", global::Mono.Unix.Catalog.GetString ("Организации"), null, null);
@@ -324,6 +342,40 @@ public partial class MainWindow
 		this.ActionDocTemplates = new global::Gtk.Action ("ActionDocTemplates", global::Mono.Unix.Catalog.GetString ("Шаблоны документов"), null, null);
 		this.ActionDocTemplates.ShortLabel = global::Mono.Unix.Catalog.GetString ("Шаблоны документов");
 		w1.Add (this.ActionDocTemplates, null);
+		this.Action18 = new global::Gtk.Action ("Action18", global::Mono.Unix.Catalog.GetString ("Вид"), null, null);
+		this.Action18.ShortLabel = global::Mono.Unix.Catalog.GetString ("Вид");
+		w1.Add (this.Action18, null);
+		this.Action17 = new global::Gtk.Action ("Action17", global::Mono.Unix.Catalog.GetString ("Главная панель"), null, null);
+		this.Action17.ShortLabel = global::Mono.Unix.Catalog.GetString ("Главная панель");
+		w1.Add (this.Action17, null);
+		this.ActionToolBarText = new global::Gtk.RadioAction ("ActionToolBarText", global::Mono.Unix.Catalog.GetString ("Только текст"), null, null, 0);
+		this.ActionToolBarText.Group = new global::GLib.SList (global::System.IntPtr.Zero);
+		this.ActionToolBarText.ShortLabel = global::Mono.Unix.Catalog.GetString ("Только текст");
+		w1.Add (this.ActionToolBarText, null);
+		this.ActionToolBarIcon = new global::Gtk.RadioAction ("ActionToolBarIcon", global::Mono.Unix.Catalog.GetString ("Только иконки"), null, null, 0);
+		this.ActionToolBarIcon.Group = this.ActionToolBarText.Group;
+		this.ActionToolBarIcon.ShortLabel = global::Mono.Unix.Catalog.GetString ("Только иконки");
+		w1.Add (this.ActionToolBarIcon, null);
+		this.ActionToolBarBoth = new global::Gtk.RadioAction ("ActionToolBarBoth", global::Mono.Unix.Catalog.GetString ("Иконки и Текст"), null, null, 0);
+		this.ActionToolBarBoth.Group = this.ActionToolBarText.Group;
+		this.ActionToolBarBoth.ShortLabel = global::Mono.Unix.Catalog.GetString ("Иконки и Текст");
+		w1.Add (this.ActionToolBarBoth, null);
+		this.ActionIconsExtraSmall = new global::Gtk.RadioAction ("ActionIconsExtraSmall", global::Mono.Unix.Catalog.GetString ("Очень маленькие иконки"), null, null, 0);
+		this.ActionIconsExtraSmall.Group = new global::GLib.SList (global::System.IntPtr.Zero);
+		this.ActionIconsExtraSmall.ShortLabel = global::Mono.Unix.Catalog.GetString ("Очень маленькие иконки");
+		w1.Add (this.ActionIconsExtraSmall, null);
+		this.ActionIconsSmall = new global::Gtk.RadioAction ("ActionIconsSmall", global::Mono.Unix.Catalog.GetString ("Маленькие иконки"), null, null, 0);
+		this.ActionIconsSmall.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsSmall.ShortLabel = global::Mono.Unix.Catalog.GetString ("Маленькие иконки");
+		w1.Add (this.ActionIconsSmall, null);
+		this.ActionIconsMiddle = new global::Gtk.RadioAction ("ActionIconsMiddle", global::Mono.Unix.Catalog.GetString ("Средние иконки"), null, null, 0);
+		this.ActionIconsMiddle.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString ("Средние иконки");
+		w1.Add (this.ActionIconsMiddle, null);
+		this.ActionIconsLarge = new global::Gtk.RadioAction ("ActionIconsLarge", global::Mono.Unix.Catalog.GetString ("Большие иконки"), null, null, 0);
+		this.ActionIconsLarge.Group = this.ActionIconsExtraSmall.Group;
+		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString ("Большие иконки");
+		w1.Add (this.ActionIconsLarge, null);
 		this.UIManager.InsertActionGroup (w1, 0);
 		this.AddAccelGroup (this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -338,7 +390,7 @@ public partial class MainWindow
 		this.vbox1.Name = "vbox1";
 		this.vbox1.Spacing = 6;
 		// Container child vbox1.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='ActionBaseMenu' action='ActionBaseMenu'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='ActionParameters' action='ActionParameters'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action' action='Action'><menu name='ActionOrgMenu' action='ActionOrgMenu'><menuitem name='ActionOrg' action='ActionOrg'/><separator/><menuitem name='ActionEmploey' action='ActionEmploey'/><menuitem name='ActionNationality' action='ActionNationality'/><menuitem name='ActionWarehouses' action='ActionWarehouses'/><separator/><menuitem name='ActionPhoneTypes' action='ActionPhoneTypes'/><menuitem name='ActionEMailTypes' action='ActionEMailTypes'/></menu><menu name='ActionTMC' action='ActionTMC'><menuitem name='ActionNomenclature' action='ActionNomenclature'/><menuitem name='ActionUnits' action='ActionUnits'/><menuitem name='ActionEquipment' action='ActionEquipment'/><separator/><menuitem name='ActionEquipmentTypes' action='ActionEquipmentTypes'/><menuitem name='ActionManufacturers' action='ActionManufacturers'/><menuitem name='ActionColors' action='ActionColors'/><separator/><menuitem name='ActionProductSpecification' action='ActionProductSpecification'/><menuitem name='ActionCullingCategory' action='ActionCullingCategory'/><separator/><menuitem name='ActionFreeRentPackage' action='ActionFreeRentPackage'/><menuitem name='ActionPaidRentPackage' action='ActionPaidRentPackage'/></menu><menu name='ActionBanksMenu' action='ActionBanksMenu'><menuitem name='ActionBanksRF' action='ActionBanksRF'/><separator/><menuitem name='ActionUpdateBanks' action='ActionUpdateBanks'/></menu><menu name='Action13' action='Action13'><menuitem name='Action14' action='Action14'/><menuitem name='Action15' action='Action15'/></menu><menu name='ActionCounterparty1' action='ActionCounterparty1'><menuitem name='ActionCounterpartyHandbook' action='ActionCounterpartyHandbook'/><separator/><menuitem name='ActionSignificance' action='ActionSignificance'/><menuitem name='ActionStatus' action='ActionStatus'/><menuitem name='ActionCounterpartyPost' action='ActionCounterpartyPost'/><separator/><menuitem name='ActionDocTemplates' action='ActionDocTemplates'/><separator/><menuitem name='ActionLoad1c' action='ActionLoad1c'/></menu><menu name='ActionMenuLogistic' action='ActionMenuLogistic'><menuitem name='ActionDeliverySchedule' action='ActionDeliverySchedule'/><menuitem name='ActionLogisticsArea' action='ActionLogisticsArea'/><menuitem name='ActionDeliveryShift' action='ActionDeliveryShift'/><separator/><menuitem name='ActionCar' action='ActionCar'/><menuitem name='ActionFuelType' action='ActionFuelType'/><separator/><menuitem name='ActionRouteColumns' action='ActionRouteColumns'/></menu><menu name='Action12' action='Action12'><menuitem name='ActionCommentTemplates' action='ActionCommentTemplates'/></menu></menu><menu name='ActionAbout' action='ActionAbout'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
+		this.UIManager.AddUiFromString ("<ui><menubar name='menubarMain'><menu name='ActionBaseMenu' action='ActionBaseMenu'><menuitem name='dialogAuthenticationAction' action='dialogAuthenticationAction'/><menuitem name='UsersAction' action='UsersAction'/><separator/><menuitem name='ActionParameters' action='ActionParameters'/><separator/><menuitem name='quitAction' action='quitAction'/></menu><menu name='Action18' action='Action18'><menu name='Action17' action='Action17'><menuitem name='ActionToolBarText' action='ActionToolBarText'/><menuitem name='ActionToolBarIcon' action='ActionToolBarIcon'/><menuitem name='ActionToolBarBoth' action='ActionToolBarBoth'/><separator/><menuitem name='ActionIconsExtraSmall' action='ActionIconsExtraSmall'/><menuitem name='ActionIconsSmall' action='ActionIconsSmall'/><menuitem name='ActionIconsMiddle' action='ActionIconsMiddle'/><menuitem name='ActionIconsLarge' action='ActionIconsLarge'/></menu></menu><menu name='Action' action='Action'><menu name='ActionOrgMenu' action='ActionOrgMenu'><menuitem name='ActionOrg' action='ActionOrg'/><separator/><menuitem name='ActionEmploey' action='ActionEmploey'/><menuitem name='ActionNationality' action='ActionNationality'/><menuitem name='ActionWarehouses' action='ActionWarehouses'/><separator/><menuitem name='ActionPhoneTypes' action='ActionPhoneTypes'/><menuitem name='ActionEMailTypes' action='ActionEMailTypes'/></menu><menu name='ActionTMC' action='ActionTMC'><menuitem name='ActionNomenclature' action='ActionNomenclature'/><menuitem name='ActionUnits' action='ActionUnits'/><menuitem name='ActionEquipment' action='ActionEquipment'/><separator/><menuitem name='ActionEquipmentTypes' action='ActionEquipmentTypes'/><menuitem name='ActionManufacturers' action='ActionManufacturers'/><menuitem name='ActionColors' action='ActionColors'/><separator/><menuitem name='ActionProductSpecification' action='ActionProductSpecification'/><menuitem name='ActionCullingCategory' action='ActionCullingCategory'/><separator/><menuitem name='ActionFreeRentPackage' action='ActionFreeRentPackage'/><menuitem name='ActionPaidRentPackage' action='ActionPaidRentPackage'/></menu><menu name='ActionBanksMenu' action='ActionBanksMenu'><menuitem name='ActionBanksRF' action='ActionBanksRF'/><separator/><menuitem name='ActionUpdateBanks' action='ActionUpdateBanks'/></menu><menu name='Action13' action='Action13'><menuitem name='Action14' action='Action14'/><menuitem name='Action15' action='Action15'/></menu><menu name='ActionCounterparty1' action='ActionCounterparty1'><menuitem name='ActionCounterpartyHandbook' action='ActionCounterpartyHandbook'/><separator/><menuitem name='ActionSignificance' action='ActionSignificance'/><menuitem name='ActionStatus' action='ActionStatus'/><menuitem name='ActionCounterpartyPost' action='ActionCounterpartyPost'/><separator/><menuitem name='ActionDocTemplates' action='ActionDocTemplates'/><separator/><menuitem name='ActionLoad1c' action='ActionLoad1c'/></menu><menu name='ActionMenuLogistic' action='ActionMenuLogistic'><menuitem name='ActionDeliverySchedule' action='ActionDeliverySchedule'/><menuitem name='ActionLogisticsArea' action='ActionLogisticsArea'/><menuitem name='ActionDeliveryShift' action='ActionDeliveryShift'/><separator/><menuitem name='ActionCar' action='ActionCar'/><menuitem name='ActionFuelType' action='ActionFuelType'/><separator/><menuitem name='ActionRouteColumns' action='ActionRouteColumns'/></menu><menu name='Action12' action='Action12'><menuitem name='ActionCommentTemplates' action='ActionCommentTemplates'/></menu></menu><menu name='ActionAbout' action='ActionAbout'><menuitem name='aboutAction' action='aboutAction'/></menu></menubar></ui>");
 		this.menubarMain = ((global::Gtk.MenuBar)(this.UIManager.GetWidget ("/menubarMain")));
 		this.menubarMain.Name = "menubarMain";
 		this.vbox1.Add (this.menubarMain);
@@ -352,7 +404,7 @@ public partial class MainWindow
 		this.toolbarMain.Name = "toolbarMain";
 		this.toolbarMain.ShowArrow = false;
 		this.toolbarMain.ToolbarStyle = ((global::Gtk.ToolbarStyle)(2));
-		this.toolbarMain.IconSize = ((global::Gtk.IconSize)(6));
+		this.toolbarMain.IconSize = ((global::Gtk.IconSize)(5));
 		this.vbox1.Add (this.toolbarMain);
 		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.toolbarMain]));
 		w3.Position = 1;
@@ -469,6 +521,13 @@ public partial class MainWindow
 		this.Action14.Activated += new global::System.EventHandler (this.OnAction14Activated);
 		this.Action15.Activated += new global::System.EventHandler (this.OnAction15Activated);
 		this.ActionDocTemplates.Activated += new global::System.EventHandler (this.OnActionDocTemplatesActivated);
+		this.ActionToolBarText.Toggled += new global::System.EventHandler (this.OnActionToolBarTextToggled);
+		this.ActionToolBarIcon.Toggled += new global::System.EventHandler (this.OnActionToolBarIconToggled);
+		this.ActionToolBarBoth.Toggled += new global::System.EventHandler (this.OnActionToolBarBothToggled);
+		this.ActionIconsExtraSmall.Toggled += new global::System.EventHandler (this.OnActionIconsExtraSmallToggled);
+		this.ActionIconsSmall.Toggled += new global::System.EventHandler (this.OnActionIconsSmallToggled);
+		this.ActionIconsMiddle.Toggled += new global::System.EventHandler (this.OnActionIconsMiddleToggled);
+		this.ActionIconsLarge.Toggled += new global::System.EventHandler (this.OnActionIconsLargeToggled);
 		this.tdiMain.TabAdded += new global::System.EventHandler<QSTDI.TabAddedEventArgs> (this.OnTdiMainTabAdded);
 		this.tdiMain.TabSwitched += new global::System.EventHandler<QSTDI.TabSwitchedEventArgs> (this.OnTdiMainTabSwitched);
 		this.tdiMain.TabClosed += new global::System.EventHandler<QSTDI.TabClosedEventArgs> (this.OnTdiMainTabClosed);
