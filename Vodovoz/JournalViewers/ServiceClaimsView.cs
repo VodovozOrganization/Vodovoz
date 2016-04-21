@@ -55,7 +55,8 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			OrmMain.DeleteObject (tableServiceClaims.GetSelectedObjects () [0]);
+			if (OrmMain.DeleteObject<ServiceClaim>(tableServiceClaims.GetSelectedObject<ServiceClaimVMNode>().Id))
+				tableServiceClaims.RepresentationModel.UpdateNodes();
 		}
 
 		protected void OnButtonFilterToggled (object sender, EventArgs e)
