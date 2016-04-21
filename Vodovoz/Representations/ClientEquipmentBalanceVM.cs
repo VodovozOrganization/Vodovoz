@@ -13,7 +13,7 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.ViewModel
 {
-	public class ClientBalanceVM : RepresentationModelWithoutEntityBase<ClientBalanceVMNode>
+	public class ClientEquipmentBalanceVM : RepresentationModelWithoutEntityBase<ClientEquipmentBalanceVMNode>
 	{
 		public ClientBalanceFilter Filter {
 			get {
@@ -30,7 +30,7 @@ namespace Vodovoz.ViewModel
 		{
 			Nomenclature nomenclatureAlias = null;
 			MeasurementUnits unitAlias = null;
-			ClientBalanceVMNode resultAlias = null;
+			ClientEquipmentBalanceVMNode resultAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
 
@@ -60,13 +60,13 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery (subqueryAdd).WithAlias (() => resultAlias.Append)
 					.SelectSubQuery (subqueryRemove).WithAlias (() => resultAlias.Removed)
 			                )
-				.TransformUsing (Transformers.AliasToBean<ClientBalanceVMNode> ())
-				.List<ClientBalanceVMNode> ().Where (r => r.Amount != 0).ToList ();
+				.TransformUsing (Transformers.AliasToBean<ClientEquipmentBalanceVMNode> ())
+				.List<ClientEquipmentBalanceVMNode> ().Where (r => r.Amount != 0).ToList ();
 
 			SetItemsSource (stocklist);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientBalanceVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientEquipmentBalanceVMNode>.Create ()
 			.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureName)
 			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
@@ -88,24 +88,24 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public ClientBalanceVM (ClientBalanceFilter filter) : this (filter.UoW)
+		public ClientEquipmentBalanceVM (ClientBalanceFilter filter) : this (filter.UoW)
 		{
 			Filter = filter;
 		}
 
-		public ClientBalanceVM ()
+		public ClientEquipmentBalanceVM ()
 			: this (UnitOfWorkFactory.CreateWithoutRoot ())
 		{
 			CreateRepresentationFilter = () => new ClientBalanceFilter (UoW);
 		}
 
-		public ClientBalanceVM (IUnitOfWork uow) : base (typeof(WarehouseMovementOperation))
+		public ClientEquipmentBalanceVM (IUnitOfWork uow) : base (typeof(WarehouseMovementOperation))
 		{
 			this.UoW = uow;
 		}
 	}
 
-	public class ClientBalanceVMNode
+	public class ClientEquipmentBalanceVMNode
 	{
 
 		public int Id{ get; set; }

@@ -236,8 +236,8 @@ public partial class MainWindow : Window
 	void ActionClientBalance_Activated (object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<ClientBalanceVM>(),
-			() => new ReferenceRepresentation (new ClientBalanceVM ())
+			ReferenceRepresentation.GenerateHashName<ClientEquipmentBalanceVM>(),
+			() => new ReferenceRepresentation (new ClientEquipmentBalanceVM ())
 		);
 	}
 

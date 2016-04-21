@@ -231,7 +231,6 @@
     <Compile Include="Repositories\OrderRepository.cs" />
     <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Representations\AdditionalAgreementsVM.cs" />
-    <Compile Include="Representations\ClientBalanceVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
     <Compile Include="Representations\CounterpartyVM.cs" />
@@ -554,6 +553,7 @@
     <Compile Include="Commons\CurrentUserSettings.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="HibernateMapping\UserSettingsMap.cs" />
+    <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
