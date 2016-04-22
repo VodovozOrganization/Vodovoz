@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Gamma.ColumnConfig;
-using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
-using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {
@@ -29,47 +26,62 @@ namespace Vodovoz.ViewModel
 		public override void UpdateNodes ()
 		{
 			Nomenclature nomenclatureAlias = null;
-			MeasurementUnits unitAlias = null;
 			ClientEquipmentBalanceVMNode resultAlias = null;
-			WarehouseMovementOperation operationAddAlias = null;
-			WarehouseMovementOperation operationRemoveAlias = null;
+			Counterparty counterpartyAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
+			Equipment equipmentAlias = null;
+			CounterpartyMovementOperation operationAlias = null;
+			CounterpartyMovementOperation subsequentOperationAlias = null;
 
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
-				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And ((Filter == null || Filter.RestrictCounterparty == null) 
-					? Restrictions.IsNotNull (Projections.Property<CounterpartyMovementOperation> (o => o.IncomingCounterparty)) 
-					: Restrictions.Eq (Projections.Property<CounterpartyMovementOperation> (o => o.IncomingCounterparty), Filter.RestrictCounterparty))
-				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
+			var lastCouterpartyOp = UoW.Session.QueryOver<CounterpartyMovementOperation>(() => operationAlias)
+				.Where(o => o.Equipment != null);
 
-			//FIXME Возможно некорректная выборка вернувшихся куллеров. Надо смотреть на то как они будут возвращатся.
+			if (Filter.RestrictIncludeSold == false)
+				lastCouterpartyOp.Where(x => x.ForRent == true);
 
-			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation> (() => operationRemoveAlias)
-				.Where (() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And ((Filter == null || Filter.RestrictCounterparty == null) 
-					? Restrictions.IsNotNull (Projections.Property<CounterpartyMovementOperation> (o => o.WriteoffCounterparty)) 
-					: Restrictions.Eq (Projections.Property<CounterpartyMovementOperation> (o => o.WriteoffCounterparty), Filter.RestrictCounterparty))
-				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
+			if(Filter.RestrictDeliveryPoint == null)
+			{
+				if (Filter.RestrictCounterparty != null)
+					lastCouterpartyOp.Where(x => x.IncomingCounterparty == Filter.RestrictCounterparty);
+				else
+					lastCouterpartyOp.Where(x => x.IncomingCounterparty != null);
+			}
+			else
+			{
+				lastCouterpartyOp.Where(x => x.IncomingDeliveryPoint == Filter.RestrictDeliveryPoint);
+			}
 
-			var stocklist = UoW.Session.QueryOver<Nomenclature> (() => nomenclatureAlias)
-				.JoinQueryOver (n => n.Unit, () => unitAlias)
+			var subsequentOperationsSubquery = QueryOver.Of<CounterpartyMovementOperation> (() => subsequentOperationAlias)
+				.Where (() => operationAlias.OperationTime < subsequentOperationAlias.OperationTime && operationAlias.Equipment == subsequentOperationAlias.Equipment)
+				.Select (op=>op.Id);
+
+			lastCouterpartyOp.WithSubquery.WhereNotExists(subsequentOperationsSubquery);
+			
+			var resultList = lastCouterpartyOp
+				.JoinAlias(o => o.IncomingCounterparty, () => counterpartyAlias)
+				.JoinAlias(o => o.IncomingDeliveryPoint, () => deliveryPointAlias)
+				.JoinAlias(o => o.Equipment, () => equipmentAlias)
+				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.SelectList (list => list
-					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.Id)
+					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.NomenclatureName)
-					.Select (() => unitAlias.Name).WithAlias (() => resultAlias.UnitName)
-					.Select (() => unitAlias.Digits).WithAlias (() => resultAlias.UnitDigits)
-					.SelectSubQuery (subqueryAdd).WithAlias (() => resultAlias.Append)
-					.SelectSubQuery (subqueryRemove).WithAlias (() => resultAlias.Removed)
+					.Select (() => counterpartyAlias.FullName).WithAlias (() => resultAlias.Client)
+					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.Address)
+					.Select (() => operationAlias.ForRent).WithAlias (() => resultAlias.IsOur)
+					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.SerialNumberInt)
 			                )
 				.TransformUsing (Transformers.AliasToBean<ClientEquipmentBalanceVMNode> ())
-				.List<ClientEquipmentBalanceVMNode> ().Where (r => r.Amount != 0).ToList ();
+				.List<ClientEquipmentBalanceVMNode> ();
 
-			SetItemsSource (stocklist);
+			SetItemsSource (resultList);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientEquipmentBalanceVMNode>.Create ()
 			.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureName)
-			.AddColumn ("Кол-во").SetDataProperty (node => node.CountText)
-			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
+			.AddColumn("Серийный номер").AddTextRenderer(node => node.SerialNumber)
+			.AddColumn ("Наше").AddToggleRenderer(node => node.IsOur)
+			.AddColumn("Клиент").AddTextRenderer(node => node.Client)
+			.AddColumn("Адрес").AddTextRenderer(node => node.Address)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -99,7 +111,7 @@ namespace Vodovoz.ViewModel
 			CreateRepresentationFilter = () => new ClientBalanceFilter (UoW);
 		}
 
-		public ClientEquipmentBalanceVM (IUnitOfWork uow) : base (typeof(WarehouseMovementOperation))
+		public ClientEquipmentBalanceVM (IUnitOfWork uow) : base (typeof(CounterpartyMovementOperation))
 		{
 			this.UoW = uow;
 		}
@@ -110,31 +122,26 @@ namespace Vodovoz.ViewModel
 
 		public int Id{ get; set; }
 
-		public decimal Append{ get; set; }
+		[UseForSearch]
+		public string SerialNumber
+		{
+			get
+			{
+				return SerialNumberInt.ToString();
+			}
+		}
 
-		public decimal Removed{ get; set; }
+		public int SerialNumberInt { get; set; }
 
-		public string UnitName{ get; set; }
+		public bool IsOur { get; set; }
 
-		public short UnitDigits{ get; set; }
+		public string Client { get; set; }
+
+		[UseForSearch]
+		public string Address { get; set; }
 
 		[UseForSearch]
 		public string NomenclatureName { get; set; }
-
-		public string CountText { get { return String.Format ("{0:" + String.Format ("F{0}", UnitDigits) + "} {1}", 
-				Amount,
-				UnitName); } }
-
-		public decimal Amount { get { return Append - Removed; } }
-
-		public string RowColor {
-			get {
-				if (Amount < 0)
-					return "red";
-				else
-					return "black";
-			}
-		}
 	}
 }
 

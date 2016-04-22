@@ -5,7 +5,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	[OrmDefaultIsFiltered (false)]
+	[OrmDefaultIsFiltered (true)]
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ClientBalanceFilter : Gtk.Bin, IRepresentationFilter
 	{
@@ -56,7 +56,6 @@ namespace Vodovoz
 				entryreferenceClient.Subject = value;
 				entryreferenceClient.Sensitive = false;
 			}
-		
 		}
 
 		public DeliveryPoint RestrictDeliveryPoint {
@@ -65,7 +64,14 @@ namespace Vodovoz
 				entryreferencePoint.Subject = value;
 				entryreferencePoint.Sensitive = false;
 			}
+		}
 
+		public bool RestrictIncludeSold {
+			get { return checkIncludeSold.Active; }
+			set {
+				checkIncludeSold.Active = value;
+				checkIncludeSold.Sensitive = false;
+			}
 		}
 
 		protected void OnSpeccomboStockItemSelected (object sender, EnumItemClickedEventArgs e)
@@ -86,6 +92,11 @@ namespace Vodovoz
 		}
 
 		protected void OnEntryreferencePointChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnCheckIncludeSoldToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}
