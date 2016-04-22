@@ -118,7 +118,6 @@
     <Compile Include="gtk-gui\Vodovoz.EmployeeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="Dialogs\CarsDlg.cs" />
-    <Compile Include="Dialogs\NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="Domain\Nomenclature.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
@@ -554,6 +553,7 @@
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="HibernateMapping\UserSettingsMap.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
+    <Compile Include="Dialogs\Store\NomenclatureDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
