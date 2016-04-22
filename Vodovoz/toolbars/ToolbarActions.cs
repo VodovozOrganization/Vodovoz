@@ -237,7 +237,7 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<ClientEquipmentBalanceVM>(),
-			() => new ReferenceRepresentation (new ClientEquipmentBalanceVM ())
+			() => new ReferenceRepresentation (new ClientEquipmentBalanceVM (), "Оборудование у клиентов")
 		);
 	}
 
