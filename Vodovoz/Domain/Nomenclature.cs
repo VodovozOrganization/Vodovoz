@@ -67,6 +67,14 @@ namespace Vodovoz.Domain
 			set { SetField (ref doNotReserve, value, () => DoNotReserve); }
 		}
 
+		bool rentPriority;
+
+		[Display (Name = "Приоритет аренды")]
+		public virtual bool RentPriority {
+			get { return rentPriority; }
+			set { SetField (ref rentPriority, value, () => RentPriority); }
+		}
+
 		bool serial;
 
 		[Display (Name = "Серийный номер")]

@@ -48,6 +48,7 @@ namespace Vodovoz
 			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			ycheckRentPriority.Binding.AddBinding(Entity, e => e.RentPriority, w => w.Active).InitializeFromSource();
 
 			referenceUnit.PropertyMapping<Nomenclature> (n => n.Unit);
 			referenceType.PropertyMapping<Nomenclature> (n => n.Type);
@@ -89,6 +90,7 @@ namespace Vodovoz
 			labelClass.Sensitive = referenceType.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
+			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 		}
 
