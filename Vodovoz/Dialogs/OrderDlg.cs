@@ -822,7 +822,7 @@ namespace Vodovoz
 				                            ServiceClaimRepository.GetDoneClaimsForClient (UoWGeneric.Root)
 				.GetExecutableQueryOver (UoWGeneric.Session).RootCriteria);
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
 			SelectDialog.ObjectSelected += DoneServiceSelected;
 
 			TabParent.AddSlaveTab (this, SelectDialog);
