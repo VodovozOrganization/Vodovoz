@@ -67,6 +67,16 @@ namespace Vodovoz.Domain
 			set { SetField (ref warrantyEndDate, value, () => WarrantyEndDate); }
 		}
 
+		Counterparty assignedToClient;
+
+		[Display (Name = "Привязан к клиенту")]
+		public virtual Counterparty AssignedToClient {
+			get { return assignedToClient; }
+			set {
+				SetField (ref assignedToClient, value, () => AssignedToClient); 
+			}
+		}
+
 		#endregion
 
 		public virtual DateTime? NextServiceDate {
