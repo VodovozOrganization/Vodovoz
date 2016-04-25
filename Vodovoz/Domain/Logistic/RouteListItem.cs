@@ -13,6 +13,8 @@ namespace Vodovoz.Domain.Logistic
 		Nominative = "адрес маршрутного листа")]
 	public class RouteListItem : PropertyChangedBase, IDomainObject
 	{
+		#region Свойства
+
 		public virtual int Id { get; set; }
 
 		Orders.Order order;
@@ -138,10 +140,6 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual bool HasUserSpecifiedDriverWage(){
-			return DriverWage != DefaultDriverWage;
-		}
-
 		decimal forwarderWage;
 		public virtual decimal ForwarderWage{
 			get{
@@ -165,10 +163,25 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		#endregion
+
+		#region Расчетные
 
 		public virtual bool HasUserSpecifiedForwarderWage(){
 			return ForwarderWage != DefaultForwarderWage;
 		}
+
+		public virtual bool HasUserSpecifiedDriverWage(){
+			return DriverWage != DefaultDriverWage;
+		}
+
+		public virtual string Title{
+			get{
+				return String.Format("Адрес в МЛ {0}", Order.DeliveryPoint.CompiledAddress);
+			}
+		}
+
+		#endregion
 
 		public virtual void RecalculateWages()
 		{
