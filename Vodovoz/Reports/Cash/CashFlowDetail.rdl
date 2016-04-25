@@ -130,7 +130,7 @@
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
@@ -158,7 +158,7 @@
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
@@ -201,7 +201,7 @@
           <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
@@ -235,6 +235,34 @@
         <NoRows>За период нет возвратов денег.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
+          <Parameter Name="StartDate">
+            <Value>=Parameters!StartDate</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategory">
+            <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+        </Parameters>
+      </Subreport>
+      <Subreport Name="Subreport5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>47.48pt</Height>
+        <Width>561.04pt</Width>
+        <Left>0.0pt</Left>
+        <Top>437.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>CashFlowDetailUnclosedAdvance</ReportName>
+        <NoRows>Все авансы закрыты.</NoRows>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
           <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
@@ -249,8 +277,23 @@
           </Parameter>
         </Parameters>
       </Subreport>
+      <Textbox Name="Textbox5" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>21.11pt</Height>
+        <Width>560.18pt</Width>
+        <Value>Незакрытые авансы</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>413.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>418.4pt</Height>
+    <Height>512.7pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>

@@ -96,16 +96,16 @@
         <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
@@ -124,16 +124,16 @@
         <NoRows>За период нет расхода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
@@ -152,6 +152,34 @@
         <NoRows>За период нет авансовых отчетов.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
+          <Parameter Name="StartDate">
+            <Value>=Parameters!StartDate</Value>
+          </Parameter>
+          <Parameter Name="EndDate">
+            <Value>=Parameters!EndDate</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategory">
+            <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed">
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+        </Parameters>
+      </Subreport>
+      <Subreport Name="Subreport3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>47.48pt</Height>
+        <Width>561.04pt</Width>
+        <Left>0.0pt</Left>
+        <Top>267.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <ReportName>CashFlowDetailUnclosedAdvance</ReportName>
+        <NoRows>Все авансы закрыты.</NoRows>
+        <MergeTransactions>true</MergeTransactions>
+        <Parameters>
           <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
@@ -166,9 +194,24 @@
           </Parameter>
         </Parameters>
       </Subreport>
+      <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>21.11pt</Height>
+        <Width>560.18pt</Width>
+        <Value>Незакрытые авансы</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>243.7pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>244.4pt</Height>
-    <Columns >1</Columns>
+    <Height>373.0pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>15.3pt</Height>
@@ -200,7 +243,7 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -256,6 +299,6 @@
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
 </Report>

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Gamma.Binding;
 using Gtk;
 using QSOrmProject;
@@ -86,6 +85,8 @@ namespace Vodovoz.Reports
 					ReportName = "Cash.CashFlowDetailAdvance";
 				else if (comboPart.SelectedItem.Equals (ReportParts.AdvanceReport))
 					ReportName = "Cash.CashFlowDetailAdvanceReport";
+				else if (comboPart.SelectedItem.Equals (ReportParts.UnclosedAdvance))
+					ReportName = "Cash.CashFlowDetailUnclosedAdvance";
 				else
 					throw new InvalidOperationException ("Неизвестный раздел.");
 			} else
@@ -154,7 +155,8 @@ namespace Vodovoz.Reports
 			} else if (comboPart.SelectedItem.Equals (ReportParts.ExpenseAll)
 			           || comboPart.SelectedItem.Equals (ReportParts.Expense)
 			           || comboPart.SelectedItem.Equals (ReportParts.Advance)
-			           || comboPart.SelectedItem.Equals (ReportParts.AdvanceReport)) {
+			           || comboPart.SelectedItem.Equals (ReportParts.AdvanceReport)
+					|| comboPart.SelectedItem.Equals (ReportParts.UnclosedAdvance)) {
 				comboExpenseCategory.Sensitive = true;
 				comboIncomeCategory.Sensitive = false;
 			} else
@@ -176,7 +178,9 @@ namespace Vodovoz.Reports
 			[Display (Name = "Авансы")]
 			Advance,
 			[Display (Name = "Авансовые отчеты")]
-			AdvanceReport
+			AdvanceReport,
+			[Display (Name = "Незакрытые авансы")]
+			UnclosedAdvance
 		}
 	}
 }
