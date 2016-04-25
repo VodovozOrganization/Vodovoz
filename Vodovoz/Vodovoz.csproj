@@ -554,6 +554,9 @@
     <Compile Include="HibernateMapping\UserSettingsMap.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Dialogs\Store\NomenclatureDlg.cs" />
+    <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
+    <Compile Include="Repositories\RentPackageRepository.cs" />
+    <Compile Include="HibernateMapping\Goods\EquipmentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

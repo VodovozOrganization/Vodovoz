@@ -8806,7 +8806,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackagesView" design-size="569 300">
+  <widget class="Gtk.Bin" id="Vodovoz.FreeRentPackagesView" design-size="791 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -8848,17 +8848,34 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
+              <widget class="Gtk.Button" id="buttonAddByType">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-add Menu</property>
+                <property name="Label" translatable="yes">Подобрать по типу</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonAddByTypeClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Button" id="buttonAdd">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>
-                <property name="Label" translatable="yes">Добавить</property>
+                <property name="Label" translatable="yes">Добавить вручную</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonAddClicked" />
               </widget>
               <packing>
-                <property name="Position">0</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -8875,7 +8892,7 @@ Patronymic</property>
                 <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -8887,7 +8904,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Общий залог:</property>
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -8899,7 +8916,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">#Deposit</property>
               </widget>
               <packing>
-                <property name="Position">3</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -8911,7 +8928,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Минимальный заказ:</property>
               </widget>
               <packing>
-                <property name="Position">4</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -8923,7 +8940,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">#WaterAmount</property>
               </widget>
               <packing>
-                <property name="Position">5</property>
+                <property name="Position">6</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>

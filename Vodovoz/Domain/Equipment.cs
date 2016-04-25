@@ -103,12 +103,10 @@ namespace Vodovoz.Domain
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (LastServiceDate > DateTime.Now)
 				yield return new ValidationResult ("Дата последней санитарной обработки не может быть в будущем.");
-			if (Serial == String.Empty)
-				yield return new ValidationResult ("Серийный номер должен быть заполнен.");
 			if (Nomenclature == null)
 				yield return new ValidationResult ("Должна быть указана номенклатура.");
 		}

@@ -6,7 +6,6 @@ using Gamma.GtkWidgets;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
-using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
@@ -14,11 +13,11 @@ using Vodovoz.Repository;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class FreeRentPackagesView : Gtk.Bin
+	public partial class FreeRentPackagesView : WidgetOnDialogBase
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
-		private GenericObservableList<FreeRentEquipment> equipment;
+		private GenericObservableList<FreeRentEquipment> equipments;
 
 		Decimal TotalDeposit = 0;
 
@@ -44,9 +43,9 @@ namespace Vodovoz
 				agreementUoW = value;
 				if (AgreementUoW.Root.Equipment == null)
 					AgreementUoW.Root.Equipment = new List<FreeRentEquipment> ();
-				equipment = AgreementUoW.Root.ObservableEquipment;
-				equipment.ElementChanged += Equipment_ElementChanged; 
-				treeRentPackages.ItemsDataSource = equipment;
+				equipments = AgreementUoW.Root.ObservableEquipment;
+				equipments.ElementChanged += Equipment_ElementChanged; 
+				treeRentPackages.ItemsDataSource = equipments;
 				UpdateTotalLabels ();
 			}
 		}
@@ -59,8 +58,8 @@ namespace Vodovoz
 		void UpdateTotalLabels ()
 		{
 			TotalDeposit = TotalWaterAmount = 0;
-			if (equipment != null)
-				foreach (FreeRentEquipment eq in equipment) {
+			if (equipments != null)
+				foreach (FreeRentEquipment eq in equipments) {
 					TotalDeposit += eq.Deposit;
 					TotalWaterAmount += eq.WaterAmount;
 				}
@@ -94,44 +93,78 @@ namespace Vodovoz
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null) {
-				logger.Warn ("Родительская вкладка не найдена.");
-				return;
-			}
-
-			var availableTypes = EquipmentTypeRepository.GetFreeRentEquipmentTypes (AgreementUoW);
-
-			//TODO FIXME Filter used equipment
-			var Query = EquipmentRepository.GetEquipmentWithTypesQuery (availableTypes);
-			OrmReference SelectDialog = new OrmReference (typeof(Equipment), 
-				                            AgreementUoW, 
-				                            Query.GetExecutableQueryOver (AgreementUoW.Session).RootCriteria);
+			OrmReference SelectDialog = new OrmReference (AgreementUoW, EquipmentRepository.AvailableEquipmentQuery());
 			SelectDialog.Mode = OrmReferenceMode.Select;
-			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
 			SelectDialog.ObjectSelected += EquipmentSelected;
 
-			mytab.TabParent.AddSlaveTab (mytab, SelectDialog);
+			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
 		}
 
 		void EquipmentSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
+			var selectedEquipment = (Equipment)e.Subject;
+
+			var rentPackage = RentPackageRepository.GetFreeRentPackage(AgreementUoW, selectedEquipment.Nomenclature.Type);
+			if (rentPackage == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Для выбранного типа оборудования нет пакета бесплатной аренды.");
+				return;
+			}
+
 			FreeRentEquipment eq = new FreeRentEquipment ();
-			eq.Equipment = (Equipment)e.Subject;
-			var rentPackage = AgreementUoW.Session.CreateCriteria (typeof(FreeRentPackage))
-				.List<FreeRentPackage> ()
-				.First (p => p.EquipmentType == eq.Equipment.Nomenclature.Type);
+			eq.Equipment = selectedEquipment;
 			eq.Deposit = rentPackage.Deposit;
 			eq.FreeRentPackage = rentPackage;
 			eq.WaterAmount = rentPackage.MinWaterAmount;
-			equipment.Add (eq);
+			equipments.Add (eq);
 			UpdateTotalLabels ();
 		}
 
 		protected void OnButtonDeleteClicked (object sender, EventArgs e)
 		{
-			equipment.Remove (treeRentPackages.GetSelectedObjects () [0] as FreeRentEquipment);
+			equipments.Remove (treeRentPackages.GetSelectedObjects () [0] as FreeRentEquipment);
 		}
+
+		protected void OnButtonAddByTypeClicked(object sender, EventArgs e)
+		{
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.EquipmentTypesForRentVM (MyOrmDialog.UoW));
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.TabName = "Выберите тип оборудования";
+			SelectDialog.ObjectSelected += EquipmentByTypeSelected;
+
+			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
+		}
+
+		void EquipmentByTypeSelected (object sender, ReferenceRepresentationSelectedEventArgs args)
+		{
+			var equipmentType = AgreementUoW.GetById<EquipmentType>(args.ObjectId);
+
+			var rentPackage = Repository.RentPackageRepository.GetFreeRentPackage(AgreementUoW, equipmentType);
+			if (rentPackage == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Для выбранного типа оборудования нет пакета бесплатной аренды.");
+				return;
+			}
+
+			var exclude = equipments.Select(e => e.Equipment.Id).ToArray();
+
+			var selectedEquipment = EquipmentRepository.GetAvailableEquipmentForRent(AgreementUoW, equipmentType, exclude);
+			if(selectedEquipment == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Не найдено свободного оборудования выбранного типа.");
+				return;
+			}
+
+			FreeRentEquipment eq = new FreeRentEquipment ();
+			eq.Equipment = selectedEquipment;
+			eq.Deposit = rentPackage.Deposit;
+			eq.FreeRentPackage = rentPackage;
+			eq.WaterAmount = rentPackage.MinWaterAmount;
+			equipments.Add (eq);
+			UpdateTotalLabels ();
+		}
+
 	}
 }
 

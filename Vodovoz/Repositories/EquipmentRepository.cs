@@ -44,6 +44,49 @@ namespace Vodovoz.Repository
 					: new List<Equipment>();
 		}
 
+		public static Equipment GetAvailableEquipmentForRent(IUnitOfWork uow, EquipmentType type, int[] excludeEquipments)
+		{
+			Nomenclature nomenclatureAlias = null;
+
+			//Ищем сначала дежурные
+			var proposedList = AvailableOnDutyEquipmentQuery().GetExecutableQueryOver(uow.Session)
+				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Type == type)
+				.List();
+
+			var result = FirstNotExcludedEquipment(proposedList, excludeEquipments);
+
+			if (result != null)
+				return result;
+
+			//Выбираем сначала приоритетные модели
+			proposedList = AvailableEquipmentQuery().GetExecutableQueryOver(uow.Session)
+				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Type == type)
+				.Where(() => nomenclatureAlias.RentPriority == true)
+				.List();
+
+			result = FirstNotExcludedEquipment(proposedList, excludeEquipments);
+
+			if (result != null)
+				return result;
+
+			//Выбираем любой куллер
+			proposedList = AvailableEquipmentQuery().GetExecutableQueryOver(uow.Session)
+				.JoinAlias(e => e.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Type == type)
+				.List();
+
+			result = FirstNotExcludedEquipment(proposedList, excludeEquipments);
+
+			return result;
+		}
+
+		private static Equipment FirstNotExcludedEquipment(IList<Equipment> equipmentList, int[] excludeList)
+		{
+			return equipmentList.FirstOrDefault(e => !excludeList.Contains(e.Id));
+		}
+
 		public static QueryOver<Equipment> AvailableOnDutyEquipmentQuery(){
 			return AvailableEquipmentQuery ().Where (equipment => equipment.OnDuty);
 		}
@@ -64,13 +107,15 @@ namespace Vodovoz.Repository
 
 			var subqueryAllReservedEquipment = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias)
 				.Where (() => orderAlias.OrderStatus == OrderStatus.Accepted
-					|| orderAlias.OrderStatus == OrderStatus.InTravelList)
+					|| orderAlias.OrderStatus == OrderStatus.InTravelList 
+					|| orderAlias.OrderStatus == OrderStatus.NewOrder) // чтобы не добавить в доп соглашение оборудование добавленное в уже созданный заказ.
 				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
 				.Where (() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select (Projections.Property(()=>orderEquipmentAlias.Equipment.Id));
 
 			return QueryOver.Of<Equipment> (() => equipmentAlias)
 				.Where (equipmentInStockCriterion)
+				.Where(e => e.AssignedToClient == null)
 				.WithSubquery.WhereProperty (()=>equipmentAlias.Id).NotIn (subqueryAllReservedEquipment);
 		}
 
