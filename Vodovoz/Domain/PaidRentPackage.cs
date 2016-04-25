@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using QSProjectsLib;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain
 {
@@ -10,7 +11,7 @@ namespace Vodovoz.Domain
 		Nominative = "условие платной аренды",
 		Accusative = "условие платной аренды"
 	)]
-	public class PaidRentPackage: PropertyChangedBase, IDomainObject
+	public class PaidRentPackage: BusinessObjectBase<PaidRentPackage>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -60,6 +61,7 @@ namespace Vodovoz.Domain
 		EquipmentType equipmentType;
 
 		[Display (Name = "Тип оборудования")]
+		[Required(ErrorMessage = "Тип оборудования должен быть указан.")]
 		public virtual EquipmentType EquipmentType {
 			get { return equipmentType; }
 			set { SetField (ref equipmentType, value, () => EquipmentType); }
@@ -79,6 +81,21 @@ namespace Vodovoz.Domain
 		public virtual Nomenclature DepositService {
 			get { return depositService; }
 			set { SetField (ref depositService, value, () => DepositService); }
+		}
+
+		#endregion
+
+		#region IValidatableObject implementation
+
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			var allready = Repository.RentPackageRepository.GetPaidRentPackage(UoW, EquipmentType);
+			if(allready != null && allready.Id != Id)
+			{
+				yield return new ValidationResult (
+					String.Format ("Условия для оборудования {0} уже существуют.", EquipmentType.Name),
+					new[] { this.GetPropertyName (o => o.EquipmentType) });
+			}
 		}
 
 		#endregion
