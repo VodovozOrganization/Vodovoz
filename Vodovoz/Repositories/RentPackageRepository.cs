@@ -15,6 +15,14 @@ namespace Vodovoz.Repository
 			return package;
 		}
 
+		public static PaidRentPackage GetPaidRentPackage (IUnitOfWork uow, EquipmentType equipmentType)
+		{
+			var package = uow.Session.QueryOver<PaidRentPackage>()
+				.Where(p => p.EquipmentType == equipmentType)
+				.SingleOrDefault();
+			return package;
+		}
+
 		public static List<EquipmentType> GetPaidRentEquipmentTypes (IUnitOfWork uow)
 		{
 			var availableTypes = uow.Session.CreateCriteria (typeof(PaidRentPackage))

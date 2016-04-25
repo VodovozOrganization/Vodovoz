@@ -818,6 +818,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -6745,7 +6746,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackageDlg" design-size="436 353">
+  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackageDlg" design-size="436 376">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -9700,7 +9701,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="456 300">
+  <widget class="Gtk.Bin" id="Vodovoz.PaidRentPackagesView" design-size="674 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -9742,17 +9743,34 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
+              <widget class="Gtk.Button" id="buttonAddByType">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-add Menu</property>
+                <property name="Label" translatable="yes">Подобрать по типу</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonAddByTypeClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Button" id="buttonAdd">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>
-                <property name="Label" translatable="yes">Добавить</property>
+                <property name="Label" translatable="yes">Добавить вручную</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonAddClicked" />
               </widget>
               <packing>
-                <property name="Position">0</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -9769,7 +9787,7 @@ Patronymic</property>
                 <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -9781,7 +9799,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Итого:</property>
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -9793,7 +9811,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">#Price</property>
               </widget>
               <packing>
-                <property name="Position">3</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -9805,7 +9823,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Суммарный залог:</property>
               </widget>
               <packing>
-                <property name="Position">4</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -9817,7 +9835,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">#Deposit</property>
               </widget>
               <packing>
-                <property name="Position">5</property>
+                <property name="Position">6</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -15349,7 +15367,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DailyRentPackagesView" design-size="456 300">
+  <widget class="Gtk.Bin" id="Vodovoz.DailyRentPackagesView" design-size="674 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -15391,17 +15409,34 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
+              <widget class="Gtk.Button" id="buttonAddByType">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-add Menu</property>
+                <property name="Label" translatable="yes">Подобрать по типу</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonAddByTypeClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Button" id="buttonAdd">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>
-                <property name="Label" translatable="yes">Добавить</property>
+                <property name="Label" translatable="yes">Добавить вручную</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonAddClicked" />
               </widget>
               <packing>
-                <property name="Position">0</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -15418,7 +15453,7 @@ Patronymic</property>
                 <signal name="Clicked" handler="OnButtonDeleteClicked" />
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -15430,7 +15465,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Итого:</property>
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -15442,7 +15477,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">#Price</property>
               </widget>
               <packing>
-                <property name="Position">3</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -15454,7 +15489,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">Суммарный залог:</property>
               </widget>
               <packing>
-                <property name="Position">4</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -15466,7 +15501,7 @@ Patronymic</property>
                 <property name="LabelProp" translatable="yes">#Deposit</property>
               </widget>
               <packing>
-                <property name="Position">5</property>
+                <property name="Position">6</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
