@@ -119,6 +119,7 @@ namespace Vodovoz
 			menu.Add (menuItem);
 			menuActions.Menu = menu;
 			menu.ShowAll ();
+			menuActions.Sensitive = !UoWGeneric.IsNew;
 		}
 
 		void AllOrders_Activated (object sender, EventArgs e)
