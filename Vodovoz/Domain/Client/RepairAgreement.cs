@@ -1,9 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
-using Gamma.Utilities;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Client
@@ -17,9 +12,9 @@ namespace Vodovoz.Domain.Client
 		public static IUnitOfWorkGeneric<RepairAgreement> Create (CounterpartyContract contract)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<RepairAgreement> ();
-			uow.Root.Contract = contract;
+			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
 			uow.Root.DeliveryPoint = null;
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (contract);
+			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (uow.Root.Contract);
 			return uow;
 		}
 	}

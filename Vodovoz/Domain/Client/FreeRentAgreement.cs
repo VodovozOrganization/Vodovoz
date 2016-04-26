@@ -43,8 +43,8 @@ namespace Vodovoz.Domain.Client
 		public static IUnitOfWorkGeneric<FreeRentAgreement> Create (CounterpartyContract contract)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<FreeRentAgreement> ();
-			uow.Root.Contract = contract;
-			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (contract);
+			uow.Root.Contract = uow.GetById<CounterpartyContract>(contract.Id);
+			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (uow.Root.Contract);
 			return uow;
 		}
 	}
