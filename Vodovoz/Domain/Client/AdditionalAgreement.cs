@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
 
@@ -17,32 +18,27 @@ namespace Vodovoz.Domain.Client
 	{
 		public virtual int Id { get; set; }
 
-		string agreementNumber;
+		int agreementNumber;
 
-		[Required (ErrorMessage = "Номер доп. соглашения должен быть заполнен.")]
 		[Display (Name = "Номер")]
-		public virtual string AgreementNumber { 
+		[PropertyChangedAlso("FullNumberText")]
+		public virtual int AgreementNumber { 
 			get { return agreementNumber; } 
 			set { SetField (ref agreementNumber, value, () => AgreementNumber); }
 		}
 
+		AgreementType type;
+
 		[Display (Name = "Тип доп. соглашения")]
-		public virtual AgreementType Type {
-			get {	 
-				if (this is DailyRentAgreement)
-					return AgreementType.DailyRent;
-				if (this is NonfreeRentAgreement)
-					return AgreementType.NonfreeRent;
-				if (this is FreeRentAgreement)
-					return AgreementType.FreeRent;
-				if (this is WaterSalesAgreement)
-					return AgreementType.WaterSales;
-				return AgreementType.Repair;
-			}		
+		[PropertyChangedAlso("FullNumberText")]
+		public virtual AgreementType Type{
+			get { return type; } 
+			protected set { SetField (ref type, value, () => Type); }
 		}
 
 		[Required (ErrorMessage = "Договор должен быть указан.")]
 		[Display (Name = "Договор")]
+		[PropertyChangedAlso("FullNumberText")]
 		public virtual CounterpartyContract Contract { get; set; }
 
 		[Required (ErrorMessage = "Дата создания должна быть указана.")]
@@ -59,17 +55,26 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Закрыто")]
 		public virtual bool IsCancelled { get; set; }
 
+		#region Вычисляемые
+
 		public virtual string AgreementDeliveryPoint { get { return DeliveryPoint != null ? DeliveryPoint.CompiledAddress : "Не указана"; } }
 
 		public virtual string AgreementTypeTitle { get { return Type.GetEnumTitle (); } }
 
 		public virtual string DocumentDate { get { return String.Format ("От {0}", StartDate.ToShortDateString ()); } }
 
-		public virtual string Title { get { return String.Format ("Доп. соглашение №{0} от {1}", AgreementNumber, StartDate.ToShortDateString ()); } }
+		public virtual string Title { get { return String.Format ("Доп. соглашение №{0} от {1}", FullNumberText, StartDate.ToShortDateString ()); } }
+
+		public virtual string FullNumberText {
+			get{
+				return String.Format("{0}-{1}{2}", Contract.Id, GetTypePrefix(Type), AgreementNumber);
+			}
+		}
+	
+		#endregion
 
 		public AdditionalAgreement ()
 		{
-			AgreementNumber = String.Empty;
 			IssueDate = StartDate = DateTime.Now;
 		}
 
@@ -83,25 +88,41 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult ("Доп. соглашение с таким номером уже существует.", new[] { "AgreementNumber" });
 		}
 
-		public static string GetNumber (CounterpartyContract contract)
+		#region Статические
+
+		public static int GetNumber (CounterpartyContract contract)
 		{
 			//Вычисляем номер для нового соглашения.
 			var additionalAgreements = contract.AdditionalAgreements;
-			var numbers = new List<int> ();
-			foreach (AdditionalAgreement a in additionalAgreements) {
-				int res;
-				if (Int32.TryParse (a.AgreementNumber, out res))
-					numbers.Add (res);
-			}
+			var numbers = additionalAgreements.Select(x => x.AgreementNumber).ToList();
 			numbers.Sort ();
-			string number = "00";
+
 			if (numbers.Count > 0) {
-				number += (numbers [numbers.Count - 1] + 1).ToString ();
-				number = number.Substring (number.Length - 3, 3);
+				return numbers.Last() + 1;
 			} else
-				number += "1";
-			return number;
+				return 1;
 		}
+
+		public static string GetTypePrefix(AgreementType type)
+		{
+			switch (type)
+			{
+				case AgreementType.DailyRent:
+					return "АС";
+				case AgreementType.NonfreeRent:
+					return "А";
+				case AgreementType.FreeRent:
+					return "Б";
+				case AgreementType.Repair:
+					return "Т";
+				case AgreementType.WaterSales:
+					return "В";
+				default:
+					throw new InvalidOperationException(String.Format("Тип {0} не поддерживается.", type));
+			}
+		}
+
+		#endregion
 	}
 
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,

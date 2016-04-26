@@ -18,7 +18,7 @@ namespace Vodovoz
 			get { return isEditable; } 
 			set {
 				isEditable = value;
-				buttonSave.Sensitive = entryAgreementNumber.Sensitive = 
+				buttonSave.Sensitive = 
 					dateEnd.Sensitive = dateStart.Sensitive = 
 						dailyrentpackagesview1.IsEditable = value;
 			} 
@@ -51,13 +51,12 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			datatable1.DataSource = subjectAdaptor;
-			entryAgreementNumber.IsEditable = true;
 			dailyrentpackagesview1.IsEditable = true;
 			spinRentDays.Sensitive = false;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
-			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - А";
+			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 			dailyrentpackagesview1.AgreementUoW = UoWGeneric;
 			dateEnd.Date = UoWGeneric.Root.StartDate.AddDays (UoWGeneric.Root.RentDays);
 		}

@@ -18,7 +18,7 @@ namespace Vodovoz
 			get { return isEditable; } 
 			set {
 				isEditable = value;
-				buttonSave.Sensitive = entryAgreementNumber.Sensitive = 
+				buttonSave.Sensitive = 
 					referenceDeliveryPoint.Sensitive = dateIssue.Sensitive = dateStart.Sensitive = 
 						checkIsFixedPrice.Sensitive = spinFixedPrice.Sensitive = value;
 			} 
@@ -50,9 +50,8 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			datatable1.DataSource = subjectAdaptor;
-			entryAgreementNumber.IsEditable = true;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
-			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - В";
+			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 			spinFixedPrice.Sensitive = currencylabel1.Sensitive = UoWGeneric.Root.IsFixedPrice;
 		}
 

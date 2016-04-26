@@ -6,6 +6,7 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Gamma.Utilities;
 
 namespace Vodovoz.ViewModel
 {
@@ -34,8 +35,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => additionalAgreementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => additionalAgreementAlias.AgreementNumber).WithAlias (() => resultAlias.Number)
 					.Select (() => additionalAgreementAlias.IssueDate).WithAlias (() => resultAlias.IssueDate)
-					.Select (Projections.Property ("additionalAgreementAlias.class")).WithAlias (() => resultAlias.Type)
-//TODO FIXME Найти способ написать это лямбдой а не строкой
+					.Select (() => additionalAgreementAlias.Type).WithAlias (() => resultAlias.AgreementType)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
@@ -85,49 +85,23 @@ namespace Vodovoz.ViewModel
 
 		public int Id { get; set; }
 
-		public string Number { get; set; }
+		public int Number { get; set; }
 
 		public string NumberString { 
 			get {
-				switch (Type) {
-				case "DailyRent":
-					return String.Format ("{0} - А", Number);
-				case "NonfreeRent":
-					return String.Format ("{0} - А", Number);
-				case "FreeRent":
-					return String.Format ("{0} - Б", Number);
-				case "WaterSales":
-					return String.Format ("{0} - В", Number);
-				case "Repair":
-					return String.Format ("{0} - Т", Number);
-				default:
-					return Number;
+				return String.Format("{0}{1}", AdditionalAgreement.GetTypePrefix(AgreementType), Number);
 				}
-			}
 		}
 
 		public DateTime IssueDate { get; set; }
 
 		public string IssueDateString { get { return String.Format ("От {0}", IssueDate.ToShortDateString ()); } }
 
-		public string Type { get; set; }
+		public AgreementType AgreementType { get; set; }
 
 		public string TypeString {
 			get {
-				switch (Type) {
-				case "DailyRent":
-					return "Посуточная аренда";
-				case "NonfreeRent":
-					return "Долгосрочная аренда";
-				case "FreeRent":
-					return "Бесплатная аренда";
-				case "WaterSales":
-					return "Продажа воды";
-				case "Repair":
-					return "Сервис";
-				default:
-					return "Тип не определен";
-				}
+				return AgreementType.GetEnumTitle();
 			}
 		}
 

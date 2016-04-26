@@ -18,7 +18,7 @@ namespace Vodovoz
 			get { return isEditable; } 
 			set {
 				isEditable = value;
-				buttonSave.Sensitive = entryAgreementNumber.Sensitive = 
+				buttonSave.Sensitive = 
 					dateIssue.Sensitive = dateStart.Sensitive = value;
 			} 
 		}
@@ -44,8 +44,7 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			datatable1.DataSource = subjectAdaptor;
-			entryAgreementNumber.IsEditable = true;
-			dataAgreementType.Text = UoWGeneric.Root.Contract.Number + " - Т";
+			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 		}
 
 		public override bool Save ()

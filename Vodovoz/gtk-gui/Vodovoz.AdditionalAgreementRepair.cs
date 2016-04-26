@@ -18,17 +18,13 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.DataDatePicker dateStart;
 		
-		private global::Gtk.HBox hbox5;
-		
-		private global::Gtk.DataBindings.DataLabel dataAgreementType;
-		
-		private global::Gtk.DataBindings.DataEntry entryAgreementNumber;
-		
 		private global::Gtk.Label label1;
 		
 		private global::Gtk.Label label3;
 		
 		private global::Gtk.Label label4;
+		
+		private global::Gamma.GtkWidgets.yLabel ylabelNumber;
 
 		protected virtual void Build ()
 		{
@@ -122,79 +118,52 @@ namespace Vodovoz
 			w7.RightAttach = ((uint)(2));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.hbox5 = new global::Gtk.HBox ();
-			this.hbox5.Name = "hbox5";
-			this.hbox5.Spacing = 6;
-			// Container child hbox5.Gtk.Box+BoxChild
-			this.dataAgreementType = new global::Gtk.DataBindings.DataLabel ();
-			this.dataAgreementType.Name = "dataAgreementType";
-			this.dataAgreementType.InheritedDataSource = false;
-			this.dataAgreementType.InheritedBoundaryDataSource = false;
-			this.dataAgreementType.Important = false;
-			this.dataAgreementType.InheritedDataSource = false;
-			this.dataAgreementType.InheritedBoundaryDataSource = false;
-			this.hbox5.Add (this.dataAgreementType);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.dataAgreementType]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
-			// Container child hbox5.Gtk.Box+BoxChild
-			this.entryAgreementNumber = new global::Gtk.DataBindings.DataEntry ();
-			this.entryAgreementNumber.CanFocus = true;
-			this.entryAgreementNumber.Name = "entryAgreementNumber";
-			this.entryAgreementNumber.IsEditable = true;
-			this.entryAgreementNumber.InvisibleChar = '●';
-			this.entryAgreementNumber.InheritedDataSource = true;
-			this.entryAgreementNumber.Mappings = "AgreementNumber";
-			this.entryAgreementNumber.InheritedBoundaryDataSource = false;
-			this.entryAgreementNumber.InheritedDataSource = true;
-			this.entryAgreementNumber.Mappings = "AgreementNumber";
-			this.entryAgreementNumber.InheritedBoundaryDataSource = false;
-			this.hbox5.Add (this.entryAgreementNumber);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.entryAgreementNumber]));
-			w9.Position = 1;
-			this.datatable1.Add (this.hbox5);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox5]));
-			w10.LeftAttach = ((uint)(1));
-			w10.RightAttach = ((uint)(2));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Номер доп.\nсоглашения:");
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Номер доп. соглашения:");
 			this.datatable1.Add (this.label1);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label1]));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label1]));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label ();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата создания:");
 			this.datatable1.Add (this.label3);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label3]));
-			w12.TopAttach = ((uint)(1));
-			w12.BottomAttach = ((uint)(2));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label3]));
+			w9.TopAttach = ((uint)(1));
+			w9.BottomAttach = ((uint)(2));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label ();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата начала действия:");
 			this.datatable1.Add (this.label4);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label4]));
-			w13.TopAttach = ((uint)(2));
-			w13.BottomAttach = ((uint)(3));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label4]));
+			w10.TopAttach = ((uint)(2));
+			w10.BottomAttach = ((uint)(3));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
+			this.ylabelNumber = new global::Gamma.GtkWidgets.yLabel ();
+			this.ylabelNumber.Name = "ylabelNumber";
+			this.ylabelNumber.Xalign = 0F;
+			this.ylabelNumber.LabelProp = global::Mono.Unix.Catalog.GetString ("ylabel1");
+			this.datatable1.Add (this.ylabelNumber);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.ylabelNumber]));
+			w11.LeftAttach = ((uint)(1));
+			w11.RightAttach = ((uint)(2));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w14.Position = 1;
-			w14.Expand = false;
-			w14.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
