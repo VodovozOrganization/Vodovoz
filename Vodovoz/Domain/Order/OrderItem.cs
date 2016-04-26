@@ -10,6 +10,8 @@ namespace Vodovoz.Domain.Orders
 		Nominative = "строка заказа")]
 	public class OrderItem: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		#region Свойства
+
 		public virtual int Id { get; set; }
 
 		Order order;
@@ -19,8 +21,7 @@ namespace Vodovoz.Domain.Orders
 			get { return order; }
 			set { SetField (ref order, value, () => Order); }
 		}
-
-
+			
 		AdditionalAgreement additionalAgreement;
 
 		[Display (Name = "Дополнительное соглашения")]
@@ -50,7 +51,12 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Цена")]
 		public virtual Decimal Price {
 			get { return price; }
-			set { SetField (ref price, value, () => Price); }
+			set { 
+				if(SetField (ref price, value, () => Price))
+				{
+					RecalculateNDS();
+				}
+			}
 		}
 
 		int count=-1;
@@ -66,7 +72,10 @@ namespace Vodovoz.Domain.Orders
 						Price = newDefaultPrice;
 					DefaultPrice = newDefaultPrice;
 				}
-				SetField (ref count, value, () => Count); 
+				if(SetField (ref count, value, () => Count))
+				{
+					RecalculateNDS();
+				}
 			}
 		}
 
@@ -79,6 +88,18 @@ namespace Vodovoz.Domain.Orders
 				SetField(ref actualCount, value, () => ActualCount);
 			}
 		}
+
+		Decimal includeNDS;
+
+		[Display (Name = "Включая НДС")]
+		public virtual Decimal IncludeNDS {
+			get { return includeNDS; }
+			set { SetField (ref includeNDS, value, () => IncludeNDS); }
+		}
+
+		#endregion
+
+		#region Вычисляемы
 
 		public virtual int ReturnedCount{
 			get{
@@ -125,6 +146,11 @@ namespace Vodovoz.Domain.Orders
 			return price != DefaultPrice;
 		}
 
+		public decimal Sum{
+			get{
+				return Price * Count;
+			}
+		}
 
 		public virtual bool CanEditAmount {
 			get { return AdditionalAgreement == null || AdditionalAgreement.Type == AgreementType.WaterSales; }
@@ -138,11 +164,35 @@ namespace Vodovoz.Domain.Orders
 			get { return AdditionalAgreement == null ? String.Empty : String.Format ("{0} №{1}", AdditionalAgreement.AgreementTypeTitle, AdditionalAgreement.AgreementNumber); }
 		}
 
+		#endregion
+	
 		#region IValidatableObject implementation
 
 		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			return null;
+		}
+
+		#endregion
+
+		#region Внутрение
+
+		private void RecalculateNDS()
+		{
+			if (Nomenclature == null || Sum <= 0)
+				return;
+
+			switch (Nomenclature.VAT)
+			{
+				case VAT.Vat18:
+					IncludeNDS = Math.Round(Sum * 0.18m, 2);
+					break;
+				case VAT.Vat10:
+					IncludeNDS = Math.Round(Sum * 0.10m, 2);
+					break;
+				default:
+					break;
+			}
 		}
 
 		#endregion
