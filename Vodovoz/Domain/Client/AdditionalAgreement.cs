@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
@@ -27,13 +26,19 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref agreementNumber, value, () => AgreementNumber); }
 		}
 
-		AgreementType type;
-
 		[Display (Name = "Тип доп. соглашения")]
-		[PropertyChangedAlso("FullNumberText")]
-		public virtual AgreementType Type{
-			get { return type; } 
-			protected set { SetField (ref type, value, () => Type); }
+		public virtual AgreementType Type {
+			get {	 
+				if (this is DailyRentAgreement)
+					return AgreementType.DailyRent;
+				if (this is NonfreeRentAgreement)
+					return AgreementType.NonfreeRent;
+				if (this is FreeRentAgreement)
+					return AgreementType.FreeRent;
+				if (this is WaterSalesAgreement)
+					return AgreementType.WaterSales;
+				return AgreementType.Repair;
+			}		
 		}
 
 		[Required (ErrorMessage = "Договор должен быть указан.")]

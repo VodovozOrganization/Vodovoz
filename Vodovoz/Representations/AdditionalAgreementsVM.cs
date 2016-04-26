@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
-using NHibernate.Criterion;
+using Gamma.Utilities;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
-using Gamma.Utilities;
 
 namespace Vodovoz.ViewModel
 {
@@ -35,7 +34,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => additionalAgreementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => additionalAgreementAlias.AgreementNumber).WithAlias (() => resultAlias.Number)
 					.Select (() => additionalAgreementAlias.IssueDate).WithAlias (() => resultAlias.IssueDate)
-					.Select (() => additionalAgreementAlias.Type).WithAlias (() => resultAlias.AgreementType)
+					.Select (() => additionalAgreementAlias.GetType()).WithAlias (() => resultAlias.TypeString)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
@@ -50,7 +49,7 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig columnsConfig = FluentColumnsConfig<AdditionalAgreementVMNode>.Create ()
 			.AddColumn ("Номер").SetDataProperty (node => node.NumberString)
 			.AddColumn ("Дата").SetDataProperty (node => node.IssueDateString)
-			.AddColumn ("Тип").SetDataProperty (node => node.TypeString)
+			.AddColumn ("Тип").SetDataProperty (node => node.TypeTitle)
 			.AddColumn ("Точка доставки").SetDataProperty (node => node.Point)
 			.Finish ();
 
@@ -70,11 +69,11 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		public AdditionalAgreementsVM (IUnitOfWorkGeneric<CounterpartyContract> uow) : base (
-				typeof(AdditionalAgreementDailyRent), 
-				typeof(AdditionalAgreementFreeRent), 
-				typeof(AdditionalAgreementNonFreeRent),
-				typeof(AdditionalAgreementRepair),
-				typeof(AdditionalAgreementWater))
+				typeof(DailyRentAgreement), 
+				typeof(FreeRentAgreement), 
+				typeof(NonfreeRentAgreement),
+				typeof(RepairAgreement),
+				typeof(WaterSalesAgreement))
 		{
 			this.UoW = uow;
 		}
@@ -97,9 +96,19 @@ namespace Vodovoz.ViewModel
 
 		public string IssueDateString { get { return String.Format ("От {0}", IssueDate.ToShortDateString ()); } }
 
-		public AgreementType AgreementType { get; set; }
+		public AgreementType AgreementType
+		{
+			get
+			{
+				AgreementType type;
+				Enum.TryParse(TypeString, out type);
+				return type;
+			}
+		}
 
-		public string TypeString {
+		public string TypeString { get; set; }
+
+		public string TypeTitle {
 			get {
 				return AgreementType.GetEnumTitle();
 			}

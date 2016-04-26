@@ -11,7 +11,6 @@ namespace Vodovoz.HMap
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			DiscriminateSubClassesOnColumn ("type");
-			Map(x => x.Type).Column("type");
 			Map(x => x.AgreementNumber).Column("number");
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.IssueDate).Column("issue_date");
