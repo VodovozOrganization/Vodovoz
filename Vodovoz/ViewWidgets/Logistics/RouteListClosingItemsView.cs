@@ -128,6 +128,8 @@ namespace Vodovoz
 				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
+				.AddColumn("Предпол.\n пустых").HeaderAlignment(0.5f)
+					.AddTextRenderer(x => x.Order.BottlesReturn.ToString()).Sensitive(false)
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.BottlesReturned)
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
