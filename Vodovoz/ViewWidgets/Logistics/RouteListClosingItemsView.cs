@@ -262,6 +262,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			ConfigureMenu();
+			ytreeviewItems.EnableGridLines = TreeViewGridLines.Both;
 		}
 
 		public void ConfigureMenu()
