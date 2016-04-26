@@ -557,6 +557,11 @@
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
     <Compile Include="Repositories\RentPackageRepository.cs" />
     <Compile Include="HibernateMapping\Goods\EquipmentMap.cs" />
+    <Compile Include="Domain\Client\NonfreeRentAgreement.cs" />
+    <Compile Include="Domain\Client\DailyRentAgreement.cs" />
+    <Compile Include="Domain\Client\FreeRentAgreement.cs" />
+    <Compile Include="Domain\Client\WaterSalesAgreement.cs" />
+    <Compile Include="Domain\Client\RepairAgreement.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
