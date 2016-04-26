@@ -100,9 +100,9 @@ namespace Vodovoz
 			goodsColumnsCount = goodsColumns.Length;
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
-				.AddColumn("Заказ").AddTextRenderer(node => node.Order.Id.ToString())
-				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-				.AddColumn("Опл.").AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle());
+				.AddColumn("Заказ").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.Id.ToString())
+				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle());
 			
 			if (columnsInfo != null)
 			{
@@ -111,7 +111,7 @@ namespace Vodovoz
 					if (!goodsColumns.Contains(column.Id))
 						continue;
 					int id = column.Id;
-					config.AddColumn(column.Name)
+					config.AddColumn(column.Name).HeaderAlignment(0.5f)
 						.AddTextRenderer()
 							.AddSetter((cell,node)=>cell.Markup = WaterToClientString(node,id));
 				}
@@ -122,17 +122,17 @@ namespace Vodovoz
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
 			config
-				.AddColumn("Доп. оборудование \n клиенту")
+				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
-				.AddColumn("Доп. оборуд. \n от клиента")
+				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
-				.AddColumn("Пустых \nбутылей")
+				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.BottlesReturned)
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
-				.AddColumn("Залоги \nза бутыли")
+				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DepositsCollected)
 						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
@@ -140,19 +140,19 @@ namespace Vodovoz
 					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
 					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
 					})
-				.AddColumn("Итого\n(нал.)")
+				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.TotalCash)
 						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 
 													node.IsDelivered())
 						.AddSetter((cell,node)=>cell.Sensitive = node.Order.PaymentType == PaymentType.cash)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
-				.AddColumn("З/П \nводителя")
+				.AddColumn("  З/П\nводителя").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DriverWage)						
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedDriverWage() ? colorBlue : colorBlack)
 						.AddSetter((cell,node)=>cell.IsExpanded=false)
-				.AddColumn("З/П \nэкспедитора")
+				.AddColumn("    З/П\nэкспедитора").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ForwarderWage)
 						.AddSetter((cell, node) => cell.Editable = !node.WithoutForwarder)
 						.AddSetter((cell, node) => cell.Sensitive = !node.WithoutForwarder)
