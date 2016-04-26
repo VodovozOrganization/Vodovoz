@@ -10,7 +10,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContractsVM : RepresentationModelEntityBase<CounterpartyContract, ContractsVMNode>
+	public class ContractsVM : RepresentationModelEntitySubscribingBase<CounterpartyContract, ContractsVMNode>
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -73,7 +73,22 @@ namespace Vodovoz.ViewModel
 			
 		#endregion
 
-		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow)
+		#region implemented abstract members of RepresentationModelEntitySubscribingBase
+
+		protected override bool NeedUpdateFunc(object updatedSubject)
+		{
+			var agreement = updatedSubject as AdditionalAgreement;
+			return CounterpartyUoW.Root.Id == agreement.Contract.Counterparty.Id;
+		}
+
+		#endregion
+
+		public ContractsVM (IUnitOfWorkGeneric<Counterparty> uow) : base(
+			typeof(DailyRentAgreement), 
+			typeof(FreeRentAgreement), 
+			typeof(NonfreeRentAgreement),
+			typeof(RepairAgreement),
+			typeof(WaterSalesAgreement))
 		{
 			this.UoW = uow;
 		}
