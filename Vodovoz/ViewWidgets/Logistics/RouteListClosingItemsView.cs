@@ -132,7 +132,6 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.BottlesReturned)
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
-					.AddTextRenderer(node => "шт", false)
 				.AddColumn("Залоги \nза бутыли")
 					.AddNumericRenderer(node => node.DepositsCollected)
 						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
@@ -141,21 +140,18 @@ namespace Vodovoz
 					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
 					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
 					})
-					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("Итого\n(нал.)")
 					.AddNumericRenderer(node => node.TotalCash)
 						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 
 													node.IsDelivered())
 						.AddSetter((cell,node)=>cell.Sensitive = node.Order.PaymentType == PaymentType.cash)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
-					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("З/П \nводителя")
 					.AddNumericRenderer(node => node.DriverWage)						
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedDriverWage() ? colorBlue : colorBlack)
 						.AddSetter((cell,node)=>cell.IsExpanded=false)
-					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("З/П \nэкспедитора")
 					.AddNumericRenderer(node => node.ForwarderWage)
 						.AddSetter((cell, node) => cell.Editable = !node.WithoutForwarder)
@@ -163,8 +159,6 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedForwarderWage() ? colorBlue : colorBlack)
 						.AddSetter((c, node) => c.Alignment = Pango.Alignment.Right)
-					.AddTextRenderer(node => CurrencyWorks.CurrencyShortName, false)
-						.AddSetter((cell, node) => cell.Sensitive = !node.WithoutForwarder)
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
