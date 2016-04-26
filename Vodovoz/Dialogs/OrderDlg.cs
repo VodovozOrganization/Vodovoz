@@ -449,13 +449,13 @@ namespace Vodovoz
 			} 
 			switch (type) {
 			case OrderAgreementType.NonfreeRent:
-				dlg = new AdditionalAgreementNonFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+				dlg = new NonFreeRentAgreementDlg (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 				break;
 			case OrderAgreementType.DailyRent:
-				dlg = new AdditionalAgreementDailyRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+				dlg = new DailyRentAgreementDlg (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 				break;
 			default: 
-				dlg = new AdditionalAgreementFreeRent (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
+				dlg = new FreeRentAgreementDlg (contract, UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 				break;
 			}
 			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
@@ -605,7 +605,7 @@ namespace Vodovoz
 		}
 
 		protected void RunAdditionalAgreementWaterDialog(){
-			ITdiDialog dlg = new AdditionalAgreementWater (CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryDate);
+			ITdiDialog dlg = new WaterAgreementDlg (CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryDate);
 			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			TabParent.AddSlaveTab (this, dlg);
 		}
@@ -863,7 +863,7 @@ namespace Vodovoz
 			                  (UoWGeneric.Root.PaymentType == PaymentType.cash ? "наличной" : "безналичной") +
 			                  " формы оплаты. Создать?";
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
-				dlg = new AdditionalAgreementRepair (contract);
+				dlg = new RepairAgreementDlg (contract);
 				(dlg as IAgreementSaved).AgreementSaved += (sender, e) => UoWGeneric.Root.ObservableOrderDocuments.Add (
 					new OrderAgreement {
 						Order = UoWGeneric.Root,

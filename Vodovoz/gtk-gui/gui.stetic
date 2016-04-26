@@ -5479,7 +5479,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementFreeRent" design-size="857 403">
+  <widget class="Gtk.Bin" id="Vodovoz.FreeRentAgreementDlg" design-size="857 403">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -5747,7 +5747,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementRepair" design-size="415 170">
+  <widget class="Gtk.Bin" id="Vodovoz.RepairAgreementDlg" design-size="415 170">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -9752,7 +9752,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementNonFreeRent" design-size="734 343">
+  <widget class="Gtk.Bin" id="Vodovoz.NonFreeRentAgreementDlg" design-size="734 343">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10021,7 +10021,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementDailyRent" design-size="686 361">
+  <widget class="Gtk.Bin" id="Vodovoz.DailyRentAgreementDlg" design-size="686 361">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -22400,6 +22400,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

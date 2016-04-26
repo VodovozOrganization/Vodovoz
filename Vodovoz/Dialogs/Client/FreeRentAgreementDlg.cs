@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class AdditionalAgreementNonFreeRent : OrmGtkDialogBase<NonfreeRentAgreement>, IAgreementSaved, IEditableDialog
+	public partial class FreeRentAgreementDlg : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 
@@ -19,49 +19,48 @@ namespace Vodovoz
 			set {
 				isEditable = value;
 				buttonSave.Sensitive = 
-					dateStart.Sensitive = paidrentpackagesview1.IsEditable = value;
+					dateStart.Sensitive = freerentpackagesview1.IsEditable = value;
 			} 
 		}
 
-		public AdditionalAgreementNonFreeRent (CounterpartyContract contract)
+		public FreeRentAgreementDlg (CounterpartyContract contract)
 		{
 			this.Build ();
-			UoWGeneric = NonfreeRentAgreement.Create (contract);
+			UoWGeneric = FreeRentAgreement.Create (contract);
 			ConfigureDlg ();
 		}
 
-		public AdditionalAgreementNonFreeRent (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
+		public FreeRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
 		{
 			UoWGeneric.Root.DeliveryPoint = point;
 			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate;
 		}
 
-		public AdditionalAgreementNonFreeRent (NonfreeRentAgreement sub) : this (sub.Id)
+		public FreeRentAgreementDlg (FreeRentAgreement sub) : this (sub.Id)
 		{
 		}
 
-		public AdditionalAgreementNonFreeRent (int id)
+		public FreeRentAgreementDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<NonfreeRentAgreement> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FreeRentAgreement> (id);
 			ConfigureDlg ();
 		}
 
 		private void ConfigureDlg ()
 		{
 			datatable1.DataSource = subjectAdaptor;
-			paidrentpackagesview1.IsEditable = true;
+			freerentpackagesview1.IsEditable = true;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
-
-			paidrentpackagesview1.AgreementUoW = UoWGeneric;
+			freerentpackagesview1.AgreementUoW = UoWGeneric;
 		}
 
 		public override bool Save ()
 		{
-			var valid = new QSValidator<NonfreeRentAgreement> (UoWGeneric.Root);
+			var valid = new QSValidator<FreeRentAgreement> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 

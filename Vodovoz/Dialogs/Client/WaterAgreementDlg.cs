@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class AdditionalAgreementFreeRent : OrmGtkDialogBase<FreeRentAgreement>, IAgreementSaved, IEditableDialog
+	public partial class WaterAgreementDlg : OrmGtkDialogBase<WaterSalesAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 
@@ -19,48 +19,45 @@ namespace Vodovoz
 			set {
 				isEditable = value;
 				buttonSave.Sensitive = 
-					dateStart.Sensitive = freerentpackagesview1.IsEditable = value;
+					referenceDeliveryPoint.Sensitive = dateIssue.Sensitive = dateStart.Sensitive = 
+						checkIsFixedPrice.Sensitive = spinFixedPrice.Sensitive = value;
 			} 
 		}
 
-		public AdditionalAgreementFreeRent (CounterpartyContract contract)
+		public WaterAgreementDlg (CounterpartyContract contract)
 		{
 			this.Build ();
-			UoWGeneric = FreeRentAgreement.Create (contract);
+			UoWGeneric = WaterSalesAgreement.Create (contract);
 			ConfigureDlg ();
 		}
 
-		public AdditionalAgreementFreeRent (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
+		public WaterAgreementDlg (CounterpartyContract contract, DateTime date) : this (contract)
 		{
-			UoWGeneric.Root.DeliveryPoint = point;
-			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate;
+			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = date;
 		}
 
-		public AdditionalAgreementFreeRent (FreeRentAgreement sub) : this (sub.Id)
+		public WaterAgreementDlg (WaterSalesAgreement sub) : this (sub.Id)
 		{
 		}
 
-		public AdditionalAgreementFreeRent (int id)
+		public WaterAgreementDlg (int id)
 		{
 			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FreeRentAgreement> (id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<WaterSalesAgreement> (id);
 			ConfigureDlg ();
 		}
 
 		private void ConfigureDlg ()
 		{
 			datatable1.DataSource = subjectAdaptor;
-			freerentpackagesview1.IsEditable = true;
-			referenceDeliveryPoint.Sensitive = false;
-			dateIssue.Sensitive = dateStart.Sensitive = false;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
-			freerentpackagesview1.AgreementUoW = UoWGeneric;
+			spinFixedPrice.Sensitive = currencylabel1.Sensitive = UoWGeneric.Root.IsFixedPrice;
 		}
 
 		public override bool Save ()
 		{
-			var valid = new QSValidator<FreeRentAgreement> (UoWGeneric.Root);
+			var valid = new QSValidator<WaterSalesAgreement> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
@@ -70,6 +67,11 @@ namespace Vodovoz
 			if (AgreementSaved != null)
 				AgreementSaved (this, new AgreementSavedEventArgs (UoWGeneric.Root));
 			return true;
+		}
+
+		protected void OnCheckIsFixedPriceToggled (object sender, EventArgs e)
+		{
+			spinFixedPrice.Sensitive = currencylabel1.Sensitive = UoWGeneric.Root.IsFixedPrice;
 		}
 	}
 }

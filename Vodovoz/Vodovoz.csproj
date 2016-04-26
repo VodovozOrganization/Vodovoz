@@ -125,10 +125,6 @@
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
     <Compile Include="Domain\NomenclaturePrice.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementsView.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementFreeRent.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementNonFreeRent.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementRepair.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementWater.cs" />
     <Compile Include="Domain\FreeRentPackage.cs" />
     <Compile Include="Dialogs\FreeRentPackageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackageDlg.cs" />
@@ -148,7 +144,6 @@
     <Compile Include="gtk-gui\Vodovoz.DeliveryScheduleDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.PaidRentPackagesView.cs" />
     <Compile Include="Сrutches\TimeAsTimeSpanTypeClone.cs" />
-    <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementDailyRent.cs" />
     <Compile Include="Domain\Operations\DepositOperation.cs" />
     <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
     <Compile Include="Domain\Operations\MoneyMovementOperation.cs" />
@@ -542,11 +537,6 @@
     <Compile Include="Dialogs\Client\CounterpartyContractDlg.cs" />
     <Compile Include="Dialogs\Client\CounterpartyDlg.cs" />
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
-    <Compile Include="Dialogs\Client\AdditionalAgreementDailyRent.cs" />
-    <Compile Include="Dialogs\Client\AdditionalAgreementFreeRent.cs" />
-    <Compile Include="Dialogs\Client\AdditionalAgreementNonFreeRent.cs" />
-    <Compile Include="Dialogs\Client\AdditionalAgreementRepair.cs" />
-    <Compile Include="Dialogs\Client\AdditionalAgreementWater.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
     <Compile Include="Domain\UserSettings.cs" />
     <Compile Include="Commons\CurrentUserSettings.cs" />
@@ -562,6 +552,16 @@
     <Compile Include="Domain\Client\FreeRentAgreement.cs" />
     <Compile Include="Domain\Client\WaterSalesAgreement.cs" />
     <Compile Include="Domain\Client\RepairAgreement.cs" />
+    <Compile Include="Dialogs\Client\DailyRentAgreementDlg.cs" />
+    <Compile Include="Dialogs\Client\FreeRentAgreementDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.DailyRentAgreementDlg.cs" />
+    <Compile Include="Dialogs\Client\NonFreeRentAgreementDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FreeRentAgreementDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.NonFreeRentAgreementDlg.cs" />
+    <Compile Include="Dialogs\Client\RepairAgreementDlg.cs" />
+    <Compile Include="Dialogs\Client\WaterAgreementDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RepairAgreementDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.WaterAgreementDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -66,16 +66,16 @@ namespace Vodovoz
 			ITdiDialog dlg;
 			switch (type) {
 			case AgreementType.FreeRent:
-				dlg = new AdditionalAgreementFreeRent (AgreementUoW.Root);
+				dlg = new FreeRentAgreementDlg (AgreementUoW.Root);
 				break;
 			case AgreementType.NonfreeRent:
-				dlg = new AdditionalAgreementNonFreeRent (AgreementUoW.Root);
+				dlg = new NonFreeRentAgreementDlg (AgreementUoW.Root);
 				break;
 			case AgreementType.WaterSales:
-				dlg = new AdditionalAgreementWater (AgreementUoW.Root);
+				dlg = new WaterAgreementDlg (AgreementUoW.Root);
 				break;
 			case AgreementType.DailyRent:
-				dlg = new AdditionalAgreementDailyRent (AgreementUoW.Root);
+				dlg = new DailyRentAgreementDlg (AgreementUoW.Root);
 				break;
 			case AgreementType.Repair:
 				if (AgreementUoW.Root.RepairAgreementExists ()) {
@@ -83,7 +83,7 @@ namespace Vodovoz
 					"Нельзя создать более одного доп. соглашения данного типа.");
 					return;
 				}
-				dlg = new AdditionalAgreementRepair (AgreementUoW.Root);
+				dlg = new RepairAgreementDlg (AgreementUoW.Root);
 				break;
 			default:
 				throw new NotSupportedException (String.Format ("Тип {0} пока не поддерживается.", type));

@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class AdditionalAgreementRepair : OrmGtkDialogBase<RepairAgreement>, IAgreementSaved, IEditableDialog
+	public partial class RepairAgreementDlg : OrmGtkDialogBase<RepairAgreement>, IAgreementSaved, IEditableDialog
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -23,18 +23,18 @@ namespace Vodovoz
 			} 
 		}
 
-		public AdditionalAgreementRepair (CounterpartyContract contract)
+		public RepairAgreementDlg (CounterpartyContract contract)
 		{
 			this.Build ();
 			UoWGeneric = RepairAgreement.Create (contract);
 			ConfigureDlg ();
 		}
 
-		public AdditionalAgreementRepair (RepairAgreement sub) : this (sub.Id)
+		public RepairAgreementDlg (RepairAgreement sub) : this (sub.Id)
 		{
 		}
 
-		public AdditionalAgreementRepair (int id)
+		public RepairAgreementDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RepairAgreement> (id);

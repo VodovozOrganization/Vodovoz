@@ -6,7 +6,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	public partial class AdditionalAgreementDailyRent : OrmGtkDialogBase<DailyRentAgreement>, IAgreementSaved, IEditableDialog
+	public partial class DailyRentAgreementDlg : OrmGtkDialogBase<DailyRentAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
 
@@ -24,24 +24,24 @@ namespace Vodovoz
 			} 
 		}
 
-		public AdditionalAgreementDailyRent (CounterpartyContract contract)
+		public DailyRentAgreementDlg (CounterpartyContract contract)
 		{
 			this.Build ();
 			UoWGeneric = DailyRentAgreement.Create (contract);
 			ConfigureDlg ();
 		}
 
-		public AdditionalAgreementDailyRent (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
+		public DailyRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
 		{
 			UoWGeneric.Root.DeliveryPoint = point;
 			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate;
 		}
 
-		public AdditionalAgreementDailyRent (DailyRentAgreement sub) : this (sub.Id)
+		public DailyRentAgreementDlg (DailyRentAgreement sub) : this (sub.Id)
 		{
 		}
 
-		public AdditionalAgreementDailyRent (int id)
+		public DailyRentAgreementDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<DailyRentAgreement> (id);

@@ -316,7 +316,7 @@ namespace Vodovoz
 			                  paymentTypeString +
 			                  " формы оплаты. Создать?";
 			if (MessageDialogWorks.RunQuestionDialog (question)) {
-				dlg = new AdditionalAgreementRepair (contract);
+				dlg = new RepairAgreementDlg (contract);
 				(dlg as IAgreementSaved).AgreementSaved += (sender, e) => {
 					if (UoWGeneric.Root.InitialOrder != null)
 						UoWGeneric.Root.InitialOrder.ObservableOrderDocuments.Add (new OrderAgreement { 
