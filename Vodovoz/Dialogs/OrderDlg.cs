@@ -223,6 +223,7 @@ namespace Vodovoz
 				.AddSetter((c,node)=>c.ForegroundGdk = node.HasUserSpecifiedPrice() && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category) ? colorBlue: colorBlack)
 				.AddSetter((c,node)=>c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
 				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
+				.AddColumn("В т.ч. НДС").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString (x.IncludeNDS))
 				.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Price * node.Count))
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();

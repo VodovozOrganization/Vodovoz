@@ -62,23 +62,39 @@ WHERE orders.id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT nomenclature.id AS id, nomenclature.name AS name, '--' AS unit_code, measurement_units.name AS mu_name, order_items.count AS count, order_items.price AS item_price, order_items.price * order_items.count AS total 
-FROM order_items
-LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
-WHERE order_items.order_id = @order_id;</CommandText>
+        <CommandText>SELECT 
+    nomenclature.id AS id,
+    nomenclature.name AS name,
+    '--' AS unit_code,
+    measurement_units.name AS mu_name,
+    order_items.count AS count,
+    order_items.price AS item_price,
+    order_items.include_nds,
+    order_items.price * order_items.count AS total
+FROM
+    order_items
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
+WHERE
+    order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="unit_code">
@@ -91,15 +107,15 @@ WHERE order_items.order_id = @order_id;</CommandText>
         </Field>
         <Field Name="count">
           <DataField>count</DataField>
-          <TypeName>System.Decimal</TypeName>
+          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="item_price">
           <DataField>item_price</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="name">
-          <DataField>name</DataField>
-          <TypeName>System.String</TypeName>
+        <Field Name="include_nds">
+          <DataField>include_nds</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="total">
           <DataField>total</DataField>
@@ -108,7 +124,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 organizations.full_name, organizations.INN, organizations.KPP, organizations.jur_address AS address, organizations.email AS email, 
@@ -130,7 +146,7 @@ WHERE organizations.id = @organization_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -308,7 +324,7 @@ WHERE organizations.id = @organization_id;</CommandText>
             <Width>420.00pt</Width>
             <Value>={full_name} + ', ИНН ' + {INN} + ', КПП ' + {KPP} + '\n' + {address} + 
 Iif({phone} = null, '', '\nтел. ') + {phone} + 
-Iif({email} = null, '', '\nE-mail: ') + {email}</Value>
+Iif({email} = null, '', ' E-mail: ') + {email}</Value>
             <ZIndex>1</ZIndex>
             <Left>80.00pt</Left>
             <Top>40.00pt</Top>
@@ -581,8 +597,8 @@ Iif({email} = null, '', '\nE-mail: ') + {email}</Value>
 + '\n' +
 First({client_address}, 'Order')</Value>
         <ZIndex>1</ZIndex>
-        <Left>120.00pt</Left>
-        <Top>264.20pt</Top>
+        <Left>120.0pt</Left>
+        <Top>273.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -596,8 +612,8 @@ First({client_address}, 'Order')</Value>
         <Width>80pt</Width>
         <Value>Покупатель:</Value>
         <ZIndex>1</ZIndex>
-        <Left>40pt</Left>
-        <Top>264.2pt</Top>
+        <Left>40.0pt</Left>
+        <Top>273.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -760,7 +776,7 @@ First({client_address}, 'Order')</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -793,7 +809,7 @@ First({client_address}, 'Order')</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -810,7 +826,7 @@ First({client_address}, 'Order')</Value>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                       <ZIndex>2</ZIndex>
                     </Textbox>
@@ -932,8 +948,7 @@ First({client_address}, 'Order')</Value>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox67">
-                      <Value>
-                      </Value>
+                      <Value>=Sum({include_nds}, 'Goods')</Value>
                       <Style>
                         <BorderStyle>
                           <Default>None</Default>
@@ -1010,7 +1025,7 @@ First({client_address}, 'Order')</Value>
           </TableRows>
         </Footer>
         <Left>31.0pt</Left>
-        <Top>288.9pt</Top>
+        <Top>300.9pt</Top>
         <ZIndex>1</ZIndex>
       </Table>
       <List Name="List3">
@@ -1025,7 +1040,7 @@ First({client_address}, 'Order')</Value>
             <Value>Руководитель________________</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>43.7pt</Top>
+            <Top>55.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1040,7 +1055,7 @@ First({client_address}, 'Order')</Value>
 {leader_name} +  ' ' + {leader_patronymic} + ')'</Value>
             <ZIndex>1</ZIndex>
             <Left>169.6pt</Left>
-            <Top>43.7pt</Top>
+            <Top>55.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1055,7 +1070,7 @@ First({client_address}, 'Order')</Value>
             <Value>='(' + {buh_last_name} + ' ' + {buh_name} + ' ' + {buh_patronymic} + ')'</Value>
             <ZIndex>2</ZIndex>
             <Left>415.8pt</Left>
-            <Top>43.7pt</Top>
+            <Top>55.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1069,8 +1084,8 @@ First({client_address}, 'Order')</Value>
             <Width>154.77pt</Width>
             <Value>Бухгалтер______________</Value>
             <ZIndex>2</ZIndex>
-            <Left>283.40pt</Left>
-            <Top>43.00pt</Top>
+            <Left>283.4pt</Left>
+            <Top>55.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1083,7 +1098,7 @@ First({client_address}, 'Order')</Value>
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>72.9pt</Left>
-            <Top>11.3pt</Top>
+            <Top>23.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1101,7 +1116,7 @@ First({client_address}, 'Order')</Value>
             <Height>102.39pt</Height>
             <Width>112.93pt</Width>
             <Left>330.7pt</Left>
-            <Top>0.0pt</Top>
+            <Top>12.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1119,7 +1134,7 @@ First({client_address}, 'Order')</Value>
             <Height>60.21pt</Height>
             <Width>80.53pt</Width>
             <Left>337.6pt</Left>
-            <Top>15.9pt</Top>
+            <Top>27.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1146,8 +1161,8 @@ First({client_address}, 'Order')</Value>
         <Width>597.91pt</Width>
         <Value>Уважаемый клиент! Обращаем Ваше внимание, что:</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>485.62pt</Top>
+        <Left>0.0pt</Left>
+        <Top>497.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1165,8 +1180,8 @@ First({client_address}, 'Order')</Value>
         <Value>Для Вашего удобства, наша компания самостоятельно осуществляет
 "Санитарную обработку и дезинфекцию кулера",</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>507.80pt</Top>
+        <Left>0.0pt</Left>
+        <Top>519.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1182,7 +1197,7 @@ First({client_address}, 'Order')</Value>
         <Value>даже для тех кто не является нашими клиентами, по той же стоимости.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>530.0pt</Top>
+        <Top>542.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1198,8 +1213,8 @@ First({client_address}, 'Order')</Value>
 при эксплуатации кулера, внутри аппарата появляются нежелательные бактерии и
 микрочастицы, влияющие на качество и вкус питьевой воды.</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>556.40pt</Top>
+        <Left>0.0pt</Left>
+        <Top>568.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1213,10 +1228,10 @@ First({client_address}, 'Order')</Value>
         <Width>597.74pt</Width>
         <Value>Рекомендуется проводить санитарную обработку не реже одного раза в 4-6 месяцев.
 Стоимость данной услуги составляет 700 руб. На время проведения санитарной обработки
-для Вашего удобства мы предоставляем дежурный кулер совершенно бесплатно?</Value>
+для Вашего удобства мы предоставляем дежурный кулер совершенно бесплатно.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.5pt</Left>
-        <Top>604.4pt</Top>
+        <Top>616.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1231,8 +1246,8 @@ First({client_address}, 'Order')</Value>
         <Value>В назначении платежа ОБЯЗАТЕЛЬНО указывайте
 номер и дату составления счета. СПАСИБО.</Value>
         <ZIndex>1</ZIndex>
-        <Left>136.10pt</Left>
-        <Top>655.10pt</Top>
+        <Left>136.1pt</Left>
+        <Top>667.1pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
