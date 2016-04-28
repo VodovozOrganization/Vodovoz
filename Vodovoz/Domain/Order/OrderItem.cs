@@ -185,10 +185,10 @@ namespace Vodovoz.Domain.Orders
 			switch (Nomenclature.VAT)
 			{
 				case VAT.Vat18:
-					IncludeNDS = Math.Round(Sum * 0.18m, 2);
+					IncludeNDS = Math.Round(Sum - (Sum / 1.18m), 2);
 					break;
 				case VAT.Vat10:
-					IncludeNDS = Math.Round(Sum * 0.10m, 2);
+					IncludeNDS = Math.Round(Sum - (Sum / 1.10m), 2);
 					break;
 				default:
 					break;
