@@ -16,20 +16,47 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, orders.bottles_return AS bottles_return, orders.sum_to_receive AS total,
-delivery_schedule.name AS delivery_schedule, 
-counterparty_contract.number AS contract_number, DATE_FORMAT(counterparty_contract.issue_date, '%d.%m.%y') AS contract_date,
-counterparty.full_name AS client_name, counterparty.address AS client_address, counterparty.waybill_comment AS invoice_comment,
-organizations.full_name AS org_name, organizations.address as org_address,
-delivery_points.comment AS delivery_point_comment, delivery_points.phone AS phone,
-delivery_points.city AS city, delivery_points.region AS region, delivery_points.street AS street, delivery_points.building AS building, delivery_points.room AS room
-FROM orders 
-LEFT JOIN counterparty ON orders.client_id = counterparty.id
-LEFT JOIN organizations ON organizations.id = 12
-LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND counterparty_contract.organization_id = organizations.id
-LEFT JOIN delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
-WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !counterparty_contract.is_archive;</CommandText>
+    orders.id AS order_id,
+    DATE_FORMAT(orders.delivery_date, '%d.%m.%y') AS order_date,
+    orders.bottles_return AS bottles_return,
+    orders.sum_to_receive AS total,
+    orders.comment AS order_comment,
+    delivery_schedule.name AS delivery_schedule,
+    counterparty_contract.id AS contract_number,
+    DATE_FORMAT(counterparty_contract.issue_date,
+            '%d.%m.%y') AS contract_date,
+    counterparty.full_name AS client_name,
+    counterparty.address AS client_address,
+    counterparty.waybill_comment AS invoice_comment,
+    organizations.full_name AS org_name,
+    organizations.address AS org_address,
+    delivery_points.comment AS delivery_point_comment,
+    delivery_points.phone AS phone,
+    logistics_area.name as logistics_area,
+    delivery_points.city AS city,
+    delivery_points.region AS region,
+    delivery_points.street AS street,
+    delivery_points.building AS building,
+    delivery_points.room AS room
+FROM
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    organizations ON organizations.id = 12
+        LEFT JOIN
+    counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
+        AND counterparty_contract.organization_id = organizations.id
+        LEFT JOIN
+    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+        LEFT JOIN
+    delivery_points ON orders.delivery_point_id = delivery_points.id
+        LEFT JOIN
+    logistics_area ON delivery_points.logistic_area_id = logistics_area.id
+WHERE
+    orders.id = @order_id
+        AND ! counterparty_contract.on_cancellation
+        AND ! counterparty_contract.is_archive;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -41,12 +68,44 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
+        <Field Name="order_date">
+          <DataField>order_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="bottles_return">
+          <DataField>bottles_return</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="total">
+          <DataField>total</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="order_comment">
+          <DataField>order_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="delivery_schedule">
+          <DataField>delivery_schedule</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="client_address">
           <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="invoice_comment">
+          <DataField>invoice_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="org_name">
@@ -57,36 +116,16 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <DataField>org_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="order_date">
-          <DataField>order_date</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="contract_number">
-          <DataField>contract_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="contract_date">
-          <DataField>contract_date</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="bottles_return">
-          <DataField>bottles_return</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="delivery_schedule">
-          <DataField>delivery_schedule</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="invoice_comment">
-          <DataField>invoice_comment</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="delivery_point_comment">
           <DataField>delivery_point_comment</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="phone">
           <DataField>phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="logistics_area">
+          <DataField>logistics_area</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="city">
@@ -109,14 +148,10 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <DataField>room</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="total">
-          <DataField>total</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT nomenclature.id AS id, nomenclature.name AS name, '--' AS unit_code, measurement_units.name AS mu_name, order_items.count AS count, order_items.price AS item_price, order_items.price * order_items.count AS total 
@@ -130,7 +165,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -162,7 +197,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DepositRefund">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 deposit_sum,count as deposit_count, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
@@ -178,7 +213,7 @@ payment_type='ToClient'</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="deposit_price">
           <DataField>deposit_sum</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -193,11 +228,11 @@ payment_type='ToClient'</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="RefundExists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM order_deposit_items LIMIT 1;</CommandText>
       </Query>
-      <Fields  />
+      <Fields />
     </DataSet>
   </DataSets>
   <PageHeader>
@@ -206,7 +241,7 @@ payment_type='ToClient'</CommandText>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>906.0pt</Height>
+    <Height>685.5pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List1">
@@ -331,12 +366,12 @@ payment_type='ToClient'</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox10">
-            <Height>15pt</Height>
-            <Width>6in</Width>
-            <Value>={city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
+            <Height>15.00pt</Height>
+            <Width>433.62pt</Width>
+            <Value>=Iif(Fields!logistics_area.IsMissing, "", "["+ {logistics_area} + "]") + {city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
             <ZIndex>1</ZIndex>
-            <Left>85.0pt</Left>
-            <Top>125pt</Top>
+            <Left>85.00pt</Left>
+            <Top>125.00pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -428,8 +463,8 @@ payment_type='ToClient'</CommandText>
                 <Value>={order_id}</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>375.50pt</Left>
-            <Top>37.80pt</Top>
+            <Left>391.5pt</Left>
+            <Top>29.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -697,10 +732,10 @@ payment_type='ToClient'</CommandText>
         <Top>173.4pt</Top>
       </Table>
       <List Name="List2">
-        <Height>381.23pt</Height>
-        <Width>563.14pt</Width>
-        <Left>35.0pt</Left>
-        <Top>277.4pt</Top>
+        <Height>399.35pt</Height>
+        <Width>545.11pt</Width>
+        <Left>35.00pt</Left>
+        <Top>277.40pt</Top>
         <ReportItems>
           <Textbox Name="Textbox32">
             <Height>12.00pt</Height>
@@ -864,7 +899,7 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox42">
             <Height>12.00pt</Height>
             <Width>403.02pt</Width>
-            <Value>='Предполагаемое количетво возвратной тары: ' + {bottles_return} + ' бутылей'</Value>
+            <Value>='Предполагаемое количеcтво возвратной тары: ' + {bottles_return} + ' бутылей'</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>179.6pt</Top>
@@ -1122,6 +1157,21 @@ payment_type='ToClient'</CommandText>
               <BorderWidth />
             </Style>
           </Textbox>
+          <Textbox Name="Textbox30" >
+            <Height>16.53pt</Height>
+            <Width>536.74pt</Width>
+            <Value>={order_comment}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>1.50pt</Left>
+            <Top>377.70pt</Top>
+            <CanGrow>true</CanGrow>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontWeight>Bold</FontWeight>
+            </Style>
+          </Textbox>
         </ReportItems>
         <Style>
           <BorderStyle />
@@ -1135,8 +1185,8 @@ payment_type='ToClient'</CommandText>
         <Width>142.02pt</Width>
         <Value>='Итого: ' + Sum({total}, 'Goods')</Value>
         <ZIndex>1</ZIndex>
-        <Left>460.20pt</Left>
-        <Top>199.90pt</Top>
+        <Left>453.8pt</Left>
+        <Top>199.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
