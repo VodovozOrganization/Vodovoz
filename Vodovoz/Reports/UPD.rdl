@@ -7,29 +7,49 @@
   <PageHeight>202.615mm</PageHeight>
   <PageWidth>286.405mm</PageWidth>
   <Width>286.405mm</Width>
-  <TopMargin>0mm</TopMargin>
-  <LeftMargin>0mm</LeftMargin>
-  <RightMargin>0mm</RightMargin>
-  <BottomMargin>0mm</BottomMargin>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>2mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
   <DataSets>
     <DataSet Name="Goods">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
-        <CommandText>SELECT nomenclature.id AS id, nomenclature.name AS name, '--' AS unit_code, measurement_units.name AS mu_name, order_items.count AS count, order_items.price AS item_price, CASE nomenclature.vat WHEN 'No' THEN 1 WHEN 'Vat10' THEN 1.1 WHEN 'Vat18' THEN 1.18 END AS vat
-FROM order_items
-LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-LEFT JOIN measurement_units ON nomenclature.unit_id = measurement_units.id
-WHERE order_items.order_id = @order_id;</CommandText>
+        <CommandText>SELECT 
+    nomenclature.id AS id,
+    nomenclature.name AS name,
+    measurement_units.okei AS unit_code,
+    measurement_units.name AS mu_name,
+    order_items.count AS count,
+    order_items.price AS item_price,
+    order_items.include_nds,
+    CASE nomenclature.vat
+        WHEN 'No' THEN 1
+        WHEN 'Vat10' THEN 1.1
+        WHEN 'Vat18' THEN 1.18
+    END AS vat
+FROM
+    order_items
+        LEFT JOIN
+    nomenclature ON order_items.nomenclature_id = nomenclature.id
+        LEFT JOIN
+    measurement_units ON nomenclature.unit_id = measurement_units.id
+WHERE
+    order_items.order_id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="unit_code">
@@ -42,29 +62,29 @@ WHERE order_items.order_id = @order_id;</CommandText>
         </Field>
         <Field Name="count">
           <DataField>count</DataField>
-          <TypeName>System.Decimal</TypeName>
+          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="item_price">
           <DataField>item_price</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="include_nds">
+          <DataField>include_nds</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="vat">
           <DataField>vat</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="name">
-          <DataField>name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SET lc_time_names = 'ru_RU';
 SELECT 
 orders.id AS order_id, orders.delivery_date AS order_date,
-counterparty_contract.number AS contract_number, DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
+counterparty_contract.id AS contract_number, DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
 counterparty.full_name AS client_name, counterparty.jur_address AS client_address, counterparty.inn AS client_inn, counterparty.kpp AS client_kpp, organizations.full_name AS org_name, organizations.jur_address as org_address, organizations.INN AS org_inn, organizations.KPP AS org_kpp,
 buhgalter.last_name AS buh_last_name, LEFT(buhgalter.name, 1) AS buh_name, LEFT(buhgalter.patronymic, 1) AS buh_patronymic,
 leader.last_name AS leader_last_name, LEFT(leader.name, 1) AS leader_name, LEFT(leader.patronymic, 1) AS leader_patronymic
@@ -82,7 +102,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -164,13 +184,13 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>579.6pt</Height>
+    <Height>529.0pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <List Name="List2">
-        <Height>167.90pt</Height>
-        <Width>664.81pt</Width>
-        <Left>145.80pt</Left>
+        <Height>164.41pt</Height>
+        <Width>646.05pt</Width>
+        <Left>137.80pt</Left>
         <Top>2.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox5">
@@ -178,8 +198,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>84.27pt</Width>
             <Value>Счет-фактура №</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>15.3pt</Top>
+            <Left>0.8pt</Left>
+            <Top>4.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -192,8 +212,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>81.27pt</Width>
             <Value>Исправление №</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.0pt</Left>
-            <Top>28.4pt</Top>
+            <Left>0.8pt</Left>
+            <Top>18.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -207,7 +227,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Продавец:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>48.4pt</Top>
+            <Top>36.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -222,7 +242,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>60.8pt</Top>
+            <Top>49.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -236,7 +256,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>ИНН/КПП продавца:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>74.8pt</Top>
+            <Top>61.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -250,7 +270,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Грузоотправитель и его адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>88.0pt</Top>
+            <Top>74.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -259,12 +279,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             </Style>
           </Textbox>
           <Textbox Name="Textbox11">
-            <Height>12.00pt</Height>
-            <Width>188.52pt</Width>
+            <Height>11.25pt</Height>
+            <Width>176.48pt</Width>
             <Value>К платежно-расчетному документу №</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>115.2pt</Top>
+            <Top>100.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -278,7 +298,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Покупатель:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>128.4pt</Top>
+            <Top>112.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -293,7 +313,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>ИНН/КПП покупателя:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>155.6pt</Top>
+            <Top>137.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -307,7 +327,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Валюта: наименование, код</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>168.8pt</Top>
+            <Top>151.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -321,7 +341,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>142.4pt</Top>
+            <Top>125.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -335,7 +355,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Грузополучатель и его адрес:</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
-            <Top>102.0pt</Top>
+            <Top>87.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -348,8 +368,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>1in</Width>
             <Value>=Fields!order_id.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>96.3pt</Left>
-            <Top>12.9pt</Top>
+            <Left>97.1pt</Left>
+            <Top>2.5pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -364,8 +384,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>18.27pt</Width>
             <Value>от</Value>
             <ZIndex>1</ZIndex>
-            <Left>175.7pt</Left>
-            <Top>15.3pt</Top>
+            <Left>176.5pt</Left>
+            <Top>4.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -378,15 +398,15 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>102.40pt</Width>
             <Value>=Fields!order_date.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>196.1pt</Left>
-            <Top>13.6pt</Top>
+            <Left>196.9pt</Left>
+            <Top>3.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <Format >dd MMMM yyyy г.</Format>
+              <Format>dd MMMM yyyy г.</Format>
             </Style>
           </Textbox>
           <Textbox Name="Textbox40">
@@ -394,8 +414,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>16.02pt</Width>
             <Value>(1)</Value>
             <ZIndex>1</ZIndex>
-            <Left>299.3pt</Left>
-            <Top>15.3pt</Top>
+            <Left>300.1pt</Left>
+            <Top>4.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -408,8 +428,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>1in</Width>
             <Value>--</Value>
             <ZIndex>1</ZIndex>
-            <Left>96.3pt</Left>
-            <Top>26.0pt</Top>
+            <Left>97.1pt</Left>
+            <Top>15.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -424,8 +444,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>18.27pt</Width>
             <Value>от</Value>
             <ZIndex>1</ZIndex>
-            <Left>175.7pt</Left>
-            <Top>28.4pt</Top>
+            <Left>176.5pt</Left>
+            <Top>18.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -438,8 +458,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>103.14pt</Width>
             <Value>--</Value>
             <ZIndex>1</ZIndex>
-            <Left>196.1pt</Left>
-            <Top>25.2pt</Top>
+            <Left>196.9pt</Left>
+            <Top>14.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -454,8 +474,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>22.77pt</Width>
             <Value>(1а)</Value>
             <ZIndex>1</ZIndex>
-            <Left>299.3pt</Left>
-            <Top>28.4pt</Top>
+            <Left>300.1pt</Left>
+            <Top>18.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -464,12 +484,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             </Style>
           </Textbox>
           <Textbox Name="Textbox17" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12.00pt</Height>
-            <Width>440.00pt</Width>
+            <Height>11.25pt</Height>
+            <Width>439.25pt</Width>
             <Value>=Fields!org_name.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>46.2pt</Top>
+            <Top>36.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -477,127 +497,136 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
               <BorderColor />
               <BorderWidth />
               <TextDecoration>None</TextDecoration>
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
-            <Width>440pt</Width>
+            <Height>12.00pt</Height>
+            <Width>440.00pt</Width>
             <Value>=Fields!org_address.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>60.2pt</Top>
+            <Top>49.0pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
-            <Width>440pt</Width>
+            <Height>12.00pt</Height>
+            <Width>440.00pt</Width>
             <Value>=Fields!org_kpp.Value + '/' + Fields!org_kpp.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>73.4pt</Top>
+            <Top>61.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
-            <Width>440pt</Width>
+            <Height>12.00pt</Height>
+            <Width>440.00pt</Width>
             <Value>он же</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>86.6pt</Top>
+            <Top>74.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
-            <Width>440pt</Width>
+            <Height>12.00pt</Height>
+            <Width>440.00pt</Width>
             <Value>=Fields!client_name.Value + ' ' + Fields!client_address.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>100.6pt</Top>
+            <Top>87.0pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
             <Height>12.00pt</Height>
-            <Width>440pt</Width>
+            <Width>440.00pt</Width>
             <Value>
             </Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>113.8pt</Top>
+            <Top>100.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
-            <Width>440pt</Width>
+            <Height>12.00pt</Height>
+            <Width>440.00pt</Width>
             <Value>=Fields!client_name.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>127.0pt</Top>
+            <Top>112.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
-            <Width>440pt</Width>
+            <Height>12.00pt</Height>
+            <Width>440.00pt</Width>
             <Value>=Fields!client_address.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>141.0pt</Top>
+            <Top>125.0pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-            <Height>12pt</Height>
-            <Width>440pt</Width>
+            <Height>12.00pt</Height>
+            <Width>440.00pt</Width>
             <Value>=Fields!client_inn.Value + '/' + Fields!client_kpp.Value</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>154.2pt</Top>
+            <Top>137.4pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -606,13 +635,14 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Российский рубль, 643</Value>
             <ZIndex>1</ZIndex>
             <Left>180.3pt</Left>
-            <Top>167.8pt</Top>
+            <Top>150.2pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
+              <FontSize >8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -621,7 +651,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(2)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>47.8pt</Top>
+            <Top>38.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -635,7 +665,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(2а)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>61.0pt</Top>
+            <Top>50.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -649,7 +679,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(2б)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>75.0pt</Top>
+            <Top>62.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -663,7 +693,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(3)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>88.2pt</Top>
+            <Top>75.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -677,7 +707,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(4)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>102.2pt</Top>
+            <Top>87.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -691,7 +721,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(5)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>115.4pt</Top>
+            <Top>100.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -705,7 +735,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(6)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>128.6pt</Top>
+            <Top>112.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -719,7 +749,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(6а)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>142.6pt</Top>
+            <Top>125.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -733,7 +763,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(6б)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>155.8pt</Top>
+            <Top>138.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -747,7 +777,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(7)</Value>
             <ZIndex>1</ZIndex>
             <Left>622.5pt</Left>
-            <Top>169.0pt</Top>
+            <Top>149.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -755,33 +785,33 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
               <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
-          <CustomReportItem Name="CustomReportItem1" >
+          <CustomReportItem Name="CustomReportItem1">
             <Type>BarCode39</Type>
-            <Height>27.16pt</Height>
-            <Width>141.03pt</Width>
+            <Height>33.91pt</Height>
+            <Width>124.51pt</Width>
             <CustomProperties>
               <CustomProperty>
                 <Name>Code</Name>
                 <Value>=Format({order_date}, "ddMMyy")+ "-"+ {order_id}</Value>
               </CustomProperty>
             </CustomProperties>
-            <Left>322.50pt</Left>
-            <Top>17.50pt</Top>
+            <Left>325.5pt</Left>
+            <Top>0.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
             </Style>
-            <ZIndex>1</ZIndex>
+            <ZIndex>2</ZIndex>
           </CustomReportItem>
         </ReportItems>
         <Style>
           <BorderStyle>
-            <Default >Dashed</Default>
-            <Left >Dashed</Left>
-            <Right >Dashed</Right>
-            <Top >Dashed</Top>
-            <Bottom >Dashed</Bottom>
+            <Default>Dashed</Default>
+            <Left>Dashed</Left>
+            <Right>Dashed</Right>
+            <Top>Dashed</Top>
+            <Bottom>Dashed</Bottom>
           </BorderStyle>
           <BorderColor />
           <BorderWidth />
@@ -790,13 +820,13 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
       </List>
       <Textbox Name="Textbox45">
         <Height>25.64pt</Height>
-        <Width>199.00pt</Width>
+        <Width>195.25pt</Width>
         <Value>Приложение №1
 к постановлению Правительства Российской Федерации
 от 26 декабря 2011 г. № 1137</Value>
         <ZIndex>1</ZIndex>
-        <Left>599.27pt</Left>
-        <Top>12.20pt</Top>
+        <Left>589.45pt</Left>
+        <Top>7.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -844,7 +874,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>48.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.7pt</Width>
+            <Width>32.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.0pt</Width>
@@ -853,7 +883,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>66.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.8pt</Width>
+            <Width>30.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>38.1pt</Width>
@@ -1024,7 +1054,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
-                      <Value>Налоговая ставка</Value>
+                      <Value>Нало-говая ставка</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1357,7 +1387,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox111">
-                      <Value>цифровой код</Value>
+                      <Value>циф-ровой код</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1794,7 +1824,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=Fields!item_price * (1 / Fields!vat)</Value>
+                      <Value>=Fields!item_price / Fields!vat</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1813,7 +1843,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=Fields!item_price * Fields!count * (1 / Fields!vat)</Value>
+                      <Value>=(Fields!item_price * Fields!count) -  Fields!include_nds</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1869,7 +1899,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Fields!item_price * Fields!count * (1 - 1 / Fields!vat)</Value>
+                      <Value>=Fields!include_nds</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2004,7 +2034,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum(Fields!item_price * Fields!count * (1 / Fields!vat))</Value>
+                      <Value>=Sum((Fields!item_price * Fields!count) -  Fields!include_nds)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2040,7 +2070,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Fields!item_price * Fields!count * (1 - 1 / Fields!vat))</Value>
+                      <Value>=Sum(Fields!include_nds)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2091,14 +2121,14 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>11.7pt</Left>
-        <Top>183.6pt</Top>
+        <Left>12.5pt</Left>
+        <Top>168.4pt</Top>
       </Table>
       <List Name="List4">
-        <Height>271.79pt</Height>
-        <Width>811.01pt</Width>
-        <Left>2.3pt</Left>
-        <Top>279.5pt</Top>
+        <Height>262.04pt</Height>
+        <Width>792.25pt</Width>
+        <Left>2.30pt</Left>
+        <Top>264.00pt</Top>
         <ReportItems>
           <Textbox Name="Textbox131">
             <Height>15.03pt</Height>
@@ -2106,11 +2136,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Основание передачи (сдачи) / получения (приемки)</Value>
             <ZIndex>1</ZIndex>
             <Left>6.9pt</Left>
-            <Top>70.5pt</Top>
+            <Top>55.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox133">
@@ -2119,11 +2150,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Данные о транспортировке и грузе</Value>
             <ZIndex>1</ZIndex>
             <Left>7.2pt</Left>
-            <Top>87.5pt</Top>
+            <Top>73.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox134">
@@ -2132,7 +2164,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(договор; доверенность и др.)</Value>
             <ZIndex>1</ZIndex>
             <Left>254.1pt</Left>
-            <Top>81.5pt</Top>
+            <Top>66.3pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2149,11 +2181,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Товар (груз) передал / услуги, результаты работ, права сдал</Value>
             <ZIndex>1</ZIndex>
             <Left>7.7pt</Left>
-            <Top>107.0pt</Top>
+            <Top>119.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox136">
@@ -2161,8 +2194,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>30.87pt</Width>
             <Value>[8]</Value>
             <ZIndex>1</ZIndex>
-            <Left>781.1pt</Left>
-            <Top>70.4pt</Top>
+            <Left>776.3pt</Left>
+            <Top>54.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2175,11 +2208,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Иные сведения об отгрузке, передаче</Value>
             <ZIndex>1</ZIndex>
             <Left>7.2pt</Left>
-            <Top>149.4pt</Top>
+            <Top>161.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox138">
@@ -2187,8 +2221,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>17.30pt</Width>
             <Value>[9]</Value>
             <ZIndex>1</ZIndex>
-            <Left>781.3pt</Left>
-            <Top>88.3pt</Top>
+            <Left>775.7pt</Left>
+            <Top>70.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2201,7 +2235,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(транспортная накладная, поручение экспедитору, экспедиторская / складская расписка и др. / масса нетто / брутто груза, если не приведены ссылки на транспортные документы, содержащие эти сведения)</Value>
             <ZIndex>1</ZIndex>
             <Left>173.3pt</Left>
-            <Top>99.7pt</Top>
+            <Top>82.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2213,8 +2247,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             </Style>
           </Textbox>
           <Line Name="Line3">
-            <Height>159.54pt</Height>
-            <Width>0.00pt</Width>
+            <Height>141.54pt</Height>
+            <Width>0.02pt</Width>
             <Style>
               <BorderStyle>
                 <Default>Solid</Default>
@@ -2224,8 +2258,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
                 <Default>3pt</Default>
               </BorderWidth>
             </Style>
-            <Left>401.6pt</Left>
-            <Top>107.3pt</Top>
+            <Left>400.0pt</Left>
+            <Top>118.5pt</Top>
           </Line>
           <Textbox Name="Textbox142">
             <Height>13.49pt</Height>
@@ -2233,7 +2267,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>[10]</Value>
             <ZIndex>1</ZIndex>
             <Left>375.9pt</Left>
-            <Top>118.9pt</Top>
+            <Top>130.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2246,7 +2280,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.1pt</Left>
-            <Top>130.2pt</Top>
+            <Top>142.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2263,7 +2297,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>«     »                                  года</Value>
             <ZIndex>1</ZIndex>
             <Left>180.7pt</Left>
-            <Top>138.8pt</Top>
+            <Top>150.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2278,7 +2312,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>[11]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.5pt</Left>
-            <Top>138.7pt</Top>
+            <Top>150.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2291,11 +2325,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Дата отгрузки, передачи (сдачи)</Value>
             <ZIndex>1</ZIndex>
             <Left>6.9pt</Left>
-            <Top>138.2pt</Top>
+            <Top>150.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox152">
@@ -2304,7 +2339,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(ссылки на неотъемлемые приложения, сопутствующие документы, иные документы и т.п.)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.1pt</Left>
-            <Top>171.0pt</Top>
+            <Top>183.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2321,7 +2356,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>[12]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.1pt</Left>
-            <Top>159.5pt</Top>
+            <Top>171.5pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2334,7 +2369,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>[13]</Value>
             <ZIndex>1</ZIndex>
             <Left>376.4pt</Left>
-            <Top>187.6pt</Top>
+            <Top>199.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2347,7 +2382,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>[14]</Value>
             <ZIndex>1</ZIndex>
             <Left>375.6pt</Left>
-            <Top>216.4pt</Top>
+            <Top>228.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2360,7 +2395,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Наименование экономического субъекта - составителя документа (в т.ч. комиссионера / агента)</Value>
             <ZIndex>1</ZIndex>
             <Left>4.0pt</Left>
-            <Top>206.8pt</Top>
+            <Top>218.8pt</Top>
             <Style>
               <FontFamily>Arial</FontFamily>
               <BorderStyle />
@@ -2375,11 +2410,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
             <Left>7.3pt</Left>
-            <Top>178.7pt</Top>
+            <Top>190.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox164" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2388,7 +2424,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>230.4pt</Left>
-            <Top>130.0pt</Top>
+            <Top>142.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2405,7 +2441,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
             <Left>27.5pt</Left>
-            <Top>236.8pt</Top>
+            <Top>248.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2418,7 +2454,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
             <ZIndex>1</ZIndex>
             <Left>9.7pt</Left>
-            <Top>226.6pt</Top>
+            <Top>238.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2434,8 +2470,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>185.19pt</Width>
             <Value>Количество сданной пустой тары</Value>
             <ZIndex>1</ZIndex>
-            <Left>412.1pt</Left>
-            <Top>107.2pt</Top>
+            <Left>7.2pt</Left>
+            <Top>97.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2444,12 +2480,12 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             </Style>
           </Textbox>
           <Textbox Name="Textbox171">
-            <Height>12.00pt</Height>
-            <Width>179.89pt</Width>
+            <Height>13.50pt</Height>
+            <Width>143.08pt</Width>
             <Value>(                 )</Value>
             <ZIndex>1</ZIndex>
-            <Left>597.4pt</Left>
-            <Top>107.2pt</Top>
+            <Left>174.7pt</Left>
+            <Top>97.1pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2464,7 +2500,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
             <Left>231.1pt</Left>
-            <Top>198.5pt</Top>
+            <Top>210.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2481,7 +2517,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>114.1pt</Left>
-            <Top>129.9pt</Top>
+            <Top>141.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2498,7 +2534,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
             <Left>114.8pt</Left>
-            <Top>198.9pt</Top>
+            <Top>210.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2515,7 +2551,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
             <Left>10.0pt</Left>
-            <Top>199.0pt</Top>
+            <Top>211.0pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2531,8 +2567,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>338.00pt</Width>
             <Value>Товар (груз) получил / услуги, результаты работ, права принял</Value>
             <ZIndex>1</ZIndex>
-            <Left>411.4pt</Left>
-            <Top>121.9pt</Top>
+            <Left>404.2pt</Left>
+            <Top>118.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2544,8 +2580,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>203.96pt</Width>
             <Value>Иные сведения о получении, приемке</Value>
             <ZIndex>1</ZIndex>
-            <Left>410.9pt</Left>
-            <Top>164.3pt</Top>
+            <Left>403.7pt</Left>
+            <Top>161.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2557,8 +2593,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>24.07pt</Width>
             <Value>[15]</Value>
             <ZIndex>1</ZIndex>
-            <Left>780.4pt</Left>
-            <Top>133.8pt</Top>
+            <Left>772.4pt</Left>
+            <Top>128.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2570,8 +2606,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>97.06pt</Width>
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
-            <Left>412.8pt</Left>
-            <Top>145.1pt</Top>
+            <Left>405.6pt</Left>
+            <Top>141.9pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2587,8 +2623,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>151.35pt</Width>
             <Value>«     »                                  года</Value>
             <ZIndex>1</ZIndex>
-            <Left>570.0pt</Left>
-            <Top>153.7pt</Top>
+            <Left>562.8pt</Left>
+            <Top>150.5pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2602,8 +2638,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>24.09pt</Width>
             <Value>[16]</Value>
             <ZIndex>1</ZIndex>
-            <Left>781.0pt</Left>
-            <Top>153.6pt</Top>
+            <Left>772.2pt</Left>
+            <Top>148.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2615,8 +2651,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>163.39pt</Width>
             <Value>Дата получения (приемки)</Value>
             <ZIndex>1</ZIndex>
-            <Left>410.6pt</Left>
-            <Top>153.1pt</Top>
+            <Left>403.4pt</Left>
+            <Top>149.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2628,8 +2664,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>365.16pt</Width>
             <Value>(информация о наличии/отсутствии претензии; ссылки на неотъемлимые приложения, и другие документы и т.п.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>412.8pt</Left>
-            <Top>185.9pt</Top>
+            <Left>405.6pt</Left>
+            <Top>182.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2645,8 +2681,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>24.84pt</Width>
             <Value>[17]</Value>
             <ZIndex>1</ZIndex>
-            <Left>780.6pt</Left>
-            <Top>174.4pt</Top>
+            <Left>772.6pt</Left>
+            <Top>168.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2658,8 +2694,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>24.82pt</Width>
             <Value>[18]</Value>
             <ZIndex>1</ZIndex>
-            <Left>780.9pt</Left>
-            <Top>202.5pt</Top>
+            <Left>772.1pt</Left>
+            <Top>196.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2671,12 +2707,13 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>26.34pt</Width>
             <Value>[19]</Value>
             <ZIndex>1</ZIndex>
-            <Left>780.9pt</Left>
-            <Top>230.5pt</Top>
+            <Left>772.9pt</Left>
+            <Top>224.1pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >10pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox160" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2684,8 +2721,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>396.75pt</Width>
             <Value>Наименование экономического субъекта - составителя документа</Value>
             <ZIndex>1</ZIndex>
-            <Left>410.9pt</Left>
-            <Top>221.7pt</Top>
+            <Left>403.7pt</Left>
+            <Top>218.5pt</Top>
             <Style>
               <FontFamily>Arial</FontFamily>
               <BorderStyle />
@@ -2699,8 +2736,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>387.69pt</Width>
             <Value>Ответственный за правильность оформления факта хозяйственной жизни</Value>
             <ZIndex>1</ZIndex>
-            <Left>411.0pt</Left>
-            <Top>193.6pt</Top>
+            <Left>403.8pt</Left>
+            <Top>190.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2712,8 +2749,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>143.05pt</Width>
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>634.1pt</Left>
-            <Top>145.0pt</Top>
+            <Left>626.9pt</Left>
+            <Top>141.8pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2729,8 +2766,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>1in</Width>
             <Value>М.П.</Value>
             <ZIndex>1</ZIndex>
-            <Left>431.2pt</Left>
-            <Top>251.7pt</Top>
+            <Left>424.0pt</Left>
+            <Top>247.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2742,8 +2779,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>364.37pt</Width>
             <Value>(может не заполняться при проставлении печати в М.П., может быть указан ИНН / КПП)</Value>
             <ZIndex>1</ZIndex>
-            <Left>413.4pt</Left>
-            <Top>241.5pt</Top>
+            <Left>406.2pt</Left>
+            <Top>238.3pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2759,8 +2796,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>143.05pt</Width>
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>634.8pt</Left>
-            <Top>213.4pt</Top>
+            <Left>627.6pt</Left>
+            <Top>210.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2776,8 +2813,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>109.16pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>517.8pt</Left>
-            <Top>144.8pt</Top>
+            <Left>510.6pt</Left>
+            <Top>141.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2793,8 +2830,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>109.16pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>518.5pt</Left>
-            <Top>213.8pt</Top>
+            <Left>511.3pt</Left>
+            <Top>210.6pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2810,8 +2847,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>97.06pt</Width>
             <Value>(должность)</Value>
             <ZIndex>1</ZIndex>
-            <Left>413.7pt</Left>
-            <Top>213.9pt</Top>
+            <Left>406.5pt</Left>
+            <Top>210.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2828,8 +2865,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Руководитель организации 
 или иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
-            <Left>131.90pt</Left>
-            <Top>11.20pt</Top>
+            <Left>123.9pt</Left>
+            <Top>4.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2842,8 +2879,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>178.38pt</Width>
             <Value>Индивидуальный предприниматель</Value>
             <ZIndex>1</ZIndex>
-            <Left>131.9pt</Left>
-            <Top>43.2pt</Top>
+            <Left>123.9pt</Left>
+            <Top>28.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2856,8 +2893,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>110.65pt</Width>
             <Value>=Fields!leader_last_name.Value + ' ' + Fields!leader_name + '.' + Fields!leader_patronymic + '.'</Value>
             <ZIndex>1</ZIndex>
-            <Left>361.8pt</Left>
-            <Top>17.2pt</Top>
+            <Left>353.8pt</Left>
+            <Top>5.6pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2873,8 +2910,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Value>Главный бухгалтер или
 иное уполномоченное лицо</Value>
             <ZIndex>1</ZIndex>
-            <Left>473.4pt</Left>
-            <Top>11.2pt</Top>
+            <Left>465.4pt</Left>
+            <Top>5.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2887,8 +2924,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>82.83pt</Width>
             <Value>=Fields!buh_last_name.Value + ' ' + Fields!buh_name + '.' + Fields!buh_patronymic + '.'</Value>
             <ZIndex>1</ZIndex>
-            <Left>686.2pt</Left>
-            <Top>16.7pt</Top>
+            <Left>678.2pt</Left>
+            <Top>4.8pt</Top>
             <Style>
               <BorderStyle>
                 <Bottom>Solid</Bottom>
@@ -2903,8 +2940,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>276.7pt</Left>
-            <Top>29.9pt</Top>
+            <Left>268.7pt</Left>
+            <Top>18.7pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2920,8 +2957,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>72.27pt</Width>
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>392.2pt</Left>
-            <Top>30.8pt</Top>
+            <Left>384.2pt</Left>
+            <Top>18.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2934,8 +2971,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>292.7pt</Left>
-            <Top>53.7pt</Top>
+            <Left>284.7pt</Left>
+            <Top>38.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2951,8 +2988,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>79.04pt</Width>
             <Value>(подпись)</Value>
             <ZIndex>1</ZIndex>
-            <Left>598.6pt</Left>
-            <Top>31.2pt</Top>
+            <Left>590.6pt</Left>
+            <Top>19.2pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2968,8 +3005,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>128.04pt</Width>
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>381.2pt</Left>
-            <Top>53.7pt</Top>
+            <Left>373.2pt</Left>
+            <Top>38.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -2985,8 +3022,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>1in</Width>
             <Value>(ф.и.о.)</Value>
             <ZIndex>1</ZIndex>
-            <Left>717.5pt</Left>
-            <Top>32.0pt</Top>
+            <Left>709.5pt</Left>
+            <Top>26.4pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -2999,8 +3036,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Width>280.05pt</Width>
             <Value>(реквизиты свидетельства о государственной регистрации индивидуального предпринимателя)</Value>
             <ZIndex>1</ZIndex>
-            <Left>516.6pt</Left>
-            <Top>53.7pt</Top>
+            <Left>508.6pt</Left>
+            <Top>38.5pt</Top>
             <Style>
               <BorderStyle>
                 <Top>Solid</Top>
@@ -3013,7 +3050,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           </Textbox>
           <Line Name="Line1">
             <Height>0.02pt</Height>
-            <Width>756.44pt</Width>
+            <Width>704.69pt</Width>
             <Style>
               <BorderStyle>
                 <Default>Solid</Default>
@@ -3024,11 +3061,11 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
               </BorderWidth>
             </Style>
             <Left>85.90pt</Left>
-            <Top>65.30pt</Top>
+            <Top>50.10pt</Top>
           </Line>
           <Line Name="Line2">
-            <Height>66.31pt</Height>
-            <Width>-0.01pt</Width>
+            <Height>49.0pt</Height>
+            <Width>0.01pt</Width>
             <Style>
               <BorderStyle>
                 <Default>Solid</Default>
@@ -3039,19 +3076,102 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
               </BorderWidth>
             </Style>
             <Left>86.7pt</Left>
-            <Top>0.0pt</Top>
+            <Top>0.8pt</Top>
           </Line>
           <Textbox Name="Textbox128">
             <Height>11.25pt</Height>
             <Width>326.90pt</Width>
             <Value>=Fields!contract_number.Value + ' от ' + Fields!contract_date.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>258.70pt</Left>
-            <Top>70.50pt</Top>
+            <Left>258.7pt</Left>
+            <Top>55.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <FontSize >9pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox129">
+            <Height>42.10pt</Height>
+            <Width>70.77pt</Width>
+            <Value>="Документ составлен на " + {@PageNumber} + Iif({@PageNumber} = 1, " листе", " листах")</Value>
+            <ZIndex>1</ZIndex>
+            <Left>10.40pt</Left>
+            <Top>10.70pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>8pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox130" >
+            <Height>10.50pt</Height>
+            <Width>79.06pt</Width>
+            <Value>(подпись клиента)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>327.4pt</Left>
+            <Top>109.5pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top>Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+              <FontSize>7pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox174" >
+            <Height>10.50pt</Height>
+            <Width>104.59pt</Width>
+            <Value>(расшифровка подписи)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>415.4pt</Left>
+            <Top>109.9pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top>Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+              <FontSize>7pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox175" >
+            <Height>10.50pt</Height>
+            <Width>79.06pt</Width>
+            <Value>(подпись водителя)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>551.5pt</Left>
+            <Top>108.8pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top>Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+              <FontSize>7pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox176" >
+            <Height>10.50pt</Height>
+            <Width>109.09pt</Width>
+            <Value>(расшифровка подписи)</Value>
+            <ZIndex>1</ZIndex>
+            <Left>640.3pt</Left>
+            <Top>109.2pt</Top>
+            <Style>
+              <BorderStyle>
+                <Top>Solid</Top>
+              </BorderStyle>
+              <BorderColor />
+              <BorderWidth />
+              <TextAlign>Center</TextAlign>
+              <FontSize>7pt</FontSize>
             </Style>
           </Textbox>
         </ReportItems>
@@ -3059,15 +3179,19 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+          <BackgroundGradientEndColor >
+          </BackgroundGradientEndColor>
+          <BackgroundColor >
+          </BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>
       </List>
       <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>34.67pt</Height>
-        <Width>79.76pt</Width>
+        <Height>35.42pt</Height>
+        <Width>76.76pt</Width>
         <Value>Универсальный передаточный документ</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.2pt</Left>
+        <Left>8.4pt</Left>
         <Top>17.1pt</Top>
         <Style>
           <BorderStyle />
@@ -3124,8 +3248,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
         <Value>1 - счет-фактура и передаточный документ (акт)
 2 - передаточный документ (акт)</Value>
         <ZIndex>1</ZIndex>
-        <Left>5.20pt</Left>
-        <Top>92.40pt</Top>
+        <Left>13.20pt</Left>
+        <Top>93.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -3134,7 +3258,7 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
         </Style>
       </Textbox>
       <Line Name="Line4">
-        <Height>185.98pt</Height>
+        <Height>161.98pt</Height>
         <Width>-0.03pt</Width>
         <Style>
           <BorderStyle>
@@ -3145,8 +3269,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
             <Default>3pt</Default>
           </BorderWidth>
         </Style>
-        <Left>88.6pt</Left>
-        <Top>0.0pt</Top>
+        <Left>89.4pt</Left>
+        <Top>6.4pt</Top>
       </Line>
     </ReportItems>
   </Body>
