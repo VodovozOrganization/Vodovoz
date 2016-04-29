@@ -5,6 +5,9 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using NHibernate.Criterion;
+using NHibernate;
+using NHibernate.Dialect.Function;
 
 namespace Vodovoz.ViewModel
 {
@@ -25,6 +28,7 @@ namespace Vodovoz.ViewModel
 		public override void UpdateNodes ()
 		{
 			Counterparty counterpartyAlias = null;
+			CounterpartyContract contractAlias = null;
 			CounterpartyVMNode resultAlias = null;
 
 			var query = UoW.Session.QueryOver<Counterparty> (() => counterpartyAlias);
@@ -33,9 +37,18 @@ namespace Vodovoz.ViewModel
 				query.Where (c => c.CounterpartyType == Filter.RestrictCounterpartyType);
 			}
 
-			var counterpartyList = query.SelectList (list => list
-					.Select (c => c.Id).WithAlias (() => resultAlias.Id)
+			var counterpartyList = query
+				.JoinAlias(c => c.CounterpartyContracts, () => contractAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList (list => list
+					.SelectGroup (c => c.Id).WithAlias (() => resultAlias.Id)
 					.Select (c => c.Name).WithAlias (() => resultAlias.Name)
+					.Select (c => c.INN).WithAlias (() => resultAlias.INN)
+				.Select (Projections.SqlFunction (
+					new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					NHibernateUtil.String,
+						Projections.Property (() => contractAlias.Id),
+						Projections.Constant (", "))
+					).WithAlias (() => resultAlias.Contracts)
 			                       )
 				.TransformUsing (Transformers.AliasToBean<CounterpartyVMNode> ())
 				.List<CounterpartyVMNode> ();
@@ -45,6 +58,8 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <CounterpartyVMNode>.Create ()
 			.AddColumn ("Контрагент").SetDataProperty (node => node.Name)
+			.AddColumn("ИНН").AddTextRenderer(x => x.INN)
+			.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -84,6 +99,12 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		public string Name { get; set; }
+
+		[UseForSearch]
+		public string INN { get; set; }
+
+		[UseForSearch]
+		public string Contracts { get; set; }
 	}
 }
 
