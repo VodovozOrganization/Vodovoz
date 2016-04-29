@@ -18,13 +18,6 @@
 		<property name="Name" column="name" />
 	</class>
 
- 	<class name="LogisticsArea" lazy="false" table="logistics_area">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
-
 	<class name="Nationality" lazy="false" table="nationality">
 		<id name="Id" column="id">
 			<generator class="native"></generator>

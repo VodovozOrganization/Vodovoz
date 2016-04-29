@@ -150,7 +150,6 @@
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
     <Compile Include="Domain\BasicHandbooks\CounterpartyStatus.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
-    <Compile Include="Domain\BasicHandbooks\LogisticsArea.cs" />
     <Compile Include="Domain\BasicHandbooks\Manufacturer.cs" />
     <Compile Include="Domain\BasicHandbooks\Nationality.cs" />
     <Compile Include="Domain\BasicHandbooks\Significance.cs" />
@@ -562,6 +561,9 @@
     <Compile Include="gtk-gui\Vodovoz.RepairAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WaterAgreementDlg.cs" />
     <Compile Include="Representations\ClientDeliveryPointsVM.cs" />
+    <Compile Include="Representations\DeliveryPointsVM.cs" />
+    <Compile Include="Domain\Logistic\LogisticsArea.cs" />
+    <Compile Include="HibernateMapping\Logistic\LogisticsAreaMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

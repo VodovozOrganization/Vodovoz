@@ -4,8 +4,8 @@ using System.Linq;
 using Gtk;
 using NHibernate.Criterion;
 using QSOrmProject;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using VodovozOrder = Vodovoz.Domain.Orders.Order;
 
