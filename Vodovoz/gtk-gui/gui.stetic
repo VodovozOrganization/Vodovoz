@@ -537,6 +537,12 @@
         <property name="Group">ToolBarIcons</property>
         <signal name="Toggled" handler="OnActionIconsLargeToggled" />
       </action>
+      <action id="ActionDeliveryPoints">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Точки доставки</property>
+        <property name="ShortLabel" translatable="yes">Точки доставки</property>
+        <signal name="Activated" handler="OnActionDeliveryPointsActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -611,6 +617,7 @@
                     </node>
                     <node type="Menu" action="ActionCounterparty1">
                       <node type="Menuitem" action="ActionCounterpartyHandbook" />
+                      <node type="Menuitem" action="ActionDeliveryPoints" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionSignificance" />
                       <node type="Menuitem" action="ActionStatus" />

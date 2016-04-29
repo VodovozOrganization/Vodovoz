@@ -572,4 +572,12 @@ public partial class MainWindow: Gtk.Window
 		if (ActionIconsLarge.Active)
 			ToolBarMode(IconsSize.Large);
 	}
+
+	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM>(),
+			() => new ReferenceRepresentation (new DeliveryPointsVM ()).Buttons(ReferenceButtonMode.CanEdit)
+		);
+	}
 }

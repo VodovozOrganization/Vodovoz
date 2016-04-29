@@ -6,65 +6,43 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModel
 {
-	public class ClientDeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, ClientDeliveryPointVMNode>, IRepresentationModelWithParent
+	public class DeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, DeliveryPointVMNode>
 	{
-		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
-			get {
-				return UoW as IUnitOfWorkGeneric<Counterparty>;
-			}
-		}
-
-		Counterparty counterparty;
-
-		public Counterparty Counterparty {
-			get {
-				if (CounterpartyUoW != null)
-					return CounterpartyUoW.Root;
-				else
-					return counterparty;
-			}
-			private set {
-				counterparty = value;
-			}
-		}
-
-		#region IRepresentationModelWithParent implementation
-
-		public object GetParent {
-			get {
-				return Counterparty;
-			}
-		}
-
-		#endregion
-
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
 		{
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
-			ClientDeliveryPointVMNode resultAlias = null;
+			LogisticsArea logisticsAreaAlias = null;
+			DeliveryPointVMNode resultAlias = null;
 
 			var deliveryPointslist = UoW.Session.QueryOver<DeliveryPoint> (() => deliveryPointAlias)
-				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
-				.Where (() => counterpartyAlias.Id == Counterparty.Id)
+				.JoinAlias (c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (c => c.LogisticsArea, () => logisticsAreaAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => deliveryPointAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.CompiledAddress)
+					.Select (() => deliveryPointAlias.FoundOnOsm).WithAlias (() => resultAlias.FoundOnOsm)
 					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
+					.Select (() => counterpartyAlias.FullName).WithAlias (() => resultAlias.Client)
+					.Select (() => logisticsAreaAlias.Name).WithAlias (() => resultAlias.LogisticsArea)
 			                         )
-				.TransformUsing (Transformers.AliasToBean<ClientDeliveryPointVMNode> ())
-				.List<ClientDeliveryPointVMNode> ();
+				.TransformUsing (Transformers.AliasToBean<DeliveryPointVMNode> ())
+				.List<DeliveryPointVMNode> ();
 
 			SetItemsSource (deliveryPointslist);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientDeliveryPointVMNode>.Create ()
-			.AddColumn ("Название").SetDataProperty (node => node.CompiledAddress)
+		IColumnsConfig columnsConfig = FluentColumnsConfig<DeliveryPointVMNode>.Create ()
+			.AddColumn("OSM").AddTextRenderer(x => x.FoundOnOsm ? "Да": "")
+			.AddColumn("Логистический район").AddTextRenderer(x => x.LogisticsArea)
+			.AddColumn ("Адрес").SetDataProperty (node => node.CompiledAddress)
+			.AddColumn("Клиент").AddTextRenderer(x => x.Client)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -78,31 +56,35 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (DeliveryPoint updatedSubject)
 		{
-			return Counterparty.Id == updatedSubject.Counterparty.Id;
+			return true;
 		}
 
 		#endregion
 
-		public ClientDeliveryPointsVM (IUnitOfWorkGeneric<Counterparty> uow)
-		{
-			this.UoW = uow;
-		}
+		public DeliveryPointsVM () : this(UnitOfWorkFactory.CreateWithoutRoot ()){}
 
-		public ClientDeliveryPointsVM (IUnitOfWork uow, Counterparty counterparty)
+		public DeliveryPointsVM (IUnitOfWork uow)
 		{
 			this.UoW = uow;
-			Counterparty = counterparty;
 		}
 	}
 
-	public class ClientDeliveryPointVMNode
+	public class DeliveryPointVMNode
 	{
 
 		public int Id { get; set; }
 
+		[UseForSearch]
 		public string CompiledAddress { get; set; }
 
+		public string LogisticsArea { get; set; }
+
+		[UseForSearch]
+		public string Client { get; set; }
+
 		public bool IsActive { get; set; }
+
+		public bool FoundOnOsm { get; set; }
 
 		public string RowColor { get { return IsActive ? "black" : "grey"; } }
 	}
