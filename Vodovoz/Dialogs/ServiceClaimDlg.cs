@@ -262,7 +262,7 @@ namespace Vodovoz
 
 				UoWGeneric.Root.DeliveryPoint = null;
 			}
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Counterparty);
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty);
 		}
 
 		void RunContractCreateDialog ()

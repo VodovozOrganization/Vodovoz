@@ -55,7 +55,7 @@ namespace Vodovoz
 			spinRentDays.Sensitive = false;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 			dailyrentpackagesview1.AgreementUoW = UoWGeneric;
 			dateEnd.Date = UoWGeneric.Root.StartDate.AddDays (UoWGeneric.Root.RentDays);

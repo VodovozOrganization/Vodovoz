@@ -223,7 +223,6 @@
     <Compile Include="Dialogs\CommentTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CommentTemplateDlg.cs" />
     <Compile Include="Repositories\OrderRepository.cs" />
-    <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Representations\AdditionalAgreementsVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.ClientBalanceFilter.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
@@ -562,6 +561,7 @@
     <Compile Include="Dialogs\Client\WaterAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RepairAgreementDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WaterAgreementDlg.cs" />
+    <Compile Include="Representations\ClientDeliveryPointsVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

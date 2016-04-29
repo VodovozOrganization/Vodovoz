@@ -50,7 +50,7 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			datatable1.DataSource = subjectAdaptor;
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 			spinFixedPrice.Sensitive = currencylabel1.Sensitive = UoWGeneric.Root.IsFixedPrice;
 		}

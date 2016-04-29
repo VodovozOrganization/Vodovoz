@@ -345,7 +345,7 @@ namespace Vodovoz
 			if (CurrentObjectChanged != null)
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceClient.Subject));
 			if (UoWGeneric.Root.Client != null) {
-				referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Client);
+				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Client);
 				referenceDeliveryPoint.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
 			} else {
 				referenceDeliveryPoint.Sensitive = false;

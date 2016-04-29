@@ -53,7 +53,7 @@ namespace Vodovoz
 			freerentpackagesview1.IsEditable = true;
 			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Contract.Counterparty);
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 			freerentpackagesview1.AgreementUoW = UoWGeneric;
 		}

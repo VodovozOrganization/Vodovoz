@@ -38,7 +38,7 @@ namespace Vodovoz
 				UoWGeneric.Root.Persons = new List<Person> ();
 			personsView.Persons = UoWGeneric.Root.Persons;
 			datepickerIssue.DateChanged += OnIssueDateChanged;
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.DeliveryPointsVM (UoW, Entity.Counterparty);
+			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty);
 		}
 
 		private void OnIssueDateChanged (object sender, EventArgs e)

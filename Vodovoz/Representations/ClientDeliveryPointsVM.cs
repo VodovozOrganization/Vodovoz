@@ -9,7 +9,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {
-	public class DeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, DeliveryPointVMNode>, IRepresentationModelWithParent
+	public class ClientDeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, ClientDeliveryPointVMNode>, IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -47,7 +47,7 @@ namespace Vodovoz.ViewModel
 		{
 			DeliveryPoint deliveryPointAlias = null;
 			Counterparty counterpartyAlias = null;
-			DeliveryPointVMNode resultAlias = null;
+			ClientDeliveryPointVMNode resultAlias = null;
 
 			var deliveryPointslist = UoW.Session.QueryOver<DeliveryPoint> (() => deliveryPointAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
@@ -57,13 +57,13 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.CompiledAddress).WithAlias (() => resultAlias.CompiledAddress)
 					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
 			                         )
-				.TransformUsing (Transformers.AliasToBean<DeliveryPointVMNode> ())
-				.List<DeliveryPointVMNode> ();
+				.TransformUsing (Transformers.AliasToBean<ClientDeliveryPointVMNode> ())
+				.List<ClientDeliveryPointVMNode> ();
 
 			SetItemsSource (deliveryPointslist);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig<DeliveryPointVMNode>.Create ()
+		IColumnsConfig columnsConfig = FluentColumnsConfig<ClientDeliveryPointVMNode>.Create ()
 			.AddColumn ("Название").SetDataProperty (node => node.CompiledAddress)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
@@ -83,19 +83,19 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public DeliveryPointsVM (IUnitOfWorkGeneric<Counterparty> uow)
+		public ClientDeliveryPointsVM (IUnitOfWorkGeneric<Counterparty> uow)
 		{
 			this.UoW = uow;
 		}
 
-		public DeliveryPointsVM (IUnitOfWork uow, Counterparty counterparty)
+		public ClientDeliveryPointsVM (IUnitOfWork uow, Counterparty counterparty)
 		{
 			this.UoW = uow;
 			Counterparty = counterparty;
 		}
 	}
 
-	public class DeliveryPointVMNode
+	public class ClientDeliveryPointVMNode
 	{
 
 		public int Id { get; set; }
