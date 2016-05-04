@@ -434,6 +434,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<UPDDocument>();
 
+			DeleteConfig.AddHibernateDeleteInfo<DriverTicketDocument>();
+
 			#endregion
 
 			//Документы

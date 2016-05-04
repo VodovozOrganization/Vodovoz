@@ -2,7 +2,6 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
-using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
@@ -82,7 +81,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name="Гарантийный талон для кулеров")]
 		CoolerWarranty,
 		[Display(Name="Гарантийный талон для помп")]
-		PumpWarranty
+		PumpWarranty,
+		[Display(Name="Талон водителю")]
+		DriverTicket
 	}
 
 }

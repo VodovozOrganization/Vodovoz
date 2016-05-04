@@ -100,4 +100,12 @@ namespace Vodovoz.HMap
 			DiscriminatorValue ("upd");
 		}
 	}
+
+	public class DriverTicketDocumentMap:SubclassMap<DriverTicketDocument>
+	{
+		public DriverTicketDocumentMap()
+		{
+			DiscriminatorValue ("DriverTicket");
+		}
+	}
 }

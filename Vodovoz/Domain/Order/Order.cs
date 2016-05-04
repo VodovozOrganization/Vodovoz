@@ -826,11 +826,14 @@ namespace Vodovoz.Domain.Orders
 			{
 				if (paymentType == PaymentType.cashless)
 				{
-		
 					AddDocumentIfNotExist(new UPDDocument
 						{
 							Order = this
-						});					
+						});
+					AddDocumentIfNotExist(new DriverTicketDocument
+						{
+							Order = this
+						});
 				}
 				if (paymentType == PaymentType.cash)
 				{

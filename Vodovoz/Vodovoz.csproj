@@ -564,6 +564,7 @@
     <Compile Include="Representations\DeliveryPointsVM.cs" />
     <Compile Include="Domain\Logistic\LogisticsArea.cs" />
     <Compile Include="HibernateMapping\Logistic\LogisticsAreaMap.cs" />
+    <Compile Include="Domain\Order\Documents\DriverTicketDocument.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -815,6 +816,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\EquipmentTransfer.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\DriverTicket.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
