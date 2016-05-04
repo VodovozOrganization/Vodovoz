@@ -13,6 +13,7 @@ using QSReport;
 using QSTDI;
 using Gamma.Utilities;
 using System.Linq;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
@@ -67,8 +68,6 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList> (id);
 			ConfigureDlg ();
 		}
-
-
 
 		private void ConfigureDlg ()
 		{
@@ -135,6 +134,28 @@ namespace Vodovoz
 			createroutelistitemsview1.IsEditable (val);
 		}
 
+		private void UpdateButtonStatus()
+		{
+			if(Entity.Status == RouteListStatus.New)
+			{
+				IsEditable (true);
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonPrint.Sensitive = false;
+				buttonAccept.Label = "Подтвердить";
+			}
+			if(Entity.Status == RouteListStatus.Ready)
+			{
+				IsEditable (transfer);
+				var icon = new Image ();
+				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
+				buttonAccept.Image = icon;
+				buttonPrint.Sensitive = true;
+				buttonAccept.Label = "Редактировать";
+			}
+		}
+
 		protected void OnButtonAcceptClicked (object sender, EventArgs e)
 		{
 
@@ -148,22 +169,41 @@ namespace Vodovoz
 
 				UoWGeneric.Root.Status = RouteListStatus.Ready;
 				Save();
-				IsEditable (transfer);
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonPrint.Sensitive = true;
-				buttonAccept.Label = "Редактировать";
+
+				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
+				var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, ShipmentDocumentType.RouteList, Entity.Id);
+				if(forShipment.Count == 0)
+				{
+					if (MessageDialogWorks.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
+					{
+						valid = new QSValidator<RouteList> (UoWGeneric.Root, 
+							new Dictionary<object, object> {
+							{ "NewStatus", RouteListStatus.EnRoute }
+						});
+						if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+						{
+							Entity.Status = RouteListStatus.New;
+						}
+						else
+						{
+							Entity.Ship();
+						}
+					}
+					else
+					{
+						Entity.Status = RouteListStatus.New;
+					}
+					Save();
+					UpdateButtonStatus();
+					return;
+				}
+
+				UpdateButtonStatus();
 				return;
 			}
 			if (UoWGeneric.Root.Status == RouteListStatus.Ready) {
 				UoWGeneric.Root.Status = RouteListStatus.New;
-				IsEditable (true);
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonPrint.Sensitive = false;
-				buttonAccept.Label = "Подтвердить";
+				UpdateButtonStatus();
 				return;
 			}
 		}
