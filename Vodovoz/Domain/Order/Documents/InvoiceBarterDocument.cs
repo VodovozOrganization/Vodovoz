@@ -10,7 +10,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Накладная №{0} от {1:d} (безденежно)", Order.Id, Order.DeliveryDate),
-				Identifier = "InvoiceBarter",
+				Identifier = "Documents.InvoiceBarter",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id }
 				}

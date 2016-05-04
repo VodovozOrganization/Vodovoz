@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("УПД {0} от {1:d}", Order.Id, Order.DeliveryDate),
-				Identifier = "UPD",
+				Identifier = "Documents.UPD",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id }
 				}

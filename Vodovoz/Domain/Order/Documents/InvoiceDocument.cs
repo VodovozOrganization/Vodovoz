@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Накладная №{0} от {1:d}", Order.Id, Order.DeliveryDate),
-				Identifier = Order.PaymentType==PaymentType.barter ? "InvoiceBarter" : "Invoice",
+				Identifier = Order.PaymentType==PaymentType.barter ? "Documents.InvoiceBarter" : "Documents.Invoice",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id }
 				}

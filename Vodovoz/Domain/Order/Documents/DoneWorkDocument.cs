@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = Name,
-				Identifier = "DoneWorkReport",
+				Identifier = "Documents.DoneWorkReport",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "service_claim_id",ServiceClaim.Id }

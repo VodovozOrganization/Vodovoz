@@ -13,7 +13,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Акт приема-передачи оборудования №{0}", ServiceClaim.Id),
-				Identifier = "EquipmentTransfer",
+				Identifier = "Documents.EquipmentTransfer",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "service_claim_id",ServiceClaim.Id }

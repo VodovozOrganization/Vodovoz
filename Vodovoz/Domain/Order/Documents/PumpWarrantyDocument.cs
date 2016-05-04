@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Гарантийный талон на помпы №{0}", Order.Id),
-				Identifier = "PumpWarranty",
+				Identifier = "Documents.PumpWarranty",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}

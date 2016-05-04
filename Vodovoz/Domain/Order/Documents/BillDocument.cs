@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.DeliveryDate),
-				Identifier = "Bill",
+				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },
@@ -32,7 +32,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Счет №{0} от {1:d}", Order.Id, Order.DeliveryDate),
-				Identifier = "Bill",
+				Identifier = "Documents.Bill",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id",  Order.Id },
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization]) },

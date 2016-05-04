@@ -14,7 +14,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		{
 			return new QSReport.ReportInfo {
 				Title = String.Format ("Гарантийный талон на кулера №{0}", Order.Id),
-				Identifier = "CoolerWarranty",
+				Identifier = "Documents.CoolerWarranty",
 				Parameters = new Dictionary<string, object> {
 					{ "order_id", Order.Id },
 					{ "organization_id", int.Parse (MainSupport.BaseParameters.All [OrganizationRepository.CashlessOrganization])}
