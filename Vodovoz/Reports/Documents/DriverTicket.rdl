@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -32,7 +32,7 @@
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
     delivery_points.phone AS phone,
-    logistics_area.name as logistics_area,
+    logistics_area.name AS logistics_area,
     delivery_points.city AS city,
     delivery_points.region AS region,
     delivery_points.street AS street,
@@ -45,10 +45,9 @@ FROM
         LEFT JOIN
     counterparty ON orders.client_id = counterparty.id
         LEFT JOIN
-    organizations ON organizations.id = 12
+    counterparty_contract ON counterparty_contract.id = orders.counterparty_contract_id
         LEFT JOIN
-    counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
-        AND counterparty_contract.organization_id = organizations.id
+    organizations ON organizations.id = counterparty_contract.organization_id
         LEFT JOIN
     delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
         LEFT JOIN
@@ -56,16 +55,14 @@ FROM
         LEFT JOIN
     logistics_area ON delivery_points.logistic_area_id = logistics_area.id
 WHERE
-    orders.id = @order_id
-        AND ! counterparty_contract.on_cancellation
-        AND ! counterparty_contract.is_archive;</CommandText>
+    orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -376,7 +373,7 @@ payment_type='ToClient'</CommandText>
             <CanGrow>true</CanGrow>
           </Textbox>
           <Textbox Name="Textbox10">
-            <Height>15.00pt</Height>
+            <Height>13.50pt</Height>
             <Width>433.62pt</Width>
             <Value>=Iif(Fields!logistics_area.IsMissing, "", "["+ {logistics_area} + "]") + {city} + ' ' + {street} + ' д.' + {building} + ' ' + {room} + '\n' + {delivery_point_comment}</Value>
             <ZIndex>1</ZIndex>
@@ -510,7 +507,7 @@ payment_type='ToClient'</CommandText>
             </Style>
           </Textbox>
           <Textbox Name="Textbox33">
-            <Height>12.78pt</Height>
+            <Height>12.03pt</Height>
             <Width>462.23pt</Width>
             <Value>="широта N" + Format({latitude}, "F6") + ", долгота E" + Format( {longitude}, "F6")</Value>
             <ZIndex>1</ZIndex>
