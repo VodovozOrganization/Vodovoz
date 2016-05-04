@@ -559,6 +559,7 @@ namespace Vodovoz
 			} else if (response == (int)ResponseType.Accept) {
 				var contract = CreateDefaultContract ();
 				AddContractDocument (contract);
+				Entity.Contract = contract;
 			}
 		}
 
@@ -603,6 +604,7 @@ namespace Vodovoz
 				Order = UoWGeneric.Root,
 				Contract = args.Contract
 			});
+			Entity.Contract = args.Contract;
 		}
 
 		protected void RunAdditionalAgreementWaterDialog(){
@@ -613,6 +615,7 @@ namespace Vodovoz
 
 		protected void CreateDefaultContractWithAgreement(){
 			var contract = CreateDefaultContract ();
+			Entity.Contract = contract;
 			AddContractDocument (contract);
 			AdditionalAgreement agreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
 			if(agreement==null){
@@ -878,6 +881,10 @@ namespace Vodovoz
 		{
 			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 				(Entity.PaymentType == PaymentType.cashless);
+
+			var org = OrganizationRepository.GetOrganizationByPaymentType (UoW , Entity.PaymentType);
+			if(Entity.Contract == null || Entity.Contract.Organization.Id != org.Id)
+				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, Entity.Client, Entity.PaymentType);
 		}
 
 		protected void OnPickerDeliveryDateDateChanged (object sender, EventArgs e)

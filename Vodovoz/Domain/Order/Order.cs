@@ -23,11 +23,9 @@ namespace Vodovoz.Domain.Orders
 	)]
 	public class Order: BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
-		public virtual int Id { get; set; }
+		#region Cвойства
 
-		public virtual string Title { 
-			get { return String.Format ("Заказ №{0}", Id); }
-		}
+		public virtual int Id { get; set; }
 
 		OrderStatus orderStatus;
 
@@ -186,6 +184,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		CounterpartyContract contract;
+
+		[Display (Name = "Договор")]
+		public virtual CounterpartyContract Contract {
+			get { return contract; }
+			set { SetField (ref contract, value, () => Contract); }
+		}
+
 		MoneyMovementOperation moneyMovementOperation;
 
 		public virtual MoneyMovementOperation MoneyMovementOperation
@@ -218,6 +224,16 @@ namespace Vodovoz.Domain.Orders
 				SetField(ref collectBottles, value, () => CollectBottles);
 			}
 		}
+
+		#endregion
+
+		#region Вычисляемые
+
+		public virtual string Title { 
+			get { return String.Format ("Заказ №{0}", Id); }
+		}
+
+		#endregion
 
 		public bool CanChangePaymentType ()
 		{
