@@ -349,8 +349,9 @@ namespace Vodovoz
 		}
 
 		protected void OnEquipmentRegistered(object o, EquipmentCreatedEventArgs args){
-			equipmentToRegister.NewEquipment = args.Equipment[0];
-			equipmentToRegister.Id = args.Equipment [0].Id;
+			var equipment = UoW.GetById<Equipment>(args.Equipment[0].Id);
+			equipmentToRegister.NewEquipment = equipment;
+			equipmentToRegister.Id = equipment.Id;
 			equipmentToRegister.Returned = true;
 			OnEquipmentListChanged();
 		}
@@ -395,9 +396,24 @@ namespace Vodovoz
 			if(CarUnloadDocumentUoW.Root.Items.Count>0)
 				CarUnloadDocumentUoW.Save ();
 
-			foreach (var node in ReceptionEquipmentList.Where(item=>item.Amount>0).Where(eq=>eq.IsNew && eq.ServiceClaim!=null))
+			foreach (var node in ReceptionEquipmentList.Where(item=>item.Amount>0))
 			{
-				node.ServiceClaim.FillNewEquipment(node.NewEquipment);
+				node.ServiceClaim.UoW = UoW;
+				if (node.IsNew)
+				{
+					node.NewEquipment.AssignedToClient = node.ServiceClaim.Counterparty;
+					UoW.Save(node.NewEquipment);
+					node.ServiceClaim.FillNewEquipment(node.NewEquipment);
+				}
+				//FIXME предположительно нужно возвращать статус заявки если поступление удаляется.
+				node.ServiceClaim.AddHistoryRecord(ServiceClaimStatus.DeliveredToWarehouse,
+					String.Format("Поступил на склад '{0}', по талону разгрузки №{1} для МЛ №{2}", 
+						CarUnloadDocumentUoW.Root.Warehouse.Name,
+						CarUnloadDocumentUoW.Root.Id,
+						CarUnloadDocumentUoW.Root.RouteList.Id
+					)
+				);
+				UoW.Save(node.ServiceClaim);
 			}
 
 			if(checkbuttonFinalUnloading.Active)

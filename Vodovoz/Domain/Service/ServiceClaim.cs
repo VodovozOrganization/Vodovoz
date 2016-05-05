@@ -261,6 +261,9 @@ namespace Vodovoz.Domain.Service
 		{
 			List<ServiceClaimStatus> enumList = new List<ServiceClaimStatus> ();
 			switch (Status) {
+				case ServiceClaimStatus.PickUp:
+					enumList.Add (ServiceClaimStatus.DeliveredToWarehouse);
+					break;
 			case ServiceClaimStatus.DeliveredToWarehouse:
 				enumList.Add (ServiceClaimStatus.Diagnostics);
 				break;
