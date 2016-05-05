@@ -1,4 +1,5 @@
-﻿using QSOrmProject;
+﻿using System.Collections.Generic;
+using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 
@@ -22,6 +23,20 @@ namespace Vodovoz.Repository
 			organizationAlias.Id == organization.Id))
 				.SingleOrDefault ();
 		}
+
+		public static IList<CounterpartyContract> GetActiveContractsWithOrganization (IUnitOfWork uow, Counterparty counterparty, Organization org)
+		{
+			Counterparty counterpartyAlias = null;
+			Organization organizationAlias = null;
+
+			return uow.Session.QueryOver<CounterpartyContract> ()
+				.Where (co => (co.Counterparty.Id == counterparty.Id &&
+					!co.IsArchive &&
+					!co.OnCancellation &&
+					co.Organization.Id == org.Id))
+				.List();
+		}
+
 	}
 }
 

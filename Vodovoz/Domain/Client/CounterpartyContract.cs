@@ -5,6 +5,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Client
 {
@@ -15,7 +16,7 @@ namespace Vodovoz.Domain.Client
 		Genitive = " договора",
 		Accusative = "договор"
 	)]
-	public class CounterpartyContract : PropertyChangedBase, IDomainObject
+	public class CounterpartyContract : BusinessObjectBase<CounterpartyContract>, IDomainObject, IValidatableObject
 	{
 		private IList<AdditionalAgreement> agreements { get; set; }
 
@@ -93,6 +94,22 @@ namespace Vodovoz.Domain.Client
 		public virtual string Title { 
 			get { return String.Format ("Договор №{0} от {1:d}", Id, IssueDate); }
 		}
+
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (!IsArchive && !OnCancellation)
+			{
+				var contracts = Repository.CounterpartyContractRepository.GetActiveContractsWithOrganization(UoW, Counterparty, Organization);
+				if (contracts.Any(c => c.Id != Id))
+					yield return new ValidationResult(
+						String.Format("У контрагента '{0}' уже есть активный договор с организацией '{1}'", Counterparty.Name, Organization.Name),
+						new[] { this.GetPropertyName(o => o.Organization) });
+			}
+		}
+
+		#endregion
 
 		//Конструкторы
 		public static IUnitOfWorkGeneric<CounterpartyContract> Create (Counterparty counterparty)
