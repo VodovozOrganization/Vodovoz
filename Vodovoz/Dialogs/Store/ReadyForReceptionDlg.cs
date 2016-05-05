@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Widgets;
+using Gtk;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -33,7 +34,10 @@ namespace Vodovoz
 		GenericObservableList<ReceptionItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionItemNode>();
 		IList<Equipment> alreadyUnloadedEquipment;
 
-		ReceptionItemNode equipmentToRegister;
+		ReceptionItemNode equipmentToSetSerial;
+
+		MenuItem menuitemSelectFromClient;
+		MenuItem menuitemRegisterSerial;
 
 		public ReadyForReceptionDlg (int id, Warehouse stock)
 		{		
@@ -78,6 +82,8 @@ namespace Vodovoz
 						.AddSetter((cell,node)=>cell.Editable = node.IsNew)
 				.AddColumn("")
 				.Finish ();
+
+			ytreeEquipment.Selection.Changed += YtreeEquipment_Selection_Changed;
 			
 			ytreeReturns.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<ReceptionItemNode> ()
 				.AddColumn ("Номенклатура").AddTextRenderer (node => node.Name)
@@ -94,6 +100,20 @@ namespace Vodovoz
 			if (stock != null)
 				ycomboboxWarehouse.SelectedItem = stock;
 
+			//Создаем меню в кнопке выбора СН
+			var menu = new Menu();
+			menuitemRegisterSerial = new MenuItem("Зарегистрировать новый СН");
+			menuitemRegisterSerial.Activated += MenuitemRegisterSerial_Activated;
+			menu.Add(menuitemRegisterSerial);
+			menuitemSelectFromClient = new MenuItem("Выбрать по клиенту");
+			menuitemSelectFromClient.Activated += MenuitemSelectFromClient_Activated;
+			menu.Add(menuitemSelectFromClient);
+			var menuitemSelectFromUnused = new MenuItem("Незадействованные СН");
+			menuitemSelectFromUnused.Activated += MenuitemSelectFromUnused_Activated;
+			menu.Add(menuitemSelectFromUnused);
+			menu.ShowAll();
+			buttonSelectSerial.Menu = menu;
+
 			textviewShipmentInfo.Buffer.Text =
 					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
 				id,
@@ -104,6 +124,64 @@ namespace Vodovoz
 				routelist.Forwarder != null ? routelist.Forwarder.FullName : "(Отсутствует)" 
 			);
 			TabName = String.Format ("Выгрузка маршрутного листа №{0}", id);
+		}
+
+		void MenuitemSelectFromUnused_Activated (object sender, EventArgs e)
+		{
+			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionItemNode>();
+			var nomenclature = UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId);
+			var selectUnusedEquipment = new OrmReference(EquipmentRepository.GetUnusedEquipment(nomenclature));
+			selectUnusedEquipment.ObjectSelected += SelectUnusedEquipment_ObjectSelected;
+			TabParent.AddSlaveTab(this, selectUnusedEquipment);
+		}
+
+		void MenuitemSelectFromClient_Activated (object sender, EventArgs e)
+		{
+			equipmentToSetSerial = ytreeEquipment.GetSelectedObject<ReceptionItemNode>();
+			var filter = new ClientBalanceFilter(UnitOfWorkFactory.CreateWithoutRoot());
+			filter.RestrictCounterparty = equipmentToSetSerial.ServiceClaim.Counterparty;
+			filter.RestrictNomenclature = filter.UoW.GetById<Nomenclature>(equipmentToSetSerial.NomenclatureId);
+			var selectFromClientDlg = new ReferenceRepresentation(new Vodovoz.ViewModel.ClientEquipmentBalanceVM(filter));
+			selectFromClientDlg.TabName = String.Format("Оборудование у {0}", 
+				StringWorks.EllipsizeEnd(equipmentToSetSerial.ServiceClaim.Counterparty.Name, 50));
+			selectFromClientDlg.ObjectSelected += SelectFromClientDlg_ObjectSelected;
+			TabParent.AddSlaveTab(this, selectFromClientDlg);
+		}
+
+		void SelectUnusedEquipment_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var equipment = UoW.GetById<Equipment>((e.Subject as Equipment).Id);
+			equipmentToSetSerial.NewEquipment = equipment;
+			equipmentToSetSerial.Id = equipment.Id;
+			equipmentToSetSerial.Returned = true;
+			OnEquipmentListChanged();
+		}
+
+		void SelectFromClientDlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			var equipment = UoW.GetById<Equipment>(e.ObjectId);
+			equipmentToSetSerial.NewEquipment = equipment;
+			equipmentToSetSerial.Id = equipment.Id;
+			equipmentToSetSerial.Returned = true;
+			OnEquipmentListChanged();
+		}
+
+		void MenuitemRegisterSerial_Activated (object sender, EventArgs e)
+		{
+			RegisterSerial();
+		}
+
+		void YtreeEquipment_Selection_Changed (object sender, EventArgs e)
+		{
+			buttonSelectSerial.Sensitive 
+				= ytreeEquipment.Selection.CountSelectedRows() > 0;
+
+			var item = ytreeEquipment.GetSelectedObject<ReceptionItemNode>();
+
+			if (item != null && menuitemSelectFromClient != null)
+				menuitemSelectFromClient.Sensitive = item.ServiceClaim != null;
+			if (item != null && menuitemRegisterSerial != null)
+				menuitemRegisterSerial.Sensitive = item.IsNew;
 		}
 
 		void OnEquipmentListChanged()
@@ -158,7 +236,6 @@ namespace Vodovoz
 			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, warehouse, routelist);
 			bottleReceptionView.Visible = CurrentStock.CanReceiveBottles;
 			frameEquipment.Visible = CurrentStock.CanReceiveEquipment;
-
 
 			if (CurrentStock.CanReceiveEquipment) {
 				ListEquipment ();
@@ -337,22 +414,14 @@ namespace Vodovoz
 
 		protected void OnYtreeEquipmentRowActivated (object o, Gtk.RowActivatedArgs args)
 		{
-			var itemNode = ytreeEquipment.GetSelectedObject () as ReceptionItemNode;
-			if (itemNode.IsNew && itemNode.Id==0) {
-				var dlg = EquipmentGenerator.CreateOne (itemNode.NomenclatureId);
-				dlg.EquipmentCreated += OnEquipmentRegistered;
-				if (!TabParent.CheckClosingSlaveTabs (this)) {					
-					equipmentToRegister = itemNode;
-					TabParent.AddSlaveTab (this, dlg);
-				}
-			}
+			RegisterSerial();
 		}
 
 		protected void OnEquipmentRegistered(object o, EquipmentCreatedEventArgs args){
 			var equipment = UoW.GetById<Equipment>(args.Equipment[0].Id);
-			equipmentToRegister.NewEquipment = equipment;
-			equipmentToRegister.Id = equipment.Id;
-			equipmentToRegister.Returned = true;
+			equipmentToSetSerial.NewEquipment = equipment;
+			equipmentToSetSerial.Id = equipment.Id;
+			equipmentToSetSerial.Returned = true;
 			OnEquipmentListChanged();
 		}
 
@@ -439,6 +508,19 @@ namespace Vodovoz
 				TabParent.AddTab(report, this, false);
 			}
 			OnCloseTab (false);
+		}
+
+		private void RegisterSerial()
+		{
+			var itemNode = ytreeEquipment.GetSelectedObject () as ReceptionItemNode;
+			if (itemNode.IsNew && itemNode.Id==0) {
+				var dlg = EquipmentGenerator.CreateOne (itemNode.NomenclatureId);
+				dlg.EquipmentCreated += OnEquipmentRegistered;
+				if (!TabParent.CheckClosingSlaveTabs (this)) {					
+					equipmentToSetSerial = itemNode;
+					TabParent.AddSlaveTab (this, dlg);
+				}
+			}
 		}
 	}
 

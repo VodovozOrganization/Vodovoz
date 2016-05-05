@@ -2,6 +2,7 @@
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -31,6 +32,8 @@ namespace Vodovoz
 		public ClientBalanceFilter ()
 		{
 			this.Build ();
+
+			entryreferenceNomenclature.SubjectType = typeof(Nomenclature);
 		}
 
 		#region IReferenceFilter implementation
@@ -55,6 +58,14 @@ namespace Vodovoz
 			set {
 				entryreferenceClient.Subject = value;
 				entryreferenceClient.Sensitive = false;
+			}
+		}
+
+		public Nomenclature RestrictNomenclature {
+			get { return entryreferenceNomenclature.Subject as Nomenclature; }
+			set {
+				entryreferenceNomenclature.Subject = value;
+				entryreferenceNomenclature.Sensitive = false;
 			}
 		}
 
@@ -99,6 +110,11 @@ namespace Vodovoz
 		protected void OnCheckIncludeSoldToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
+		}
+
+		protected void OnEntryreferenceNomenclatureChangedByUser(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 	}
 }

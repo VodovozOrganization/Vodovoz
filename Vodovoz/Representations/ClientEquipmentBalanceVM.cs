@@ -34,6 +34,7 @@ namespace Vodovoz.ViewModel
 			CounterpartyMovementOperation subsequentOperationAlias = null;
 
 			var lastCouterpartyOp = UoW.Session.QueryOver<CounterpartyMovementOperation>(() => operationAlias)
+				.JoinAlias(o => o.Equipment, () => equipmentAlias)
 				.Where(o => o.Equipment != null);
 
 			if (Filter.RestrictIncludeSold == false)
@@ -51,6 +52,11 @@ namespace Vodovoz.ViewModel
 				lastCouterpartyOp.Where(x => x.IncomingDeliveryPoint == Filter.RestrictDeliveryPoint);
 			}
 
+			if(Filter.RestrictNomenclature != null)
+			{
+				lastCouterpartyOp.Where(() => equipmentAlias.Nomenclature.Id == Filter.RestrictNomenclature.Id);
+			}
+
 			var subsequentOperationsSubquery = QueryOver.Of<CounterpartyMovementOperation> (() => subsequentOperationAlias)
 				.Where (() => operationAlias.OperationTime < subsequentOperationAlias.OperationTime && operationAlias.Equipment == subsequentOperationAlias.Equipment)
 				.Select (op=>op.Id);
@@ -60,7 +66,6 @@ namespace Vodovoz.ViewModel
 			var resultList = lastCouterpartyOp
 				.JoinAlias(o => o.IncomingCounterparty, () => counterpartyAlias)
 				.JoinAlias(o => o.IncomingDeliveryPoint, () => deliveryPointAlias)
-				.JoinAlias(o => o.Equipment, () => equipmentAlias)
 				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
 				.SelectList (list => list
 					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)

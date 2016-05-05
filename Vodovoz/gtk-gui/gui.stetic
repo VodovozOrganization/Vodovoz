@@ -825,6 +825,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -10457,7 +10458,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ClientBalanceFilter" design-size="696 64">
+  <widget class="Gtk.Bin" id="Vodovoz.ClientBalanceFilter" design-size="696 76">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10467,12 +10468,6 @@ Patronymic</property>
         <property name="NColumns">4</property>
         <property name="RowSpacing">6</property>
         <property name="ColumnSpacing">6</property>
-        <child>
-          <placeholder />
-        </child>
-        <child>
-          <placeholder />
-        </child>
         <child>
           <placeholder />
         </child>
@@ -10510,6 +10505,27 @@ Patronymic</property>
           <packing>
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
+            <property name="AutoSize">True</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">True</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="QSOrmProject.EntryReference" id="entryreferenceNomenclature">
+            <property name="MemberName" />
+            <property name="Events">ButtonPressMask</property>
+            <signal name="ChangedByUser" handler="OnEntryreferenceNomenclatureChangedByUser" />
+          </widget>
+          <packing>
+            <property name="TopAttach">1</property>
+            <property name="BottomAttach">2</property>
+            <property name="LeftAttach">3</property>
+            <property name="RightAttach">4</property>
             <property name="AutoSize">True</property>
             <property name="YOptions">Fill</property>
             <property name="XExpand">True</property>
@@ -10563,6 +10579,28 @@ Patronymic</property>
             <property name="LabelProp" translatable="yes">Точка доставки:</property>
           </widget>
           <packing>
+            <property name="LeftAttach">2</property>
+            <property name="RightAttach">3</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="label3">
+            <property name="MemberName" />
+            <property name="Xalign">1</property>
+            <property name="LabelProp" translatable="yes">Номенклатура:</property>
+          </widget>
+          <packing>
+            <property name="TopAttach">1</property>
+            <property name="BottomAttach">2</property>
             <property name="LeftAttach">2</property>
             <property name="RightAttach">3</property>
             <property name="AutoSize">True</property>
@@ -24046,7 +24084,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReadyForReceptionDlg" design-size="666 381">
+  <widget class="Gtk.Bin" id="Vodovoz.ReadyForReceptionDlg" design-size="689 390">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -24330,12 +24368,29 @@ RegistrationNumber</property>
                 <property name="Sensitive">False</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Добавить оборудование</property>
+                <property name="Label" translatable="yes">Добавить отсутствующее оборудование</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonAddEquipmentClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSWidgetLib.MenuButton" id="buttonSelectSerial">
+                <property name="MemberName" />
+                <property name="Sensitive">False</property>
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Вписать серийный номер</property>
+                <property name="UseUnderline">True</property>
+                <property name="UseMarkup">False</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -24353,7 +24408,7 @@ RegistrationNumber</property>
                 <signal name="Clicked" handler="OnButtonConfirmReceptionClicked" />
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">False</property>
               </packing>
             </child>

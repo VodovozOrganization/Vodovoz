@@ -163,6 +163,24 @@ namespace Vodovoz.Repository
 				.List();
 		}
 
+		public static QueryOver<Equipment> GetUnusedEquipment(Nomenclature nomenclature)
+		{
+			Equipment equipmantAlias = null;
+
+			var counterpartyOperationsSubquery = QueryOver.Of<CounterpartyMovementOperation> ()
+				.Where (op => op.Equipment.Id == equipmantAlias.Id)
+				.Select (op=>op.Id);
+
+			var warehouseOperationsSubquery = QueryOver.Of<WarehouseMovementOperation> ()
+				.Where (op => op.Equipment.Id == equipmantAlias.Id)
+				.Select (op=>op.Id);
+			
+			return QueryOver.Of<Equipment>(() => equipmantAlias)
+				.Where(() => equipmantAlias.Nomenclature.Id == nomenclature.Id)
+				.WithSubquery.WhereNotExists(counterpartyOperationsSubquery)
+				.WithSubquery.WhereNotExists(warehouseOperationsSubquery);
+		}
+
 		public static IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, Warehouse warehouse, RouteList routeList){
 			CarUnloadDocumentItem unloadItemAlias = null;
 			WarehouseMovementOperation operationAlias = null;
