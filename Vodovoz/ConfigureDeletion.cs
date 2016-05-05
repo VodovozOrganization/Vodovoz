@@ -264,7 +264,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyContract>()
 				.AddDeleteDependence<AdditionalAgreement> (item => item.Contract)
-				.AddDeleteDependence<OrderContract>(x => x.Contract);
+				.AddDeleteDependence<OrderContract>(x => x.Contract)
+				.AddClearDependence<Order>(x => x.Contract);
 
 			DeleteConfig.AddHibernateDeleteInfo<AdditionalAgreement>().HasSubclasses()
 				.AddDeleteDependence<OrderAgreement>(x => x.AdditionalAgreement)
