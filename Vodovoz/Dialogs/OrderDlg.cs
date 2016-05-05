@@ -358,7 +358,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
 				referenceClient.Sensitive = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive = enumStatus.Sensitive = 
-				enumPaymentType.Sensitive = val;
+				enumPaymentType.Sensitive = val ? Entity.CanChangePaymentType() : false;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive = 
 				buttonAddForSale.Sensitive = buttonFillComment.Sensitive = val;
 			spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
