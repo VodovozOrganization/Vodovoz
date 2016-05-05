@@ -883,7 +883,7 @@ namespace Vodovoz
 				(Entity.PaymentType == PaymentType.cashless);
 
 			var org = OrganizationRepository.GetOrganizationByPaymentType (UoW , Entity.PaymentType);
-			if(Entity.Contract == null || Entity.Contract.Organization.Id != org.Id)
+			if((Entity.Contract == null || Entity.Contract.Organization.Id != org.Id) && Entity.Client != null)
 				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, Entity.Client, Entity.PaymentType);
 		}
 
