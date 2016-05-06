@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
-using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
@@ -22,6 +21,7 @@ namespace Vodovoz
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
 		private int goodsColumnsCount = -1;
+		private bool isEditable = true;
 
 		private IList<RouteColumn> _columnsInfo;
 
@@ -103,7 +103,9 @@ namespace Vodovoz
 
 		public void IsEditable (bool val = false)
 		{
-			enumbuttonAddOrder.Sensitive = buttonDelete.Sensitive = val;
+			isEditable = val;
+			enumbuttonAddOrder.Sensitive = val;
+			OnSelectionChanged(this, EventArgs.Empty);
 		}
 
 		void Items_ElementChanged (object aList, int[] aIdx)
@@ -120,7 +122,9 @@ namespace Vodovoz
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
-			buttonDelete.Sensitive = buttonOpenOrder.Sensitive = ytreeviewItems.Selection.CountSelectedRows () > 0;
+			bool selected = ytreeviewItems.Selection.CountSelectedRows () > 0;
+			buttonOpenOrder.Sensitive = selected;
+			buttonDelete.Sensitive = selected && isEditable;
 		}
 
 		GenericObservableList<RouteListItem> items;
