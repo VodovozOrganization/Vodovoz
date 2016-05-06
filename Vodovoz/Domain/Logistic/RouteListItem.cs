@@ -62,14 +62,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		bool withoutForwarder;
+		bool withForwarder;
 
-		public virtual bool WithoutForwarder{
+		public virtual bool WithForwarder{
 			get{
-				return withoutForwarder;
+				return withForwarder;
 			}
 			set{
-				SetField(ref withoutForwarder, value, () => WithoutForwarder);
+				SetField(ref withForwarder, value, () => WithForwarder);
 			}
 		}
 
@@ -246,7 +246,7 @@ namespace Vodovoz.Domain.Logistic
 			var fullBottleCount = Order.OrderItems
 				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
-			if (WithoutForwarder || RouteList.Forwarder==null)
+			if (!WithForwarder || RouteList.Forwarder==null)
 				return 0;
 
 			if (Status != RouteListItemStatus.Completed)

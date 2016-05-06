@@ -28,7 +28,12 @@ namespace Vodovoz.Domain.Logistic
 		[Display (Name = "Экспедитор")]
 		public virtual Employee Forwarder {
 			get { return forwarder; }
-			set { SetField (ref forwarder, value, () => Forwarder); }
+			set { if(NHibernate.NHibernateUtil.IsInitialized(Addresses) && (forwarder == null || value == null))
+				{
+					foreach (var address in Addresses)
+						address.WithForwarder = value != null;
+				}
+				SetField (ref forwarder, value, () => Forwarder); }
 		}
 
 		Employee logistican;
@@ -144,6 +149,7 @@ namespace Vodovoz.Domain.Logistic
 			if (order.DeliveryPoint == null)
 				throw new NullReferenceException ("В маршрутный нельзя добавить заказ без точки доставки.");
 			var item = new RouteListItem (this, order);
+			item.WithForwarder = Forwarder != null;
 			ObservableAddresses.Add (item);
 			return item;
 		}

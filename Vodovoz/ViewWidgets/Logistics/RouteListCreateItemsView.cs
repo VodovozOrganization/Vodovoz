@@ -92,8 +92,8 @@ namespace Vodovoz
 			if (RouteListUoW.Root.Forwarder != null)
 			{
 				config
-					.AddColumn("Без экспедитора")
-					.AddToggleRenderer(node => node.WithoutForwarder)			
+					.AddColumn("C экспедитором")
+					.AddToggleRenderer(node => node.WithForwarder)			
 					.AddColumn("");
 			}
 			ytreeviewItems.ColumnsConfig = 
