@@ -6,6 +6,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Operations;
 
 namespace Vodovoz.Panel
 {

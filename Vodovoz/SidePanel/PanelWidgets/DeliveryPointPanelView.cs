@@ -2,6 +2,7 @@
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Operations;
 
 namespace Vodovoz.Panel
 {
@@ -32,7 +33,7 @@ namespace Vodovoz.Panel
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 			var bottlesAtDeliveryPoint = DeliveryPointRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelBottles.Text = bottlesAtDeliveryPoint.ToString()+" шт.";
-			var depositsAtDeliveryPoint = MoneyRepository.GetBottleDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
+			var depositsAtDeliveryPoint = DepositRepository.GetBottleDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelDeposits.Text = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
 		}

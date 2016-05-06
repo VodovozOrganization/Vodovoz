@@ -469,7 +469,6 @@
     <Compile Include="gtk-gui\Vodovoz.Panel.DeliveryPointPanelView.cs" />
     <Compile Include="SidePanel\InfoProviders\ICounterpartyInfoProvider.cs" />
     <Compile Include="SidePanel\InfoProviders\IDeliveryPointInfoProvider.cs" />
-    <Compile Include="Repositories\MoneyRepository.cs" />
     <Compile Include="Сrutches\WrapLabel.cs" />
     <Compile Include="SidePanel\PanelWidgets\AdditionalAgreementPanelView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Panel.AdditionalAgreementPanelView.cs" />
@@ -565,6 +564,8 @@
     <Compile Include="Domain\Logistic\LogisticsArea.cs" />
     <Compile Include="HibernateMapping\Logistic\LogisticsAreaMap.cs" />
     <Compile Include="Domain\Order\Documents\DriverTicketDocument.cs" />
+    <Compile Include="Repositories\Operations\MoneyRepository.cs" />
+    <Compile Include="Repositories\Operations\DepositRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -714,6 +715,7 @@
     <Folder Include="DocTemplates\" />
     <Folder Include="Dialogs\Client\" />
     <Folder Include="Reports\Documents\" />
+    <Folder Include="Repositories\Operations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
