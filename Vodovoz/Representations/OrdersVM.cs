@@ -8,6 +8,7 @@ using NHibernate;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -30,6 +31,8 @@ namespace Vodovoz.ViewModel
 		{
 			OrdersVMNode resultAlias = null;
 			Order orderAlias = null;
+			Nomenclature nomenclatureAlias = null;
+			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
@@ -69,6 +72,12 @@ namespace Vodovoz.ViewModel
 			if(Filter.ExceptIds!=null && Filter.ExceptIds.Length>0)
 				query.Where(o => !NHibernate.Criterion.RestrictionExtensions.IsIn(o.Id, Filter.ExceptIds));
 
+			var bottleCountSubquery = NHibernate.Criterion.QueryOver.Of<OrderItem>(() => orderItemAlias)
+				.Where(() => orderAlias.Id == orderItemAlias.Order.Id)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count));
+
 			var result = query
 				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -82,6 +91,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
+					.SelectSubQuery(bottleCountSubquery).WithAlias (() => resultAlias.BottleAmount)
 				)
 				.TransformUsing (Transformers.AliasToBean<OrdersVMNode> ())
 				.List<OrdersVMNode> ();
@@ -94,6 +104,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Дата").SetDataProperty (node => node.Date.ToString("d"))
 			.AddColumn ("Время").SetDataProperty (node => node.DeliveryTime)
 			.AddColumn ("Статус").SetDataProperty (node => node.StatusEnum.GetEnumTitle ())
+			.AddColumn ("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
 			.Finish ();
@@ -207,6 +218,7 @@ namespace Vodovoz.ViewModel
 
 		public DateTime Date { get; set; }
 		public string DeliveryTime { get; set; }
+		public int BottleAmount { get; set; }
 
 		[UseForSearch]
 		public string Counterparty { get; set; }
