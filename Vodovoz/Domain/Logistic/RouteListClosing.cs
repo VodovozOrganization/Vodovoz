@@ -372,9 +372,9 @@ namespace Vodovoz.Domain.Logistic
 			RouteList.Status = RouteListStatus.MileageCheck;
 			foreach (var address in RouteList.Addresses)
 			{
-				if(address.Order.OrderStatus == OrderStatus.Shipped || address.Order.OrderStatus == OrderStatus.OnTheWay)
+				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute)
 				{
-					address.Order.OrderStatus = OrderStatus.Closed;
+					address.Order.ChangeStatus(OrderStatus.Closed);
 					address.UpdateStatus(RouteListItemStatus.Completed);
 				}
 				if (address.Status == RouteListItemStatus.Canceled)
