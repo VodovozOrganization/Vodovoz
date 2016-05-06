@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using System.Linq;
 using Gamma.GtkWidgets;
 using Gtk;
 using NLog;
@@ -181,13 +182,11 @@ namespace Vodovoz
 
 		void CalculateTotal ()
 		{
-/*			decimal total = 0;
-			foreach (var item in routeListUoW.Root.Items) {
-				total += item.Sum;
-			}
+			var total = routeListUoW.Root.Addresses.SelectMany(a => a.Order.OrderItems)
+				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum(i => i.Count);
 
-			labelSum.LabelProp = String.Format ("Итого: {0}", CurrencyWorks.GetShortCurrencyString (total));
-*/
+			labelSum.LabelProp = String.Format ("Всего бутылей: {0}", total);
 		}
 
 		protected void OnButtonOpenOrderClicked(object sender, EventArgs e)

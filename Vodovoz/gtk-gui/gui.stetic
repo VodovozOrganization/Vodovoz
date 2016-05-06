@@ -15483,7 +15483,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListCreateDlg" design-size="729 430">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListCreateDlg" design-size="729 437">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -17715,6 +17715,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
