@@ -13,7 +13,7 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -62,7 +62,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -423,7 +423,7 @@ payment_type='ToClient'</CommandText>
             <Value>='Договор: ' + {contract_number} + ' от ' + {contract_date}</Value>
             <ZIndex>1</ZIndex>
             <Left>367.7pt</Left>
-            <Top>168.8pt</Top>
+            <Top>167.2pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -484,7 +484,7 @@ payment_type='ToClient'</CommandText>
             <Value>Время дост.:</Value>
             <ZIndex>1</ZIndex>
             <Left>208.8pt</Left>
-            <Top>168.5pt</Top>
+            <Top>167.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -764,7 +764,7 @@ payment_type='ToClient'</CommandText>
           </TableRows>
         </Details>
         <Left>52.9pt</Left>
-        <Top>183.8pt</Top>
+        <Top>189.4pt</Top>
       </Table>
       <List Name="List2">
         <Height>105.65pt</Height>
@@ -859,7 +859,7 @@ payment_type='ToClient'</CommandText>
         <Value>='Итого: ' + Sum({total}, 'Goods')</Value>
         <ZIndex>1</ZIndex>
         <Left>453.8pt</Left>
-        <Top>210.3pt</Top>
+        <Top>215.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
