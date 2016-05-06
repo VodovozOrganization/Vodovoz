@@ -90,13 +90,9 @@ namespace Vodovoz
 //TODO Make it clickable.
 			} else
 				labelPreviousOrder.Visible = false;
-			buttonAccept.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder || UoWGeneric.Root.OrderStatus == OrderStatus.Accepted);
-			if (UoWGeneric.Root.OrderStatus == OrderStatus.Accepted) {
-				var icon = new Image ();
-				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
-				buttonAccept.Image = icon;
-				buttonAccept.Label = "Редактировать";
-			}
+			hboxStatusButtons.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder 
+				|| UoWGeneric.Root.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled);
+			UpdateButtonState();
 
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
@@ -729,23 +725,35 @@ namespace Vodovoz
 				treeItems.Selection.UnselectAll();
 				treeEquipment.Selection.UnselectAll();
 				treeDepositRefundItems.Selection.UnselectAll();
+				UpdateButtonState();
+				return;
+			}
+			if (Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled) {
+				Entity.ChangeStatus(OrderStatus.NewOrder);
+				UpdateButtonState();
+				return;
+			}
+		}
 
-				IsEditable ();
+		void UpdateButtonState()
+		{
+			IsEditable (Entity.OrderStatus == OrderStatus.NewOrder );
+			if(Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled)
+			{
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
-				return;
 			}
-			if (UoWGeneric.Root.OrderStatus == OrderStatus.Accepted) {
-				UoWGeneric.Root.OrderStatus = OrderStatus.NewOrder;
-				IsEditable (true);
+			if(Entity.OrderStatus == OrderStatus.NewOrder)
+			{
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Подтвердить";
-				return;
 			}
+
+			buttonCancelOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.NewOrder;
 		}
 
 		protected void OnEnumSignatureTypeChanged (object sender, EventArgs e)
@@ -909,6 +917,19 @@ namespace Vodovoz
 				OrmGtkDialogBase<ServiceClaim>.GenerateHashName(claim.Id),
 				() => new ServiceClaimDlg(claim)
 			);
+		}
+
+		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
+		{
+			var valid = new QSValidator<Order> (UoWGeneric.Root, 
+				new Dictionary<object, object> {
+				{ "NewStatus", OrderStatus.Canceled }
+			});
+			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+				return;
+			
+			Entity.ChangeStatus(OrderStatus.Canceled);
+			UpdateButtonState();
 		}
 	}
 }

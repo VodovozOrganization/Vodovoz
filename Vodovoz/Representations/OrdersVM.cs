@@ -107,6 +107,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
+			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -230,5 +231,17 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		public string Address { get{ return String.Format("{0}, {1} д.{2}", City, Street, Building); } }
 
+		public string RowColor {
+			get {
+				if (StatusEnum == OrderStatus.Canceled)
+					return "grey";
+				if (StatusEnum == OrderStatus.Closed)
+					return "green";
+				if (StatusEnum == OrderStatus.NotDelivered)
+					return "blue";
+				return "black";
+
+			}
+		}
 	}
 }
