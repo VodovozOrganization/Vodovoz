@@ -22,9 +22,10 @@ namespace Vodovoz
 
 		public OrderReturnsView(RouteListItem routeListItem)
 		{
+			this.Build();
 			this.routeListItem = routeListItem;
 			this.TabName = "Изменение заказа №" + routeListItem.Order.Id;
-			this.Build();
+
 			ytreeToClient.Sensitive = routeListItem.IsDelivered();
 			ytreeFromClient.Sensitive = routeListItem.IsDelivered();
 			Configure();
@@ -57,6 +58,7 @@ namespace Vodovoz
 
 			ytreeToClient.ItemsDataSource = itemsToClient;
 			ytreeFromClient.ItemsDataSource = equipmentFromClient;
+			UpdateButtonsState();
 		}
 
 		public void OnOrderChanged(object sender, PropertyChangedEventArgs args)
@@ -107,6 +109,31 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.IsDelivered)
 				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComments).Editable()
 				.Finish();
+		}
+
+		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
+		{
+			routeListItem.UpdateStatus(RouteListItemStatus.Overdue);
+			UpdateButtonsState();
+		}
+
+		protected void OnButtonDeliveryCanseledClicked(object sender, EventArgs e)
+		{
+			routeListItem.UpdateStatus(RouteListItemStatus.Canceled);
+			UpdateButtonsState();
+		}
+
+		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
+		{
+			routeListItem.UpdateStatus(RouteListItemStatus.Completed);
+			UpdateButtonsState();
+		}
+
+		void UpdateButtonsState()
+		{
+			buttonDeliveryCanceled.Sensitive = routeListItem.Status != RouteListItemStatus.Canceled;
+			buttonNotDelivered.Sensitive = routeListItem.Status != RouteListItemStatus.Overdue;
+			buttonDelivered.Sensitive = routeListItem.Status != RouteListItemStatus.Completed && routeListItem.Status != RouteListItemStatus.EnRoute;
 		}
 	}
 

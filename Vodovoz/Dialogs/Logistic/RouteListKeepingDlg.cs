@@ -1,15 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Gamma.GtkWidgets;
+using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain;
-using Vodovoz.Repository.Logistics;
-using Gamma.GtkWidgets;
-using System.Collections.Generic;
-using Gtk;
-using System.Globalization;
-using System.Linq;
 using QSTDI;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
@@ -100,7 +99,7 @@ namespace Vodovoz
 				switch (address.Status)
 				{
 					case RouteListItemStatus.Canceled:
-						address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.Canceled);
+						address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.DeliveryCanceled);
 						break;
 					case RouteListItemStatus.Completed:
 						address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.Shipped);
@@ -152,7 +151,8 @@ namespace Vodovoz
 		}
 	}	
 
-	public class RouteListKeepingItemNode {
+	public class RouteListKeepingItemNode : PropertyChangedBase
+	{
 		public bool HasChanged=false;
 		public Gdk.Color RowColor{
 			get{
@@ -174,9 +174,9 @@ namespace Vodovoz
 				return RouteListItem.Status;
 			}
 			set{
-				RouteListItem.Status = value;
+				RouteListItem.UpdateStatus(value);
 				HasChanged = true;
-				RouteListItem.StatusLastUpdate = DateTime.Now;
+				OnPropertyChanged<RouteListItemStatus>(() => Status);
 			}
 		}
 
@@ -184,6 +184,7 @@ namespace Vodovoz
 			get { return RouteListItem.Comment; }
 			set{
 				RouteListItem.Comment = value;
+				OnPropertyChanged<string>(() => Comment);
 			}
 		}
 

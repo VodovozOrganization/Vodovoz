@@ -370,9 +370,17 @@ namespace Vodovoz.Domain.Logistic
 				throw new InvalidOperationException(String.Format("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.ReadyToReport));
 			
 			RouteList.Status = RouteListStatus.MileageCheck;
-			foreach (var order in RouteList.Addresses.Select(item=>item.Order))
+			foreach (var address in RouteList.Addresses)
 			{
-				order.OrderStatus = OrderStatus.Closed;
+				if(address.Order.OrderStatus == OrderStatus.Shipped || address.Order.OrderStatus == OrderStatus.OnTheWay)
+				{
+					address.Order.OrderStatus = OrderStatus.Closed;
+					address.UpdateStatus(RouteListItemStatus.Completed);
+				}
+				if (address.Status == RouteListItemStatus.Canceled)
+					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);
+				if(address.Status == RouteListItemStatus.Overdue)
+					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 			}
 			ClosingDate = DateTime.Now;
 		}

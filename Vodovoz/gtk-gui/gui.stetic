@@ -22443,7 +22443,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24762,7 +24761,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderReturnsView" design-size="635 300">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderReturnsView" design-size="662 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -24794,10 +24793,55 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <placeholder />
+                  <widget class="Gtk.Button" id="buttonDeliveryCanceled">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Доставка отменена</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonDeliveryCanseledClicked" />
+                  </widget>
+                  <packing>
+                    <property name="PackType">End</property>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder />
+                  <widget class="Gtk.Button" id="buttonNotDelivered">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Полностью недовезен</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonNotDeliveredClicked" />
+                  </widget>
+                  <packing>
+                    <property name="PackType">End</property>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Button" id="buttonDelivered">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Доставлен</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonDeliveredClicked" />
+                  </widget>
+                  <packing>
+                    <property name="PackType">End</property>
+                    <property name="Position">3</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
                 </child>
               </widget>
               <packing>
@@ -24949,7 +24993,7 @@ RegistrationNumber</property>
                   </widget>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="GtkLabel4">
+                  <widget class="Gtk.Label" id="GtkLabel6">
                     <property name="MemberName" />
                     <property name="LabelProp" translatable="yes">&lt;b&gt;Клиенту&lt;/b&gt;</property>
                     <property name="UseMarkup">True</property>
@@ -24990,7 +25034,7 @@ RegistrationNumber</property>
                   </widget>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="GtkLabel5">
+                  <widget class="Gtk.Label" id="GtkLabel7">
                     <property name="MemberName" />
                     <property name="LabelProp" translatable="yes">&lt;b&gt;От клиента&lt;/b&gt;</property>
                     <property name="UseMarkup">True</property>

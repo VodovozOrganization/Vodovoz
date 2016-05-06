@@ -233,7 +233,7 @@ namespace Vodovoz.ViewModel
 
 		public string RowColor {
 			get {
-				if (StatusEnum == OrderStatus.Canceled)
+				if (StatusEnum == OrderStatus.Canceled || StatusEnum == OrderStatus.DeliveryCanceled)
 					return "grey";
 				if (StatusEnum == OrderStatus.Closed)
 					return "green";

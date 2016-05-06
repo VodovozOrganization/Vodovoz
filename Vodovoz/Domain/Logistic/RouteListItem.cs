@@ -183,6 +183,13 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion
 
+		public virtual void UpdateStatus(RouteListItemStatus status)
+		{
+			if(Status != status)
+				StatusLastUpdate = DateTime.Now;
+			Status = status;
+		}
+
 		public virtual void RecalculateWages()
 		{
 			if (!HasUserSpecifiedDriverWage())
