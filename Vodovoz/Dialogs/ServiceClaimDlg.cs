@@ -165,6 +165,7 @@ namespace Vodovoz
 
 			UoWGeneric.Root.ObservableServiceClaimItems.ElementChanged += (aList, aIdx) => FixPrice (aIdx [0]);
 			configureAvailableNextStatus ();
+			Entity.PropertyChanged += Entity_PropertyChanged;
 
 			if (UoWGeneric.Root.ServiceClaimType == ServiceClaimType.JustService) {
 				referenceDeliveryPoint.Visible = false;
@@ -184,6 +185,14 @@ namespace Vodovoz
 			menu.Add(menuItemFinal);
 			menuActions.Menu = menu;
 			menu.ShowAll();
+		}
+
+		void Entity_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == Entity.GetPropertyName(x => x.Status))
+			{
+				configureAvailableNextStatus();
+			}
 		}
 
 		public void MenuInitialOrderActivated(object sender, EventArgs args)
