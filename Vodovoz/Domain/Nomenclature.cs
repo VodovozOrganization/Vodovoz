@@ -96,7 +96,9 @@ namespace Vodovoz.Domain
 		[Display (Name = "Категория")]
 		public virtual NomenclatureCategory Category {
 			get { return category; }
-			set { SetField (ref category, value, () => Category); }
+			set { SetField (ref category, value, () => Category); 
+				Serial = Category == NomenclatureCategory.equipment;
+			}
 		}
 
 		EquipmentColors color;
