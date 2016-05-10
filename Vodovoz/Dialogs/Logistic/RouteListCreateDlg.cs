@@ -264,12 +264,12 @@ namespace Vodovoz
 				//Формула для колонки с водой для информации из запроса
 				CellColumnValue += String.Format (CellTemplate,
 					TextBoxNumber++, "={Water" + column.Id.ToString () + "}");
-				//Ячейка с запасом. Пока там единицы.
+				//Ячейка с запасом. Пока там пусто
 				CellColumnStock += String.Format (CellTemplate,
-					TextBoxNumber++, 1);
+					TextBoxNumber++, "");
 				//Ячейка с суммой по бутылям + запасы.
 				CellColumnTotal += String.Format (CellTemplate,
-					TextBoxNumber++, "=Sum({Water" + column.Id.ToString () + "}) + 1");
+					TextBoxNumber++, "=Sum({Water" + column.Id.ToString () + "})");
 				//Запрос..
 				SqlSelect += String.Format (", wt_qry.Water{0}", column.Id.ToString ());
 				SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
@@ -278,7 +278,7 @@ namespace Vodovoz
 				Fields += String.Format ("" +
 				"<Field Name=\"{0}\">" +
 				"<DataField>{0}</DataField>" +
-				"<TypeName>System.String</TypeName>" +
+				"<TypeName>System.Int32</TypeName>" +
 				"</Field>", "Water" + column.Id.ToString ());
 				//Формула итоговой суммы по всем бутялым.
 				TotalSum += "+ Sum({Water" + column.Id.ToString () + "})";
@@ -296,6 +296,9 @@ namespace Vodovoz
 			using (StreamWriter sw = new StreamWriter (TempFile)) {
 				sw.Write (RdlText);
 			}
+			#if DEBUG
+			Console.WriteLine(RdlText);
+			#endif
 			ReportInfo info = new ReportInfo ();
 			info.Parameters = new Dictionary<string, object> ();
 			info.Parameters.Add ("RouteListId", UoWGeneric.Root.Id);

@@ -68,17 +68,17 @@
             <Width>130pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119pt</Width>
+            <Width>98.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>37pt</Width>
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>135pt</Width>
+            <Width>120.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>135pt</Width>
+            <Width>120.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43pt</Width>
@@ -447,12 +447,12 @@
                       </Style>
                     </Textbox>
                   </ReportItems>
-				<!--colspan-->
+                  <!--colspan-->
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>Дополнительное оборудование</Value>
+                      <Value>Оборудование</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -470,7 +470,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>Дополнительное оборудование</Value>
+                      <Value>Оборудование</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -540,7 +540,7 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-           	<TableRow>
+            <TableRow>
               <Height>11.2pt</Height>
               <TableCells>
                 <TableCell>
@@ -609,7 +609,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-          		<!--table_cell_name-->
+                <!--table_cell_name-->
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
@@ -703,12 +703,12 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-        </TableRows>
-    <RepeatOnNewPage>true</RepeatOnNewPage>
-    </Header>
-    <Details>
-        <TableRows>
-           <TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
               <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
@@ -854,17 +854,18 @@
                 </TableCell>
               </TableCells>
             </TableRow>
-        </TableRows>
-    </Details>
-    <Footer>
-    	<TableRows>
+          </TableRows>
+        </Details>
+        <Footer>
+          <TableRows>
             <TableRow>
               <Height>12 pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox1">
-                      <Value>Запас:</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1015,7 +1016,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <TextDecoration >7</TextDecoration>
+                        <TextDecoration>7</TextDecoration>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1073,7 +1074,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>Сумма без запаса:</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1358,7 +1360,7 @@ GROUP BY orders.id;
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
