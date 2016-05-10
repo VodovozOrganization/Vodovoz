@@ -63,7 +63,11 @@ namespace Vodovoz.Repository
 			return UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
-				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed).List();
+				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed 
+					&& orderAlias.OrderStatus != OrderStatus.Canceled
+					&& orderAlias.OrderStatus != OrderStatus.DeliveryCanceled
+					&& orderAlias.OrderStatus != OrderStatus.NotDelivered)
+				.List();
 		}
 
 		public static IList<VodovozOrder> GetCompleteOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)

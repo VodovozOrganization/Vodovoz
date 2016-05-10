@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Gamma.ColumnConfig;
+using Gtk;
+using NHibernate;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
-using NHibernate.Criterion;
-using NHibernate;
-using NHibernate.Dialect.Function;
 
 namespace Vodovoz.ViewModel
 {
@@ -37,12 +38,18 @@ namespace Vodovoz.ViewModel
 				query.Where (c => c.CounterpartyType == Filter.RestrictCounterpartyType);
 			}
 
+			if(!Filter.RestrictIncludeArhive)
+			{
+				query.Where(c => !c.IsArchive);
+			}
+
 			var counterpartyList = query
 				.JoinAlias(c => c.CounterpartyContracts, () => contractAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.SelectGroup (c => c.Id).WithAlias (() => resultAlias.Id)
 					.Select (c => c.Name).WithAlias (() => resultAlias.Name)
 					.Select (c => c.INN).WithAlias (() => resultAlias.INN)
+					.Select (c => c.IsArchive).WithAlias (() => resultAlias.IsArhive)
 				.Select (Projections.SqlFunction (
 					new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
@@ -60,6 +67,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Контрагент").SetDataProperty (node => node.Name)
 			.AddColumn("ИНН").AddTextRenderer(x => x.INN)
 			.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
+			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -97,6 +105,8 @@ namespace Vodovoz.ViewModel
 	{
 		public int Id{ get; set; }
 
+		public bool IsArhive { get; set; }
+
 		[UseForSearch]
 		public string Name { get; set; }
 
@@ -105,6 +115,16 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		public string Contracts { get; set; }
+
+		public string RowColor {
+			get {
+				if (IsArhive)
+					return "grey";
+				else
+					return "black";
+
+			}
+		}
 	}
 }
 

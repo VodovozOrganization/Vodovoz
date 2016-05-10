@@ -3871,6 +3871,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4162,24 +4163,52 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumPersonType">
+                          <widget class="Gtk.HBox" id="hbox17">
                             <property name="MemberName" />
-                            <property name="IsTextCombo">False</property>
-                            <property name="Items" translatable="yes" />
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">PersonType</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">PersonType</property>
-                            <signal name="Changed" handler="OnEnumPersonTypeChanged" />
+                            <property name="Spacing">6</property>
+                            <child>
+                              <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumPersonType">
+                                <property name="MemberName" />
+                                <property name="IsTextCombo">False</property>
+                                <property name="Items" translatable="yes" />
+                                <property name="InheritedBoundaryDataSource">False</property>
+                                <property name="InheritedDataSource">True</property>
+                                <property name="Mappings">PersonType</property>
+                                <property name="InheritedBoundaryDataSource">False</property>
+                                <property name="InheritedDataSource">True</property>
+                                <property name="Mappings">PersonType</property>
+                                <signal name="Changed" handler="OnEnumPersonTypeChanged" />
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckIsArchived">
+                                <property name="MemberName" />
+                                <property name="Tooltip" translatable="yes">Больше не работаем с этим клиентом</property>
+                                <property name="CanFocus">True</property>
+                                <property name="Label" translatable="yes">Архивный</property>
+                                <property name="DrawIndicator">True</property>
+                                <property name="HasLabel">True</property>
+                                <property name="UseUnderline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">False</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
                             <property name="LeftAttach">1</property>
                             <property name="RightAttach">2</property>
-                            <property name="AutoSize">False</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
-                            <property name="XExpand">True</property>
+                            <property name="XExpand">False</property>
                             <property name="XFill">True</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
@@ -17578,58 +17607,77 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyFilter" design-size="300 48">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyFilter" design-size="300 34">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <widget class="Gtk.DataBindings.DataVBox" id="datavbox1">
+      <widget class="Gtk.Table" id="table1">
         <property name="MemberName" />
-        <property name="Spacing">6</property>
-        <property name="InheritedDataSource">False</property>
-        <property name="InheritedBoundaryDataSource">False</property>
-        <property name="InheritedDataSource">False</property>
-        <property name="InheritedBoundaryDataSource">False</property>
+        <property name="NColumns">3</property>
+        <property name="RowSpacing">6</property>
+        <property name="ColumnSpacing">6</property>
         <child>
-          <widget class="Gtk.DataBindings.DataHBox" id="datahbox1">
+          <widget class="Gtk.CheckButton" id="checkIncludeArhive">
             <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <child>
-              <widget class="Gtk.Label" id="label1">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Тип контрагента:</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="QSOrmProject.EnumComboBox" id="comboCounterpartyType">
-                <property name="MemberName" />
-                <property name="IsTextCombo">False</property>
-                <property name="Items" translatable="yes" />
-                <property name="ItemsEnumName" />
-                <property name="ShowSpecialStateAll">True</property>
-                <property name="ShowSpecialStateNot">False</property>
-                <signal name="EnumItemSelected" handler="OnComboCounterpartyTypeEnumItemSelected" />
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-              </packing>
-            </child>
+            <property name="CanFocus">True</property>
+            <property name="Label" translatable="yes">Включая архивных</property>
+            <property name="DrawIndicator">True</property>
+            <property name="HasLabel">True</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Toggled" handler="OnCheckIncludeArhiveToggled" />
           </widget>
           <packing>
-            <property name="Position">0</property>
+            <property name="LeftAttach">2</property>
+            <property name="RightAttach">3</property>
             <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">True</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="QSOrmProject.EnumComboBox" id="comboCounterpartyType">
+            <property name="MemberName" />
+            <property name="IsTextCombo">False</property>
+            <property name="Items" translatable="yes" />
+            <property name="ItemsEnumName" />
+            <property name="ShowSpecialStateAll">True</property>
+            <property name="ShowSpecialStateNot">False</property>
+            <signal name="EnumItemSelected" handler="OnComboCounterpartyTypeEnumItemSelected" />
+          </widget>
+          <packing>
+            <property name="LeftAttach">1</property>
+            <property name="RightAttach">2</property>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="label1">
+            <property name="MemberName" />
+            <property name="LabelProp" translatable="yes">Тип контрагента:</property>
+          </widget>
+          <packing>
+            <property name="AutoSize">True</property>
+            <property name="XOptions">Fill</property>
+            <property name="YOptions">Fill</property>
+            <property name="XExpand">False</property>
+            <property name="XFill">True</property>
+            <property name="XShrink">False</property>
+            <property name="YExpand">False</property>
+            <property name="YFill">True</property>
+            <property name="YShrink">False</property>
           </packing>
         </child>
       </widget>

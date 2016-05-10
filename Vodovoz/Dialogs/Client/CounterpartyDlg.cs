@@ -87,6 +87,7 @@ namespace Vodovoz
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
 			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
+			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			//Setting subjects
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
@@ -135,6 +136,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			Entity.UoW = UoW;
 			var valid = new QSValidator<Counterparty> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;

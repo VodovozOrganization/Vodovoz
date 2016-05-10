@@ -566,6 +566,7 @@
     <Compile Include="Domain\Order\Documents\DriverTicketDocument.cs" />
     <Compile Include="Repositories\Operations\MoneyRepository.cs" />
     <Compile Include="Repositories\Operations\DepositRepository.cs" />
+    <Compile Include="Repositories\Operations\BottlesRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

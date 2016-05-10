@@ -51,7 +51,20 @@ namespace Vodovoz
 			}
 		}
 
+		public bool RestrictIncludeArhive {
+			get { return checkIncludeArhive.Active; }
+			set {
+				checkIncludeArhive.Active = value;
+				checkIncludeArhive.Sensitive = false;
+			}
+		}
+
 		protected void OnComboCounterpartyTypeEnumItemSelected (object sender, EnumItemClickedEventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnCheckIncludeArhiveToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

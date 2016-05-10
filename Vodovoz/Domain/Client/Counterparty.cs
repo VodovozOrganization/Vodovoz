@@ -1,14 +1,15 @@
 ﻿using System;
-using QSOrmProject;
-using System.Data.Bindings;
 using System.Collections.Generic;
-using QSContacts;
 using System.ComponentModel.DataAnnotations;
-using QSProjectsLib;
+using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-using Vodovoz.Domain.Cash;
 using Gamma.Utilities;
+using QSContacts;
+using QSOrmProject;
+using QSProjectsLib;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Domain.Client
 {
@@ -20,6 +21,9 @@ namespace Vodovoz.Domain.Client
 	)]
 	public class Counterparty : QSBanks.AccountOwnerBase, IDomainObject, IValidatableObject
 	{
+		//Используется для валидации, не получается истолльзовать бизнес объект так как наследуемся от AccountOwnerBase
+		public virtual IUnitOfWork UoW { get; set;}
+
 		#region Свойства
 
 		private IList<CounterpartyContract> counterpartyContracts;
@@ -217,6 +221,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref status, value, () => Status); }
 		}
 
+		bool isArchive;
+
+		[Display (Name = "Архивный")]
+		public virtual bool IsArchive {
+			get { return isArchive; }
+			set { SetField (ref isArchive, value, () => IsArchive); }
+		}
+
 		IList<Phone> phones;
 
 		[Display (Name = "Телефоны")]
@@ -309,6 +321,38 @@ namespace Vodovoz.Domain.Client
 				if (!Regex.IsMatch (INN, "^[0-9]*$"))
 					yield return new ValidationResult ("ИНН может содержать только цифры.",
 						new[] { this.GetPropertyName (o => o.INN) });
+			}
+
+			if(IsArchive)
+			{
+				var unclosedContracts = CounterpartyContracts.Where(c => !c.IsArchive)
+					.Select(c => c.Id.ToString()).ToList();
+				if(unclosedContracts.Count > 0)
+					yield return new ValidationResult (
+						String.Format("Вы не можете сдать контрагента в архив с открытыми договорами: {0}", String.Join(", ", unclosedContracts)),
+						new[] { this.GetPropertyName (o => o.CounterpartyContracts) });
+
+				var balance = Repository.Operations.MoneyRepository.GetCounterpartyDebt(UoW, this);
+				if(balance != 0)
+					yield return new ValidationResult (
+						String.Format("Вы не можете сдать контрагента в архив так как у него имеется долг: {0}", CurrencyWorks.GetShortCurrencyString(balance)));
+
+				var activeOrders = Repository.OrderRepository.GetCurrentOrders(UoW, this);
+				if(activeOrders.Count > 0)
+					yield return new ValidationResult (
+						String.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", String.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
+						new[] { this.GetPropertyName (o => o.CounterpartyContracts) });
+				
+				var deposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, this);
+				if(balance != 0)
+					yield return new ValidationResult (
+						String.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));
+
+				var bottles = Repository.Operations.BottlesRepository.GetBottlesAtCounterparty(UoW, this);
+				if(balance != 0)
+					yield return new ValidationResult (
+						String.Format("Вы не можете сдать контрагента в архив так как он не вернул {0} бутылей", bottles));
+				
 			}
 		}
 
