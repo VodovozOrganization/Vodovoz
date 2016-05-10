@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using QSOsm.DTO;
 using Vodovoz.Domain.Logistic;
+using QSOsm;
 
 namespace Vodovoz.Domain.Client
 {
@@ -95,6 +96,34 @@ namespace Vodovoz.Domain.Client
 				return address.TrimEnd (',', ' ');
 			}
 			set { SetField (ref compiledAddress, value, () => CompiledAddress); }
+		}
+
+		string shortAddress;
+
+		[Display (Name = "Сокращенный адрес")]
+		public virtual string ShortAddress {
+			get {
+				string address = String.Empty;
+				if (!String.IsNullOrWhiteSpace (City))
+					address += String.Format ("{0} {1}, ", GetShortNameOfLocalityType (LocalityType), AddressHelper.ShortenCity(City));
+				if (!String.IsNullOrWhiteSpace (Street))
+					address += String.Format ("{0}, ", AddressHelper.ShortenStreet(Street));
+				if (!String.IsNullOrWhiteSpace (Building))
+					address += String.Format ("д.{0}, ", Building);
+				if (!String.IsNullOrWhiteSpace (Housing))
+					address += String.Format ("корп.{0}, ", Housing);
+				if (!String.IsNullOrWhiteSpace (Structure))
+					address += String.Format ("стр.{0}, ", Structure);
+				if (!String.IsNullOrWhiteSpace (Letter))
+					address += String.Format ("лит.{0}, ", Letter);
+				if (default(int) != Floor)
+					address += String.Format ("эт.{0}, ", Floor);
+				if (!String.IsNullOrWhiteSpace (Room))
+					address += String.Format ("{0} {1}, ", GetShortNameOfRoomType (RoomType), Room);
+
+				return address.TrimEnd (',', ' ');
+			}
+			set { SetField (ref shortAddress, value, () => ShortAddress); }
 		}
 
 		string region;

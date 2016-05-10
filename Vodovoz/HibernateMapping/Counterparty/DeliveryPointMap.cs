@@ -12,6 +12,7 @@ namespace Vodovoz.HMap
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.CompiledAddress).Column ("compiled_address");
+			Map (x => x.ShortAddress).Column ("compiled_address_short");
 			Map (x => x.MinutesToUnload).Column ("minutes_to_unload");
 			Map (x => x.Floor).Column ("floor");
 			Map (x => x.Region).Column ("region");

@@ -709,7 +709,7 @@
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>15.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -1258,7 +1258,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
 SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
-orders.comment AS Comment, orders.bottles_return AS EmptyBottles, orders.sum_to_receive AS Total, delivery_points.compiled_address AS Address,
+orders.comment AS Comment, orders.bottles_return AS EmptyBottles, orders.sum_to_receive AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
 GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')) AS ToClient,
 GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')) AS FromClient,
 IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
