@@ -1,21 +1,19 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using DataAnnotationsExtensions;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
-		NominativePlural = "строки списания",
-		Nominative = "строка списания")]
-	public class WriteoffDocumentItem: PropertyChangedBase, IDomainObject
+		NominativePlural = "строки инвенторизации",
+		Nominative = "строка инвенторизации")]
+	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
-		public virtual WriteoffDocument Document { get; set; }
+		public virtual InventoryDocument Document { get; set; }
 
 		Nomenclature nomenclature;
 
@@ -26,120 +24,103 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref nomenclature, value, () => Nomenclature);
 
-				if (WarehouseWriteoffOperation != null && WarehouseWriteoffOperation.Nomenclature != nomenclature)
-					WarehouseWriteoffOperation.Nomenclature = nomenclature;
-
-				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Nomenclature != nomenclature)
-					CounterpartyWriteoffOperation.Nomenclature = nomenclature;
+				if (WarehouseChangeOperation != null && WarehouseChangeOperation.Nomenclature != nomenclature)
+					WarehouseChangeOperation.Nomenclature = nomenclature;
 			}
 		}
 
 		Equipment equipment;
-
-		[Display (Name = "Оборудование")]
+		//FIXME убрать если не понадобится.
+		/*		[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set {
 				SetField (ref equipment, value, () => Equipment);
-				if (WarehouseWriteoffOperation != null && WarehouseWriteoffOperation.Equipment != equipment)
-					WarehouseWriteoffOperation.Equipment = equipment;
+				if (WarehouseChangeOperation != null && WarehouseChangeOperation.Equipment != equipment)
+					WarehouseChangeOperation.Equipment = equipment;
 
 				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Equipment != equipment)
 					CounterpartyWriteoffOperation.Equipment = equipment;
 			}
-		}
+		}*/
 
-		CullingCategory cullingCategory;
+		decimal amountInDB;
 
-		[Display (Name = "Вид выбраковки")]
-		public virtual CullingCategory CullingCategory {
-			get { return cullingCategory; }
-			set { SetField (ref cullingCategory, value, () => CullingCategory); }
-		}
-
-		decimal amount;
-
-		[Min (1)]
-		[Display (Name = "Количество")]
-		public virtual decimal Amount {
-			get { return amount; }
+		[Display (Name = "Количество по базе")]
+		public virtual decimal AmountInDB {
+			get { return amountInDB; }
 			set {
-				SetField (ref amount, value, () => Amount);
-				if (WarehouseWriteoffOperation != null && WarehouseWriteoffOperation.Amount != amount)
-					WarehouseWriteoffOperation.Amount = amount;
-
-				if (CounterpartyWriteoffOperation != null && CounterpartyWriteoffOperation.Amount != amount)
-					CounterpartyWriteoffOperation.Amount = amount;
+				SetField (ref amountInDB, value, () => AmountInDB);
 			}
 		}
 
-		decimal amountOnStock = 10000000;
-		//FIXME пока не реализуем способ загружать количество на складе на конкретный день
+		decimal amountInFact;
 
-		[Display (Name = "Имеется на складе")]
-		public virtual decimal AmountOnStock {
-			get { return amountOnStock; }
+		[Display (Name = "Количество по базе")]
+		public virtual decimal AmountInFact {
+			get { return amountInFact; }
 			set {
-				SetField (ref amountOnStock, value, () => AmountOnStock);
+				SetField (ref amountInFact, value, () => AmountInFact);
 			}
 		}
 
-		public virtual string Name {
-			get { return Nomenclature != null ? Nomenclature.Name : ""; }
+		string comment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		public virtual string EquipmentString { 
-			get { return Equipment != null ? Equipment.Serial : "-"; } 
+		WarehouseMovementOperation warehouseChangeOperation;
+
+		public virtual WarehouseMovementOperation WarehouseChangeOperation {
+			get { return warehouseChangeOperation; }
+			set { SetField (ref warehouseChangeOperation, value, () => WarehouseChangeOperation); }
 		}
 
-		public virtual string CullingCategoryString {
-			get { return CullingCategory != null ? CullingCategory.Name : "-"; }
-		}
-
-		public virtual bool CanEditAmount { 
-			get { return Nomenclature != null && !Nomenclature.Serial; }
-		}
-
-		WarehouseMovementOperation warehouseWriteoffOperation;
-
-		public virtual WarehouseMovementOperation WarehouseWriteoffOperation {
-			get { return warehouseWriteoffOperation; }
-			set { SetField (ref warehouseWriteoffOperation, value, () => WarehouseWriteoffOperation); }
-		}
-
-		CounterpartyMovementOperation counterpartyWriteoffOperation;
-
-		public virtual CounterpartyMovementOperation CounterpartyWriteoffOperation {
-			get { return counterpartyWriteoffOperation; }
-			set { SetField (ref counterpartyWriteoffOperation, value, () => CounterpartyWriteoffOperation); }
-		}
+		#region Расчетные
 
 		public virtual string Title {
 			get{
 				return String.Format("{0} - {1}", 
 					Nomenclature.Name, 
-					Nomenclature.Unit.MakeAmountShortStr(Amount));
+					Nomenclature.Unit.MakeAmountShortStr(AmountInFact));
 			}
 		}
+
+		public decimal Shortage{
+			get {
+				return AmountInDB - AmountInFact;
+			}
+		}
+
+		#endregion
 
 		#region Функции
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			CounterpartyWriteoffOperation = null;
-			WarehouseWriteoffOperation = new WarehouseMovementOperation
+			if(Shortage > 0)
 			{
-				WriteoffWarehouse = warehouse,
-				Amount = Amount,
-				OperationTime = time,
-				Nomenclature = Nomenclature,
-				Equipment = Equipment
-			};
-		}
-
-		public virtual void CreateOperation(Counterparty counterparty, DeliveryPoint piont, DateTime time)
-		{
-			throw new NotImplementedException();
+				WarehouseChangeOperation = new WarehouseMovementOperation
+					{
+						WriteoffWarehouse = warehouse,
+						Amount = Shortage,
+						OperationTime = time,
+						Nomenclature = Nomenclature
+					};
+			}
+			if(Shortage < 0)
+			{
+				WarehouseChangeOperation = new WarehouseMovementOperation
+					{
+						IncomingWarehouse = warehouse,
+						Amount = -Shortage,
+						OperationTime = time,
+						Nomenclature = Nomenclature
+					};
+			}
 		}
 
 		#endregion

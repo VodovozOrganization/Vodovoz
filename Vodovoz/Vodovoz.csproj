@@ -567,6 +567,10 @@
     <Compile Include="Repositories\Operations\MoneyRepository.cs" />
     <Compile Include="Repositories\Operations\DepositRepository.cs" />
     <Compile Include="Repositories\Operations\BottlesRepository.cs" />
+    <Compile Include="Domain\Documents\InventoryDocument.cs" />
+    <Compile Include="Domain\Documents\InventoryDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocumentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
