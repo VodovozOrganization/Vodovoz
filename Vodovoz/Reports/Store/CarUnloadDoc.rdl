@@ -106,7 +106,7 @@ WHERE
 FROM
     car_unload_documents
         LEFT JOIN
-    employees AS storekeepers ON storekeepers.id = car_unload_documents.storekeeper_id
+    employees AS storekeepers ON storekeepers.id = car_unload_documents.author_id
         LEFT JOIN
     warehouses ON warehouses.id = car_unload_documents.warehouse_id
         LEFT JOIN
