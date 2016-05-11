@@ -19,15 +19,6 @@ namespace Vodovoz.Domain.Documents
 		{
 		}
 
-		Employee storekeeper;
-
-		[Required (ErrorMessage = "Должен быть указан кладовщик.")]
-		[Display (Name = "Кладовщик")]
-		public virtual Employee Storekeeper {
-			get { return storekeeper; }
-			set { SetField (ref storekeeper, value, () => Storekeeper); }
-		}
-
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
 			set {
@@ -68,7 +59,7 @@ namespace Vodovoz.Domain.Documents
 
 		GenericObservableList<CarUnloadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<CarUnloadDocumentItem> ObservableItems {
+		public virtual GenericObservableList<CarUnloadDocumentItem> ObservableItems {
 			get {
 				if (observableItems == null)
 					observableItems = new GenericObservableList<CarUnloadDocumentItem> (Items);
@@ -96,11 +87,11 @@ namespace Vodovoz.Domain.Documents
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (Storekeeper == null)
+			if (Author == null)
 				yield return new ValidationResult ("Не указан кладовщик.",
-					new[] { this.GetPropertyName (o => o.Storekeeper) });
+					new[] { this.GetPropertyName (o => o.Author) });
 			if (RouteList == null)
 				yield return new ValidationResult ("Не указан маршрутный лист, по которому осуществляется разгрузка.",
 					new[] { this.GetPropertyName (o => o.RouteList)});
@@ -108,7 +99,7 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		public void AddItem (CarUnloadDocumentItem item)
+		public virtual void AddItem (CarUnloadDocumentItem item)
 		{
 			item.Document = this;
 			ObservableItems.Add (item);

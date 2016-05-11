@@ -45,6 +45,8 @@ namespace Vodovoz.ViewModel
 			RouteList routeListAlias = null;
 			Car carAlias = null;
 			Employee driverAlias = null;
+			Employee authorAlias = null;
+			Employee lastEditorAlias = null;
 			Domain.Orders.Order orderAlias = null;
 
 			List<DocumentVMNode> result = new List<DocumentVMNode> ();
@@ -53,6 +55,8 @@ namespace Vodovoz.ViewModel
 				var invoiceList = UoW.Session.QueryOver<IncomingInvoice> (() => invoiceAlias)
 				.JoinQueryOver (() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => invoiceAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => invoiceAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => invoiceAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => invoiceAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -66,7 +70,15 @@ namespace Vodovoz.ViewModel
 					                 Restrictions.Where (() => warehouseAlias.Name == null),
 					                 Projections.Constant ("Не указан", NHibernateUtil.String),
 					                 Projections.Property (() => warehouseAlias.Name)))
-					.WithAlias (() => resultAlias.Warehouse))
+					.WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => invoiceAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime)
+						)
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
 
@@ -76,6 +88,8 @@ namespace Vodovoz.ViewModel
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingWater) {
 				var waterList = UoW.Session.QueryOver<IncomingWater> (() => waterAlias)
 				.JoinQueryOver (() => waterAlias.WriteOffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => waterAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => waterAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -85,7 +99,14 @@ namespace Vodovoz.ViewModel
 					               Projections.Constant ("Не указан", NHibernateUtil.String),
 					               Projections.Property (() => warehouseAlias.Name)))
 					.WithAlias (() => resultAlias.Warehouse)
-					.Select (() => waterAlias.Amount).WithAlias (() => resultAlias.Amount))
+					.Select (() => waterAlias.Amount).WithAlias (() => resultAlias.Amount)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => waterAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime))
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
 
@@ -98,6 +119,8 @@ namespace Vodovoz.ViewModel
 				.JoinQueryOver (() => movementAlias.FromWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.ToClient, () => secondCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.ToWarehouse, () => secondWarehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => movementAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => movementAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => movementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => movementAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -122,7 +145,14 @@ namespace Vodovoz.ViewModel
 					                  Restrictions.Where (() => secondWarehouseAlias.Name == null),
 					                  Projections.Constant ("Не указан", NHibernateUtil.String),
 					                  Projections.Property (() => secondWarehouseAlias.Name)))
-					.WithAlias (() => resultAlias.SecondWarehouse))
+					.WithAlias (() => resultAlias.SecondWarehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => movementAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime))
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
 
@@ -133,6 +163,8 @@ namespace Vodovoz.ViewModel
 				var writeoffList = UoW.Session.QueryOver<WriteoffDocument> (() => writeoffAlias)
 				.JoinQueryOver (() => writeoffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => writeoffAlias.WriteoffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => writeoffAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => writeoffAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => writeoffAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => writeoffAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -146,7 +178,14 @@ namespace Vodovoz.ViewModel
 					                  Restrictions.Where (() => warehouseAlias.Name == null),
 					                  Projections.Constant (String.Empty, NHibernateUtil.String),
 					                  Projections.Property (() => warehouseAlias.Name)))
-					.WithAlias (() => resultAlias.Warehouse))
+					.WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => writeoffAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime))
 				.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 				.List<DocumentVMNode> ();
 
@@ -161,6 +200,8 @@ namespace Vodovoz.ViewModel
 					.JoinQueryOver (() => loadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => loadCarAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => loadCarAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.SelectList (list => list
 						.Select (() => loadCarAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => loadCarAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -172,7 +213,14 @@ namespace Vodovoz.ViewModel
 						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
 						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
 						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
-						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId))
+						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => loadCarAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime))
 					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 					.List<DocumentVMNode> ();
 
@@ -185,6 +233,8 @@ namespace Vodovoz.ViewModel
 					.JoinQueryOver (() => unloadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver (() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => unloadCarAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => unloadCarAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.SelectList (list => list
 						.Select (() => unloadCarAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => unloadCarAlias.TimeStamp).WithAlias (() => resultAlias.Date)
@@ -195,7 +245,14 @@ namespace Vodovoz.ViewModel
 						.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DirverName)
 						.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DirverPatronymic)
 						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
-						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId))
+						.Select (() => routeListAlias.Id).WithAlias (() => resultAlias.RouteListId)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => unloadCarAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime))
 					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
 					.List<DocumentVMNode> ();
 
@@ -217,6 +274,9 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
 			.AddColumn ("Тип документа").SetDataProperty (node => node.DocTypeString)
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
+			.AddColumn ("Автор").SetDataProperty (node => node.Author)
+			.AddColumn ("Изменил").SetDataProperty (node => node.LastEditor)
+			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
 			.AddColumn ("Детали").SetDataProperty (node => node.Description)
 			.Finish ();
 
@@ -315,6 +375,20 @@ namespace Vodovoz.ViewModel
 		public string CarNumber { get; set; }
 
 		public int RouteListId { get; set; }
+
+		public DateTime LastEditedTime { get; set; }
+
+		public string AuthorSurname { get; set; }
+		public string AuthorName { get; set; }
+		public string AuthorPatronymic { get; set; }
+
+		public string Author {get{return StringWorks.PersonNameWithInitials(AuthorSurname, AuthorName, AuthorPatronymic);}}
+
+		public string LastEditorSurname { get; set; }
+		public string LastEditorName { get; set; }
+		public string LastEditorPatronymic { get; set; }
+
+		public string LastEditor {get{return StringWorks.PersonNameWithInitials(LastEditorSurname, LastEditorName, LastEditorPatronymic);}}
 
 		public string DirverSurname { get; set; }
 		public string DirverName { get; set; }

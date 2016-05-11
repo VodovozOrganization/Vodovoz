@@ -15,6 +15,30 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref timeStamp, value, () => TimeStamp); }
 		}
 
+		Employee author;
+
+		[Display (Name = "Автор")]
+		public virtual Employee Author {
+			get { return author; }
+			set { SetField (ref author, value, () => Author); }
+		}
+
+		Employee lastEditor;
+
+		[Display (Name = "Последний редактор")]
+		public virtual Employee LastEditor {
+			get { return lastEditor; }
+			set { SetField (ref lastEditor, value, () => LastEditor); }
+		}
+
+		DateTime lastEditedTime;
+
+		[Display (Name = "Последние изменения")]
+		public virtual DateTime LastEditedTime {
+			get { return lastEditedTime; }
+			set { SetField (ref lastEditedTime, value, () => LastEditedTime); }
+		}
+
 		#region IDocument implementation
 
 		public virtual string DocType {

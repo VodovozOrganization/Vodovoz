@@ -2,6 +2,7 @@
 using System.Linq;
 using NHibernate.Criterion;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -19,8 +20,14 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<WriteoffDocument> ();
+			Entity.Author = Entity.ResponsibleEmployee = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				FailInitialize = true;
+				return;
+			}
 			ConfigureDlg ();
-			UoWGeneric.Root.ResponsibleEmployee = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 		}
 
 		public WriteoffDocumentDlg (int id)
@@ -64,6 +71,14 @@ namespace Vodovoz
 			var valid = new QSValidator<WriteoffDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+
+			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditedTime = DateTime.Now;
+			if(Entity.LastEditor == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				return false;
+			}
 
 			logger.Info ("Сохраняем акт списания...");
 			UoWGeneric.Save ();

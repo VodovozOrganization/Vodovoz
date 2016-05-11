@@ -15,15 +15,6 @@ namespace Vodovoz.Domain.Documents
 		Nominative = "документ погрузки автомобиля")]
 	public class CarLoadDocument: Document, IValidatableObject
 	{
-		Employee storekeeper;
-
-		[Required (ErrorMessage = "Должен быть указан кладовщик.")]
-		[Display (Name = "Кладовщик")]
-		public virtual Employee Storekeeper {
-			get { return storekeeper; }
-			set { SetField (ref storekeeper, value, () => Storekeeper); }
-		}
-
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
 			set {
@@ -72,7 +63,7 @@ namespace Vodovoz.Domain.Documents
 
 		GenericObservableList<CarLoadDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<CarLoadDocumentItem> ObservableItems {
+		public virtual GenericObservableList<CarLoadDocumentItem> ObservableItems {
 			get {
 				if (observableItems == null)
 					observableItems = new GenericObservableList<CarLoadDocumentItem> (Items);
@@ -100,11 +91,11 @@ namespace Vodovoz.Domain.Documents
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (Storekeeper == null)
+			if (Author == null)
 				yield return new ValidationResult ("Не указан кладовщик.",
-					new[] { this.GetPropertyName (o => o.Storekeeper) });
+					new[] { this.GetPropertyName (o => o.Author) });
 			if (RouteList == null && Order == null)
 				yield return new ValidationResult ("Не указаны ни заказ, ни маршрутный лист, по которым осуществляется отгрузка.",
 					new[] { this.GetPropertyName (o => o.RouteList), this.GetPropertyName (o => o.Order) });
@@ -112,7 +103,7 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
-		public void AddItem (CarLoadDocumentItem item)
+		public virtual void AddItem (CarLoadDocumentItem item)
 		{
 			item.Document = this;
 			ObservableItems.Add (item);

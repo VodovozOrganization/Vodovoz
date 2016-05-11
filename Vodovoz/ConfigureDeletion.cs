@@ -159,8 +159,18 @@ namespace Vodovoz
 				.AddClearDependence<Income> (item => item.Employee)
 				.AddClearDependence<Expense> (item => item.Employee)
 				.AddClearDependence<AccountExpense> (item => item.Employee)
-				.AddClearDependence<CarLoadDocument> (item => item.Storekeeper)
-				.AddClearDependence<CarUnloadDocument>(x => x.Storekeeper)
+				.AddClearDependence<CarLoadDocument> (item => item.Author)
+				.AddClearDependence<CarLoadDocument> (item => item.LastEditor)
+				.AddClearDependence<CarUnloadDocument>(x => x.Author)
+				.AddClearDependence<CarUnloadDocument>(x => x.LastEditor)
+				.AddClearDependence<IncomingInvoice>(x => x.Author)
+				.AddClearDependence<IncomingInvoice>(x => x.LastEditor)
+				.AddClearDependence<IncomingWater>(x => x.Author)
+				.AddClearDependence<IncomingWater>(x => x.LastEditor)
+				.AddClearDependence<MovementDocument>(x => x.Author)
+				.AddClearDependence<MovementDocument>(x => x.LastEditor)
+				.AddClearDependence<WriteoffDocument>(x => x.Author)
+				.AddClearDependence<WriteoffDocument>(x => x.LastEditor)
 				.AddClearDependence<RouteListClosing>(x => x.Cashier);
 
 			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Employee> (item => item.DefaultAccount));

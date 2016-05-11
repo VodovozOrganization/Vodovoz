@@ -1,5 +1,6 @@
 ﻿using System;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
@@ -16,6 +17,13 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater> ();
+			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				FailInitialize = true;
+				return;
+			}
 			ConfigureDlg ();
 		}
 
@@ -44,6 +52,14 @@ namespace Vodovoz
 			var valid = new QSValidator<IncomingWater> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+
+			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditedTime = DateTime.Now;
+			if(Entity.LastEditor == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				return false;
+			}
 
 			logger.Info ("Сохраняем документ производства...");
 			UoWGeneric.Save ();

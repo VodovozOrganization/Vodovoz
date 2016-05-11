@@ -9,11 +9,12 @@ namespace Vodovoz.HMap
 		public CarLoadDocumentMap ()
 		{
 			Table ("car_load_documents");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.TimeStamp).Column ("time_stamp");
-			References (x => x.Storekeeper).Column ("storekeeper_id");
+			Map(x => x.LastEditedTime).Column("last_edit_time");
+			References (x => x.Author).Column ("author_id");
+			References (x => x.LastEditor).Column ("last_editor_id");
 			References (x => x.Order).Column ("order_id");
 			References (x => x.RouteList).Column ("route_list_id");
 			References (x => x.Warehouse).Column ("warehouse_id");

@@ -429,8 +429,8 @@ namespace Vodovoz
 		{			
 			var CarUnloadDocumentUoW = UnitOfWorkFactory.CreateWithNewRoot <CarUnloadDocument> ();
 
-			CarUnloadDocumentUoW.Root.Storekeeper = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if (CarUnloadDocumentUoW.Root.Storekeeper == null) {
+			CarUnloadDocumentUoW.Root.Author = EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if (CarUnloadDocumentUoW.Root.Author == null) {
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете разгружать автомобили, так как некого указывать в качестве кладовщика.");
 				return;
 			}

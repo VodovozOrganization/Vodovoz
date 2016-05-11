@@ -8,6 +8,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -21,7 +22,13 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument> ();
 			ConfigureDlg ();
-			UoWGeneric.Root.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.Author = Entity.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				FailInitialize = true;
+				return;
+			}
 		}
 
 		public MovementDocumentDlg (int id)
@@ -65,6 +72,14 @@ namespace Vodovoz
 			var valid = new QSValidator<MovementDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+
+			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditedTime = DateTime.Now;
+			if(Entity.LastEditor == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				return false;
+			}
 
 			logger.Info ("Сохраняем документ перемещения...");
 			UoWGeneric.Save ();

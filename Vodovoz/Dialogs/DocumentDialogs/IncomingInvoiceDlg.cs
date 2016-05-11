@@ -2,6 +2,7 @@
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
@@ -18,6 +19,14 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingInvoice> ();
+			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				FailInitialize = true;
+				return;
+			}
+
 			ConfigureDlg ();
 		}
 
@@ -47,6 +56,14 @@ namespace Vodovoz
 			var valid = new QSValidator<IncomingInvoice> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
+
+			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditedTime = DateTime.Now;
+			if(Entity.LastEditor == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				return false;
+			}
 
 			logger.Info ("Сохраняем входящую накладную...");
 			UoWGeneric.Save ();

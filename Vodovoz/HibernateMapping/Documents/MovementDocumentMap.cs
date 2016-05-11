@@ -13,6 +13,9 @@ namespace Vodovoz.HMap
 			Map (x => x.TimeStamp).Column ("time_stamp");
 			Map (x => x.Comment).Column ("comment");
 			Map (x => x.Category).Column ("category").CustomType<MovementDocumentCategoryStringType> ();
+			Map(x => x.LastEditedTime).Column("last_edit_time");
+			References (x => x.Author).Column ("author_id");
+			References (x => x.LastEditor).Column ("last_editor_id");
 			References (x => x.ResponsiblePerson).Column ("responsible_person_id");
 			References (x => x.FromDeliveryPoint).Column ("delivery_point_from_id");
 			References (x => x.FromClient).Column ("counterparty_from_id");
