@@ -95,8 +95,8 @@
       <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>47.48pt</Height>
         <Width>561.04pt</Width>
-        <Left>0.00pt</Left>
-        <Top>111.70pt</Top>
+        <Left>0.0pt</Left>
+        <Top>110.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -114,6 +114,9 @@
           </Parameter>
           <Parameter Name="ExpenseCategory" >
             <Value>=Parameters!ExpenseCategory</Value>
+          </Parameter>
+          <Parameter Name="ExpenseCategoryUsed" >
+            <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
         </Parameters>
       </Subreport>

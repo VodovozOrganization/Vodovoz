@@ -145,18 +145,18 @@ namespace Vodovoz.Reports
 
 		protected void OnComboPartEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			if (comboPart.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All))
+			if (comboPart.SelectedItem.Equals (Gamma.Widgets.SpecialComboState.All)
+				|| comboPart.SelectedItem.Equals (ReportParts.IncomeAll))
 				comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = true;
-			else if (comboPart.SelectedItem.Equals (ReportParts.IncomeAll)
-			         || comboPart.SelectedItem.Equals (ReportParts.Income)
-			         || comboPart.SelectedItem.Equals (ReportParts.IncomeReturn)) {
+			else if (comboPart.SelectedItem.Equals (ReportParts.Income)) {
 				comboExpenseCategory.Sensitive = false;
 				comboIncomeCategory.Sensitive = true;
 			} else if (comboPart.SelectedItem.Equals (ReportParts.ExpenseAll)
 			           || comboPart.SelectedItem.Equals (ReportParts.Expense)
 			           || comboPart.SelectedItem.Equals (ReportParts.Advance)
 			           || comboPart.SelectedItem.Equals (ReportParts.AdvanceReport)
-					|| comboPart.SelectedItem.Equals (ReportParts.UnclosedAdvance)) {
+					|| comboPart.SelectedItem.Equals (ReportParts.UnclosedAdvance)
+				|| comboPart.SelectedItem.Equals (ReportParts.IncomeReturn)) {
 				comboExpenseCategory.Sensitive = true;
 				comboIncomeCategory.Sensitive = false;
 			} else
