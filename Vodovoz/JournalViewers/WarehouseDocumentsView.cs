@@ -41,41 +41,33 @@ namespace Vodovoz
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			Document document;
-
 			DocumentType type = (DocumentType)e.ItemEnum;	
 			switch (type) {
-			case DocumentType.IncomingInvoice:
-				document = new IncomingInvoice ();
-				break;
-			case DocumentType.IncomingWater:
-				document = new IncomingWater ();
-				break;
-			case DocumentType.MovementDocument:
-				document = new MovementDocument ();
-				break;
-			case DocumentType.WriteoffDocument:
-				document = new WriteoffDocument ();
-				break;
-			case DocumentType.CarLoadDocument:
+				case DocumentType.IncomingInvoice:
+				case DocumentType.IncomingWater:
+				case DocumentType.MovementDocument:
+				case DocumentType.WriteoffDocument:
+				case DocumentType.InventoryDocument:
+					TabParent.OpenTab(
+						OrmMain.GenerateDialogHashName(Document.GetDocClass(type), 0),
+						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
+						this);
+					break;
+				case DocumentType.CarLoadDocument:
 					TabParent.OpenTab(
 						TdiTabBase.GenerateHashName(typeof(ReadyForShipmentView)),
 						() => new ReadyForShipmentView(), this
 					);
-				return;
-			case DocumentType.CarUnloadDocument:
+					break;
+				case DocumentType.CarUnloadDocument:
 					TabParent.OpenTab(
 						TdiTabBase.GenerateHashName(typeof(ReadyForReceptionView)),
 						() => new ReadyForReceptionView(), this
 					);
-				return;
+					break;
 			default:
 				throw new NotSupportedException ("Тип документа не поддерживается.");
 			}
-			TabParent.OpenTab (
-				OrmMain.GenerateDialogHashName(document.GetType (), 0),
-				() => OrmMain.CreateObjectDialog (document.GetType ()),
-				this);
 		}
 
 		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
@@ -114,6 +106,12 @@ namespace Vodovoz
 							() => new WriteoffDocumentDlg (id),
 							this);
 					break;
+					case DocumentType.InventoryDocument:
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<InventoryDocument>(id),
+							() => new InventoryDocumentDlg (id),
+							this);
+						break;
 					case DocumentType.CarLoadDocument:
 						var doc = uow.GetById<CarLoadDocument>(id);
 						var reportInfo = new QSReport.ReportInfo

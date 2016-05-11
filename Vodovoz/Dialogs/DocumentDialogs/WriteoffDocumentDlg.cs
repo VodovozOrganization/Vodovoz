@@ -11,7 +11,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class WriteoffDocumentDlg : OrmGtkDialogBase<WriteoffDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();

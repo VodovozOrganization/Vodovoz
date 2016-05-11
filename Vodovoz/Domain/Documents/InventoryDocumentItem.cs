@@ -89,9 +89,9 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		public decimal Shortage{
+		public virtual decimal Difference{
 			get {
-				return AmountInDB - AmountInFact;
+				return AmountInFact - AmountInDB;
 			}
 		}
 
@@ -101,22 +101,22 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			if(Shortage > 0)
+			if(Difference < 0)
 			{
 				WarehouseChangeOperation = new WarehouseMovementOperation
 					{
 						WriteoffWarehouse = warehouse,
-						Amount = Shortage,
+						Amount = Math.Abs(Difference),
 						OperationTime = time,
 						Nomenclature = Nomenclature
 					};
 			}
-			if(Shortage < 0)
+			if(Difference > 0)
 			{
 				WarehouseChangeOperation = new WarehouseMovementOperation
 					{
 						IncomingWarehouse = warehouse,
-						Amount = -Shortage,
+						Amount = Math.Abs(Difference),
 						OperationTime = time,
 						Nomenclature = Nomenclature
 					};

@@ -101,6 +101,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="icons\buttons\pin-down.png" />
     <EmbeddedResource Include="icons\buttons\pin-up.png" />
+    <EmbeddedResource Include="icons\buttons\insert-object.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -571,6 +572,10 @@
     <Compile Include="Domain\Documents\InventoryDocumentItem.cs" />
     <Compile Include="HibernateMapping\Documents\InventoryDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Documents\InventoryDocumentMap.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.InventoryDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.InventoryDocumentItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

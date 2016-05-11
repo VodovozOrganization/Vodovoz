@@ -9,7 +9,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "инвентаризации",
 		Nominative = "инвентаризация")]
 	public class InventoryDocument: Document, IValidatableObject
@@ -40,7 +40,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual Warehouse Warehouse {
 			get { return warehouse; }
 			set {
-				warehouse = value;
+				SetField (ref warehouse, value, () => Warehouse);
 
 				foreach (var item in Items) {
 					if (item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.WriteoffWarehouse != Warehouse)
@@ -88,6 +88,8 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
+		#region Функции
+
 		public virtual void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
 			var item = new InventoryDocumentItem()
@@ -101,6 +103,29 @@ namespace Vodovoz.Domain.Documents
 				item.CreateOperation(Warehouse, TimeStamp);
 			ObservableItems.Add (item);
 		}
+
+		public virtual void FillItemsFromStock(IUnitOfWork uow){
+			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
+			if (inStock.Count == 0)
+				return;
+
+			var nomenclatures = uow.GetById<Nomenclature>(inStock.Select(p => p.Key).ToArray());
+
+			ObservableItems.Clear();
+			foreach(var itemInStock in inStock)
+			{
+				ObservableItems.Add(
+					new InventoryDocumentItem(){
+					Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
+					AmountInDB = itemInStock.Value,
+					AmountInFact = itemInStock.Value,
+					Document = this
+				}
+				);
+			}
+		}
+
+		#endregion
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{

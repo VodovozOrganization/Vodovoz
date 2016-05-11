@@ -73,6 +73,8 @@ namespace Vodovoz.Domain.Documents
 					return typeof(CarLoadDocument);
 				case DocumentType.CarUnloadDocument:
 					return typeof(CarUnloadDocument);
+				case DocumentType.InventoryDocument:
+					return typeof(InventoryDocument);
 			}
 			throw new NotSupportedException();
 		}
@@ -100,7 +102,9 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Талон погрузки")]
 		CarLoadDocument,
 		[Display (Name = "Талон разгрузки")]
-		CarUnloadDocument
+		CarUnloadDocument,
+		[Display (Name = "Инвентаризация")]
+		InventoryDocument
 	}
 
 	public class DocumentTypeStringType : NHibernate.Type.EnumStringType
