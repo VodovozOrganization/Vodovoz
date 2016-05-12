@@ -78,22 +78,6 @@ namespace Vodovoz.Domain.Documents
 			get { return String.Format ("Документ производства №{0} от {1:d}", Id, TimeStamp); }
 		}
 
-		#region IDocument implementation
-
-		new public virtual string DocType {
-			get { return "Документ производства"; }
-		}
-
-		new public virtual string Description {
-			get {
-				return String.Format ("Количество: {0}; Склад поступления: {1};", 
-					Amount,
-					WriteOffWarehouse == null ? "не указан" : WriteOffWarehouse.Name); 
-			}
-		}
-
-		#endregion
-
 		WarehouseMovementOperation produceOperation = new WarehouseMovementOperation ();
 
 		public virtual WarehouseMovementOperation ProduceOperation {

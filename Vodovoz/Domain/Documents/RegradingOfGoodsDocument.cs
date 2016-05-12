@@ -74,6 +74,20 @@ namespace Vodovoz.Domain.Documents
 			get { return String.Format ("Инвентаризация №{0} от {1:d}", Id, TimeStamp); }
 		}
 
+		#region IDocument implementation
+
+		new public virtual string DocType {
+			get { return "Инвентаризация"; }
+		}
+
+		new public virtual string Description {
+			get { 
+				return "";
+			}
+		}
+
+		#endregion
+
 		#region Функции
 
 		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
@@ -141,7 +155,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			return null;
+			if(Items.Any(i => i.AmountInDB <= 0))
+				yield return new ValidationResult ("В списке списания присутствуют позиции с нулевым количеством.",
+					new[] { this.GetPropertyName (o => o.Items) });
 		}
 
 		public InventoryDocument ()

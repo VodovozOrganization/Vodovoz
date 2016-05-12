@@ -75,20 +75,6 @@ namespace Vodovoz.Domain.Documents
 			get { return String.Format ("Талон погрузки №{0} от {1:d}", Id, TimeStamp); }
 		}
 
-		#region IDocument implementation
-
-		new public virtual string DocType {
-			get { return "Документ погрузки автомобиля"; }
-		}
-
-		new public virtual string Description {
-			get { 
-				return "";
-			}
-		}
-
-		#endregion
-
 		#region IValidatableObject implementation
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

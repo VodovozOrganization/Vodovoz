@@ -120,24 +120,6 @@ namespace Vodovoz.Domain.Documents
 			get { return String.Format ("Акт списания №{0} от {1:d}", Id, TimeStamp); }
 		}
 
-		#region IDocument implementation
-
-		new public virtual string DocType {
-			get { return "Акт списания"; }
-		}
-
-		new public virtual string Description {
-			get { 
-				if (WriteoffWarehouse != null)
-					return String.Format ("Со склада \"{0}\"", WriteoffWarehouse.Name);
-				else if (Client != null)
-					return String.Format ("От клиента \"{0}\"", Client.Name);
-				return "";
-			}
-		}
-
-		#endregion
-
 		public virtual void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
 			var item = new WriteoffDocumentItem

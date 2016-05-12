@@ -182,26 +182,6 @@ namespace Vodovoz.Domain.Documents
 			get { return String.Format ("Перемещение ТМЦ №{0} от {1:d}", Id, TimeStamp); }
 		}
 
-		#region IDocument implementation
-
-		new public virtual string DocType {
-			get { return "Документ перемещения"; }
-		}
-
-		new public virtual string Description {
-			get { 
-				if (Category == MovementDocumentCategory.counterparty)
-					return String.Format ("\"{0}\" -> \"{1}\"", 
-						FromClient == null ? "" : FromClient.Name,
-						ToClient == null ? "" : ToClient.Name);
-				return String.Format ("{0} -> {1}",
-					FromWarehouse == null ? "" : FromWarehouse.Name,
-					ToWarehouse == null ? "" : ToWarehouse.Name); 
-			}
-		}
-
-		#endregion
-
 		#region IValidatableObject implementation
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

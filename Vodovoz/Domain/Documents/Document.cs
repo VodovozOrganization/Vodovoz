@@ -4,7 +4,7 @@ using QSOrmProject;
 
 namespace Vodovoz.Domain.Documents
 {
-	public class Document : PropertyChangedBase, IDomainObject, IDocument
+	public class Document : PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
@@ -39,18 +39,6 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref lastEditedTime, value, () => LastEditedTime); }
 		}
 
-		#region IDocument implementation
-
-		public virtual string DocType {
-			get { return "Тип не указан!"; }
-		}
-
-		public virtual string Description {
-			get { return "Описание не определено!"; }
-		}
-
-		#endregion
-
 		public virtual string DateString { get { return TimeStamp.ToShortDateString () + " " + TimeStamp.ToShortTimeString (); } }
 
 		public virtual string Number { get { return Id.ToString (); } }
@@ -80,13 +68,6 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
-	}
-
-	public interface IDocument
-	{
-		string DocType { get; }
-
-		string Description { get; }
 	}
 
 	public enum DocumentType

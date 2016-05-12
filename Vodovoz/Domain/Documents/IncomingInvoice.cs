@@ -89,22 +89,6 @@ namespace Vodovoz.Domain.Documents
 			get { return String.Format ("Поступление №{0} от {1:d}", Id, TimeStamp); }
 		}
 
-		#region IDocument implementation
-
-		new public virtual string DocType {
-			get { return "Входящая накладная"; }
-		}
-
-		new public virtual string Description {
-			get {
-				return String.Format ("Поставщик: {0}; Склад поступления: {1};", 
-					Contractor != null ? Contractor.Name : "Не указан",
-					Warehouse != null ? Warehouse.Name : "Не указан");
-			}
-		}
-
-		#endregion
-
 		public virtual void AddItem (IncomingInvoiceItem item)
 		{
 			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
