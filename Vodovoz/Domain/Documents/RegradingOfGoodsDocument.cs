@@ -10,17 +10,17 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
-		NominativePlural = "инвентаризации",
-		Nominative = "инвентаризация")]
-	public class InventoryDocument: Document, IValidatableObject
+		NominativePlural = "пересортицы товаров",
+		Nominative = "пересортица товаров")]
+	public class RegradingOfGoodsDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
 			set {
 				base.TimeStamp = value;
 				foreach (var item in Items) {
-					if (item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.OperationTime != TimeStamp)
-						item.WarehouseChangeOperation.OperationTime = TimeStamp;
+					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.OperationTime != TimeStamp)
+						item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -43,16 +43,16 @@ namespace Vodovoz.Domain.Documents
 				SetField (ref warehouse, value, () => Warehouse);
 
 				foreach (var item in Items) {
-					if (item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.WriteoffWarehouse != Warehouse)
-						item.WarehouseChangeOperation.WriteoffWarehouse = Warehouse;
+					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.WriteoffWarehouse != Warehouse)
+						item.WarehouseWriteOffOperation.WriteoffWarehouse = Warehouse;
 				}
 			}
 		}
 
-		IList<InventoryDocumentItem> items = new List<InventoryDocumentItem> ();
+		IList<RegradingOfGoodsDocumentItem> items = new List<RegradingOfGoodsDocumentItem> ();
 
 		[Display (Name = "Строки")]
-		public virtual IList<InventoryDocumentItem> Items {
+		public virtual IList<RegradingOfGoodsDocumentItem> Items {
 			get { return items; }
 			set {
 				SetField (ref items, value, () => Items);
@@ -60,107 +60,44 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		GenericObservableList<InventoryDocumentItem> observableItems;
+		GenericObservableList<RegradingOfGoodsDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<InventoryDocumentItem> ObservableItems {
+		public virtual GenericObservableList<RegradingOfGoodsDocumentItem> ObservableItems {
 			get {
 				if (observableItems == null)
-					observableItems = new GenericObservableList<InventoryDocumentItem> (Items);
+					observableItems = new GenericObservableList<RegradingOfGoodsDocumentItem> (Items);
 				return observableItems;
 			}
 		}
 
 		public virtual string Title { 
-			get { return String.Format ("Инвентаризация №{0} от {1:d}", Id, TimeStamp); }
+			get { return String.Format ("Пересортица товаров №{0} от {1:d}", Id, TimeStamp); }
 		}
-
-		#region IDocument implementation
-
-		new public virtual string DocType {
-			get { return "Инвентаризация"; }
-		}
-
-		new public virtual string Description {
-			get { 
-				return "";
-			}
-		}
-
-		#endregion
 
 		#region Функции
 
 		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
 		{
-			var item = new InventoryDocumentItem()
+			var item = new RegradingOfGoodsDocumentItem()
 			{ 
-				Nomenclature = nomenclature,
-				AmountInDB = amountInDB,
-				AmountInFact = amountInFact,
+				NomenclatureOld = nomenclature,
+				Amount = amountInDB,
+				AmountInStock = amountInFact,
 				Document = this
 			};
 			ObservableItems.Add (item);
-		}
-
-		public virtual void FillItemsFromStock(IUnitOfWork uow){
-			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id);
-			if (inStock.Count == 0)
-				return;
-
-			var nomenclatures = uow.GetById<Nomenclature>(inStock.Select(p => p.Key).ToArray());
-
-			ObservableItems.Clear();
-			foreach(var itemInStock in inStock)
-			{
-				ObservableItems.Add(
-					new InventoryDocumentItem(){
-					Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
-					AmountInDB = itemInStock.Value,
-					AmountInFact = itemInStock.Value,
-					Document = this
-				}
-				);
-			}
-		}
-
-		public virtual void UpdateOperations(IUnitOfWork uow)
-		{
-			foreach(var item in Items)
-			{
-				if(item.Difference == 0 && item.WarehouseChangeOperation != null)
-				{
-					uow.Delete(item.WarehouseChangeOperation);
-					item.WarehouseChangeOperation = null;
-				}
-				if(item.Difference != 0)
-				{
-					if(item.WarehouseChangeOperation != null)
-					{
-						item.UpdateOperation(Warehouse);
-					}
-					else
-					{
-						item.CreateOperation(Warehouse, TimeStamp);
-					}
-				}
-				if(item.AmountInDB == 0 && item.AmountInFact == 0)
-				{
-					uow.Delete(item);
-					Items.Remove(item);
-				}
-			}
 		}
 
 		#endregion
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if(Items.Any(i => i.AmountInDB <= 0))
+			if(Items.Any(i => i.Amount <= 0))
 				yield return new ValidationResult ("В списке списания присутствуют позиции с нулевым количеством.",
 					new[] { this.GetPropertyName (o => o.Items) });
 		}
 
-		public InventoryDocument ()
+		public RegradingOfGoodsDocument ()
 		{
 		}
 

@@ -7,25 +7,39 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
-		NominativePlural = "строки инвенторизации",
-		Nominative = "строка инвенторизации")]
-	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject
+		NominativePlural = "строки пересортицы",
+		Nominative = "строка пересортицы")]
+	public class RegradingOfGoodsDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }
 
-		public virtual InventoryDocument Document { get; set; }
+		public virtual RegradingOfGoodsDocument Document { get; set; }
 
-		Nomenclature nomenclature;
+		Nomenclature nomenclatureOld;
 
-		[Required (ErrorMessage = "Номенклатура должна быть заполнена.")]
-		[Display (Name = "Номенклатура")]
-		public virtual Nomenclature Nomenclature {
-			get { return nomenclature; }
+		[Required (ErrorMessage = "Старая номенклатура должна быть заполнена.")]
+		[Display (Name = "Старая номенклатура")]
+		public virtual Nomenclature NomenclatureOld {
+			get { return nomenclatureOld; }
 			set {
-				SetField (ref nomenclature, value, () => Nomenclature);
+				SetField (ref nomenclatureOld, value, () => NomenclatureOld);
 
-				if (WarehouseChangeOperation != null && WarehouseChangeOperation.Nomenclature != nomenclature)
-					WarehouseChangeOperation.Nomenclature = nomenclature;
+				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Nomenclature != nomenclatureOld)
+					WarehouseWriteOffOperation.Nomenclature = nomenclatureOld;
+			}
+		}
+
+		Nomenclature nomenclatureNew;
+
+		[Required (ErrorMessage = "Новая номенклатура должна быть заполнена.")]
+		[Display (Name = "Новая номенклатура")]
+		public virtual Nomenclature NomenclatureNew {
+			get { return nomenclatureNew; }
+			set {
+				SetField (ref nomenclatureNew, value, () => NomenclatureNew);
+
+				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Nomenclature != nomenclatureNew)
+					WarehouseWriteOffOperation.Nomenclature = nomenclatureNew;
 			}
 		}
 
@@ -44,23 +58,13 @@ namespace Vodovoz.Domain.Documents
 			}
 		}*/
 
-		decimal amountInDB;
+		decimal amount;
 
-		[Display (Name = "Количество по базе")]
-		public virtual decimal AmountInDB {
-			get { return amountInDB; }
+		[Display (Name = "Количество")]
+		public virtual decimal Amount {
+			get { return amount; }
 			set {
-				SetField (ref amountInDB, value, () => AmountInDB);
-			}
-		}
-
-		decimal amountInFact;
-
-		[Display (Name = "Количество по базе")]
-		public virtual decimal AmountInFact {
-			get { return amountInFact; }
-			set {
-				SetField (ref amountInFact, value, () => AmountInFact);
+				SetField (ref amount, value, () => Amount);
 			}
 		}
 
@@ -72,26 +76,42 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		WarehouseMovementOperation warehouseChangeOperation;
+		WarehouseMovementOperation warehouseWriteOffOperation = new WarehouseMovementOperation();
 
-		public virtual WarehouseMovementOperation WarehouseChangeOperation {
-			get { return warehouseChangeOperation; }
-			set { SetField (ref warehouseChangeOperation, value, () => WarehouseChangeOperation); }
+		public virtual WarehouseMovementOperation WarehouseWriteOffOperation {
+			get { return warehouseWriteOffOperation; }
+			set { SetField (ref warehouseWriteOffOperation, value, () => WarehouseWriteOffOperation); }
 		}
+
+		WarehouseMovementOperation warehouseIncomeOperation = new WarehouseMovementOperation();
+
+		public virtual WarehouseMovementOperation WarehouseIncomeOperation {
+			get { return warehouseIncomeOperation; }
+			set { SetField (ref warehouseIncomeOperation, value, () => WarehouseIncomeOperation); }
+		}
+
+		#region Не сохраняемые
+
+		decimal amountInStock;
+
+		[Display (Name = "Количество на складе")]
+		public virtual decimal AmountInStock {
+			get { return amountInStock; }
+			set {
+				SetField (ref amountInStock, value, () => AmountInStock);
+			}
+		}
+
+		#endregion
 
 		#region Расчетные
 
 		public virtual string Title {
 			get{
-				return String.Format("{0} - {1}", 
-					Nomenclature.Name, 
-					Nomenclature.Unit.MakeAmountShortStr(AmountInFact));
-			}
-		}
-
-		public virtual decimal Difference{
-			get {
-				return AmountInFact - AmountInDB;
+				return String.Format("{0} -> {1} - {2}", 
+					NomenclatureOld.Name, 
+					NomenclatureNew.Name,
+					NomenclatureOld.Unit.MakeAmountShortStr(Amount));
 			}
 		}
 
@@ -101,42 +121,20 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual void CreateOperation(Warehouse warehouse, DateTime time)
 		{
-			if(Difference < 0)
-			{
-				WarehouseChangeOperation = new WarehouseMovementOperation
-					{
-						WriteoffWarehouse = warehouse,
-						Amount = Math.Abs(Difference),
-						OperationTime = time,
-						Nomenclature = Nomenclature
-					};
-			}
-			if(Difference > 0)
-			{
-				WarehouseChangeOperation = new WarehouseMovementOperation
-					{
-						IncomingWarehouse = warehouse,
-						Amount = Math.Abs(Difference),
-						OperationTime = time,
-						Nomenclature = Nomenclature
-					};
-			}
-		}
-
-		public virtual void UpdateOperation(Warehouse warehouse)
-		{
-			if(Difference < 0)
-			{
-				WarehouseChangeOperation.WriteoffWarehouse = warehouse;
-				WarehouseChangeOperation.IncomingWarehouse = null;
-				WarehouseChangeOperation.Amount = Math.Abs(Difference);
-			}
-			if(Difference > 0)
-			{
-				WarehouseChangeOperation.WriteoffWarehouse = null;
-				WarehouseChangeOperation.IncomingWarehouse = warehouse;
-				WarehouseChangeOperation.Amount = Math.Abs(Difference);
-			}
+			WarehouseWriteOffOperation = new WarehouseMovementOperation
+				{
+					WriteoffWarehouse = warehouse,
+					Amount = Amount,
+					OperationTime = time,
+					Nomenclature = NomenclatureOld
+				};
+			WarehouseIncomeOperation = new WarehouseMovementOperation
+				{
+					IncomingWarehouse = warehouse,
+					Amount = Amount,
+					OperationTime = time,
+					Nomenclature = NomenclatureNew
+				};
 		}
 
 		#endregion

@@ -576,6 +576,10 @@
     <Compile Include="gtk-gui\Vodovoz.InventoryDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\InventoryDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.InventoryDocumentItemsView.cs" />
+    <Compile Include="Domain\Documents\RegradingOfGoodsDocument.cs" />
+    <Compile Include="Domain\Documents\RegradingOfGoodsDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Documents\RegradingOfGoodsDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\RegradingOfGoodsDocumentItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
