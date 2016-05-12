@@ -23,6 +23,9 @@ namespace Vodovoz.Repository
 				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForSale ()));
 		}
 
+		/// <summary>
+		/// Запрос номенклатур которые можно использовать на складе
+		/// </summary>
 		public static QueryOver<Nomenclature> NomenclatureOfGoodsOnlyQuery ()
 		{
 			return QueryOver.Of<Nomenclature> ()

@@ -73,7 +73,7 @@ namespace Vodovoz
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
-			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить");
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить отсутствующее");
 			global::Gtk.Image w6 = new global::Gtk.Image ();
 			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAdd.Image = w6;
@@ -93,6 +93,7 @@ namespace Vodovoz
 			}
 			this.Hide ();
 			this.buttonFillItems.Clicked += new global::System.EventHandler (this.OnButtonFillItemsClicked);
+			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 		}
 	}
 }

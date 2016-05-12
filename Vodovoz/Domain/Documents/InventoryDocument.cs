@@ -90,17 +90,15 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
+		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
 		{
 			var item = new InventoryDocumentItem()
 			{ 
 				Nomenclature = nomenclature,
-				//AmountOnStock = inStock,
-				AmountInDB = amount,
+				AmountInDB = amountInDB,
+				AmountInFact = amountInFact,
 				Document = this
 			};
-			if (Warehouse != null)
-				item.CreateOperation(Warehouse, TimeStamp);
 			ObservableItems.Add (item);
 		}
 
@@ -122,6 +120,34 @@ namespace Vodovoz.Domain.Documents
 					Document = this
 				}
 				);
+			}
+		}
+
+		public virtual void UpdateOperations(IUnitOfWork uow)
+		{
+			foreach(var item in Items)
+			{
+				if(item.Difference == 0 && item.WarehouseChangeOperation != null)
+				{
+					uow.Delete(item.WarehouseChangeOperation);
+					item.WarehouseChangeOperation = null;
+				}
+				if(item.Difference != 0)
+				{
+					if(item.WarehouseChangeOperation != null)
+					{
+						item.UpdateOperation(Warehouse);
+					}
+					else
+					{
+						item.CreateOperation(Warehouse, TimeStamp);
+					}
+				}
+				if(item.AmountInDB == 0 && item.AmountInFact == 0)
+				{
+					uow.Delete(item);
+					Items.Remove(item);
+				}
 			}
 		}
 

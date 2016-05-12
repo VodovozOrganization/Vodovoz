@@ -123,6 +123,22 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		public virtual void UpdateOperation(Warehouse warehouse)
+		{
+			if(Difference < 0)
+			{
+				WarehouseChangeOperation.WriteoffWarehouse = warehouse;
+				WarehouseChangeOperation.IncomingWarehouse = null;
+				WarehouseChangeOperation.Amount = Math.Abs(Difference);
+			}
+			if(Difference > 0)
+			{
+				WarehouseChangeOperation.WriteoffWarehouse = null;
+				WarehouseChangeOperation.IncomingWarehouse = warehouse;
+				WarehouseChangeOperation.Amount = Math.Abs(Difference);
+			}
+		}
+
 		#endregion
 	}
 }

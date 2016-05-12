@@ -28101,7 +28101,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.InventoryDocumentItemsView" design-size="300 300">
+  <widget class="Gtk.Bin" id="Vodovoz.InventoryDocumentItemsView" design-size="343 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -28165,8 +28165,9 @@ RegistrationNumber</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-add Menu</property>
-                <property name="Label" translatable="yes">Добавить</property>
+                <property name="Label" translatable="yes">Добавить отсутствующее</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonAddClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
