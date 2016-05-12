@@ -378,6 +378,8 @@ namespace Vodovoz.ViewModel
 					case DocumentType.CarUnloadDocument:
 						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
 							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
+					case DocumentType.InventoryDocument:
+						return String.Format("По складу: {0}", Warehouse);
 				default:
 					return "";
 				}
