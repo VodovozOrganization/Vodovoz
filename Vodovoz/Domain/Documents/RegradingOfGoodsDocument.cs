@@ -21,6 +21,8 @@ namespace Vodovoz.Domain.Documents
 				foreach (var item in Items) {
 					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.OperationTime != TimeStamp)
 						item.WarehouseWriteOffOperation.OperationTime = TimeStamp;
+					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.OperationTime != TimeStamp)
+						item.WarehouseIncomeOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -45,6 +47,9 @@ namespace Vodovoz.Domain.Documents
 				foreach (var item in Items) {
 					if (item.WarehouseWriteOffOperation != null && item.WarehouseWriteOffOperation.WriteoffWarehouse != Warehouse)
 						item.WarehouseWriteOffOperation.WriteoffWarehouse = Warehouse;
+					if (item.WarehouseIncomeOperation != null && item.WarehouseIncomeOperation.IncomingWarehouse != Warehouse)
+						item.WarehouseIncomeOperation.IncomingWarehouse = Warehouse;
+					
 				}
 			}
 		}
@@ -76,15 +81,13 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void AddItem (Nomenclature nomenclature, decimal amountInDB, decimal amountInFact)
+		public virtual void AddItem (RegradingOfGoodsDocumentItem item)
 		{
-			var item = new RegradingOfGoodsDocumentItem()
-			{ 
-				NomenclatureOld = nomenclature,
-				Amount = amountInDB,
-				AmountInStock = amountInFact,
-				Document = this
-			};
+			item.Document = this;
+			item.WarehouseIncomeOperation.OperationTime = item.WarehouseWriteOffOperation.OperationTime
+				= TimeStamp;
+			item.WarehouseIncomeOperation.IncomingWarehouse = item.WarehouseWriteOffOperation.WriteoffWarehouse
+				= Warehouse;
 			ObservableItems.Add (item);
 		}
 

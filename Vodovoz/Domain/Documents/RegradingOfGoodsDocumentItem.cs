@@ -38,8 +38,8 @@ namespace Vodovoz.Domain.Documents
 			set {
 				SetField (ref nomenclatureNew, value, () => NomenclatureNew);
 
-				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Nomenclature != nomenclatureNew)
-					WarehouseWriteOffOperation.Nomenclature = nomenclatureNew;
+				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Nomenclature != nomenclatureNew)
+					WarehouseIncomeOperation.Nomenclature = nomenclatureNew;
 			}
 		}
 
@@ -65,6 +65,11 @@ namespace Vodovoz.Domain.Documents
 			get { return amount; }
 			set {
 				SetField (ref amount, value, () => Amount);
+
+				if (WarehouseIncomeOperation != null && WarehouseIncomeOperation.Amount != Amount)
+					WarehouseIncomeOperation.Amount = Amount;
+				if (WarehouseWriteOffOperation != null && WarehouseWriteOffOperation.Amount != Amount)
+					WarehouseWriteOffOperation.Amount = Amount;
 			}
 		}
 

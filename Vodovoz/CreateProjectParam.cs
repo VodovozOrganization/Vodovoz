@@ -87,6 +87,7 @@ namespace Vodovoz
 					OrmObjectMapping<MovementDocument>.Create().Dialog<MovementDocumentDlg>(),
 					OrmObjectMapping<WriteoffDocument>.Create().Dialog<WriteoffDocumentDlg>(),
 					OrmObjectMapping<InventoryDocument>.Create().Dialog<InventoryDocumentDlg>(),
+					OrmObjectMapping<RegradingOfGoodsDocument>.Create().Dialog<RegradingOfGoodsDocumentDlg>(),
 				//Справочники с фильтрами
 				OrmObjectMapping<Nomenclature>.Create().Dialog<NomenclatureDlg>().JournalFilter<NomenclatureFilter>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.CategoryString).End(),
 				OrmObjectMapping<Equipment>.Create().Dialog<EquipmentDlg>().JournalFilter<EquipmentFilter>()

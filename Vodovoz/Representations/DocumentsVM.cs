@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModel
 			MovementDocument movementAlias = null;
 			WriteoffDocument writeoffAlias = null;
 			InventoryDocument inventoryAlias = null;
+			RegradingOfGoodsDocument regradingOfGoodsAlias = null;
 			DocumentVMNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
 			Counterparty secondCounterpartyAlias = null;
@@ -216,6 +217,30 @@ namespace Vodovoz.ViewModel
 				result.AddRange (inventoryList);
 			}
 
+			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.RegradingOfGoodsDocument) {
+				var regrandingList = UoW.Session.QueryOver<RegradingOfGoodsDocument> (() => regradingOfGoodsAlias)
+					.JoinQueryOver (() => regradingOfGoodsAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => regradingOfGoodsAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => regradingOfGoodsAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => regradingOfGoodsAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => regradingOfGoodsAlias.TimeStamp).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.RegradingOfGoodsDocument).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => regradingOfGoodsAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode> ();
+
+				result.AddRange (regrandingList);
+			}
+
+
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.CarLoadDocument) {
 				var carLoadList = UoW.Session.QueryOver<CarLoadDocument> (() => loadCarAlias)
 					.JoinQueryOver (() => loadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -334,7 +359,10 @@ namespace Vodovoz.ViewModel
 			typeof(IncomingWater),
 			typeof(MovementDocument),
 			typeof(WriteoffDocument),
-			typeof(CarLoadDocument)
+			typeof(CarLoadDocument),
+			typeof(CarUnloadDocument),
+			typeof(InventoryDocument),
+			typeof(RegradingOfGoodsDocument)
 		)
 		{
 			this.UoW = uow;
@@ -379,6 +407,8 @@ namespace Vodovoz.ViewModel
 						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
 							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
 					case DocumentType.InventoryDocument:
+						return String.Format("По складу: {0}", Warehouse);
+					case DocumentType.RegradingOfGoodsDocument:
 						return String.Format("По складу: {0}", Warehouse);
 				default:
 					return "";

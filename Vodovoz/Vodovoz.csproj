@@ -580,6 +580,10 @@
     <Compile Include="Domain\Documents\RegradingOfGoodsDocumentItem.cs" />
     <Compile Include="HibernateMapping\Documents\RegradingOfGoodsDocumentMap.cs" />
     <Compile Include="HibernateMapping\Documents\RegradingOfGoodsDocumentItemMap.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

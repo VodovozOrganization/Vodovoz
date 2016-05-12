@@ -48,6 +48,7 @@ namespace Vodovoz
 				case DocumentType.MovementDocument:
 				case DocumentType.WriteoffDocument:
 				case DocumentType.InventoryDocument:
+				case DocumentType.RegradingOfGoodsDocument:
 					TabParent.OpenTab(
 						OrmMain.GenerateDialogHashName(Document.GetDocClass(type), 0),
 						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
@@ -110,6 +111,12 @@ namespace Vodovoz
 						TabParent.OpenTab(
 							OrmMain.GenerateDialogHashName<InventoryDocument>(id),
 							() => new InventoryDocumentDlg (id),
+							this);
+						break;
+					case DocumentType.RegradingOfGoodsDocument:
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<RegradingOfGoodsDocument>(id),
+							() => new RegradingOfGoodsDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.CarLoadDocument:

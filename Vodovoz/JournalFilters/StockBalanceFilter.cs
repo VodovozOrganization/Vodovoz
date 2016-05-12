@@ -21,14 +21,14 @@ namespace Vodovoz
 			}
 		}
 
-		public StockBalanceFilter (IUnitOfWork uow) : this()
+		public StockBalanceFilter (IUnitOfWork uow)
 		{
+			this.Build ();
 			UoW = uow;
 		}
 
-		public StockBalanceFilter ()
+		public StockBalanceFilter () : this (UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			this.Build ();
 		}
 
 		#region IReferenceFilter implementation
