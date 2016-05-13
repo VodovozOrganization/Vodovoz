@@ -49,6 +49,7 @@ namespace Vodovoz
 
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			ycheckRentPriority.Binding.AddBinding(Entity, e => e.RentPriority, w => w.Active).InitializeFromSource();
+			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();
 
 			referenceUnit.PropertyMapping<Nomenclature> (n => n.Unit);
 			referenceType.PropertyMapping<Nomenclature> (n => n.Type);
@@ -84,6 +85,7 @@ namespace Vodovoz
 
 		protected void ConfigureInputs (NomenclatureCategory selected)
 		{
+			radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
@@ -97,13 +99,19 @@ namespace Vodovoz
 		protected void OnRadioPriceToggled (object sender, EventArgs e)
 		{
 			if (radioPrice.Active)
-				notebook1.CurrentPage = 1;
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnRadioInfoToggled (object sender, EventArgs e)
 		{
 			if (radioInfo.Active)
 				notebook1.CurrentPage = 0;
+		}
+
+		protected void OnRadioEuqpmentToggled(object sender, EventArgs e)
+		{
+			if (radioEuqpment.Active)
+				notebook1.CurrentPage = 1;
 		}
 	}
 }

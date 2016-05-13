@@ -20,6 +20,7 @@ namespace Vodovoz.HMap
 			Map (x => x.Serial).Column ("serial");
 			Map (x => x.Category).Column ("category").CustomType<NomenclatureCategoryStringType> ();
 			Map (x => x.Code1c).Column("code_1c");
+			Map (x => x.SumOfDamage).Column("sum_of_damage");
 			References (x => x.Unit).Column ("unit_id").Not.LazyLoad ();
 			References (x => x.Color).Column ("color_id");
 			References (x => x.Type).Column ("type_id");
