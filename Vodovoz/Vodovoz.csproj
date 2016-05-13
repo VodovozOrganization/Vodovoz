@@ -185,7 +185,6 @@
     <Compile Include="ViewWidgets\FreeRentPackagesView.cs" />
     <Compile Include="ViewWidgets\CounterpartyContractsView.cs" />
     <Compile Include="ViewWidgets\ContactsView.cs" />
-    <Compile Include="ViewWidgets\DocumentItems\IncomingInvoiceItemsView.cs" />
     <Compile Include="Repositories\NomenclatureRepository.cs" />
     <Compile Include="Dialogs\OrderDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrderDlg.cs" />
@@ -201,15 +200,12 @@
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationMaterialsView.cs" />
-    <Compile Include="ViewWidgets\DocumentItems\MovementDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.MovementDocumentItemsView.cs" />
     <Compile Include="Domain\Documents\MovementDocumentItem.cs" />
     <Compile Include="Domain\Documents\WriteoffDocumentItem.cs" />
     <Compile Include="Domain\Documents\IncomingWaterMaterial.cs" />
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
-    <Compile Include="ViewWidgets\DocumentItems\WriteoffDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentItemsView.cs" />
-    <Compile Include="ViewWidgets\DocumentItems\IncomingWaterMaterialView.cs" />
     <Compile Include="gtk-gui\Vodovoz.IncomingWaterMaterialView.cs" />
     <Compile Include="ViewWidgets\PaidRentPackagesView.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
@@ -584,6 +580,10 @@
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentDlg.cs" />
     <Compile Include="Dialogs\DocumentDialogs\RegradingOfGoodsDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsDocumentItemsView.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\IncomingInvoiceItemsView.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\MovementDocumentItemsView.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentItemsView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -683,7 +683,6 @@
     <Folder Include="Reports\" />
     <Folder Include="Representations\" />
     <Folder Include="ViewWidgets\" />
-    <Folder Include="ViewWidgets\DocumentItems\" />
     <Folder Include="Repositories\" />
     <Folder Include="HibernateMapping\" />
     <Folder Include="Domain\Order\" />
