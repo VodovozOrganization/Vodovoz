@@ -18,13 +18,6 @@
 		<property name="Name" column="name" />
 	</class>
 
-	<class name="Nationality" lazy="false" table="nationality">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
- 	</class>
-
  	<class name="NomenclaturePrice" lazy="false" table="nomenclature_price">
 		<id name="Id" column="id">
 			<generator class="native"></generator>
@@ -67,14 +60,6 @@
 	 	</id>
 	 	<many-to-one name="Material" class="Nomenclature" column="nomenclature_id" />
 	 	<property name="Amount" column="amount"/>
- 	</class>
-
-	<class name="User" table="users">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
-	 	<property name="Login" column="login" />
  	</class>
 
 </hibernate-mapping>
