@@ -43,7 +43,7 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Ответственный")]
 		public virtual Employee ResponsibleEmployee {
 			get { return responsibleEmployee; }
-			set { responsibleEmployee = value; }
+			set { SetField (ref responsibleEmployee, value, () => ResponsibleEmployee); }
 		}
 
 		Counterparty client;
