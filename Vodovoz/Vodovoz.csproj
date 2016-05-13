@@ -584,6 +584,10 @@
     <Compile Include="Dialogs\Employees\EmployeeDlg.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeMap.cs" />
     <Compile Include="HibernateMapping\Employees\UserSettingsMap.cs" />
+    <Compile Include="Domain\Employees\Fine.cs" />
+    <Compile Include="Domain\Employees\FineItem.cs" />
+    <Compile Include="HibernateMapping\Employees\FineMap.cs" />
+    <Compile Include="HibernateMapping\Employees\FineItemMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

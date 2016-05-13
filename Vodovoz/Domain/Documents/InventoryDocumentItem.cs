@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 
@@ -70,6 +71,14 @@ namespace Vodovoz.Domain.Documents
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
+		}
+
+		Fine fine;
+
+		[Display (Name = "Штраф")]
+		public virtual Fine Fine {
+			get { return fine; }
+			set { SetField (ref fine, value, () => Fine); }
 		}
 
 		WarehouseMovementOperation warehouseChangeOperation;

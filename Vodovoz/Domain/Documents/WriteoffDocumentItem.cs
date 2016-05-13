@@ -2,9 +2,10 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSOrmProject;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -81,13 +82,13 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-/*		Employee guiltyEmployee;
+		Fine fine;
 
-		[Display (Name = "Виновное лицо")]
-		public virtual Employee GuiltyEmployee {
-			get { return guiltyEmployee; }
-			set { SetField (ref guiltyEmployee, value, () => GuiltyEmployee); }
-		}*/
+		[Display (Name = "Штраф")]
+		public virtual Fine Fine {
+			get { return fine; }
+			set { SetField (ref fine, value, () => Fine); }
+		}
 
 		decimal amountOnStock = 10000000;
 		//FIXME пока не реализуем способ загружать количество на складе на конкретный день
