@@ -124,6 +124,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.ytreeviewItems.RowActivated += new global::Gtk.RowActivatedHandler (this.OnYtreeviewItemsRowActivated);
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonChangeOld.Clicked += new global::System.EventHandler (this.OnButtonChangeOldClicked);
 			this.buttonChangeNew.Clicked += new global::System.EventHandler (this.OnButtonChangeNewClicked);

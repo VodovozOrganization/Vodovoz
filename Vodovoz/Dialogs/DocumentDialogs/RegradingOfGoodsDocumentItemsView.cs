@@ -169,6 +169,14 @@ namespace Vodovoz
 				DocumentUoW.Delete(row);
 			DocumentUoW.Root.ObservableItems.Remove(row);
 		}
+
+		protected void OnYtreeviewItemsRowActivated(object o, Gtk.RowActivatedArgs args)
+		{
+			if (args.Column.Title == "Старая номенклатура")
+				buttonChangeOld.Click();
+			if (args.Column.Title == "Новая номенклатура")
+				buttonChangeNew.Click();
+		}
 	}
 }
 
