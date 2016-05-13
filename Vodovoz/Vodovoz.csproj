@@ -113,9 +113,6 @@
     <Compile Include="Dialogs\OrganizationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
     <Compile Include="Domain\Organization.cs" />
-    <Compile Include="Domain\Employee.cs" />
-    <Compile Include="Domain\User.cs" />
-    <Compile Include="Dialogs\EmployeeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="Dialogs\CarsDlg.cs" />
@@ -152,7 +149,6 @@
     <Compile Include="Domain\BasicHandbooks\CounterpartyStatus.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
     <Compile Include="Domain\BasicHandbooks\Manufacturer.cs" />
-    <Compile Include="Domain\BasicHandbooks\Nationality.cs" />
     <Compile Include="Domain\BasicHandbooks\Significance.cs" />
     <Compile Include="Domain\Operations\OperationBase.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyContractDlg.cs" />
@@ -357,7 +353,6 @@
     <Compile Include="Repositories\Accounting\AccountExpenseRepository.cs" />
     <Compile Include="Repositories\Accounting\AccountIncomeRepository.cs" />
     <Compile Include="HibernateMapping\Organization\OrganizationMap.cs" />
-    <Compile Include="HibernateMapping\Organization\EmployeeMap.cs" />
     <Compile Include="JournalFilters\AccountingFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.AccountingFilter.cs" />
     <Compile Include="ReportsParameters\AccountFlow.cs" />
@@ -532,10 +527,8 @@
     <Compile Include="Dialogs\Client\CounterpartyDlg.cs" />
     <Compile Include="Dialogs\Client\ContactDlg.cs" />
     <Compile Include="Dialogs\Client\ProxyDlg.cs" />
-    <Compile Include="Domain\UserSettings.cs" />
     <Compile Include="Commons\CurrentUserSettings.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
-    <Compile Include="HibernateMapping\UserSettingsMap.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
     <Compile Include="Dialogs\Store\NomenclatureDlg.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
@@ -584,6 +577,13 @@
     <Compile Include="Dialogs\DocumentDialogs\IncomingWaterMaterialView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\MovementDocumentItemsView.cs" />
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentItemsView.cs" />
+    <Compile Include="Domain\Employees\Nationality.cs" />
+    <Compile Include="Domain\Employees\Employee.cs" />
+    <Compile Include="Domain\Employees\User.cs" />
+    <Compile Include="Domain\Employees\UserSettings.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeDlg.cs" />
+    <Compile Include="HibernateMapping\Employees\EmployeeMap.cs" />
+    <Compile Include="HibernateMapping\Employees\UserSettingsMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -733,6 +733,9 @@
     <Folder Include="Dialogs\Client\" />
     <Folder Include="Reports\Documents\" />
     <Folder Include="Repositories\Operations\" />
+    <Folder Include="Domain\Employees\" />
+    <Folder Include="Dialogs\Employees\" />
+    <Folder Include="HibernateMapping\Employees\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

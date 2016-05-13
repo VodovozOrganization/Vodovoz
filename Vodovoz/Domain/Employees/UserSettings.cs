@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Gtk;
 using QSOrmProject;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Employees
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "настройки пользователей",

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Cash

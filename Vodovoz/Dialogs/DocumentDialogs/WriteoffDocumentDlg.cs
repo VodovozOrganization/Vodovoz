@@ -4,9 +4,9 @@ using NHibernate.Criterion;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz

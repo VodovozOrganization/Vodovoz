@@ -3,6 +3,7 @@ using NHibernate;
 using NHibernate.Criterion;
 using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

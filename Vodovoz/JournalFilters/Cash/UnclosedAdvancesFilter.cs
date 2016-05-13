@@ -1,8 +1,8 @@
 ﻿using System;
 using QSOrmProject;
-using Vodovoz.Domain.Cash;
-using Vodovoz.Domain;
 using QSOrmProject.RepresentationModel;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

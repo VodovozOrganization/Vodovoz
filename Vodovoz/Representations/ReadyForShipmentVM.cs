@@ -12,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
 {

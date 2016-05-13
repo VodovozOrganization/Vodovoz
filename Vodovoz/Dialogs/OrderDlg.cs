@@ -18,6 +18,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
 using NHibernate.Proxy;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

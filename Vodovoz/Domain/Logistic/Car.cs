@@ -1,6 +1,7 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using QSOrmProject;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {

@@ -7,8 +7,8 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
 {

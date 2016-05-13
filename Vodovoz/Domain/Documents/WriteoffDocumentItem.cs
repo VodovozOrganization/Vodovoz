@@ -81,13 +81,13 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		Employee guiltyEmployee;
+/*		Employee guiltyEmployee;
 
 		[Display (Name = "Виновное лицо")]
 		public virtual Employee GuiltyEmployee {
 			get { return guiltyEmployee; }
 			set { SetField (ref guiltyEmployee, value, () => GuiltyEmployee); }
-		}
+		}*/
 
 		decimal amountOnStock = 10000000;
 		//FIXME пока не реализуем способ загружать количество на складе на конкретный день

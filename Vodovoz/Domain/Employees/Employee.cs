@@ -5,7 +5,7 @@ using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Employees
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",

@@ -1,7 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using QSTDI;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
 using Vodovoz.ViewModel;
 
 namespace Vodovoz

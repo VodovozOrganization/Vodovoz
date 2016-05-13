@@ -10,6 +10,7 @@ using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Client
 {

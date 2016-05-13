@@ -6,9 +6,9 @@ using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

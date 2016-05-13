@@ -3,8 +3,8 @@ using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

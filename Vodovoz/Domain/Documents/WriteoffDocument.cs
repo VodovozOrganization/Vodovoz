@@ -7,6 +7,7 @@ using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents

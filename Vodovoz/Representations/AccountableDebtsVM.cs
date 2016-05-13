@@ -8,8 +8,8 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
 {

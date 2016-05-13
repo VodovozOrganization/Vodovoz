@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSBanks;
 using QSOrmProject;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain
 {

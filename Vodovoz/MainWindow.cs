@@ -16,6 +16,7 @@ using Vodovoz.ViewModel;
 using QSTDI;
 using Vodovoz.Panel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 
 public partial class MainWindow: Gtk.Window
 {

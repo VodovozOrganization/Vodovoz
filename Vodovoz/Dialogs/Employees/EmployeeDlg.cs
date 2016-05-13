@@ -7,7 +7,7 @@ using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

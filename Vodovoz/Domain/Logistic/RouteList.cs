@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
-using Vodovoz.Domain.Orders;
 using QSValidation;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Domain.Logistic
 {

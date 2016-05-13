@@ -1,6 +1,6 @@
 ﻿using System;
-using Vodovoz.Domain;
 using QSOrmProject;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

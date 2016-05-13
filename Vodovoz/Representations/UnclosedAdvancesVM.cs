@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
-using NHibernate;
-using Gamma.ColumnConfig;
-using Gamma.GtkWidgets;
-using NHibernate.Criterion;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
 {

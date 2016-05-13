@@ -11,6 +11,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.ViewModel
 {

@@ -3,7 +3,7 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Cash;
 using Gamma.Widgets;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

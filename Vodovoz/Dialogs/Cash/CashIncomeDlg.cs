@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Gamma.GtkWidgets;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
-using Gamma.GtkWidgets;
-using System.Linq;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using QSOrmProject;
-using Vodovoz.Domain;
+using System.Linq;
 using NHibernate.Criterion;
 using QSBanks;
-using System.Linq;
+using QSOrmProject;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repository
 {

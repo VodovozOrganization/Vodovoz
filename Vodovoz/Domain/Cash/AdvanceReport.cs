@@ -1,9 +1,10 @@
 ﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Gamma.Utilities;
+using QSOrmProject;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Cash
 {

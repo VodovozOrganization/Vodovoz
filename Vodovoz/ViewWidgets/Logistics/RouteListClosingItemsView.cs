@@ -7,7 +7,6 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QSOrmProject;
-using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;

@@ -1,19 +1,18 @@
 ﻿using System;
-using Vodovoz.Domain;
-using QSOrmProject;
-using NLog;
-using QSValidation;
-using Gtk;
-using Vodovoz.Domain.Logistic;
 using System.Collections.Generic;
-using QSProjectsLib;
-using Vodovoz.Repository.Logistics;
 using System.IO;
+using Gamma.Utilities;
+using Gtk;
+using NLog;
+using QSOrmProject;
+using QSProjectsLib;
 using QSReport;
 using QSTDI;
-using Gamma.Utilities;
-using System.Linq;
+using QSValidation;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {

@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using Gamma.GtkWidgets;
+using Gtk;
 using NLog;
 using QSOrmProject;
-using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain.Documents;
-using Gtk;
-using System.Collections.Generic;
-using System.Linq;
 using QSTDI;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {
@@ -36,7 +35,7 @@ namespace Vodovoz
 				if (DocumentUoW.Root.Items == null)
 					DocumentUoW.Root.Items = new List<WriteoffDocumentItem> ();
 				items = DocumentUoW.Root.ObservableItems;
-				treeItemsList.ColumnMappingConfig = FluentMappingConfig<WriteoffDocumentItem>.Create ()
+				treeItemsList.ColumnsConfig = ColumnsConfigFactory.Create<WriteoffDocumentItem>()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
 					.AddColumn ("Количество")
@@ -49,6 +48,8 @@ namespace Vodovoz
 					.AddColumn ("Пичина выбраковки").AddComboRenderer (i => i.CullingCategory)
 					.SetDisplayFunc (DomainHelper.GetObjectTilte).Editing ()
 					.FillItems (Repository.CullingCategoryRepository.All (DocumentUoW))
+					//.AddColumn("Виновное лицо").AddTextRenderer(i => i.GuiltyEmployee != null ? i.GuiltyEmployee.ShortName : String.Empty)
+					.AddColumn("Выявлено в процессе").AddTextRenderer(i => i.Comment).Editable()
 					.Finish ();
 
 				treeItemsList.ItemsDataSource = items;

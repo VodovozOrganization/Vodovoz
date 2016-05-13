@@ -16,6 +16,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

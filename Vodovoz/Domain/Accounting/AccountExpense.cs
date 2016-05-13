@@ -4,6 +4,7 @@ using QSBanks;
 using QSOrmProject;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Accounting
 {

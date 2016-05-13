@@ -2,7 +2,7 @@
 using NLog;
 using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz

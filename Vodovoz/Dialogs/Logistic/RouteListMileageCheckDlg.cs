@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Vodovoz.Domain.Logistic;
-using QSOrmProject;
-using Vodovoz.Domain;
-using QSProjectsLib;
 using Gamma.GtkWidgets;
 using Gtk;
-using System.Linq;
-using Vodovoz.Repository.Logistics;
+using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
