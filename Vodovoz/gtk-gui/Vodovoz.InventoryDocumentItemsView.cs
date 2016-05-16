@@ -17,6 +17,8 @@ namespace Vodovoz
 		private global::Gtk.Button buttonFillItems;
 		
 		private global::Gtk.Button buttonAdd;
+		
+		private global::Gtk.Button buttonFine;
 
 		protected virtual void Build ()
 		{
@@ -82,11 +84,22 @@ namespace Vodovoz
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonFine = new global::Gtk.Button ();
+			this.buttonFine.CanFocus = true;
+			this.buttonFine.Name = "buttonFine";
+			this.buttonFine.UseUnderline = true;
+			this.buttonFine.Label = global::Mono.Unix.Catalog.GetString ("Добавить штаф");
+			this.hbox1.Add (this.buttonFine);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonFine]));
 			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -94,6 +107,7 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonFillItems.Clicked += new global::System.EventHandler (this.OnButtonFillItemsClicked);
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
+			this.buttonFine.Clicked += new global::System.EventHandler (this.OnButtonFineClicked);
 		}
 	}
 }

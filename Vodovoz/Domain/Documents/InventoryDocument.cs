@@ -12,7 +12,7 @@ namespace Vodovoz.Domain.Documents
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "инвентаризации",
 		Nominative = "инвентаризация")]
-	public class InventoryDocument: Document, IValidatableObject
+	public class InventoryDocument: Document
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -141,6 +141,7 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
+			//FIXME Обратите внимание убран интерфейс
 			return null;
 		}
 

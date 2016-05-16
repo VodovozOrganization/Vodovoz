@@ -62,6 +62,7 @@ namespace Vodovoz.Domain.Documents
 
 		[Min (1)]
 		[Display (Name = "Количество")]
+		[PropertyChangedAlso("SumOfDamage")]
 		public virtual decimal Amount {
 			get { return amount; }
 			set {

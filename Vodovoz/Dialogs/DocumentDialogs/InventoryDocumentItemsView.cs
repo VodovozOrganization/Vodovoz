@@ -4,14 +4,19 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QSOrmProject;
-using Vodovoz.Domain.Documents;
+using QSProjectsLib;
+using QSTDI;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class InventoryDocumentItemsView : WidgetOnDialogBase
 	{
+		InventoryDocumentItem FineEditItem;
+
 		public InventoryDocumentItemsView()
 		{
 			this.Build();
@@ -24,8 +29,25 @@ namespace Vodovoz
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
 				.AddColumn("Разница").AddTextRenderer(x => x.Difference != 0 ? x.Nomenclature.Unit.MakeAmountShortStr(x.Difference) : String.Empty)
 				.AddSetter((w, x) => w.Foreground = x.Difference < 0 ? "red" : "blue")
+				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
+				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();
+
+			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
+		}
+
+		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
+		{
+			var selected = ytreeviewItems.GetSelectedObject<InventoryDocumentItem>();
+			buttonFine.Sensitive = selected != null;
+			if(selected != null)
+			{
+				if (selected.Fine != null)
+					buttonFine.Label = "Изменить штраф";
+				else
+					buttonFine.Label = "Добавить штраф";
+			}
 		}
 
 		private IUnitOfWorkGeneric<InventoryDocument> documentUoW;
@@ -78,6 +100,37 @@ namespace Vodovoz
 
 			DocumentUoW.Root.AddItem(nomenclature, 0, 0);
 		}
+
+		protected void OnButtonFineClicked(object sender, EventArgs e)
+		{
+			var selected = ytreeviewItems.GetSelectedObject<InventoryDocumentItem>();
+			FineDlg fineDlg;
+			if (selected.Fine != null)
+			{
+				fineDlg = new FineDlg(selected.Fine);
+				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+			}
+			else
+			{
+				fineDlg = new FineDlg();
+				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+			}
+			fineDlg.Entity.TotalMoney = selected.SumOfDamage;
+			FineEditItem = selected;
+			MyTab.TabParent.AddSlaveTab(MyTab, fineDlg);
+		}
+
+		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)
+		{
+			FineEditItem.Fine = e.Entity as Fine;
+			FineEditItem = null;
+		}
+
+		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
+		{
+			DocumentUoW.Session.Refresh(FineEditItem.Fine);
+		}
+
 	}
 }
 

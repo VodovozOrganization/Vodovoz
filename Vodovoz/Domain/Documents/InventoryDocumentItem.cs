@@ -58,6 +58,7 @@ namespace Vodovoz.Domain.Documents
 		decimal amountInFact;
 
 		[Display (Name = "Количество по базе")]
+		[PropertyChangedAlso("SumOfDamage")]
 		public virtual decimal AmountInFact {
 			get { return amountInFact; }
 			set {
@@ -71,6 +72,14 @@ namespace Vodovoz.Domain.Documents
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
+		}
+
+		[Display (Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage {
+			get { if (Difference > 0)
+					return 0;
+			else
+				return Nomenclature.SumOfDamage * Math.Abs(Difference); }
 		}
 
 		Fine fine;
