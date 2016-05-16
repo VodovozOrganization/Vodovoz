@@ -10,13 +10,15 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView treeItemsList;
+		private global::Gamma.GtkWidgets.yTreeView treeItemsList;
 		
 		private global::Gtk.HBox hbox1;
 		
 		private global::Gtk.Button buttonAdd;
 		
 		private global::Gtk.Button buttonDelete;
+		
+		private global::Gtk.Button buttonFine;
 
 		protected virtual void Build ()
 		{
@@ -43,15 +45,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeItemsList = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeItemsList = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeItemsList.CanFocus = true;
 			this.treeItemsList.Name = "treeItemsList";
-			this.treeItemsList.CursorPointsEveryType = false;
-			this.treeItemsList.InheritedDataSource = false;
-			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.InheritedDataSource = false;
-			this.treeItemsList.InheritedBoundaryDataSource = false;
-			this.treeItemsList.ColumnMappings = "";
 			this.GtkScrolledWindow.Add (this.treeItemsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
@@ -88,11 +84,22 @@ namespace Vodovoz
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonFine = new global::Gtk.Button ();
+			this.buttonFine.CanFocus = true;
+			this.buttonFine.Name = "buttonFine";
+			this.buttonFine.UseUnderline = true;
+			this.buttonFine.Label = global::Mono.Unix.Catalog.GetString ("Добавить штаф");
+			this.hbox1.Add (this.buttonFine);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonFine]));
 			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w9.Position = 2;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -100,6 +107,7 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
+			this.buttonFine.Clicked += new global::System.EventHandler (this.OnButtonFineClicked);
 		}
 	}
 }

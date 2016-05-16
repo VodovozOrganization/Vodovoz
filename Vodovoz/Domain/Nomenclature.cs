@@ -141,6 +141,16 @@ namespace Vodovoz.Domain
 			set { SetField (ref warehouse, value, () => Warehouse); }
 		}
 
+		decimal sumOfDamage;
+
+		[Display (Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage {
+			get { return sumOfDamage; }
+			set {
+				SetField (ref sumOfDamage, value, () => SumOfDamage);
+			}
+		}
+
 		IList<NomenclaturePrice> nomenclaturePrice;
 
 		[Display (Name = "Цены")]

@@ -82,6 +82,11 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
+		[Display (Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage {
+			get { return Nomenclature.SumOfDamage * Amount; }
+		}
+
 		Fine fine;
 
 		[Display (Name = "Штраф")]

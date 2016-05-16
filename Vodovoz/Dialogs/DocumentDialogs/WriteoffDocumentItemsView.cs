@@ -8,13 +8,16 @@ using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using QSProjectsLib;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class WriteoffDocumentItemsView : Gtk.Bin
+	public partial class WriteoffDocumentItemsView : WidgetOnDialogBase
 	{
 		GenericObservableList<WriteoffDocumentItem> items;
+		WriteoffDocumentItem FineEditItem;
 
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -48,7 +51,8 @@ namespace Vodovoz
 					.AddColumn ("Пичина выбраковки").AddComboRenderer (i => i.CullingCategory)
 					.SetDisplayFunc (DomainHelper.GetObjectTilte).Editing ()
 					.FillItems (Repository.CullingCategoryRepository.All (DocumentUoW))
-					//.AddColumn("Виновное лицо").AddTextRenderer(i => i.GuiltyEmployee != null ? i.GuiltyEmployee.ShortName : String.Empty)
+					.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
+					.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 					.AddColumn("Выявлено в процессе").AddTextRenderer(i => i.Comment).Editable()
 					.Finish ();
 
@@ -63,7 +67,16 @@ namespace Vodovoz
 
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
+			var selected = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
 			buttonDelete.Sensitive = treeItemsList.Selection.CountSelectedRows () > 0;
+			buttonFine.Sensitive = selected != null;
+			if(selected != null)
+			{
+				if (selected.Fine != null)
+					buttonFine.Label = "Изменить штраф";
+				else
+					buttonFine.Label = "Добавить штраф";
+			}
 		}
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
@@ -89,6 +102,36 @@ namespace Vodovoz
 		{
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
 			DocumentUoW.Root.AddItem(nomenctature, 0, (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
+		}
+
+		protected void OnButtonFineClicked(object sender, EventArgs e)
+		{
+			var selected = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			FineDlg fineDlg;
+			if (selected.Fine != null)
+			{
+				fineDlg = new FineDlg(selected.Fine);
+				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+			}
+			else
+			{
+				fineDlg = new FineDlg();
+				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+			}
+			fineDlg.Entity.TotalMoney = selected.SumOfDamage;
+			FineEditItem = selected;
+			MyTab.TabParent.AddSlaveTab(MyTab, fineDlg);
+		}
+
+		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)
+		{
+			FineEditItem.Fine = e.Entity as Fine;
+			FineEditItem = null;
+		}
+
+		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
+		{
+			DocumentUoW.Session.Refresh(FineEditItem.Fine);
 		}
 	}
 }

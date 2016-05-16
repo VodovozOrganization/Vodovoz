@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
-using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Store;
+using QSProjectsLib;
+using System.Linq;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -15,14 +15,13 @@ namespace Vodovoz.Domain.Employees
 	{
 		public virtual int Id { get; set; }
 
-		private DateTime date;
+		private DateTime date = DateTime.Today;
 
 		[Display (Name = "Дата")]
-		public DateTime Date {
+		public virtual DateTime Date {
 			get { return date; }
 			set {
 				SetField (ref date, value, () => Date);
-
 			}
 		}
 
@@ -55,21 +54,58 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		#region Расчетные
+
 		public virtual string Title { 
 			get { return String.Format ("Штраф №{0} от {1:d}", Id, Date); }
 		}
 
-/*		public virtual void AddItem (IncomingInvoiceItem item)
+		public virtual string Description
 		{
-			item.IncomeGoodsOperation.IncomingWarehouse = warehouse;
-			item.IncomeGoodsOperation.OperationTime = TimeStamp;
-			item.Document = this;
+			get
+			{
+				if (Items.Count == 0)
+					return CurrencyWorks.GetShortCurrencyString(TotalMoney);
+				string persons;
+				if (Items.Count <= 3)
+					persons = String.Join(", ", Items.Select(x => x.Employee.ShortName));
+				else
+					persons = RusNumber.FormatCase(Items.Count, "{0} сотрудник", "{0} сотрудника", "{0} сотрудников");
+				return String.Format("({0}) = {1}", persons,
+					CurrencyWorks.GetShortCurrencyString(TotalMoney));
+			}
+		}
+
+		#endregion
+
+		public virtual void AddItem (Employee employee)
+		{
+			var item = new FineItem()
+			{
+				Employee = employee,
+				Fine = this
+			};
 			ObservableItems.Add (item);
 		}
-*/
+
 		public Fine ()
 		{
 		}
+
+		#region Функции
+
+		public virtual void DivideAtAll()
+		{
+			if (Items.Count == 0)
+				return;
+			var part = Math.Round(TotalMoney / Items.Count, 2);
+			foreach(var item in Items)
+			{
+				item.Money = part;
+			}
+		}
+
+		#endregion
 	}
 }
 

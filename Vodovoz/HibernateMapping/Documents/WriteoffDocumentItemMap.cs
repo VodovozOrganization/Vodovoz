@@ -12,6 +12,7 @@ namespace Vodovoz.HMap
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Amount).Column ("amount");
 			Map (x => x.Comment).Column ("comment");
+			//Map (x => x.SumOfDamage).Column("sum_of_damage");
 			References (x => x.Fine).Column ("fine_id");
 			References (x => x.Document).Column ("writeoff_document_id").Not.Nullable ();
 			References (x => x.Equipment).Column ("equipment_id");

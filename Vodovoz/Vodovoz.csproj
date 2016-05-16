@@ -588,6 +588,12 @@
     <Compile Include="Domain\Employees\FineItem.cs" />
     <Compile Include="HibernateMapping\Employees\FineMap.cs" />
     <Compile Include="HibernateMapping\Employees\FineItemMap.cs" />
+    <Compile Include="Dialogs\Employees\FineDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FineDlg.cs" />
+    <Compile Include="Dialogs\Employees\FineItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FineItemsView.cs" />
+    <Compile Include="HibernateMapping\Employees\NationalityMap.cs" />
+    <Compile Include="HibernateMapping\Employees\UserMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
