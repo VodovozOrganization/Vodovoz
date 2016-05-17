@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QSOrmProject;
@@ -93,6 +94,25 @@ namespace Vodovoz
 				referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
 					.Add (Restrictions.In ("Id", points));
 			}
+		}
+
+		protected void OnButtonPrintClicked(object sender, EventArgs e)
+		{
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(WriteoffDocument), "акта выбраковки"))
+				Save ();
+
+			var reportInfo = new QSReport.ReportInfo {
+				Title = String.Format ("Акт выбраковки №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
+				Identifier = "Store.WriteOff",
+				Parameters = new Dictionary<string, object> {
+					{ "writeoff_id",  Entity.Id }
+				}
+			};
+
+			TabParent.OpenTab(
+				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
+				() => new QSReport.ReportViewDlg (reportInfo)
+			);
 		}
 	}
 }
