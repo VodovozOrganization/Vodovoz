@@ -11,7 +11,8 @@ namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "инвентаризации",
-		Nominative = "инвентаризация")]
+		Nominative = "инвентаризация",
+		Prepositional = "инвентаризации")]
 	public class InventoryDocument: Document
 	{
 		public override DateTime TimeStamp {

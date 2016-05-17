@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
-using System.Linq;
 
 namespace Vodovoz
 {
@@ -74,6 +75,25 @@ namespace Vodovoz
 		public void SetSensitiveWarehouse(bool sensitive)
 		{
 			yentryrefWarehouse.Sensitive = sensitive;
+		}
+
+		protected void OnButtonPrintClicked(object sender, EventArgs e)
+		{
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(InventoryDocument), "акта инвентаризации"))
+				Save ();
+
+			var reportInfo = new QSReport.ReportInfo {
+				Title = String.Format ("Акт инвентаризации №{0} от {1:d}", Entity.Id, Entity.TimeStamp),
+				Identifier = "Store.InventoryDoc",
+				Parameters = new Dictionary<string, object> {
+					{ "inventory_id",  Entity.Id }
+				}
+			};
+
+			TabParent.OpenTab(
+				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
+				() => new QSReport.ReportViewDlg (reportInfo)
+			);
 		}
 	}
 }

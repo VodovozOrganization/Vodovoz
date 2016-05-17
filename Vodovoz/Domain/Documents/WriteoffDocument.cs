@@ -14,7 +14,9 @@ namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "акты списания ТМЦ",
-		Nominative = "акт списания ТМЦ")]
+		Nominative = "акт списания ТМЦ",
+		Prepositional = "акте списания"
+	)]
 	public class WriteoffDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
