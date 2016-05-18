@@ -581,4 +581,12 @@ public partial class MainWindow: Gtk.Window
 			() => new ReferenceRepresentation (new DeliveryPointsVM ()).Buttons(ReferenceButtonMode.CanEdit)
 		);
 	}
+
+	protected void OnPropertiesActionActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmMain.GenerateDialogHashName<UserSettings>(CurrentUserSettings.Settings.Id),
+			() => new UserSettingsDlg(CurrentUserSettings.Settings)
+		);
+	}
 }

@@ -594,6 +594,8 @@
     <Compile Include="gtk-gui\Vodovoz.FineItemsView.cs" />
     <Compile Include="HibernateMapping\Employees\NationalityMap.cs" />
     <Compile Include="HibernateMapping\Employees\UserMap.cs" />
+    <Compile Include="Dialogs\Employees\UserSettingsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.UserSettingsDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

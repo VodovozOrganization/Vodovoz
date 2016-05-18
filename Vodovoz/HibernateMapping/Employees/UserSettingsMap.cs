@@ -13,6 +13,7 @@ namespace Vodovoz.HMap
 			Map (x => x.ToolbarStyle).Column ("toolbar_style").CustomType<ToolbarStyleStringType>();
 			Map (x => x.ToolBarIconsSize).Column ("toolbar_icons_size").CustomType<ToolBarIconsSizeStringType>();
 			References (x => x.User).Column ("user_id");
+			References (x => x.DefaultWarehouse).Column("default_warehouse_id");
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Gtk;
 using QSOrmProject;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -36,6 +37,16 @@ namespace Vodovoz.Domain.Employees
 		public virtual IconsSize ToolBarIconsSize {
 			get { return toolBarIconsSize; }
 			set { SetField (ref toolBarIconsSize, value, () => ToolBarIconsSize); }
+		}
+
+		Warehouse defaultWarehouse;
+
+		[Display (Name = "Склад")]
+		public virtual Warehouse DefaultWarehouse {
+			get { return defaultWarehouse; }
+			set {
+				SetField (ref defaultWarehouse, value, () => DefaultWarehouse);
+			}
 		}
 
 		#endregion

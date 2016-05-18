@@ -17,6 +17,8 @@ namespace Vodovoz
 			set {
 				uow = value;			
 				yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse (UoW);
+				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+					yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse;
 			}
 		}
 		public ReadyForReceptionFilter (IUnitOfWork uow):this()
