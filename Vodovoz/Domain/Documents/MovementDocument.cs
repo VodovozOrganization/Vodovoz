@@ -49,6 +49,38 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		DateTime? deliveredTime;
+
+		public override DateTime? DeliveredTime {
+			get { return deliveredTime; }
+			set {
+				deliveredTime = value;
+				//FIXME операции поступления
+				foreach (var item in Items) {
+					if (item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
+						item.WarehouseMovementOperation.OperationTime = TimeStamp;
+					if (item.CounterpartyMovementOperation != null && item.CounterpartyMovementOperation.OperationTime != TimeStamp)
+						item.CounterpartyMovementOperation.OperationTime = TimeStamp;
+				}
+			}
+		}
+
+		TransportationStatus transportationStatus;
+
+		[Display (Name = "Статус транспортировки")]
+		public virtual TransportationStatus TransportationStatus {
+			get { return transportationStatus; }
+			set { SetField (ref transportationStatus, value, () => TransportationStatus); }
+		}
+
+		MovementWagon movementWagon;
+
+		[Display (Name = "Фура")]
+		public virtual MovementWagon MovementWagon {
+			get { return movementWagon; }
+			set { SetField (ref movementWagon, value, () => MovementWagon); }
+		}
+
 		string comment;
 
 		[Display (Name = "Комментарий")]
@@ -239,7 +271,9 @@ namespace Vodovoz.Domain.Documents
 		[Display (Name = "Именное списание")]
 		counterparty,
 		[Display (Name = "Внутреннее перемещение")]
-		warehouse
+		warehouse,
+		[Display (Name = "Транспортировка")]
+		Transportation
 	}
 
 	public class MovementDocumentCategoryStringType : NHibernate.Type.EnumStringType
@@ -248,5 +282,23 @@ namespace Vodovoz.Domain.Documents
 		{
 		}
 	}
+
+	public enum TransportationStatus
+	{
+		[Display (Name = "Без транспортировки")]
+		WithoutTransportation,
+		[Display (Name = "Погружено")]
+		Submerged,
+		[Display (Name = "Доставлено")]
+		Delivered
+	}
+
+	public class TransportationStatusStringType : NHibernate.Type.EnumStringType
+	{
+		public TransportationStatusStringType () : base (typeof(TransportationStatus))
+		{
+		}
+	}
+
 }
 

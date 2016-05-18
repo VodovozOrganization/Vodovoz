@@ -596,6 +596,8 @@
     <Compile Include="HibernateMapping\Employees\UserMap.cs" />
     <Compile Include="Dialogs\Employees\UserSettingsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.UserSettingsDlg.cs" />
+    <Compile Include="Domain\Store\MovementWagon.cs" />
+    <Compile Include="HibernateMapping\Store\MovementWagonMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
