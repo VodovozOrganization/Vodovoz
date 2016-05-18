@@ -7,7 +7,6 @@ using NHibernate.Transform;
 using System.Collections.Generic;
 using Vodovoz.Domain.Operations;
 using System.Linq;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Repository
 {
@@ -70,20 +69,24 @@ namespace Vodovoz.Repository
 			return result;			      
 		}
 
-		public static Dictionary<int,decimal> NomenclatureInStock(IUnitOfWork UoW, int warehouseId)
+		public static Dictionary<int,decimal> NomenclatureInStock(IUnitOfWork UoW, int warehouseId, DateTime? onDate = null)
 		{
 			Nomenclature nomenclatureAlias = null;
 			WarehouseMovementOperation operationAddAlias = null;
 			WarehouseMovementOperation operationRemoveAlias = null;
 
-			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
-				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And (Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse.Id), warehouseId))
+			var subqueryAdd = QueryOver.Of<WarehouseMovementOperation>(() => operationAddAlias)
+				.Where(() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			if (onDate.HasValue)
+				subqueryAdd.Where(x => x.OperationTime < onDate.Value);
+			subqueryAdd.And (Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.IncomingWarehouse.Id), warehouseId))
 				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
-			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation> (() => operationRemoveAlias)
-				.Where (() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id)
-				.And (Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse.Id), warehouseId))
+			var subqueryRemove = QueryOver.Of<WarehouseMovementOperation>(() => operationRemoveAlias)
+				.Where(() => operationRemoveAlias.Nomenclature.Id == nomenclatureAlias.Id);
+			if (onDate.HasValue)
+				subqueryRemove.Where(x => x.OperationTime < onDate.Value);	
+			subqueryRemove.And (Restrictions.Eq (Projections.Property<WarehouseMovementOperation> (o => o.WriteoffWarehouse.Id), warehouseId))
 				.Select (Projections.Sum<WarehouseMovementOperation> (o => o.Amount));
 
 			ItemInStock inStock = null;

@@ -103,10 +103,37 @@ namespace Vodovoz.Domain.Documents
 					new InventoryDocumentItem(){
 					Nomenclature = nomenclatures.First(x => x.Id == itemInStock.Key),
 					AmountInDB = itemInStock.Value,
-					AmountInFact = itemInStock.Value,
+					AmountInFact = 0,
 					Document = this
 				}
 				);
+			}
+		}
+
+		public virtual void UpdateItemsFromStock(IUnitOfWork uow){
+			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, TimeStamp);
+
+			foreach(var itemInStock in inStock)
+			{
+				var item = Items.FirstOrDefault(x => x.Nomenclature.Id == itemInStock.Key);
+				if (item != null)
+					item.AmountInDB = itemInStock.Value;
+				else
+				{
+					ObservableItems.Add(
+						new InventoryDocumentItem()
+						{
+							Nomenclature = uow.GetById<Nomenclature>(itemInStock.Key),
+							AmountInDB = itemInStock.Value,
+							AmountInFact = 0,
+							Document = this
+						});
+				}
+			}
+			foreach(var item in Items)
+			{
+				if (!inStock.ContainsKey(item.Nomenclature.Id))
+					item.AmountInDB = 0;
 			}
 		}
 

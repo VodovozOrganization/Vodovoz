@@ -75,13 +75,20 @@ namespace Vodovoz
 
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
 		{
-			DocumentUoW.Root.FillItemsFromStock(DocumentUoW);
+			if(DocumentUoW.IsNew)
+				DocumentUoW.Root.FillItemsFromStock(DocumentUoW);
+			else
+				DocumentUoW.Root.UpdateItemsFromStock(DocumentUoW);
 			(MyOrmDialog as InventoryDocumentDlg).SetSensitiveWarehouse(false);
 		}
 
 		private void UpdateButtonState()
 		{
-			buttonFillItems.Sensitive = DocumentUoW.IsNew && DocumentUoW.Root.Warehouse != null;
+			buttonFillItems.Sensitive = DocumentUoW.Root.Warehouse != null;
+			if (DocumentUoW.IsNew)
+				buttonFillItems.Label = "Заполнить по складу";
+			else
+				buttonFillItems.Label = "Обновить остатки";
 		}
 
 		protected void OnButtonAddClicked(object sender, EventArgs e)
