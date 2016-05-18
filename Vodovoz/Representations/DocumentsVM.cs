@@ -53,9 +53,17 @@ namespace Vodovoz.ViewModel
 
 			List<DocumentVMNode> result = new List<DocumentVMNode> ();
 
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingInvoice) {
-				var invoiceList = UoW.Session.QueryOver<IncomingInvoice> (() => invoiceAlias)
-				.JoinQueryOver (() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingInvoice) && Filter.RestrictDriver == null)
+			{
+				var invoiceQuery = UoW.Session.QueryOver<IncomingInvoice>(() => invoiceAlias);
+				if (Filter.RestrictWarehouse != null)
+					invoiceQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					invoiceQuery.Where (o => o.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					invoiceQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+
+				var invoiceList = invoiceQuery.JoinQueryOver (() => invoiceAlias.Contractor, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => invoiceAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (() => invoiceAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (() => invoiceAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -87,8 +95,16 @@ namespace Vodovoz.ViewModel
 				result.AddRange (invoiceList);
 			}
 		
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingWater) {
-				var waterList = UoW.Session.QueryOver<IncomingWater> (() => waterAlias)
+			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.IncomingWater) && Filter.RestrictDriver == null) {
+				var waterQuery = UoW.Session.QueryOver<IncomingWater>(() => waterAlias);
+				if (Filter.RestrictWarehouse != null)
+					waterQuery.Where(x => x.IncomingWarehouse.Id == Filter.RestrictWarehouse.Id || x.WriteOffWarehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					waterQuery.Where (o => o.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					waterQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+
+				var waterList = waterQuery
 				.JoinQueryOver (() => waterAlias.WriteOffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => waterAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -115,8 +131,16 @@ namespace Vodovoz.ViewModel
 				result.AddRange (waterList);
 			}
 
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.MovementDocument) {
-				var movementList = UoW.Session.QueryOver<MovementDocument> (() => movementAlias)
+			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.MovementDocument) && Filter.RestrictDriver == null) {
+				var movementQuery = UoW.Session.QueryOver<MovementDocument>(() => movementAlias);
+				if (Filter.RestrictWarehouse != null)
+					movementQuery.Where(x => x.FromWarehouse.Id == Filter.RestrictWarehouse.Id || x.ToWarehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					movementQuery.Where (o => o.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					movementQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+
+				var movementList = movementQuery
 				.JoinQueryOver (() => movementAlias.FromClient, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.FromWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.ToClient, () => secondCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -161,8 +185,16 @@ namespace Vodovoz.ViewModel
 				result.AddRange (movementList);
 			}
 
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.WriteoffDocument) {
-				var writeoffList = UoW.Session.QueryOver<WriteoffDocument> (() => writeoffAlias)
+			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.WriteoffDocument) && Filter.RestrictDriver == null) {
+				var writeoffQuery = UoW.Session.QueryOver<WriteoffDocument>(() => writeoffAlias);
+				if (Filter.RestrictWarehouse != null)
+					writeoffQuery.Where(x => x.WriteoffWarehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					writeoffQuery.Where (o => o.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					writeoffQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+				
+				var writeoffList = writeoffQuery
 				.JoinQueryOver (() => writeoffAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => writeoffAlias.WriteoffWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => writeoffAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -194,8 +226,16 @@ namespace Vodovoz.ViewModel
 				result.AddRange (writeoffList);
 			}
 
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.InventoryDocument) {
-				var inventoryList = UoW.Session.QueryOver<InventoryDocument> (() => inventoryAlias)
+			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.InventoryDocument) && Filter.RestrictDriver == null) {
+				var inventoryQuery = UoW.Session.QueryOver<InventoryDocument>(() => inventoryAlias);
+				if (Filter.RestrictWarehouse != null)
+					inventoryQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					inventoryQuery.Where (o => o.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					inventoryQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+
+				var inventoryList = inventoryQuery
 					.JoinQueryOver (() => inventoryAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => inventoryAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => inventoryAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -217,8 +257,16 @@ namespace Vodovoz.ViewModel
 				result.AddRange (inventoryList);
 			}
 
-			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.RegradingOfGoodsDocument) {
-				var regrandingList = UoW.Session.QueryOver<RegradingOfGoodsDocument> (() => regradingOfGoodsAlias)
+			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.RegradingOfGoodsDocument) && Filter.RestrictDriver == null) {
+				var regrandingQuery = UoW.Session.QueryOver<RegradingOfGoodsDocument>(() => regradingOfGoodsAlias);
+				if (Filter.RestrictWarehouse != null)
+					regrandingQuery.Where(x => x.Warehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					regrandingQuery.Where (o => o.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					regrandingQuery.Where (o => o.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+				
+				var regrandingList = regrandingQuery
 					.JoinQueryOver (() => regradingOfGoodsAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => regradingOfGoodsAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => regradingOfGoodsAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
@@ -242,13 +290,24 @@ namespace Vodovoz.ViewModel
 
 
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.CarLoadDocument) {
-				var carLoadList = UoW.Session.QueryOver<CarLoadDocument> (() => loadCarAlias)
-					.JoinQueryOver (() => loadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => loadCarAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => orderAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => loadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				var carLoadQuery = UoW.Session.QueryOver<CarLoadDocument>(() => loadCarAlias)
+					.JoinQueryOver(() => loadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => loadCarAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => loadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+				if (Filter.RestrictWarehouse != null)
+					carLoadQuery.Where(() => loadCarAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					carLoadQuery.Where (() => loadCarAlias.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					carLoadQuery.Where (() => loadCarAlias.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+				if(Filter.RestrictDriver != null)
+					carLoadQuery.Where (() => routeListAlias.Driver.Id == Filter.RestrictDriver.Id);
+
+				var carLoadList = carLoadQuery
 					.JoinAlias (() => loadCarAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => loadCarAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.SelectList (list => list
@@ -277,11 +336,22 @@ namespace Vodovoz.ViewModel
 			}
 
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.CarUnloadDocument) {
-				var carUnloadList = UoW.Session.QueryOver<CarUnloadDocument> (() => unloadCarAlias)
-					.JoinQueryOver (() => unloadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => unloadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver (() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				var carUnloadQuery = UoW.Session.QueryOver<CarUnloadDocument>(() => unloadCarAlias) 
+					.JoinQueryOver(() => unloadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => unloadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+				if (Filter.RestrictWarehouse != null)
+					carUnloadQuery.Where(() => unloadCarAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					carUnloadQuery.Where (() => unloadCarAlias.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					carUnloadQuery.Where (() => unloadCarAlias.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+				if(Filter.RestrictDriver != null)
+					carUnloadQuery.Where (() => routeListAlias.Driver.Id == Filter.RestrictDriver.Id);
+
+				var carUnloadList = carUnloadQuery
 					.JoinAlias (() => unloadCarAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinAlias (() => unloadCarAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.SelectList (list => list
@@ -309,7 +379,7 @@ namespace Vodovoz.ViewModel
 			}
 
 			result.Sort ((x, y) => { 
-				if (x.Date > y.Date)
+				if (x.Date < y.Date)
 					return 1;
 				if (x.Date == y.Date)
 					return 0;

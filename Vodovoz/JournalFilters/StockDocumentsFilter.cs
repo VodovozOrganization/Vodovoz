@@ -3,6 +3,8 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
@@ -19,6 +21,10 @@ namespace Vodovoz
 				uow = value;
 				enumcomboDocumentType.ItemsEnum = typeof(DocumentType);
 				//entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (uow);
+				yentryrefWarehouse.ItemsQuery = Repository.Store.WarehouseRepository.ActiveWarehouseQuery();
+				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+					yentryrefWarehouse.Subject = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;
+				yentryrefDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
 			}
 		}
 
@@ -30,6 +36,8 @@ namespace Vodovoz
 		public StockDocumentsFilter ()
 		{
 			this.Build ();
+			dateperiodDocs.StartDate = DateTime.Today.AddDays(-30);
+			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);
 		}
 
 		#region IReferenceFilter implementation
@@ -57,10 +65,40 @@ namespace Vodovoz
 		
 		}
 
+		public Warehouse RestrictWarehouse {
+			get { return yentryrefWarehouse.Subject as Warehouse;}
+			set { yentryrefWarehouse.Subject = value;
+				yentryrefWarehouse.Sensitive = false;
+			}
+		}
+
+		public Employee RestrictDriver {
+			get { return yentryrefDriver.Subject as Employee;}
+			set { yentryrefDriver.Subject = value;
+				yentryrefDriver.Sensitive = false;
+			}
+		}
+
 		public DeliveryPoint RestrictDeliveryPoint {
 			get { return entryreferencePoint.Subject as DeliveryPoint;}
 			set { entryreferencePoint.Subject = value;
 				entryreferencePoint.Sensitive = false;
+			}
+		}
+
+		public DateTime? RestrictStartDate {
+			get { return dateperiodDocs.StartDateOrNull; }
+			set {
+				dateperiodDocs.StartDateOrNull = value;
+				dateperiodDocs.Sensitive = false;
+			}
+		}
+
+		public DateTime? RestrictEndDate {
+			get { return dateperiodDocs.EndDateOrNull; }
+			set {
+				dateperiodDocs.EndDateOrNull = value;
+				dateperiodDocs.Sensitive = false;
 			}
 		}
 
@@ -70,6 +108,21 @@ namespace Vodovoz
 		}
 
 		protected void OnEnumcomboDocumentTypeChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnYentryrefDriverChangedByUser(object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnDateperiodDocsPeriodChanged(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

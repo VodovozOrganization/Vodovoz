@@ -6,10 +6,7 @@ using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Logistic;
 using System.Linq;
-using System.Collections;
-using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.Repository.Store
@@ -19,6 +16,11 @@ namespace Vodovoz.Repository.Store
 		public static IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow)
 		{
 			return uow.Session.CreateCriteria<Warehouse> ().List<Warehouse> ();
+		}
+
+		public static QueryOver<Warehouse> ActiveWarehouseQuery()
+		{
+			return QueryOver.Of<Warehouse>();
 		}
 
 		public static IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, ShipmentDocumentType type, int id)
