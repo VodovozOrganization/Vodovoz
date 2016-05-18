@@ -589,4 +589,12 @@ public partial class MainWindow: Gtk.Window
 			() => new UserSettingsDlg(CurrentUserSettings.Settings)
 		);
 	}
+
+	protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<MovementWagon>(),
+			() => new OrmReference(typeof(MovementWagon))
+		);
+	}
 }

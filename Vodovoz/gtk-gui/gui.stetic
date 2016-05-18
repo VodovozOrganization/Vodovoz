@@ -550,6 +550,12 @@
         <property name="StockId">gtk-properties</property>
         <signal name="Activated" handler="OnPropertiesActionActivated" />
       </action>
+      <action id="ActionTransportationWagon">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Фуры</property>
+        <property name="ShortLabel" translatable="yes">Фуры</property>
+        <signal name="Activated" handler="OnActionTransportationWagonActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -610,6 +616,7 @@
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionProductSpecification" />
                       <node type="Menuitem" action="ActionCullingCategory" />
+                      <node type="Menuitem" action="ActionTransportationWagon" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionFreeRentPackage" />
                       <node type="Menuitem" action="ActionPaidRentPackage" />

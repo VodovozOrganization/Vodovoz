@@ -51,7 +51,7 @@ namespace Vodovoz.Domain.Documents
 
 		DateTime? deliveredTime;
 
-		public override DateTime? DeliveredTime {
+		public virtual DateTime? DeliveredTime {
 			get { return deliveredTime; }
 			set {
 				deliveredTime = value;
