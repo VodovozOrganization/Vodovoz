@@ -94,6 +94,13 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref warehouseMovementOperation, value, () => WarehouseMovementOperation); }
 		}
 
+		WarehouseMovementOperation deliveryMovementOperation;
+
+		public virtual WarehouseMovementOperation DeliveryMovementOperation {
+			get { return deliveryMovementOperation; }
+			set { SetField (ref deliveryMovementOperation, value, () => DeliveryMovementOperation); }
+		}
+
 		CounterpartyMovementOperation counterpartyMovementOperation;
 
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
@@ -111,18 +118,36 @@ namespace Vodovoz.Domain.Documents
 
 		#region Функции
 
-		public virtual void CreateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time)
+		public virtual void CreateOperation(Warehouse warehouseSrc, Warehouse warehouseDst, DateTime time, TransportationStatus status)
 		{
 			CounterpartyMovementOperation = null;
 			WarehouseMovementOperation = new WarehouseMovementOperation
 				{
 					WriteoffWarehouse = warehouseSrc,
-					IncomingWarehouse = warehouseDst,
+					IncomingWarehouse = status == TransportationStatus.WithoutTransportation ?  warehouseDst : null,
 					Amount = Amount,
 					OperationTime = time,
 					Nomenclature = Nomenclature,
 					Equipment = Equipment
 				};
+			if (status == TransportationStatus.Delivered)
+				CreateOperation(warehouseDst, Document.DeliveredTime.Value);
+		}
+
+		/// <summary>
+		/// Создание операции доставки при транспортировке
+		/// </summary>
+		public virtual void CreateOperation(Warehouse warehouseDst, DateTime deliveredTime)
+		{
+			DeliveryMovementOperation = new WarehouseMovementOperation
+				{
+					IncomingWarehouse = warehouseDst,
+					Amount = Amount,
+					OperationTime = deliveredTime,
+					Nomenclature = Nomenclature,
+					Equipment = Equipment
+				};
+			WarehouseMovementOperation.IncomingWarehouse = null;
 		}
 
 		public virtual void CreateOperation(Counterparty counterpartySrc, DeliveryPoint pointSrc, Counterparty counterpartyDst, DeliveryPoint pointDst, DateTime time)

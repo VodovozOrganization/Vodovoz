@@ -28,6 +28,7 @@ namespace Vodovoz.Domain.Documents
 					FromWarehouse = null;
 					ToWarehouse = null;
 					break;
+				case MovementDocumentCategory.Transportation:
 				case MovementDocumentCategory.warehouse:
 					FromClient = null;
 					ToClient = null;
@@ -51,16 +52,19 @@ namespace Vodovoz.Domain.Documents
 
 		DateTime? deliveredTime;
 
+		[PropertyChangedAlso("TransportationDescription")]
+		[Display(Name = "Время доставки")]
 		public virtual DateTime? DeliveredTime {
 			get { return deliveredTime; }
 			set {
-				deliveredTime = value;
-				//FIXME операции поступления
-				foreach (var item in Items) {
-					if (item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
-						item.WarehouseMovementOperation.OperationTime = TimeStamp;
-					if (item.CounterpartyMovementOperation != null && item.CounterpartyMovementOperation.OperationTime != TimeStamp)
-						item.CounterpartyMovementOperation.OperationTime = TimeStamp;
+				SetField (ref deliveredTime, value, () => DeliveredTime);
+				if (deliveredTime.HasValue)
+				{
+					foreach (var item in Items)
+					{
+						if (item.DeliveryMovementOperation != null && item.DeliveryMovementOperation.OperationTime != DeliveredTime.Value)
+							item.DeliveryMovementOperation.OperationTime = DeliveredTime.Value;
+					}
 				}
 			}
 		}
@@ -68,9 +72,10 @@ namespace Vodovoz.Domain.Documents
 		TransportationStatus transportationStatus;
 
 		[Display (Name = "Статус транспортировки")]
+		[PropertyChangedAlso("TransportationDescription")]
 		public virtual TransportationStatus TransportationStatus {
 			get { return transportationStatus; }
-			set { SetField (ref transportationStatus, value, () => TransportationStatus); }
+			protected set { SetField (ref transportationStatus, value, () => TransportationStatus); }
 		}
 
 		MovementWagon movementWagon;
@@ -184,8 +189,16 @@ namespace Vodovoz.Domain.Documents
 			set { 
 				SetField (ref toWarehouse, value, () => ToWarehouse); 
 				foreach (var item in Items) {
-					if (item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.IncomingWarehouse != toWarehouse)
-						item.WarehouseMovementOperation.IncomingWarehouse = toWarehouse;
+					if(Category == MovementDocumentCategory.warehouse)
+					{
+						if (item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.IncomingWarehouse != toWarehouse)
+							item.WarehouseMovementOperation.IncomingWarehouse = toWarehouse;
+					}
+					if(Category == MovementDocumentCategory.Transportation)
+					{
+						if (item.DeliveryMovementOperation != null && item.DeliveryMovementOperation.IncomingWarehouse != toWarehouse)
+							item.DeliveryMovementOperation.IncomingWarehouse = toWarehouse;
+					}
 				}
 			}
 		}
@@ -211,17 +224,39 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		#region Вычисляемые
+
 		public virtual string Title { 
 			get { return String.Format ("Перемещение ТМЦ №{0} от {1:d}", Id, TimeStamp); }
 		}
+
+		public virtual string TransportationDescription { 
+			get { 
+				if(TransportationStatus == TransportationStatus.Delivered)
+					return String.Format ("{0} ({1:g})", TransportationStatus.GetEnumTitle(), DeliveredTime);
+				else
+					return String.Format ("{0}", TransportationStatus.GetEnumTitle()); }
+		}
+
+		#endregion
 
 		#region IValidatableObject implementation
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (Category == MovementDocumentCategory.warehouse && FromWarehouse == ToWarehouse)
-				yield return new ValidationResult ("Склады отправления и получения должны различатся.",
-					new[] { this.GetPropertyName (o => o.FromWarehouse), this.GetPropertyName (o => o.ToWarehouse) });
+			if (Category == MovementDocumentCategory.warehouse || Category == MovementDocumentCategory.Transportation)
+			{
+				if(FromWarehouse == ToWarehouse)
+					yield return new ValidationResult ("Склады отправления и получения должны различатся.",
+						new[] { this.GetPropertyName (o => o.FromWarehouse), this.GetPropertyName (o => o.ToWarehouse) });
+				if(FromWarehouse == null)
+					yield return new ValidationResult ("Склады отправления должен быть указан.",
+						new[] { this.GetPropertyName (o => o.FromWarehouse)});
+				if(ToWarehouse == null)
+					yield return new ValidationResult ("Склады получения должен быть указан.",
+						new[] { this.GetPropertyName (o => o.ToWarehouse)});
+			}
+				
 			if (Category == MovementDocumentCategory.counterparty) {
 				if (FromClient == null)
 					yield return new ValidationResult ("Клиент отправитель должен быть указан.",
@@ -239,9 +274,18 @@ namespace Vodovoz.Domain.Documents
 					yield return new ValidationResult ("Точки отправления и получения должны различатся.",
 						new[] { this.GetPropertyName (o => o.FromDeliveryPoint), this.GetPropertyName (o => o.ToDeliveryPoint) });
 			}
+
+			if(Category == MovementDocumentCategory.Transportation)
+			{
+				if(MovementWagon == null)
+					yield return new ValidationResult ("Фура не указана.",
+						new[] { this.GetPropertyName (o => o.MovementWagon)});
+			}
 		}
 
 		#endregion
+
+		#region Функции
 
 		public virtual void AddItem (Nomenclature nomenclature, decimal amount, decimal inStock)
 		{
@@ -254,11 +298,32 @@ namespace Vodovoz.Domain.Documents
 			};
 			if (Category == MovementDocumentCategory.counterparty)
 				item.CreateOperation(FromClient, FromDeliveryPoint, ToClient, ToDeliveryPoint, TimeStamp);
+			else if (Category == MovementDocumentCategory.warehouse)
+				item.CreateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
 			else
-				item.CreateOperation(FromWarehouse, ToWarehouse, TimeStamp);
+			{
+				if (TransportationStatus == TransportationStatus.WithoutTransportation)
+					TransportationStatus = TransportationStatus.Submerged;
+				item.CreateOperation(FromWarehouse, ToWarehouse, TimeStamp, TransportationStatus);
+			}
 			
 			ObservableItems.Add (item);
 		}
+
+		public virtual void TransportationCompleted()
+		{
+			if (Category != MovementDocumentCategory.Transportation)
+				throw new InvalidOperationException("Нельзя завершить доставку для документа не имеющего тип транспортировка.");
+			DeliveredTime = DateTime.Now;
+			TransportationStatus = TransportationStatus.Delivered;
+
+			foreach(var item in Items)
+			{
+				item.CreateOperation(ToWarehouse, DeliveredTime.Value);
+			}
+		}
+
+		#endregion
 
 		public MovementDocument ()
 		{

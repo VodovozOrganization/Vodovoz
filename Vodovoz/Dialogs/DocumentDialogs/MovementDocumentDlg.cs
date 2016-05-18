@@ -61,8 +61,15 @@ namespace Vodovoz
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
 			referenceEmployee.SubjectType = typeof(Employee);
 
+			yentryrefWagon.SubjectType = typeof(MovementWagon);
+			yentryrefWagon.Binding.AddBinding(Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
+
+			ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
+
 			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
 			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
+
+			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged;
 
 			movementdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
@@ -91,12 +98,16 @@ namespace Vodovoz
 		{
 			var selected = Entity.Category;
 			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible 
-				= (selected == MovementDocumentCategory.warehouse);
+				= (selected == MovementDocumentCategory.warehouse || selected == MovementDocumentCategory.Transportation);
 			referenceCounterpartyTo.Visible = referenceCounterpartyFrom.Visible = labelClientFrom.Visible = labelClientTo.Visible
 				= referenceDeliveryPointFrom.Visible = referenceDeliveryPointTo.Visible = labelPointFrom.Visible = labelPointTo.Visible
 				= (selected == MovementDocumentCategory.counterparty);
 			referenceDeliveryPointFrom.Sensitive = (referenceCounterpartyFrom.Subject != null && selected == MovementDocumentCategory.counterparty);
 			referenceDeliveryPointTo.Sensitive = (referenceCounterpartyTo.Subject != null && selected == MovementDocumentCategory.counterparty);
+
+			//Траспортировка
+			labelWagon.Visible = hboxTransportation.Visible = yentryrefWagon.Visible = labelTransportationTitle.Visible
+				= selected == MovementDocumentCategory.Transportation;
 		}
 
 		protected void OnReferenceCounterpartyFromChanged (object sender, EventArgs e)
@@ -117,6 +128,12 @@ namespace Vodovoz
 				referenceDeliveryPointTo.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
 					.Add (Restrictions.In ("Id", points));
 			}
+		}
+
+		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
+		{
+			buttonDelivered.Sensitive = false;
+			Entity.TransportationCompleted();
 		}
 	}
 }
