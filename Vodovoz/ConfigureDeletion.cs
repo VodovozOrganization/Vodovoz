@@ -356,15 +356,8 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<DeliveryShift>()
 				.AddClearDependence<RouteList>(x => x.Shift);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(LogisticsArea),
-				SqlSelect = "SELECT id, name FROM @tablename ",
-				DisplayString = "{1}",
-				ClearItems = new List<ClearDependenceInfo> {
-					ClearDependenceInfo.Create<DeliveryPoint> (item => item.LogisticsArea)
-				}
-			}.FillFromMetaInfo ()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<LogisticsArea>()
+				.AddClearDependence<DeliveryPoint> (item => item.LogisticsArea);
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteList>()
 				.AddDeleteDependence<RouteListItem>(x => x.RouteList)
