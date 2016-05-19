@@ -8,7 +8,7 @@ namespace Vodovoz
 	{
 		public CarUnloadDocumentItemMap ()
 		{
-			Table ("car_unload_document_items");
+			Table ("store_car_unload_document_items");
 			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();

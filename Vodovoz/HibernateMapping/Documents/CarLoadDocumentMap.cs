@@ -8,7 +8,7 @@ namespace Vodovoz.HMap
 	{
 		public CarLoadDocumentMap ()
 		{
-			Table ("car_load_documents");
+			Table ("store_car_load_documents");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.TimeStamp).Column ("time_stamp");

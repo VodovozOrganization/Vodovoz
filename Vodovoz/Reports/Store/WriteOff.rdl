@@ -38,8 +38,8 @@
         <CommandText>SELECT 
     `nomenclature`.`name` AS nomenclature,
     `culling_category`.`name` AS culling_category,
-    `writeoff_document_items`.`amount`,
-    `writeoff_document_items`.`comment`,
+    `store_writeoff_document_items`.`amount`,
+    `store_writeoff_document_items`.`comment`,
     GROUP_CONCAT(CONCAT_WS('',
                 CONCAT(employees.last_name, ' '),
                 IF(employees.name = '',
@@ -51,18 +51,18 @@
         SEPARATOR ', ') AS guilty,
         SUM(fines_items.money) as fine_money
 FROM
-    writeoff_document_items
+    store_writeoff_document_items
         LEFT JOIN
-    nomenclature ON nomenclature.id = writeoff_document_items.nomenclature_id
+    nomenclature ON nomenclature.id = store_writeoff_document_items.nomenclature_id
         LEFT JOIN
-    culling_category ON culling_category.id = writeoff_document_items.culling_category_id
+    culling_category ON culling_category.id = store_writeoff_document_items.culling_category_id
         LEFT JOIN
-    fines_items ON fines_items.fine_id = writeoff_document_items.fine_id
+    fines_items ON fines_items.fine_id = store_writeoff_document_items.fine_id
         LEFT JOIN
     employees ON employees.id = fines_items.employee_id
 WHERE
-    writeoff_document_items.writeoff_document_id = @writeoff_id
-GROUP BY writeoff_document_items.id;</CommandText>
+    store_writeoff_document_items.writeoff_document_id = @writeoff_id
+GROUP BY store_writeoff_document_items.id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="writeoff_id">
             <Value>=Parameters!writeoff_id</Value>

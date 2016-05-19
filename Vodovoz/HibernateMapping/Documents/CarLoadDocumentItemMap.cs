@@ -8,7 +8,7 @@ namespace Vodovoz.HMap
 	{
 		public CarLoadDocumentItemMap ()
 		{
-			Table ("car_load_document_items");
+			Table ("store_car_load_document_items");
 			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();

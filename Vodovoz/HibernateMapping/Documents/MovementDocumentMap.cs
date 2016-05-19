@@ -7,7 +7,7 @@ namespace Vodovoz.HMap
 	{
 		public MovementDocumentMap ()
 		{
-			Table ("movement_document");
+			Table ("store_movement_document");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.TimeStamp).Column ("time_stamp");

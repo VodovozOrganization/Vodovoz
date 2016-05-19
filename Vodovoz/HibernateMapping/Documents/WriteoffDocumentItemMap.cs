@@ -7,7 +7,7 @@ namespace Vodovoz.HMap
 	{
 		public WriteoffDocumentItemMap ()
 		{
-			Table ("writeoff_document_items");
+			Table ("store_writeoff_document_items");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Amount).Column ("amount");

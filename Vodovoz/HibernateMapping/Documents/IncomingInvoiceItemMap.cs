@@ -8,7 +8,7 @@ namespace Vodovoz.HMap
 	{
 		public IncomingInvoiceItemMap ()
 		{
-			Table ("incoming_invoice_items");
+			Table ("store_incoming_invoice_items");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map (x => x.Price).Column ("price");

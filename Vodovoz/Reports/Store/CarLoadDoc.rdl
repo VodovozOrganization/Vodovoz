@@ -29,9 +29,9 @@
     equipment.id as serial_number,
     warehouse_movement_operations.amount
 FROM
-    car_load_document_items
+    store_car_load_document_items
         LEFT JOIN
-    warehouse_movement_operations ON car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+    warehouse_movement_operations ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
         LEFT JOIN
     nomenclature ON warehouse_movement_operations.nomenclature_id = nomenclature.id
         LEFT JOIN
@@ -39,7 +39,7 @@ FROM
         LEFT JOIN
     equipment ON equipment.id = warehouse_movement_operations.equipment_id
 WHERE
-    car_load_document_items.car_load_document_id = @id
+    store_car_load_document_items.car_load_document_id = @id
     ORDER BY nomenclature, serial_number;</CommandText>
         <QueryParameters>
           <QueryParameter Name="id">
@@ -70,8 +70,8 @@ WHERE
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    car_load_documents.id,
-    DATE_FORMAT(car_load_documents.time_stamp, '%d.%m.%y') as date,
+    store_car_load_documents.id,
+    DATE_FORMAT(store_car_load_documents.time_stamp, '%d.%m.%y') as date,
     route_lists.id AS route_list_id,
     route_lists.date AS route_list_date,
     warehouses.name AS warehouse,
@@ -103,13 +103,13 @@ WHERE
     cars.model,
     cars.reg_number
 FROM
-    car_load_documents
+    store_car_load_documents
         LEFT JOIN
-    employees AS storekeepers ON storekeepers.id = car_load_documents.author_id
+    employees AS storekeepers ON storekeepers.id = store_car_load_documents.author_id
         LEFT JOIN
-    warehouses ON warehouses.id = car_load_documents.warehouse_id
+    warehouses ON warehouses.id = store_car_load_documents.warehouse_id
         LEFT JOIN
-    route_lists ON route_lists.id = car_load_documents.route_list_id
+    route_lists ON route_lists.id = store_car_load_documents.route_list_id
         LEFT JOIN
     employees AS drivers ON drivers.id = route_lists.driver_id
         LEFT JOIN
@@ -117,7 +117,7 @@ FROM
         LEFT JOIN
     cars ON cars.id = route_lists.car_id
 WHERE
-    car_load_documents.id = @id;</CommandText>
+    store_car_load_documents.id = @id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="@id">
             <Value>={?id}</Value>
