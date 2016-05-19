@@ -181,7 +181,7 @@ namespace Vodovoz
 				DocumentUoW.Delete(row.WarehouseIncomeOperation);
 			if (row.WarehouseWriteOffOperation.Id == 0)
 				DocumentUoW.Delete(row.WarehouseWriteOffOperation);
-			if(row.Id == 0)
+			if(row.Id != 0)
 				DocumentUoW.Delete(row);
 			DocumentUoW.Root.ObservableItems.Remove(row);
 		}

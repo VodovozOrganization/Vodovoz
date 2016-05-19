@@ -52,6 +52,15 @@ namespace Vodovoz.Domain.Store
 		{
 		}
 
+		#region
+
+		public virtual void AddItem(RegradingOfGoodsTemplateItem item)
+		{
+			item.Template = this;
+			ObservableItems.Add(item);
+		}
+
+		#endregion
 	}
 }
 

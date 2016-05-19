@@ -597,4 +597,12 @@ public partial class MainWindow: Gtk.Window
 			() => new OrmReference(typeof(MovementWagon))
 		);
 	}
+
+	protected void OnActionRegrandingOfGoodsTempalteActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<RegradingOfGoodsTemplate>(),
+			() => new OrmReference(typeof(RegradingOfGoodsTemplate))
+		);
+	}
 }

@@ -602,6 +602,10 @@
     <Compile Include="Domain\Store\RegradingOfGoodsTemplateItem.cs" />
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateItemMap.cs" />
     <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateMap.cs" />
+    <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateItemsView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateItemsView.cs" />
+    <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
