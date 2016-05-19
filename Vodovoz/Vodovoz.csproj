@@ -598,6 +598,10 @@
     <Compile Include="gtk-gui\Vodovoz.UserSettingsDlg.cs" />
     <Compile Include="Domain\Store\MovementWagon.cs" />
     <Compile Include="HibernateMapping\Store\MovementWagonMap.cs" />
+    <Compile Include="Domain\Store\RegradingOfGoodsTemplate.cs" />
+    <Compile Include="Domain\Store\RegradingOfGoodsTemplateItem.cs" />
+    <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateItemMap.cs" />
+    <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
