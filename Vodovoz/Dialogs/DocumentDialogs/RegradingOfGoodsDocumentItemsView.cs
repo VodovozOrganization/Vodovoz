@@ -9,6 +9,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using QSTDI;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
@@ -66,7 +67,7 @@ namespace Vodovoz
 			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
 			buttonChangeNew.Sensitive = buttonDelete.Sensitive = selected != null;
 			buttonChangeOld.Sensitive = selected != null && DocumentUoW.Root.Warehouse != null;
-			buttonAdd.Sensitive = DocumentUoW.Root.Warehouse != null;
+			buttonAdd.Sensitive = buttonFromTemplate.Sensitive = DocumentUoW.Root.Warehouse != null;
 
 			buttonFine.Sensitive = selected != null;
 			if(selected != null)
@@ -230,6 +231,36 @@ namespace Vodovoz
 			DocumentUoW.Delete(item.Fine);
 			item.Fine = null;
 			UpdateButtonState();
+		}
+
+		protected void OnButtonFromTemplateClicked(object sender, EventArgs e)
+		{
+			var selectTemplate = new OrmReference(typeof(RegradingOfGoodsTemplate));
+			selectTemplate.Mode = OrmReferenceMode.Select;
+			selectTemplate.ObjectSelected += SelectTemplate_ObjectSelected;
+			MyTab.TabParent.AddSlaveTab(MyTab, selectTemplate);
+		}
+
+		void SelectTemplate_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			if (DocumentUoW.Root.Items.Count > 0)
+			{
+				if (MessageDialogWorks.RunQuestionDialog("Текущий список будет очищен. Продолжить?"))
+					DocumentUoW.Root.ObservableItems.Clear();
+				else
+					return;
+			}
+
+			var template = DocumentUoW.GetById<RegradingOfGoodsTemplate>((e.Subject as RegradingOfGoodsTemplate).Id);
+			foreach(var item in template.Items)
+			{
+				DocumentUoW.Root.AddItem(new RegradingOfGoodsDocumentItem()
+					{
+						NomenclatureNew = item.NomenclatureNew,
+						NomenclatureOld = item.NomenclatureOld
+					});
+			}
+			LoadStock();
 		}
 	}
 }
