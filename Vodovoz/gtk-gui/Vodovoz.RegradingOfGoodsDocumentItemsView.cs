@@ -21,6 +21,12 @@ namespace Vodovoz
 		private global::Gtk.Button buttonChangeNew;
 		
 		private global::Gtk.Button buttonDelete;
+		
+		private global::Gtk.VSeparator vseparator1;
+		
+		private global::Gtk.Button buttonFine;
+		
+		private global::Gtk.Button buttonDeleteFine;
 
 		protected virtual void Build ()
 		{
@@ -114,11 +120,44 @@ namespace Vodovoz
 			w11.Position = 3;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w12.Position = 2;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.vseparator1 = new global::Gtk.VSeparator ();
+			this.vseparator1.Name = "vseparator1";
+			this.hbox1.Add (this.vseparator1);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vseparator1]));
+			w12.Position = 4;
 			w12.Expand = false;
 			w12.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonFine = new global::Gtk.Button ();
+			this.buttonFine.CanFocus = true;
+			this.buttonFine.Name = "buttonFine";
+			this.buttonFine.UseUnderline = true;
+			this.buttonFine.Label = global::Mono.Unix.Catalog.GetString ("Добавить штаф");
+			this.hbox1.Add (this.buttonFine);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonFine]));
+			w13.Position = 5;
+			w13.Expand = false;
+			w13.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonDeleteFine = new global::Gtk.Button ();
+			this.buttonDeleteFine.CanFocus = true;
+			this.buttonDeleteFine.Name = "buttonDeleteFine";
+			this.buttonDeleteFine.UseUnderline = true;
+			this.buttonDeleteFine.Label = global::Mono.Unix.Catalog.GetString ("Удалить штраф");
+			global::Gtk.Image w14 = new global::Gtk.Image ();
+			w14.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDeleteFine.Image = w14;
+			this.hbox1.Add (this.buttonDeleteFine);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDeleteFine]));
+			w15.Position = 6;
+			w15.Expand = false;
+			w15.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w16.Position = 2;
+			w16.Expand = false;
+			w16.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -129,6 +168,8 @@ namespace Vodovoz
 			this.buttonChangeOld.Clicked += new global::System.EventHandler (this.OnButtonChangeOldClicked);
 			this.buttonChangeNew.Clicked += new global::System.EventHandler (this.OnButtonChangeNewClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
+			this.buttonFine.Clicked += new global::System.EventHandler (this.OnButtonFineClicked);
+			this.buttonDeleteFine.Clicked += new global::System.EventHandler (this.OnButtonDeleteFineClicked);
 		}
 	}
 }

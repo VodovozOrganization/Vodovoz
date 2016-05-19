@@ -4,8 +4,11 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using QSTDI;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
@@ -13,6 +16,7 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentItemsView : WidgetOnDialogBase
 	{
 		RegradingOfGoodsDocumentItem newRow;
+		RegradingOfGoodsDocumentItem FineEditItem;
 
 		public RegradingOfGoodsDocumentItemsView()
 		{
@@ -26,6 +30,8 @@ namespace Vodovoz
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.NomenclatureNew.Unit.Digits)
 				.AddSetter((w, x) => w.Adjustment.Upper = (double)x.AmountInStock)
+				.AddColumn("Сумма ущерба").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString(x.SumOfDamage))
+				.AddColumn("Штраф").AddTextRenderer(x => x.Fine != null ? x.Fine.Description : String.Empty)
 				.AddColumn("Что произошло").AddTextRenderer(x => x.Comment).Editable()
 				.Finish();
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
@@ -57,10 +63,20 @@ namespace Vodovoz
 
 		private void UpdateButtonState()
 		{
-			bool selected = ytreeviewItems.Selection.CountSelectedRows() > 0;
-			buttonChangeNew.Sensitive = buttonDelete.Sensitive = selected;
-			buttonChangeOld.Sensitive = selected && DocumentUoW.Root.Warehouse != null;
+			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
+			buttonChangeNew.Sensitive = buttonDelete.Sensitive = selected != null;
+			buttonChangeOld.Sensitive = selected != null && DocumentUoW.Root.Warehouse != null;
 			buttonAdd.Sensitive = DocumentUoW.Root.Warehouse != null;
+
+			buttonFine.Sensitive = selected != null;
+			if(selected != null)
+			{
+				if (selected.Fine != null)
+					buttonFine.Label = "Изменить штраф";
+				else
+					buttonFine.Label = "Добавить штраф";
+			}
+			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
 		void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -176,6 +192,44 @@ namespace Vodovoz
 				buttonChangeOld.Click();
 			if (args.Column.Title == "Новая номенклатура")
 				buttonChangeNew.Click();
+		}
+
+		protected void OnButtonFineClicked(object sender, EventArgs e)
+		{
+			var selected = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
+			FineDlg fineDlg;
+			if (selected.Fine != null)
+			{
+				fineDlg = new FineDlg(selected.Fine);
+				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+			}
+			else
+			{
+				fineDlg = new FineDlg();
+				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+			}
+			fineDlg.Entity.TotalMoney = selected.SumOfDamage;
+			FineEditItem = selected;
+			MyTab.TabParent.AddSlaveTab(MyTab, fineDlg);
+		}
+
+		void FineDlgNew_EntitySaved (object sender, EntitySavedEventArgs e)
+		{
+			FineEditItem.Fine = e.Entity as Fine;
+			FineEditItem = null;
+		}
+
+		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
+		{
+			DocumentUoW.Session.Refresh(FineEditItem.Fine);
+		}
+
+		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
+		{
+			var item = ytreeviewItems.GetSelectedObject<RegradingOfGoodsDocumentItem>();
+			DocumentUoW.Delete(item.Fine);
+			item.Fine = null;
+			UpdateButtonState();
 		}
 	}
 }

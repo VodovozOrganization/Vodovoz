@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
 
@@ -79,6 +80,22 @@ namespace Vodovoz.Domain.Documents
 		public virtual string Comment {
 			get { return comment; }
 			set { SetField (ref comment, value, () => Comment); }
+		}
+
+		[Display (Name = "Сумма ущерба")]
+		public virtual decimal SumOfDamage {
+			get { if (Amount == 0)
+				return 0;
+			else
+				return NomenclatureOld.SumOfDamage * Amount; }
+		}
+
+		Fine fine;
+
+		[Display (Name = "Штраф")]
+		public virtual Fine Fine {
+			get { return fine; }
+			set { SetField (ref fine, value, () => Fine); }
 		}
 
 		WarehouseMovementOperation warehouseWriteOffOperation = new WarehouseMovementOperation();
