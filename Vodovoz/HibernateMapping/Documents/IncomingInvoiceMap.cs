@@ -14,6 +14,7 @@ namespace Vodovoz.HMap
 			Map (x => x.InvoiceNumber).Column ("invoice_number");
 			Map (x => x.WaybillNumber).Column ("waybill_number");
 			Map(x => x.LastEditedTime).Column("last_edit_time");
+			Map (x => x.Comment).Column ("comment");
 			References (x => x.Author).Column ("author_id");
 			References (x => x.LastEditor).Column ("last_editor_id");
 			References (x => x.Contractor).Column ("counterparty_id");

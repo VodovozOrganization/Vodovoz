@@ -49,6 +49,7 @@ namespace Vodovoz
 			referenceContractor.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
 				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.supplier));
 			incominginvoiceitemsview1.DocumentUoW = UoWGeneric;
+			ytextviewComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 		}
 
 		public override bool Save ()
