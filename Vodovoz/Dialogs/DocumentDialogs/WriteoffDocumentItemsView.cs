@@ -77,6 +77,7 @@ namespace Vodovoz
 				else
 					buttonFine.Label = "Добавить штраф";
 			}
+			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
 		protected void OnButtonAddClicked (object sender, EventArgs e)
@@ -132,6 +133,14 @@ namespace Vodovoz
 		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
 		{
 			DocumentUoW.Session.Refresh(FineEditItem.Fine);
+		}
+
+		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
+		{
+			var item = treeItemsList.GetSelectedObject<WriteoffDocumentItem>();
+			DocumentUoW.Delete(item.Fine);
+			item.Fine = null;
+			OnSelectionChanged(null, EventArgs.Empty);
 		}
 	}
 }

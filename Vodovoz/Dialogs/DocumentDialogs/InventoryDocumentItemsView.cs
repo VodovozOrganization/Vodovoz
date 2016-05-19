@@ -48,6 +48,7 @@ namespace Vodovoz
 				else
 					buttonFine.Label = "Добавить штраф";
 			}
+			buttonDeleteFine.Sensitive = selected != null && selected.Fine != null;
 		}
 
 		private IUnitOfWorkGeneric<InventoryDocument> documentUoW;
@@ -138,6 +139,13 @@ namespace Vodovoz
 			DocumentUoW.Session.Refresh(FineEditItem.Fine);
 		}
 
+		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)
+		{
+			var item = ytreeviewItems.GetSelectedObject<InventoryDocumentItem>();
+			DocumentUoW.Delete(item.Fine);
+			item.Fine = null;
+			YtreeviewItems_Selection_Changed(null, EventArgs.Empty);
+		}
 	}
 }
 

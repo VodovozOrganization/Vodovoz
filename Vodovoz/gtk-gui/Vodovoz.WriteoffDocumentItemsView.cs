@@ -19,6 +19,8 @@ namespace Vodovoz
 		private global::Gtk.Button buttonDelete;
 		
 		private global::Gtk.Button buttonFine;
+		
+		private global::Gtk.Button buttonDeleteFine;
 
 		protected virtual void Build ()
 		{
@@ -95,11 +97,25 @@ namespace Vodovoz
 			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonDeleteFine = new global::Gtk.Button ();
+			this.buttonDeleteFine.CanFocus = true;
+			this.buttonDeleteFine.Name = "buttonDeleteFine";
+			this.buttonDeleteFine.UseUnderline = true;
+			this.buttonDeleteFine.Label = global::Mono.Unix.Catalog.GetString ("Удалить штраф");
+			global::Gtk.Image w9 = new global::Gtk.Image ();
+			w9.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDeleteFine.Image = w9;
+			this.hbox1.Add (this.buttonDeleteFine);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDeleteFine]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w9.Position = 2;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -108,6 +124,7 @@ namespace Vodovoz
 			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 			this.buttonFine.Clicked += new global::System.EventHandler (this.OnButtonFineClicked);
+			this.buttonDeleteFine.Clicked += new global::System.EventHandler (this.OnButtonDeleteFineClicked);
 		}
 	}
 }
