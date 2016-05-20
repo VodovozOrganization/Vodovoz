@@ -606,6 +606,8 @@
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateItemsView.cs" />
     <Compile Include="Dialogs\Store\RegradingOfGoodsTemplateDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RegradingOfGoodsTemplateDlg.cs" />
+    <Compile Include="ReportsParameters\EmployeesFines.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.EmployeesFines.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -869,6 +871,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Store\InventoryDoc.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Employees\Fines.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

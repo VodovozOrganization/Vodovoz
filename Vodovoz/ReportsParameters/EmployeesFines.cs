@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using QSOrmProject;
 using QSReport;
-using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
+using System.Collections.Generic;
 
 namespace Vodovoz.Reports
 {
-	public partial class Revision : Gtk.Bin, IParametersWidget
+	public partial class EmployeesFines : Gtk.Bin, IParametersWidget
 	{
-		public Revision()
+		public EmployeesFines()
 		{
 			this.Build();
-			var uow = UnitOfWorkFactory.CreateWithoutRoot ();
-			referenceCounterparty.ItemsQuery = CounterpartyRepository.ActiveClientsQuery ();
-		}	
+		}
 
 		#region IParametersWidget implementation
 
@@ -22,7 +17,7 @@ namespace Vodovoz.Reports
 		{
 			get
 			{
-				return "Акт сверки";
+				return "Штрафы сотрудников";
 			}
 		}
 
@@ -47,12 +42,11 @@ namespace Vodovoz.Reports
 		{			
 			return new ReportInfo
 			{
-				Identifier = "Cash.Revision",
+				Identifier = "Employees.Fines",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
-					{ "CounterpartyID", (referenceCounterparty.Subject as Counterparty).Id}
+					{ "startDate", dateperiodpicker1.StartDateOrNull.Value },
+					{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
 				}
 			};
 		}			
@@ -65,14 +59,9 @@ namespace Vodovoz.Reports
 		private void ValidateParameters()
 		{
 			var datePeriodSelected = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
-			var counterpartySelected = referenceCounterparty.Subject != null;
-			buttonRun.Sensitive = datePeriodSelected && counterpartySelected;
+			buttonRun.Sensitive = datePeriodSelected;
 		}
 
-		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
-		{
-			ValidateParameters();
-		}
 	}
 }
 
