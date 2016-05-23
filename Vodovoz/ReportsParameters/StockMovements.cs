@@ -15,6 +15,9 @@ namespace Vodovoz.Reports
 			this.Build();
 			uow = UnitOfWorkFactory.CreateWithoutRoot();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
+			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+				yentryrefWarehouse.Subject =  CurrentUserSettings.Settings.DefaultWarehouse;
+			dateperiodpicker1.StartDate = dateperiodpicker1.EndDate = DateTime.Today;
 		}
 
 		#region IParametersWidget implementation
