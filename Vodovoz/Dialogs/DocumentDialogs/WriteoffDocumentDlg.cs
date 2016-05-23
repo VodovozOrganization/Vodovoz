@@ -27,6 +27,9 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
+			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+				Entity.WriteoffWarehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+			
 			ConfigureDlg ();
 		}
 
