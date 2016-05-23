@@ -9,12 +9,22 @@ namespace Vodovoz
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
+		static IUnitOfWork uow;
+
+		static IUnitOfWork UoW{
+			get{
+				if (uow == null || !uow.IsAlive)
+					uow = UnitOfWorkFactory.CreateWithoutRoot();
+				return uow;
+			}
+		}
+
 		static UserSettings settings;
 		public static UserSettings Settings
 		{
 			get
 			{
-				if(settings != null)
+				if(settings != null && UoW != null && UoW.IsAlive)
 					return settings;
 
 				ReloadSettings();
@@ -30,17 +40,13 @@ namespace Vodovoz
 		static private void ReloadSettings()
 		{
 			logger.Info("Обновляем настройки пользователя...");
-			using (var Uow = UnitOfWorkFactory.CreateWithoutRoot())
+			settings = Repository.UserRepository.GetCurrentUserSettings(UoW);
+
+			if (settings == null)
 			{
-				settings = Repository.UserRepository.GetCurrentUserSettings(Uow);
-
-				if (settings == null)
-				{
-					var user = Repository.UserRepository.GetCurrentUser(Uow);
+				var user = Repository.UserRepository.GetCurrentUser(UoW);
 					settings = new UserSettings(user);
-				}
 			}
-
 		}
 
 		static void Map_ObjectUpdatedGeneric (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<UserSettings> e)
@@ -51,11 +57,8 @@ namespace Vodovoz
 
 		public static void SaveSettings()
 		{
-			using (var Uow = UnitOfWorkFactory.CreateWithoutRoot())
-			{
-				Uow.Save(settings);
-				Uow.Commit();
-			}
+			UoW.Save(settings);
+			UoW.Commit();
 		}
 	}
 }
