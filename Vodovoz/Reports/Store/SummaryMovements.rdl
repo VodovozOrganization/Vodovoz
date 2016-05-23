@@ -1,0 +1,1461 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>8.5in</PageHeight>
+  <PageWidth>11in</PageWidth>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <DataSets>
+    <DataSet Name="Data">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    nomenclature.name AS nomenclature,
+    IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &lt; @startDate),
+            0) AS before_added,
+    IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &lt; @startDate),
+            0) AS before_removed,
+    IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0) AS all_added,
+    IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
+            0) AS all_removed,
+    IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                        LEFT JOIN
+                    store_car_unload_document_items ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                        AND store_car_unload_document_items.id IS NOT NULL),
+            0) AS drivers_added,
+    IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    warehouse_movement_operations
+                        LEFT JOIN
+                    store_car_unload_document_items ON store_car_unload_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                        LEFT JOIN
+                    store_car_load_document_items ON store_car_load_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                        LEFT JOIN
+                    store_car_load_documents ON store_car_load_documents.id = store_car_load_document_items.car_load_document_id
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                        AND (store_car_unload_document_items.id IS NOT NULL
+                        OR store_car_load_documents.route_list_id IS NOT NULL)),
+            0) AS drivers_removed,
+    IF(@wagon1_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon1_id),
+                0)) AS wagon1_added,
+    IF(@wagon1_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon1_id),
+                0)) AS wagon1_removed,
+    IF(@wagon2_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon2_id),
+                0)) AS wagon2_added,
+    IF(@wagon2_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon2_id),
+                0)) AS wagon2_removed,
+    IF(@wagon3_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon3_id),
+                0)) AS wagon3_added,
+    IF(@wagon3_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon3_id),
+                0)) AS wagon3_removed,
+    IF(@wagon4_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon4_id),
+                0)) AS wagon4_added,
+    IF(@wagon4_id = - 1,
+        0,
+        IFNULL((SELECT 
+                        SUM(warehouse_movement_operations.amount)
+                    FROM
+                        warehouse_movement_operations
+                            LEFT JOIN
+                        store_movement_document_items ON store_movement_document_items.warehouse_movement_operation_id = warehouse_movement_operations.id
+                            OR store_movement_document_items.delivery_movement_operation_id = warehouse_movement_operations.id
+                            LEFT JOIN
+                        store_movement_document ON store_movement_document.id = store_movement_document_items.movement_document_id
+                    WHERE
+                        warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                            AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                            AND warehouse_movement_operations.operation_time &gt;= @startDate
+                            AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                            AND store_movement_document.transportation_wagon_id = @wagon4_id),
+                0)) AS wagon4_removed
+FROM
+    warehouse_movement_operations
+        LEFT JOIN
+    nomenclature ON nomenclature.id = warehouse_movement_operations.nomenclature_id
+WHERE
+    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+        OR warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="startDate">
+            <Value>=Parameters!startDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="endDate">
+            <Value>=Parameters!endDate</Value>
+          </QueryParameter>
+          <QueryParameter Name="warehouse_id">
+            <Value>=Parameters!warehouse_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="wagon1_id">
+            <Value>=Parameters!wagon1_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="wagon2_id">
+            <Value>=Parameters!wagon2_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="wagon3_id">
+            <Value>=Parameters!wagon3_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="wagon4_id">
+            <Value>=Parameters!wagon4_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="nomenclature">
+          <DataField>nomenclature</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="before_added">
+          <DataField>before_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="before_removed">
+          <DataField>before_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="all_added">
+          <DataField>all_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="all_removed">
+          <DataField>all_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="drivers_added">
+          <DataField>drivers_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="drivers_removed">
+          <DataField>drivers_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon1_added">
+          <DataField>wagon1_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon1_removed">
+          <DataField>wagon1_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon2_added">
+          <DataField>wagon2_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon2_removed">
+          <DataField>wagon2_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon3_added">
+          <DataField>wagon3_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon3_removed">
+          <DataField>wagon3_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon4_added">
+          <DataField>wagon4_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="wagon4_removed">
+          <DataField>wagon4_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Wagons">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    (SELECT 
+            name
+        FROM
+            store_movement_wagon
+        WHERE
+            id = @wagon1_id) AS wagon1,
+    (SELECT 
+            name
+        FROM
+            store_movement_wagon
+        WHERE
+            id = @wagon2_id) AS wagon2,
+            (SELECT 
+            name
+        FROM
+            store_movement_wagon
+        WHERE
+            id = @wagon3_id) AS wagon3,
+            (SELECT 
+            name
+        FROM
+            store_movement_wagon
+        WHERE
+            id = @wagon4_id) AS wagon4;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="wagon1_id">
+            <Value>={?wagon1_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="wagon2_id">
+            <Value>={?wagon2_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="wagon3_id">
+            <Value>={?wagon3_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="wagon4_id">
+            <Value>={?wagon4_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="wagon1">
+          <DataField>wagon1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="wagon2">
+          <DataField>wagon2</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="wagon3">
+          <DataField>wagon3</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="wagon4">
+          <DataField>wagon4</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <PageHeader>
+    <Height>.5in</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>7.23pt</Top>
+        <Left>7.23pt</Left>
+        <Width>567.62pt</Width>
+        <Height>19.58pt</Height>
+        <Value>= "Отчет по складу с " + Format(CDate({?startDate}), "d") + " по " + Format(CDate({?endDate}), "d")</Value>
+        <Style>
+          <FontSize>15pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <ReportItems>
+      <Table Name="Table1">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>120.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>45.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>28.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>32.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>36.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>31.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>40.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>36.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>36.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>37.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>37.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>38.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>38.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>37.4pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>34.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>37.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>41.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>46.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Остатки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>Водители</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>Самовывоз</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>=First({wagon1}, 'Wagons')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>=First({wagon2}, 'Wagons')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>=First({wagon3}, 'Wagons')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>=First({wagon4}, 'Wagons')</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Остальное</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Всего</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>Остатки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>начало</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>-</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>+</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>-</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Bottom>Solid</Bottom>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>конец</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                          <Top>None</Top>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="nomenclature">
+                      <Value>=Fields!nomenclature.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="before_added">
+                      <Value>=Iif(Fields!before_added.IsMissing, 0,Fields!before_added.Value) - Iif(Fields!before_removed.IsMissing, 0,Fields!before_removed.Value)</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="before_removed">
+                      <Value>=Fields!drivers_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="all_added">
+                      <Value>=Fields!drivers_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="all_removed">
+                      <Value>
+                      </Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="drivers_added">
+                      <Value>
+                      </Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="drivers_removed">
+                      <Value>=Fields!wagon1_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon1_added">
+                      <Value>=Fields!wagon1_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>9pt</FontSize>
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon1_removed">
+                      <Value>=Fields!wagon1_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon2_added">
+                      <Value>=Fields!wagon2_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon2_removed">
+                      <Value>=Fields!wagon2_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <Format>#,##0</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon3_added">
+                      <Value>=Fields!wagon3_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon3_removed">
+                      <Value>=Fields!wagon3_removed.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon4_added">
+                      <Value>=Fields!wagon4_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon4_removed">
+                      <Value>={all_added}-{drivers_added}-{wagon1_added}-{wagon2_added}-{wagon3_added}-{wagon4_added}</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>={all_removed}-{drivers_removed}-{wagon1_removed}-{wagon2_removed}-{wagon3_removed}-{wagon4_removed}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>={all_added}-{all_removed}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>={before_added}-{before_removed}+{all_added}-{all_removed}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>16.0pt</Top>
+      </Table>
+    </ReportItems>
+    <Height>73.2pt</Height>
+    <Columns>1</Columns>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox17">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="startDate">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2016-05-01</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2016-05-30</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="warehouse_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>6</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="wagon1_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="wagon2_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="wagon3_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="wagon4_id">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>-1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>
