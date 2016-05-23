@@ -42,11 +42,6 @@ namespace Vodovoz.Domain.Documents
 			get { return warehouse; }
 			set {
 				SetField (ref warehouse, value, () => Warehouse);
-
-				foreach (var item in Items) {
-					if (item.WarehouseChangeOperation != null && item.WarehouseChangeOperation.WriteoffWarehouse != Warehouse)
-						item.WarehouseChangeOperation.WriteoffWarehouse = Warehouse;
-				}
 			}
 		}
 
