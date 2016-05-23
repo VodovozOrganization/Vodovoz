@@ -1148,25 +1148,6 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="wagon1_removed">
-                      <Value>=Fields!wagon1_removed.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <FontSize>9pt</FontSize>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>#,##0</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="wagon2_added">
                       <Value>=Fields!wagon2_added.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
@@ -1185,26 +1166,8 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="wagon2_removed">
+                    <Textbox Name="wagon2_added">
                       <Value>=Fields!wagon2_removed.Value</Value>
-                      <CanGrow>false</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <Format>#,##0</Format>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="wagon3_added">
-                      <Value>=Fields!wagon3_added.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1222,7 +1185,25 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="wagon3_removed">
+                    <Textbox Name="wagon2_removed">
+                      <Value>=Fields!wagon3_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <Format>#,##0</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon3_added">
                       <Value>=Fields!wagon3_removed.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
@@ -1241,8 +1222,27 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="wagon4_added">
+                    <Textbox Name="wagon3_removed">
                       <Value>=Fields!wagon4_added.Value</Value>
+                      <CanGrow>false</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontSize>9pt</FontSize>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>#,##0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="wagon4_added">
+                      <Value>=Fields!wagon4_removed.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
