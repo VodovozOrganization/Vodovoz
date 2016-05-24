@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using System.Linq;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -20,8 +21,8 @@ namespace Vodovoz.Domain.Documents
 				if (!NHibernate.NHibernateUtil.IsInitialized(Items))
 					return;
 				foreach (var item in Items) {
-					if (item.MovementOperation != null && item.MovementOperation.OperationTime != TimeStamp)
-						item.MovementOperation.OperationTime = TimeStamp;
+					if (item.WarehouseMovementOperation != null && item.WarehouseMovementOperation.OperationTime != TimeStamp)
+						item.WarehouseMovementOperation.OperationTime = TimeStamp;
 				}
 			}
 		}
@@ -40,6 +41,13 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref warehouse, value, () => Warehouse); }
 		}
 
+		string comment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
 
 		IList<SelfDeliveryDocumentItem> items = new List<SelfDeliveryDocumentItem> ();
 
@@ -62,15 +70,110 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		#region Не сохраняемые
+
 		public virtual string Title { 
 			get { return String.Format ("Самовывоз №{0} от {1:d}", Id, TimeStamp); }
 		}
+
+		#endregion
+
+		#region Функции
 
 		public virtual void AddItem (SelfDeliveryDocumentItem item)
 		{
 			item.Document = this;
 			ObservableItems.Add (item);
 		}
+
+		public virtual void FillByOrder()
+		{
+			ObservableItems.Clear();
+			if (Order == null)
+				return;
+
+			foreach(var orderItem in Order.OrderItems)
+			{
+				if (!Nomenclature.GetCategoriesForSale().Contains(orderItem.Nomenclature.Category) 
+					&& orderItem.Nomenclature.Category != NomenclatureCategory.equipment)
+					continue;
+				ObservableItems.Add(new SelfDeliveryDocumentItem(){
+					Document = this,
+					Nomenclature = orderItem.Nomenclature,
+					OrderItem = orderItem,
+					Amount = orderItem.Count
+				});
+			}
+
+			foreach(var orderItem in Order.OrderEquipments.Where(x => x.Direction == Direction.Deliver))
+			{
+				ObservableItems.Add(new SelfDeliveryDocumentItem(){
+					Document = this,
+					Nomenclature = orderItem.Equipment.Nomenclature,
+					Equipment = orderItem.Equipment,
+					Amount = 1
+				});
+			}
+		}
+
+		public virtual void UpdateStockAmount(IUnitOfWork uow)
+		{
+			if (Items.Count == 0 || Warehouse == null)
+				return;
+			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
+			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, 
+				nomenclatureIds, TimeStamp);
+
+			foreach(var item in Items)
+			{
+				item.AmountInStock = inStock[item.Nomenclature.Id];
+			}
+		}
+
+		public virtual void UpdateAlreadyUnloaded(IUnitOfWork uow)
+		{
+			if (Items.Count == 0 || Order == null)
+				return;
+			
+			var inUnloaded = Repository.Store.SelfDeliveryRepository.NomenclatureUnloaded(uow, Order, this);
+
+			foreach(var item in Items)
+			{
+				if(inUnloaded.ContainsKey(item.Nomenclature.Id))
+					item.AmountUnloaded = inUnloaded[item.Nomenclature.Id];
+			}
+		}
+
+		public virtual void UpdateOperations(IUnitOfWork uow)
+		{
+			foreach(var item in Items)
+			{
+				if(item.Amount == 0 && item.WarehouseMovementOperation != null)
+				{
+					uow.Delete(item.WarehouseMovementOperation);
+					item.WarehouseMovementOperation = null;
+				}
+				if(item.Amount != 0)
+				{
+					if(item.WarehouseMovementOperation != null)
+					{
+						item.UpdateOperation(Warehouse);
+					}
+					else
+					{
+						item.CreateOperation(Warehouse, TimeStamp);
+					}
+				}
+			}
+		}
+
+		public virtual bool ShipIfCan()
+		{
+			//FIXME Написать
+			return false;
+		}
+
+		#endregion
 	}
 }
 
