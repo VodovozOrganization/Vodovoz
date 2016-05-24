@@ -611,6 +611,10 @@
     <Compile Include="ReportsParameters\StockMovements.cs" />
     <Compile Include="Repositories\Store\WagonRepository.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.StockMovements.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryDocument.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryDocumentItem.cs" />
+    <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
