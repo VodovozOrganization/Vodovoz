@@ -4,15 +4,14 @@ using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.HMap
 {
-	public class CarLoadDocumentItemMap : ClassMap<CarLoadDocumentItem>
+	public class SelfDeliveryDocumentItemMap : ClassMap<SelfDeliveryDocumentItem>
 	{
-		public CarLoadDocumentItemMap ()
+		public SelfDeliveryDocumentItemMap ()
 		{
-			Table ("store_car_load_document_items");
-			Not.LazyLoad ();
+			Table ("store_self_delivery_document_item");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
-			References (x => x.Document).Column ("car_load_document_id");
+			References (x => x.Document).Column ("store_self_delivery_document_id");
 			References (x => x.MovementOperation).Column ("warehouse_movement_operation_id");
 		}
 	}

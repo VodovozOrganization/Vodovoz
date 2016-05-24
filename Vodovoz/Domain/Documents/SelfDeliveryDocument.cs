@@ -4,16 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Collections.Generic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
-		NominativePlural = "документы погрузки автомобилей",
-		Nominative = "документ погрузки автомобиля")]
-	public class CarLoadDocument: Document, IValidatableObject
+		NominativePlural = "отпуски самовывоза",
+		Nominative = "отпуск самовывоза")]
+	public class SelfDeliveryDocument: Document
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -35,13 +33,6 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref order, value, () => Order); }
 		}
 
-		RouteList routeList;
-
-		public virtual RouteList RouteList {
-			get { return routeList; }
-			set { SetField (ref routeList, value, () => RouteList); }
-		}
-
 		Warehouse warehouse;
 
 		public virtual Warehouse Warehouse {
@@ -50,10 +41,10 @@ namespace Vodovoz.Domain.Documents
 		}
 
 
-		IList<CarLoadDocumentItem> items = new List<CarLoadDocumentItem> ();
+		IList<SelfDeliveryDocumentItem> items = new List<SelfDeliveryDocumentItem> ();
 
 		[Display (Name = "Строки")]
-		public virtual IList<CarLoadDocumentItem> Items {
+		public virtual IList<SelfDeliveryDocumentItem> Items {
 			get { return items; }
 			set {
 				SetField (ref items, value, () => Items);
@@ -61,35 +52,21 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		GenericObservableList<CarLoadDocumentItem> observableItems;
+		GenericObservableList<SelfDeliveryDocumentItem> observableItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public virtual GenericObservableList<CarLoadDocumentItem> ObservableItems {
+		public virtual GenericObservableList<SelfDeliveryDocumentItem> ObservableItems {
 			get {
 				if (observableItems == null)
-					observableItems = new GenericObservableList<CarLoadDocumentItem> (Items);
+					observableItems = new GenericObservableList<SelfDeliveryDocumentItem> (Items);
 				return observableItems;
 			}
 		}
 
 		public virtual string Title { 
-			get { return String.Format ("Талон погрузки №{0} от {1:d}", Id, TimeStamp); }
+			get { return String.Format ("Самовывоз №{0} от {1:d}", Id, TimeStamp); }
 		}
 
-		#region IValidatableObject implementation
-
-		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
-		{
-			if (Author == null)
-				yield return new ValidationResult ("Не указан кладовщик.",
-					new[] { this.GetPropertyName (o => o.Author) });
-			if (RouteList == null && Order == null)
-				yield return new ValidationResult ("Не указаны ни заказ, ни маршрутный лист, по которым осуществляется отгрузка.",
-					new[] { this.GetPropertyName (o => o.RouteList), this.GetPropertyName (o => o.Order) });
-		}
-
-		#endregion
-
-		public virtual void AddItem (CarLoadDocumentItem item)
+		public virtual void AddItem (SelfDeliveryDocumentItem item)
 		{
 			item.Document = this;
 			ObservableItems.Add (item);
