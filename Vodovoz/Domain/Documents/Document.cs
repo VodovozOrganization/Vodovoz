@@ -58,6 +58,8 @@ namespace Vodovoz.Domain.Documents
 					return typeof(MovementDocument);
 				case DocumentType.WriteoffDocument:
 					return typeof(WriteoffDocument);
+				case DocumentType.SelfDeliveryDocument:
+					return typeof(SelfDeliveryDocument);
 				case DocumentType.CarLoadDocument:
 					return typeof(CarLoadDocument);
 				case DocumentType.CarUnloadDocument:
@@ -83,6 +85,8 @@ namespace Vodovoz.Domain.Documents
 		MovementDocument,
 		[Display (Name = "Акт списания")]
 		WriteoffDocument,
+		[Display (Name = "Отпуска самовывоза")]
+		SelfDeliveryDocument,
 		[Display (Name = "Талон погрузки")]
 		CarLoadDocument,
 		[Display (Name = "Талон разгрузки")]

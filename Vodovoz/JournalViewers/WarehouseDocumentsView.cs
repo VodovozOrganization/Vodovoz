@@ -31,7 +31,6 @@ namespace Vodovoz
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
 		{
 			tableDocuments.RepresentationModel.UpdateNodes ();
-
 		}
 
 		void OnSelectionChanged (object sender, EventArgs e)
@@ -49,6 +48,7 @@ namespace Vodovoz
 				case DocumentType.WriteoffDocument:
 				case DocumentType.InventoryDocument:
 				case DocumentType.RegradingOfGoodsDocument:
+				case DocumentType.SelfDeliveryDocument:
 					TabParent.OpenTab(
 						OrmMain.GenerateDialogHashName(Document.GetDocClass(type), 0),
 						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
@@ -117,6 +117,12 @@ namespace Vodovoz
 						TabParent.OpenTab(
 							OrmMain.GenerateDialogHashName<RegradingOfGoodsDocument>(id),
 							() => new RegradingOfGoodsDocumentDlg (id),
+							this);
+						break;
+					case DocumentType.SelfDeliveryDocument:
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<SelfDeliveryDocument>(id),
+							() => new SelfDeliveryDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.CarLoadDocument:

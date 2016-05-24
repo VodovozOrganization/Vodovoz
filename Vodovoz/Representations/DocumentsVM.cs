@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModel
 			MovementDocument movementAlias = null;
 			WriteoffDocument writeoffAlias = null;
 			InventoryDocument inventoryAlias = null;
+			SelfDeliveryDocument selfDeliveryAlias = null;
 			RegradingOfGoodsDocument regradingOfGoodsAlias = null;
 			DocumentVMNode resultAlias = null;
 			Counterparty counterpartyAlias = null;
@@ -288,6 +289,40 @@ namespace Vodovoz.ViewModel
 				result.AddRange (regrandingList);
 			}
 
+			if ((Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.SelfDeliveryDocument) && Filter.RestrictDriver == null) {
+				var selfDeliveryQuery = UoW.Session.QueryOver<SelfDeliveryDocument>(() => selfDeliveryAlias)
+					.JoinQueryOver(() => selfDeliveryAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => selfDeliveryAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
+
+				if (Filter.RestrictWarehouse != null)
+					selfDeliveryQuery.Where(() => selfDeliveryAlias.Warehouse.Id == Filter.RestrictWarehouse.Id);
+				if(Filter.RestrictStartDate.HasValue)
+					selfDeliveryQuery.Where (() => selfDeliveryAlias.TimeStamp >= Filter.RestrictStartDate.Value);
+				if(Filter.RestrictEndDate.HasValue)
+					selfDeliveryQuery.Where (() => selfDeliveryAlias.TimeStamp < Filter.RestrictEndDate.Value.AddDays (1));
+
+				var selfDeliveryList = selfDeliveryQuery
+					.JoinAlias (() => selfDeliveryAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.JoinAlias (() => selfDeliveryAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+					.SelectList (list => list
+						.Select (() => selfDeliveryAlias.Id).WithAlias (() => resultAlias.Id)
+						.Select (() => selfDeliveryAlias.TimeStamp).WithAlias (() => resultAlias.Date)
+						.Select (() => DocumentType.SelfDeliveryDocument).WithAlias (() => resultAlias.DocTypeEnum)
+						.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
+						.Select (() => warehouseAlias.Name).WithAlias (() => resultAlias.Warehouse)
+						.Select (() => authorAlias.LastName).WithAlias (() => resultAlias.AuthorSurname)
+						.Select (() => authorAlias.Name).WithAlias (() => resultAlias.AuthorName)
+						.Select (() => authorAlias.Patronymic).WithAlias (() => resultAlias.AuthorPatronymic)
+						.Select (() => lastEditorAlias.LastName).WithAlias (() => resultAlias.LastEditorSurname)
+						.Select (() => lastEditorAlias.Name).WithAlias (() => resultAlias.LastEditorName)
+						.Select (() => lastEditorAlias.Patronymic).WithAlias (() => resultAlias.LastEditorPatronymic)
+						.Select (() => selfDeliveryAlias.LastEditedTime).WithAlias (() => resultAlias.LastEditedTime))
+					.TransformUsing (Transformers.AliasToBean<DocumentVMNode> ())
+					.List<DocumentVMNode> ();
+
+				result.AddRange (selfDeliveryList);
+			}
 
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.CarLoadDocument) {
 				var carLoadQuery = UoW.Session.QueryOver<CarLoadDocument>(() => loadCarAlias)
@@ -429,6 +464,7 @@ namespace Vodovoz.ViewModel
 			typeof(IncomingWater),
 			typeof(MovementDocument),
 			typeof(WriteoffDocument),
+			typeof(SelfDeliveryDocument),
 			typeof(CarLoadDocument),
 			typeof(CarUnloadDocument),
 			typeof(InventoryDocument),
@@ -480,6 +516,8 @@ namespace Vodovoz.ViewModel
 						return String.Format("По складу: {0}", Warehouse);
 					case DocumentType.RegradingOfGoodsDocument:
 						return String.Format("По складу: {0}", Warehouse);
+					case DocumentType.SelfDeliveryDocument:
+						return String.Format("Склад: {0}, Клиент:{1}", Warehouse, Counterparty);
 				default:
 					return "";
 				}
