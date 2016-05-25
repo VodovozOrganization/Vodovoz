@@ -817,7 +817,7 @@ namespace Vodovoz
 			w59.XOptions = ((global::Gtk.AttachOptions)(4));
 			w59.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table2.Gtk.Table+TableChild
-			this.spinBottlesReturn = new global::Gamma.GtkWidgets.ySpinButton (0, 100, 1);
+			this.spinBottlesReturn = new global::Gamma.GtkWidgets.ySpinButton (0, 10000, 1);
 			this.spinBottlesReturn.CanFocus = true;
 			this.spinBottlesReturn.Name = "spinBottlesReturn";
 			this.spinBottlesReturn.Adjustment.PageIncrement = 10;
