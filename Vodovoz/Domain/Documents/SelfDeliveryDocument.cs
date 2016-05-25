@@ -210,6 +210,7 @@ namespace Vodovoz.Domain.Documents
 				}
 				else if(item != null && returned.Value != 0)
 				{
+					item.Amount = returned.Value;
 					item.UpdateOperation(Warehouse);
 				}
 			}
