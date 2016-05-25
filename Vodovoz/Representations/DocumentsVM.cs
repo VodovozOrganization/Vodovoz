@@ -71,6 +71,7 @@ namespace Vodovoz.ViewModel
 				.SelectList (list => list
 					.Select (() => invoiceAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => invoiceAlias.TimeStamp).WithAlias (() => resultAlias.Date)
+					.Select (() => invoiceAlias.Comment).WithAlias (() => resultAlias.Comment)
 					.Select (() => DocumentType.IncomingInvoice).WithAlias (() => resultAlias.DocTypeEnum)
 					.Select (Projections.Conditional (
 					                 Restrictions.Where (() => counterpartyAlias.Name == null),
@@ -429,6 +430,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Изменил").SetDataProperty (node => node.LastEditor)
 			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
 			.AddColumn ("Детали").SetDataProperty (node => node.Description)
+			.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -531,6 +533,8 @@ namespace Vodovoz.ViewModel
 		public int Amount { get; set; } 
 
 		public string CarModel { get; set; }
+
+		public string Comment { get; set; }
 
 		public string CarNumber { get; set; }
 
