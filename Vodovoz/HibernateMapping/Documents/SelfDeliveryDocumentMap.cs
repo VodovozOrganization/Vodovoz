@@ -19,6 +19,7 @@ namespace Vodovoz.HMap
 			References (x => x.Order).Column ("order_id");
 			References (x => x.Warehouse).Column ("warehouse_id");
 			HasMany (x => x.Items).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("store_self_delivery_document_id");
+			HasMany (x => x.ReturnedItems).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("store_self_delivery_document_id");
 		}
 	}
 }

@@ -1,15 +1,26 @@
 ﻿using System;
+using System.Linq;
 using QSOrmProject;
-using Vodovoz.Domain.Documents;
 using QSProjectsLib;
-using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
 	public partial class SelfDeliveryDocumentDlg : OrmGtkDialogBase<SelfDeliveryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
+		public override bool HasChanges
+		{
+			get
+			{
+				if (bottlereceptionview1.Items.Sum(x => x.Amount) > 0)
+					return true;
+				return base.HasChanges;
+			}
+		}
 
 		public SelfDeliveryDocumentDlg()
 		{
@@ -56,6 +67,10 @@ namespace Vodovoz
 			Entity.UpdateStockAmount(UoW);
 			Entity.UpdateAlreadyUnloaded(UoW);
 			selfdeliverydocumentitemsview1.DocumentUoW = UoWGeneric;
+			bottlereceptionview1.UoW = UoW;
+			UpdateWidgets();
+			if (Entity.ReturnedItems.Count > 0)
+				LoadReturned();
 		}
 
 		public override bool Save ()
@@ -73,6 +88,10 @@ namespace Vodovoz
 			}
 
 			Entity.UpdateOperations(UoW);
+			var returnes = bottlereceptionview1.Items.ToDictionary(x => x.NomenclatureId, x => (decimal)x.Amount);
+			Entity.UpdateReturnedOperations(UoW, returnes);
+			if (Entity.ShipIfCan())
+				MessageDialogWorks.RunInfoDialog("Заказ отгружен полностью.");
 
 			logger.Info ("Сохраняем акт списания...");
 			UoWGeneric.Save ();
@@ -109,6 +128,7 @@ namespace Vodovoz
 		{
 			Entity.UpdateStockAmount(UoW);
 			UpdateAmounts();
+			UpdateWidgets();
 		}
 
 		void UpdateAmounts()
@@ -121,6 +141,21 @@ namespace Vodovoz
 					item.Amount = 1;
 				if (item.Amount > item.AmountInStock)
 					item.Amount = item.AmountInStock;
+			}
+		}
+
+		void UpdateWidgets()
+		{
+			bool bottles = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
+			bottlereceptionview1.Visible = bottles;
+		}
+
+		void LoadReturned()
+		{
+			foreach(var item in bottlereceptionview1.Items)
+			{
+				var returned = Entity.ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == item.NomenclatureId);
+				item.Amount = returned != null ? (int)returned.Amount : 0;
 			}
 		}
 	}

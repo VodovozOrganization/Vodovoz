@@ -620,6 +620,8 @@
     <Compile Include="Dialogs\DocumentDialogs\SelfDeliveryDocumentItemsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.SelfDeliveryDocumentItemsView.cs" />
     <Compile Include="Repositories\Store\SelfDeliveryRepository.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryDocumentReturned.cs" />
+    <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentReturnedMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -41,7 +41,7 @@ namespace Vodovoz
 			this.frameBottles.Add (this.GtkAlignment2);
 			this.GtkLabel3 = new global::Gtk.Label ();
 			this.GtkLabel3.Name = "GtkLabel3";
-			this.GtkLabel3.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Тара</b>");
+			this.GtkLabel3.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Тара на возврат</b>");
 			this.GtkLabel3.UseMarkup = true;
 			this.frameBottles.LabelWidget = this.GtkLabel3;
 			this.Add (this.frameBottles);

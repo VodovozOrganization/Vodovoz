@@ -70,6 +70,16 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		IList<SelfDeliveryDocumentReturned> returnedItems = new List<SelfDeliveryDocumentReturned> ();
+
+		[Display (Name = "Строки возврата")]
+		public virtual IList<SelfDeliveryDocumentReturned> ReturnedItems {
+			get { return returnedItems; }
+			set {
+				SetField (ref returnedItems, value, () => ReturnedItems);
+			}
+		}
+
 		#region Не сохраняемые
 
 		public virtual string Title { 
@@ -167,10 +177,39 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		public virtual void UpdateReturnedOperations(IUnitOfWork uow, Dictionary<int, decimal> returnedNomenclatures)
+		{
+			foreach(var returned in returnedNomenclatures)
+			{
+				var item = ReturnedItems.FirstOrDefault(x => x.Nomenclature.Id == returned.Key);
+				if(item == null && returned.Value != 0)
+				{
+					item = new SelfDeliveryDocumentReturned()
+					{
+						Amount = returned.Value,
+						Document = this,
+						Nomenclature = uow.GetById<Nomenclature>(returned.Key)
+					};
+					item.CreateOperation(Warehouse, TimeStamp);
+					ReturnedItems.Add(item);
+				}
+				else if(item != null && returned.Value == 0)
+				{
+					ReturnedItems.Remove(item);
+				}
+				else if(item != null && returned.Value != 0)
+				{
+					item.UpdateOperation(Warehouse);
+				}
+			}
+		}
+
 		public virtual bool ShipIfCan()
 		{
-			//FIXME Написать
-			return false;
+			bool closed = Items.All(x => (x.OrderItem != null ? x.OrderItem.Count : 1) == x.Amount + x.AmountUnloaded);
+			if (closed)
+				Order.Close();
+			return closed;
 		}
 
 		#endregion

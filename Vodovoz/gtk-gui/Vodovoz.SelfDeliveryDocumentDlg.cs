@@ -40,7 +40,11 @@ namespace Vodovoz
 		
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 		
+		private global::Gtk.HBox hbox4;
+		
 		private global::Vodovoz.SelfDeliveryDocumentItemsView selfdeliverydocumentitemsview1;
+		
+		private global::Vodovoz.BottleReceptionView bottlereceptionview1;
 
 		protected virtual void Build ()
 		{
@@ -244,12 +248,26 @@ namespace Vodovoz
 			w20.Expand = false;
 			w20.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox ();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
 			this.selfdeliverydocumentitemsview1 = new global::Vodovoz.SelfDeliveryDocumentItemsView ();
 			this.selfdeliverydocumentitemsview1.Events = ((global::Gdk.EventMask)(256));
 			this.selfdeliverydocumentitemsview1.Name = "selfdeliverydocumentitemsview1";
-			this.vbox4.Add (this.selfdeliverydocumentitemsview1);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.selfdeliverydocumentitemsview1]));
-			w21.Position = 2;
+			this.hbox4.Add (this.selfdeliverydocumentitemsview1);
+			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.selfdeliverydocumentitemsview1]));
+			w21.Position = 0;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.bottlereceptionview1 = new global::Vodovoz.BottleReceptionView ();
+			this.bottlereceptionview1.Events = ((global::Gdk.EventMask)(256));
+			this.bottlereceptionview1.Name = "bottlereceptionview1";
+			this.hbox4.Add (this.bottlereceptionview1);
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.bottlereceptionview1]));
+			w22.Position = 1;
+			this.vbox4.Add (this.hbox4);
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox4]));
+			w23.Position = 2;
 			this.Add (this.vbox4);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
