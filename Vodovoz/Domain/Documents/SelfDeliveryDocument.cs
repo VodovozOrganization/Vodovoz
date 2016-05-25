@@ -1,18 +1,19 @@
 ﻿using System;
-using QSOrmProject;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Collections.Generic;
+using System.Linq;
+using Gamma.Utilities;
+using QSOrmProject;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using System.Linq;
 
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "отпуски самовывоза",
 		Nominative = "отпуск самовывоза")]
-	public class SelfDeliveryDocument: Document
+	public class SelfDeliveryDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -87,6 +88,13 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		#endregion
+
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if(Items.Any(i => i.Amount > i.AmountInStock))
+				yield return new ValidationResult ("На складе недостаточное количество <{0}>",
+					new[] { this.GetPropertyName (o => o.Items) });
+		}
 
 		#region Функции
 
