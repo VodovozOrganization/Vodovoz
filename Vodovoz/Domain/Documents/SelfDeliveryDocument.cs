@@ -28,14 +28,14 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		Order order;
-
+		[Required(ErrorMessage = "Заказ должен быть указан.")]
 		public virtual Order Order {
 			get { return order; } 
 			set { SetField (ref order, value, () => Order); }
 		}
 
 		Warehouse warehouse;
-
+		[Required(ErrorMessage = "Склад должен быть указан.")]
 		public virtual Warehouse Warehouse {
 			get { return warehouse; }
 			set { SetField (ref warehouse, value, () => Warehouse); }
