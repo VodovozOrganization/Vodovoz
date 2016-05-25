@@ -1118,8 +1118,8 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >9pt</FontSize>
-                        <Format >#,##0</Format>
+                        <FontSize>9pt</FontSize>
+                        <Format>#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1137,8 +1137,8 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >9pt</FontSize>
-                        <Format >#,##0</Format>
+                        <FontSize>9pt</FontSize>
+                        <Format>#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1297,7 +1297,7 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="wagon4_removed">
-                      <Value>={all_added}-{drivers_added}-{wagon1_added}-{wagon2_added}-{wagon3_added}-{wagon4_added}</Value>
+                      <Value>={all_added}-{drivers_added}-{selfdelivery_added}-{wagon1_added}-{wagon2_added}-{wagon3_added}-{wagon4_added}</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1316,7 +1316,7 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>={all_removed}-{drivers_removed}-{wagon1_removed}-{wagon2_removed}-{wagon3_removed}-{wagon4_removed}</Value>
+                      <Value>={all_removed}-{drivers_removed}-{selfdelivery_removed}-{wagon1_removed}-{wagon2_removed}-{wagon3_removed}-{wagon4_removed}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
