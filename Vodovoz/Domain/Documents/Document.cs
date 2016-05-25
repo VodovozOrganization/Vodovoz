@@ -85,7 +85,7 @@ namespace Vodovoz.Domain.Documents
 		MovementDocument,
 		[Display (Name = "Акт списания")]
 		WriteoffDocument,
-		[Display (Name = "Отпуска самовывоза")]
+		[Display (Name = "Отпуск самовывоза")]
 		SelfDeliveryDocument,
 		[Display (Name = "Талон погрузки")]
 		CarLoadDocument,

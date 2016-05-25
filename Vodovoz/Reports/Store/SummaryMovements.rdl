@@ -94,6 +94,32 @@
                         AND (store_car_unload_document_items.id IS NOT NULL
                         OR store_car_load_documents.route_list_id IS NOT NULL)),
             0) AS drivers_removed,
+    IFNULL((SELECT 
+                    SUM(warehouse_movement_operations.amount)
+                FROM
+                    warehouse_movement_operations
+                        LEFT JOIN
+                    store_self_delivery_document_returned ON store_self_delivery_document_returned.warehouse_movement_operation_id = warehouse_movement_operations.id
+                WHERE
+                    warehouse_movement_operations.incoming_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                        AND store_self_delivery_document_returned.id IS NOT NULL),
+            0) AS selfdelivery_added,
+    IFNULL((SELECT 
+                    SUM(warehouse_movement_operations.amount)
+                FROM
+                    warehouse_movement_operations
+                        LEFT JOIN
+                    store_self_delivery_document_item ON store_self_delivery_document_item.warehouse_movement_operation_id = warehouse_movement_operations.id
+                WHERE
+                    warehouse_movement_operations.writeoff_warehouse_id = @warehouse_id
+                        AND warehouse_movement_operations.nomenclature_id = nomenclature.id
+                        AND warehouse_movement_operations.operation_time &gt;= @startDate
+                        AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+                        AND store_self_delivery_document_item.id IS NOT NULL),
+            0) AS selfdelivery_removed,
     IF(@wagon1_id = - 1,
         0,
         IFNULL((SELECT 
@@ -297,6 +323,14 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
         </Field>
         <Field Name="drivers_removed">
           <DataField>drivers_removed</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="selfdelivery_added">
+          <DataField>selfdelivery_added</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="selfdelivery_removed">
+          <DataField>selfdelivery_removed</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
         <Field Name="wagon1_added">
@@ -1074,8 +1108,7 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="all_removed">
-                      <Value>
-                      </Value>
+                      <Value>=Fields!selfdelivery_added.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1085,6 +1118,8 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >9pt</FontSize>
+                        <Format >#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1092,8 +1127,7 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="drivers_added">
-                      <Value>
-                      </Value>
+                      <Value>=Fields!selfdelivery_removed.Value</Value>
                       <CanGrow>false</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1103,6 +1137,8 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <FontSize >9pt</FontSize>
+                        <Format >#,##0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
