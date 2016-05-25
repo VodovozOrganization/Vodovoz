@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
+using Gtk;
+using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
-using System.Data.Bindings.Collections.Generic;
-using Vodovoz.Domain.Documents;
-using Gtk;
-using System.Collections.Generic;
-using System.Linq;
 using QSTDI;
 using Vodovoz.Domain;
-using Gtk.DataBindings;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz
 {
@@ -88,7 +87,7 @@ namespace Vodovoz
 		void NomenclatureSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
 		{
 			var nomenctature = DocumentUoW.GetById<Nomenclature> (e.ObjectId);
-			DocumentUoW.Root.AddItem (nomenctature, 1, (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
+			DocumentUoW.Root.AddItem (nomenctature, 0, (e.VMNode as ViewModel.StockBalanceVMNode).Amount);
 		}
 	}
 }

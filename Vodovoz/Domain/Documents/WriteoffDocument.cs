@@ -146,9 +146,15 @@ namespace Vodovoz.Domain.Documents
 			if (Client != null && DeliveryPoint == null)
 				yield return new ValidationResult ("Точка доставки должна быть указана.");
 
-			if(Items.Any(i => i.Amount <= 0))
-				yield return new ValidationResult ("В списке списания присутствуют позиции с нулевым количеством.",
-					new[] { this.GetPropertyName (o => o.Items) });
+			foreach(var item in Items)
+			{
+				if(item.Amount <= 0)
+					yield return new ValidationResult (String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items) });
+				if(item.Amount > item.AmountOnStock)
+					yield return new ValidationResult (String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items) });
+			}
 		}
 
 		public WriteoffDocument ()

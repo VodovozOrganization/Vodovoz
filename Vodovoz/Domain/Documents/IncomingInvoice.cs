@@ -5,13 +5,14 @@ using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Store;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "входящие накладные",
 		Nominative = "входящая накладная")]
-	public class IncomingInvoice: Document
+	public class IncomingInvoice: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -51,6 +52,7 @@ namespace Vodovoz.Domain.Documents
 		Warehouse warehouse;
 
 		[Display (Name = "Склад")]
+		[Required(ErrorMessage = "Склад должен быть указан.")]
 		public virtual Warehouse Warehouse {
 			get { return warehouse; }
 			set {
@@ -109,6 +111,16 @@ namespace Vodovoz.Domain.Documents
 		{
 			WaybillNumber = String.Empty;
 			InvoiceNumber = String.Empty;
+		}
+
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			foreach(var item in Items)
+			{
+				if(item.Amount <= 0)
+					yield return new ValidationResult (String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items) });
+			}
 		}
 	}
 }

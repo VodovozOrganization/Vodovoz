@@ -135,7 +135,7 @@ namespace Vodovoz
 				DocumentUoW.Root.AddItem (new IncomingInvoiceItem { 
 					Nomenclature = e.Subject as Nomenclature, 
 					Equipment = null,
-					Amount = 1, Price = 0 
+					Amount = 0, Price = 0 
 				});
 			}
 		}

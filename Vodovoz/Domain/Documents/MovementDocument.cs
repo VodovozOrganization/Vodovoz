@@ -281,6 +281,13 @@ namespace Vodovoz.Domain.Documents
 					yield return new ValidationResult ("Фура не указана.",
 						new[] { this.GetPropertyName (o => o.MovementWagon)});
 			}
+
+			foreach(var item in Items)
+			{
+				if(item.Amount <= 0)
+					yield return new ValidationResult (String.Format("Для номенклатуры <{0}> не указано количество.", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items) });
+			}
 		}
 
 		#endregion

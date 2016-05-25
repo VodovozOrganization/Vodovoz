@@ -91,9 +91,12 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if(Items.Any(i => i.Amount > i.AmountInStock))
-				yield return new ValidationResult ("На складе недостаточное количество <{0}>",
-					new[] { this.GetPropertyName (o => o.Items) });
+			foreach(var item in Items)
+			{
+				if(item.Amount > item.AmountInStock)
+					yield return new ValidationResult (String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items) });
+			}
 		}
 
 		#region Функции
