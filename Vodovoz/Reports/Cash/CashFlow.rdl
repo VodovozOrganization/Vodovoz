@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataIncome">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_income_category.name AS Category,
@@ -33,6 +33,7 @@ FROM
 WHERE
 cash_income.type &lt;&gt; 'Return' AND
     cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 GROUP BY cash_income.cash_income_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -42,9 +43,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
+          <QueryParameter Name="Casher">
+            <Value>={?Casher}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -56,7 +60,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name as Category,
@@ -67,6 +71,7 @@ FROM
     cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
 WHERE cash_expense.type &lt;&gt; 'Advance' AND
     cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 GROUP BY cash_expense.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -76,9 +81,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
+          <QueryParameter Name="Casher">
+            <Value>={?Casher}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -90,7 +98,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name as Category,
@@ -101,6 +109,7 @@ FROM
     cash_expense_category ON cash_expense_category.id = cash_expense.cash_expense_category_id
 WHERE cash_expense.type = 'Advance' AND
     cash_expense.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
 GROUP BY cash_expense.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -110,9 +119,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
+          <QueryParameter Name="Casher">
+            <Value>={?Casher}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -124,7 +136,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="IncomeReturn">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name AS Category,
@@ -136,6 +148,7 @@ FROM
 WHERE
     cash_income.type = 'Return'
         AND cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 GROUP BY cash_income.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -145,9 +158,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
+          <QueryParameter Name="Casher">
+            <Value>={?Casher}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -159,7 +175,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="AdvanceReport">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name AS Category,
@@ -170,6 +186,7 @@ FROM
     cash_expense_category ON cash_expense_category.id = cash_advance_report.cash_expense_category_id
 WHERE
     cash_advance_report.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
+AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
 GROUP BY cash_advance_report.cash_expense_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -179,9 +196,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="endDate">
             <Value>=Parameters!EndDate</Value>
           </QueryParameter>
+          <QueryParameter Name="Casher">
+            <Value>={?Casher}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -252,7 +272,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -269,7 +289,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -400,7 +420,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -417,7 +437,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -578,7 +598,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -595,7 +615,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -741,7 +761,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -758,7 +778,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -889,7 +909,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -906,7 +926,7 @@ ORDER BY Category;</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <BackgroundColor >Silver</BackgroundColor>
+                        <BackgroundColor>Silver</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1056,7 +1076,7 @@ ORDER BY Category;</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -1072,6 +1092,13 @@ ORDER BY Category;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Casher">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

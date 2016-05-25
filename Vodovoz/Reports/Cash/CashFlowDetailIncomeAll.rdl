@@ -81,14 +81,17 @@
         <NoRows>За период нет прихода.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate">
+          <Parameter Name="StartDate" >
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate">
+          <Parameter Name="EndDate" >
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="IncomeCategory">
+          <Parameter Name="IncomeCategory" >
             <Value>=Parameters!IncomeCategory</Value>
+          </Parameter>
+          <Parameter Name="Casher" >
+            <Value>=Parameters!Casher</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -117,6 +120,9 @@
           </Parameter>
           <Parameter Name="ExpenseCategoryUsed" >
             <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="Casher" >
+            <Value>=Parameters!Casher</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -156,7 +162,7 @@
   </DataSources>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -211,6 +217,13 @@
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Casher">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

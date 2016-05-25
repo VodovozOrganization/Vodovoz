@@ -108,6 +108,9 @@
           <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
       <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -135,6 +138,9 @@
           </Parameter>
           <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -164,6 +170,9 @@
           <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </Parameter>
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
       <Subreport Name="Subreport3" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -180,17 +189,20 @@
         <NoRows>Все авансы закрыты.</NoRows>
         <MergeTransactions>true</MergeTransactions>
         <Parameters>
-          <Parameter Name="StartDate" >
+          <Parameter Name="StartDate">
             <Value>=Parameters!StartDate</Value>
           </Parameter>
-          <Parameter Name="EndDate" >
+          <Parameter Name="EndDate">
             <Value>=Parameters!EndDate</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategory" >
+          <Parameter Name="ExpenseCategory">
             <Value>=Parameters!ExpenseCategory</Value>
           </Parameter>
-          <Parameter Name="ExpenseCategoryUsed" >
+          <Parameter Name="ExpenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
+          </Parameter>
+          <Parameter Name="Casher">
+            <Value>=Parameters!Casher</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -243,6 +255,8 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
@@ -270,7 +284,8 @@
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="ExpenseCategory">
       <DataType>Integer</DataType>
@@ -298,7 +313,12 @@
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="Casher">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataElementName>Report</DataElementName>
-  <DataElementStyle>AttributeNormal</DataElementStyle>
 </Report>

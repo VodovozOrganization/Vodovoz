@@ -7,6 +7,7 @@ using Gtk;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Repository.Cash;
 
 namespace Vodovoz.Reports
@@ -24,6 +25,7 @@ namespace Vodovoz.Reports
 			comboPart.ItemsEnum = typeof(ReportParts);
 			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
+			yentryrefCasher.ItemsQuery = Repository.EmployeeRepository.OfficeWorkersQuery();
 
 			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
 			var list = CategoryRepository.ExpenseCategories(uow);
@@ -107,6 +109,8 @@ namespace Vodovoz.Reports
 				FineIds(ids, exCategory);
 			else
 				ids.Add(0); //Add fake value
+
+			int casherId = yentryrefCasher.Subject == null ? -1 : (yentryrefCasher.Subject as Employee).Id;
 			
 			return new ReportInfo {
 				Identifier = ReportName,
@@ -115,7 +119,8 @@ namespace Vodovoz.Reports
 					{ "EndDate", dateperiodpicker1.EndDateOrNull.Value },
 					{ "IncomeCategory", inCat },
 					{ "ExpenseCategory", ids },
-					{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 }
+					{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 },
+					{ "Casher", casherId }
 				}
 			};
 		}

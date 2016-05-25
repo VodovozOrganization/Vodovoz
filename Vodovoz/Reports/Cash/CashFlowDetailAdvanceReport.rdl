@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataAdvance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_advance_report.id AS report_id,
@@ -65,6 +65,7 @@ WHERE
     cash_advance_report.date &gt;= @startDate
         AND cash_advance_report.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
         AND IF(@expenseCategoryUsed, cash_advance_report.cash_expense_category_id IN (@expenseCategory), 1)
+AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
 ORDER BY Category , employee;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -79,9 +80,12 @@ ORDER BY Category , employee;</CommandText>
           <QueryParameter Name="expenseCategoryUsed">
             <Value>=Parameters!ExpenseCategoryUsed</Value>
           </QueryParameter>
+          <QueryParameter Name="Casher">
+            <Value>={?Casher}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="report_id">
           <DataField>report_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -591,7 +595,7 @@ ORDER BY Category , employee;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -643,6 +647,13 @@ ORDER BY Category , employee;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Casher">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

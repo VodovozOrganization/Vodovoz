@@ -44,6 +44,11 @@ namespace Vodovoz.Repository
 			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.driver);
 		}
 
+		public static QueryOver<Employee> OfficeWorkersQuery ()
+		{
+			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.office);
+		}
+
 		public static QueryOver<Employee> ForwarderQuery ()
 		{
 			return QueryOver.Of<Employee> ().Where (e => e.Category == EmployeeCategory.forwarder);
