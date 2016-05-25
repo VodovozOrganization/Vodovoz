@@ -635,7 +635,7 @@ namespace Vodovoz.Domain.Orders
 
 		public int GetExpectedBottlesDepositsCount()
 		{
-			if (Client.PersonType == PersonType.legal)
+			if (Client == null || Client.PersonType == PersonType.legal)
 				return 0;
 			
 			var waterItemsCount = ObservableOrderItems.Select (item => item)
