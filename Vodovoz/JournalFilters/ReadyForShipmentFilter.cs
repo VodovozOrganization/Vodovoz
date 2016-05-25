@@ -16,7 +16,6 @@ namespace Vodovoz
 			}
 			set {
 				uow = value;
-				enumDocType.ItemsEnum = typeof(ShipmentDocumentType);
 				yspeccomboWarehouse.ItemsList = Repository.Store.WarehouseRepository.GetActiveWarehouse (UoW);
 				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 					yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse;
@@ -50,14 +49,6 @@ namespace Vodovoz
 			OnRefiltered ();
 		}
 
-		public ShipmentDocumentType? RestrictDocumentType {
-			get { return enumDocType.SelectedItem as ShipmentDocumentType?; }
-			set {
-				enumDocType.SelectedItem = value;
-				enumDocType.Sensitive = false;
-			}
-		}
-
 		public Warehouse RestrictWarehouse {
 			get { return yspeccomboWarehouse.SelectedItem as Warehouse; }
 			set {
@@ -67,11 +58,6 @@ namespace Vodovoz
 		}
 
 		protected void OnYspeccomboWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
-		{
-			UpdateCreteria ();
-		}
-
-		protected void OnEnumDocTypeChanged (object sender, EventArgs e)
 		{
 			UpdateCreteria ();
 		}

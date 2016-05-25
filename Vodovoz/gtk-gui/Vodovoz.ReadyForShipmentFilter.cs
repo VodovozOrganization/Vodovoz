@@ -8,10 +8,6 @@ namespace Vodovoz {
 		
 		private global::Gamma.Widgets.ySpecComboBox yspeccomboWarehouse;
 		
-		private global::Gtk.Label label3;
-		
-		private global::Gamma.Widgets.yEnumComboBox enumDocType;
-		
 		protected virtual void Build() {
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.ReadyForShipmentFilter
@@ -34,6 +30,7 @@ namespace Vodovoz {
 			this.yspeccomboWarehouse = new global::Gamma.Widgets.ySpecComboBox();
 			this.yspeccomboWarehouse.Name = "yspeccomboWarehouse";
 			this.yspeccomboWarehouse.AddIfNotExist = false;
+			this.yspeccomboWarehouse.DefaultFirst = false;
 			this.yspeccomboWarehouse.ShowSpecialStateAll = true;
 			this.yspeccomboWarehouse.ShowSpecialStateNot = false;
 			this.hbox3.Add(this.yspeccomboWarehouse);
@@ -41,34 +38,12 @@ namespace Vodovoz {
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.label3 = new global::Gtk.Label();
-			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Тип:");
-			this.hbox3.Add(this.label3);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.label3]));
-			w3.Position = 2;
-			w3.Expand = false;
-			w3.Fill = false;
-			// Container child hbox3.Gtk.Box+BoxChild
-			this.enumDocType = new global::Gamma.Widgets.yEnumComboBox();
-			this.enumDocType.Name = "enumDocType";
-			this.enumDocType.ShowSpecialStateAll = true;
-			this.enumDocType.ShowSpecialStateNot = false;
-			this.enumDocType.UseShortTitle = false;
-			this.enumDocType.DefaultFirst = false;
-			this.hbox3.Add(this.enumDocType);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.enumDocType]));
-			w4.Position = 3;
-			w4.Expand = false;
-			w4.Fill = false;
 			this.Add(this.hbox3);
 			if ((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYspeccomboWarehouseItemSelected);
-			this.enumDocType.Changed += new global::System.EventHandler(this.OnEnumDocTypeChanged);
 		}
 	}
 }

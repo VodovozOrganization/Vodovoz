@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
-using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
-using System.Linq;
-using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.Repository.Store
 {
@@ -23,7 +22,7 @@ namespace Vodovoz.Repository.Store
 			return QueryOver.Of<Warehouse>();
 		}
 
-		public static IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, ShipmentDocumentType type, int id)
+		public static IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, int id)
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
@@ -32,20 +31,10 @@ namespace Vodovoz.Repository.Store
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
-			switch (type) {
-			case ShipmentDocumentType.Order:
-				ordersQuery.Where (o => o.Id == id)
-					.Select (o => o.Id);
-				break;
-			case ShipmentDocumentType.RouteList:
-				var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
-					.Where (r => r.RouteList.Id == id)
-					.Select (r => r.Order.Id);
-				ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select(o=>o.Id);
-				break;
-			default:
-				throw new NotSupportedException (type.ToString ());
-			}
+			var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
+				.Where (r => r.RouteList.Id == id)
+				.Select (r => r.Order.Id);
+			ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select(o=>o.Id);
 
 			var orderitemsSubqury = QueryOver.Of<OrderItem> (() => orderItemsAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
@@ -68,7 +57,7 @@ namespace Vodovoz.Repository.Store
 				.List<Warehouse> ();
 		}
 
-		public static IList<Warehouse> WarehouseForReception(IUnitOfWork uow, ShipmentDocumentType type, int id)
+		public static IList<Warehouse> WarehouseForReception(IUnitOfWork uow, int id)
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
@@ -77,20 +66,10 @@ namespace Vodovoz.Repository.Store
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
-			switch (type) {
-				case ShipmentDocumentType.Order:
-					ordersQuery.Where (o => o.Id == id)
-						.Select (o => o.Id);
-					break;
-				case ShipmentDocumentType.RouteList:
-					var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
-						.Where (r => r.RouteList.Id == id)
-						.Select (r => r.Order.Id);
-					ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select(o=>o.Id);
-					break;
-				default:
-					throw new NotSupportedException (type.ToString ());
-			}
+			var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem> ()
+				.Where (r => r.RouteList.Id == id)
+				.Select (r => r.Order.Id);
+			ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select(o=>o.Id);
 
 			var orderitemsSubqury = QueryOver.Of<OrderItem> (() => orderItemsAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
@@ -118,26 +97,18 @@ namespace Vodovoz.Repository.Store
 				.List<Warehouse> ();
 		}
 
-		public static List<Warehouse> WarehousesNotLoadedFrom(IUnitOfWork uow,ShipmentDocumentType type, int id)
+		public static List<Warehouse> WarehousesNotLoadedFrom(IUnitOfWork uow, int id)
 		{			
-			var visitedWarehousesIds = WarehousesLoadedFrom (uow, type, id).Select (warehouse => warehouse.Id).ToList ();				
-			return WarehouseForShipment (uow, type, id).Where (warehouse => !visitedWarehousesIds.Contains (warehouse.Id)).ToList();
+			var visitedWarehousesIds = WarehousesLoadedFrom (uow, id).Select (warehouse => warehouse.Id).ToList ();				
+			return WarehouseForShipment (uow, id).Where (warehouse => !visitedWarehousesIds.Contains (warehouse.Id)).ToList();
 		}
 
-		public static IList<Warehouse> WarehousesLoadedFrom(IUnitOfWork uow,ShipmentDocumentType type, int id)
+		public static IList<Warehouse> WarehousesLoadedFrom(IUnitOfWork uow, int id)
 		{
 			Warehouse warehouseAlias = null;
 			var cardocumentsQuery = uow.Session.QueryOver<CarLoadDocument> ();
-			switch (type) {
-			case ShipmentDocumentType.Order:
-				cardocumentsQuery.Where (doc => doc.Order.Id == id);
-				break;
-			case ShipmentDocumentType.RouteList:
-				cardocumentsQuery.Where (doc => doc.RouteList.Id == id);
-				break;
-			default:
-				throw new NotSupportedException (type.ToString ());
-			}	
+			cardocumentsQuery.Where (doc => doc.RouteList.Id == id);
+
 			return cardocumentsQuery
 				.JoinAlias (doc => doc.Warehouse, () => warehouseAlias)
 				.Select (doc => doc.Warehouse)
@@ -145,4 +116,3 @@ namespace Vodovoz.Repository.Store
 		}
 	}
 }
-

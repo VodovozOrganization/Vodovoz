@@ -26,7 +26,6 @@ namespace Vodovoz
 		private Dictionary<int,decimal> itemsInStock;
 		private Dictionary<int,decimal> equipmentInStock;
 
-		ShipmentDocumentType shipmentType;
 		int shipmentId;
 
 		Vodovoz.Domain.Orders.Order order;
@@ -37,14 +36,13 @@ namespace Vodovoz
 		/// <param name="type">Маршрутный лист или заказ</param>
 		/// <param name="id">Номер маршрутного листа или заказа.</param>
 		/// <param name="stock">Склад отгрузки.</param>
-		public ReadyForShipmentDlg (ShipmentDocumentType type, int id, Warehouse stock)
+		public ReadyForShipmentDlg (int id, Warehouse stock)
 		{
 			Build ();
-			shipmentType = type;
 			shipmentId = id;
 
 			this.TabName = "Товар на погрузку";
-			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, type, id);
+			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, id);
 
 			itemsInStock = new Dictionary<int, decimal> ();
 
@@ -63,30 +61,17 @@ namespace Vodovoz
 			if (stock != null)
 				ycomboboxWarehouse.SelectedItem = stock;
 
-			switch (shipmentType) {
-			case ShipmentDocumentType.Order:
-				order = UoW.GetById<Vodovoz.Domain.Orders.Order> (id);
-				textviewShipmentInfo.Buffer.Text =
-					String.Format ("Самовывоз заказа №{0}\nКлиент: {1}",
-					id,
-					order.Client.FullName
-				);
-				TabName = String.Format ("Отгрузка заказа №{0}", id);
-				break;
-			case ShipmentDocumentType.RouteList:
-				routelist = UoW.GetById<RouteList> (id);
-				textviewShipmentInfo.Buffer.Text =
-					String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
-					id,
-					routelist.Date,
-					routelist.Driver.FullName,
-					routelist.Car.Model,
-					routelist.Car.RegistrationNumber,
-					routelist.Forwarder != null ? routelist.Forwarder.FullName : "(Отсутствует)" 
-				);
-				TabName = String.Format ("Отгрузка маршрутного листа №{0}", id);
-				break;
-			}
+			routelist = UoW.GetById<RouteList> (id);
+			textviewShipmentInfo.Buffer.Text =
+				String.Format ("Маршрутный лист №{0} от {1:d}\nВодитель: {2}\nМашина: {3}({4})\nЭкспедитор: {5}",
+				id,
+				routelist.Date,
+				routelist.Driver.FullName,
+				routelist.Car.Model,
+				routelist.Car.RegistrationNumber,
+				routelist.Forwarder != null ? routelist.Forwarder.FullName : "(Отсутствует)" 
+			);
+			TabName = String.Format ("Отгрузка маршрутного листа №{0}", id);
 		}
 
 		void UpdateItemsList ()
@@ -107,20 +92,10 @@ namespace Vodovoz
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
-			switch (shipmentType) {
-			case ShipmentDocumentType.Order:
-				ordersQuery.Where (o => o.Id == shipmentId)
-					.Select (o => o.Id);
-				break;
-			case ShipmentDocumentType.RouteList:
-				var routeListItemsSubQuery = QueryOver.Of<RouteListItem> ()
-					.Where (r => r.RouteList.Id == shipmentId)
-					.Select (r => r.Order.Id);
-				ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
-				break;
-			default:
-				throw new NotSupportedException (shipmentType.ToString ());
-			}
+			var routeListItemsSubQuery = QueryOver.Of<RouteListItem> ()
+				.Where (r => r.RouteList.Id == shipmentId)
+				.Select (r => r.Order.Id);
+			ordersQuery.WithSubquery.WhereProperty (o => o.Id).In (routeListItemsSubQuery).Select (o => o.Id);
 
 			var orderitems = UoW.Session.QueryOver<OrderItem> (() => orderItemsAlias)
 				.WithSubquery.WhereProperty (i => i.Order.Id).In (ordersQuery)
@@ -186,7 +161,7 @@ namespace Vodovoz
 
 		protected void TestCanLoad(){
 			var warehousesLoadedFrom = 
-				Vodovoz.Repository.Store.WarehouseRepository.WarehousesLoadedFrom (UoW, shipmentType, shipmentId);			
+				Vodovoz.Repository.Store.WarehouseRepository.WarehousesLoadedFrom (UoW, shipmentId);			
 			bool alreadyLoaded = warehousesLoadedFrom.Contains(ycomboboxWarehouse.SelectedItem);
 			bool itemsAvailable = ShipmentList.All(node=>node.IsAvailable);
 			if(!itemsAvailable)
@@ -223,10 +198,7 @@ namespace Vodovoz
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете загружать автомобили, так как некого указывать в качестве кладовщика.");
 				return;
 			}
-			if (shipmentType == ShipmentDocumentType.Order)
-				CarLoadDocumentUoW.Root.Order = UoW.GetById<Vodovoz.Domain.Orders.Order> (shipmentId);
-			else
-				CarLoadDocumentUoW.Root.RouteList = UoW.GetById<RouteList> (shipmentId);
+			CarLoadDocumentUoW.Root.RouteList = UoW.GetById<RouteList> (shipmentId);
 			CarLoadDocumentUoW.Root.Warehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
 
 			foreach (var node in ShipmentList) {
@@ -242,10 +214,8 @@ namespace Vodovoz
 			CarLoadDocumentUoW.Save ();
 
 			ChangeShipmentStatus ();
-			if (shipmentType == ShipmentDocumentType.RouteList)
-				UoW.Save(routelist);
-			else
-				UoW.Save(order);
+
+			UoW.Save(routelist);
 			UoW.Commit ();
 
 			logger.Info("Печать погрузочного талона...");
@@ -266,22 +236,12 @@ namespace Vodovoz
 
 		protected void ChangeShipmentStatus ()
 		{
-			var warehousesLeft = Vodovoz.Repository.Store.WarehouseRepository.WarehousesNotLoadedFrom (UoW, shipmentType, shipmentId);
-			switch (shipmentType) {
-			case ShipmentDocumentType.Order:				
-				if(warehousesLeft.Count==0)
-					order.Close ();
-				break;
-			case ShipmentDocumentType.RouteList:						
-				if (warehousesLeft.Count == 0) {
-					routelist.Ship ();
-				}
-				else
-					routelist.Status = RouteListStatus.InLoading;
-				break;
-			default:
-				throw new NotSupportedException (shipmentType.ToString ());
+			var warehousesLeft = Vodovoz.Repository.Store.WarehouseRepository.WarehousesNotLoadedFrom (UoW, shipmentId);
+			if (warehousesLeft.Count == 0) {
+				routelist.Ship ();
 			}
+			else
+				routelist.Status = RouteListStatus.InLoading;
 		}
 
 		public class ShipmentItemsNode

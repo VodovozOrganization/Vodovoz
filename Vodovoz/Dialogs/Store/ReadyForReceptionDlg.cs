@@ -46,7 +46,7 @@ namespace Vodovoz
 
 			this.TabName = "Прием машины";
 
-			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForReception (UoW, ShipmentDocumentType.RouteList, id);
+			ycomboboxWarehouse.ItemsList = Repository.Store.WarehouseRepository.WarehouseForReception (UoW, id);
 			warehouse = UoW.GetById<Warehouse>(shipmentId);
 			routelist = UoW.GetById<RouteList> (id);
 			serviceClaims = routelist.Addresses

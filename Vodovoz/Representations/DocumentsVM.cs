@@ -327,8 +327,6 @@ namespace Vodovoz.ViewModel
 			if (Filter.RestrictDocumentType == null || Filter.RestrictDocumentType == DocumentType.CarLoadDocument) {
 				var carLoadQuery = UoW.Session.QueryOver<CarLoadDocument>(() => loadCarAlias)
 					.JoinQueryOver(() => loadCarAlias.Warehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => loadCarAlias.Order, () => orderAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinQueryOver(() => orderAlias.Client, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => loadCarAlias.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => routeListAlias.Car, () => carAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 					.JoinQueryOver(() => routeListAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
@@ -349,7 +347,6 @@ namespace Vodovoz.ViewModel
 						.Select (() => loadCarAlias.Id).WithAlias (() => resultAlias.Id)
 						.Select (() => loadCarAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 						.Select (() => DocumentType.CarLoadDocument).WithAlias (() => resultAlias.DocTypeEnum)
-						.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
 						.Select (() => carAlias.Model).WithAlias (() => resultAlias.CarModel)
 						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.CarNumber)
 						.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DirverSurname)
@@ -506,8 +503,7 @@ namespace Vodovoz.ViewModel
 						return String.Format ("От клиента \"{0}\"", Counterparty);
 					return "";
 				case DocumentType.CarLoadDocument:
-						return Counterparty != null ? String.Format("Самовывоз клиента: {0}", Counterparty)
-								: String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
+						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
 									StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
 					case DocumentType.CarUnloadDocument:
 						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 

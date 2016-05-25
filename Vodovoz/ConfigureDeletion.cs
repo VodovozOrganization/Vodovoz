@@ -388,7 +388,6 @@ namespace Vodovoz
 				.AddDeleteDependence<OrderDocument> (item => item.Order)
 				.AddDeleteDependence<OrderDepositItem> (item => item.Order)
 				.AddDeleteDependence<RouteListItem>(x => x.Order)
-				.AddDeleteDependence<CarLoadDocument> (item => item.Order)
 				.AddDeleteDependence<BottlesMovementOperation>(item => item.Order)
 				.AddDeleteDependence<DepositOperation>(x => x.Order)
 				.AddDeleteDependence<MoneyMovementOperation>(x => x.Order)

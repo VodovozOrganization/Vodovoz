@@ -289,7 +289,6 @@
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
     <Compile Include="HibernateMapping\Order\OrderItemMap.cs" />
     <Compile Include="Dialogs\Store\ReadyForShipmentDlg.cs" />
-    <Compile Include="Domain\Store\ShipmentDocumentType.cs" />
     <Compile Include="Domain\Store\Warehouse.cs" />
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
     <Compile Include="HibernateMapping\Operations\DepositOperationMap.cs" />

@@ -42,7 +42,7 @@ namespace Vodovoz
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
 			var node = tableReadyForShipment.GetSelectedNode () as ViewModel.ReadyForShipmentVMNode;
-			var dlg = new ReadyForShipmentDlg (node.TypeEnum, node.Id, viewModel.Filter.RestrictWarehouse);
+			var dlg = new ReadyForShipmentDlg ( node.Id, viewModel.Filter.RestrictWarehouse);
 			TabParent.AddTab (dlg, this);
 		}
 

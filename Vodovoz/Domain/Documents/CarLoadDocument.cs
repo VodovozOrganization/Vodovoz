@@ -27,14 +27,7 @@ namespace Vodovoz.Domain.Documents
 				}
 			}
 		}
-
-		Order order;
-
-		public virtual Order Order {
-			get { return order; } 
-			set { SetField (ref order, value, () => Order); }
-		}
-
+			
 		RouteList routeList;
 
 		public virtual RouteList RouteList {
@@ -82,9 +75,9 @@ namespace Vodovoz.Domain.Documents
 			if (Author == null)
 				yield return new ValidationResult ("Не указан кладовщик.",
 					new[] { this.GetPropertyName (o => o.Author) });
-			if (RouteList == null && Order == null)
-				yield return new ValidationResult ("Не указаны ни заказ, ни маршрутный лист, по которым осуществляется отгрузка.",
-					new[] { this.GetPropertyName (o => o.RouteList), this.GetPropertyName (o => o.Order) });
+			if (RouteList == null)
+				yield return new ValidationResult ("Не указан маршрутный лист, по которым осуществляется отгрузка.",
+					new[] { this.GetPropertyName (o => o.RouteList)});
 		}
 
 		#endregion
