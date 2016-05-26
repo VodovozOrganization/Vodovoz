@@ -1,6 +1,8 @@
 ﻿using QSOrmProject;
 using Vodovoz.Domain;
 using NHibernate.Criterion;
+using QSSupportLib;
+using System;
 
 namespace Vodovoz.Repository
 {
@@ -34,7 +36,10 @@ namespace Vodovoz.Repository
 
 		public static Nomenclature GetBottleDeposit (IUnitOfWork uow)
 		{
-			return uow.GetById<Nomenclature> (40);
+			var bottleDepositParameter = "bottleDeposit_id";
+			if (!MainSupport.BaseParameters.All.ContainsKey (bottleDepositParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура залога за бутыли.");
+			return uow.GetById<Nomenclature> (int.Parse(MainSupport.BaseParameters.All [bottleDepositParameter]));
 		}
 
 		public static QueryOver<Nomenclature> NomenclatureOfItemsForService ()

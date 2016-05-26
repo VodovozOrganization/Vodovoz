@@ -571,8 +571,10 @@ namespace Vodovoz.Domain.Orders
 		public void RecalcBottlesDeposits (IUnitOfWork uow)
 		{
 			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount();
-
-			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == NomenclatureRepository.GetBottleDeposit (uow).Id);
+			var bottleDeposit = NomenclatureRepository.GetBottleDeposit(uow);
+			if (bottleDeposit == null)
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура залога за бутыли.");
+			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == bottleDeposit.Id);
 			var depositRefundItem = ObservableOrderDepositItems.FirstOrDefault (item => item.DepositType == DepositType.Bottles);
 
 			//Надо создать услугу залога
