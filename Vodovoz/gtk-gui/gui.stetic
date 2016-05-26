@@ -7544,6 +7544,7 @@ Patronymic</property>
         <child>
           <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
             <property name="MemberName" />
+            <property name="HscrollbarPolicy">Never</property>
             <property name="ShadowType">In</property>
             <property name="BorderWidth">1</property>
             <child>
@@ -23018,7 +23019,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25696,7 +25696,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="639 300">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="648 319">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
