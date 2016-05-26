@@ -54,7 +54,7 @@ namespace Vodovoz
 		static void Map_ObjectUpdatedGeneric (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<UserSettings> e)
 		{
 			if (e.UpdatedSubjects.Any(x => x.Id == Settings.Id))
-				ReloadSettings();
+				UoW.Session.Refresh(Settings);
 		}
 
 		public static void SaveSettings()
