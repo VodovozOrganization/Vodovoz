@@ -102,6 +102,11 @@
     <EmbeddedResource Include="icons\buttons\pin-down.png" />
     <EmbeddedResource Include="icons\buttons\pin-up.png" />
     <EmbeddedResource Include="icons\buttons\insert-object.png" />
+    <EmbeddedResource Include="icons\status\car.png" />
+    <EmbeddedResource Include="icons\status\face-crying.png" />
+    <EmbeddedResource Include="icons\status\face-smile-grin.png" />
+    <EmbeddedResource Include="icons\status\face-uncertain.png" />
+    <EmbeddedResource Include="icons\status\face-angry.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

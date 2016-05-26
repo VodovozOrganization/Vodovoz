@@ -9,6 +9,7 @@ using QSTDI;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Employees;
+using System.Reflection;
 
 namespace Vodovoz
 {
@@ -22,6 +23,8 @@ namespace Vodovoz
 			TabName = String.Format("Ведение маршрутного листа №{0}",Entity.Id);
 			ConfigureDlg ();
 		}
+
+		Dictionary<RouteListItemStatus, Gdk.Pixbuf> statusIcons = new Dictionary<RouteListItemStatus, Gdk.Pixbuf>();
 
 		List<RouteListKeepingItemNode> items;
 
@@ -57,6 +60,13 @@ namespace Vodovoz
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = false;
 
+			//Заполняем иконки
+			var ass = Assembly.GetAssembly(typeof(MainClass));
+			statusIcons.Add(RouteListItemStatus.EnRoute, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.car.png"));
+			statusIcons.Add(RouteListItemStatus.Completed, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-smile-grin.png"));
+			statusIcons.Add(RouteListItemStatus.Overdue, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-angry.png"));
+			statusIcons.Add(RouteListItemStatus.Canceled, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-crying.png"));
+
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())					
@@ -65,6 +75,7 @@ namespace Vodovoz
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)					
 				.AddColumn("Статус")
+					.AddPixbufRenderer(x => statusIcons[x.Status])
 					.AddEnumRenderer(node => node.Status).Editing(true)					
 				.AddColumn("Последнее редактирование")
 					.AddTextRenderer(node => node.LastUpdate)
