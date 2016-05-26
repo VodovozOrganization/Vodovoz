@@ -44,8 +44,10 @@ namespace Vodovoz
 
 			if (settings == null)
 			{
+				logger.Info("Настроек пользователя нет, создаем новые.");
 				var user = Repository.UserRepository.GetCurrentUser(UoW);
-					settings = new UserSettings(user);
+				settings = new UserSettings(user);
+				SaveSettings();
 			}
 		}
 
