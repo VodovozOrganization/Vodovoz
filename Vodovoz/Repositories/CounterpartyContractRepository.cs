@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -10,6 +11,9 @@ namespace Vodovoz.Repository
 		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, PaymentType paymentType)
 		{
 			Organization organization = OrganizationRepository.GetOrganizationByPaymentType (uow,paymentType);
+			if (organization == null)
+				throw new InvalidProgramException(String.Format("В параметрах базы не указана организация для типа оплаты {0}",
+					paymentType));
 
 			Counterparty counterpartyAlias = null;
 			Organization organizationAlias = null;
