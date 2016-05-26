@@ -74,9 +74,9 @@ namespace Vodovoz
 		
 		private global::Gtk.Table table1;
 		
-		private global::Gtk.DataBindings.DataCheckButton checkSerial;
+		private global::Gamma.GtkWidgets.yCheckButton checkSerial;
 		
-		private global::Gtk.DataBindings.DataEntry entryModel;
+		private global::Gamma.GtkWidgets.yEntry entryModel;
 		
 		private global::Gtk.Label labelClass;
 		
@@ -90,13 +90,13 @@ namespace Vodovoz
 		
 		private global::Gtk.Label labelSerial;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceColor;
+		private global::Gamma.Widgets.yEntryReference referenceColor;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceManufacturer;
-		
-		private global::Gtk.DataBindings.DataEntryReference referenceType;
+		private global::Gamma.Widgets.yEntryReference referenceManufacturer;
 		
 		private global::Gamma.GtkWidgets.yCheckButton ycheckRentPriority;
+		
+		private global::Gamma.Widgets.yEntryReference yentryrefEqupmentType;
 		
 		private global::Gtk.Label label2;
 		
@@ -526,20 +526,12 @@ namespace Vodovoz
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkSerial = new global::Gtk.DataBindings.DataCheckButton ();
+			this.checkSerial = new global::Gamma.GtkWidgets.yCheckButton ();
 			this.checkSerial.CanFocus = true;
 			this.checkSerial.Name = "checkSerial";
 			this.checkSerial.Label = "";
 			this.checkSerial.DrawIndicator = true;
 			this.checkSerial.UseUnderline = true;
-			this.checkSerial.InheritedDataSource = true;
-			this.checkSerial.Mappings = "Serial";
-			this.checkSerial.InheritedBoundaryDataSource = false;
-			this.checkSerial.Editable = true;
-			this.checkSerial.AutomaticTitle = false;
-			this.checkSerial.InheritedBoundaryDataSource = false;
-			this.checkSerial.InheritedDataSource = true;
-			this.checkSerial.Mappings = "Serial";
 			this.table1.Add (this.checkSerial);
 			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.table1 [this.checkSerial]));
 			w36.TopAttach = ((uint)(4));
@@ -549,17 +541,11 @@ namespace Vodovoz
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryModel = new global::Gtk.DataBindings.DataEntry ();
+			this.entryModel = new global::Gamma.GtkWidgets.yEntry ();
 			this.entryModel.CanFocus = true;
 			this.entryModel.Name = "entryModel";
 			this.entryModel.IsEditable = true;
 			this.entryModel.InvisibleChar = '●';
-			this.entryModel.InheritedDataSource = true;
-			this.entryModel.Mappings = "Model";
-			this.entryModel.InheritedBoundaryDataSource = false;
-			this.entryModel.InheritedDataSource = true;
-			this.entryModel.Mappings = "Model";
-			this.entryModel.InheritedBoundaryDataSource = false;
 			this.table1.Add (this.entryModel);
 			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryModel]));
 			w37.TopAttach = ((uint)(1));
@@ -633,13 +619,9 @@ namespace Vodovoz
 			w43.XOptions = ((global::Gtk.AttachOptions)(4));
 			w43.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceColor = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceColor = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceColor.Events = ((global::Gdk.EventMask)(256));
 			this.referenceColor.Name = "referenceColor";
-			this.referenceColor.InheritedDataSource = true;
-			this.referenceColor.Mappings = "";
-			this.referenceColor.InheritedBoundaryDataSource = false;
-			this.referenceColor.CursorPointsEveryType = false;
 			this.table1.Add (this.referenceColor);
 			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.table1 [this.referenceColor]));
 			w44.TopAttach = ((uint)(3));
@@ -649,13 +631,9 @@ namespace Vodovoz
 			w44.XOptions = ((global::Gtk.AttachOptions)(4));
 			w44.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceManufacturer = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceManufacturer = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceManufacturer.Events = ((global::Gdk.EventMask)(256));
 			this.referenceManufacturer.Name = "referenceManufacturer";
-			this.referenceManufacturer.InheritedDataSource = true;
-			this.referenceManufacturer.Mappings = "";
-			this.referenceManufacturer.InheritedBoundaryDataSource = false;
-			this.referenceManufacturer.CursorPointsEveryType = false;
 			this.table1.Add (this.referenceManufacturer);
 			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.table1 [this.referenceManufacturer]));
 			w45.TopAttach = ((uint)(2));
@@ -665,20 +643,6 @@ namespace Vodovoz
 			w45.XOptions = ((global::Gtk.AttachOptions)(4));
 			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceType = new global::Gtk.DataBindings.DataEntryReference ();
-			this.referenceType.Events = ((global::Gdk.EventMask)(256));
-			this.referenceType.Name = "referenceType";
-			this.referenceType.InheritedDataSource = true;
-			this.referenceType.Mappings = "";
-			this.referenceType.InheritedBoundaryDataSource = false;
-			this.referenceType.CursorPointsEveryType = false;
-			this.table1.Add (this.referenceType);
-			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1 [this.referenceType]));
-			w46.LeftAttach = ((uint)(1));
-			w46.RightAttach = ((uint)(2));
-			w46.XOptions = ((global::Gtk.AttachOptions)(4));
-			w46.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.ycheckRentPriority = new global::Gamma.GtkWidgets.yCheckButton ();
 			this.ycheckRentPriority.CanFocus = true;
 			this.ycheckRentPriority.Name = "ycheckRentPriority";
@@ -686,9 +650,19 @@ namespace Vodovoz
 			this.ycheckRentPriority.DrawIndicator = true;
 			this.ycheckRentPriority.UseUnderline = true;
 			this.table1.Add (this.ycheckRentPriority);
-			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1 [this.ycheckRentPriority]));
-			w47.TopAttach = ((uint)(5));
-			w47.BottomAttach = ((uint)(6));
+			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1 [this.ycheckRentPriority]));
+			w46.TopAttach = ((uint)(5));
+			w46.BottomAttach = ((uint)(6));
+			w46.LeftAttach = ((uint)(1));
+			w46.RightAttach = ((uint)(2));
+			w46.XOptions = ((global::Gtk.AttachOptions)(4));
+			w46.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.yentryrefEqupmentType = new global::Gamma.Widgets.yEntryReference ();
+			this.yentryrefEqupmentType.Events = ((global::Gdk.EventMask)(256));
+			this.yentryrefEqupmentType.Name = "yentryrefEqupmentType";
+			this.table1.Add (this.yentryrefEqupmentType);
+			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1 [this.yentryrefEqupmentType]));
 			w47.LeftAttach = ((uint)(1));
 			w47.RightAttach = ((uint)(2));
 			w47.XOptions = ((global::Gtk.AttachOptions)(4));

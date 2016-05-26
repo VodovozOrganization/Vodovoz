@@ -52,11 +52,14 @@ namespace Vodovoz
 			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();
 
 			referenceUnit.PropertyMapping<Nomenclature> (n => n.Unit);
-			referenceType.PropertyMapping<Nomenclature> (n => n.Type);
-			referenceColor.PropertyMapping<Nomenclature> (n => n.Color);
+			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
+			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Type, w => w.Subject).InitializeFromSource();
+			referenceColor.SubjectType = typeof(EquipmentColors);
+			referenceColor.Binding.AddBinding(Entity, e => e.Color, w => w.Subject).InitializeFromSource();
 			referenceWarehouse.PropertyMapping<Nomenclature> (n => n.Warehouse);
 			referenceRouteColumn.PropertyMapping<Nomenclature> (n => n.RouteListColumn);
-			referenceManufacturer.PropertyMapping<Nomenclature> (n => n.Manufacturer);
+			referenceManufacturer.SubjectType = typeof(Manufacturer);
+			referenceManufacturer.Binding.AddBinding(Entity, e => e.Manufacturer, w => w.Subject).InitializeFromSource();
 
 			ConfigureInputs (Entity.Category);
 
@@ -89,11 +92,14 @@ namespace Vodovoz
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
-			labelClass.Sensitive = referenceType.Sensitive = (selected == NomenclatureCategory.equipment);
+			labelClass.Sensitive = yentryrefEqupmentType.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelModel.Sensitive = entryModel.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelSerial.Sensitive = checkSerial.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+
+			if (Entity.Category == NomenclatureCategory.equipment)
+				Entity.Serial = true;
 		}
 
 		protected void OnRadioPriceToggled (object sender, EventArgs e)

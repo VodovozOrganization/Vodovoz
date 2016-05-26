@@ -96,8 +96,13 @@ namespace Vodovoz.Domain
 		[Display (Name = "Категория")]
 		public virtual NomenclatureCategory Category {
 			get { return category; }
-			set { SetField (ref category, value, () => Category); 
-				Serial = Category == NomenclatureCategory.equipment;
+			set { 
+				if(SetField (ref category, value, () => Category))
+				{
+					if (Category != NomenclatureCategory.equipment)
+						Serial = false;
+				}
+
 			}
 		}
 
@@ -188,7 +193,10 @@ namespace Vodovoz.Domain
 				yield return new ValidationResult (
 					String.Format ("Для номенклатур вида «{0}», необходимо указывать склад отгрузки.", Category.GetEnumTitle ()),
 					new[] { this.GetPropertyName (o => o.Warehouse) });
-			
+			if(Category == NomenclatureCategory.equipment && Type == null)
+				yield return new ValidationResult (
+					String.Format ("Не указан тип оборудования."),
+					new[] { this.GetPropertyName (o => o.Type) });
 		}
 
 		#endregion
