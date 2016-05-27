@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -12,7 +13,7 @@ namespace Vodovoz.Domain.Documents
 		NominativePlural = "инвентаризации",
 		Nominative = "инвентаризация",
 		Prepositional = "инвентаризации")]
-	public class InventoryDocument: Document
+	public class InventoryDocument: Document, IValidatableObject
 	{
 		public override DateTime TimeStamp {
 			get { return base.TimeStamp; }
@@ -163,8 +164,9 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			//FIXME Обратите внимание убран интерфейс
-			return null;
+			if(Items.Count == 0)
+				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
+					new[] { this.GetPropertyName (o => o.Items) });
 		}
 
 		public InventoryDocument ()

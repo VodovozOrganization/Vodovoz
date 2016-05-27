@@ -115,6 +115,10 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
+			if(Items.Count == 0)
+				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
+					new[] { this.GetPropertyName (o => o.Items) });
+
 			foreach(var item in Items)
 			{
 				if(item.Amount <= 0)

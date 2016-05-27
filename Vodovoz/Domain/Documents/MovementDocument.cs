@@ -244,6 +244,10 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
+			if(Items.Count == 0)
+				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
+					new[] { this.GetPropertyName (o => o.Items) });
+
 			if (Category == MovementDocumentCategory.warehouse || Category == MovementDocumentCategory.Transportation)
 			{
 				if(FromWarehouse == ToWarehouse)

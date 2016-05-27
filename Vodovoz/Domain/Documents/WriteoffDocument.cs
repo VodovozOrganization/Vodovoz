@@ -146,6 +146,10 @@ namespace Vodovoz.Domain.Documents
 			if (Client != null && DeliveryPoint == null)
 				yield return new ValidationResult ("Точка доставки должна быть указана.");
 
+			if(Items.Count == 0)
+				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
+					new[] { this.GetPropertyName (o => o.Items) });
+
 			foreach(var item in Items)
 			{
 				if(item.Amount <= 0)

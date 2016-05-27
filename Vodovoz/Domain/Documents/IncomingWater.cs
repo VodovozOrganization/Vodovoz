@@ -6,13 +6,14 @@ using DataAnnotationsExtensions;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "документы производства",
 		Nominative = "документ производства")]
-	public class IncomingWater: Document
+	public class IncomingWater: Document, IValidatableObject
 	{
 		Nomenclature product;
 
@@ -129,7 +130,20 @@ namespace Vodovoz.Domain.Documents
 			ObservableMaterials.Add (item);
 		}
 
-	
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		{
+			if(Materials.Count == 0)
+				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
+					new[] { this.GetPropertyName (o => o.Materials) });
+
+			foreach(var item in Materials)
+			{
+				if(item.Amount <= 0)
+					yield return new ValidationResult (String.Format("Для сырья <{0}> не указано количество.", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Materials) });
+			}
+		}
+
 	}
 }
 
