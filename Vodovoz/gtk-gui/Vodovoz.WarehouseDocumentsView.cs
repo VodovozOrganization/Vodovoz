@@ -16,6 +16,8 @@ namespace Vodovoz {
 		
 		private global::Gtk.HBox hboxFilter;
 		
+		private global::QSWidgetLib.SearchEntity searchentity1;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
 		private global::QSOrmProject.RepresentationTreeView tableDocuments;
@@ -103,6 +105,15 @@ namespace Vodovoz {
 			w9.Position = 1;
 			w9.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.searchentity1 = new global::QSWidgetLib.SearchEntity();
+			this.searchentity1.Events = ((global::Gdk.EventMask)(256));
+			this.searchentity1.Name = "searchentity1";
+			this.vbox1.Add(this.searchentity1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity1]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -112,8 +123,8 @@ namespace Vodovoz {
 			this.tableDocuments.Name = "tableDocuments";
 			this.GtkScrolledWindow1.Add(this.tableDocuments);
 			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w11.Position = 2;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
+			w12.Position = 3;
 			this.Add(this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll();
@@ -124,6 +135,7 @@ namespace Vodovoz {
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
 			this.buttonFilter.Toggled += new global::System.EventHandler(this.OnButtonFilterToggled);
+			this.searchentity1.TextChanged += new global::System.EventHandler(this.OnSearchentity1TextChanged);
 			this.tableDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTableDocumentsRowActivated);
 		}
 	}

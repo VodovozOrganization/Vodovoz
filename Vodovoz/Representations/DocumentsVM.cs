@@ -426,13 +426,13 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<DocumentVMNode>.Create ()
-			.AddColumn ("Номер").SetDataProperty (node => node.Id.ToString())
+			.AddColumn ("Номер").AddTextRenderer (node => node.Id.ToString()).SearchHighlight()
 			.AddColumn ("Тип документа").SetDataProperty (node => node.DocTypeString)
 			.AddColumn ("Дата").SetDataProperty (node => node.DateString)
 			.AddColumn ("Автор").SetDataProperty (node => node.Author)
 			.AddColumn ("Изменил").SetDataProperty (node => node.LastEditor)
 			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
-			.AddColumn ("Детали").SetDataProperty (node => node.Description)
+			.AddColumn ("Детали").AddTextRenderer (node => node.Description).SearchHighlight()
 			.AddColumn ("Комментарий").SetDataProperty (node => node.Comment)
 			.Finish ();
 
@@ -479,7 +479,7 @@ namespace Vodovoz.ViewModel
 
 	public class DocumentVMNode
 	{
-
+		[UseForSearch]
 		public int Id { get; set; }
 
 		public DocumentType DocTypeEnum { get; set; }
@@ -490,6 +490,7 @@ namespace Vodovoz.ViewModel
 
 		public string DateString { get { return  Date.ToShortDateString () + " " + Date.ToShortTimeString (); } }
 
+		[UseForSearch]
 		public string Description { 
 			get {
 				switch (DocTypeEnum) {

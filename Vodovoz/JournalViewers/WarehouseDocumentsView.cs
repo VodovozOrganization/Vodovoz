@@ -175,6 +175,12 @@ namespace Vodovoz
 		{
 			hboxFilter.Visible = buttonFilter.Active;
 		}
+
+		protected void OnSearchentity1TextChanged(object sender, EventArgs e)
+		{
+			tableDocuments.SearchHighlightText = searchentity1.Text;
+			tableDocuments.RepresentationModel.SearchString = searchentity1.Text;
+		}
 	}
 }
 
