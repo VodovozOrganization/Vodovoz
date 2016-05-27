@@ -18,6 +18,8 @@ namespace Vodovoz
 			set {
 				uow = value;
 				speccomboStock.ItemsDataSource = Repository.Store.WarehouseRepository.GetActiveWarehouse (uow);
+				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+					speccomboStock.SelectedItem = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;				
 			}
 		}
 
