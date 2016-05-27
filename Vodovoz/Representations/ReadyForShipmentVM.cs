@@ -10,7 +10,6 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Store;
 
 namespace Vodovoz.ViewModel
 {
@@ -103,7 +102,7 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>.Create ()
 			.AddColumn ("Тип").SetDataProperty (node => node.TypeString)
-			.AddColumn ("Номер").SetDataProperty (node => node.Id)
+			.AddColumn ("Номер").AddTextRenderer (node => node.Id.ToString())
 		    .AddColumn ("Водитель").SetDataProperty (node => node.Driver)
 		    .AddColumn ("Машина").SetDataProperty (node => node.Car)
 			.Finish ();
@@ -122,6 +121,8 @@ namespace Vodovoz.ViewModel
 
 	public class ReadyForShipmentVMNode
 	{
+		[UseForSearch]
+		[SearchHighlight]
 		public int Id{ get; set; }
 
 		public string TypeString { get { return "Маршрутный лист"; } }
@@ -132,8 +133,12 @@ namespace Vodovoz.ViewModel
 
 		public string Patronymic { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string Driver { get { return String.Format ("{0} {1} {2}", LastName, Name, Patronymic); } }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string Car { get; set; }
 	}
 

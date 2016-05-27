@@ -92,9 +92,9 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForReceptionVMNode>.Create ()
-			.AddColumn ("Маршрутный лист").SetDataProperty (node => node.Id)
-			.AddColumn ("Водитель").SetDataProperty (node => node.Driver)
-			.AddColumn ("Машина").SetDataProperty (node => node.Car)
+			.AddColumn ("Маршрутный лист").AddTextRenderer (node => node.Id.ToString())
+			.AddColumn ("Водитель").AddTextRenderer (node => node.Driver)
+			.AddColumn ("Машина").AddTextRenderer (node => node.Car)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -110,6 +110,8 @@ namespace Vodovoz.ViewModel
 	}
 
 	public class ReadyForReceptionVMNode{
+		[UseForSearch]
+		[SearchHighlight]
 		public int Id{ get; set; }
 
 		public string Name { get; set; }
@@ -118,8 +120,12 @@ namespace Vodovoz.ViewModel
 
 		public string Patronymic { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string Driver { get { return String.Format ("{0} {1} {2}", LastName, Name, Patronymic); } }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string Car { get; set; }
 	}
 }

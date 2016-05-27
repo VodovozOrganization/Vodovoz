@@ -10,6 +10,8 @@ namespace Vodovoz
 		
 		private global::Vodovoz.ReadyForReceptionFilter readyforreceptionfilter1;
 		
+		private global::QSWidgetLib.SearchEntity searchentity1;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::QSOrmProject.RepresentationTreeView tableReadyForReception;
@@ -49,6 +51,15 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.searchentity1 = new global::QSWidgetLib.SearchEntity ();
+			this.searchentity1.Events = ((global::Gdk.EventMask)(256));
+			this.searchentity1.Name = "searchentity1";
+			this.vbox1.Add (this.searchentity1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.searchentity1]));
+			w3.Position = 1;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -58,8 +69,8 @@ namespace Vodovoz
 			this.tableReadyForReception.Name = "tableReadyForReception";
 			this.GtkScrolledWindow.Add (this.tableReadyForReception);
 			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w4.Position = 1;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
+			w5.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox ();
 			this.hbox2.Name = "hbox2";
@@ -71,14 +82,14 @@ namespace Vodovoz
 			this.buttonOpen.Name = "buttonOpen";
 			this.buttonOpen.UseUnderline = true;
 			this.buttonOpen.Label = global::Mono.Unix.Catalog.GetString ("Разгрузить машину");
-			global::Gtk.Image w5 = new global::Gtk.Image ();
-			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-ok", global::Gtk.IconSize.Menu);
-			this.buttonOpen.Image = w5;
+			global::Gtk.Image w6 = new global::Gtk.Image ();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-ok", global::Gtk.IconSize.Menu);
+			this.buttonOpen.Image = w6;
 			this.hbox2.Add (this.buttonOpen);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonOpen]));
-			w6.Position = 0;
-			w6.Expand = false;
-			w6.Fill = false;
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonOpen]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonConfirmReception = new global::Gtk.Button ();
 			this.buttonConfirmReception.Sensitive = false;
@@ -86,24 +97,25 @@ namespace Vodovoz
 			this.buttonConfirmReception.Name = "buttonConfirmReception";
 			this.buttonConfirmReception.UseUnderline = true;
 			this.buttonConfirmReception.Label = global::Mono.Unix.Catalog.GetString ("Отправить в кассу");
-			global::Gtk.Image w7 = new global::Gtk.Image ();
-			w7.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-go-forward", global::Gtk.IconSize.Menu);
-			this.buttonConfirmReception.Image = w7;
+			global::Gtk.Image w8 = new global::Gtk.Image ();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-go-forward", global::Gtk.IconSize.Menu);
+			this.buttonConfirmReception.Image = w8;
 			this.hbox2.Add (this.buttonConfirmReception);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonConfirmReception]));
-			w8.Position = 1;
-			w8.Expand = false;
-			w8.Fill = false;
-			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
-			w9.Position = 2;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonConfirmReception]));
+			w9.Position = 1;
 			w9.Expand = false;
 			w9.Fill = false;
+			this.vbox1.Add (this.hbox2);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			w10.Position = 3;
+			w10.Expand = false;
+			w10.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.searchentity1.TextChanged += new global::System.EventHandler (this.OnSearchentity1TextChanged);
 			this.tableReadyForReception.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTableReadyForReceptionRowActivated);
 			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
 			this.buttonConfirmReception.Clicked += new global::System.EventHandler (this.OnButtonConfirmReceptionClicked);

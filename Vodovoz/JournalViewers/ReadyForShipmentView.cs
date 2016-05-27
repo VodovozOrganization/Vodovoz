@@ -51,6 +51,11 @@ namespace Vodovoz
 			buttonOpen.Click ();
 		}
 
+		protected void OnSearchentity2TextChanged(object sender, EventArgs e)
+		{
+			tableReadyForShipment.SearchHighlightText = searchentity2.Text;
+			tableReadyForShipment.RepresentationModel.SearchString = searchentity2.Text;
+		}
 	}
 }
 

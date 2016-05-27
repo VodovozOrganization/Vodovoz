@@ -63,6 +63,12 @@ namespace Vodovoz
 			UoW.Save(routeList);
 			UoW.Commit();
 		}
+
+		protected void OnSearchentity1TextChanged(object sender, EventArgs e)
+		{
+			tableReadyForReception.SearchHighlightText = searchentity1.Text;
+			tableReadyForReception.RepresentationModel.SearchString = searchentity1.Text;
+		}
 	}
 }
 
