@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModel
 			Counterparty secondCounterpartyAlias = null;
 			Warehouse warehouseAlias = null;
 			Warehouse secondWarehouseAlias = null;
+			MovementWagon wagonAlias = null;
 
 			CarLoadDocument loadCarAlias = null;
 			CarUnloadDocument unloadCarAlias = null;
@@ -147,13 +148,15 @@ namespace Vodovoz.ViewModel
 				.JoinQueryOver (() => movementAlias.FromWarehouse, () => warehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.ToClient, () => secondCounterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinQueryOver (() => movementAlias.ToWarehouse, () => secondWarehouseAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinAlias (() => movementAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-					.JoinAlias (() => movementAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => movementAlias.MovementWagon, () => wagonAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => movementAlias.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => movementAlias.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => movementAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => movementAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 					.Select (() => DocumentType.MovementDocument).WithAlias (() => resultAlias.DocTypeEnum)
 					.Select (() => movementAlias.Category).WithAlias (() => resultAlias.MDCategory)
+					.Select (() => wagonAlias.Name).WithAlias (() => resultAlias.CarNumber)
 					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => counterpartyAlias.Name == null),
 					                  Projections.Constant ("Не указан", NHibernateUtil.String),
@@ -497,7 +500,9 @@ namespace Vodovoz.ViewModel
 				case DocumentType.MovementDocument: 
 					if (MDCategory == MovementDocumentCategory.counterparty)
 						return String.Format ("\"{0}\" -> \"{1}\"", Counterparty, SecondCounterparty);
-					return String.Format ("{0} -> {1}", Warehouse, SecondWarehouse); 
+						return String.Format ("{0} -> {1}{2}", Warehouse, SecondWarehouse,
+							String.IsNullOrEmpty(CarNumber) ? null : String.Format(", Фура: {0}", CarNumber)
+						); 
 				case DocumentType.WriteoffDocument:
 					if (Warehouse != String.Empty)
 						return String.Format ("Со склада \"{0}\"", Warehouse);
