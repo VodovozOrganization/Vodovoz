@@ -366,9 +366,7 @@ namespace Vodovoz.Domain.Orders
 		{
 			Comment = String.Empty;
 			OrderStatus = OrderStatus.NewOrder;
-			DeliveryDate = DateTime.Today;
 			SumDifferenceReason = String.Empty;
-			DeliveryDate = DateTime.Now.AddDays (1);
 		}
 
 		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author){
