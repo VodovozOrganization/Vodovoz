@@ -59,6 +59,9 @@ namespace Vodovoz.Domain.Documents
 				if (WarehouseMovementOperation != null && WarehouseMovementOperation.Amount != amount)
 					WarehouseMovementOperation.Amount = amount;
 
+				if (DeliveryMovementOperation != null && DeliveryMovementOperation.Amount != amount)
+					DeliveryMovementOperation.Amount = amount;
+
 				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Amount != amount)
 					CounterpartyMovementOperation.Amount = amount;
 			}
