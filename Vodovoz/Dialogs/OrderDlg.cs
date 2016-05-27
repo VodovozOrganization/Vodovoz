@@ -727,6 +727,7 @@ namespace Vodovoz
 				treeEquipment.Selection.UnselectAll();
 				treeDepositRefundItems.Selection.UnselectAll();
 				UpdateButtonState();
+				buttonSave.Click();
 				return;
 			}
 			if (Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled) {
