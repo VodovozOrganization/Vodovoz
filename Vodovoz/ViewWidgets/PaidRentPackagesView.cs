@@ -138,7 +138,7 @@ namespace Vodovoz
 			var rentPackage = Repository.RentPackageRepository.GetPaidRentPackage(AgreementUoW, equipmentType);
 			if (rentPackage == null)
 			{
-				MessageDialogWorks.RunErrorDialog("Для выбранного типа оборудования нет пакета бесплатной аренды.");
+				MessageDialogWorks.RunErrorDialog("Для выбранного типа оборудования нет условий платной аренды.");
 				return;
 			}
 
