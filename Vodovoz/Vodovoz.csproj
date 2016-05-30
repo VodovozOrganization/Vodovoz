@@ -626,6 +626,9 @@
     <Compile Include="Dialogs\Goods\EquipmentGenerator.cs" />
     <Compile Include="Dialogs\Goods\EquipmentTypeDlg.cs" />
     <Compile Include="Dialogs\Goods\NomenclatureDlg.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
+    <Compile Include="HibernateMapping\Store\ProductSpecificationMap.cs" />
+    <Compile Include="HibernateMapping\Store\ProductSpecificationMaterialMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

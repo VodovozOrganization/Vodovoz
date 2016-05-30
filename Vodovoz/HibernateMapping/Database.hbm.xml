@@ -18,14 +18,6 @@
 		<property name="Name" column="name" />
 	</class>
 
- 	<class name="NomenclaturePrice" lazy="false" table="nomenclature_price">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="MinCount" column="min_count" />
-	 	<property name="Price" column="price" />
- 	</class>
-
 	<class name="Significance" lazy="false" table="significance">
  		<id name="Id" column="id">
  			<generator class="native"></generator>
@@ -40,26 +32,6 @@
  			<generator class="native"/>
  		</id>
  		<property name="Comment" column="comment" />
- 	</class>
-
-	<class name="ProductSpecification" lazy="false" table="specification_production">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<property name="Name" column="name" />
-	 	<many-to-one name="Product" class="Nomenclature" column="nomenclature_id" />
-	 	<bag name="Materials" inverse="false" cascade="all-delete-orphan" lazy="false" >
-    		<key column="specification_production_id" not-null="true"/>
-    		<one-to-many class="ProductSpecificationMaterial" />
-		</bag>
- 	</class>
-
-	<class name="ProductSpecificationMaterial" lazy="false" table="specification_production_materials">
-		<id name="Id" column="id">
-			<generator class="native"></generator>
-	 	</id>
-	 	<many-to-one name="Material" class="Nomenclature" column="nomenclature_id" />
-	 	<property name="Amount" column="amount"/>
  	</class>
 
 </hibernate-mapping>

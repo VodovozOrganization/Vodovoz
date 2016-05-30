@@ -44,7 +44,7 @@ namespace Vodovoz.Domain.Store
 
 		#endregion
 
-		public string Title{
+		public virtual string Title{
 			get{
 				return String.Format("Спецификация на <{0}>", Product.Name);
 			}

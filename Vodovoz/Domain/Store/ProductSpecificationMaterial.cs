@@ -36,11 +36,11 @@ namespace Vodovoz.Domain.Store
 
 		#endregion
 
-		public string NomenclatureName {
+		public virtual string NomenclatureName {
 			get { return Material.Name;}
 		}
 
-		public string Title{
+		public virtual string Title{
 			get{
 				return String.Format("Материал <{0}> из спецификации на производства", Material.Name);
 			}
