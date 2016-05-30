@@ -5,6 +5,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using QSWidgetLib;
 
 namespace Vodovoz
 {
@@ -49,6 +50,11 @@ namespace Vodovoz
 			enumType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
 			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			yentryOfficialName.Binding.AddBinding(Entity, e => e.OfficialName, w => w.Text).InitializeFromSource();
+			var parallel = new ParallelEditing (yentryOfficialName);
+			parallel.SubscribeOnChanges (entryName);
+			parallel.GetParallelTextFunc = GenerateOfficialName;
+
 			ycheckRentPriority.Binding.AddBinding(Entity, e => e.RentPriority, w => w.Active).InitializeFromSource();
 			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -69,6 +75,12 @@ namespace Vodovoz
 				UoWGeneric.Root.NomenclaturePrice = new List<NomenclaturePrice> ();
 			pricesView.Prices = UoWGeneric.Root.NomenclaturePrice;
 
+		}
+
+		string GenerateOfficialName (object arg)
+		{
+			var widget = arg as Gtk.Entry;
+			return widget.Text;
 		}
 
 		public override bool Save ()
