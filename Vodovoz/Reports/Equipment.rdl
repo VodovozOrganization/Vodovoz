@@ -16,11 +16,11 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM (
-SELECT equipment.id, nomenclature.name
+SELECT equipment.id, nomenclature.official_name as name
 FROM equipment LEFT JOIN nomenclature ON equipment.nomenclature_id = nomenclature.id 
 WHERE equipment.id IN (@equipment_id)
 UNION ALL
-SELECT equipment.id, nomenclature.name 
+SELECT equipment.id, nomenclature.official_name as name 
 FROM equipment LEFT JOIN nomenclature ON equipment.nomenclature_id = nomenclature.id 
 WHERE @dup = 1 AND equipment.id IN (@equipment_id)) tab
 ORDER BY id;</CommandText>

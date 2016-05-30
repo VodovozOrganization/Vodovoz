@@ -76,7 +76,7 @@ limit 1;</CommandText>
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
-nomenclature.name,
+nomenclature.official_name as name,
 equipment.id as serial,
 nomenclature.category,
 service_claims.reason,
@@ -84,7 +84,7 @@ service_claims.diagnostics_result,
 service_claims.kit,
 service_claims.replacement_equipment_id as replacement_cooler,
 replacement_equipment.id as replacement_serial,
-replacement_nomenclature.name as replacement_name
+replacement_nomenclature.official_name as replacement_name
 from service_claims
 LEFT JOIN equipment equipment on equipment.id = service_claims.equipment_id
 LEFT JOIN nomenclature on nomenclature.id = service_claims.nomenclature_id

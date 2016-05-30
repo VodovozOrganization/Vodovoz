@@ -18,7 +18,7 @@
         <Timeout>30</Timeout>
         <CommandText>SELECT 
     nomenclature.id AS id,
-    nomenclature.name AS name,
+    nomenclature.official_name as name,
     measurement_units.okei AS unit_code,
     measurement_units.name AS mu_name,
     order_items.count AS count,

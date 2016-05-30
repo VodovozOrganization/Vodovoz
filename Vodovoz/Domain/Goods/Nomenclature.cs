@@ -28,6 +28,16 @@ namespace Vodovoz.Domain.Goods
 			set { SetField (ref name, value, () => Name); }
 		}
 
+		string officialName;
+
+		[Display (Name = "Официальное название")]
+		[StringLength(220)]
+		[Required (ErrorMessage = "Официальное название номенклатуры должно быть заполнено.")]
+		public virtual string OfficialName {
+			get { return officialName; }
+			set { SetField (ref officialName, value, () => OfficialName); }
+		}
+
 		string code1c;
 		[Display (Name = "Код 1с")]
 		public virtual string Code1c {

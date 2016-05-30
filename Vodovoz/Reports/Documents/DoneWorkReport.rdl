@@ -76,7 +76,7 @@ limit 1;</CommandText>
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
-nomenclature.name,
+nomenclature.official_name as name,
 equipment.id as serial,
 nomenclature.category,
 service_claims.reason,
@@ -128,7 +128,7 @@ WHERE service_claims.id = @service_claim_id</CommandText>
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
-nomenclature.name,
+nomenclature.official_name as name,
 nomenclature.category,
 service_claim_items.count,
 service_claim_items.price,
