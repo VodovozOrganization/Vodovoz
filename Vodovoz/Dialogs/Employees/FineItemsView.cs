@@ -41,8 +41,6 @@ namespace Vodovoz
 
 				ytreeviewItems.ItemsDataSource = FineUoW.Root.ObservableItems;
 				FineUoW.Root.ObservableItems.ListContentChanged += FineUoW_Root_ObservableItems_ListContentChanged;
-				//UpdateButtonState();
-				//FineUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
 			}
 		}
 
@@ -62,6 +60,11 @@ namespace Vodovoz
 		void AddEmployeeDlg_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			var employee = e.Subject as Employee;
+			if(FineUoW.Root.Items.Any(x => x.Employee.Id == employee.Id))
+			{
+				MessageDialogWorks.RunErrorDialog("Сотрудник {0} уже присутствует в списке.", employee.ShortName);
+				return;
+			}
 			FineUoW.Root.AddItem(employee);
 		}
 
@@ -69,6 +72,14 @@ namespace Vodovoz
 		{
 			decimal sum = FineUoW.Root.Items.Sum(x => x.Money);
 			labelTotal.LabelProp = String.Format("Итого по сотрудникам: {0}", CurrencyWorks.GetShortCurrencyString(sum));
+		}
+
+		protected void OnButtonRemoveClicked(object sender, EventArgs e)
+		{
+			var row = ytreeviewItems.GetSelectedObject<FineItem>();
+			if (row.Id > 0)
+				FineUoW.Delete(row);
+			FineUoW.Root.ObservableItems.Remove(row);
 		}
 	}
 }

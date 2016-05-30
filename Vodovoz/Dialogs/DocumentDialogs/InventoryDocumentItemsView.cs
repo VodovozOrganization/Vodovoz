@@ -137,7 +137,10 @@ namespace Vodovoz
 
 		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
 		{
-			DocumentUoW.Session.Refresh(FineEditItem.Fine);
+			//Мы здесь не можем выпольнить просто рефреш, так как если удалить сотрудника из штрафа, получаем эксепшен.
+			int id = FineEditItem.Fine.Id;
+			DocumentUoW.Session.Evict(FineEditItem.Fine);
+			FineEditItem.Fine = DocumentUoW.GetById<Fine>(id);
 		}
 
 		protected void OnButtonDeleteFineClicked(object sender, EventArgs e)

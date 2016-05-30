@@ -882,6 +882,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2991,7 +2992,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -29577,6 +29577,7 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-delete Menu</property>
                 <property name="Label" translatable="yes">Удалить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonRemoveClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>

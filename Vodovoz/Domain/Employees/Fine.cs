@@ -5,13 +5,14 @@ using System.Data.Bindings.Collections.Generic;
 using QSOrmProject;
 using QSProjectsLib;
 using System.Linq;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Employees
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "штрафы сотрудникам",
 		Nominative = "штраф сотрудникам")]
-	public class Fine: PropertyChangedBase, IDomainObject
+	public class Fine: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		public virtual int Id { get; set; }
 
@@ -103,6 +104,17 @@ namespace Vodovoz.Domain.Employees
 			{
 				item.Money = part;
 			}
+		}
+
+		#endregion
+
+		#region IValidatableObject implementation
+
+		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(Items.Count == 0)
+				yield return new ValidationResult (String.Format("Отсутствуют сотрудники на которых назначен штраф."),
+					new[] { this.GetPropertyName (o => o.Items) });
 		}
 
 		#endregion
