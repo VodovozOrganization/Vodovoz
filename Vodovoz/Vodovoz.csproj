@@ -137,7 +137,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
-    <Compile Include="Dialogs\EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
     <Compile Include="Dialogs\DeliveryScheduleDlg.cs" />
@@ -173,7 +172,6 @@
     <Compile Include="Dialogs\DocumentDialogs\WriteoffDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.WriteoffDocumentDlg.cs" />
     <Compile Include="ConfigureDeletion.cs" />
-    <Compile Include="Dialogs\EquipmentGenerator.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentGenerator.cs" />
     <Compile Include="Representations\ContractsVM.cs" />
     <Compile Include="Representations\ProxiesVM.cs" />
@@ -406,7 +404,6 @@
     <Compile Include="ViewWidgets\Store\BottleReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.BottleReceptionView.cs" />
     <Compile Include="Representations\BottleReceptionVM.cs" />
-    <Compile Include="Dialogs\EquipmentTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentTypeDlg.cs" />
     <Compile Include="Domain\Order\Documents\OrderDocument.cs" />
     <Compile Include="Domain\Order\Documents\OrderAgreement.cs" />
@@ -529,7 +526,6 @@
     <Compile Include="Commons\CurrentUserSettings.cs" />
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="Representations\ClientEquipmentBalanceVM.cs" />
-    <Compile Include="Dialogs\Store\NomenclatureDlg.cs" />
     <Compile Include="Representations\EquipmentTypesForRentVM.cs" />
     <Compile Include="Repositories\RentPackageRepository.cs" />
     <Compile Include="HibernateMapping\Goods\EquipmentMap.cs" />
@@ -626,6 +622,10 @@
     <Compile Include="Domain\Goods\Equipment.cs" />
     <Compile Include="Domain\Store\ProductSpecification.cs" />
     <Compile Include="Domain\Store\ProductSpecificationMaterial.cs" />
+    <Compile Include="Dialogs\Goods\EquipmentDlg.cs" />
+    <Compile Include="Dialogs\Goods\EquipmentGenerator.cs" />
+    <Compile Include="Dialogs\Goods\EquipmentTypeDlg.cs" />
+    <Compile Include="Dialogs\Goods\NomenclatureDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -779,6 +779,7 @@
     <Folder Include="Dialogs\Employees\" />
     <Folder Include="HibernateMapping\Employees\" />
     <Folder Include="Domain\Goods\" />
+    <Folder Include="Dialogs\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
