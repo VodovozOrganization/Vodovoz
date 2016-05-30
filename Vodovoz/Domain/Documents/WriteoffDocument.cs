@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents

@@ -6,9 +6,9 @@ using Gamma.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

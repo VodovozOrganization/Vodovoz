@@ -122,11 +122,9 @@
     <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
     <Compile Include="Dialogs\CarsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
-    <Compile Include="Domain\Nomenclature.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
     <Compile Include="gtk-gui\Vodovoz.PricesView.cs" />
-    <Compile Include="Domain\NomenclaturePrice.cs" />
     <Compile Include="gtk-gui\Vodovoz.AdditionalAgreementsView.cs" />
     <Compile Include="Domain\FreeRentPackage.cs" />
     <Compile Include="Dialogs\FreeRentPackageDlg.cs" />
@@ -139,7 +137,6 @@
     <Compile Include="gtk-gui\Vodovoz.ProxyDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.FreeRentPackagesView.cs" />
-    <Compile Include="Domain\Equipment.cs" />
     <Compile Include="Dialogs\EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentFilter.cs" />
@@ -195,8 +192,6 @@
     <Compile Include="gtk-gui\Vodovoz.StockBalanceFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureFilter.cs" />
     <Compile Include="Repositories\EmployeeRepository.cs" />
-    <Compile Include="Domain\ProductSpecification.cs" />
-    <Compile Include="Domain\ProductSpecificationMaterial.cs" />
     <Compile Include="Dialogs\ProductSpecificationDlg.cs" />
     <Compile Include="ViewWidgets\ProductSpecificationMaterialsView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ProductSpecificationDlg.cs" />
@@ -626,6 +621,11 @@
     <Compile Include="Repositories\Store\SelfDeliveryRepository.cs" />
     <Compile Include="Domain\Documents\SelfDeliveryDocumentReturned.cs" />
     <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentReturnedMap.cs" />
+    <Compile Include="Domain\Goods\Nomenclature.cs" />
+    <Compile Include="Domain\Goods\NomenclaturePrice.cs" />
+    <Compile Include="Domain\Goods\Equipment.cs" />
+    <Compile Include="Domain\Store\ProductSpecification.cs" />
+    <Compile Include="Domain\Store\ProductSpecificationMaterial.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -778,6 +778,7 @@
     <Folder Include="Domain\Employees\" />
     <Folder Include="Dialogs\Employees\" />
     <Folder Include="HibernateMapping\Employees\" />
+    <Folder Include="Domain\Goods\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

@@ -1,11 +1,11 @@
 ﻿using System;
+using System.IO;
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
-using QSValidation;
-using Vodovoz.Domain;
-using System.IO;
 using QSProjectsLib;
+using QSValidation;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

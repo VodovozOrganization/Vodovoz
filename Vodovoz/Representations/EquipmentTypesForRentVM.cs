@@ -8,6 +8,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModel
 {

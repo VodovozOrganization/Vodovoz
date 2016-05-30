@@ -6,6 +6,7 @@ using Gamma.ColumnConfig;
 using Vodovoz.Domain;
 using NHibernate.Transform;
 using System.Linq;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModel
 {

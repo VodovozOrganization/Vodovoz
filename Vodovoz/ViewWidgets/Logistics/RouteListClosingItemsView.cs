@@ -11,6 +11,7 @@ using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

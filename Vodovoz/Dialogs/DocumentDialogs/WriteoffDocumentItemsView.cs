@@ -10,6 +10,7 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

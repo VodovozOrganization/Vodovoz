@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QSOrmProject;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Repository.Store
 {

@@ -3,6 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using QSProjectsLib;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {

@@ -1,8 +1,8 @@
 ﻿using QSOrmProject;
-using Vodovoz.Domain;
 using NHibernate.Criterion;
 using QSSupportLib;
 using System;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Repository
 {

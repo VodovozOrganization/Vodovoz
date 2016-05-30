@@ -9,7 +9,6 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
@@ -17,6 +16,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {	

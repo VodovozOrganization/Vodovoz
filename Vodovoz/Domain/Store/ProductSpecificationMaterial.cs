@@ -1,9 +1,10 @@
-﻿using QSOrmProject;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
-using System;
+using QSOrmProject;
+using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Store
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "материалы спецификации",

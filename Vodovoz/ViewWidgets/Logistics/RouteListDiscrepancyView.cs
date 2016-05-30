@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Gtk;
 using Vodovoz.Domain.Logistic;
 using System.Linq;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

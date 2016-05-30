@@ -17,6 +17,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Logistic
 {

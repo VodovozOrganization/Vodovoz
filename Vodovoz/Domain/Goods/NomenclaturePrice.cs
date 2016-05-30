@@ -1,7 +1,7 @@
 ﻿using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Goods
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "цены",

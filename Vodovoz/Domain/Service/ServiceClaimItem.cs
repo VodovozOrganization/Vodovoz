@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Service
 {

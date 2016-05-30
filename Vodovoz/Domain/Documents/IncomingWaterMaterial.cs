@@ -1,9 +1,10 @@
-using QSOrmProject;
+using System;
 using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
+using QSOrmProject;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Store;
-using System;
 
 namespace Vodovoz.Domain.Documents
 {

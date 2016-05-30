@@ -2,7 +2,7 @@
 using NHibernate;
 using NHibernate.Criterion;
 using QSOrmProject;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

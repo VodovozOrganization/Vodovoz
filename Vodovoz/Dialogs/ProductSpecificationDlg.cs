@@ -2,6 +2,7 @@
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {

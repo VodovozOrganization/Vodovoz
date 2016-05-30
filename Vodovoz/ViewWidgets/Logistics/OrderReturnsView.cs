@@ -5,8 +5,8 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
@@ -85,7 +85,7 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn("Кол-во по факту")
 					.AddToggleRenderer(node => node.IsDelivered, false)
-						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.Serial || node.Nomenclature.Category == Vodovoz.Domain.NomenclatureCategory.rent)
+						.AddSetter((cell, node) => cell.Visible = node.Nomenclature.Serial || node.Nomenclature.Category == NomenclatureCategory.rent)
 					.AddNumericRenderer(node => node.ActualCount, false)
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
 						.AddSetter((cell,node)=>cell.Adjustment= new Gtk.Adjustment(0,0,node.Count,1,1,0))

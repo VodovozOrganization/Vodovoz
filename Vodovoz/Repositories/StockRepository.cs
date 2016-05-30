@@ -1,12 +1,12 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain;
+using System.Collections.Generic;
+using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
-using System.Collections.Generic;
+using QSOrmProject;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using System.Linq;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Repository
 {

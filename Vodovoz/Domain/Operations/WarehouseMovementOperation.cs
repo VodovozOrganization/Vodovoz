@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Operations
 {

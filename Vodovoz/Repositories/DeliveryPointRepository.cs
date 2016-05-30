@@ -4,11 +4,11 @@ using System.Linq;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Repository
 {

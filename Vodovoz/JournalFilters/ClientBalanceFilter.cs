@@ -2,7 +2,7 @@
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

@@ -7,7 +7,7 @@ using QSBusinessCommon.Domain;
 using QSOrmProject;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Goods
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "номенклатуры",

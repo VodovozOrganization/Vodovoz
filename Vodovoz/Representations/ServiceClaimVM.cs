@@ -5,9 +5,9 @@ using Gamma.Utilities;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Service;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModel
 {

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using DataAnnotationsExtensions;
 using QSOrmProject;
 using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {

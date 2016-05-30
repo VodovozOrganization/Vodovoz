@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Xml.Linq;
-using System.Linq;
-using QSOrmProject;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain;
-using Vodovoz.Repository;
-using Vodovoz.ExportTo1c.Catalogs;
-using QSBusinessCommon.Domain;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Xml.Linq;
+using QSOrmProject;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using Vodovoz.ExportTo1c.Catalogs;
+using Vodovoz.Repository;
 
 namespace Vodovoz.ExportTo1c
 {

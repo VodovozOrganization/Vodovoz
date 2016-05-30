@@ -6,7 +6,7 @@ using NHibernate.Criterion;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Goods
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
 		NominativePlural = "оборудование",

@@ -4,6 +4,7 @@ using System.Linq;
 using Gamma.GtkWidgets;
 using Gamma.Utilities;
 using Gtk;
+using NHibernate.Proxy;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
@@ -11,14 +12,14 @@ using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
-using NHibernate.Proxy;
-using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {

@@ -2,6 +2,7 @@
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Orders
 {

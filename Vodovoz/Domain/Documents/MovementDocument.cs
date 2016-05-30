@@ -8,6 +8,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {

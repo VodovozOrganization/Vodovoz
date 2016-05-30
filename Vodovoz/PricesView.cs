@@ -7,7 +7,7 @@ using Gtk;
 using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Documents
 {

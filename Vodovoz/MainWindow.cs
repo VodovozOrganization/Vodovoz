@@ -7,16 +7,17 @@ using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSSupportLib;
+using QSTDI;
 using Vodovoz;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
-using Vodovoz.ViewModel;
-using QSTDI;
-using Vodovoz.Panel;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Store;
+using Vodovoz.Panel;
+using Vodovoz.ViewModel;
 
 public partial class MainWindow: Gtk.Window
 {

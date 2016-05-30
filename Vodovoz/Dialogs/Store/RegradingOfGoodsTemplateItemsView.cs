@@ -3,7 +3,7 @@ using Gamma.GtkWidgets;
 using Vodovoz.Domain.Store;
 using QSOrmProject;
 using System.Collections.Generic;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

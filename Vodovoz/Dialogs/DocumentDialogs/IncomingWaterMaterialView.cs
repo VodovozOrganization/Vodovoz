@@ -8,6 +8,7 @@ using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

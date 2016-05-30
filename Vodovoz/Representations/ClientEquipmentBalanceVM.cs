@@ -5,8 +5,8 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModel
 {

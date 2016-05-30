@@ -2,8 +2,9 @@
 using QSOrmProject;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Store
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "cпецификации продукции",

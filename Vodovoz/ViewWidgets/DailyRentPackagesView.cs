@@ -9,6 +9,7 @@ using QSProjectsLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Repository;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
