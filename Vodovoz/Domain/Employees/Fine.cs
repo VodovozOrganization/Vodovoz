@@ -110,7 +110,7 @@ namespace Vodovoz.Domain.Employees
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
 			if(Items.Count == 0)
 				yield return new ValidationResult (String.Format("Отсутствуют сотрудники на которых назначен штраф."),
