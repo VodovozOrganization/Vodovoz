@@ -26,9 +26,9 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label5;
 		
-		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
+		private global::Gamma.Widgets.yDatePicker ydatepickerDocDate;
 		
-		private global::Gamma.GtkWidgets.yLabel ylabelDate;
+		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
 		
 		private global::Vodovoz.InventoryDocumentItemsView inventoryitemsview;
 
@@ -154,23 +154,26 @@ namespace Vodovoz
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
+			this.ydatepickerDocDate = new global::Gamma.Widgets.yDatePicker ();
+			this.ydatepickerDocDate.Events = ((global::Gdk.EventMask)(256));
+			this.ydatepickerDocDate.Name = "ydatepickerDocDate";
+			this.ydatepickerDocDate.WithTime = true;
+			this.ydatepickerDocDate.Date = new global::System.DateTime (0);
+			this.ydatepickerDocDate.IsEditable = true;
+			this.ydatepickerDocDate.AutoSeparation = true;
+			this.tableWriteoff.Add (this.ydatepickerDocDate);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.ydatepickerDocDate]));
+			w13.LeftAttach = ((uint)(1));
+			w13.RightAttach = ((uint)(2));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child tableWriteoff.Gtk.Table+TableChild
 			this.yentryrefWarehouse = new global::Gamma.Widgets.yEntryReference ();
 			this.yentryrefWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefWarehouse.Name = "yentryrefWarehouse";
 			this.tableWriteoff.Add (this.yentryrefWarehouse);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.yentryrefWarehouse]));
-			w13.LeftAttach = ((uint)(3));
-			w13.RightAttach = ((uint)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.ylabelDate = new global::Gamma.GtkWidgets.yLabel ();
-			this.ylabelDate.Name = "ylabelDate";
-			this.ylabelDate.LabelProp = global::Mono.Unix.Catalog.GetString ("ylabel1");
-			this.tableWriteoff.Add (this.ylabelDate);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.ylabelDate]));
-			w14.LeftAttach = ((uint)(1));
-			w14.RightAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.yentryrefWarehouse]));
+			w14.LeftAttach = ((uint)(3));
+			w14.RightAttach = ((uint)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox4.Add (this.tableWriteoff);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.tableWriteoff]));

@@ -5762,6 +5762,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -5788,6 +5789,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -6030,6 +6032,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -6056,6 +6059,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -6236,6 +6240,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -6263,6 +6268,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -8576,6 +8582,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="datepickerIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -8632,6 +8639,7 @@ Patronymic</property>
                   <widget class="QSOrmProject.DataDatePicker" id="datepickerStart">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">False</property>
@@ -8661,6 +8669,7 @@ Patronymic</property>
                   <widget class="QSOrmProject.DataDatePicker" id="datepickerExpiration">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">False</property>
@@ -9225,6 +9234,7 @@ Patronymic</property>
                   <widget class="QSOrmProject.DataDatePicker" id="dataLastService">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">False</property>
@@ -9511,6 +9521,7 @@ Patronymic</property>
                   <widget class="Gamma.Widgets.yDatePicker" id="ydatepickerWarrantyEnd">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">False</property>
@@ -10111,6 +10122,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -10137,6 +10149,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -10400,6 +10413,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateEnd">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -10427,6 +10441,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -10458,6 +10473,7 @@ Patronymic</property>
                   <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">False</property>
@@ -11535,6 +11551,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
@@ -15540,6 +15557,7 @@ Patronymic</property>
                   <widget class="Gamma.Widgets.yDatePicker" id="ydatepickerWarrantyEnd">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">False</property>
@@ -16156,6 +16174,7 @@ Patronymic</property>
               <widget class="QSOrmProject.DataDatePicker" id="datepickerDate">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
@@ -16748,6 +16767,7 @@ RegistrationNumber</property>
                   <widget class="Gamma.Widgets.yDatePicker" id="datePickerDate">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">False</property>
                     <property name="AutoSeparation">False</property>
@@ -18513,6 +18533,7 @@ RegistrationNumber</property>
                   <widget class="QSOrmProject.DataDatePicker" id="datePickUpDate">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">False</property>
                     <property name="AutoSeparation">False</property>
@@ -20513,6 +20534,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yDatePicker" id="ydateDocument">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
@@ -20994,6 +21016,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yDatePicker" id="ydateDocument">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
@@ -21492,6 +21515,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yDatePicker" id="ydateDocument">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
@@ -23694,6 +23718,7 @@ RegistrationNumber</property>
                       <widget class="Gamma.Widgets.yDatePicker" id="pickerDeliveryDate">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
+                        <property name="WithTime">False</property>
                         <property name="Date">0</property>
                         <property name="IsEditable">True</property>
                         <property name="AutoSeparation">True</property>
@@ -25892,6 +25917,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yDatePicker" id="datePickerDate">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">False</property>
                 <property name="AutoSeparation">False</property>
@@ -26399,6 +26425,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yDatePicker" id="datePickerDate">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">False</property>
                 <property name="AutoSeparation">False</property>
@@ -28721,13 +28748,17 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryrefWarehouse">
+              <widget class="Gamma.Widgets.yDatePicker" id="ydatepickerDocDate">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">True</property>
+                <property name="Date">0</property>
+                <property name="IsEditable">True</property>
+                <property name="AutoSeparation">True</property>
               </widget>
               <packing>
-                <property name="LeftAttach">3</property>
-                <property name="RightAttach">4</property>
+                <property name="LeftAttach">1</property>
+                <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">True</property>
@@ -28739,17 +28770,16 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDate">
+              <widget class="Gamma.Widgets.yEntryReference" id="yentryrefWarehouse">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">ylabel1</property>
+                <property name="Events">ButtonPressMask</property>
               </widget>
               <packing>
-                <property name="LeftAttach">1</property>
-                <property name="RightAttach">2</property>
+                <property name="LeftAttach">3</property>
+                <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
-                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">False</property>
+                <property name="XExpand">True</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>

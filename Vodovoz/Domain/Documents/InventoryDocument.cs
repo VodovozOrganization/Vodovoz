@@ -168,6 +168,10 @@ namespace Vodovoz.Domain.Documents
 			if(Items.Count == 0)
 				yield return new ValidationResult (String.Format("Табличная часть документа пустая."),
 					new[] { this.GetPropertyName (o => o.Items) });
+			
+			if(TimeStamp == default(DateTime))
+				yield return new ValidationResult (String.Format("Дата документа должна быть указана."),
+					new[] { this.GetPropertyName (o => o.TimeStamp) });
 		}
 
 		public InventoryDocument ()
