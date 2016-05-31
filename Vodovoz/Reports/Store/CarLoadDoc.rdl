@@ -67,7 +67,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Doc">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     store_car_load_documents.id,
@@ -124,7 +124,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -191,11 +191,11 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>231.4pt</Width>
+            <Width>356.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>110.8pt</Width>
-            <Visibility >
+            <Visibility>
               <Hidden>=!First(Fields!can_receive_equipment, 'Doc')</Hidden>
             </Visibility>
           </TableColumn>
@@ -273,7 +273,7 @@ WHERE
                   <ReportItems>
                     <Textbox Name="id">
                       <Value>={nomenclature}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>

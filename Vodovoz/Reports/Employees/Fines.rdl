@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     CONCAT_WS(' ',
@@ -91,7 +91,7 @@ ORDER BY employee, date</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="employee">
           <DataField>employee</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -161,10 +161,10 @@ ORDER BY employee, date</CommandText>
             <Width>60.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>117.2pt</Width>
+            <Width>114.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>138.0pt</Width>
+            <Width>141.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>200.5pt</Width>
@@ -349,7 +349,7 @@ ORDER BY employee, date</CommandText>
                   <ReportItems>
                     <Textbox Name="money">
                       <Value>=Fields!document.Value</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -366,7 +366,7 @@ ORDER BY employee, date</CommandText>
                   <ReportItems>
                     <Textbox Name="date">
                       <Value>=Fields!nomenclature.Value + " - " + {nomenclature_amount}</Value>
-                      <CanGrow>false</CanGrow>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
