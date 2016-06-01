@@ -206,7 +206,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if (validationContext.Items.ContainsKey ("NewStatus")) {
 				RouteListStatus newStatus = (RouteListStatus)validationContext.Items ["NewStatus"];
-				if (newStatus == RouteListStatus.Ready) {
+				if (newStatus == RouteListStatus.InLoading) {
 				}
 				if (newStatus == RouteListStatus.Closed)
 				{
@@ -253,7 +253,6 @@ namespace Vodovoz.Domain.Logistic
 	public enum RouteListStatus
 	{
 		[Display (Name = "Новый")] New,
-		[Display (Name = "Готов к отгрузке")] Ready,
 		[Display (Name = "На погрузке")] InLoading,
 		[Display (Name = "В пути")] EnRoute,
 		[Display (Name = "Готов к отчету")] ReadyToReport,

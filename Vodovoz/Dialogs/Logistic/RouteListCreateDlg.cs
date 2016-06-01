@@ -103,8 +103,8 @@ namespace Vodovoz
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
-			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.Ready);
-			if (UoWGeneric.Root.Status == RouteListStatus.Ready) {
+			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading);
+			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
@@ -144,7 +144,7 @@ namespace Vodovoz
 				buttonPrint.Sensitive = false;
 				buttonAccept.Label = "Подтвердить";
 			}
-			if(Entity.Status == RouteListStatus.Ready)
+			if(Entity.Status == RouteListStatus.InLoading)
 			{
 				IsEditable (transfer);
 				var icon = new Image ();
@@ -161,12 +161,12 @@ namespace Vodovoz
 			if (UoWGeneric.Root.Status == RouteListStatus.New) {
 				var valid = new QSValidator<RouteList> (UoWGeneric.Root, 
 					            new Dictionary<object, object> {
-						{ "NewStatus", RouteListStatus.Ready }
+						{ "NewStatus", RouteListStatus.InLoading }
 					});
 				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 					return;
 
-				UoWGeneric.Root.Status = RouteListStatus.Ready;
+				UoWGeneric.Root.Status = RouteListStatus.InLoading;
 				Save();
 
 				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
@@ -200,7 +200,7 @@ namespace Vodovoz
 				UpdateButtonStatus();
 				return;
 			}
-			if (UoWGeneric.Root.Status == RouteListStatus.Ready) {
+			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
 				UoWGeneric.Root.Status = RouteListStatus.New;
 				UpdateButtonStatus();
 				return;
