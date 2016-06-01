@@ -629,6 +629,11 @@
     <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
     <Compile Include="HibernateMapping\Store\ProductSpecificationMap.cs" />
     <Compile Include="HibernateMapping\Store\ProductSpecificationMaterialMap.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\CarLoadDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CarLoadDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\CarLoadDocumentView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CarLoadDocumentView.cs" />
+    <Compile Include="Repositories\Logistics\RouteListRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

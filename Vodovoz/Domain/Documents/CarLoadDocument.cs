@@ -1,12 +1,16 @@
 ﻿using System;
-using QSOrmProject;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Collections.Generic;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Store;
+using System.Linq;
 using Gamma.Utilities;
+using NHibernate.Criterion;
+using QSBusinessCommon.Domain;
+using QSOrmProject;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -64,6 +68,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		string comment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
+
 		public virtual string Title { 
 			get { return String.Format ("Талон погрузки №{0} от {1:d}", Id, TimeStamp); }
 		}
@@ -82,11 +94,140 @@ namespace Vodovoz.Domain.Documents
 
 		#endregion
 
+		#region Функции
+
 		public virtual void AddItem (CarLoadDocumentItem item)
 		{
 			item.Document = this;
 			ObservableItems.Add (item);
 		}
+
+		public virtual void FillFromRouteList(IUnitOfWork uow, bool warehouseOnly)
+		{
+			ObservableItems.Clear();
+			if (RouteList == null || Warehouse == null)
+				return;
+
+			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, 
+				            RouteList, warehouseOnly ? Warehouse : null);
+			var nomenclatures = uow.GetById<Nomenclature>(goods.Select(x => x.NomenclatureId).ToArray());
+
+			foreach(var inRoute in goods)
+			{
+				ObservableItems.Add(new CarLoadDocumentItem(){
+					Document = this,
+					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
+					AmountInRouteList = inRoute.Amount
+				});
+			}
+
+			var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(uow, 
+				RouteList, warehouseOnly ? Warehouse : null);
+			nomenclatures = uow.GetById<Nomenclature>(equipmentsInRoute.Select(x => x.NomenclatureId).ToArray());
+			var equipments = uow.GetById<Equipment>(equipmentsInRoute.Select(x => x.EquipmentId).ToArray());
+
+			foreach(var inRoute in equipmentsInRoute)
+			{
+				ObservableItems.Add(new CarLoadDocumentItem(){
+					Document = this,
+					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
+					Equipment = equipments.First(x => x.Id == inRoute.EquipmentId),
+					Amount = 1
+				});
+			}
+		}
+
+		public virtual void UpdateInRouteListAmount(IUnitOfWork uow)
+		{
+			if (RouteList == null)
+				return;
+
+			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, 
+				RouteList, null);
+
+			var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(uow, 
+				RouteList, null);
+			
+			foreach(var item in Items)
+			{
+				var aGoods = goods.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+				if (aGoods != null)
+					item.AmountInRouteList = aGoods.Amount;
+				else
+				{
+					var equipment = equipmentsInRoute.FirstOrDefault(x => x.EquipmentId == item.Equipment.Id);
+					if (equipment != null)
+						item.AmountInRouteList = equipment.Amount;
+				}
+			}
+		}
+
+		public virtual void UpdateStockAmount(IUnitOfWork uow)
+		{
+			if (Items.Count == 0 || Warehouse == null)
+				return;
+			var nomenclatureIds = Items.Select(x => x.Nomenclature.Id).ToArray();
+			var inStock = Repository.StockRepository.NomenclatureInStock(uow, Warehouse.Id, 
+				nomenclatureIds, TimeStamp);
+
+			foreach(var item in Items)
+			{
+				item.AmountInStock = inStock[item.Nomenclature.Id];
+			}
+		}
+
+		public virtual void UpdateAlreadyLoaded(IUnitOfWork uow)
+		{
+			if (Items.Count == 0 || RouteList == null)
+				return;
+
+			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, RouteList, this);
+
+			foreach(var item in Items)
+			{
+				Repository.Logistics.RouteListRepository.GoodsInRouteListResult found;
+				if (item.Equipment == null)
+					found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
+				else
+					found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id || x.EquipmentId == item.Equipment.Id);
+				if(found != null)
+					item.AmountLoaded = found.Amount;
+			}
+		}
+
+		public virtual void UpdateOperations(IUnitOfWork uow)
+		{
+			foreach(var item in Items)
+			{
+				if(item.Amount == 0 && item.MovementOperation != null)
+				{
+					uow.Delete(item.MovementOperation);
+					item.MovementOperation = null;
+				}
+				if(item.Amount != 0)
+				{
+					if(item.MovementOperation != null)
+					{
+						item.UpdateOperation(Warehouse);
+					}
+					else
+					{
+						item.CreateOperation(Warehouse, TimeStamp);
+					}
+				}
+			}
+		}
+
+		public virtual bool ShipIfCan()
+		{
+			//bool closed = Items.All(x => x.i == x.Amount + x.AmountUnloaded);
+			//if (closed)
+			//	Order.Close();
+			//return closed;
+			return false;
+		}
+
+		#endregion
 	}
 }
 

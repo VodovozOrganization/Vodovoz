@@ -49,16 +49,11 @@ namespace Vodovoz
 				case DocumentType.InventoryDocument:
 				case DocumentType.RegradingOfGoodsDocument:
 				case DocumentType.SelfDeliveryDocument:
+				case DocumentType.CarLoadDocument:
 					TabParent.OpenTab(
 						OrmMain.GenerateDialogHashName(Document.GetDocClass(type), 0),
 						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
 						this);
-					break;
-				case DocumentType.CarLoadDocument:
-					TabParent.OpenTab(
-						TdiTabBase.GenerateHashName(typeof(ReadyForShipmentView)),
-						() => new ReadyForShipmentView(), this
-					);
 					break;
 				case DocumentType.CarUnloadDocument:
 					TabParent.OpenTab(
@@ -126,19 +121,9 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.CarLoadDocument:
-						var doc = uow.GetById<CarLoadDocument>(id);
-						var reportInfo = new QSReport.ReportInfo
-						{
-							Title = doc.Title,
-							Identifier = "Store.CarLoadDoc",
-							Parameters = new System.Collections.Generic.Dictionary<string, object>
-							{
-								{ "id",  id }
-							}
-						};
 						TabParent.OpenTab(
-							QSReport.ReportViewDlg.GenerateHashName(reportInfo),
-							() => new QSReport.ReportViewDlg(reportInfo),
+							OrmMain.GenerateDialogHashName<CarLoadDocument>(id),
+							() => new CarLoadDocumentDlg (id),
 							this);
 						break;
 					case DocumentType.CarUnloadDocument:

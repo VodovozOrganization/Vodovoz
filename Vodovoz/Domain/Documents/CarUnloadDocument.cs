@@ -67,6 +67,14 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+		string comment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
+
 		public virtual string Title { 
 			get { return String.Format ("Разгрузка автомобиля №{0} от {1:d}", Id, TimeStamp); }
 		}
