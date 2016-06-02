@@ -35,6 +35,7 @@ namespace Vodovoz
 			if(warehouseId.HasValue)
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
 			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
+			UpdateRouteListInfo();
 		}
 
 		public CarLoadDocumentDlg (int id)
