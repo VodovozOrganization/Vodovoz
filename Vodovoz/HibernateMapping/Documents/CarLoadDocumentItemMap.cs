@@ -15,7 +15,7 @@ namespace Vodovoz.HMap
 			References(x => x.Nomenclature).Column("nomenclature_id");
 			References(x => x.Equipment).Column("equipment_id");
 			References (x => x.Document).Column ("car_load_document_id");
-			References (x => x.MovementOperation).Column ("warehouse_movement_operation_id");
+			References (x => x.MovementOperation).Column ("warehouse_movement_operation_id").Cascade.All();
 		}
 	}
 }

@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
 using QSOrmProject;
-using Vodovoz.Domain.Documents;
 using QSProjectsLib;
-using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
@@ -63,7 +64,6 @@ namespace Vodovoz
 			Entity.UpdateAlreadyLoaded(UoW);
 			Entity.UpdateInRouteListAmount(UoW);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
-			//UpdateWidgets();
 		}
 
 		public override bool Save ()
@@ -78,6 +78,12 @@ namespace Vodovoz
 			{
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
+			}
+
+			if(Entity.Items.Any(x => x.Amount == 0))
+			{
+				if (MessageDialogWorks.RunQuestionDialog("В списке есть нулевые позиции. Убрать нулевые позиции перед сохранением?"))
+					Entity.ClearItemsFromZero();
 			}
 
 			Entity.UpdateOperations(UoW);

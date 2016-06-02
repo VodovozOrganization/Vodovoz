@@ -87,6 +87,18 @@ namespace Vodovoz.Domain.Documents
 			if (RouteList == null)
 				yield return new ValidationResult ("Не указан маршрутный лист, по которым осуществляется отгрузка.",
 					new[] { this.GetPropertyName (o => o.RouteList)});
+
+			if(Items.All(x => x.Amount == 0))
+				yield return new ValidationResult (String.Format("В документе нет позиций с количеством больше нуля."),
+					new[] { this.GetPropertyName (o => o.Items) });
+
+			foreach(var item in Items)
+			{
+				if(item.Amount > item.AmountInStock)
+					yield return new ValidationResult (String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items) });
+			}
+
 		}
 
 		#endregion
@@ -223,6 +235,14 @@ namespace Vodovoz.Domain.Documents
 			else
 				RouteList.ChangeStatus(RouteListStatus.InLoading);
 			return closed;
+		}
+
+		public virtual void ClearItemsFromZero()
+		{
+			foreach(var item in Items.Where(x => x.Amount == 0).ToList())
+			{
+				ObservableItems.Remove(item);
+			}
 		}
 
 		#endregion
