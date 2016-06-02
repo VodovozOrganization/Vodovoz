@@ -21,7 +21,7 @@ namespace Vodovoz.Domain.Employees
 		[Display (Name = "Имя")]
 		public virtual string Name {
 			get { return name; }
-			set { SetField (ref name, value, () => Name); }
+			set { SetField (ref name, value.Trim(), () => Name); }
 		}
 
 		string lastName;
@@ -29,7 +29,7 @@ namespace Vodovoz.Domain.Employees
 		[Display (Name = "Фамилия")]
 		public virtual string LastName {
 			get { return lastName; }
-			set { SetField (ref lastName, value, () => LastName); }
+			set { SetField (ref lastName, value.Trim(), () => LastName); }
 		}
 
 		string patronymic;
@@ -37,7 +37,7 @@ namespace Vodovoz.Domain.Employees
 		[Display (Name = "Отчество")]
 		public virtual string Patronymic {
 			get { return patronymic; }
-			set { SetField (ref patronymic, value, () => Patronymic); }
+			set { SetField (ref patronymic, value.Trim(), () => Patronymic); }
 		}
 
 		EmployeeCategory category;
