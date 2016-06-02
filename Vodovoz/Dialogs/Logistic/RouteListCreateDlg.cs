@@ -166,7 +166,7 @@ namespace Vodovoz
 				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 					return;
 
-				UoWGeneric.Root.Status = RouteListStatus.InLoading;
+				UoWGeneric.Root.ChangeStatus(RouteListStatus.InLoading);
 				Save();
 
 				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
@@ -181,16 +181,16 @@ namespace Vodovoz
 						});
 						if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 						{
-							Entity.Status = RouteListStatus.New;
+							Entity.ChangeStatus(RouteListStatus.New);
 						}
 						else
 						{
-							Entity.Ship();
+							Entity.ChangeStatus(RouteListStatus.InLoading);
 						}
 					}
 					else
 					{
-						Entity.Status = RouteListStatus.New;
+						Entity.ChangeStatus(RouteListStatus.New);
 					}
 					Save();
 					UpdateButtonStatus();
@@ -201,7 +201,7 @@ namespace Vodovoz
 				return;
 			}
 			if (UoWGeneric.Root.Status == RouteListStatus.InLoading) {
-				UoWGeneric.Root.Status = RouteListStatus.New;
+				UoWGeneric.Root.ChangeStatus(RouteListStatus.New);
 				UpdateButtonStatus();
 				return;
 			}

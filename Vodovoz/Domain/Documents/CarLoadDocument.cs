@@ -4,12 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
-using NHibernate.Criterion;
-using QSBusinessCommon.Domain;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz.Domain.Documents
@@ -220,11 +217,12 @@ namespace Vodovoz.Domain.Documents
 
 		public virtual bool ShipIfCan()
 		{
-			//bool closed = Items.All(x => x.i == x.Amount + x.AmountUnloaded);
-			//if (closed)
-			//	Order.Close();
-			//return closed;
-			return false;
+			bool closed = Items.All(x => x.AmountInRouteList == x.Amount + x.AmountLoaded);
+			if (closed)
+				RouteList.ChangeStatus(RouteListStatus.EnRoute);
+			else
+				RouteList.ChangeStatus(RouteListStatus.InLoading);
+			return closed;
 		}
 
 		#endregion

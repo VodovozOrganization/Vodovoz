@@ -145,6 +145,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string Title { get { return String.Format ("Маршрутный лист №{0}", Id); } }
 
+		#region Функции
+
 		public virtual RouteListItem AddAddressFromOrder (Order order)
 		{
 			if (order.DeliveryPoint == null)
@@ -181,13 +183,6 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void Ship(){
-			Status = RouteListStatus.EnRoute;
-			foreach (var item in Addresses) {
-				item.Order.OrderStatus = OrderStatus.OnTheWay;
-			}
-		}
-
 		public virtual void ConfirmReception(){
 			Status = RouteListStatus.ReadyToReport;
 			foreach (var item in Addresses) {
@@ -199,6 +194,49 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Status = RouteListStatus.Closed;
 		}
+
+		public void ChangeStatus(RouteListStatus newStatus)
+		{
+			if (newStatus == Status)
+				return;
+
+			if(newStatus == RouteListStatus.EnRoute)
+			{
+				if (Status == RouteListStatus.InLoading)
+				{
+					Status = RouteListStatus.EnRoute;
+					foreach (var item in Addresses) {
+						item.Order.OrderStatus = OrderStatus.OnTheWay;
+					}
+				}
+				else
+					throw new NotImplementedException();
+			}
+			else if(newStatus == RouteListStatus.InLoading)
+			{
+				if (Status == RouteListStatus.EnRoute)
+				{
+					Status = RouteListStatus.InLoading;
+					foreach (var item in Addresses)
+					{
+						item.Order.ChangeStatus(OrderStatus.ReadyForShipment);
+					}
+				}
+				else if (Status == RouteListStatus.New)
+					Status = RouteListStatus.InLoading;
+				else
+					throw new NotImplementedException();
+			}
+			else if(newStatus == RouteListStatus.New)
+			{
+				if (Status == RouteListStatus.InLoading)
+					Status = RouteListStatus.New;
+				else
+					throw new NotImplementedException();
+			}
+		}
+
+		#endregion
 
 		#region IValidatableObject implementation
 
