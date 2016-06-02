@@ -192,25 +192,28 @@ namespace Vodovoz.Domain.Cash
 					yield return new ValidationResult ("Статья по которой брались деньги должна быть указана.",
 						new[] { this.GetPropertyName (o => o.ExpenseCategory) });
 
-				if (AdvanceForClosing == null || AdvanceForClosing.Count == 0)
+				if(Id == 0)
 				{
-					yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
-						new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
-				}
-				else
-				{
-					if(NoFullCloseMode)
+					if (AdvanceForClosing == null || AdvanceForClosing.Count == 0)
 					{
-						var advance = AdvanceForClosing.First();
-						if(Money > advance.UnclosedMoney)
-							yield return new ValidationResult("Сумма возврата не должна превышать сумму которую брал человек за вычетом уже возвращенных средств.",
-								new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
+						yield return new ValidationResult("Не указаны авансы которые должны быть закрыты этим возвратом в кассу.",
+							new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
 					}
 					else
 					{
-						decimal closedSum = AdvanceForClosing.Sum(x => x.UnclosedMoney);
-						if (closedSum != Money)
-							throw new InvalidOperationException("Сумма закрытых авансов должна соответствовать сумме возврата.");
+						if(NoFullCloseMode)
+						{
+							var advance = AdvanceForClosing.First();
+							if(Money > advance.UnclosedMoney)
+								yield return new ValidationResult("Сумма возврата не должна превышать сумму которую брал человек за вычетом уже возвращенных средств.",
+									new[] { this.GetPropertyName(o => o.AdvanceForClosing) });
+						}
+						else
+						{
+							decimal closedSum = AdvanceForClosing.Sum(x => x.UnclosedMoney);
+							if (closedSum != Money)
+								throw new InvalidOperationException("Сумма закрытых авансов должна соответствовать сумме возврата.");
+						}
 					}
 				}
 			}
