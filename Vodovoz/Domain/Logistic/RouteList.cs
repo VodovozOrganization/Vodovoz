@@ -195,7 +195,7 @@ namespace Vodovoz.Domain.Logistic
 			Status = RouteListStatus.Closed;
 		}
 
-		public void ChangeStatus(RouteListStatus newStatus)
+		public virtual void ChangeStatus(RouteListStatus newStatus)
 		{
 			if (newStatus == Status)
 				return;

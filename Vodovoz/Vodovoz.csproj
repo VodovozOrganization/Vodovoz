@@ -263,7 +263,6 @@
     <Compile Include="Representations\ReadyForShipmentVM.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentFilter.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReadyForShipmentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceClaimFilter.cs" />
     <Compile Include="Domain\Service\ServiceClaimHistory.cs" />
     <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
@@ -286,7 +285,6 @@
     <Compile Include="JournalFilters\ReadyForShipmentFilter.cs" />
     <Compile Include="JournalFilters\ServiceClaimFilter.cs" />
     <Compile Include="HibernateMapping\Order\OrderItemMap.cs" />
-    <Compile Include="Dialogs\Store\ReadyForShipmentDlg.cs" />
     <Compile Include="Domain\Store\Warehouse.cs" />
     <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
     <Compile Include="HibernateMapping\Operations\DepositOperationMap.cs" />

@@ -29,6 +29,13 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
+		public CarLoadDocumentDlg (int routeListId, int? warehouseId) : this()
+		{
+			if(warehouseId.HasValue)
+				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
+			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
+		}
+
 		public CarLoadDocumentDlg (int id)
 		{
 			this.Build ();
