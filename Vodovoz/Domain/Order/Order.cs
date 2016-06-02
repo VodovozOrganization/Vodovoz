@@ -410,7 +410,8 @@ namespace Vodovoz.Domain.Orders
 
 					var orderItemsForShipment = OrderItems
 						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
-						.Where(orderItem => orderItem.Nomenclature.Warehouse!=null);
+						.Where(orderItem => orderItem.Nomenclature.Warehouse!=null)
+						.Where(orderItem => orderItem.Nomenclature.DoNotReserve == false);
 					foreach (var item in orderItemsForShipment)
 					{
 						var inStock = Repository.StockRepository.NomenclatureInStock(UoW, item.Nomenclature);
