@@ -139,6 +139,12 @@ namespace Vodovoz
 				notebookMain.CurrentPage = 1;
 		}
 
+		protected void OnComboCategoryEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			labelAndroid.Visible = labelAndroidLogin.Visible = 
+				labelAndroidPassword.Visible = dataentryAndroidLogin.Visible = 
+				dataentryAndroidPassword.Visible = ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
+		}
 	}
 }
 

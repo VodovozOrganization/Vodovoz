@@ -96,6 +96,22 @@ namespace Vodovoz.Domain.Employees
 			set { SetField (ref inn, value, () => INN); }
 		}
 
+		string androidLogin;
+
+		[Display (Name = "Логин для Android приложения")]
+		public virtual string AndroidLogin {
+			get { return androidLogin; }
+			set { SetField (ref androidLogin, value, () => AndroidLogin); }
+		}
+
+		string androidPassword;
+
+		[Display (Name = "Пароль для Android приложения")]
+		public virtual string AndroidPassword {
+			get { return androidPassword; }
+			set { SetField (ref androidPassword, value, () => AndroidPassword); }
+		}
+
 		bool isFired;
 
 		[Display (Name = "Сотрудник уволен")]
