@@ -7,6 +7,8 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using System.Collections.Generic;
 using Gamma.Utilities;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -97,6 +99,18 @@ namespace Vodovoz.Domain.Documents
 		{
 			item.Document = this;
 			ObservableItems.Add (item);
+		}
+
+		public virtual void AddItem (Nomenclature nomenclature, Equipment equipment, decimal amount)
+		{
+			var operation = new WarehouseMovementOperation();
+			operation.Amount = amount;
+			operation.Nomenclature = nomenclature;
+			operation.IncomingWarehouse = Warehouse;
+			operation.OperationTime = TimeStamp;
+			AddItem(new CarUnloadDocumentItem{
+				MovementOperation = operation
+			});
 		}
 	}
 }

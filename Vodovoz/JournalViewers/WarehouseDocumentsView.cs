@@ -40,30 +40,11 @@ namespace Vodovoz
 
 		protected void OnButtonAddEnumItemClicked (object sender, EnumItemClickedEventArgs e)
 		{
-			DocumentType type = (DocumentType)e.ItemEnum;	
-			switch (type) {
-				case DocumentType.IncomingInvoice:
-				case DocumentType.IncomingWater:
-				case DocumentType.MovementDocument:
-				case DocumentType.WriteoffDocument:
-				case DocumentType.InventoryDocument:
-				case DocumentType.RegradingOfGoodsDocument:
-				case DocumentType.SelfDeliveryDocument:
-				case DocumentType.CarLoadDocument:
-					TabParent.OpenTab(
-						OrmMain.GenerateDialogHashName(Document.GetDocClass(type), 0),
-						() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
-						this);
-					break;
-				case DocumentType.CarUnloadDocument:
-					TabParent.OpenTab(
-						TdiTabBase.GenerateHashName(typeof(ReadyForReceptionView)),
-						() => new ReadyForReceptionView(), this
-					);
-					break;
-			default:
-				throw new NotSupportedException ("Тип документа не поддерживается.");
-			}
+			DocumentType type = (DocumentType)e.ItemEnum;
+			TabParent.OpenTab(
+				OrmMain.GenerateDialogHashName(Document.GetDocClass(type), 0),
+				() => OrmMain.CreateObjectDialog(Document.GetDocClass(type)),
+				this);
 		}
 
 		protected void OnTableDocumentsRowActivated (object o, RowActivatedArgs args)
@@ -127,20 +108,9 @@ namespace Vodovoz
 							this);
 						break;
 					case DocumentType.CarUnloadDocument:
-						var unloadDoc = uow.GetById<CarUnloadDocument>(id);
-						var unloadReportInfo = new QSReport.ReportInfo
-						{
-							Title = unloadDoc.Title,
-							Identifier = "Store.CarUnloadDoc",
-							Parameters = new System.Collections.Generic.Dictionary<string, object>
-							{
-								{ "id",  id }
-							}
-						};
-
 						TabParent.OpenTab(
-							QSReport.ReportViewDlg.GenerateHashName(unloadReportInfo),
-							() => new QSReport.ReportViewDlg(unloadReportInfo),
+							OrmMain.GenerateDialogHashName<CarUnloadDocument>(id),
+							() => new CarUnloadDocumentDlg (id),
 							this);
 						break;
 				default:

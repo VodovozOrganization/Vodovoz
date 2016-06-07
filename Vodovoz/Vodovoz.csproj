@@ -632,6 +632,10 @@
     <Compile Include="Dialogs\DocumentDialogs\CarLoadDocumentView.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarLoadDocumentView.cs" />
     <Compile Include="Repositories\Logistics\RouteListRepository.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\CarUnloadDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.CarUnloadDocumentDlg.cs" />
+    <Compile Include="ViewWidgets\Store\EquipmentReceptionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.EquipmentReceptionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
