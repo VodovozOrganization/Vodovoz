@@ -22,6 +22,7 @@
     <widget-library name="../../../QSProjects/QSOsm/bin/Debug/QSOsm.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBusinessCommon/bin/Debug/QSBusinessCommon.dll" />
     <widget-library name="../../../QSProjects/Modules/QSDocTemplates/bin/Debug/QSDocTemplates.dll" />
+    <widget-library name="../../VodovozBusiness/bin/Debug/VodovozBusiness.dll" />
     <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>

@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{022DD59D-0EEE-420F-9750-EB275772F56A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Vodovoz</RootNamespace>
+    <AssemblyName>VodovozBusiness</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="DataAnnotationsExtensions">
+      <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.3.0.0.0\lib\net40\DataAnnotationsExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\QSProjects\packages\NHibernate.4.0.4.4000\lib\net40\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\..\QSProjects\packages\NLog.4.2.3\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="System.Data" />
+    <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Mono.Cairo" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Domain\Accounting\AccountExpense.cs" />
+    <Compile Include="Domain\Accounting\AccountIncome.cs" />
+    <Compile Include="Domain\BasicHandbooks\CounterpartyStatus.cs" />
+    <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
+    <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
+    <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
+    <Compile Include="Domain\BasicHandbooks\Manufacturer.cs" />
+    <Compile Include="Domain\BasicHandbooks\Significance.cs" />
+    <Compile Include="Domain\Cash\AdvanceClosing.cs" />
+    <Compile Include="Domain\Cash\AdvanceReport.cs" />
+    <Compile Include="Domain\Cash\CashDocumentType.cs" />
+    <Compile Include="Domain\Cash\Expense.cs" />
+    <Compile Include="Domain\Cash\ExpenseCategory.cs" />
+    <Compile Include="Domain\Cash\Income.cs" />
+    <Compile Include="Domain\Cash\IncomeCategory.cs" />
+    <Compile Include="Domain\Client\AdditionalAgreement.cs" />
+    <Compile Include="Domain\Client\Contact.cs" />
+    <Compile Include="Domain\Client\Counterparty.cs" />
+    <Compile Include="Domain\Client\CounterpartyContract.cs" />
+    <Compile Include="Domain\Client\DailyRentAgreement.cs" />
+    <Compile Include="Domain\Client\DeliveryPoint.cs" />
+    <Compile Include="Domain\Client\DocTemplate.cs" />
+    <Compile Include="Domain\Client\FreeRentAgreement.cs" />
+    <Compile Include="Domain\Client\FreeRentEquipment.cs" />
+    <Compile Include="Domain\Client\NonfreeRentAgreement.cs" />
+    <Compile Include="Domain\Client\PaidRentEquipment.cs" />
+    <Compile Include="Domain\Client\Proxy.cs" />
+    <Compile Include="Domain\Client\RepairAgreement.cs" />
+    <Compile Include="Domain\Client\WaterSalesAgreement.cs" />
+    <Compile Include="Domain\CommentTemplate.cs" />
+    <Compile Include="Domain\CommonEnums.cs" />
+    <Compile Include="Domain\Documents\CarLoadDocument.cs" />
+    <Compile Include="Domain\Documents\CarLoadDocumentItem.cs" />
+    <Compile Include="Domain\Documents\CarUnloadDocument.cs" />
+    <Compile Include="Domain\Documents\CarUnloadDocumentItem.cs" />
+    <Compile Include="Domain\Documents\Document.cs" />
+    <Compile Include="Domain\Documents\IncomingInvoice.cs" />
+    <Compile Include="Domain\Documents\IncomingInvoiceItem.cs" />
+    <Compile Include="Domain\Documents\IncomingWater.cs" />
+    <Compile Include="Domain\Documents\IncomingWaterMaterial.cs" />
+    <Compile Include="Domain\Documents\InventoryDocument.cs" />
+    <Compile Include="Domain\Documents\InventoryDocumentItem.cs" />
+    <Compile Include="Domain\Documents\MovementDocument.cs" />
+    <Compile Include="Domain\Documents\MovementDocumentItem.cs" />
+    <Compile Include="Domain\Documents\RegradingOfGoodsDocument.cs" />
+    <Compile Include="Domain\Documents\RegradingOfGoodsDocumentItem.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryDocument.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryDocumentItem.cs" />
+    <Compile Include="Domain\Documents\SelfDeliveryDocumentReturned.cs" />
+    <Compile Include="Domain\Documents\WriteoffDocument.cs" />
+    <Compile Include="Domain\Documents\WriteoffDocumentItem.cs" />
+    <Compile Include="Domain\Employees\Employee.cs" />
+    <Compile Include="Domain\Employees\Fine.cs" />
+    <Compile Include="Domain\Employees\FineItem.cs" />
+    <Compile Include="Domain\Employees\Nationality.cs" />
+    <Compile Include="Domain\Employees\User.cs" />
+    <Compile Include="Domain\Employees\UserSettings.cs" />
+    <Compile Include="Domain\FreeRentPackage.cs" />
+    <Compile Include="Domain\Goods\Equipment.cs" />
+    <Compile Include="Domain\Goods\Nomenclature.cs" />
+    <Compile Include="Domain\Goods\NomenclaturePrice.cs" />
+    <Compile Include="Domain\Logistic\Car.cs" />
+    <Compile Include="Domain\Logistic\DeliverySchedule.cs" />
+    <Compile Include="Domain\Logistic\DeliveryShift.cs" />
+    <Compile Include="Domain\Logistic\FuelType.cs" />
+    <Compile Include="Domain\Logistic\LogisticsArea.cs" />
+    <Compile Include="Domain\Logistic\RouteColumn.cs" />
+    <Compile Include="Domain\Logistic\RouteList.cs" />
+    <Compile Include="Domain\Logistic\RouteListClosing.cs" />
+    <Compile Include="Domain\Logistic\RouteListItem.cs" />
+    <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
+    <Compile Include="Domain\Operations\CounterpartyMovementOperation.cs" />
+    <Compile Include="Domain\Operations\DepositOperation.cs" />
+    <Compile Include="Domain\Operations\MoneyMovementOperation.cs" />
+    <Compile Include="Domain\Operations\OperationBase.cs" />
+    <Compile Include="Domain\Operations\WarehouseMovementOperation.cs" />
+    <Compile Include="Domain\Order\Documents\BillDocument.cs" />
+    <Compile Include="Domain\Order\Documents\CoolerWarrantyDocument.cs" />
+    <Compile Include="Domain\Order\Documents\DoneWorkDocument.cs" />
+    <Compile Include="Domain\Order\Documents\DriverTicketDocument.cs" />
+    <Compile Include="Domain\Order\Documents\EquipmentTransferDocument.cs" />
+    <Compile Include="Domain\Order\Documents\InvoiceBarterDocument.cs" />
+    <Compile Include="Domain\Order\Documents\InvoiceDocument.cs" />
+    <Compile Include="Domain\Order\Documents\OrderAgreement.cs" />
+    <Compile Include="Domain\Order\Documents\OrderContract.cs" />
+    <Compile Include="Domain\Order\Documents\OrderDocument.cs" />
+    <Compile Include="Domain\Order\Documents\PumpWarrantyDocument.cs" />
+    <Compile Include="Domain\Order\Documents\UPDDocument.cs" />
+    <Compile Include="Domain\Order\Order.cs" />
+    <Compile Include="Domain\Order\OrderDepositItem.cs" />
+    <Compile Include="Domain\Order\OrderEnums.cs" />
+    <Compile Include="Domain\Order\OrderEquipment.cs" />
+    <Compile Include="Domain\Order\OrderItem.cs" />
+    <Compile Include="Domain\Organization.cs" />
+    <Compile Include="Domain\PaidRentPackage.cs" />
+    <Compile Include="Domain\Service\ServiceClaim.cs" />
+    <Compile Include="Domain\Service\ServiceClaimHistory.cs" />
+    <Compile Include="Domain\Service\ServiceClaimItem.cs" />
+    <Compile Include="Domain\Store\MovementWagon.cs" />
+    <Compile Include="Domain\Store\ProductSpecification.cs" />
+    <Compile Include="Domain\Store\ProductSpecificationMaterial.cs" />
+    <Compile Include="Domain\Store\RegradingOfGoodsTemplate.cs" />
+    <Compile Include="Domain\Store\RegradingOfGoodsTemplateItem.cs" />
+    <Compile Include="Domain\Store\Warehouse.cs" />
+    <Compile Include="Domain\Wages.cs" />
+    <Compile Include="HibernateMapping\Accounting\AccountExpenseMap.cs" />
+    <Compile Include="HibernateMapping\Accounting\AccountIncomeMap.cs" />
+    <Compile Include="HibernateMapping\Cash\AdvanceClosingMap.cs" />
+    <Compile Include="HibernateMapping\Cash\AdvanceReportMap.cs" />
+    <Compile Include="HibernateMapping\Cash\ExpenseCategoryMap.cs" />
+    <Compile Include="HibernateMapping\Cash\ExpenseMap.cs" />
+    <Compile Include="HibernateMapping\Cash\IncomeCategoryMap.cs" />
+    <Compile Include="HibernateMapping\Cash\IncomeMap.cs" />
+    <Compile Include="HibernateMapping\Contracts\CounterpartyContractMap.cs" />
+    <Compile Include="HibernateMapping\Contracts\FreeRentPackageMap.cs" />
+    <Compile Include="HibernateMapping\Contracts\PaidRentPackageMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\AdditionalAgreementMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\ContactMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\CounterpartyMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DeliveryPointMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\DocTemplateMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\FreeRentEquipmentMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\PaidRentEquipmentMap.cs" />
+    <Compile Include="HibernateMapping\Counterparty\ProxyMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarLoadDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarLoadDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarUnloadDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\CarUnloadDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingInvoiceItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingInvoiceMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingWaterMap.cs" />
+    <Compile Include="HibernateMapping\Documents\IncomingWaterMaterialMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\InventoryDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\MovementDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\MovementDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\RegradingOfGoodsDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\RegradingOfGoodsDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\SelfDeliveryDocumentReturnedMap.cs" />
+    <Compile Include="HibernateMapping\Documents\WriteoffDocumentItemMap.cs" />
+    <Compile Include="HibernateMapping\Documents\WriteoffDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Employees\EmployeeMap.cs" />
+    <Compile Include="HibernateMapping\Employees\FineItemMap.cs" />
+    <Compile Include="HibernateMapping\Employees\FineMap.cs" />
+    <Compile Include="HibernateMapping\Employees\NationalityMap.cs" />
+    <Compile Include="HibernateMapping\Employees\UserMap.cs" />
+    <Compile Include="HibernateMapping\Employees\UserSettingsMap.cs" />
+    <Compile Include="HibernateMapping\Goods\EquipmentColorsMap.cs" />
+    <Compile Include="HibernateMapping\Goods\EquipmentMap.cs" />
+    <Compile Include="HibernateMapping\Goods\EquipmentTypeMap.cs" />
+    <Compile Include="HibernateMapping\Goods\ManufacturerMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclatureMap.cs" />
+    <Compile Include="HibernateMapping\Goods\NomenclaturePriceMap.cs" />
+    <Compile Include="HibernateMapping\Handbooks\MeasurementUnitsMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\CarMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\DeliveryScheduleMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\DeliveryShiftMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\FuelTypeMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\LogisticsAreaMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListClosingMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListItemMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\RouteListMap.cs" />
+    <Compile Include="HibernateMapping\Operations\BottlesMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\CounterpartyMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\DepositOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\MoneyMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Operations\WarehouseMovementOperationMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderDepositItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderEquipmentMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderItemMap.cs" />
+    <Compile Include="HibernateMapping\Order\OrderMap.cs" />
+    <Compile Include="HibernateMapping\Organization\OrganizationMap.cs" />
+    <Compile Include="HibernateMapping\Service\ServiceClaimHistoryMap.cs" />
+    <Compile Include="HibernateMapping\Service\ServiceClaimItemMap.cs" />
+    <Compile Include="HibernateMapping\Service\ServiceClaimMap.cs" />
+    <Compile Include="HibernateMapping\Store\MovementWagonMap.cs" />
+    <Compile Include="HibernateMapping\Store\ProductSpecificationMap.cs" />
+    <Compile Include="HibernateMapping\Store\ProductSpecificationMaterialMap.cs" />
+    <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateItemMap.cs" />
+    <Compile Include="HibernateMapping\Store\RegradingOfGoodsTemplateMap.cs" />
+    <Compile Include="HibernateMapping\Store\WarehouseMap.cs" />
+    <Compile Include="Repositories\Accounting\AccountExpenseRepository.cs" />
+    <Compile Include="Repositories\Accounting\AccountIncomeRepository.cs" />
+    <Compile Include="Repositories\AdditionalAgreementRepository.cs" />
+    <Compile Include="Repositories\BasicHandbooks\CullingCategoryRepository.cs" />
+    <Compile Include="Repositories\BasicHandbooks\DeliveryScheduleRepository.cs" />
+    <Compile Include="Repositories\Cash\AccountableDebtsRepository.cs" />
+    <Compile Include="Repositories\Cash\CashRepository.cs" />
+    <Compile Include="Repositories\Cash\CategoryRepository.cs" />
+    <Compile Include="Repositories\CounterpartyContractRepository.cs" />
+    <Compile Include="Repositories\CounterpartyRepository.cs" />
+    <Compile Include="Repositories\DeliveryPointRepository.cs" />
+    <Compile Include="Repositories\EmployeeRepository.cs" />
+    <Compile Include="Repositories\EquipmentRepository.cs" />
+    <Compile Include="Repositories\EquipmentTypeRepository.cs" />
+    <Compile Include="Repositories\Logistics\DeliveryShiftRepository.cs" />
+    <Compile Include="Repositories\Logistics\RouteColumnRepository.cs" />
+    <Compile Include="Repositories\Logistics\RouteListRepository.cs" />
+    <Compile Include="Repositories\NomenclatureRepository.cs" />
+    <Compile Include="Repositories\Operations\BottlesRepository.cs" />
+    <Compile Include="Repositories\Operations\DepositRepository.cs" />
+    <Compile Include="Repositories\Operations\MoneyRepository.cs" />
+    <Compile Include="Repositories\OrderRepository.cs" />
+    <Compile Include="Repositories\OrganizationRepository.cs" />
+    <Compile Include="Repositories\RentPackageRepository.cs" />
+    <Compile Include="Repositories\ServiceClaimRepository.cs" />
+    <Compile Include="Repositories\StockRepository.cs" />
+    <Compile Include="Repositories\Store\SelfDeliveryRepository.cs" />
+    <Compile Include="Repositories\Store\WagonRepository.cs" />
+    <Compile Include="Repositories\Store\WarehouseRepository.cs" />
+    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="DocTemplates\ContractParser.cs" />
+    <Compile Include="TimeAsTimeSpanTypeClone.cs" />
+    <Compile Include="DocumentPrinter.cs" />
+    <Compile Include="BatchRDLRenderer.cs" />
+    <Compile Include="Attributes\Code1c.cs" />
+    <Compile Include="Attributes\Value1c.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Domain\" />
+    <Folder Include="HibernateMapping\" />
+    <Folder Include="Repositories\" />
+    <Folder Include="DocTemplates\" />
+    <Folder Include="Attributes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HibernateMapping\Database.hbm.xml">
+      <LogicalName>Vodovoz.Database.hbm.xml</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
+      <Project>{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2}</Project>
+      <Name>QSBanks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
+      <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
+      <Name>QSOrmProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSProjectsLib\QSProjectsLib.csproj">
+      <Project>{A6C1914F-7732-49F5-BABA-8BBBA521FAAB}</Project>
+      <Name>QSProjectsLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Gtk.DataBindings\System.Data.Bindings\System.Data.Bindings.csproj">
+      <Project>{54F958F5-7E58-4C89-9A04-8835E63B97C3}</Project>
+      <Name>System.Data.Bindings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GammaBinding\GammaUtil\GammaUtil.csproj">
+      <Project>{1BF2A638-420D-456C-96A7-36873A0FB894}</Project>
+      <Name>GammaUtil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSContacts\QSContacts.csproj">
+      <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
+      <Name>QSContacts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSOsm\QSOsm.csproj">
+      <Project>{5CFB297D-4964-4CBD-9102-A5E795BE7B85}</Project>
+      <Name>QSOsm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSDocTemplates\QSDocTemplates.csproj">
+      <Project>{55CD5E7C-3164-4A5D-9DA8-F29F5E9D170C}</Project>
+      <Name>QSDocTemplates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
+      <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
+      <Name>QSValidation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\Modules\QSBusinessCommon\QSBusinessCommon.csproj">
+      <Project>{AD329D59-938D-42AC-ABE2-B0F14FDBB7C6}</Project>
+      <Name>QSBusinessCommon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSSupportLib\QSSupportLib.csproj">
+      <Project>{9DF71899-3CE4-48F4-B3C3-0B21B15037B1}</Project>
+      <Name>QSSupportLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSReport\QSReport.csproj">
+      <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
+      <Name>QSReport</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlGtkViewer\RdlGtkViewer\RdlGtkViewer.csproj">
+      <Project>{921488F1-F4FC-4438-920E-86E57442B253}</Project>
+      <Name>RdlGtkViewer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
+      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
+      <Name>RdlEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSTDI\QSTDI.csproj">
+      <Project>{4B35C969-8C74-440F-8189-57047C9215FD}</Project>
+      <Name>QSTDI</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

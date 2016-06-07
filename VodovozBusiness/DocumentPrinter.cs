@@ -1,10 +1,7 @@
 ﻿using System;
-using Vodovoz.Domain.Orders.Documents;
 using System.Collections.Generic;
 using System.Linq;
 using Gtk;
-using fyiReporting.RdlGtkViewer;
-using fyiReporting.RDL;
 using QSProjectsLib;
 
 namespace Vodovoz
