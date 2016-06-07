@@ -24,6 +24,7 @@ namespace Vodovoz
 			Map (x => x.INN).Column ("inn");
 			Map (x => x.AndroidLogin).Column ("android_login");
 			Map (x => x.AndroidPassword).Column ("android_password");
+			Map (x => x.AndroidSessionKey).Column("android_session_key");
 			References (x => x.Nationality).Column ("nationality_id");
 			References (x => x.User).Column ("user_id");
 			References (x => x.DefaultAccount).Column ("default_account_id");

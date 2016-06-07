@@ -112,6 +112,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField (ref androidPassword, value, () => AndroidPassword); }
 		}
 
+		string androidSessionKey;
+
+		[Display (Name = "Ключ сессии для Android приложения")]
+		public virtual string AndroidSessionKey {
+			get { return androidSessionKey; }
+			set { SetField (ref androidSessionKey, value, () => AndroidSessionKey); }
+		}
+
 		bool isFired;
 
 		[Display (Name = "Сотрудник уволен")]
