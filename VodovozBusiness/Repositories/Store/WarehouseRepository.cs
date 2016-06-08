@@ -96,23 +96,5 @@ namespace Vodovoz.Repository.Store
 				.Select (Projections.Distinct(Projections.Property<Nomenclature> (n => n.Warehouse)))
 				.List<Warehouse> ();
 		}
-
-		public static List<Warehouse> WarehousesNotLoadedFrom(IUnitOfWork uow, int id)
-		{			
-			var visitedWarehousesIds = WarehousesLoadedFrom (uow, id).Select (warehouse => warehouse.Id).ToList ();				
-			return WarehouseForShipment (uow, id).Where (warehouse => !visitedWarehousesIds.Contains (warehouse.Id)).ToList();
-		}
-
-		public static IList<Warehouse> WarehousesLoadedFrom(IUnitOfWork uow, int id)
-		{
-			Warehouse warehouseAlias = null;
-			var cardocumentsQuery = uow.Session.QueryOver<CarLoadDocument> ();
-			cardocumentsQuery.Where (doc => doc.RouteList.Id == id);
-
-			return cardocumentsQuery
-				.JoinAlias (doc => doc.Warehouse, () => warehouseAlias)
-				.Select (doc => doc.Warehouse)
-				.List<Warehouse> ();
-		}
 	}
 }
