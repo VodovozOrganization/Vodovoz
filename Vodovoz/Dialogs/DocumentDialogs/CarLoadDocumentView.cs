@@ -104,6 +104,9 @@ namespace Vodovoz
 					return;
 			}
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, true);
+			DocumentUoW.Root.UpdateInRouteListAmount(DocumentUoW);
+			if (DocumentUoW.Root.Warehouse != null)
+				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
 		}
 
 		protected void OnButtonFillAllItemsClicked(object sender, EventArgs e)
@@ -114,6 +117,9 @@ namespace Vodovoz
 					return;
 			}
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
+			DocumentUoW.Root.UpdateInRouteListAmount(DocumentUoW);
+			if (DocumentUoW.Root.Warehouse != null)
+				DocumentUoW.Root.UpdateStockAmount(DocumentUoW);
 		}
 	}
 }
