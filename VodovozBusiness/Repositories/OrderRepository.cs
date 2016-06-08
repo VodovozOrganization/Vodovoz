@@ -17,7 +17,7 @@ namespace Vodovoz.Repository
 		{
 			Vodovoz.Domain.Orders.Order order = null;
 
-			var reasons = uow.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => order)
+			var reasons = uow.Session.QueryOver<VodovozOrder> (() => order)
 				.Select (Projections.Distinct (Projections.Property (() => order.SumDifferenceReason)))
 				.List<string> ();
 
@@ -28,27 +28,27 @@ namespace Vodovoz.Repository
 			return store;
 		}
 
-		public static QueryOver<Vodovoz.Domain.Orders.Order> GetAcceptedOrdersForDateQueryOver (DateTime date)
+		public static QueryOver<VodovozOrder> GetAcceptedOrdersForDateQueryOver (DateTime date)
 		{
-			return QueryOver.Of<Vodovoz.Domain.Orders.Order> ()
+			return QueryOver.Of<VodovozOrder> ()
 				.Where (order => order.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted
 			&& order.DeliveryDate.Date == date.Date
 			&& !order.SelfDelivery);
 		}
 
-		public static IList<Vodovoz.Domain.Orders.Order> GetAcceptedOrdersForRegion (IUnitOfWork uow, DateTime date, LogisticsArea area)
+		public static IList<VodovozOrder> GetAcceptedOrdersForRegion (IUnitOfWork uow, DateTime date, LogisticsArea area)
 		{
 			DeliveryPoint point = null;
-			return uow.Session.QueryOver<Vodovoz.Domain.Orders.Order> ()
+			return uow.Session.QueryOver<VodovozOrder> ()
 				.JoinAlias (o => o.DeliveryPoint, () => point)
 				.Where (o => o.DeliveryDate.Date == date.Date && point.LogisticsArea.Id == area.Id 
 					&& !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
 				.List<Vodovoz.Domain.Orders.Order> ();
 		}
 
-		public static Vodovoz.Domain.Orders.Order GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
+		public static VodovozOrder GetLatestCompleteOrderForCounterparty(IUnitOfWork UoW, Counterparty counterparty)
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
+			VodovozOrder orderAlias = null;
 			var queryResult = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
@@ -57,10 +57,10 @@ namespace Vodovoz.Repository
 			return queryResult.FirstOrDefault();
 		}
 
-		public static IList<Vodovoz.Domain.Orders.Order> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty)
+		public static IList<VodovozOrder> GetCurrentOrders(IUnitOfWork UoW, Counterparty counterparty)
 		{
-			Vodovoz.Domain.Orders.Order orderAlias = null;
-			return UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+			VodovozOrder orderAlias = null;
+			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
 				.Where(() => orderAlias.Client.Id == counterparty.Id)
 				.Where(() => orderAlias.DeliveryDate >= DateTime.Today)
 				.Where(() => orderAlias.OrderStatus != OrderStatus.Closed 
