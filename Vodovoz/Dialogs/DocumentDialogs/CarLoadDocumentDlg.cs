@@ -141,6 +141,11 @@ namespace Vodovoz
 				() => new QSReport.ReportViewDlg(reportInfo),
 				this);
 		}
+
+		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
+		{
+			Entity.UpdateStockAmount(UoW);
+		}
 	}
 }
 

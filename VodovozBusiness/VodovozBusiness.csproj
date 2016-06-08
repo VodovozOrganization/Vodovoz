@@ -52,7 +52,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Domain\Accounting\AccountExpense.cs" />
     <Compile Include="Domain\Accounting\AccountIncome.cs" />
-    <Compile Include="Domain\BasicHandbooks\CounterpartyStatus.cs" />
     <Compile Include="Domain\BasicHandbooks\CullingCategory.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentColors.cs" />
     <Compile Include="Domain\BasicHandbooks\EquipmentType.cs" />
@@ -271,6 +270,8 @@
     <Compile Include="BatchRDLRenderer.cs" />
     <Compile Include="Attributes\Code1c.cs" />
     <Compile Include="Attributes\Value1c.cs" />
+    <Compile Include="HibernateMapping\Counterparty\CounterpartyStatusMap.cs" />
+    <Compile Include="Domain\Client\CounterpartyStatus.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

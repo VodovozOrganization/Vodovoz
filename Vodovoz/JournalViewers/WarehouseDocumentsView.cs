@@ -26,6 +26,7 @@ namespace Vodovoz
 			uow = tableDocuments.RepresentationModel.UoW;
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+			buttonAdd.ItemsEnum = typeof(Domain.Documents.DocumentType);
 		}
 
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
