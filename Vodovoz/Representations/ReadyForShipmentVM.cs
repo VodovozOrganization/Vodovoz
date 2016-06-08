@@ -19,7 +19,11 @@ namespace Vodovoz.ViewModel
 		{
 		}
 
-		public ReadyForShipmentVM (IUnitOfWork uow) : base (typeof(RouteList), typeof(Vodovoz.Domain.Orders.Order))
+		public ReadyForShipmentVM (IUnitOfWork uow) : base (
+			typeof(RouteList),
+			typeof(Vodovoz.Domain.Orders.Order),
+			typeof(CarLoadDocument)
+		)
 		{
 			this.UoW = uow;
 		}
