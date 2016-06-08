@@ -194,7 +194,7 @@ namespace Vodovoz.Domain.Documents
 
 			foreach(var item in Items)
 			{
-				Repository.Logistics.RouteListRepository.GoodsInRouteListResult found;
+				Repository.Logistics.RouteListRepository.GoodsLoadedListResult found;
 				if (item.Equipment == null)
 					found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 				else
@@ -226,17 +226,7 @@ namespace Vodovoz.Domain.Documents
 				}
 			}
 		}
-
-		public virtual bool ShipIfCan()
-		{
-			bool closed = Items.All(x => x.AmountInRouteList == x.Amount + x.AmountLoaded);
-			if (closed)
-				RouteList.ChangeStatus(RouteListStatus.EnRoute);
-			else
-				RouteList.ChangeStatus(RouteListStatus.InLoading);
-			return closed;
-		}
-
+			
 		public virtual void ClearItemsFromZero()
 		{
 			foreach(var item in Items.Where(x => x.Amount == 0).ToList())

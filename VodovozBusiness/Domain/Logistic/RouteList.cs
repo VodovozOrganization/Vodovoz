@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Employees;
@@ -188,6 +189,42 @@ namespace Vodovoz.Domain.Logistic
 			foreach (var item in Addresses) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
+		}
+
+		public virtual bool ShipIfCan(IUnitOfWork uow)
+		{
+			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(uow, this);
+			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, this);
+
+			bool closed = true;
+			foreach(var good in goods)
+			{
+				var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
+				if(loaded == null || loaded.Amount < good.Amount)
+				{
+					closed = false;
+					break;
+				}
+			}
+			if(closed == true)
+			{
+				var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(uow, this);
+				foreach(var equipment in equipmentsInRoute)
+				{
+					var loaded = inLoaded.FirstOrDefault(x => x.EquipmentId == equipment.EquipmentId);
+					if(loaded == null || loaded.Amount < equipment.Amount)
+					{
+						closed = false;
+						break;
+					}
+				}
+			}
+
+			if (closed)
+				ChangeStatus(RouteListStatus.EnRoute);
+			else
+				ChangeStatus(RouteListStatus.InLoading);
+			return closed;
 		}
 
 		public virtual void ConfirmMileage()

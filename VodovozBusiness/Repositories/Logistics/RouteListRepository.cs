@@ -94,31 +94,40 @@ namespace Vodovoz.Repository.Logistics
 				.List<GoodsInRouteListResult> ();
 		}
 
-		public static IList<GoodsInRouteListResult> AllGoodsLoaded(IUnitOfWork UoW, RouteList routeList, CarLoadDocument excludeDoc)
+		public static IList<GoodsLoadedListResult> AllGoodsLoaded(IUnitOfWork UoW, RouteList routeList, CarLoadDocument excludeDoc = null)
 		{
 			CarLoadDocument docAlias = null;
 			CarLoadDocumentItem docItemsAlias = null;
 
-			GoodsInRouteListResult inCarLoads = null;
-			var loadedlist = UoW.Session.QueryOver<CarLoadDocument> (() => docAlias)
-				.Where (d => d.RouteList.Id == routeList.Id)
-				.Where(d => d.Id != excludeDoc.Id)
+			GoodsLoadedListResult inCarLoads = null;
+			var loadedQuery = UoW.Session.QueryOver<CarLoadDocument>(() => docAlias)
+				.Where(d => d.RouteList.Id == routeList.Id);
+			if (excludeDoc != null)
+				loadedQuery.Where(d => d.Id != excludeDoc.Id);
+			
+			var loadedlist = loadedQuery
 				.JoinAlias(d => d.Items, () => docItemsAlias)
 				.SelectList (list => list
 					.SelectGroup (() => docItemsAlias.Nomenclature.Id).WithAlias (() => inCarLoads.NomenclatureId)
-					.SelectGroup (() => docItemsAlias.Equipment).WithAlias (() => inCarLoads.EquipmentId)
+					.SelectGroup (() => docItemsAlias.Equipment.Id).WithAlias (() => inCarLoads.EquipmentId)
 					.SelectSum (() => docItemsAlias.Amount).WithAlias (() => inCarLoads.Amount)
-				).TransformUsing (Transformers.AliasToBean <GoodsInRouteListResult> ())
-				.List<GoodsInRouteListResult> ();
+				).TransformUsing (Transformers.AliasToBean <GoodsLoadedListResult> ())
+				.List<GoodsLoadedListResult> ();
 			return loadedlist;			      
 		}
-
-
+			
 		public class GoodsInRouteListResult{
 			public int NomenclatureId { get; set;}
 			public int EquipmentId { get; set;}
 			public int Amount { get; set;}
 		}
+
+		public class GoodsLoadedListResult{
+			public int NomenclatureId { get; set;}
+			public int EquipmentId { get; set;}
+			public decimal Amount { get; set;}
+		}
+
 	}
 }
 

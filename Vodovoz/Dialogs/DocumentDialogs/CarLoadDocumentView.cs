@@ -19,7 +19,7 @@ namespace Vodovoz
 				.AddColumn("С/Н оборудования").AddTextRenderer (x => x.Equipment != null ? x.Equipment.Serial : String.Empty)
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
-				.AddColumn("Уже отгружено").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))
+				.AddColumn("В других отгрузках").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))
 				.AddColumn("Кол-во").AddNumericRenderer(x => x.Amount).Editing()
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
 				.AddSetter((w, x) => w.Digits = (uint)x.Nomenclature.Unit.Digits)
