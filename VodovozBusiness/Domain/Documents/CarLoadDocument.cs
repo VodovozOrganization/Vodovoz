@@ -126,7 +126,8 @@ namespace Vodovoz.Domain.Documents
 				ObservableItems.Add(new CarLoadDocumentItem(){
 					Document = this,
 					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
-					AmountInRouteList = inRoute.Amount
+					AmountInRouteList = inRoute.Amount,
+					Amount = inRoute.Amount
 				});
 			}
 
@@ -141,6 +142,7 @@ namespace Vodovoz.Domain.Documents
 					Document = this,
 					Nomenclature = nomenclatures.First(x => x.Id == inRoute.NomenclatureId),
 					Equipment = equipments.First(x => x.Id == inRoute.EquipmentId),
+					AmountInRouteList = 1,
 					Amount = 1
 				});
 			}
