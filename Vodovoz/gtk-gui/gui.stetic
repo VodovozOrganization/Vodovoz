@@ -883,6 +883,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1584,7 +1585,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -13011,7 +13011,7 @@ Patronymic</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.Domain.Documents.DocumentType, Vodovoz</property>
+                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
