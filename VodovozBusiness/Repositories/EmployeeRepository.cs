@@ -19,6 +19,26 @@ namespace Vodovoz.Repository
 				.SingleOrDefault ();
 		}
 
+		public static Employee GetDriverByAuthKey(IUnitOfWork uow, string authKey) 
+		{
+			Employee employeeAlias = null;
+
+			return uow.Session.QueryOver<Employee> (() => employeeAlias)
+				.Where (() => employeeAlias.AndroidSessionKey == authKey)
+				.Where (() => employeeAlias.IsFired == false)
+				.SingleOrDefault ();
+		}
+
+		public static Employee GetDriverByAndroidLogin(IUnitOfWork uow, string login)
+		{
+			Employee employeeAlias = null;
+
+			return  uow.Session.QueryOver<Employee> (() => employeeAlias)
+				.Where (() => employeeAlias.AndroidLogin == login)
+				.Where (() => employeeAlias.IsFired == false)
+				.SingleOrDefault ();
+		}
+
 		public static IList<Employee> GetEmployeesForUser (IUnitOfWork uow, int userId)
 		{
 			User userAlias = null;

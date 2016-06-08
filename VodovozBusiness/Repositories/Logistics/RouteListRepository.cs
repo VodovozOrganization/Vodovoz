@@ -8,11 +8,22 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Repository.Logistics
 {
 	public static class RouteListRepository
 	{
+		public static IList<RouteList> GetDriverRouteLists(IUnitOfWork uow, Employee driver)
+		{
+			RouteList routeListAlias = null;
+
+			return uow.Session.QueryOver<RouteList> (() => routeListAlias)
+				.Where (() => routeListAlias.Driver == driver)
+				.Where (() => routeListAlias.Status == RouteListStatus.EnRoute)
+				.List ();
+		}
+
 		public static IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments (IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
 			GoodsInRouteListResult resultAlias = null;
