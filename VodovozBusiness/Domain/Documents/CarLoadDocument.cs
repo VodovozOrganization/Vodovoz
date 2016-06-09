@@ -203,7 +203,7 @@ namespace Vodovoz.Domain.Documents
 				if (item.Equipment == null)
 					found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id);
 				else
-					found = inLoaded.FirstOrDefault(x => x.NomenclatureId == item.Nomenclature.Id || x.EquipmentId == item.Equipment.Id);
+					found = inLoaded.FirstOrDefault(x => x.EquipmentId == item.Equipment.Id);
 				if(found != null)
 					item.AmountLoaded = found.Amount;
 			}
