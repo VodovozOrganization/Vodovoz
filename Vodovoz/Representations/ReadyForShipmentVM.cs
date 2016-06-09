@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using NHibernate.Transform;
@@ -7,9 +8,9 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModel
 {
@@ -54,8 +55,6 @@ namespace Vodovoz.ViewModel
 			Car carAlias = null;
 			CarLoadDocument carLoadDocAlias = null;
 
-			List<ReadyForShipmentVMNode> items = new List<ReadyForShipmentVMNode> ();
-
 			var orderitemsSubqury = QueryOver.Of<OrderItem> (() => orderItemsAlias)
 				.Where (() => orderItemsAlias.Order.Id == orderAlias.Id)
 				.JoinAlias (() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
@@ -68,16 +67,10 @@ namespace Vodovoz.ViewModel
 				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse && orderEquipmentAlias.Direction == Direction.Deliver)
 				.Select (i => i.Order);
 
-			var alreadyLoadedRouteListsSubquery = QueryOver.Of<CarLoadDocument>(() => carLoadDocAlias)
-				.Where(() => carLoadDocAlias.RouteList.Id == routeListAlias.Id)
-				.Where(() => carLoadDocAlias.Warehouse == Filter.RestrictWarehouse)
-				.Select(doc => doc.Id);
-
 			var queryRoutes = UoW.Session.QueryOver<RouteList> (() => routeListAlias)
 				.JoinAlias (rl => rl.Driver, () => employeeAlias)
 				.JoinAlias (rl => rl.Car, () => carAlias)
-				.Where (r => routeListAlias.Status == RouteListStatus.InLoading 
-					|| routeListAlias.Status == RouteListStatus.InLoading);
+				.Where (r => routeListAlias.Status == RouteListStatus.InLoading);
 
 			if (Filter.RestrictWarehouse != null) {
 
@@ -86,12 +79,10 @@ namespace Vodovoz.ViewModel
 					.Where (new Disjunction ()
 						.Add (Subqueries.WhereExists (orderitemsSubqury))
 						.Add (Subqueries.WhereExists (orderEquipmentSubquery))
-					)
-					.Where(Subqueries.WhereNotExists (alreadyLoadedRouteListsSubquery));
+					);
 			}
 			
-			items.AddRange (
-			queryRoutes.SelectList (list => list
+			var dirtyList =	queryRoutes.SelectList (list => list
 					.SelectGroup (() => routeListAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => employeeAlias.Name).WithAlias (() => resultAlias.Name)
 					.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.LastName)
@@ -99,9 +90,49 @@ namespace Vodovoz.ViewModel
 					.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.Car)
 				)
 				.TransformUsing (Transformers.AliasToBean <ReadyForShipmentVMNode> ())
-				.List<ReadyForShipmentVMNode> ());
+				.List<ReadyForShipmentVMNode> ();
 
-			SetItemsSource (items);
+			if(Filter.RestrictWarehouse != null)
+			{
+				List<ReadyForShipmentVMNode> resultList = new List<ReadyForShipmentVMNode> ();
+				var routes = UoW.GetById<RouteList>(dirtyList.Select(x => x.Id));
+				foreach(var dirty in dirtyList)
+				{
+					var route = routes.First(x => x.Id == dirty.Id);
+					var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded(UoW, route);
+					var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(UoW, route, Filter.RestrictWarehouse);
+
+					bool closed = true;
+					foreach(var good in goods)
+					{
+						var loaded = inLoaded.FirstOrDefault(x => x.NomenclatureId == good.NomenclatureId);
+						if(loaded == null || loaded.Amount < good.Amount)
+						{
+							closed = false;
+							break;
+						}
+					}
+					if(closed == true)
+					{
+						var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(UoW, route, Filter.RestrictWarehouse);
+						foreach(var equipment in equipmentsInRoute)
+						{
+							var loaded = inLoaded.FirstOrDefault(x => x.EquipmentId == equipment.EquipmentId);
+							if(loaded == null || loaded.Amount < equipment.Amount)
+							{
+								closed = false;
+								break;
+							}
+						}
+					}
+					if (!closed)
+						resultList.Add(dirty);
+				}
+
+				SetItemsSource (resultList);
+			}
+			else
+				SetItemsSource (dirtyList);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>.Create ()
