@@ -41,7 +41,8 @@ namespace Vodovoz.Repository.Logistics
 			var orderitemsQuery = uow.Session.QueryOver<OrderItem>(() => orderItemsAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Where(() => !OrderItemNomenclatureAlias.Serial);
+				.Where(() => !OrderItemNomenclatureAlias.Serial)
+				.Where(() => OrderItemNomenclatureAlias.Category.IsIn(Nomenclature.GetCategoriesForShipment()));
 			if (warehouse != null)
 				orderitemsQuery.Where(() => OrderItemNomenclatureAlias.Warehouse == warehouse);
 			
