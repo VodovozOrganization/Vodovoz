@@ -27,7 +27,7 @@
     `nomenclature`.`name` AS nomenclature,
     amount_in_db,
     amount_in_fact,
-    amount_in_db - amount_in_fact AS difference,
+    amount_in_fact - amount_in_db AS difference,
     `comment`
 FROM
     store_inventory_item
