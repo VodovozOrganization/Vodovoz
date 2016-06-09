@@ -215,7 +215,7 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForShipment ()
 		{
-			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater };
+			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater, NomenclatureCategory.bottle };
 		}
 
 		public static NomenclatureCategory[] GetCategoriesForProductMaterial ()
@@ -225,7 +225,7 @@ namespace Vodovoz.Domain.Goods
 
 		public static NomenclatureCategory[] GetCategoriesForSale ()
 		{
-			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater };
+			return new [] { NomenclatureCategory.additional, NomenclatureCategory.equipment, NomenclatureCategory.water, NomenclatureCategory.disposableBottleWater, NomenclatureCategory.bottle };
 		}
 
 		public static NomenclatureCategory[] GetCategoriesForGoods ()
