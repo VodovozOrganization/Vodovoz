@@ -83,7 +83,7 @@ namespace Vodovoz
 		{
 			foreach (int id in aIdx)
 			{
-				if (RouteList.ObservableAddresses[id].DepositsCollected % bottleDepositPrice != 0)
+				if (bottleDepositPrice != 0 && RouteList.ObservableAddresses[id].DepositsCollected % bottleDepositPrice != 0)
 				{
 					var fullDepositsCount = Math.Truncate(RouteList.ObservableAddresses[id].DepositsCollected / bottleDepositPrice);
 					RouteList.ObservableAddresses[id].DepositsCollected = fullDepositsCount * bottleDepositPrice;
