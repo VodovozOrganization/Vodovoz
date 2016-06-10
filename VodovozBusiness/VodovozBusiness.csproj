@@ -45,8 +45,6 @@
     <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="System.Data" />
     <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -266,8 +264,6 @@
     <Compile Include="Repositories\UserRepository.cs" />
     <Compile Include="DocTemplates\ContractParser.cs" />
     <Compile Include="TimeAsTimeSpanTypeClone.cs" />
-    <Compile Include="DocumentPrinter.cs" />
-    <Compile Include="BatchRDLRenderer.cs" />
     <Compile Include="Attributes\Code1c.cs" />
     <Compile Include="Attributes\Value1c.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyStatusMap.cs" />
@@ -334,14 +330,6 @@
     <ProjectReference Include="..\..\QSProjects\QSReport\QSReport.csproj">
       <Project>{9C0363D4-EE69-45B8-BA45-BDA24CE35A06}</Project>
       <Name>QSReport</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\My-FyiReporting\RdlGtkViewer\RdlGtkViewer\RdlGtkViewer.csproj">
-      <Project>{921488F1-F4FC-4438-920E-86E57442B253}</Project>
-      <Name>RdlGtkViewer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\My-FyiReporting\RdlEngine\RdlEngine.csproj">
-      <Project>{C97E91F4-B310-44E2-9B6C-96775395722D}</Project>
-      <Name>RdlEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSTDI\QSTDI.csproj">
       <Project>{4B35C969-8C74-440F-8189-57047C9215FD}</Project>

@@ -1,7 +1,8 @@
 ﻿using System;
-using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings;
+using QSOrmProject;
+using QSReport;
 
 namespace Vodovoz.Domain.Orders.Documents
 {

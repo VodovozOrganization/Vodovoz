@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using QSReport;
 using QSSupportLib;
 using Vodovoz.Repository;
 

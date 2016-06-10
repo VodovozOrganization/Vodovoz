@@ -8,6 +8,7 @@ using NHibernate.Proxy;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
+using QSReport;
 using QSTDI;
 using QSValidation;
 using Vodovoz.Domain;
