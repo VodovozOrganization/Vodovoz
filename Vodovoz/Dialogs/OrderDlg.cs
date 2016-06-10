@@ -394,8 +394,8 @@ namespace Vodovoz
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
 			Nomenclature nomenclature = e.Subject as Nomenclature;
-			if (nomenclature.Category == NomenclatureCategory.additional){
-				UoWGeneric.Root.AddAdditionalNomenclatureForSale(nomenclature);
+			if (nomenclature.Category == NomenclatureCategory.additional || nomenclature.Category == NomenclatureCategory.bottle){
+				UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
 			} else if (nomenclature.Category == NomenclatureCategory.disposableBottleWater){
 				UoWGeneric.Root.AddDisposableBottleWater(nomenclature);
 			} else if (nomenclature.Category == NomenclatureCategory.equipment) {

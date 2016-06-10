@@ -521,9 +521,9 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments ();
 		}
 
-		public void AddAdditionalNomenclatureForSale (Nomenclature nomenclature)
+		public void AddAnyGoodsNomenclatureForSale (Nomenclature nomenclature)
 		{
-			if (nomenclature.Category != NomenclatureCategory.additional)
+			if (nomenclature.Category != NomenclatureCategory.additional && nomenclature.Category != NomenclatureCategory.bottle)
 				return;
 			ObservableOrderItems.Add (new OrderItem {
 				Order = this,
