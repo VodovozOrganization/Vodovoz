@@ -58,7 +58,7 @@ WHERE cash_expense.type = 'Advance' AND
     cash_expense.date &gt;= @startDate AND cash_expense.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
 AND IF(@expenseCategoryUsed, cash_expense.cash_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_expense.casher_employee_id = @Casher)
-ORDER BY Category, employee;</CommandText>
+ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!StartDate</Value>
