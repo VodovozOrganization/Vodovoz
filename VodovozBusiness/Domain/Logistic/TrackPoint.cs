@@ -18,18 +18,18 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref track, value, () => Track); }
 		}
 
-		float latitude;
+		Double latitude;
 
 		[Display (Name = "Широта")]
-		public virtual float Latitude {
+		public virtual Double Latitude {
 			get { return latitude; }
 			set { SetField (ref latitude, value, () => Latitude); }
 		}
 
-		float longitude;
+		Double longitude;
 
 		[Display (Name = "Долгота")]
-		public virtual float Longitude {
+		public virtual Double Longitude {
 			get { return longitude; }
 			set { SetField (ref longitude, value, () => Longitude); }
 		}

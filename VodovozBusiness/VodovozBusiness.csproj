@@ -272,6 +272,7 @@
     <Compile Include="Domain\Logistic\TrackPoint.cs" />
     <Compile Include="HibernateMapping\Logistic\TrackMap.cs" />
     <Compile Include="HibernateMapping\Logistic\TrackPointMap.cs" />
+    <Compile Include="Repositories\Logistics\TrackRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
