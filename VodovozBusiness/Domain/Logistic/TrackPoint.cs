@@ -41,5 +41,19 @@ namespace Vodovoz.Domain.Logistic
 			get { return timeStamp; }
 			set { SetField (ref timeStamp, value, () => TimeStamp); }
 		}
+
+		public override bool Equals (object obj)
+		{
+			var tp = obj as TrackPoint;
+			if (tp != null) {
+				return DomainHelper.EqualDomainObjects (tp.Track, this.Track) && tp.TimeStamp == this.TimeStamp;
+			}
+			return false;
+		}
+
+		public override int GetHashCode ()
+		{
+			return this.TimeStamp.GetHashCode () ^ this.Track.Id.GetHashCode ();
+		}
 	}
 }
