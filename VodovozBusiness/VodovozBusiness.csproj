@@ -268,6 +268,10 @@
     <Compile Include="Attributes\Value1c.cs" />
     <Compile Include="HibernateMapping\Counterparty\CounterpartyStatusMap.cs" />
     <Compile Include="Domain\Client\CounterpartyStatus.cs" />
+    <Compile Include="Domain\Logistic\Track.cs" />
+    <Compile Include="Domain\Logistic\TrackPoint.cs" />
+    <Compile Include="HibernateMapping\Logistic\TrackMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\TrackPointMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
