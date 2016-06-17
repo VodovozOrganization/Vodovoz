@@ -69,6 +69,7 @@ namespace Vodovoz
 			LoadBottleReception();
 
 			equipmentreceptionview1.RouteList = Entity.RouteList;
+			UpdateWidgetsVisible();
 		}
 
 		public override bool Save ()
@@ -119,6 +120,7 @@ namespace Vodovoz
 		protected void OnYentryrefRouteListChangedByUser(object sender, EventArgs e)
 		{
 			UpdateRouteListInfo();
+			equipmentreceptionview1.RouteList = Entity.RouteList;
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
@@ -145,6 +147,7 @@ namespace Vodovoz
 		private void UpdateWidgetsVisible()
 		{
 			bottlereceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveBottles;
+			equipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 
 		void LoadBottleReception()
@@ -178,7 +181,11 @@ namespace Vodovoz
 					Entity.ObservableItems.Remove(item);
 				}
 			}
+		}
 
+		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
+		{
+			UpdateWidgetsVisible();
 		}
 	}
 }

@@ -1,13 +1,18 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Logistic;
 using System.Collections.Generic;
-using Vodovoz.Domain.Service;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
 using Gtk;
-using Vodovoz.Domain.Goods;
-using Vodovoz.Repository;
+using NHibernate.Transform;
+using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Service;
+using Vodovoz.Repository;
+using NHibernate.Criterion;
 
 namespace Vodovoz
 {
@@ -16,10 +21,14 @@ namespace Vodovoz
 	{
 		IList<ServiceClaim> serviceClaims;
 
+		GenericObservableList<ReceptionItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionItemNode>();
+
 		MenuItem menuitemSelectFromClient;
 		MenuItem menuitemRegisterSerial;
 
 		ReceptionItemNode equipmentToSetSerial;
+
+		string colTitleServiceClaim = "Заявка на сервис";
 
 		public EquipmentReceptionView()
 		{
@@ -34,7 +43,7 @@ namespace Vodovoz
 				.AddNumericRenderer (node => node.Amount, false)
 				.Adjustment (new Gtk.Adjustment (0, 0, 9999, 1, 100, 0))
 				.AddSetter ((cell, node) => cell.Editable = !node.Trackable)
-				.AddColumn("Заявка на сервис")
+				.AddColumn(colTitleServiceClaim)
 				.AddComboRenderer(node=>node.ServiceClaim)
 				.Editing()
 				.SetDisplayFunc(service=>{
@@ -42,13 +51,13 @@ namespace Vodovoz
 					var orderId = serviceClaim.InitialOrder.Id;
 					return String.Format("Заявка №{0}, заказ №{1}",serviceClaim.Id,orderId);
 				})
-				.FillItems<ServiceClaim>(serviceClaims.Where(sc=>sc.Equipment==null).ToList())
 				.AddSetter((cell,node)=>cell.Sensitive = node.IsNew)
 				.AddSetter((cell,node)=>cell.Editable = node.IsNew)
 				.AddColumn("")
 				.Finish ();
 
 			ytreeEquipment.Selection.Changed += YtreeEquipment_Selection_Changed;
+			ytreeEquipment.ItemsDataSource = ReceptionEquipmentList;
 
 			//Создаем меню в кнопке выбора СН
 			var menu = new Menu();
@@ -78,12 +87,58 @@ namespace Vodovoz
 					return;
 				routeList = value;
 				if (routeList != null)
+				{
 					serviceClaims = RouteList.Addresses
 					.SelectMany(address => address.Order.InitialOrderService)
 					.ToList();
+					var column = (ColumnMapping<ReceptionItemNode>)ytreeEquipment.ColumnsConfig.ConfiguredColumns.First(x => x.Title == colTitleServiceClaim);
+					var cell = (ComboRendererMapping<ReceptionItemNode>) column.ConfiguredRenderersGeneric.First();
+					cell.FillItems<ServiceClaim>(serviceClaims.Where(sc=>sc.Equipment==null).ToList());
+					FillListEquipmentFromRoute();
+				}	
 				else
+				{
 					serviceClaims = new List<ServiceClaim>();
+					ReceptionEquipmentList.Clear();
+				}
+					
 			}
+		}
+
+		void FillListEquipmentFromRoute(){
+			ReceptionEquipmentList.Clear();
+			ReceptionItemNode resultAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
+			Equipment equipmentAlias = null;
+			OrderEquipment orderEquipmentAlias = null;
+			Nomenclature equipNomenclatureAlias = null, newEqupNomenclatureAlias = null;
+			var equipmentItems = MyOrmDialog.UoW.Session.QueryOver<RouteListItem> ().Where (r => r.RouteList.Id == RouteList.Id)
+				.JoinAlias (rli => rli.Order, () => orderAlias)
+				.JoinAlias (() => orderAlias.OrderEquipments, () => orderEquipmentAlias)
+				.Where(()=>orderEquipmentAlias.Direction==Domain.Orders.Direction.PickUp)
+				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(()=>equipmentAlias.Nomenclature,()=> equipNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(()=> orderEquipmentAlias.NewEquipmentNomenclature, ()=> newEqupNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.SelectList (list => list
+					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)
+					.Select (Projections.Conditional(
+						Restrictions.Where(() => equipNomenclatureAlias.Id == null),
+						Projections.Property(() => newEqupNomenclatureAlias.Id),
+						Projections.Property(() => equipNomenclatureAlias.Id))).WithAlias (() => resultAlias.NomenclatureId)
+					.Select (Projections.Conditional(
+						Restrictions.Where(() => equipNomenclatureAlias.Name == null),
+						Projections.Property(() => newEqupNomenclatureAlias.Name),
+						Projections.Property(() => equipNomenclatureAlias.Name))).WithAlias (() => resultAlias.Name)
+					.Select (Projections.Conditional(
+						Restrictions.Where(() => equipNomenclatureAlias.Name == null),
+						Projections.Constant(true),
+						Projections.Constant(false)
+					)).WithAlias (() => resultAlias.IsNew)
+				)
+				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
+				.List<ReceptionItemNode> ();
+			foreach (var equipment in equipmentItems)
+				ReceptionEquipmentList.Add (equipment);		
 		}
 
 		void YtreeEquipment_Selection_Changed (object sender, EventArgs e)

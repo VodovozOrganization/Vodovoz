@@ -883,7 +883,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18637,8 +18636,8 @@ RegistrationNumber</property>
                     <property name="Events">ButtonPressMask</property>
                     <property name="WithTime">False</property>
                     <property name="Date">0</property>
-                    <property name="IsEditable">False</property>
-                    <property name="AutoSeparation">False</property>
+                    <property name="IsEditable">True</property>
+                    <property name="AutoSeparation">True</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">ServiceStartDate</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -20022,7 +20021,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 504">
+  <widget class="Gtk.Bin" id="Vodovoz.CashIncomeDlg" design-size="671 506">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -23080,6 +23079,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -23167,7 +23167,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -31261,6 +31261,7 @@ RegistrationNumber</property>
               <widget class="QSOrmProject.yEntryReferenceVM" id="yentryrefRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <signal name="ChangedByUser" handler="OnYentryrefRouteListChangedByUser" />
               </widget>
               <packing>
                 <property name="LeftAttach">3</property>
@@ -31279,6 +31280,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yEntryReference" id="yentryrefWarehouse">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <signal name="ChangedByUser" handler="OnYentryrefWarehouseChangedByUser" />
               </widget>
               <packing>
                 <property name="TopAttach">1</property>

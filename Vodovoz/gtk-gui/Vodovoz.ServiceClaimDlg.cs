@@ -296,9 +296,10 @@ namespace Vodovoz {
 			this.datePickUpDate = new global::QSOrmProject.DataDatePicker();
 			this.datePickUpDate.Events = ((global::Gdk.EventMask)(256));
 			this.datePickUpDate.Name = "datePickUpDate";
+			this.datePickUpDate.WithTime = false;
 			this.datePickUpDate.Date = new global::System.DateTime(0);
-			this.datePickUpDate.IsEditable = false;
-			this.datePickUpDate.AutoSeparation = false;
+			this.datePickUpDate.IsEditable = true;
+			this.datePickUpDate.AutoSeparation = true;
 			this.datePickUpDate.InheritedDataSource = true;
 			this.datePickUpDate.Mappings = "ServiceStartDate";
 			this.datePickUpDate.InheritedBoundaryDataSource = false;
