@@ -43,6 +43,12 @@ namespace Vodovoz
 
 		public AdvanceReportDlg (Expense advance) : this(advance.Employee, advance.ExpenseCategory, advance.UnclosedMoney)
 		{
+			if(advance.Employee == null)
+			{
+				logger.Error("Аванс без сотрудника. Для него нельзя открыть диалог возврата.");
+				base.FailInitialize = true;
+				return;
+			}
 			advanceList.Find(x => x.Advance.Id == advance.Id).Selected = true;
 		}
 

@@ -40,6 +40,13 @@ namespace Vodovoz
 
 		public CashIncomeDlg (Expense advance) : this () 
 		{
+			if(advance.Employee == null)
+			{
+				logger.Error("Аванс без сотрудника. Для него нельзя открыть диалог возврата.");
+				base.FailInitialize = true;
+				return;
+			}
+
 			Entity.TypeOperation = IncomeType.Return;
 			Entity.ExpenseCategory = advance.ExpenseCategory;
 			Entity.Employee = advance.Employee;
