@@ -631,7 +631,8 @@ namespace Vodovoz
 				contract.Organization = OrganizationRepository
 					.GetOrganizationByPaymentType (UoWGeneric, UoWGeneric.Root.PaymentType);
 				contract.IsArchive = false;
-				contract.IssueDate = UoWGeneric.Root.DeliveryDate;
+				if(UoWGeneric.Root.DeliveryDate.HasValue)
+					contract.IssueDate = UoWGeneric.Root.DeliveryDate.Value;
 				contract.AdditionalAgreements = new List<AdditionalAgreement> ();
 				uow.Save ();
 				result = uow.Root;
@@ -645,8 +646,11 @@ namespace Vodovoz
 				AdditionalAgreement agreement = uow.Root;
 				agreement.Contract = contract;
 				agreement.AgreementNumber = WaterSalesAgreement.GetNumber (contract);
-				agreement.IssueDate = UoWGeneric.Root.DeliveryDate;
-				agreement.StartDate = UoWGeneric.Root.DeliveryDate;
+				if (UoWGeneric.Root.DeliveryDate.HasValue)
+				{
+					agreement.IssueDate = UoWGeneric.Root.DeliveryDate.Value;
+					agreement.StartDate = UoWGeneric.Root.DeliveryDate.Value;
+				}
 				result = uow.Root;
 				uow.Save ();
 			}
@@ -771,8 +775,8 @@ namespace Vodovoz
 			if (Entity.SignatureType != OrderSignatureType.ByProxy)
 				return;
 			DBWorks.SQLHelper text = new DBWorks.SQLHelper ("");
-			if (Entity.Client != null) {
-				var proxies = Entity.Client.Proxies.Where (p => p.IsActiveProxy (Entity.DeliveryDate) && (p.DeliveryPoint == null || p.DeliveryPoint == Entity.DeliveryPoint));
+			if (Entity.Client != null && Entity.DeliveryDate.HasValue) {
+				var proxies = Entity.Client.Proxies.Where (p => p.IsActiveProxy (Entity.DeliveryDate.Value) && (p.DeliveryPoint == null || p.DeliveryPoint == Entity.DeliveryPoint));
 				foreach (var proxy in proxies) {
 					if (!String.IsNullOrWhiteSpace (text.Text))
 						text.Add ("\n");

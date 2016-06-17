@@ -30,7 +30,7 @@ namespace Vodovoz.Domain.Orders.Documents
 		}		
 
 		public override string DocumentDate {
-			get { return String.Format ("от {0}", Order.DeliveryDate.ToShortDateString ()); }
+			get { return String.Format ("от {0:d}", Order.DeliveryDate); }
 		}
 
 		#endregion

@@ -31,10 +31,11 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public DailyRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime IssueDate) : this (contract)
+		public DailyRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate) : this (contract)
 		{
 			UoWGeneric.Root.DeliveryPoint = point;
-			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate;
+			if(IssueDate.HasValue)
+				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
 		}
 
 		public DailyRentAgreementDlg (DailyRentAgreement sub) : this (sub.Id)

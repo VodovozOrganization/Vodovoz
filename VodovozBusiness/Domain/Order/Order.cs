@@ -78,21 +78,21 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		DateTime deliveryDate;
+		DateTime? deliveryDate;
 
 		[Display (Name = "Дата доставки")]
-		public virtual DateTime DeliveryDate {
+		public virtual DateTime? DeliveryDate {
 			get { return deliveryDate; }
 			set { 
 				SetField (ref deliveryDate, value, () => DeliveryDate);
-				if (NHibernate.NHibernateUtil.IsInitialized(OrderDocuments))
+				if (NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && value.HasValue)
 				{
 					foreach (OrderDocument document in OrderDocuments)
 					{
 						if (document.Type == OrderDocumentType.AdditionalAgreement)
 						{
-							(document as OrderAgreement).AdditionalAgreement.IssueDate = value;
-							(document as OrderAgreement).AdditionalAgreement.StartDate = value;
+							(document as OrderAgreement).AdditionalAgreement.IssueDate = value.Value;
+							(document as OrderAgreement).AdditionalAgreement.StartDate = value.Value;
 						}
 						//TODO FIXME Когда сделаю добавление документов для печати - фильтровать их сдесь и не менять им дату.
 					}

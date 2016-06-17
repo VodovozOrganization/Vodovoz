@@ -93,7 +93,7 @@ namespace Vodovoz.ExportTo1c
 			exportInvoiceDocument.Id = ++objectCounter;
 			exportInvoiceDocument.Reference = new ReferenceNode(exportInvoiceDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String, order.Id),
-				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.ToString("s"))
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
 			);
 
 			exportInvoiceDocument.Properties.Add(
@@ -201,7 +201,7 @@ namespace Vodovoz.ExportTo1c
 			exportSaleDocument.Id = ++objectCounter;
 			exportSaleDocument.Reference = new ReferenceNode(exportSaleDocument.Id,
 				new PropertyNode("Номер", Common1cTypes.String, order.Id),
-				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.ToString("s"))
+				new PropertyNode("Дата", Common1cTypes.Date, order.DeliveryDate.Value.ToString("s"))
 			);
 
 			var exportGoodsTable = new TableNode{

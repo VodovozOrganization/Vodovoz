@@ -28,11 +28,12 @@ namespace Vodovoz.Repository
 			return store;
 		}
 
+		//FIXME Удалить если не понадобится.
 		public static QueryOver<VodovozOrder> GetAcceptedOrdersForDateQueryOver (DateTime date)
 		{
 			return QueryOver.Of<VodovozOrder> ()
 				.Where (order => order.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted
-			&& order.DeliveryDate.Date == date.Date
+			&& order.DeliveryDate == date.Date
 			&& !order.SelfDelivery);
 		}
 
@@ -41,7 +42,7 @@ namespace Vodovoz.Repository
 			DeliveryPoint point = null;
 			return uow.Session.QueryOver<VodovozOrder> ()
 				.JoinAlias (o => o.DeliveryPoint, () => point)
-				.Where (o => o.DeliveryDate.Date == date.Date && point.LogisticsArea.Id == area.Id 
+				.Where (o => o.DeliveryDate == date.Date && point.LogisticsArea.Id == area.Id 
 					&& !o.SelfDelivery && o.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted)
 				.List<Vodovoz.Domain.Orders.Order> ();
 		}

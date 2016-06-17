@@ -29,7 +29,7 @@ namespace Vodovoz.Panel
 				.AddColumn("Номер")
 					.AddNumericRenderer(node => node.Id)
 				.AddColumn("Дата")
-					.AddTextRenderer(node => node.DeliveryDate.ToShortDateString())
+				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : String.Empty)
 				.AddColumn("Статус")
 					.AddTextRenderer(node => node.OrderStatus.GetEnumTitle())
 				.Finish();			
@@ -50,10 +50,10 @@ namespace Vodovoz.Panel
 			var latestOrder = OrderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, Counterparty);
 			if (latestOrder != null)
 			{
-				var daysFromLastOrder = (DateTime.Today - latestOrder.DeliveryDate).Days;
+				var daysFromLastOrder = (DateTime.Today - latestOrder.DeliveryDate.Value).Days;
 				labelLatestOrderDate.Text = String.Format(
 					"{0} ({1} {2} назад)",
-					latestOrder.DeliveryDate.ToShortDateString(),
+					latestOrder.DeliveryDate.Value.ToShortDateString(),
 					daysFromLastOrder,
 					RusNumber.Case(daysFromLastOrder, "день", "дня", "дней")
 				);

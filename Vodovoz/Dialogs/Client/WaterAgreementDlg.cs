@@ -31,9 +31,10 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public WaterAgreementDlg (CounterpartyContract contract, DateTime date) : this (contract)
+		public WaterAgreementDlg (CounterpartyContract contract, DateTime? date) : this (contract)
 		{
-			UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = date;
+			if(date.HasValue)
+				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = date.Value;
 		}
 
 		public WaterAgreementDlg (WaterSalesAgreement sub) : this (sub.Id)
