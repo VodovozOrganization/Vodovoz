@@ -118,7 +118,7 @@ namespace Vodovoz
 			enumStatus.ItemsEnum = typeof(OrderStatus);
 			enumStatus.Binding.AddBinding (Entity, s => s.OrderStatus, w => w.SelectedItem).InitializeFromSource ();
 
-			pickerDeliveryDate.Binding.AddBinding (Entity, s => s.DeliveryDate, w => w.Date).InitializeFromSource ();
+			pickerDeliveryDate.Binding.AddBinding (Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource ();
 
 			textComments.Binding.AddBinding (Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource ();
 
