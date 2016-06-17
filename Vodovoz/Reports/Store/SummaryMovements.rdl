@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     nomenclature.name AS nomenclature,
@@ -64,7 +64,7 @@
                         AND warehouse_movement_operations.operation_time &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)),
             0) AS all_removed,
     IFNULL((SELECT 
-                    SUM(amount)
+                    SUM(warehouse_movement_operations.amount)
                 FROM
                     warehouse_movement_operations
                         LEFT JOIN
@@ -77,7 +77,7 @@
                         AND store_car_unload_document_items.id IS NOT NULL),
             0) AS drivers_added,
     IFNULL((SELECT 
-                    SUM(amount)
+                    SUM(warehouse_movement_operations.amount)
                 FROM
                     warehouse_movement_operations
                         LEFT JOIN
@@ -296,7 +296,7 @@ GROUP BY warehouse_movement_operations.nomenclature_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="nomenclature">
           <DataField>nomenclature</DataField>
           <rd:TypeName>System.String</rd:TypeName>
