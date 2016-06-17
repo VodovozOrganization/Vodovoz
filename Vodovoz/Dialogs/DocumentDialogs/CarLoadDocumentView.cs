@@ -30,6 +30,12 @@ namespace Vodovoz
 
 		}
 
+		public void FillItemsByWarehouse()
+		{
+			if (buttonFillWarehouseItems.Sensitive)
+				buttonFillWarehouseItems.Click();
+		}
+
 		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
 		{
 			var selected = ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>();

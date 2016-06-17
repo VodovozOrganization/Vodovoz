@@ -36,6 +36,7 @@ namespace Vodovoz
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
 			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
 			UpdateRouteListInfo();
+			carloaddocumentview1.FillItemsByWarehouse();
 		}
 
 		public CarLoadDocumentDlg (int id)
@@ -124,6 +125,8 @@ namespace Vodovoz
 		protected void OnYentryrefRouteListChangedByUser(object sender, EventArgs e)
 		{
 			UpdateRouteListInfo();
+			if (Entity.Warehouse != null && Entity.RouteList != null)
+				carloaddocumentview1.FillItemsByWarehouse();
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
