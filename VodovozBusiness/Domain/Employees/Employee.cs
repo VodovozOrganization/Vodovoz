@@ -120,6 +120,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField (ref androidSessionKey, value, () => AndroidSessionKey); }
 		}
 
+		string androidToken;
+
+		[Display (Name = "Токен Android приложения пользователя для отправки Push-сообщений")]
+		public virtual string AndroidToken {
+			get { return androidToken; }
+			set { SetField (ref androidToken, value, () => AndroidToken); }
+		}
+
 		bool isFired;
 
 		[Display (Name = "Сотрудник уволен")]
