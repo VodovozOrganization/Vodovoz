@@ -49,8 +49,6 @@ namespace Vodovoz
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			inventoryitemsview.DocumentUoW = UoWGeneric;
-			if (Entity.Items.Any(x => x.AmountInDB != 0))
-				yentryrefWarehouse.Sensitive = false;
 		}
 
 		public override bool Save ()
@@ -75,11 +73,6 @@ namespace Vodovoz
 			return true;
 		}
 
-		public void SetSensitiveWarehouse(bool sensitive)
-		{
-			yentryrefWarehouse.Sensitive = sensitive;
-		}
-
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(InventoryDocument), "акта инвентаризации"))
@@ -97,6 +90,17 @@ namespace Vodovoz
 				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
 				() => new QSReport.ReportViewDlg (reportInfo)
 			);
+		}
+
+		protected void OnYentryrefWarehouseBeforeChangeByUser(object sender, EntryReferenceBeforeChangeEventArgs e)
+		{
+			if(Entity.Warehouse != null && Entity.Items.Count > 0)
+			{
+				if (MessageDialogWorks.RunQuestionDialog("При изменении склада табличная часть документа будет очищена. Продолжить?"))
+					Entity.ObservableItems.Clear();
+				else
+					e.CanChange = false;
+			}
 		}
 	}
 }

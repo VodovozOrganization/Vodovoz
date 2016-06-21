@@ -64,6 +64,8 @@ namespace Vodovoz
 				
 				ytreeviewItems.ItemsDataSource = DocumentUoW.Root.ObservableItems;
 				UpdateButtonState();
+				if (DocumentUoW.Root.Warehouse != null && DocumentUoW.Root.Items.Count == 0)
+					buttonFillItems.Click();
 				DocumentUoW.Root.PropertyChanged += DocumentUoW_Root_PropertyChanged;
 			}
 		}
@@ -71,7 +73,12 @@ namespace Vodovoz
 		void DocumentUoW_Root_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == DocumentUoW.Root.GetPropertyName(x => x.Warehouse))
+			{
+				if (DocumentUoW.Root.Warehouse != null)
+					buttonFillItems.Click();
 				UpdateButtonState();
+			}
+				
 		}
 
 		protected void OnButtonFillItemsClicked(object sender, EventArgs e)
@@ -80,7 +87,6 @@ namespace Vodovoz
 				DocumentUoW.Root.FillItemsFromStock(DocumentUoW);
 			else
 				DocumentUoW.Root.UpdateItemsFromStock(DocumentUoW);
-			(MyOrmDialog as InventoryDocumentDlg).SetSensitiveWarehouse(DocumentUoW.Root.Items.Count == 0);
 			UpdateButtonState();
 		}
 
