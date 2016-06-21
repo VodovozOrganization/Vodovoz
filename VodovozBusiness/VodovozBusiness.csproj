@@ -274,6 +274,12 @@
     <Compile Include="HibernateMapping\Logistic\TrackPointMap.cs" />
     <Compile Include="Repositories\Logistics\TrackRepository.cs" />
     <Compile Include="Repositories\Logistics\RouteListItemRepository.cs" />
+    <Compile Include="Domain\Chat\Chat.cs" />
+    <Compile Include="Domain\Chat\ChatMessage.cs" />
+    <Compile Include="Domain\Chat\LastReadedMessage.cs" />
+    <Compile Include="HibernateMapping\Chat\ChatMap.cs" />
+    <Compile Include="HibernateMapping\Chat\ChatMessageMap.cs" />
+    <Compile Include="HibernateMapping\Chat\LastReadedMessageMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -282,6 +288,8 @@
     <Folder Include="Repositories\" />
     <Folder Include="DocTemplates\" />
     <Folder Include="Attributes\" />
+    <Folder Include="Domain\Chat\" />
+    <Folder Include="HibernateMapping\Chat\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HibernateMapping\Database.hbm.xml">
