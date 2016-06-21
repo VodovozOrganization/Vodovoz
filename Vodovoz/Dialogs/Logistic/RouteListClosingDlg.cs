@@ -291,8 +291,9 @@ namespace Vodovoz
 		protected void OnButtonBackToUnloadingClicked(object sender, EventArgs args)
 		{
 			Entity.RequestAdditionalUnloading();
+			UoW.Save(Entity.RouteList);
 			UoW.Save();
-			buttonAccept.Sensitive = buttonBackToUnloading.Sensitive = false;
+			OnCloseTab(false);
 		}
 
 		public List<ReturnsNode> GetReturnsToWarehouseByCategory(int routeListId,NomenclatureCategory[] categories)
