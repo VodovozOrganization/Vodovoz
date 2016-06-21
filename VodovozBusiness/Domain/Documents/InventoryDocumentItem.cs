@@ -31,9 +31,9 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
-		Equipment equipment;
 		//FIXME убрать если не понадобится.
-		/*		[Display (Name = "Оборудование")]
+		/*Equipment equipment;
+				[Display (Name = "Оборудование")]
 		public virtual Equipment Equipment {
 			get { return equipment; }
 			set {

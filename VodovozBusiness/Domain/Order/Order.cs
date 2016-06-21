@@ -508,8 +508,7 @@ namespace Vodovoz.Domain.Orders
 				});
 			} else {
 				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoW, nomenclature);
-				int ItemId;
-				ItemId = ObservableOrderItems.AddWithReturn (new OrderItem {
+				ObservableOrderItems.AddWithReturn (new OrderItem {
 					Order = this,
 					AdditionalAgreement = null,
 					Count = 1,

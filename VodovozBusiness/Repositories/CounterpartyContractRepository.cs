@@ -30,9 +30,6 @@ namespace Vodovoz.Repository
 
 		public static IList<CounterpartyContract> GetActiveContractsWithOrganization (IUnitOfWork uow, Counterparty counterparty, Organization org)
 		{
-			Counterparty counterpartyAlias = null;
-			Organization organizationAlias = null;
-
 			return uow.Session.QueryOver<CounterpartyContract> ()
 				.Where (co => (co.Counterparty.Id == counterparty.Id &&
 					!co.IsArchive &&
