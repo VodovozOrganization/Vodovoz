@@ -96,6 +96,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		int? driverBottlesReturned;
+
+		public virtual int? DriverBottlesReturned{
+			get{
+				return driverBottlesReturned; 
+			}
+			set{ 
+				SetField(ref driverBottlesReturned, value, () => DriverBottlesReturned);	
+			}
+		}
+
 		decimal depositsCollected;
 
 		public virtual decimal DepositsCollected{
