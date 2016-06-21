@@ -20,7 +20,9 @@ namespace Vodovoz.Repository.Logistics
 
 			return uow.Session.QueryOver<RouteList> (() => routeListAlias)
 				.Where (() => routeListAlias.Driver == driver)
-				.Where (() => routeListAlias.Status == RouteListStatus.EnRoute)
+				.Where (() => routeListAlias.Status == RouteListStatus.EnRoute 
+					|| routeListAlias.Status == RouteListStatus.InLoading)
+				.Where (() => routeListAlias.Date == DateTime.Now.Date)
 				.List ();
 		}
 
