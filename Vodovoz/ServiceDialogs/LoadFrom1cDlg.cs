@@ -9,6 +9,7 @@ using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.LoadFrom1c;
+using QSWidgetLib;
 
 namespace Vodovoz
 {
@@ -305,6 +306,14 @@ namespace Vodovoz
 				{
 					counterparty.INN = InnSplited [0];
 					counterparty.KPP = InnSplited [1];
+				}
+
+				if(counterparty.PersonType == PersonType.legal)
+				{
+					counterparty.FullName = counterparty.FullName.TrimStart();
+					var found = CommonValues.Ownerships.FirstOrDefault(x => counterparty.FullName.StartsWith(x.Key));
+					if (!String.IsNullOrEmpty(found.Key))
+						counterparty.TypeOfOwnership = found.Key;
 				}
 
 				var MainNode = node.SelectSingleNode ("Свойство[@Имя='ГоловнойКонтрагент']/Значение");
