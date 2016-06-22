@@ -294,7 +294,10 @@ namespace Vodovoz
 				var KPPNode = node.SelectSingleNode ("Свойство[@Имя='КПП']/Значение");
 				if(KPPNode != null)
 				{
-					counterparty.KPP = KPPNode.InnerText;
+					if(KPPNode.InnerText.Length > 9)
+						counterparty.KPP = KPPNode.InnerText.Substring(0, 9);
+					else
+						counterparty.KPP = KPPNode.InnerText;
 				}
 					
 				string[] InnSplited = counterparty.INN.Split ('/');
