@@ -85,7 +85,7 @@ namespace Vodovoz.Domain.Documents
 				yield return new ValidationResult ("Не указан кладовщик.",
 					new[] { this.GetPropertyName (o => o.Author) });
 			if (RouteList == null)
-				yield return new ValidationResult ("Не указан маршрутный лист, по которым осуществляется отгрузка.",
+				yield return new ValidationResult ("Не указан маршрутный лист, по которому осуществляется отгрузка.",
 					new[] { this.GetPropertyName (o => o.RouteList)});
 
 			if(Items.All(x => x.Amount == 0))
@@ -99,6 +99,14 @@ namespace Vodovoz.Domain.Documents
 						new[] { this.GetPropertyName (o => o.Items) });
 				if(item.Equipment != null && !(item.Amount == 0 || item.Amount == 1))
 					yield return new ValidationResult (String.Format("Оборудование <{0}> сн: {1} нельзя отгружать в количестве отличном от 0 или 1", item.Nomenclature.Name, item.Equipment.Serial),
+						new[] { this.GetPropertyName (o => o.Items) });
+				if(item.Amount + item.AmountLoaded > item.AmountInRouteList)
+					yield return new ValidationResult (String.Format("Номенклатура <{0}> отгружается в большем количестве чем указано в маршрутном листе. Отгружается:{1}, По другим документам:{2}, Всего нужно отгрузить:{3}", 
+						item.Nomenclature.Name,
+						item.Amount,
+						item.AmountLoaded,
+						item.AmountInRouteList
+					),
 						new[] { this.GetPropertyName (o => o.Items) });
 			}
 
