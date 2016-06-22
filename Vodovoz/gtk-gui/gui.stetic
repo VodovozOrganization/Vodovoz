@@ -883,7 +883,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4153,7 +4152,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8085,6 +8083,7 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
+                            <property name="MaxLength">20</property>
                             <property name="InvisibleChar">●</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Room</property>
@@ -8130,9 +8129,7 @@ Patronymic</property>
                           </widget>
                           <packing>
                             <property name="Position">4</property>
-                            <property name="AutoSize">True</property>
-                            <property name="Expand">False</property>
-                            <property name="Fill">False</property>
+                            <property name="AutoSize">False</property>
                           </packing>
                         </child>
                       </widget>

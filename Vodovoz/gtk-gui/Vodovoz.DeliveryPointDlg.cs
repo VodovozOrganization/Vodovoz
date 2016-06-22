@@ -445,6 +445,7 @@ namespace Vodovoz
 			this.entryRoom.CanFocus = true;
 			this.entryRoom.Name = "entryRoom";
 			this.entryRoom.IsEditable = true;
+			this.entryRoom.MaxLength = 20;
 			this.entryRoom.InvisibleChar = '●';
 			this.entryRoom.InheritedDataSource = true;
 			this.entryRoom.Mappings = "Room";
@@ -481,8 +482,6 @@ namespace Vodovoz
 			this.hbox9.Add (this.spinFloor);
 			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.spinFloor]));
 			w32.Position = 4;
-			w32.Expand = false;
-			w32.Fill = false;
 			this.datatable1.Add (this.hbox9);
 			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox9]));
 			w33.TopAttach = ((uint)(4));
