@@ -341,7 +341,6 @@ namespace Vodovoz
 				if(readedBank.IsDead)
 				{
 					account.Inactive = true;
-					InactiveAccounts++;
 				}
 				else
 				{
@@ -349,14 +348,15 @@ namespace Vodovoz
 				}
 			}
 			else
+			{
 				logger.Warn ("Счет с кодом {0}, без банка.", codeNode.InnerText);
+				account.Inactive = true;
+			}
 
 			var numberNode = node.SelectSingleNode ("Свойство[@Имя='НомерСчета']/Значение");
 			if (numberNode == null)
 			{
 				logger.Warn ("Пустой номер счета.");
-				if(!account.Inactive)
-					InactiveAccounts++;
 				account.Inactive = true;
 			}
 			else
@@ -364,6 +364,8 @@ namespace Vodovoz
 
 			AccountsList.Add (account1c);
 			ReadedAccounts++;
+			if(account.Inactive)
+				InactiveAccounts++;
 		}
 
 		void ParseBank(XmlNode node)
