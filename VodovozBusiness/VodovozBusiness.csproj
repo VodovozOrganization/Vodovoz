@@ -281,6 +281,7 @@
     <Compile Include="HibernateMapping\Chat\ChatMessageMap.cs" />
     <Compile Include="HibernateMapping\Chat\LastReadedMessageMap.cs" />
     <Compile Include="Repositories\Chat\ChatRepository.cs" />
+    <Compile Include="Repositories\Chat\ChatMessageRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
