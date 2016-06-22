@@ -397,6 +397,7 @@ namespace Vodovoz
 			this.entryFullName.CanFocus = true;
 			this.entryFullName.Name = "entryFullName";
 			this.entryFullName.IsEditable = true;
+			this.entryFullName.MaxLength = 300;
 			this.entryFullName.InvisibleChar = '●';
 			this.entryFullName.InheritedDataSource = true;
 			this.entryFullName.Mappings = "FullName";

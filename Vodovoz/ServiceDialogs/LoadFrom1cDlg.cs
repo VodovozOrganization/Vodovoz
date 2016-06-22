@@ -9,6 +9,7 @@ using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.LoadFrom1c;
+using QSWidgetLib;
 
 namespace Vodovoz
 {
@@ -19,10 +20,12 @@ namespace Vodovoz
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
 		List<string> IncludeParents = new List<string>{
-			"03282588",
-			"03282397",
-			"00014477",
-			"03296274"
+			"00000002",
+			"00000001",
+		};
+
+		List<string> ExcludeParents = new List<string>{
+			"03281439",
 		};
 
 		private IList<Bank> banks;
@@ -225,6 +228,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(ExcludeParents.Contains (parrentNode.InnerText))
+			{
+				logger.Debug ("Пропускаем... так как попадает в исключение.");
+				SkipedCounterparty++;
+				return;
+			}
+
 			bool isGroup = false;
 			var groupNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
 			if (groupNode != null && groupNode.InnerText == "true") //Если не группа то isGroup == null так как нода "Значение" нет.
@@ -276,13 +286,19 @@ namespace Vodovoz
 				var INNNode = node.SelectSingleNode ("Свойство[@Имя='ИНН']/Значение");
 				if(INNNode != null)
 				{
-					counterparty.INN = INNNode.InnerText;
+					if(INNNode.InnerText.Length > 12)
+						counterparty.INN = INNNode.InnerText.Substring(0, 12);
+					else
+						counterparty.INN = INNNode.InnerText;
 				}
 
 				var KPPNode = node.SelectSingleNode ("Свойство[@Имя='КПП']/Значение");
 				if(KPPNode != null)
 				{
-					counterparty.KPP = KPPNode.InnerText;
+					if(KPPNode.InnerText.Length > 9)
+						counterparty.KPP = KPPNode.InnerText.Substring(0, 9);
+					else
+						counterparty.KPP = KPPNode.InnerText;
 				}
 					
 				string[] InnSplited = counterparty.INN.Split ('/');
@@ -290,6 +306,14 @@ namespace Vodovoz
 				{
 					counterparty.INN = InnSplited [0];
 					counterparty.KPP = InnSplited [1];
+				}
+
+				if(counterparty.PersonType == PersonType.legal)
+				{
+					counterparty.FullName = counterparty.FullName.TrimStart();
+					var found = CommonValues.Ownerships.FirstOrDefault(x => counterparty.FullName.StartsWith(x.Key));
+					if (!String.IsNullOrEmpty(found.Key))
+						counterparty.TypeOfOwnership = found.Key;
 				}
 
 				var MainNode = node.SelectSingleNode ("Свойство[@Имя='ГоловнойКонтрагент']/Значение");
@@ -326,7 +350,6 @@ namespace Vodovoz
 				if(readedBank.IsDead)
 				{
 					account.Inactive = true;
-					InactiveAccounts++;
 				}
 				else
 				{
@@ -334,14 +357,15 @@ namespace Vodovoz
 				}
 			}
 			else
+			{
 				logger.Warn ("Счет с кодом {0}, без банка.", codeNode.InnerText);
+				account.Inactive = true;
+			}
 
 			var numberNode = node.SelectSingleNode ("Свойство[@Имя='НомерСчета']/Значение");
 			if (numberNode == null)
 			{
 				logger.Warn ("Пустой номер счета.");
-				if(!account.Inactive)
-					InactiveAccounts++;
 				account.Inactive = true;
 			}
 			else
@@ -349,6 +373,8 @@ namespace Vodovoz
 
 			AccountsList.Add (account1c);
 			ReadedAccounts++;
+			if(account.Inactive)
+				InactiveAccounts++;
 		}
 
 		void ParseBank(XmlNode node)
