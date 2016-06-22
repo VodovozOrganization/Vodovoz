@@ -93,7 +93,7 @@ namespace Vodovoz
 			if (Entity.ShipIfCan())
 				MessageDialogWorks.RunInfoDialog("Заказ отгружен полностью.");
 
-			logger.Info ("Сохраняем акт списания...");
+			logger.Info ("Сохраняем документ самовывоза...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
