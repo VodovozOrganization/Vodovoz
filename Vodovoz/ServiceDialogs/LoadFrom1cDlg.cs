@@ -19,10 +19,12 @@ namespace Vodovoz
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
 		List<string> IncludeParents = new List<string>{
-			"03282588",
-			"03282397",
-			"00014477",
-			"03296274"
+			"00000002",
+			"00000001",
+		};
+
+		List<string> ExcludeParents = new List<string>{
+			"03281439",
 		};
 
 		private IList<Bank> banks;
@@ -225,6 +227,13 @@ namespace Vodovoz
 				return;
 			}
 
+			if(ExcludeParents.Contains (parrentNode.InnerText))
+			{
+				logger.Debug ("Пропускаем... так как попадает в исключение.");
+				SkipedCounterparty++;
+				return;
+			}
+
 			bool isGroup = false;
 			var groupNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
 			if (groupNode != null && groupNode.InnerText == "true") //Если не группа то isGroup == null так как нода "Значение" нет.
@@ -276,7 +285,10 @@ namespace Vodovoz
 				var INNNode = node.SelectSingleNode ("Свойство[@Имя='ИНН']/Значение");
 				if(INNNode != null)
 				{
-					counterparty.INN = INNNode.InnerText;
+					if(INNNode.InnerText.Length > 12)
+						counterparty.INN = INNNode.InnerText.Substring(0, 12);
+					else
+						counterparty.INN = INNNode.InnerText;
 				}
 
 				var KPPNode = node.SelectSingleNode ("Свойство[@Имя='КПП']/Значение");
