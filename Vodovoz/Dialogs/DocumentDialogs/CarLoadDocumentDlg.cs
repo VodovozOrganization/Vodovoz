@@ -153,7 +153,9 @@ namespace Vodovoz
 		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
 		{
 			Entity.UpdateStockAmount(UoW);
+			carloaddocumentview1.UpdateAmounts();
 		}
+
 	}
 }
 
