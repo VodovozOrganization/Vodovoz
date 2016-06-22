@@ -18,7 +18,7 @@
         <CommandText>SELECT 
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, orders.bottles_return AS bottles_return, 
 delivery_schedule.name AS delivery_schedule, 
-counterparty_contract.number AS contract_number, DATE_FORMAT(counterparty_contract.issue_date, '%d.%m.%y') AS contract_date,
+counterparty_contract.id AS contract_number, DATE_FORMAT(counterparty_contract.issue_date, '%d.%m.%y') AS contract_date,
 counterparty.full_name AS client_name, counterparty.address AS client_address, counterparty.waybill_comment AS invoice_comment,
 organizations.full_name AS org_name, organizations.address as org_address,
 delivery_points.comment AS delivery_point_comment, delivery_points.phone AS phone,
