@@ -23018,7 +23018,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="755 578">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="807 578">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -23678,7 +23678,7 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yEntryReference" id="referenceClient">
+                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceClient">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceClientChanged" />
