@@ -117,6 +117,7 @@ namespace Vodovoz {
 			this.comboExpense = new global::Gamma.Widgets.ySpecComboBox();
 			this.comboExpense.Name = "comboExpense";
 			this.comboExpense.AddIfNotExist = false;
+			this.comboExpense.DefaultFirst = false;
 			this.comboExpense.ShowSpecialStateAll = false;
 			this.comboExpense.ShowSpecialStateNot = true;
 			this.table1.Add(this.comboExpense);
@@ -132,6 +133,8 @@ namespace Vodovoz {
 			this.enumcomboOperation.Name = "enumcomboOperation";
 			this.enumcomboOperation.ShowSpecialStateAll = false;
 			this.enumcomboOperation.ShowSpecialStateNot = false;
+			this.enumcomboOperation.UseShortTitle = false;
+			this.enumcomboOperation.DefaultFirst = false;
 			this.table1.Add(this.enumcomboOperation);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1[this.enumcomboOperation]));
 			w9.LeftAttach = ((uint)(1));
@@ -150,6 +153,7 @@ namespace Vodovoz {
 			this.yspinMoney.Digits = ((uint)(2));
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
+			this.yspinMoney.ValueAsInt = 0;
 			this.hbox5.Add(this.yspinMoney);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.yspinMoney]));
 			w10.Position = 0;
@@ -240,6 +244,7 @@ namespace Vodovoz {
 			this.ydateDocument = new global::Gamma.Widgets.yDatePicker();
 			this.ydateDocument.Events = ((global::Gdk.EventMask)(256));
 			this.ydateDocument.Name = "ydateDocument";
+			this.ydateDocument.WithTime = false;
 			this.ydateDocument.Date = new global::System.DateTime(0);
 			this.ydateDocument.IsEditable = true;
 			this.ydateDocument.AutoSeparation = true;

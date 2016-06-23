@@ -185,6 +185,7 @@ namespace Vodovoz
 			this.dataLastService = new global::QSOrmProject.DataDatePicker ();
 			this.dataLastService.Events = ((global::Gdk.EventMask)(256));
 			this.dataLastService.Name = "dataLastService";
+			this.dataLastService.WithTime = false;
 			this.dataLastService.Date = new global::System.DateTime (0);
 			this.dataLastService.IsEditable = true;
 			this.dataLastService.AutoSeparation = false;
@@ -360,6 +361,7 @@ namespace Vodovoz
 			this.ydatepickerWarrantyEnd = new global::Gamma.Widgets.yDatePicker ();
 			this.ydatepickerWarrantyEnd.Events = ((global::Gdk.EventMask)(256));
 			this.ydatepickerWarrantyEnd.Name = "ydatepickerWarrantyEnd";
+			this.ydatepickerWarrantyEnd.WithTime = false;
 			this.ydatepickerWarrantyEnd.Date = new global::System.DateTime (0);
 			this.ydatepickerWarrantyEnd.IsEditable = true;
 			this.ydatepickerWarrantyEnd.AutoSeparation = false;

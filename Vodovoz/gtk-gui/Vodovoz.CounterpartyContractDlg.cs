@@ -136,6 +136,7 @@ namespace Vodovoz
 			this.dateIssue = new global::QSOrmProject.DataDatePicker ();
 			this.dateIssue.Events = ((global::Gdk.EventMask)(256));
 			this.dateIssue.Name = "dateIssue";
+			this.dateIssue.WithTime = false;
 			this.dateIssue.Date = new global::System.DateTime (0);
 			this.dateIssue.IsEditable = true;
 			this.dateIssue.AutoSeparation = false;

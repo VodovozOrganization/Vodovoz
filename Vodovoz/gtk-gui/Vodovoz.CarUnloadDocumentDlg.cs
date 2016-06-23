@@ -281,6 +281,8 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.yentryrefWarehouse.ChangedByUser += new global::System.EventHandler (this.OnYentryrefWarehouseChangedByUser);
+			this.yentryrefRouteList.ChangedByUser += new global::System.EventHandler (this.OnYentryrefRouteListChangedByUser);
 		}
 	}
 }

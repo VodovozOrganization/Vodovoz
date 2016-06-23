@@ -162,6 +162,7 @@ namespace Vodovoz
 			this.datePickerDate = new global::Gamma.Widgets.yDatePicker ();
 			this.datePickerDate.Events = ((global::Gdk.EventMask)(256));
 			this.datePickerDate.Name = "datePickerDate";
+			this.datePickerDate.WithTime = false;
 			this.datePickerDate.Date = new global::System.DateTime (0);
 			this.datePickerDate.IsEditable = false;
 			this.datePickerDate.AutoSeparation = false;

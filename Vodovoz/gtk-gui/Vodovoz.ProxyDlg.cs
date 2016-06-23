@@ -100,6 +100,7 @@ namespace Vodovoz
 			this.datepickerIssue = new global::QSOrmProject.DataDatePicker ();
 			this.datepickerIssue.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerIssue.Name = "datepickerIssue";
+			this.datepickerIssue.WithTime = false;
 			this.datepickerIssue.Date = new global::System.DateTime (0);
 			this.datepickerIssue.IsEditable = true;
 			this.datepickerIssue.AutoSeparation = false;
@@ -138,6 +139,7 @@ namespace Vodovoz
 			this.datepickerStart = new global::QSOrmProject.DataDatePicker ();
 			this.datepickerStart.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerStart.Name = "datepickerStart";
+			this.datepickerStart.WithTime = false;
 			this.datepickerStart.Date = new global::System.DateTime (0);
 			this.datepickerStart.IsEditable = true;
 			this.datepickerStart.AutoSeparation = false;
@@ -161,6 +163,7 @@ namespace Vodovoz
 			this.datepickerExpiration = new global::QSOrmProject.DataDatePicker ();
 			this.datepickerExpiration.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerExpiration.Name = "datepickerExpiration";
+			this.datepickerExpiration.WithTime = false;
 			this.datepickerExpiration.Date = new global::System.DateTime (0);
 			this.datepickerExpiration.IsEditable = true;
 			this.datepickerExpiration.AutoSeparation = false;

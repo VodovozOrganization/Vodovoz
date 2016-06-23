@@ -150,6 +150,7 @@ namespace Vodovoz {
 			this.comboCategory = new global::Gamma.Widgets.ySpecComboBox();
 			this.comboCategory.Name = "comboCategory";
 			this.comboCategory.AddIfNotExist = false;
+			this.comboCategory.DefaultFirst = false;
 			this.comboCategory.ShowSpecialStateAll = false;
 			this.comboCategory.ShowSpecialStateNot = true;
 			this.table1.Add(this.comboCategory);
@@ -164,6 +165,7 @@ namespace Vodovoz {
 			this.comboExpense = new global::Gamma.Widgets.ySpecComboBox();
 			this.comboExpense.Name = "comboExpense";
 			this.comboExpense.AddIfNotExist = false;
+			this.comboExpense.DefaultFirst = false;
 			this.comboExpense.ShowSpecialStateAll = false;
 			this.comboExpense.ShowSpecialStateNot = true;
 			this.table1.Add(this.comboExpense);
@@ -313,6 +315,7 @@ namespace Vodovoz {
 			this.ydateDocument = new global::Gamma.Widgets.yDatePicker();
 			this.ydateDocument.Events = ((global::Gdk.EventMask)(256));
 			this.ydateDocument.Name = "ydateDocument";
+			this.ydateDocument.WithTime = false;
 			this.ydateDocument.Date = new global::System.DateTime(0);
 			this.ydateDocument.IsEditable = true;
 			this.ydateDocument.AutoSeparation = true;

@@ -179,6 +179,7 @@ namespace Vodovoz
 			this.ydatepickerWarrantyEnd = new global::Gamma.Widgets.yDatePicker ();
 			this.ydatepickerWarrantyEnd.Events = ((global::Gdk.EventMask)(256));
 			this.ydatepickerWarrantyEnd.Name = "ydatepickerWarrantyEnd";
+			this.ydatepickerWarrantyEnd.WithTime = false;
 			this.ydatepickerWarrantyEnd.Date = new global::System.DateTime (0);
 			this.ydatepickerWarrantyEnd.IsEditable = true;
 			this.ydatepickerWarrantyEnd.AutoSeparation = false;

@@ -36,6 +36,7 @@ namespace Vodovoz.Panel
 			this.Name = "Vodovoz.Panel.DeliveryPointPanelView";
 			// Container child Vodovoz.Panel.DeliveryPointPanelView.Gtk.Container+ContainerChild
 			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label1 = new global::Gtk.Label ();

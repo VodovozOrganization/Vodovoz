@@ -133,6 +133,7 @@ namespace Vodovoz
 			this.datePickerDate = new global::Gamma.Widgets.yDatePicker ();
 			this.datePickerDate.Events = ((global::Gdk.EventMask)(256));
 			this.datePickerDate.Name = "datePickerDate";
+			this.datePickerDate.WithTime = false;
 			this.datePickerDate.Date = new global::System.DateTime (0);
 			this.datePickerDate.IsEditable = false;
 			this.datePickerDate.AutoSeparation = false;
@@ -288,6 +289,7 @@ namespace Vodovoz
 			this.speccomboShift = new global::Gamma.Widgets.ySpecComboBox ();
 			this.speccomboShift.Name = "speccomboShift";
 			this.speccomboShift.AddIfNotExist = false;
+			this.speccomboShift.DefaultFirst = false;
 			this.speccomboShift.ShowSpecialStateAll = false;
 			this.speccomboShift.ShowSpecialStateNot = false;
 			this.table1.Add (this.speccomboShift);

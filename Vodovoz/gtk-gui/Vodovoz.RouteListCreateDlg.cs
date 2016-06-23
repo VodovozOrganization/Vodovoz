@@ -82,6 +82,7 @@ namespace Vodovoz
 			this.datepickerDate = new global::QSOrmProject.DataDatePicker ();
 			this.datepickerDate.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerDate.Name = "datepickerDate";
+			this.datepickerDate.WithTime = false;
 			this.datepickerDate.Date = new global::System.DateTime (0);
 			this.datepickerDate.IsEditable = true;
 			this.datepickerDate.AutoSeparation = true;
