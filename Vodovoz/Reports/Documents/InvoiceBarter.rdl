@@ -16,20 +16,52 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, orders.bottles_return AS bottles_return, 
-delivery_schedule.name AS delivery_schedule, 
-counterparty_contract.id AS contract_number, DATE_FORMAT(counterparty_contract.issue_date, '%d.%m.%y') AS contract_date,
-counterparty.full_name AS client_name, counterparty.address AS client_address, counterparty.waybill_comment AS invoice_comment,
-organizations.full_name AS org_name, organizations.address as org_address,
-delivery_points.comment AS delivery_point_comment, delivery_points.phone AS phone,
-delivery_points.city AS city, delivery_points.region AS region, delivery_points.street AS street, delivery_points.building AS building, delivery_points.room AS room
-FROM orders 
-LEFT JOIN counterparty ON orders.client_id = counterparty.id
-LEFT JOIN organizations ON organizations.id = 12
-LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND counterparty_contract.organization_id = organizations.id
-LEFT JOIN delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
-LEFT JOIN delivery_points ON orders.delivery_point_id = delivery_points.id
-WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !counterparty_contract.is_archive;</CommandText>
+    orders.id AS order_id,
+    DATE_FORMAT(orders.delivery_date, '%d.%m.%y') AS order_date,
+    orders.bottles_return AS bottles_return,
+    delivery_schedule.name AS delivery_schedule,
+    counterparty_contract.id AS contract_number,
+    DATE_FORMAT(counterparty_contract.issue_date,
+            '%d.%m.%y') AS contract_date,
+    counterparty.full_name AS client_name,
+    counterparty.address AS client_address,
+    counterparty.waybill_comment AS invoice_comment,
+    organizations.full_name AS org_name,
+    organizations.address AS org_address,
+    delivery_points.comment AS delivery_point_comment,
+    delivery_points.phone AS phone,
+    delivery_points.city AS city,
+    delivery_points.region AS region,
+    delivery_points.street AS street,
+    delivery_points.building AS building,
+    delivery_points.room AS room,
+    CONCAT_WS('',
+            CONCAT(employees.last_name, ' '),
+            IF(employees.name = '',
+                '',
+                CONCAT(LEFT(employees.name, 1), '.')),
+            IF(employees.patronymic = '',
+                '',
+                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author
+FROM
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+        LEFT JOIN
+    organizations ON organizations.id = 12
+        LEFT JOIN
+    counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id
+        AND counterparty_contract.organization_id = organizations.id
+        LEFT JOIN
+    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+        LEFT JOIN
+    delivery_points ON orders.delivery_point_id = delivery_points.id
+        LEFT JOIN
+    employees ON employees.id = orders.author_employee_id
+WHERE
+    orders.id = @order_id
+        AND ! counterparty_contract.on_cancellation
+        AND ! counterparty_contract.is_archive;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
@@ -41,32 +73,8 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
-        <Field Name="client_name">
-          <DataField>client_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="client_address">
-          <DataField>client_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="org_name">
-          <DataField>org_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="org_address">
-          <DataField>org_address</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="order_date">
           <DataField>order_date</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="contract_number">
-          <DataField>contract_number</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
-        <Field Name="contract_date">
-          <DataField>contract_date</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="bottles_return">
@@ -77,8 +85,32 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
           <DataField>delivery_schedule</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="contract_number">
+          <DataField>contract_number</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="contract_date">
+          <DataField>contract_date</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_address">
+          <DataField>client_address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="invoice_comment">
           <DataField>invoice_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_name">
+          <DataField>org_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="org_address">
+          <DataField>org_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="delivery_point_comment">
@@ -107,6 +139,10 @@ WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !coun
         </Field>
         <Field Name="room">
           <DataField>room</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -158,7 +194,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DepositRefund">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 deposit_sum,count as deposit_count, CASE deposit_type WHEN 'None' THEN '-' WHEN 'Bottles' THEN 'Залог за бутыли' WHEN 'Equipment' THEN 'Залог за оборудование' END AS deposit_type
@@ -174,7 +210,7 @@ payment_type='ToClient'</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="deposit_price">
           <DataField>deposit_sum</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -190,11 +226,11 @@ payment_type='ToClient'</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="RefundExists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT * FROM order_deposit_items LIMIT 1;</CommandText>
       </Query>
-      <Fields  />
+      <Fields />
     </DataSet>
   </DataSets>
   <PageHeader>
@@ -230,7 +266,7 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox2">
             <Height>13.50pt</Height>
             <Width>154.33pt</Width>
-            <Value>Исполнитель: %Исполнитель%</Value>
+            <Value>= "Исполнитель: " +{author}</Value>
             <ZIndex>1</ZIndex>
             <Left>359.3pt</Left>
             <Top>16.6pt</Top>

@@ -39,7 +39,15 @@
     delivery_points.building AS building,
     delivery_points.room AS room,
     delivery_points.latitude,
-    delivery_points.longitude
+    delivery_points.longitude,
+    CONCAT_WS('',
+            CONCAT(employees.last_name, ' '),
+            IF(employees.name = '',
+                '',
+                CONCAT(LEFT(employees.name, 1), '.')),
+            IF(employees.patronymic = '',
+                '',
+                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author
 FROM
     orders
         LEFT JOIN
@@ -54,6 +62,8 @@ FROM
     delivery_points ON orders.delivery_point_id = delivery_points.id
         LEFT JOIN
     logistics_area ON delivery_points.logistic_area_id = logistics_area.id
+        LEFT JOIN
+    employees ON employees.id = orders.author_employee_id
 WHERE
     orders.id = @order_id;</CommandText>
         <QueryParameters>
@@ -154,6 +164,10 @@ WHERE
         <Field Name="longitude">
           <DataField>longitude</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -275,7 +289,7 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox2">
             <Height>13.50pt</Height>
             <Width>154.33pt</Width>
-            <Value>Исполнитель: %Исполнитель%</Value>
+            <Value>= "Исполнитель: " + {author}</Value>
             <ZIndex>1</ZIndex>
             <Left>359.3pt</Left>
             <Top>16.6pt</Top>
