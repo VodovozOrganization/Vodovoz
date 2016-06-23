@@ -78,7 +78,7 @@ namespace Vodovoz
 		
 		private global::Gamma.Widgets.yEntryReference referenceAuthor;
 		
-		private global::Gamma.Widgets.yEntryReference referenceClient;
+		private global::QSOrmProject.yEntryReferenceVM referenceClient;
 		
 		private global::QSOrmProject.yEntryReferenceVM referenceDeliveryPoint;
 		
@@ -299,7 +299,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook ();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 1;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vbox3 = new global::Gtk.VBox ();
 			this.vbox3.Name = "vbox3";
@@ -567,6 +567,7 @@ namespace Vodovoz
 			this.pickerDeliveryDate = new global::Gamma.Widgets.yDatePicker ();
 			this.pickerDeliveryDate.Events = ((global::Gdk.EventMask)(256));
 			this.pickerDeliveryDate.Name = "pickerDeliveryDate";
+			this.pickerDeliveryDate.WithTime = false;
 			this.pickerDeliveryDate.Date = new global::System.DateTime (0);
 			this.pickerDeliveryDate.IsEditable = true;
 			this.pickerDeliveryDate.AutoSeparation = true;
@@ -589,7 +590,7 @@ namespace Vodovoz
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceClient = new global::Gamma.Widgets.yEntryReference ();
+			this.referenceClient = new global::QSOrmProject.yEntryReferenceVM ();
 			this.referenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.referenceClient.Name = "referenceClient";
 			this.table1.Add (this.referenceClient);
