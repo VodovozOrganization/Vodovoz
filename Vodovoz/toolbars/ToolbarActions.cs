@@ -15,6 +15,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListClosingTable;
 	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
+	Action ActionRouteListTracking;
 	Action ActionAddOrder;
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
@@ -27,7 +28,6 @@ public partial class MainWindow : Window
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
-
 
 	public void BuildToolbarActions ()
 	{
@@ -46,6 +46,7 @@ public partial class MainWindow : Window
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
+		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин",null,"table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражом",null,"table");
 		//Касса
@@ -73,6 +74,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionRouteListTable, null);
 		w1.Add (ActionRouteListClosingTable, null);
 		w1.Add (ActionRouteListKeeping, null);
+		w1.Add (ActionRouteListTracking, null);
 		w1.Add (ActionRouteListMileageCheck, null);
 		w1.Add (ActionCashDocuments, null);
 		w1.Add (ActionAccountableDebt, null);
@@ -98,6 +100,7 @@ public partial class MainWindow : Window
 		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
+		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
 		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
@@ -117,7 +120,7 @@ public partial class MainWindow : Window
 			() => new AccountingView ()
 		);
 	}
-
+		
 	void ActionUnclosedAdvances_Activated (object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -190,6 +193,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			TdiTabBase.GenerateHashName<RouteListClosingView>(),
 			() => new RouteListClosingView ()
+		);
+	}
+
+	void ActionRouteListTracking_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<RouteListTrackDlg>(),
+			() => new RouteListTrackDlg ()
 		);
 	}
 

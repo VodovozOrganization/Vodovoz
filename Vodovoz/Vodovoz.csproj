@@ -56,6 +56,9 @@
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="gtk-databind-lib">
+      <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -100,6 +103,9 @@
     <EmbeddedResource Include="icons\status\face-smile-grin.png" />
     <EmbeddedResource Include="icons\status\face-uncertain.png" />
     <EmbeddedResource Include="icons\status\face-angry.png" />
+    <EmbeddedResource Include="icons\buttons\chat-icon.png">
+      <LogicalName>chat-icon.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -408,6 +414,10 @@
     <Compile Include="gtk-gui\Vodovoz.CarUnloadDocumentDlg.cs" />
     <Compile Include="ViewWidgets\Store\EquipmentReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.EquipmentReceptionView.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListTrackDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListTrackDlg.cs" />
+    <Compile Include="Representations\WorkingDriversVM.cs" />
+    <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
