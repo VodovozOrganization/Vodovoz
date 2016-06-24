@@ -10,6 +10,7 @@
     <StartupObject>Vodovoz.MainClass</StartupObject>
     <ApplicationIcon>icons\logo.ico</ApplicationIcon>
     <UseMSBuildEngine>False</UseMSBuildEngine>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -59,6 +60,7 @@
     <Reference Include="gtk-databind-lib">
       <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -105,6 +107,12 @@
     <EmbeddedResource Include="icons\status\face-angry.png" />
     <EmbeddedResource Include="icons\buttons\chat-icon.png">
       <LogicalName>chat-icon.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\buttons\document-open-recent.png">
+      <LogicalName>document-open-recent.png</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="icons\buttons\document-send.png">
+      <LogicalName>document-send.png</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -418,6 +426,8 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListTrackDlg.cs" />
     <Compile Include="Representations\WorkingDriversVM.cs" />
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
+    <Compile Include="ServiceDialogs\ChatWidget.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ChatWidget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -504,6 +514,10 @@
     <ProjectReference Include="..\VodovozBusiness\VodovozBusiness.csproj">
       <Project>{022DD59D-0EEE-420F-9750-EB275772F56A}</Project>
       <Name>VodovozBusiness</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\VodovozService\Chat\Chat.csproj">
+      <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
+      <Name>Chat</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

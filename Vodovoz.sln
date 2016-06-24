@@ -69,6 +69,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSMachineConfig", "..\QSPro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozBusiness", "VodovozBusiness\VodovozBusiness.csproj", "{022DD59D-0EEE-420F-9750-EB275772F56A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "..\VodovozService\Chat\Chat.csproj", "{4E951BE3-3485-47E8-B7DF-5A098034A90E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -178,6 +180,20 @@ Global
 		{4B502FE5-D419-4B5C-9276-0A25EF2F508A}.Release|x64.Build.0 = Release|x86
 		{4B502FE5-D419-4B5C-9276-0A25EF2F508A}.Release|x86.ActiveCfg = Release|x86
 		{4B502FE5-D419-4B5C-9276-0A25EF2F508A}.Release|x86.Build.0 = Release|x86
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.BundleLinux|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.BundleLinux|Any CPU.Build.0 = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.BundleLinux|x64.ActiveCfg = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.BundleLinux|x64.Build.0 = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.BundleLinux|x86.ActiveCfg = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.BundleLinux|x86.Build.0 = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Debug|x64.Build.0 = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Debug|x86.Build.0 = Debug|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Release|x64.ActiveCfg = Release|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Release|x64.Build.0 = Release|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Release|x86.ActiveCfg = Release|Any CPU
+		{4E951BE3-3485-47E8-B7DF-5A098034A90E}.Release|x86.Build.0 = Release|Any CPU
 		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.BundleLinux|Any CPU.ActiveCfg = Debug|Any CPU
 		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.BundleLinux|Any CPU.Build.0 = Debug|Any CPU
 		{54F958F5-7E58-4C89-9A04-8835E63B97C3}.BundleLinux|x64.ActiveCfg = Debug|Any CPU

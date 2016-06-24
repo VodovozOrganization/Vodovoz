@@ -1,27 +1,45 @@
 ﻿using System;
 using QSOrmProject;
 using QSTDI;
+using Chat;
+using System.ServiceModel;
+using System.Threading;
+using Vodovoz.Repository.Chat;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListTrackDlg : TdiTabBase
+	public partial class RouteListTrackDlg : TdiTabBase, IChatCallback
 	{
-		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private TimerCallback callback;
+		private Timer timer;
+		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		private IChatCallbackService proxy;
+		private const int REFRESH_PERIOD = 180000;
 
 		public RouteListTrackDlg()
 		{
 			this.Build();
 			this.TabName = "Мониторинг";
-			yTreeViewDrivers.RepresentationModel = new ViewModel.WorkingDriversVM();
+			yTreeViewDrivers.RepresentationModel = new ViewModel.WorkingDriversVM(uow);
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Sensitive = false;
+			proxy = new DuplexChannelFactory<IChatCallbackService>(
+				new InstanceContext(this), 
+				new NetTcpBinding(), 
+				"net.Tcp://vod-srv.qsolution.ru:9001/ChatCallbackService").CreateChannel();
+			proxy.SubscribeForUpdates(1);
+
+			//Initiates connection keep alive query every 5 minutes.
+			callback = new TimerCallback(Refresh);
+			timer = new Timer(callback, null, 0, REFRESH_PERIOD);
 		}
 
-		void OnSelectionChanged (object sender, EventArgs e)
+		void OnSelectionChanged(object sender, EventArgs e)
 		{
-			bool selected = yTreeViewDrivers.Selection.CountSelectedRows () > 0;
+			bool selected = yTreeViewDrivers.Selection.CountSelectedRows() > 0;
 			buttonChat.Sensitive = selected;
 		}
 
@@ -37,17 +55,35 @@ namespace Vodovoz
 			}
 		}
 
-
-		protected void OnYTreeViewDriversRowActivated (object o, Gtk.RowActivatedArgs args)
+		protected void OnYTreeViewDriversRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			yTreeAddresses.RepresentationModel = new ViewModel.DriverRouteListAddressesVM(yTreeViewDrivers.GetSelectedId());
+			yTreeAddresses.RepresentationModel = new ViewModel.DriverRouteListAddressesVM(uow, yTreeViewDrivers.GetSelectedId());
 			yTreeAddresses.RepresentationModel.UpdateNodes();
 		}
 
-		protected void OnButtonChatClicked (object sender, EventArgs e)
+		protected void OnButtonChatClicked(object sender, EventArgs e)
 		{
-			//TODO
+			var driverUoW = UnitOfWorkFactory.CreateForRoot<Employee>(yTreeViewDrivers.GetSelectedId());
+			var chat = ChatRepository.GetChatForDriver(driverUoW, driverUoW.Root);
+			driverUoW.Dispose();
+			var chatWidget = new ChatWidget();
+			chatWidget.Configure(chat.Id);
+			this.OpenNewTab(chatWidget);
 		}
+
+		private void Refresh(Object StateInfo)
+		{
+			proxy.KeepAlive();
+		}
+
+		#region IChatCallback implementation
+
+		public void NotifyNewMessage(int chatId)
+		{
+			Console.WriteLine("Chat updated: {0}", chatId);
+		}
+			
+		#endregion
 	}
 }
 

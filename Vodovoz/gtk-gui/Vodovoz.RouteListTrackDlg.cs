@@ -146,6 +146,7 @@ namespace Vodovoz
 			}
 			this.Hide ();
 			this.yTreeViewDrivers.RowActivated += new global::Gtk.RowActivatedHandler (this.OnYTreeViewDriversRowActivated);
+			this.buttonChat.Clicked += new global::System.EventHandler (this.OnButtonChatClicked);
 			this.toggleButtonHideAddresses.Toggled += new global::System.EventHandler (this.OnToggleButtonHideAddressesToggled);
 		}
 	}
