@@ -32,12 +32,20 @@
     organizations.address AS org_address,
     delivery_points.comment AS delivery_point_comment,
     delivery_points.phone AS phone,
-    logistics_area.name as logistics_area,
+    logistics_area.name AS logistics_area,
     delivery_points.city AS city,
     delivery_points.region AS region,
     delivery_points.street AS street,
     delivery_points.building AS building,
-    delivery_points.room AS room
+    delivery_points.room AS room,
+    CONCAT_WS('',
+            CONCAT(employees.last_name, ' '),
+            IF(employees.name = '',
+                '',
+                CONCAT(LEFT(employees.name, 1), '.')),
+            IF(employees.patronymic = '',
+                '',
+                CONCAT(LEFT(employees.patronymic, 1), '.'))) AS author
 FROM
     orders
         LEFT JOIN
@@ -53,6 +61,8 @@ FROM
     delivery_points ON orders.delivery_point_id = delivery_points.id
         LEFT JOIN
     logistics_area ON delivery_points.logistic_area_id = logistics_area.id
+        LEFT JOIN
+    employees ON employees.id = orders.author_employee_id
 WHERE
     orders.id = @order_id
         AND ! counterparty_contract.on_cancellation
@@ -146,6 +156,10 @@ WHERE
         </Field>
         <Field Name="room">
           <DataField>room</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="author">
+          <DataField>author</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -268,7 +282,7 @@ payment_type='ToClient'</CommandText>
           <Textbox Name="Textbox2">
             <Height>13.50pt</Height>
             <Width>154.33pt</Width>
-            <Value>Исполнитель: %Исполнитель%</Value>
+            <Value>= "Исполнитель: " + {author}</Value>
             <ZIndex>1</ZIndex>
             <Left>359.3pt</Left>
             <Top>16.6pt</Top>
@@ -1157,7 +1171,7 @@ payment_type='ToClient'</CommandText>
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox30" >
+          <Textbox Name="Textbox30">
             <Height>16.53pt</Height>
             <Width>536.74pt</Width>
             <Value>={order_comment}</Value>

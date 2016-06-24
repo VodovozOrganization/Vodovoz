@@ -301,6 +301,12 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 				return false;
 
+			if(Entity.OrderStatus == OrderStatus.NewOrder)
+			{
+				if (!MessageDialogWorks.RunQuestionDialog("Вы не подтвердили заказ. Вы уверены что хотите оставить его в качестве черновика?"))
+					return false;
+			}
+
 			logger.Info ("Сохраняем заказ...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
