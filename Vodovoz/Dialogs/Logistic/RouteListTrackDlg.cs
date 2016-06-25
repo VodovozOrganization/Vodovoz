@@ -63,12 +63,14 @@ namespace Vodovoz
 
 		protected void OnButtonChatClicked(object sender, EventArgs e)
 		{
-			var driverUoW = UnitOfWorkFactory.CreateForRoot<Employee>(yTreeViewDrivers.GetSelectedId());
-			var chat = ChatRepository.GetChatForDriver(driverUoW, driverUoW.Root);
-			driverUoW.Dispose();
-			var chatWidget = new ChatWidget();
-			chatWidget.Configure(chat.Id);
-			this.OpenNewTab(chatWidget);
+			var driver = uow.GetById<Employee>(yTreeViewDrivers.GetSelectedId());
+			var chat = ChatRepository.GetChatForDriver(uow, driver);
+			if (chat != null)
+			{
+				TabParent.OpenTab(ChatWidget.GenerateHashName(chat.Id),
+					() => new ChatWidget(chat.Id)
+				);
+			}
 		}
 
 		private void Refresh(Object StateInfo)

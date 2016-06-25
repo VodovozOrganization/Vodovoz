@@ -33,12 +33,27 @@ namespace Vodovoz
 			textTags = buildTagTable();
 		}
 
+		public ChatWidget(int chatId) : this()
+		{
+			Configure(chatId);
+		}
+
 		public void Configure(int chatId)
 		{
 			chatUoW = UnitOfWorkFactory.CreateForRoot<ChatClass>(chatId);
 			if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
 				this.TabName = String.Format("Чат ({0})", chatUoW.Root.Driver.ShortName);
 			updateChat();
+		}
+
+		public static string GenerateHashName(int chatId)
+		{
+			return String.Format("Dlg_chat_{0}", chatId);
+		}
+
+		public override bool CompareHashName(string hashName)
+		{
+			return GenerateHashName(chatUoW.Root.Id) == hashName;
 		}
 
 		protected void OnButtonSendClicked(object sender, EventArgs e)
