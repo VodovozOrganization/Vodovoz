@@ -5,18 +5,16 @@ using Chat;
 using System.ServiceModel;
 using System.Threading;
 using Vodovoz.Repository.Chat;
+using ChatClass = Vodovoz.Domain.Chat.Chat;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Chat;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListTrackDlg : TdiTabBase, IChatCallback
+	public partial class RouteListTrackDlg : TdiTabBase
 	{
-		private TimerCallback callback;
-		private Timer timer;
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-		private IChatCallbackService proxy;
-		private const int REFRESH_PERIOD = 180000;
 
 		public RouteListTrackDlg()
 		{
@@ -26,15 +24,6 @@ namespace Vodovoz
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Sensitive = false;
-			proxy = new DuplexChannelFactory<IChatCallbackService>(
-				new InstanceContext(this), 
-				new NetTcpBinding(), 
-				"net.Tcp://vod-srv.qsolution.ru:9001/ChatCallbackService").CreateChannel();
-			proxy.SubscribeForUpdates(1);
-
-			//Initiates connection keep alive query every 5 minutes.
-			callback = new TimerCallback(Refresh);
-			timer = new Timer(callback, null, 0, REFRESH_PERIOD);
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
@@ -65,27 +54,19 @@ namespace Vodovoz
 		{
 			var driver = uow.GetById<Employee>(yTreeViewDrivers.GetSelectedId());
 			var chat = ChatRepository.GetChatForDriver(uow, driver);
-			if (chat != null)
+			if (chat == null)
 			{
-				TabParent.OpenTab(ChatWidget.GenerateHashName(chat.Id),
-					() => new ChatWidget(chat.Id)
-				);
+				var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<ChatClass>();
+				chatUoW.Root.ChatType = ChatType.DriverAndLogists;
+				chatUoW.Root.Driver = driver;
+				chatUoW.Save();
+				chat = chatUoW.Root;
+
 			}
+			TabParent.OpenTab(ChatWidget.GenerateHashName(chat.Id),
+				() => new ChatWidget(chat.Id)
+			);
 		}
-
-		private void Refresh(Object StateInfo)
-		{
-			proxy.KeepAlive();
-		}
-
-		#region IChatCallback implementation
-
-		public void NotifyNewMessage(int chatId)
-		{
-			Console.WriteLine("Chat updated: {0}", chatId);
-		}
-			
-		#endregion
 	}
 }
 

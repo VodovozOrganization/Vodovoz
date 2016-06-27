@@ -131,7 +131,7 @@ namespace Vodovoz
 			w11.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.label3 = new global::Gtk.Label ();
-			this.label3.HeightRequest = 300;
+			this.label3.HeightRequest = 150;
 			this.label3.Name = "label3";
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Тут когда-то будет карта");
 			this.vbox1.Add (this.label3);

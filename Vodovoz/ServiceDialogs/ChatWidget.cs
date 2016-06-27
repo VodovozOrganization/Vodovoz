@@ -13,7 +13,7 @@ using Vodovoz.Repository.Chat;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ChatWidget : TdiTabBase
+	public partial class ChatWidget : TdiTabBase, IChatCallbackObserver
 	{
 		TextTagTable textTags;
 		int showMessagePeriod = 2;
@@ -44,6 +44,13 @@ namespace Vodovoz
 			if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
 				this.TabName = String.Format("Чат ({0})", chatUoW.Root.Driver.ShortName);
 			updateChat();
+			if (!ChatCallbackObservable.IsInitiated)
+			{
+				var employee = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
+				ChatCallbackObservable.CreateInstance(employee.Id);
+			}
+			ChatCallbackObservable.GetInstance().AddObserver(this);
+
 		}
 
 		public static string GenerateHashName(int chatId)
@@ -58,7 +65,7 @@ namespace Vodovoz
 
 		protected void OnButtonSendClicked(object sender, EventArgs e)
 		{
-			if (textViewMessage.Buffer.Text == "")
+			if (String.IsNullOrWhiteSpace(textViewMessage.Buffer.Text))
 				return;
 			if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
 			{
@@ -70,6 +77,7 @@ namespace Vodovoz
 						textViewMessage.Buffer.Text
 					);
 				updateChat();
+				textViewMessage.Buffer.Text = String.Empty;
 			}
 		}
 
@@ -170,6 +178,25 @@ namespace Vodovoz
 				return tagName;
 			}
 		}
+
+		#region IChatCallbackObserver implementation
+
+		public void HandleChatUpdate()
+		{
+			updateChat();
+		}
+
+		public int ChatId
+		{
+			get
+			{
+				if (chatUoW != null && chatUoW.Root != null)
+					return chatUoW.Root.Id;
+				return -1;
+			}
+		}
+
+		#endregion
 	}
 }
 

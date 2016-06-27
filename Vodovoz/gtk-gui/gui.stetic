@@ -31479,7 +31479,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListTrackDlg" design-size="945 536">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListTrackDlg" design-size="945 386">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31612,7 +31612,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="label3">
                 <property name="MemberName" />
-                <property name="HeightRequest">300</property>
+                <property name="HeightRequest">150</property>
                 <property name="LabelProp" translatable="yes">Тут когда-то будет карта</property>
               </widget>
               <packing>
