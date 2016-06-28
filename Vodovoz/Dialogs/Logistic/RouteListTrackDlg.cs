@@ -8,11 +8,12 @@ using Vodovoz.Repository.Chat;
 using ChatClass = Vodovoz.Domain.Chat.Chat;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Chat;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListTrackDlg : TdiTabBase
+	public partial class RouteListTrackDlg : TdiTabBase, IChatCallbackObserver
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
@@ -24,6 +25,9 @@ namespace Vodovoz
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Sensitive = false;
+			if (!ChatCallbackObservable.IsInitiated)
+				ChatCallbackObservable.CreateInstance(EmployeeRepository.GetEmployeeForCurrentUser(uow).Id);
+			ChatCallbackObservable.GetInstance().AddObserver(this);
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
@@ -67,6 +71,24 @@ namespace Vodovoz
 				() => new ChatWidget(chat.Id)
 			);
 		}
+
+		public override void Destroy()
+		{
+			ChatCallbackObservable.GetInstance().RemoveObserver(this);
+			base.Destroy();
+		}
+
+		#region IChatCallbackObserver implementation
+
+		public void HandleChatUpdate()
+		{
+			yTreeViewDrivers.RepresentationModel.UpdateNodes();
+		}
+
+		public int? ChatId { get { return null; } }
+
+		public int? RequestedRefreshInterval { get { return null; } }
+		#endregion
 	}
 }
 

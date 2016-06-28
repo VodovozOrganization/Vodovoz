@@ -59,7 +59,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.yTreeViewDrivers = new global::QSOrmProject.RepresentationTreeView ();
-			this.yTreeViewDrivers.WidthRequest = 400;
+			this.yTreeViewDrivers.WidthRequest = 500;
 			this.yTreeViewDrivers.CanFocus = true;
 			this.yTreeViewDrivers.Name = "yTreeViewDrivers";
 			this.GtkScrolledWindow.Add (this.yTreeViewDrivers);
@@ -112,7 +112,7 @@ namespace Vodovoz
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
 			this.yTreeAddresses = new global::QSOrmProject.RepresentationTreeView ();
-			this.yTreeAddresses.WidthRequest = 400;
+			this.yTreeAddresses.WidthRequest = 600;
 			this.yTreeAddresses.HeightRequest = 150;
 			this.yTreeAddresses.CanFocus = true;
 			this.yTreeAddresses.Name = "yTreeAddresses";

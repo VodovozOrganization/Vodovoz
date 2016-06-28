@@ -7,6 +7,10 @@ using NHibernate.Transform;
 using Gamma.ColumnConfig;
 using System.Linq;
 using QSProjectsLib;
+using Vodovoz.Domain.Chat;
+using ChatClass = Vodovoz.Domain.Chat.Chat;
+using Vodovoz.Repository.Chat;
+using Vodovoz.Repository;
 
 namespace Vodovoz.ViewModel
 {
@@ -30,6 +34,7 @@ namespace Vodovoz.ViewModel
 				.Where (rl => rl.Status == RouteListStatus.EnRoute)
 				.Where (rl => rl.Driver != null)
 				.Where (rl => rl.Car != null)
+
 				.SelectList(list => list
 					.Select(() => driverAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => driverAlias.Name).WithAlias(() => resultAlias.Name)
@@ -53,6 +58,15 @@ namespace Vodovoz.ViewModel
 					i--;
 				}
 			}
+			var chats = ChatRepository.GetCurrentUserChats(UoW, null);
+			var unreaded = ChatMessageRepository.GetUnreadedChatMessages(UoW, EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			foreach (var item in result) {
+				var chat = chats.Where(x => x.Driver.Id == item.Id).FirstOrDefault();
+				if (chat != null && unreaded.ContainsKey(chat.Id))
+				{
+					item.Unreaded = unreaded[chat.Id];
+				}
+			}
 
 			SetItemsSource(result);
 		}
@@ -61,6 +75,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
 			.AddColumn("Машина").SetDataProperty(node => node.CarNumber)
 			.AddColumn("Маршрутные листы").SetDataProperty(node => node.RouteListNumbers)
+			.AddColumn("Новые сообщения").AddTextRenderer().AddSetter((w, n) => w.Markup = (n.Unreaded > 0 ? String.Format("<b><span foreground=\"red\">{0}</span></b>", n.Unreaded) : String.Empty))
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig
@@ -98,13 +113,9 @@ namespace Vodovoz.ViewModel
 		public string Name { get; set; }
 		public string LastName { get; set; }
 		public string Patronymic { get; set; }
-
-		public string ShortName
-		{ 
-			get { return StringWorks.PersonNameWithInitials (LastName, Name, Patronymic);}
-		}
-
 		public string CarNumber { get; set; }
+		public string RouteListNumbers { get; set; }
+		public int Unreaded { get; set; }
 
 		private int routeListNumber;
 
@@ -118,6 +129,10 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
-		public string RouteListNumbers { get; set; }
+		public string ShortName
+		{ 
+			get { return StringWorks.PersonNameWithInitials (LastName, Name, Patronymic);}
+		}
+
 	}
 }

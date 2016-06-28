@@ -31479,7 +31479,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListTrackDlg" design-size="945 386">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListTrackDlg" design-size="1140 386">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -31509,7 +31509,7 @@ RegistrationNumber</property>
                 <child>
                   <widget class="QSOrmProject.RepresentationTreeView" id="yTreeViewDrivers">
                     <property name="MemberName" />
-                    <property name="WidthRequest">400</property>
+                    <property name="WidthRequest">500</property>
                     <property name="CanFocus">True</property>
                     <property name="ShowScrollbars">True</property>
                     <signal name="RowActivated" handler="OnYTreeViewDriversRowActivated" />
@@ -31583,7 +31583,7 @@ RegistrationNumber</property>
                 <child>
                   <widget class="QSOrmProject.RepresentationTreeView" id="yTreeAddresses">
                     <property name="MemberName" />
-                    <property name="WidthRequest">400</property>
+                    <property name="WidthRequest">600</property>
                     <property name="HeightRequest">150</property>
                     <property name="CanFocus">True</property>
                     <property name="ShowScrollbars">True</property>

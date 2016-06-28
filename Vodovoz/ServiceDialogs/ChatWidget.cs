@@ -45,10 +45,7 @@ namespace Vodovoz
 				this.TabName = String.Format("Чат ({0})", chatUoW.Root.Driver.ShortName);
 			updateChat();
 			if (!ChatCallbackObservable.IsInitiated)
-			{
-				var employee = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
-				ChatCallbackObservable.CreateInstance(employee.Id);
-			}
+				ChatCallbackObservable.CreateInstance(EmployeeRepository.GetEmployeeForCurrentUser(chatUoW).Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
 
 		}
@@ -61,6 +58,12 @@ namespace Vodovoz
 		public override bool CompareHashName(string hashName)
 		{
 			return GenerateHashName(chatUoW.Root.Id) == hashName;
+		}
+
+		public override void Destroy()
+		{
+			ChatCallbackObservable.GetInstance().RemoveObserver(this);
+			base.Destroy();
 		}
 
 		protected void OnButtonSendClicked(object sender, EventArgs e)
@@ -186,7 +189,7 @@ namespace Vodovoz
 			updateChat();
 		}
 
-		public int ChatId
+		public int? ChatId
 		{
 			get
 			{
@@ -196,6 +199,7 @@ namespace Vodovoz
 			}
 		}
 
+		public int? RequestedRefreshInterval { get { return 5000; } }
 		#endregion
 	}
 }
