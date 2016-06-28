@@ -50,6 +50,27 @@ namespace Vodovoz.Domain.Chat
 				return observableMessages;
 			}
 		}
+
+		IList<LastReadedMessage> lastReaded = new List<LastReadedMessage> ();
+
+		[Display (Name = "Последние прочитанные сообщения чата")]
+		public virtual IList<LastReadedMessage> LastReaded {
+			get { return lastReaded; }
+			set { 
+				SetField (ref lastReaded, value, () => LastReaded); 
+			}
+		}
+
+		GenericObservableList<LastReadedMessage> observableLastReaded;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<LastReadedMessage> ObservableLastReaded {
+			get {
+				if (observableLastReaded == null) {
+					observableLastReaded = new GenericObservableList<LastReadedMessage> (lastReaded);
+				}
+				return observableLastReaded;
+			}
+		}
 	}
 
 	public enum ChatType
