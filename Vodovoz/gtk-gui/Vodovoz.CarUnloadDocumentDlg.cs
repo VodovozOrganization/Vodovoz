@@ -47,6 +47,8 @@ namespace Vodovoz
 		private global::Vodovoz.BottleReceptionView bottlereceptionview1;
 		
 		private global::Vodovoz.EquipmentReceptionView equipmentreceptionview1;
+		
+		private global::Vodovoz.ReturnsReceptionView returnsreceptionview2;
 
 		protected virtual void Build ()
 		{
@@ -273,9 +275,16 @@ namespace Vodovoz
 			this.hbox4.Add (this.vbox1);
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.vbox1]));
 			w23.Position = 0;
+			// Container child hbox4.Gtk.Box+BoxChild
+			this.returnsreceptionview2 = new global::Vodovoz.ReturnsReceptionView ();
+			this.returnsreceptionview2.Events = ((global::Gdk.EventMask)(256));
+			this.returnsreceptionview2.Name = "returnsreceptionview2";
+			this.hbox4.Add (this.returnsreceptionview2);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.returnsreceptionview2]));
+			w24.Position = 1;
 			this.vbox4.Add (this.hbox4);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox4]));
-			w24.Position = 2;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox4]));
+			w25.Position = 2;
 			this.Add (this.vbox4);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : OrmGtkDialogBase<CarUnloadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
+		IList<Equipment> alreadyUnloadedEquipment;
 
 		public CarUnloadDocumentDlg()
 		{
@@ -60,15 +63,17 @@ namespace Vodovoz
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
-			UpdateRouteListInfo();
 			//Entity.UpdateStockAmount(UoW);
 			//Entity.UpdateAlreadyLoaded(UoW);
 			//Entity.UpdateInRouteListAmount(UoW);
 			//carloaddocumentview1.DocumentUoW = UoWGeneric;
 			bottlereceptionview1.UoW = UoW;
 			LoadBottleReception();
+			returnsreceptionview2.UoW = UoW;
+			returnsreceptionview2.Warehouse = Entity.Warehouse;
 
-			equipmentreceptionview1.RouteList = Entity.RouteList;
+			SetupForNewRouteList();
+
 			UpdateWidgetsVisible();
 		}
 
@@ -117,10 +122,26 @@ namespace Vodovoz
 				);
 		}
 
+		void UpdateAlreadyUnloaded()
+		{
+			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
+			returnsreceptionview2.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
+		}
+
 		protected void OnYentryrefRouteListChangedByUser(object sender, EventArgs e)
+		{
+			SetupForNewRouteList();
+		}
+
+		void SetupForNewRouteList()
 		{
 			UpdateRouteListInfo();
 			equipmentreceptionview1.RouteList = Entity.RouteList;
+			returnsreceptionview2.RouteList = Entity.RouteList;
+			if (Entity.RouteList != null)
+			{
+				UpdateAlreadyUnloaded();
+			}
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
@@ -186,6 +207,7 @@ namespace Vodovoz
 		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
 		{
 			UpdateWidgetsVisible();
+			returnsreceptionview2.Warehouse = Entity.Warehouse;
 		}
 	}
 }

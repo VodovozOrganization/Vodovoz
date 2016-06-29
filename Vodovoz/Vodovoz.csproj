@@ -428,6 +428,8 @@
     <Compile Include="Representations\DriverRouteListAddressesVM.cs" />
     <Compile Include="ServiceDialogs\ChatWidget.cs" />
     <Compile Include="gtk-gui\Vodovoz.ChatWidget.cs" />
+    <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
