@@ -48,7 +48,7 @@ namespace Vodovoz
 		
 		private global::Vodovoz.EquipmentReceptionView equipmentreceptionview1;
 		
-		private global::Vodovoz.ReturnsReceptionView returnsreceptionview2;
+		private global::Vodovoz.ReturnsReceptionView returnsreceptionview1;
 
 		protected virtual void Build ()
 		{
@@ -276,11 +276,11 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.vbox1]));
 			w23.Position = 0;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.returnsreceptionview2 = new global::Vodovoz.ReturnsReceptionView ();
-			this.returnsreceptionview2.Events = ((global::Gdk.EventMask)(256));
-			this.returnsreceptionview2.Name = "returnsreceptionview2";
-			this.hbox4.Add (this.returnsreceptionview2);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.returnsreceptionview2]));
+			this.returnsreceptionview1 = new global::Vodovoz.ReturnsReceptionView ();
+			this.returnsreceptionview1.Events = ((global::Gdk.EventMask)(256));
+			this.returnsreceptionview1.Name = "returnsreceptionview1";
+			this.hbox4.Add (this.returnsreceptionview1);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.returnsreceptionview1]));
 			w24.Position = 1;
 			this.vbox4.Add (this.hbox4);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox4]));
@@ -290,6 +290,8 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.yentryrefWarehouse.ChangedByUser += new global::System.EventHandler (this.OnYentryrefWarehouseChangedByUser);
 			this.yentryrefRouteList.ChangedByUser += new global::System.EventHandler (this.OnYentryrefRouteListChangedByUser);
 		}
