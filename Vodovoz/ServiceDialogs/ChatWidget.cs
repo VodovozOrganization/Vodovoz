@@ -9,15 +9,18 @@ using System.Collections.Generic;
 using Vodovoz.Repository;
 using QSOrmProject;
 using Vodovoz.Repository.Chat;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class ChatWidget : TdiTabBase, IChatCallbackObserver
 	{
-		TextTagTable textTags;
-		int showMessagePeriod = 2;
-		IUnitOfWorkGeneric<ChatClass> chatUoW;
+		private int showMessagePeriod = 2;
+		private bool isActive;
+		private TextTagTable textTags;
+		private Employee currentEmployee;
+		private IUnitOfWorkGeneric<ChatClass> chatUoW;
 
 		static IChatService getChatService()
 		{
@@ -31,6 +34,33 @@ namespace Vodovoz
 			this.Build();
 			this.TabName = "Чат";
 			textTags = buildTagTable();
+			HandleSwitchIn = OnSwitchIn;
+			HandleSwitchOut = OnSwitchOut;
+		}
+
+		private void updateLastReadedMessage () {
+			var lastReaded = LastReadedRepository.GetLastReadedMessageForEmloyee(chatUoW, chatUoW.Root, currentEmployee);
+			if (lastReaded == null)
+			{
+				lastReaded = new LastReadedMessage();
+				lastReaded.Chat = chatUoW.Root;
+				lastReaded.Employee = currentEmployee;
+			}
+			lastReaded.LastDateTime = DateTime.Now;
+			chatUoW.Save(lastReaded);
+			chatUoW.Commit();
+		}
+
+		private void OnSwitchIn(ITdiTab tabFrom) {
+			updateLastReadedMessage();
+			ChatCallbackObservable.GetInstance().NotifyChatUpdate(chatUoW.Root.Id);
+			isActive = true;
+			if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
+				this.TabName = String.Format("Чат ({0})", chatUoW.Root.Driver.ShortName);
+		}
+
+		private void OnSwitchOut(ITdiTab tabTo) {
+			isActive = false;
 		}
 
 		public ChatWidget(int chatId) : this()
@@ -41,13 +71,11 @@ namespace Vodovoz
 		public void Configure(int chatId)
 		{
 			chatUoW = UnitOfWorkFactory.CreateForRoot<ChatClass>(chatId);
-			if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
-				this.TabName = String.Format("Чат ({0})", chatUoW.Root.Driver.ShortName);
+			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
 			updateChat();
 			if (!ChatCallbackObservable.IsInitiated)
 				ChatCallbackObservable.CreateInstance(EmployeeRepository.GetEmployeeForCurrentUser(chatUoW).Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
-
 		}
 
 		public static string GenerateHashName(int chatId)
@@ -72,10 +100,9 @@ namespace Vodovoz
 				return;
 			if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
 			{
-				var currentUser = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
-				if (currentUser != null)
+				if (currentEmployee != null)
 					getChatService().SendMessageToDriver(
-						currentUser.Id,
+						currentEmployee.Id,
 						chatUoW.Root.Driver.Id,
 						textViewMessage.Buffer.Text
 					);
@@ -126,6 +153,19 @@ namespace Vodovoz
 					maxDate = message.DateTime;
 			}
 			textViewChat.Buffer = tempBuffer;
+			if (!isActive)
+			{
+				var newMessagesCount = LastReadedRepository.GetLastReadedMessagesCountForEmployee(chatUoW, chatUoW.Root, currentEmployee);
+				if (newMessagesCount > 0)
+				{
+					if (chatUoW.Root.ChatType == ChatType.DriverAndLogists)
+						this.TabName = String.Format("Чат ({0}) + {1}", chatUoW.Root.Driver.ShortName, newMessagesCount);
+				}
+			}
+			else
+			{
+				updateLastReadedMessage();
+			}
 		}
 
 		private static Dictionary<string, string> usersColors = new Dictionary<string, string>();
