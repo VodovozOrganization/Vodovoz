@@ -30,6 +30,8 @@ namespace Vodovoz
 
 		public event EventHandler<TdiTabNameChangedEventArgs> TabNameChanged;
 		public event EventHandler<TdiTabCloseEventArgs> CloseTab;
+		public HandleSwitchIn HandleSwitchIn { get; private set; }
+		public HandleSwitchOut HandleSwitchOut { get; private set; }
 
 		private string _tabName = "Регистрация оборудования";
 
