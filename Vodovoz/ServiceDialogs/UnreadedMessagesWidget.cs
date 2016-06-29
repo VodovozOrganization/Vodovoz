@@ -130,7 +130,7 @@ namespace Vodovoz
 
 		public int? ChatId { get { return null; } }
 
-		public int? RequestedRefreshInterval { get { return null; }	}
+		public uint? RequestedRefreshInterval { get { return null; }	}
 
 		#endregion
 	}
