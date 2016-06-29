@@ -19894,7 +19894,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ServiceClaimsView" design-size="373 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ServiceClaimsView" design-size="379 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -19915,7 +19915,7 @@ RegistrationNumber</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.Domain.Service.ServiceClaimType, Vodovoz</property>
+                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
