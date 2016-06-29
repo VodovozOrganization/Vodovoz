@@ -17,6 +17,13 @@ namespace Vodovoz
 	{
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 
+		public IList<ReceptionItemNode> Items
+		{
+			get{
+				return ReceptionReturnsList;
+			}
+		}
+
 		public ReturnsReceptionView()
 		{
 			this.Build();

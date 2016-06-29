@@ -69,8 +69,8 @@ namespace Vodovoz
 			//carloaddocumentview1.DocumentUoW = UoWGeneric;
 			bottlereceptionview1.UoW = UoW;
 			LoadBottleReception();
-			returnsreceptionview2.UoW = UoW;
-			returnsreceptionview2.Warehouse = Entity.Warehouse;
+			returnsreceptionview1.UoW = UoW;
+			returnsreceptionview1.Warehouse = Entity.Warehouse;
 
 			SetupForNewRouteList();
 
@@ -79,7 +79,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			UpdateBottlesOnEntity();
+			UpdateReceivedItemsOnEntity();
 
 			var valid = new QSValidation.QSValidator<CarUnloadDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
@@ -125,7 +125,7 @@ namespace Vodovoz
 		void UpdateAlreadyUnloaded()
 		{
 			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, Entity.RouteList);
-			returnsreceptionview2.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
+			returnsreceptionview1.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 
 		protected void OnYentryrefRouteListChangedByUser(object sender, EventArgs e)
@@ -137,7 +137,7 @@ namespace Vodovoz
 		{
 			UpdateRouteListInfo();
 			equipmentreceptionview1.RouteList = Entity.RouteList;
-			returnsreceptionview2.RouteList = Entity.RouteList;
+			returnsreceptionview1.RouteList = Entity.RouteList;
 			if (Entity.RouteList != null)
 			{
 				UpdateAlreadyUnloaded();
@@ -180,23 +180,104 @@ namespace Vodovoz
 			}
 		}
 
-		void UpdateBottlesOnEntity()
+		void UpdateReceivedItemsOnEntity()
 		{
-			var nomenclatures = UoW.GetById<Nomenclature>(bottlereceptionview1.Items.Select(x => x.NomenclatureId).ToArray());
-			foreach (Vodovoz.ViewModel.BottleReceptionVMNode node in bottlereceptionview1.Items) {
-				var item = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == node.NomenclatureId);
-				if (node.Amount != 0 && item == null) {
+			//Собираем список всего на возврат из разных виджетов.
+			var tempItemList = new List<InternalItem>();
+
+			foreach (var node in bottlereceptionview1.Items) 
+			{
+				if (node.Amount == 0)
+					continue;
+
+				var item = tempItemList.FirstOrDefault(x => x.NomenclatureId == node.NomenclatureId);
+
+				if (item == null)
+				{
+					item = new InternalItem {
+						NomenclatureId = node.NomenclatureId,
+						Amount = node.Amount
+					};
+					tempItemList.Add(item);
+				}
+				else
+					item.Amount += node.Amount;
+			}
+
+			foreach (var node in returnsreceptionview1.Items) 
+			{
+				if (node.Amount == 0)
+					continue;
+
+				var item = node.EquipmentId > 0
+					? tempItemList.FirstOrDefault(x => x.EquipmentId == node.EquipmentId)
+					: tempItemList.FirstOrDefault(x => x.NomenclatureId == node.NomenclatureId);
+
+				if (item == null)
+				{
+					item = new InternalItem {
+						NomenclatureId = node.NomenclatureId,
+						EquipmentId = node.EquipmentId,
+						Amount = node.Amount
+					};
+					tempItemList.Add(item);
+				}
+				else
+					item.Amount += node.Amount;
+			}
+
+			foreach (var node in equipmentreceptionview1.Items) 
+			{
+				if (node.Amount == 0)
+					continue;
+
+				var item = node.EquipmentId > 0
+					? tempItemList.FirstOrDefault(x => x.EquipmentId == node.EquipmentId)
+					: tempItemList.FirstOrDefault(x => x.NomenclatureId == node.NomenclatureId);
+
+				if (item == null)
+				{
+					item = new InternalItem {
+						NomenclatureId = node.NomenclatureId,
+						EquipmentId = node.EquipmentId,
+						Amount = node.Amount
+					};
+					tempItemList.Add(item);
+				}
+				else
+					item.Amount += node.Amount;
+			}
+
+			//Обновляем Entity
+			var nomenclatures = UoW.GetById<Nomenclature>(tempItemList.Select(x => x.NomenclatureId).ToArray());
+			var equipments = UoW.GetById<Equipment>(tempItemList.Select(x => x.EquipmentId).ToArray());
+			foreach (var tempItem in tempItemList) {
+				var item = tempItem.EquipmentId > 0
+					? Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment.Id == tempItem.EquipmentId)
+					: Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
+				if (item == null) {
+					var nom = nomenclatures.First(x => x.Id == tempItem.NomenclatureId);
+					var equ = equipments.FirstOrDefault(x => x.Id == tempItem.EquipmentId);
 					Entity.AddItem(
-						nomenclatures.First(x => x.Id == node.NomenclatureId),
-						null,
-						node.Amount
+						nom,
+						equ,
+						tempItem.Amount
 					);
 				}
-				else if(node.Amount != 0 && item != null)
+				else
 				{
-					item.MovementOperation.Amount = node.Amount;
+					if(item.MovementOperation.Amount != tempItem.Amount)
+						item.MovementOperation.Amount = tempItem.Amount;
 				}
-				else if(node.Amount == 0 && item != null)
+			}
+
+			foreach(var item in Entity.Items.ToList())
+			{
+				var exist = item.MovementOperation.Equipment != null
+					? tempItemList.Any(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
+					: tempItemList.Any(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+				
+				if(!exist)
 				{
 					UoW.Delete(item.MovementOperation);
 					Entity.ObservableItems.Remove(item);
@@ -207,7 +288,15 @@ namespace Vodovoz
 		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
 		{
 			UpdateWidgetsVisible();
-			returnsreceptionview2.Warehouse = Entity.Warehouse;
+			returnsreceptionview1.Warehouse = Entity.Warehouse;
+		}
+
+		class InternalItem{
+
+			public int NomenclatureId;
+			public int EquipmentId;
+
+			public decimal Amount;
 		}
 	}
 }

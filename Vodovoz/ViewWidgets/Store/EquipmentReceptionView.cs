@@ -23,6 +23,13 @@ namespace Vodovoz
 
 		GenericObservableList<ReceptionEquipmentItemNode> ReceptionEquipmentList = new GenericObservableList<ReceptionEquipmentItemNode>();
 
+		public IList<ReceptionEquipmentItemNode> Items
+		{
+			get{
+				return ReceptionEquipmentList;
+			}
+		}
+
 		MenuItem menuitemSelectFromClient;
 		MenuItem menuitemRegisterSerial;
 
