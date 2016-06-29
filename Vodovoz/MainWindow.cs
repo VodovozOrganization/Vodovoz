@@ -62,6 +62,7 @@ public partial class MainWindow: Gtk.Window
 		ActionAccounting.Sensitive = QSMain.User.Permissions ["money_manage"];
 		ActionLogistics.Sensitive = QSMain.User.Permissions ["logistican"];
 
+		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
 		switch(CurrentUserSettings.Settings.ToolbarStyle)
 		{

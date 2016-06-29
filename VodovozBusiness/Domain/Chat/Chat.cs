@@ -75,7 +75,7 @@ namespace Vodovoz.Domain.Chat
 
 	public enum ChatType
 	{
-		[Display (Name = "Водитель - логисты")]
+		[Display (Name = "Чат с водителем")]
 		DriverAndLogists
 	}
 

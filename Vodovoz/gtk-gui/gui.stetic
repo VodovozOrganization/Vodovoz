@@ -713,21 +713,42 @@
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Toolbar" id="toolbarMain">
+              <widget class="Gtk.HBox" id="hbox2">
                 <property name="MemberName" />
-                <property name="ShowArrow">False</property>
-                <property name="ButtonStyle">Both</property>
-                <property name="IconSize">Dnd</property>
-                <node name="toolbarMain" type="Toolbar">
-                  <node type="Toolitem" action="ActionOrders" />
-                  <node type="Toolitem" action="ActionServices" />
-                  <node type="Toolitem" action="ActionLogistics" />
-                  <node type="Toolitem" action="ActionStock" />
-                  <node type="Toolitem" action="ActionCash" />
-                  <node type="Toolitem" action="ActionAccounting" />
-                  <node type="Toolitem" action="ActionReports" />
-                  <node type="Toolitem" action="ActionArchive" />
-                </node>
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Toolbar" id="toolbarMain">
+                    <property name="MemberName" />
+                    <property name="ShowArrow">False</property>
+                    <property name="ButtonStyle">Both</property>
+                    <property name="IconSize">Dnd</property>
+                    <node name="toolbarMain" type="Toolbar">
+                      <node type="Toolitem" action="ActionOrders" />
+                      <node type="Toolitem" action="ActionServices" />
+                      <node type="Toolitem" action="ActionLogistics" />
+                      <node type="Toolitem" action="ActionStock" />
+                      <node type="Toolitem" action="ActionCash" />
+                      <node type="Toolitem" action="ActionAccounting" />
+                      <node type="Toolitem" action="ActionReports" />
+                      <node type="Toolitem" action="ActionArchive" />
+                    </node>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Vodovoz.UnreadedMessagesWidget" id="unreadedMessagesWidget">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">False</property>
+                    <property name="Expand">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -31739,6 +31760,33 @@ RegistrationNumber</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.UnreadedMessagesWidget" design-size="300 15">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.EventBox" id="eventboxLabel">
+            <property name="MemberName" />
+            <signal name="ButtonPressEvent" handler="OnEventboxLabelButtonPressEvent" />
+            <child>
+              <widget class="Gtk.Label" id="labelUnreadedMessages">
+                <property name="MemberName" />
+                <property name="Xalign">0</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">False</property>
           </packing>
         </child>
       </widget>
