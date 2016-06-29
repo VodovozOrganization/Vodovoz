@@ -23,6 +23,7 @@ namespace Vodovoz
 			tableServiceClaims.RepresentationModel.UpdateNodes ();
 			tableServiceClaims.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
+			buttonAdd.ItemsEnum = typeof(ServiceClaimType);
 		}
 
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)

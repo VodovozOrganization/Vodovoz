@@ -93,7 +93,7 @@ namespace Vodovoz
 						.AddSetter ((cell, node) => cell.Visible = node.Trackable)
 					.AddNumericRenderer (node => node.Amount, false)
 						.Adjustment (new Gtk.Adjustment (0, 0, 9999, 1, 100, 0))
-						.AddSetter ((cell, node) => cell.Editable = node.Id==0)
+						.AddSetter ((cell, node) => cell.Editable = node.EquipmentId==0)
 				.AddColumn ("")
 				.Finish ();
 
@@ -152,7 +152,7 @@ namespace Vodovoz
 		{
 			var equipment = UoW.GetById<Equipment>((e.Subject as Equipment).Id);
 			equipmentToSetSerial.NewEquipment = equipment;
-			equipmentToSetSerial.Id = equipment.Id;
+			equipmentToSetSerial.EquipmentId = equipment.Id;
 			equipmentToSetSerial.Returned = true;
 			OnEquipmentListChanged();
 		}
@@ -161,7 +161,7 @@ namespace Vodovoz
 		{
 			var equipment = UoW.GetById<Equipment>(e.ObjectId);
 			equipmentToSetSerial.NewEquipment = equipment;
-			equipmentToSetSerial.Id = equipment.Id;
+			equipmentToSetSerial.EquipmentId = equipment.Id;
 			equipmentToSetSerial.Returned = true;
 			OnEquipmentListChanged();
 		}
@@ -188,7 +188,7 @@ namespace Vodovoz
 		{
 			var noSerialCount = ReceptionEquipmentList
 				.Where(item => item.Returned)
-				.Where(item => item.Id == 0)
+				.Where(item => item.EquipmentId == 0)
 				.Count();
 
 			var noServiceClaimCount = ReceptionEquipmentList
@@ -233,7 +233,7 @@ namespace Vodovoz
 			if (CurrentStock == null)
 				return;
 			
-			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, warehouse, routelist);
+			alreadyUnloadedEquipment = Repository.EquipmentRepository.GetEquipmentUnloadedTo(UoW, routelist);
 			bottleReceptionView.Visible = CurrentStock.CanReceiveBottles;
 			frameEquipment.Visible = CurrentStock.CanReceiveEquipment;
 
@@ -248,7 +248,7 @@ namespace Vodovoz
 					{
 						eq.ServiceClaim = serviceClaims
 							.Where(service => service.Equipment != null)
-							.FirstOrDefault(service => service.Equipment.Id == eq.Id);
+							.FirstOrDefault(service => service.Equipment.Id == eq.EquipmentId);
 					}
 				}
 			}
@@ -269,7 +269,7 @@ namespace Vodovoz
 				.JoinAlias(()=>equipmentAlias.Nomenclature,()=>nomenclatureAlias)
 					.Where(()=>!nomenclatureAlias.Serial)
 				.SelectList (list => list
-					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)
+					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
 					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
@@ -295,7 +295,7 @@ namespace Vodovoz
 				.JoinAlias(()=>equipmentAlias.Nomenclature,()=>nomenclatureAlias)
 					.Where(()=>nomenclatureAlias.Serial)
 				.SelectList (list => list
-					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)
+					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
 					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
@@ -303,7 +303,7 @@ namespace Vodovoz
 				.TransformUsing (Transformers.AliasToBean<ReceptionItemNode> ())
 				.List<ReceptionItemNode> ();			
 			foreach (var equipment in equipmentItems)
-				if(!alreadyUnloadedEquipment.Any(eq=>eq.Id==equipment.Id))
+				if(!alreadyUnloadedEquipment.Any(eq=>eq.Id==equipment.EquipmentId))
 					ReceptionEquipmentList.Add (equipment);	
 		}
 
@@ -372,7 +372,7 @@ namespace Vodovoz
 				.Where (() => nomenclatureAlias.Category != NomenclatureCategory.rent
 			                        && nomenclatureAlias.Category != NomenclatureCategory.deposit)				
 				.SelectList (list => list
-					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)				
+					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)				
 					.Select (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
 					.Select (() => nomenclatureAlias.Serial).WithAlias (() => resultAlias.Trackable)
@@ -386,7 +386,7 @@ namespace Vodovoz
 			}
 			foreach (var equipment in returnableEquipment)
 			{
-				if (!alreadyUnloadedEquipment.Any(eq => eq.Id == equipment.Id))
+				if (!alreadyUnloadedEquipment.Any(eq => eq.Id == equipment.EquipmentId))
 					ReceptionReturnsList.Add(equipment);
 			}
 
@@ -403,7 +403,7 @@ namespace Vodovoz
 		protected void OnEquipmentAdded(object sender, OrmReferenceObjectSectedEventArgs args){
 			var equipment = args.Subject as Equipment;
 			var equipmentNode = new ReceptionItemNode {
-				Id = equipment.Id,
+				EquipmentId = equipment.Id,
 				NomenclatureId = equipment.Nomenclature.Id,
 				Name = equipment.NomenclatureName,
 				Trackable=true,
@@ -420,7 +420,7 @@ namespace Vodovoz
 		protected void OnEquipmentRegistered(object o, EquipmentCreatedEventArgs args){
 			var equipment = UoW.GetById<Equipment>(args.Equipment[0].Id);
 			equipmentToSetSerial.NewEquipment = equipment;
-			equipmentToSetSerial.Id = equipment.Id;
+			equipmentToSetSerial.EquipmentId = equipment.Id;
 			equipmentToSetSerial.Returned = true;
 			OnEquipmentListChanged();
 		}
@@ -454,7 +454,7 @@ namespace Vodovoz
 				if (node.Amount != 0) {
 					var warehouseMovementOperation = UnitOfWorkFactory.CreateWithNewRoot <WarehouseMovementOperation> ();
 					warehouseMovementOperation.Root.Amount = node.Amount;
-					warehouseMovementOperation.Root.Equipment = UoW.GetById<Equipment> (node.Id);				
+					warehouseMovementOperation.Root.Equipment = UoW.GetById<Equipment> (node.EquipmentId);				
 					warehouseMovementOperation.Root.Nomenclature = UoW.GetById<Nomenclature> (node.NomenclatureId);				
 					warehouseMovementOperation.Root.IncomingWarehouse = ycomboboxWarehouse.SelectedItem as Warehouse;
 					warehouseMovementOperation.Root.OperationTime = DateTime.Now;
@@ -513,7 +513,7 @@ namespace Vodovoz
 		private void RegisterSerial()
 		{
 			var itemNode = ytreeEquipment.GetSelectedObject () as ReceptionItemNode;
-			if (itemNode.IsNew && itemNode.Id==0) {
+			if (itemNode.IsNew && itemNode.EquipmentId==0) {
 				var dlg = EquipmentGenerator.CreateOne (itemNode.NomenclatureId);
 				dlg.EquipmentCreated += OnEquipmentRegistered;
 				if (!TabParent.CheckClosingSlaveTabs (this)) {					
@@ -524,8 +524,8 @@ namespace Vodovoz
 		}
 	}
 
-	public class ReceptionItemNode:PropertyChangedBase{
-		public int Id{get;set;}
+	public class ReceptionItemNode : PropertyChangedBase{
+		
 		public NomenclatureCategory NomenclatureCategory{ get; set; }
 		public int NomenclatureId{ get; set; }
 		public string Name{get;set;}
@@ -540,9 +540,24 @@ namespace Vodovoz
 		}
 
 		public bool Trackable{ get; set; }
+
+		int equipmentId;
+		[PropertyChangedAlso ("Serial")]
+		public int EquipmentId
+		{
+			get
+			{
+				return equipmentId;
+			}
+			set
+			{
+				SetField (ref equipmentId, value, () => EquipmentId);
+			}
+		}
+
 		public string Serial{ get { 			
 				if (Trackable) {
-					return Id > 0 ? Id.ToString () : "(не определен)";
+					return EquipmentId > 0 ? EquipmentId.ToString () : "(не определен)";
 				} else
 					return String.Empty;
 			}

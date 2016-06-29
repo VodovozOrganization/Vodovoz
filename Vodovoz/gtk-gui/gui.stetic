@@ -23,8 +23,8 @@
     <widget-library name="../../../QSProjects/Modules/QSBusinessCommon/bin/Debug/QSBusinessCommon.dll" />
     <widget-library name="../../../QSProjects/Modules/QSDocTemplates/bin/Debug/QSDocTemplates.dll" />
     <widget-library name="../../VodovozBusiness/bin/Debug/VodovozBusiness.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
     <widget-library name="../../../VodovozService/Chat/bin/Debug/Chat.dll" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -19915,7 +19915,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ServiceClaimsView" design-size="373 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ServiceClaimsView" design-size="379 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -19936,7 +19936,7 @@ RegistrationNumber</property>
                 <property name="Label" translatable="yes">Добавить</property>
                 <property name="UseUnderline">True</property>
                 <property name="UseMarkup">False</property>
-                <property name="ItemsEnumName">Vodovoz.Domain.Service.ServiceClaimType, Vodovoz</property>
+                <property name="ItemsEnumName" />
                 <signal name="EnumItemClicked" handler="OnButtonAddEnumItemClicked" />
               </widget>
               <packing>
@@ -31787,6 +31787,47 @@ RegistrationNumber</property>
           <packing>
             <property name="Position">0</property>
             <property name="AutoSize">False</property>
+	  </packing>
+	</child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReturnsReceptionView" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.Frame" id="frameReturns">
+        <property name="MemberName" />
+        <property name="ShadowType">None</property>
+        <child>
+          <widget class="Gtk.Alignment" id="GtkAlignment1">
+            <property name="MemberName" />
+            <property name="Xalign">0</property>
+            <property name="Yalign">0</property>
+            <property name="LeftPadding">12</property>
+            <child>
+              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
+                <property name="MemberName" />
+                <property name="ShadowType">In</property>
+                <child>
+                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeReturns">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="ShowScrollbars">True</property>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+          </widget>
+        </child>
+        <child>
+          <widget class="Gtk.Label" id="GtkLabel2">
+            <property name="MemberName" />
+            <property name="LabelProp" translatable="yes">&lt;b&gt;Возврат недовоза&lt;/b&gt;</property>
+            <property name="UseMarkup">True</property>
+          </widget>
+          <packing>
+            <property name="type">label_item</property>
           </packing>
         </child>
       </widget>

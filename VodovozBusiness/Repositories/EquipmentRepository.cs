@@ -182,7 +182,7 @@ namespace Vodovoz.Repository
 				.WithSubquery.WhereNotExists(warehouseOperationsSubquery);
 		}
 
-		public static IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, Warehouse warehouse, RouteList routeList){
+		public static IList<Equipment> GetEquipmentUnloadedTo(IUnitOfWork uow, RouteList routeList){
 			CarUnloadDocumentItem unloadItemAlias = null;
 			WarehouseMovementOperation operationAlias = null;
 			Equipment equipmentAlias = null;
