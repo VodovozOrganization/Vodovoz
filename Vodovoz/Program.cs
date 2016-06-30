@@ -2,6 +2,7 @@
 using Gtk;
 using NLog;
 using QSProjectsLib;
+using Gdk;
 
 namespace Vodovoz
 {
@@ -9,11 +10,18 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 		public static MainWindow MainWin;
+		public static StatusIcon TrayIcon;
 
 		[STAThread]
 		public static void Main (string[] args)
 		{
 			Application.Init ();
+
+			TrayIcon = new StatusIcon(new Pixbuf ("icons/logo.png"));
+			TrayIcon.Visible = true;
+
+			TrayIcon.Tooltip = "Веселый Водовоз";
+
 			QSMain.SubscribeToUnhadledExceptions ();
 			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			CreateProjectParam ();

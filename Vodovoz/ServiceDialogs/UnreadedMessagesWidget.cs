@@ -33,6 +33,15 @@ namespace Vodovoz
 				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
 			HandleChatUpdate();
+			MainClass.TrayIcon.PopupMenu += (o, args) => {
+				if (menu == null || menu.Children.Count() == 0)
+					return;
+				if (!menu.Visible)
+					menu.Popup(null, null, null, 0, Gtk.Global.CurrentEventTime);
+				else {
+					menu.Cancel();
+				}
+			};
 		}
 
 		public TdiNotebook MainTab { set { mainTab = value; } }
@@ -78,6 +87,11 @@ namespace Vodovoz
 			unreadedMessagesCount = unreadedMessages.Sum(x => x.Value);
 			if (unreadedMessagesCount > 0)
 			{
+				MainClass.TrayIcon.Blinking = true;
+				MainClass.TrayIcon.Tooltip = String.Format("У вас {0} {1}", unreadedMessagesCount, RusNumber.Case(unreadedMessagesCount,
+					"непрочитанное сообщение", 
+					"непрочитанных сообщения", 
+					"непрочитанных сообщений"));
 				labelUnreadedMessages.Markup = String.Format("<b><span size=\"large\" foreground=\"red\">+ {0}</span></b>", unreadedMessagesCount);
 				labelUnreadedMessages.TooltipMarkup = String.Format("<b><span size=\"large\" foreground=\"red\">У вас {0} {1}.</span></b>", 
 					unreadedMessagesCount,
@@ -88,8 +102,9 @@ namespace Vodovoz
 			}
 			else
 			{
+				MainClass.TrayIcon.Blinking = false;
 				labelUnreadedMessages.Markup = String.Format("<b><span size=\"large\">0</span></b>");
-				labelUnreadedMessages.TooltipMarkup = "У вас нет непрочитанных сообщений.";
+				MainClass.TrayIcon.Tooltip = labelUnreadedMessages.TooltipMarkup = "У вас нет непрочитанных сообщений.";
 			}
 
 			menu = new Gtk.Menu ();
