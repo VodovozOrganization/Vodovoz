@@ -41,6 +41,7 @@ namespace Vodovoz
 				if (GtkScrolledWindow1.Vadjustment.Value == 0)
 					scrollToEnd();
 			};
+			textViewChat.ModifyFont(Pango.FontDescription.FromString(".SF NS Text 14"));
 		}
 
 		private void updateLastReadedMessage () {
