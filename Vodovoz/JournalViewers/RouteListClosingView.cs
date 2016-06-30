@@ -25,7 +25,7 @@ namespace Vodovoz
 				viewModel = new ViewModel.RouteListsVM (value);
 				viewModel.Filter = routelistsfilter1;
 				viewModel.Filter.UoW = uow;
-				viewModel.Filter.RestrictStatus = RouteListStatus.ReadyToReport;
+				viewModel.Filter.RestrictStatus = RouteListStatus.OnClosing;
 				treeRouteLists.RepresentationModel = viewModel;
 				treeRouteLists.RepresentationModel.UpdateNodes ();
 			}

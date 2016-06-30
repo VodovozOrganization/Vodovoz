@@ -184,8 +184,8 @@ namespace Vodovoz.Domain.Logistic
 			observableAddresses = null;
 		}
 
-		public virtual void ConfirmReception(){
-			Status = RouteListStatus.ReadyToReport;
+		public virtual void CompleteRoute(){
+			Status = RouteListStatus.OnClosing;
 			foreach (var item in Addresses) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
@@ -330,7 +330,7 @@ namespace Vodovoz.Domain.Logistic
 		[Display (Name = "Новый")] New,
 		[Display (Name = "На погрузке")] InLoading,
 		[Display (Name = "В пути")] EnRoute,
-		[Display (Name = "Готов к отчету")] ReadyToReport,
+		[Display (Name = "Сдаётся")] OnClosing,
 		[Display (Name = "Не сдан")] NotDelivered,
 		[Display (Name = "Проверка километража")] MileageCheck,
 		[Display (Name = "Закрыт")] Closed
