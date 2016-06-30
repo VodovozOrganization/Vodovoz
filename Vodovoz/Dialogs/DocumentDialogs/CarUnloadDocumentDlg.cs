@@ -241,18 +241,12 @@ namespace Vodovoz
 				if (node.Amount == 0)
 					continue;
 
-				var item = tempItemList.FirstOrDefault(x => x.NomenclatureId == node.NomenclatureId);
-
-				if (item == null)
-				{
-					item = new InternalItem {
+				var item = new InternalItem {
+						ReciveType = ReciveTypes.Bottle,
 						NomenclatureId = node.NomenclatureId,
 						Amount = node.Amount
 					};
 					tempItemList.Add(item);
-				}
-				else
-					item.Amount += node.Amount;
 			}
 
 			foreach (var node in returnsreceptionview1.Items) 
@@ -260,21 +254,13 @@ namespace Vodovoz
 				if (node.Amount == 0)
 					continue;
 
-				var item = node.EquipmentId > 0
-					? tempItemList.FirstOrDefault(x => x.EquipmentId == node.EquipmentId)
-					: tempItemList.FirstOrDefault(x => x.NomenclatureId == node.NomenclatureId);
-
-				if (item == null)
-				{
-					item = new InternalItem {
+				var	item = new InternalItem {
+					ReciveType = ReciveTypes.Returnes,
 						NomenclatureId = node.NomenclatureId,
 						EquipmentId = node.EquipmentId,
 						Amount = node.Amount
 					};
 					tempItemList.Add(item);
-				}
-				else
-					item.Amount += node.Amount;
 			}
 
 			foreach (var node in equipmentreceptionview1.Items) 
@@ -282,22 +268,14 @@ namespace Vodovoz
 				if (node.Amount == 0)
 					continue;
 
-				var item = node.EquipmentId > 0
-					? tempItemList.FirstOrDefault(x => x.EquipmentId == node.EquipmentId)
-					: tempItemList.FirstOrDefault(x => x.NomenclatureId == node.NomenclatureId);
-
-				if (item == null)
-				{
-					item = new InternalItem {
+				var	item = new InternalItem {
+					ReciveType = ReciveTypes.Equipment,
 						NomenclatureId = node.NomenclatureId,
 						EquipmentId = node.EquipmentId,
 						Amount = node.Amount,
 						ServiceClaim = node.ServiceClaim
 					};
 					tempItemList.Add(item);
-				}
-				else
-					item.Amount += node.Amount;
 			}
 
 			//Обновляем Entity
@@ -311,6 +289,7 @@ namespace Vodovoz
 					var nom = nomenclatures.First(x => x.Id == tempItem.NomenclatureId);
 					var equ = equipments.FirstOrDefault(x => x.Id == tempItem.EquipmentId);
 					Entity.AddItem(
+						tempItem.ReciveType,
 						nom,
 						equ,
 						tempItem.Amount,
@@ -347,7 +326,8 @@ namespace Vodovoz
 		}
 
 		class InternalItem{
-
+			
+			public ReciveTypes ReciveType;
 			public ServiceClaim ServiceClaim;
 			public int NomenclatureId;
 			public int EquipmentId;

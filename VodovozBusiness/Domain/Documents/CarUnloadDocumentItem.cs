@@ -20,6 +20,13 @@ namespace Vodovoz.Domain.Documents
 			set { SetField (ref document, value, () => Document); }
 		}
 
+		ReciveTypes reciveType;
+
+		public virtual ReciveTypes ReciveType { 
+			get { return reciveType; } 
+			set { SetField (ref reciveType, value, () => ReciveType); }
+		}
+
 		WarehouseMovementOperation movementOperation;
 
 		public virtual WarehouseMovementOperation MovementOperation { 
@@ -43,6 +50,23 @@ namespace Vodovoz.Domain.Documents
 			}
 		}
 
+	}
+
+	public enum ReciveTypes
+	{
+		[Display (Name = "Возврат тары")]
+		Bottle,
+		[Display (Name = "Оборудование по заявкам")]
+		Equipment,
+		[Display (Name = "Возврат недовоза")]
+		Returnes
+	}
+
+	public class ReciveTypesStringType : NHibernate.Type.EnumStringType
+	{
+		public ReciveTypesStringType () : base (typeof(ReciveTypes))
+		{
+		}
 	}
 }
 

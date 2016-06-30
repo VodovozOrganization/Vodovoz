@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
+using System.Linq;
 
 namespace Vodovoz.Domain.Documents
 {
@@ -91,6 +92,30 @@ namespace Vodovoz.Domain.Documents
 			if (RouteList == null)
 				yield return new ValidationResult ("Не указан маршрутный лист, по которому осуществляется разгрузка.",
 					new[] { this.GetPropertyName (o => o.RouteList)});
+
+			foreach(var item in Items)
+			{
+				if(item.MovementOperation.Nomenclature.Category == NomenclatureCategory.equipment)
+				{
+					if(item.MovementOperation.Equipment == null)
+					yield return new ValidationResult (String.Format("Для оборудования {0}, не указан серийный номер.", item.MovementOperation.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items)});
+
+					if(item.ReciveType == ReciveTypes.Equipment && item.ServiceClaim == null)
+						yield return new ValidationResult (String.Format("Для оборудования {0}, не указана заявка на обслуживание.", item.MovementOperation.Nomenclature.Name),
+							new[] { this.GetPropertyName (o => o.Items)});
+				}
+			}
+
+			var hasDublicateServiceClaims = Items
+				.Where(item => item.ServiceClaim != null)
+				.GroupBy(item => item.ServiceClaim)
+				.Any(g => g.Count() > 1);
+
+			if(hasDublicateServiceClaims)
+				yield return new ValidationResult ("Имеются продублированные заявки на сервис.",
+					new[] { this.GetPropertyName (o => o.Items)});
+			
 		}
 
 		#endregion
@@ -101,7 +126,7 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add (item);
 		}
 
-		public virtual void AddItem (Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim)
+		public virtual void AddItem (ReciveTypes reciveType, Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim)
 		{
 			var operation = new WarehouseMovementOperation();
 			operation.Amount = amount;
@@ -109,6 +134,7 @@ namespace Vodovoz.Domain.Documents
 			operation.IncomingWarehouse = Warehouse;
 			operation.OperationTime = TimeStamp;
 			AddItem(new CarUnloadDocumentItem{
+				ReciveType = reciveType,
 				MovementOperation = operation,
 				ServiceClaim = serviceClaim
 			});
