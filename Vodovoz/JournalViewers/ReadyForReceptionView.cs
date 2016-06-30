@@ -59,7 +59,7 @@ namespace Vodovoz
 		{
 			var node = tableReadyForReception.GetSelectedNode () as ViewModel.ReadyForReceptionVMNode;
 			var routeList = UoW.GetById<RouteList>(node.Id);
-			routeList.ConfirmReception();
+			routeList.CompleteRoute();
 			UoW.Save(routeList);
 			UoW.Commit();
 		}
