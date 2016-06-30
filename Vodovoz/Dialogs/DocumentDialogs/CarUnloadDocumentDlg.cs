@@ -261,6 +261,26 @@ namespace Vodovoz
 						Amount = node.Amount
 					};
 					tempItemList.Add(item);
+
+				node.ServiceClaim.UoW = UoW;
+				if (node.IsNew)
+				{
+					node.NewEquipment.AssignedToClient = node.ServiceClaim.Counterparty;
+					UoW.Save(node.NewEquipment);
+					node.ServiceClaim.FillNewEquipment(node.NewEquipment);
+				}
+				//FIXME предположительно нужно возвращать статус заявки если поступление удаляется.
+				if(node.ServiceClaim.Status == ServiceClaimStatus.PickUp)
+				{
+					node.ServiceClaim.AddHistoryRecord(ServiceClaimStatus.DeliveredToWarehouse,
+						String.Format("Поступил на склад '{0}', по талону разгрузки №{1} для МЛ №{2}", 
+							Entity.Warehouse.Name,
+							Entity.Id,
+							Entity.RouteList.Id
+						)
+					);
+				}
+				UoW.Save(node.ServiceClaim);
 			}
 
 			foreach (var node in equipmentreceptionview1.Items) 
