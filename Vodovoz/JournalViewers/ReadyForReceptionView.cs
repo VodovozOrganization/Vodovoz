@@ -46,7 +46,7 @@ namespace Vodovoz
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
 			var node = tableReadyForReception.GetSelectedNode () as ViewModel.ReadyForReceptionVMNode;
-			var dlg = new ReadyForReceptionDlg (node.Id, viewModel.Filter.RestrictWarehouse);
+			var dlg = new CarUnloadDocumentDlg (node.Id, viewModel.Filter.RestrictWarehouse?.Id);
 			TabParent.AddTab (dlg, this);
 		}
 

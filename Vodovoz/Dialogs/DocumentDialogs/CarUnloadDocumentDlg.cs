@@ -95,10 +95,6 @@ namespace Vodovoz
 				return false;
 			}
 
-			//Entity.UpdateOperations(UoW);
-			//if (Entity.ShipIfCan())
-			//	MessageDialogWorks.RunInfoDialog("Маршрутный лист отгружен полностью.");
-
 			logger.Info ("Сохраняем разгрузочный талон...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");

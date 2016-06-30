@@ -9,6 +9,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz
 {
@@ -162,5 +163,66 @@ namespace Vodovoz
 
 		}
 	}
+
+	public class ReceptionItemNode : PropertyChangedBase{
+
+		public NomenclatureCategory NomenclatureCategory{ get; set; }
+		public int NomenclatureId{ get; set; }
+		public string Name{get;set;}
+
+		int amount;
+
+		public virtual int Amount {
+			get{ return amount;}
+			set{
+				SetField(ref amount, value, ()=>Amount);
+			}
+		}
+
+		public bool Trackable{ get; set; }
+
+		int equipmentId;
+		[PropertyChangedAlso ("Serial")]
+		public int EquipmentId
+		{
+			get
+			{
+				return equipmentId;
+			}
+			set
+			{
+				SetField (ref equipmentId, value, () => EquipmentId);
+			}
+		}
+
+		public string Serial{ get { 			
+				if (Trackable) {
+					return EquipmentId > 0 ? EquipmentId.ToString () : "(не определен)";
+				} else
+					return String.Empty;
+			}
+		}
+
+		ServiceClaim serviceClaim;
+
+		public virtual ServiceClaim ServiceClaim {
+			get{ return serviceClaim;}
+			set{
+				SetField(ref serviceClaim, value, ()=>ServiceClaim);
+			}
+		}
+
+		public bool IsNew{ get; set; }
+		public Equipment NewEquipment{get;set;}
+		public bool Returned {
+			get {
+				return Amount > 0;
+			}
+			set {
+				Amount = value ? 1 : 0;
+			}
+		}
+	}
+
 }
 
