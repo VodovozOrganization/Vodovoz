@@ -64,10 +64,6 @@ namespace Vodovoz
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
-			//Entity.UpdateStockAmount(UoW);
-			//Entity.UpdateAlreadyLoaded(UoW);
-			//Entity.UpdateInRouteListAmount(UoW);
-			//carloaddocumentview1.DocumentUoW = UoWGeneric;
 			bottlereceptionview1.UoW = UoW;
 			returnsreceptionview1.UoW = UoW;
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
@@ -257,6 +253,21 @@ namespace Vodovoz
 						Amount = node.Amount
 					};
 					tempItemList.Add(item);
+			}
+
+			foreach (var node in equipmentreceptionview1.Items) 
+			{
+				if (node.Amount == 0)
+					continue;
+
+				var	item = new InternalItem {
+					ReciveType = ReciveTypes.Equipment,
+						NomenclatureId = node.NomenclatureId,
+						EquipmentId = node.EquipmentId,
+						Amount = node.Amount,
+						ServiceClaim = node.ServiceClaim
+					};
+					tempItemList.Add(item);
 
 				node.ServiceClaim.UoW = UoW;
 				if (node.IsNew)
@@ -277,21 +288,6 @@ namespace Vodovoz
 					);
 				}
 				UoW.Save(node.ServiceClaim);
-			}
-
-			foreach (var node in equipmentreceptionview1.Items) 
-			{
-				if (node.Amount == 0)
-					continue;
-
-				var	item = new InternalItem {
-					ReciveType = ReciveTypes.Equipment,
-						NomenclatureId = node.NomenclatureId,
-						EquipmentId = node.EquipmentId,
-						Amount = node.Amount,
-						ServiceClaim = node.ServiceClaim
-					};
-					tempItemList.Add(item);
 			}
 
 			//Обновляем Entity
