@@ -101,7 +101,7 @@ namespace Vodovoz.Domain.Documents
 			ObservableItems.Add (item);
 		}
 
-		public virtual void AddItem (Nomenclature nomenclature, Equipment equipment, decimal amount)
+		public virtual void AddItem (Nomenclature nomenclature, Equipment equipment, decimal amount, Service.ServiceClaim serviceClaim)
 		{
 			var operation = new WarehouseMovementOperation();
 			operation.Amount = amount;
@@ -109,7 +109,8 @@ namespace Vodovoz.Domain.Documents
 			operation.IncomingWarehouse = Warehouse;
 			operation.OperationTime = TimeStamp;
 			AddItem(new CarUnloadDocumentItem{
-				MovementOperation = operation
+				MovementOperation = operation,
+				ServiceClaim = serviceClaim
 			});
 		}
 	}

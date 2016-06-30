@@ -7,6 +7,7 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz
 {
@@ -68,13 +69,14 @@ namespace Vodovoz
 			//Entity.UpdateInRouteListAmount(UoW);
 			//carloaddocumentview1.DocumentUoW = UoWGeneric;
 			bottlereceptionview1.UoW = UoW;
-			LoadBottleReception();
 			returnsreceptionview1.UoW = UoW;
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
 
 			SetupForNewRouteList();
 
 			UpdateWidgetsVisible();
+			if(!UoW.IsNew)
+				LoadReception();
 		}
 
 		public override bool Save ()
@@ -171,13 +173,62 @@ namespace Vodovoz
 			equipmentreceptionview1.Visible = Entity.Warehouse != null && Entity.Warehouse.CanReceiveEquipment;
 		}
 
-		void LoadBottleReception()
+		void LoadReception()
 		{
+			foreach(var item in Entity.Items)
+			{
+				var bottle = bottlereceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+				if(bottle != null)
+				{
+					bottle.Amount = (int)item.MovementOperation.Amount;
+					continue;
+				}
+
+				var returned = item.MovementOperation.Equipment != null
+					? returnsreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id)
+					: returnsreceptionview1.Items.FirstOrDefault(x => x.NomenclatureId == item.MovementOperation.Nomenclature.Id);
+				if(returned != null)
+				{
+					returned.Amount = (int)item.MovementOperation.Amount;
+					continue;
+				}
+
+				if (item.MovementOperation.Equipment != null)
+				{
+					var equipment = equipmentreceptionview1.Items.FirstOrDefault(x => x.EquipmentId == item.MovementOperation.Equipment.Id);
+					if (equipment != null)
+					{
+						equipment.Amount = (int)item.MovementOperation.Amount;
+						continue;
+					}
+					else
+					{
+						equipmentreceptionview1.Items.Add(new ReceptionEquipmentItemNode
+							{
+								Amount = (int)item.MovementOperation.Amount,
+								EquipmentId = item.MovementOperation.Equipment.Id,
+								Returned = true,
+								ServiceClaim = item.ServiceClaim,
+								Name = item.MovementOperation.Nomenclature.Name
+							});
+					}
+				}
+				else
+					throw new InvalidProgramException(String.Format("В документе присутствует строка ID {0}, которую не удалось отнести не к одному виджету.", item.Id));
+			}
+
 			foreach(var item in bottlereceptionview1.Items)
 			{
 				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == item.NomenclatureId);
 				item.Amount = returned != null ? (int)returned.MovementOperation.Amount : 0;
 			}
+
+			foreach(var item in equipmentreceptionview1.Items)
+			{
+				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment.Id == item.EquipmentId);
+				item.Amount = returned != null ? (int)returned.MovementOperation.Amount : 0;
+			}
+
 		}
 
 		void UpdateReceivedItemsOnEntity()
@@ -240,7 +291,8 @@ namespace Vodovoz
 					item = new InternalItem {
 						NomenclatureId = node.NomenclatureId,
 						EquipmentId = node.EquipmentId,
-						Amount = node.Amount
+						Amount = node.Amount,
+						ServiceClaim = node.ServiceClaim
 					};
 					tempItemList.Add(item);
 				}
@@ -261,13 +313,16 @@ namespace Vodovoz
 					Entity.AddItem(
 						nom,
 						equ,
-						tempItem.Amount
+						tempItem.Amount,
+						tempItem.ServiceClaim
 					);
 				}
 				else
 				{
 					if(item.MovementOperation.Amount != tempItem.Amount)
 						item.MovementOperation.Amount = tempItem.Amount;
+					if (item.ServiceClaim != tempItem.ServiceClaim)
+						item.ServiceClaim = tempItem.ServiceClaim;
 				}
 			}
 
@@ -293,6 +348,7 @@ namespace Vodovoz
 
 		class InternalItem{
 
+			public ServiceClaim ServiceClaim;
 			public int NomenclatureId;
 			public int EquipmentId;
 
