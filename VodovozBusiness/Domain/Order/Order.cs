@@ -180,8 +180,6 @@ namespace Vodovoz.Domain.Orders
 			set { 
 				if (value == paymentType)
 					return;
-				if (!CanChangePaymentType ())
-					throw new InvalidOperationException ("Нельзя изменить тип оплаты для заполненного заказа.");
 				SetField (ref paymentType, value, () => PaymentType);
 			}
 		}
@@ -236,15 +234,6 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
-
-		public bool CanChangePaymentType ()
-		{
-			if ((NHibernate.NHibernateUtil.IsInitialized (OrderItems) && OrderItems.Count > 0) ||
-			    (NHibernate.NHibernateUtil.IsInitialized (OrderDepositItems) && OrderDepositItems.Count > 0) ||
-			    (NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
-				return false;
-			return true;
-		}
 
 		public bool CanChangeContractor ()
 		{
