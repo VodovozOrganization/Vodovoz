@@ -9,6 +9,7 @@ using ChatClass = Vodovoz.Domain.Chat.Chat;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Chat;
 using Vodovoz.Repository;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -16,7 +17,7 @@ namespace Vodovoz
 	public partial class RouteListTrackDlg : TdiTabBase, IChatCallbackObserver
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
-
+		private Employee currentEmployee;
 		public RouteListTrackDlg()
 		{
 			this.Build();
@@ -25,15 +26,24 @@ namespace Vodovoz
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Sensitive = false;
-			if (!ChatCallbackObservable.IsInitiated)
-				ChatCallbackObservable.CreateInstance(EmployeeRepository.GetEmployeeForCurrentUser(uow).Id);
-			ChatCallbackObservable.GetInstance().AddObserver(this);
+			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			if (currentEmployee == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
+				buttonChat.Sensitive = false;
+			}
+			else
+			{
+				if (!ChatCallbackObservable.IsInitiated)
+					ChatCallbackObservable.CreateInstance(currentEmployee.Id);
+				ChatCallbackObservable.GetInstance().AddObserver(this);
+			}
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
 		{
 			bool selected = yTreeViewDrivers.Selection.CountSelectedRows() > 0;
-			buttonChat.Sensitive = selected;
+			buttonChat.Sensitive = selected && currentEmployee != null;
 		}
 
 		protected void OnToggleButtonHideAddressesToggled(object sender, EventArgs e)

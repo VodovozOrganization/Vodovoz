@@ -29,6 +29,11 @@ namespace Vodovoz
 		{
 			this.Build();
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			if (currentEmployee == null)
+			{
+				this.Sensitive = false;
+				return;
+			}
 			if (!ChatCallbackObservable.IsInitiated)
 				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);

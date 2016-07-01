@@ -61,8 +61,14 @@ namespace Vodovoz
 		{
 			chatUoW = UnitOfWorkFactory.CreateForRoot<ChatClass>(chatId);
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
+			if (currentEmployee == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Невозможно открыть чат.");
+				this.Destroy();
+				return;
+			}
 			if (!ChatCallbackObservable.IsInitiated)
-				ChatCallbackObservable.CreateInstance(EmployeeRepository.GetEmployeeForCurrentUser(chatUoW).Id);
+				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
 			updateChat();
 		}
@@ -78,8 +84,9 @@ namespace Vodovoz
 		}
 
 		public override void Destroy()
-		{
-			ChatCallbackObservable.GetInstance().RemoveObserver(this);
+		{			
+			if (ChatCallbackObservable.IsInitiated)
+				ChatCallbackObservable.GetInstance().RemoveObserver(this);
 			base.Destroy();
 		}
 
