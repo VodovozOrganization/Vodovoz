@@ -54,9 +54,11 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox8;
 		
-		private global::Gtk.Button buttonRefresh;
+		private global::Gtk.Button buttonChangeDeliveryTime;
 		
 		private global::Gtk.Button buttonNewRouteList;
+		
+		private global::Gtk.Button buttonRefresh;
 
 		protected virtual void Build ()
 		{
@@ -335,19 +337,18 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.buttonRefresh = new global::Gtk.Button ();
-			this.buttonRefresh.CanFocus = true;
-			this.buttonRefresh.Name = "buttonRefresh";
-			this.buttonRefresh.UseUnderline = true;
-			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString ("Обновить");
+			this.buttonChangeDeliveryTime = new global::Gtk.Button ();
+			this.buttonChangeDeliveryTime.CanFocus = true;
+			this.buttonChangeDeliveryTime.Name = "buttonChangeDeliveryTime";
+			this.buttonChangeDeliveryTime.UseUnderline = true;
+			this.buttonChangeDeliveryTime.Label = global::Mono.Unix.Catalog.GetString ("Изменить время доставки");
 			global::Gtk.Image w26 = new global::Gtk.Image ();
-			w26.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.buttonRefresh.Image = w26;
-			this.hbox8.Add (this.buttonRefresh);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
+			w26.Pixbuf = global::Gdk.Pixbuf.LoadFromResource ("document-open-recent.png");
+			this.buttonChangeDeliveryTime.Image = w26;
+			this.hbox8.Add (this.buttonChangeDeliveryTime);
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonChangeDeliveryTime]));
 			w27.Position = 0;
 			w27.Expand = false;
-			w27.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.buttonNewRouteList = new global::Gtk.Button ();
 			this.buttonNewRouteList.CanFocus = true;
@@ -359,15 +360,29 @@ namespace Vodovoz
 			this.buttonNewRouteList.Image = w28;
 			this.hbox8.Add (this.buttonNewRouteList);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonNewRouteList]));
-			w29.PackType = ((global::Gtk.PackType)(1));
-			w29.Position = 2;
+			w29.Position = 1;
 			w29.Expand = false;
 			w29.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonRefresh = new global::Gtk.Button ();
+			this.buttonRefresh.CanFocus = true;
+			this.buttonRefresh.Name = "buttonRefresh";
+			this.buttonRefresh.UseUnderline = true;
+			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString ("Обновить");
+			global::Gtk.Image w30 = new global::Gtk.Image ();
+			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w30;
+			this.hbox8.Add (this.buttonRefresh);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
+			w31.PackType = ((global::Gtk.PackType)(1));
+			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.vbox1.Add (this.hbox8);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
-			w30.Position = 3;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			w32.Position = 3;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -375,8 +390,9 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
-			this.buttonRefresh.Clicked += new global::System.EventHandler (this.OnButtonRefreshClicked);
+			this.buttonChangeDeliveryTime.Clicked += new global::System.EventHandler (this.OnButtonChangeDeliveryTimeClicked);
 			this.buttonNewRouteList.Clicked += new global::System.EventHandler (this.OnButtonNewRouteListClicked);
+			this.buttonRefresh.Clicked += new global::System.EventHandler (this.OnButtonRefreshClicked);
 		}
 	}
 }

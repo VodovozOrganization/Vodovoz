@@ -13,6 +13,7 @@ using System.Reflection;
 using Chat;
 using System.ServiceModel;
 using Vodovoz.Repository;
+using NHibernate;
 
 namespace Vodovoz
 {
@@ -102,13 +103,13 @@ namespace Vodovoz
 
 		public void OnSelectionChanged(object sender, EventArgs args){
 			buttonNewRouteList.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
+			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
 
 		public override bool Save()
 		{
-			List<int> changedRouteLists = new List<int>();
 			foreach (var address in items.Where(item=>item.HasChanged).Select(item=>item.RouteListItem))
 			{
 				switch (address.Status)
@@ -127,16 +128,23 @@ namespace Vodovoz
 						break;
 				}
 				UoWGeneric.Save(address.Order);
-				changedRouteLists.Add(address.Id);
 			}
 
 			UoWGeneric.Save();
 
-			foreach (var id in changedRouteLists)
-				getChatService().SendOrderStatusNotificationToDriver(
-					EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric).Id,
-					id
-				);
+			foreach (var item in items.Where(item=>item.ChangedDeliverySchedule || item.HasChanged))
+			{
+				if (item.HasChanged)
+					getChatService().SendOrderStatusNotificationToDriver(
+						EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric).Id,
+						item.RouteListItem.Id
+					);
+				if (item.ChangedDeliverySchedule)
+					getChatService().SendDeliveryScheduleNotificationToDriver(
+						EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric).Id,
+					item.RouteListItem.Id
+					);
+			}
 			return true;
 		}
 		#endregion
@@ -189,11 +197,39 @@ namespace Vodovoz
 				UpdateNodes();
 			}
 		}
+
+		protected void OnButtonChangeDeliveryTimeClicked (object sender, EventArgs e)
+		{
+			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
+			if (selectedObjects.Count() != 1)
+				return;
+			var selectedAddress = selectedObjects
+				.Cast<RouteListKeepingItemNode>()
+				.FirstOrDefault();
+
+
+			OrmReference SelectDialog;
+
+			ICriteria ItemsCriteria = UoWGeneric.Session.CreateCriteria (typeof(DeliverySchedule));
+			SelectDialog = new OrmReference (typeof(DeliverySchedule), UoWGeneric, ItemsCriteria);
+
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ObjectSelected += (selectSender, selectE) => {
+				if (selectedAddress.RouteListItem.Order.DeliverySchedule != (DeliverySchedule)selectE.Subject) 
+				{
+					selectedAddress.RouteListItem.Order.DeliverySchedule = (DeliverySchedule)selectE.Subject;
+					selectedAddress.ChangedDeliverySchedule = true;
+				}
+			};
+			TabParent.AddSlaveTab (this, SelectDialog);
+		}
 	}	
 
 	public class RouteListKeepingItemNode : PropertyChangedBase
 	{
-		public bool HasChanged=false;
+		public bool HasChanged = false;
+		public bool ChangedDeliverySchedule = false;
+
 		public Gdk.Color RowColor{
 			get{
 				switch (RouteListItem.Status){						

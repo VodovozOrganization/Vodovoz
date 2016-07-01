@@ -4175,7 +4175,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25472,7 +25471,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="648 322">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="648 324">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -25918,24 +25917,20 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Button" id="buttonRefresh">
+              <widget class="Gtk.Button" id="buttonChangeDeliveryTime">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-refresh Menu</property>
-                <property name="Label" translatable="yes">Обновить</property>
+                <property name="Icon">resource:document-open-recent.png</property>
+                <property name="Label" translatable="yes">Изменить время доставки</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonRefreshClicked" />
+                <signal name="Clicked" handler="OnButtonChangeDeliveryTimeClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
-            </child>
-            <child>
-              <placeholder />
             </child>
             <child>
               <widget class="Gtk.Button" id="buttonNewRouteList">
@@ -25946,6 +25941,23 @@ RegistrationNumber</property>
                 <property name="Label" translatable="yes">Перенести в новый маршрутный лист</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonNewRouteListClicked" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonRefresh">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-refresh Menu</property>
+                <property name="Label" translatable="yes">Обновить</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonRefreshClicked" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
