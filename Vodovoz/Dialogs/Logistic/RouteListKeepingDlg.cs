@@ -10,6 +10,9 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Employees;
 using System.Reflection;
+using Chat;
+using System.ServiceModel;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -105,6 +108,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
+			List<int> changedRouteLists = new List<int>();
 			foreach (var address in items.Where(item=>item.HasChanged).Select(item=>item.RouteListItem))
 			{
 				switch (address.Status)
@@ -123,8 +127,16 @@ namespace Vodovoz
 						break;
 				}
 				UoWGeneric.Save(address.Order);
+				changedRouteLists.Add(address.Id);
 			}
+
 			UoWGeneric.Save();
+
+			foreach (var id in changedRouteLists)
+				getChatService().SendOrderStatusNotificationToDriver(
+					EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric).Id,
+					id
+				);
 			return true;
 		}
 		#endregion
@@ -159,6 +171,13 @@ namespace Vodovoz
 			}
 			UpdateNodes();
 			Save();
+		}
+
+		static IChatService getChatService()
+		{
+			return new ChannelFactory<IChatService>(
+				new BasicHttpBinding(), 
+				"http://vod-srv.qsolution.ru:9000/ChatService").CreateChannel();
 		}
 	}	
 
