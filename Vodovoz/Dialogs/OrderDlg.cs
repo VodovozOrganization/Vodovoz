@@ -171,31 +171,25 @@ namespace Vodovoz
 
 			UoWGeneric.Root.ObservableOrderItems.ElementChanged += (aList, aIdx) => {
 				FixPrice (aIdx [0]);
-				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 			};
 
 			UoWGeneric.Root.ObservableOrderItems.ElementAdded += (aList, aIdx) => { 
 				FixPrice (aIdx [0]); 			
-				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 			};
 
 			UoWGeneric.Root.ObservableOrderItems.ListContentChanged += (sender, e) => {
 				UpdateSum ();
-				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 			};
 
 			UoWGeneric.Root.ObservableOrderDepositItems.ListContentChanged += (sender, e) => {
 				UpdateSum ();
-				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 			};
 
 			UoWGeneric.Root.ObservableFinalOrderService.ElementAdded += (aList, aIdx) => {
-				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 				UpdateSum ();
 			};
 			
 			UoWGeneric.Root.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => {
-				enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 				UpdateSum ();
 			};
 
@@ -258,8 +252,6 @@ namespace Vodovoz
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
 			
 			UpdateSum ();
-
-			enumPaymentType.Sensitive = UoWGeneric.Root.CanChangePaymentType ();
 
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable ();
@@ -365,7 +357,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
 				referenceClient.Sensitive = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive = enumStatus.Sensitive = 
-				enumPaymentType.Sensitive = val ? Entity.CanChangePaymentType() : false;
+				enumPaymentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive = 
 				buttonAddForSale.Sensitive = buttonFillComment.Sensitive = val;
 			spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
@@ -905,10 +897,6 @@ namespace Vodovoz
 		{
 			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 				(Entity.PaymentType == PaymentType.cashless);
-
-			var org = OrganizationRepository.GetOrganizationByPaymentType (UoW , Entity.PaymentType);
-			if((Entity.Contract == null || Entity.Contract.Organization.Id != org.Id) && Entity.Client != null)
-				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, Entity.Client, Entity.PaymentType);
 		}
 
 		protected void OnPickerDeliveryDateDateChanged (object sender, EventArgs e)
@@ -946,6 +934,24 @@ namespace Vodovoz
 			
 			Entity.ChangeStatus(OrderStatus.Canceled);
 			UpdateButtonState();
+		}
+
+		protected void OnEnumPaymentTypeChangedByUser(object sender, EventArgs e)
+		{
+			var org = OrganizationRepository.GetOrganizationByPaymentType (UoW , Entity.PaymentType);
+			if((Entity.Contract == null || Entity.Contract.Organization.Id != org.Id) && Entity.Client != null)
+				Entity.Contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, Entity.Client, Entity.PaymentType);
+
+			//Изменяем организацию в документах.
+			foreach(var doc in Entity.OrderDocuments.OfType<OrderContract>())
+			{
+				if(doc.Contract.Organization != org)
+				{
+					doc.Contract.Organization = org;
+					UoW.Save(doc.Contract.Organization);
+					Entity.Contract = doc.Contract;
+				}
+			}
 		}
 	}
 }
