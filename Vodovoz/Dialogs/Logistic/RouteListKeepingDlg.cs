@@ -179,6 +179,16 @@ namespace Vodovoz
 				new BasicHttpBinding(), 
 				"http://vod-srv.qsolution.ru:9000/ChatService").CreateChannel();
 		}
+
+		protected void OnButtonRefreshClicked (object sender, EventArgs e)
+		{
+			bool hasChanges = items.Count(item => item.HasChanged) > 0;
+			if (!hasChanges || MessageDialogWorks.RunQuestionDialog("Вы действительно хотите обновить список заказов? Внесенные изменения будут утрачены."))
+			{
+				UoWGeneric.Session.Refresh(Entity);
+				UpdateNodes();
+			}
+		}
 	}	
 
 	public class RouteListKeepingItemNode : PropertyChangedBase

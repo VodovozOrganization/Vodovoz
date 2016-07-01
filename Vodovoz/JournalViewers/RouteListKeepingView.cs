@@ -33,6 +33,7 @@ namespace Vodovoz
 			this.Build();
 			this.TabName = "Ведение маршрутных листов";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			buttonOpen.Sensitive = false;
 			treeRouteLists.Selection.Changed += OnSelectionChanged;
 		}
 
@@ -52,6 +53,11 @@ namespace Vodovoz
 		{
 			OnButtonOpenClicked(o, args);
 		}			
+
+		protected void OnButtonRefreshClicked (object sender, EventArgs e)
+		{
+			treeRouteLists.RepresentationModel.UpdateNodes ();
+		}
 	}
 }
 
