@@ -4082,7 +4082,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="823 531">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyDlg" design-size="839 670">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -4174,6 +4174,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4650,7 +4651,9 @@ Patronymic</property>
                           <widget class="Gtk.Label" id="label31">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Комментарий:</property>
+                            <property name="LabelProp" translatable="yes">Внутренний
+комментарий:</property>
+                            <property name="Justify">Right</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">11</property>
@@ -8216,7 +8219,8 @@ Patronymic</property>
                         <property name="MemberName" />
                         <property name="Xalign">1</property>
                         <property name="Yalign">0</property>
-                        <property name="LabelProp" translatable="yes">Комментарий:</property>
+                        <property name="LabelProp" translatable="yes">Комментарий к
+точке доставки:</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">7</property>
@@ -23101,7 +23105,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
