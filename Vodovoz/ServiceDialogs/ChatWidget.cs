@@ -186,9 +186,9 @@ namespace Vodovoz
 			isActive = false;
 		}
 
-		private static Dictionary<string, string> usersColors = new Dictionary<string, string>();
+		private Dictionary<string, string> usersColors = new Dictionary<string, string>();
 
-		static TextTagTable buildTagTable()
+		private TextTagTable buildTagTable()
 		{
 			TextTagTable textTags = new TextTagTable();
 			var tag = new TextTag("date");
@@ -228,7 +228,7 @@ namespace Vodovoz
 			return textTags;
 		}
 
-		static string getUserTag(string userName)
+		private string getUserTag(string userName)
 		{
 			if (usersColors.ContainsKey(userName))
 				return usersColors[userName];
