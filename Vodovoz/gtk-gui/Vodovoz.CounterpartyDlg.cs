@@ -565,7 +565,8 @@ namespace Vodovoz
 			this.label31 = new global::Gtk.Label ();
 			this.label31.Name = "label31";
 			this.label31.Xalign = 1F;
-			this.label31.LabelProp = global::Mono.Unix.Catalog.GetString ("Комментарий:");
+			this.label31.LabelProp = global::Mono.Unix.Catalog.GetString ("Внутренний\nкомментарий:");
+			this.label31.Justify = ((global::Gtk.Justification)(1));
 			this.datatable1.Add (this.label31);
 			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label31]));
 			w35.TopAttach = ((uint)(11));

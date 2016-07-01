@@ -516,7 +516,7 @@ namespace Vodovoz
 			this.label11.Name = "label11";
 			this.label11.Xalign = 1F;
 			this.label11.Yalign = 0F;
-			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("Комментарий:");
+			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("Комментарий к\nточке доставки:");
 			this.datatable1.Add (this.label11);
 			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label11]));
 			w36.TopAttach = ((uint)(7));

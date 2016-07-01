@@ -522,19 +522,19 @@ payment_type='ToClient'</CommandText>
             <Width>24.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>305.3pt</Width>
+            <Width>304.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>44.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.7pt</Width>
+            <Width>28.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.5pt</Width>
+            <Width>57.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.8pt</Width>
+            <Width>64.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -742,7 +742,7 @@ payment_type='ToClient'</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>52.9pt</Left>
+        <Left>31.4pt</Left>
         <Top>173.4pt</Top>
       </Table>
       <List Name="List2">
@@ -1199,7 +1199,7 @@ payment_type='ToClient'</CommandText>
         <Width>142.02pt</Width>
         <Value>='Итого: ' + Sum({total}, 'Goods')</Value>
         <ZIndex>1</ZIndex>
-        <Left>453.8pt</Left>
+        <Left>448.2pt</Left>
         <Top>199.9pt</Top>
         <Style>
           <BorderStyle />
