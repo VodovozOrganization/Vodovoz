@@ -6,7 +6,7 @@ using Vodovoz.Domain.Store;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem (true)]
-	public partial class ReadyForReceptionFilter : Gtk.Bin,IRepresentationFilter
+	public partial class ReadyForReceptionFilter : Gtk.Bin, IRepresentationFilter
 	{
 		IUnitOfWork uow;
 
@@ -21,6 +21,7 @@ namespace Vodovoz
 					yspeccomboWarehouse.SelectedItem = CurrentUserSettings.Settings.DefaultWarehouse;
 			}
 		}
+
 		public ReadyForReceptionFilter (IUnitOfWork uow):this()
 		{
 			this.uow = uow;

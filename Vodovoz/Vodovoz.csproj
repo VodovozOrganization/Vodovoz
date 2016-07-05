@@ -430,6 +430,8 @@
     <Compile Include="gtk-gui\Vodovoz.UnreadedMessagesWidget.cs" />
     <Compile Include="ViewWidgets\Store\ReturnsReceptionView.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
+    <Compile Include="JournalFilters\DeliveryPointFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.DeliveryPointFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

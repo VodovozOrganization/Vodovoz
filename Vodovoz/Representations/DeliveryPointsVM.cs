@@ -12,6 +12,15 @@ namespace Vodovoz.ViewModel
 {
 	public class DeliveryPointsVM : RepresentationModelEntityBase<DeliveryPoint, DeliveryPointVMNode>
 	{
+		public DeliveryPointFilter Filter {
+			get {
+				return RepresentationFilter as DeliveryPointFilter;
+			}
+			set {
+				RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -21,7 +30,11 @@ namespace Vodovoz.ViewModel
 			LogisticsArea logisticsAreaAlias = null;
 			DeliveryPointVMNode resultAlias = null;
 
-			var deliveryPointslist = UoW.Session.QueryOver<DeliveryPoint> (() => deliveryPointAlias)
+			var pointsQuery = UoW.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias);
+			if (Filter.RestrictOnlyNotFoundOsm)
+				pointsQuery.Where(x => x.FoundOnOsm == false);
+
+			var deliveryPointslist = pointsQuery
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (c => c.LogisticsArea, () => logisticsAreaAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
@@ -61,11 +74,18 @@ namespace Vodovoz.ViewModel
 
 		#endregion
 
-		public DeliveryPointsVM () : this(UnitOfWorkFactory.CreateWithoutRoot ()){}
+		public DeliveryPointsVM () : this(UnitOfWorkFactory.CreateWithoutRoot ()){
+			CreateRepresentationFilter = () => new DeliveryPointFilter ();
+		}
 
 		public DeliveryPointsVM (IUnitOfWork uow)
 		{
 			this.UoW = uow;
+		}
+
+		public DeliveryPointsVM(DeliveryPointFilter filter) : this (filter.UoW)
+		{
+			Filter = filter;
 		}
 	}
 
