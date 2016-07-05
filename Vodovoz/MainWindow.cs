@@ -581,7 +581,7 @@ public partial class MainWindow: Gtk.Window
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM>(),
-			() => new ReferenceRepresentation (new DeliveryPointsVM ()).Buttons(ReferenceButtonMode.CanEdit)
+			() => new ReferenceRepresentation (new DeliveryPointsVM ()).Buttons(ReferenceButtonMode.CanEdit | ReferenceButtonMode.CanDelete)
 		);
 	}
 
