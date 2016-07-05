@@ -41,6 +41,7 @@ namespace Vodovoz.ViewModel
 			var subqueryReserved = QueryOver.Of<Vodovoz.Domain.Orders.Order> (() => orderAlias)
 				.JoinAlias (() => orderAlias.OrderItems, () => orderItemsAlias)
 				.Where (()=>orderItemsAlias.Nomenclature.Id == nomenclatureAlias.Id)
+				.Where(() => nomenclatureAlias.DoNotReserve == false)
 				.Where(()=>orderAlias.OrderStatus==OrderStatus.Accepted)
 				.Select (Projections.Sum (() => orderItemsAlias.Count));
 
@@ -141,8 +142,8 @@ namespace Vodovoz.ViewModel
 		public string Name{get;set;}
 		public NomenclatureCategory Category{ get; set; }
 		public decimal InStock{ get{ return Added - Removed; } }
-		public int Reserved{ get; set; }
-		public decimal Available{get{ return InStock - Reserved; }}
+		public int? Reserved{ get; set; }
+		public decimal Available{get{ return InStock - Reserved.GetValueOrDefault(); }}
 		public decimal Added{ get; set; }
 		public decimal Removed{ get; set; }
 		public string UnitName{ get; set;}
@@ -160,7 +161,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		public string InStockText{get{ return UsedStock ? Format(InStock) : String.Empty;} }
-		public string ReservedText{get{ return UsedStock ? Format(Reserved) : String.Empty;} }
+		public string ReservedText{get{ return UsedStock && Reserved.HasValue ? Format(Reserved.Value) : String.Empty;} }
 		public string AvailableText{get{ return UsedStock ? Format(Available) : String.Empty;} }
 	}
 }
