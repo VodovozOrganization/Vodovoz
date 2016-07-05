@@ -42,12 +42,12 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref letter, value, () => Letter); }
 		}
 
-		string structure;
+		string addressAddition;
 
-		[Display (Name = "Строение")]
-		public virtual string Structure {
-			get { return structure; }
-			set { SetField (ref structure, value, () => Structure); }
+		[Display (Name = "Дополнение к адресу")]
+		public virtual string АddressAddition {
+			get { return addressAddition; }
+			set { SetField (ref addressAddition, value, () => АddressAddition); }
 		}
 
 		string placement;
@@ -84,14 +84,14 @@ namespace Vodovoz.Domain.Client
 					address += String.Format ("д.{0}, ", Building);
 				if (!String.IsNullOrWhiteSpace (Housing))
 					address += String.Format ("корп.{0}, ", Housing);
-				if (!String.IsNullOrWhiteSpace (Structure))
-					address += String.Format ("стр.{0}, ", Structure);
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
 				if (default(int) != Floor)
 					address += String.Format ("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
 					address += String.Format ("{0} {1}, ", GetShortNameOfRoomType (RoomType), Room);
+				if (!String.IsNullOrWhiteSpace (АddressAddition))
+					address += String.Format ("{0}, ", АddressAddition);
 
 				return address.TrimEnd (',', ' ');
 			}
@@ -112,8 +112,6 @@ namespace Vodovoz.Domain.Client
 					address += String.Format ("д.{0}, ", Building);
 				if (!String.IsNullOrWhiteSpace (Housing))
 					address += String.Format ("корп.{0}, ", Housing);
-				if (!String.IsNullOrWhiteSpace (Structure))
-					address += String.Format ("стр.{0}, ", Structure);
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
 				if (default(int) != Floor)

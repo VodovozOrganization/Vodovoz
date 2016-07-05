@@ -6,7 +6,6 @@ using QSOrmProject;
 using QSOsm.DTO;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
 
@@ -55,6 +54,8 @@ namespace Vodovoz
 
 			ylabelDistrictOfCity.Binding.AddBinding (Entity, entity => entity.StreetDistrict, widget => widget.LabelProp)
 				.InitializeFromSource ();
+
+			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
 				entity => entity.FoundOnOsm 

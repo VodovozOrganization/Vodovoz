@@ -27,7 +27,7 @@ namespace Vodovoz.HMap
 			Map (x => x.Housing).Column ("housing");
 			Map (x => x.Letter).Column ("letter");
 			Map (x => x.Placement).Column ("placement");
-			Map (x => x.Structure).Column ("structure");
+			Map (x => x.АddressAddition).Column ("address_addition");
 			Map (x => x.Comment).Column ("comment");
 			Map (x => x.FoundOnOsm).Column ("found_on_osm");
 			Map (x => x.Latitude).Column ("latitude");
