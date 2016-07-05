@@ -274,6 +274,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref foundOnOsm, value, () => FoundOnOsm); }
 		}
 
+		bool isFixedInOsm;
+
+		[Display (Name = "Исправлен в OSM")]
+		public virtual bool IsFixedInOsm {
+			get { return isFixedInOsm; }
+			set { SetField (ref isFixedInOsm, value, () => IsFixedInOsm); }
+		}
+
 		Counterparty counterparty;
 
 		[Required]

@@ -7951,6 +7951,22 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
+                          <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckOsmFixed">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="Label" translatable="yes">Исправлено</property>
+                            <property name="DrawIndicator">True</property>
+                            <property name="HasLabel">True</property>
+                            <property name="UseUnderline">True</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gtk.DataBindings.DataCheckButton" id="checkIsActive">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
@@ -7968,7 +7984,7 @@ Patronymic</property>
                             <property name="Mappings">IsActive</property>
                           </widget>
                           <packing>
-                            <property name="Position">2</property>
+                            <property name="Position">3</property>
                             <property name="AutoSize">False</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>

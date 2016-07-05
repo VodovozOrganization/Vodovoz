@@ -63,6 +63,8 @@ namespace Vodovoz
 				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
 				.InitializeFromSource ();
+			ycheckOsmFixed.Binding.AddBinding(Entity, e => e.IsFixedInOsm, w => w.Active).InitializeFromSource();
+			ycheckOsmFixed.Visible = QSMain.User.Admin;
 
 			entryCity.CitySelected += (sender, e) => {
 				entryStreet.CityId = entryCity.OsmId;
