@@ -66,9 +66,7 @@
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="icons\logo.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="icons\logo.png" />
     <EmbeddedResource Include="icons\menu\users.png" />
     <EmbeddedResource Include="icons\toolbar\accounting.png" />
     <EmbeddedResource Include="icons\toolbar\archive.png" />

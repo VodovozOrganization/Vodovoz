@@ -17,7 +17,7 @@ namespace Vodovoz
 		{
 			Application.Init ();
 
-			TrayIcon = new StatusIcon(new Pixbuf ("icons/logo.png"));
+			TrayIcon = new StatusIcon(Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png"));
 			TrayIcon.Visible = true;
 
 			TrayIcon.Tooltip = "Веселый Водовоз";
