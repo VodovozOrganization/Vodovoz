@@ -23313,6 +23313,7 @@ RegistrationNumber</property>
                         <property name="UseShortTitle">False</property>
                         <property name="DefaultFirst">False</property>
                         <signal name="Changed" handler="OnEnumPaymentTypeChanged" />
+                        <signal name="ChangedByUser" handler="OnEnumPaymentTypeChangedByUser" />
                       </widget>
                       <packing>
                         <property name="TopAttach">5</property>
