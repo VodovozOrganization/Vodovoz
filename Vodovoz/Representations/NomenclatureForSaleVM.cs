@@ -7,10 +7,10 @@ using NHibernate.Transform;
 using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Goods;
+using System.Linq;
 
 namespace Vodovoz.ViewModel
 {
@@ -77,10 +77,22 @@ namespace Vodovoz.ViewModel
 				)
 				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
 				.List<NomenclatureForSaleVMNode>();
+
+			var services = Repository.NomenclatureRepository.NomenclatureOfServices()
+				.GetExecutableQueryOver(UoW.Session)
+				.SelectList(list=>list
+					.Select(x => x.Id).WithAlias(()=>resultAlias.Id)
+					.Select(x => x.Name).WithAlias(() => resultAlias.Name)
+					.Select(x => x.Category).WithAlias(()=>resultAlias.Category)
+				)
+				.TransformUsing(Transformers.AliasToBean<NomenclatureForSaleVMNode>())
+				.List<NomenclatureForSaleVMNode>();
 			
 			List<NomenclatureForSaleVMNode> forSale = new List<NomenclatureForSaleVMNode>();
 			forSale.AddRange (items);
 			forSale.AddRange (equipment);
+			forSale.AddRange(services);
+			forSale.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.CurrentCulture));
 			SetItemsSource (forSale);
 		}
 
@@ -141,11 +153,15 @@ namespace Vodovoz.ViewModel
 			return String.Format ("{0:F" + UnitDigits + "} {1}", value, UnitName);
 		}
 
-		public string InStockText{get{ return Format(InStock);} }
-		public string ReservedText{get{ return Format(Reserved);} }
-		public string AvailableText{get{ return Format(Available);} }
+		private bool UsedStock{
+			get{
+				return Nomenclature.GetCategoriesForGoods().Contains(Category);
+			}
+		}
 
-	
+		public string InStockText{get{ return UsedStock ? Format(InStock) : String.Empty;} }
+		public string ReservedText{get{ return UsedStock ? Format(Reserved) : String.Empty;} }
+		public string AvailableText{get{ return UsedStock ? Format(Available) : String.Empty;} }
 	}
 }
 
