@@ -95,6 +95,22 @@ namespace Vodovoz
 				.AddSource (Entity)
 				.AddBinding (entity => entity.Building, widget => widget.House)
 				.InitializeFromSource ();
+
+			//make actions menu
+			var menu = new Gtk.Menu ();
+			var menuItem = new Gtk.MenuItem ("Открыть контрагента");
+			menuItem.Activated += OpenCounterparty;
+			menu.Add (menuItem);
+			menuActions.Menu = menu;
+			menu.ShowAll ();
+		}
+
+		void OpenCounterparty (object sender, EventArgs e)
+		{
+			TabParent.OpenTab(
+				OrmMain.GenerateDialogHashName<Counterparty>(Entity.Counterparty.Id),
+				() => new CounterpartyDlg(Entity.Counterparty.Id)
+			);
 		}
 
 		void FocusOut (object o, Gtk.FocusOutEventArgs args)
