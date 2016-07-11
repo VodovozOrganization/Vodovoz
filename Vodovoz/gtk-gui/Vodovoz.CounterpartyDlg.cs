@@ -477,7 +477,6 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox17]));
 			w26.LeftAttach = ((uint)(1));
 			w26.RightAttach = ((uint)(2));
-			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.hbox18 = new global::Gtk.HBox ();
