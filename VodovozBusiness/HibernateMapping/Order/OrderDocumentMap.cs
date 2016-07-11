@@ -108,4 +108,20 @@ namespace Vodovoz.HMap
 			DiscriminatorValue ("DriverTicket");
 		}
 	}
+
+	public class Torg12DocumentMap:SubclassMap<Torg12Document>
+	{
+		public Torg12DocumentMap()
+		{
+			DiscriminatorValue("Torg12");
+		}
+	}
+
+	public class ShetFacturaDocumentMap:SubclassMap<ShetFacturaDocument>
+	{
+		public ShetFacturaDocumentMap()
+		{
+			DiscriminatorValue("ShetFactura");
+		}
+	}
 }

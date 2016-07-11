@@ -225,6 +225,14 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		DefaultDocumentType? documentType;
+
+		[Display (Name = "Тип безналичных документов")]
+		public virtual DefaultDocumentType? DocumentType {
+			get { return documentType; }
+			set { SetField(ref documentType, value, () => DocumentType); }
+		}
+
 		#endregion
 
 		#region Вычисляемые
@@ -833,10 +841,27 @@ namespace Vodovoz.Domain.Orders
 			{
 				if (paymentType == PaymentType.cashless)
 				{
-					AddDocumentIfNotExist(new UPDDocument
-						{
-							Order = this
-						});
+					if (this.DocumentType == DefaultDocumentType.upd)
+					{
+						RemoveDocumentByType(OrderDocumentType.Torg12);
+						RemoveDocumentByType(OrderDocumentType.ShetFactura);
+						AddDocumentIfNotExist(new UPDDocument
+							{
+								Order = this
+							});
+					}
+					else if (this.DocumentType == DefaultDocumentType.torg12)
+					{
+						RemoveDocumentByType(OrderDocumentType.UPD);
+						AddDocumentIfNotExist(new Torg12Document
+							{
+								Order = this
+							});
+						AddDocumentIfNotExist(new ShetFacturaDocument
+							{
+								Order = this
+							});
+					}
 					AddDocumentIfNotExist(new DriverTicketDocument
 						{
 							Order = this
@@ -862,6 +887,8 @@ namespace Vodovoz.Domain.Orders
 				RemoveDocumentByType(OrderDocumentType.Invoice);
 				RemoveDocumentByType(OrderDocumentType.InvoiceBarter);
 				RemoveDocumentByType(OrderDocumentType.UPD);
+				RemoveDocumentByType(OrderDocumentType.Torg12);
+				RemoveDocumentByType(OrderDocumentType.ShetFactura);
 			}
 
 			var equipmentforSaleWithCoolerWarranty = ObservableOrderEquipments

@@ -1,6 +1,7 @@
 ﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HMap
 {
@@ -25,6 +26,7 @@ namespace Vodovoz.HMap
 			Map (x => x.OrderStatus).Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType).Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map (x => x.PaymentType).Column ("payment_type").CustomType<PaymentTypeStringType> ();
+			Map (x => x.DocumentType).Column ("document_type").CustomType<DefaultDocumentTypeStringType> ();
 
 			References (x => x.Client).Column ("client_id");
 			References (x => x.Contract).Column ("counterparty_contract_id");

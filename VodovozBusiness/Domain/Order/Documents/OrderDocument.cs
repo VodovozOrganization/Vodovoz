@@ -84,7 +84,11 @@ namespace Vodovoz.Domain.Orders.Documents
 		[Display(Name="Гарантийный талон для помп")]
 		PumpWarranty,
 		[Display(Name="Талон водителю")]
-		DriverTicket
+		DriverTicket,
+		[Display(Name="ТОРГ-12")]
+		Torg12,
+		[Display(Name="Счет-Фактура")]
+		ShetFactura
 	}
 
 }

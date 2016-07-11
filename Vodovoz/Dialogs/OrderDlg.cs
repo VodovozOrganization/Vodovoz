@@ -118,6 +118,9 @@ namespace Vodovoz
 			enumStatus.ItemsEnum = typeof(OrderStatus);
 			enumStatus.Binding.AddBinding (Entity, s => s.OrderStatus, w => w.SelectedItem).InitializeFromSource ();
 
+			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
+			enumDocumentType.Binding.AddBinding (Entity, s => s.DocumentType, w => w.SelectedItem).InitializeFromSource ();
+
 			pickerDeliveryDate.Binding.AddBinding (Entity, s => s.DeliveryDate, w => w.DateOrNull).InitializeFromSource ();
 
 			textComments.Binding.AddBinding (Entity, s => s.Comment, w => w.Buffer.Text).InitializeFromSource ();
@@ -357,7 +360,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
 				referenceClient.Sensitive = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive = enumStatus.Sensitive = 
-				enumPaymentType.Sensitive = val;
+				enumPaymentType.Sensitive = enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive = 
 				buttonAddForSale.Sensitive = buttonFillComment.Sensitive = val;
 			spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
@@ -725,7 +728,7 @@ namespace Vodovoz
 						}
 					}						
 				}
-
+					
 				UoWGeneric.Root.OrderStatus = OrderStatus.Accepted;
 				UoWGeneric.Root.UpdateDocuments();
 
@@ -896,6 +899,7 @@ namespace Vodovoz
 		protected void OnEnumPaymentTypeChanged (object sender, EventArgs e)
 		{
 			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
+				enumDocumentType.Visible = labelDocumentType.Visible = 
 				(Entity.PaymentType == PaymentType.cashless);
 		}
 
@@ -911,6 +915,14 @@ namespace Vodovoz
 				&& Entity.Client.DeliveryPoints.Count == 1)
 			{
 				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
+			}
+			if (Entity.Client != null && Entity.Client.DefaultDocumentType != null)
+			{
+				Entity.DocumentType = Entity.Client.DefaultDocumentType;
+			}
+			else if (Entity.Client != null)
+			{
+				Entity.DocumentType = DefaultDocumentType.upd;
 			}
 		}
 

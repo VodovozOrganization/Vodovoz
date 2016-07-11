@@ -676,8 +676,12 @@
     <None Include="Reports\Store\SummaryMovements.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\Documents\ShetFactura.rdl" />
-    <None Include="Reports\Documents\Torg12.rdl" />
+    <None Include="Reports\Documents\ShetFactura.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Documents\Torg12.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
