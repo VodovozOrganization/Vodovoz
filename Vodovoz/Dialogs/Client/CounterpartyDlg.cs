@@ -88,6 +88,10 @@ namespace Vodovoz
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
 			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
+
+			enumDefaultDocumentType.ItemsEnum = typeof(DefaultDocumentType);
+			enumDefaultDocumentType.Binding.AddBinding(Entity, s => s.DefaultDocumentType, w => w.SelectedItemOrNull).InitializeFromSource();
+
 			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			//Setting subjects
@@ -210,6 +214,11 @@ namespace Vodovoz
 		protected void OnEnumCounterpartyTypeChanged (object sender, EventArgs e)
 		{
 			labelDefaultExpense.Visible = referenceDefaultExpense.Visible = Entity.CounterpartyType == CounterpartyType.supplier;
+		}
+
+		protected void OnEnumPaymentEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
 		}
 	}
 }

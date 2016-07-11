@@ -286,6 +286,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref financialContact, value, () => FinancialContact); }
 		}
 
+		DefaultDocumentType ? defaultDocumentType;
+
+		[Display (Name = "Тип безналичных документов по-умолчанию")]
+		public virtual DefaultDocumentType ? DefaultDocumentType {
+			get { return defaultDocumentType; }
+			set { SetField(ref defaultDocumentType, value, () => DefaultDocumentType); }
+		}
+
 		#endregion
 
 		public Counterparty ()
@@ -367,10 +375,27 @@ namespace Vodovoz.Domain.Client
 		[ItemTitleAttribute ("Юридическое лицо")]
 		legal
 	}
-
+		
 	public class PersonTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public PersonTypeStringType () : base (typeof(PersonType))
+		{
+		}
+	}
+
+	public enum DefaultDocumentType
+	{
+		[ItemTitleAttribute ("УПД")]
+		[Display (Name = "УПД")]
+		upd,
+		[ItemTitleAttribute ("ТОРГ-12 + Счет-Фактура")]
+		[Display (Name = "ТОРГ-12 + Счет-Фактура")]
+		torg12
+	}
+
+	public class DefaultDocumentTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DefaultDocumentTypeStringType () : base (typeof(DefaultDocumentType))
 		{
 		}
 	}
