@@ -18,11 +18,11 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTable datatable1;
+		private global::Gtk.Table datatable1;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
-		private global::Gtk.DataBindings.DataTextView textComment;
+		private global::Gamma.GtkWidgets.yTextView textComment;
 		
 		private global::Gtk.HBox hbox10;
 		
@@ -32,7 +32,7 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox11;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceLogisticsArea;
+		private global::Gamma.Widgets.yEntryReference referenceLogisticsArea;
 		
 		private global::Gtk.Label label20;
 		
@@ -42,17 +42,17 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label19;
 		
-		private global::QSOrmProject.DataValidatedEntry entryPhone;
+		private global::Gamma.GtkWidgets.yValidatedEntry entryPhone;
 		
 		private global::Gtk.HBox hbox6;
 		
-		private global::Gtk.DataBindings.DataLabel labelCompiledAddress;
+		private global::Gamma.GtkWidgets.yLabel labelCompiledAddress;
 		
 		private global::Gamma.GtkWidgets.yLabel ylabelFoundOnOsm;
 		
 		private global::Gamma.GtkWidgets.yCheckButton ycheckOsmFixed;
 		
-		private global::Gtk.DataBindings.DataCheckButton checkIsActive;
+		private global::Gamma.GtkWidgets.yCheckButton checkIsActive;
 		
 		private global::Gtk.HBox hbox7;
 		
@@ -60,7 +60,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label3;
 		
-		private global::Gtk.DataBindings.DataEntry entryRegion;
+		private global::Gamma.GtkWidgets.yEntry entryRegion;
 		
 		private global::Gtk.HBox hbox8;
 		
@@ -76,11 +76,11 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label2;
 		
-		private global::Gtk.DataBindings.DataEntry entryRoom;
+		private global::Gamma.GtkWidgets.yEntry entryRoom;
 		
 		private global::Gtk.Label label9;
 		
-		private global::Gtk.DataBindings.DataSpinButton spinFloor;
+		private global::Gamma.GtkWidgets.ySpinButton spinFloor;
 		
 		private global::Gtk.Label label1;
 		
@@ -102,11 +102,11 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label8;
 		
-		private global::Gtk.DataBindings.DataEntryReferenceVM referenceContact;
+		private global::QSOrmProject.yEntryReferenceVM referenceContact;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceDeliverySchedule;
+		private global::Gamma.Widgets.yEntryReference referenceDeliverySchedule;
 		
-		private global::Gtk.DataBindings.DataSpinButton spinMinutesToUnload;
+		private global::Gamma.GtkWidgets.ySpinButton spinMinutesToUnload;
 		
 		private global::QSWidgetLib.RightSidePanel rightsidepanel1;
 
@@ -186,29 +186,19 @@ namespace Vodovoz
 			global::Gtk.Viewport w8 = new global::Gtk.Viewport ();
 			w8.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(11)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.Table (((uint)(11)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
 			this.datatable1.BorderWidth = ((uint)(6));
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.textComment = new global::Gtk.DataBindings.DataTextView ();
+			this.textComment = new global::Gamma.GtkWidgets.yTextView ();
 			this.textComment.CanFocus = true;
 			this.textComment.Name = "textComment";
-			this.textComment.InheritedDataSource = true;
-			this.textComment.Mappings = "Comment";
-			this.textComment.InheritedBoundaryDataSource = false;
-			this.textComment.InheritedDataSource = true;
-			this.textComment.Mappings = "Comment";
-			this.textComment.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow1.Add (this.textComment);
 			this.datatable1.Add (this.GtkScrolledWindow1);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.GtkScrolledWindow1]));
@@ -256,7 +246,7 @@ namespace Vodovoz
 			this.hbox11.Name = "hbox11";
 			this.hbox11.Spacing = 6;
 			// Container child hbox11.Gtk.Box+BoxChild
-			this.referenceLogisticsArea = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceLogisticsArea = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceLogisticsArea.TooltipMarkup = "При проставлении логистического района у данной точки доставки он проставится у всех точек доставки с совпадающим до номера дома включительно адресом.";
 			this.referenceLogisticsArea.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogisticsArea.Name = "referenceLogisticsArea";
@@ -264,11 +254,6 @@ namespace Vodovoz
 				"Name"
 			};
 			this.referenceLogisticsArea.DisplayFormatString = "{0}";
-			this.referenceLogisticsArea.InheritedDataSource = true;
-			this.referenceLogisticsArea.Mappings = "LogisticsArea";
-			this.referenceLogisticsArea.ColumnMappings = "";
-			this.referenceLogisticsArea.InheritedBoundaryDataSource = false;
-			this.referenceLogisticsArea.CursorPointsEveryType = false;
 			this.hbox11.Add (this.referenceLogisticsArea);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox11 [this.referenceLogisticsArea]));
 			w14.Position = 0;
@@ -312,15 +297,12 @@ namespace Vodovoz
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.entryPhone = new global::QSOrmProject.DataValidatedEntry ();
+			this.entryPhone = new global::Gamma.GtkWidgets.yValidatedEntry ();
 			this.entryPhone.WidthRequest = 0;
 			this.entryPhone.CanFocus = true;
 			this.entryPhone.Name = "entryPhone";
 			this.entryPhone.IsEditable = true;
 			this.entryPhone.InvisibleChar = '●';
-			this.entryPhone.InheritedDataSource = true;
-			this.entryPhone.Mappings = "Phone";
-			this.entryPhone.InheritedBoundaryDataSource = false;
 			this.hbox5.Add (this.entryPhone);
 			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox5 [this.entryPhone]));
 			w19.Position = 1;
@@ -337,18 +319,11 @@ namespace Vodovoz
 			this.hbox6.Name = "hbox6";
 			this.hbox6.Spacing = 6;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.labelCompiledAddress = new global::Gtk.DataBindings.DataLabel ();
+			this.labelCompiledAddress = new global::Gamma.GtkWidgets.yLabel ();
 			this.labelCompiledAddress.Name = "labelCompiledAddress";
 			this.labelCompiledAddress.Xalign = 0F;
 			this.labelCompiledAddress.Wrap = true;
 			this.labelCompiledAddress.Selectable = true;
-			this.labelCompiledAddress.InheritedDataSource = true;
-			this.labelCompiledAddress.Mappings = "CompiledAddress";
-			this.labelCompiledAddress.InheritedBoundaryDataSource = false;
-			this.labelCompiledAddress.Important = false;
-			this.labelCompiledAddress.InheritedDataSource = true;
-			this.labelCompiledAddress.Mappings = "CompiledAddress";
-			this.labelCompiledAddress.InheritedBoundaryDataSource = false;
 			this.hbox6.Add (this.labelCompiledAddress);
 			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.labelCompiledAddress]));
 			w21.Position = 0;
@@ -376,20 +351,12 @@ namespace Vodovoz
 			w23.Expand = false;
 			w23.Fill = false;
 			// Container child hbox6.Gtk.Box+BoxChild
-			this.checkIsActive = new global::Gtk.DataBindings.DataCheckButton ();
+			this.checkIsActive = new global::Gamma.GtkWidgets.yCheckButton ();
 			this.checkIsActive.CanFocus = true;
 			this.checkIsActive.Name = "checkIsActive";
 			this.checkIsActive.Label = global::Mono.Unix.Catalog.GetString ("Активный");
 			this.checkIsActive.DrawIndicator = true;
 			this.checkIsActive.UseUnderline = true;
-			this.checkIsActive.InheritedDataSource = true;
-			this.checkIsActive.Mappings = "IsActive";
-			this.checkIsActive.InheritedBoundaryDataSource = false;
-			this.checkIsActive.Editable = true;
-			this.checkIsActive.AutomaticTitle = false;
-			this.checkIsActive.InheritedBoundaryDataSource = false;
-			this.checkIsActive.InheritedDataSource = true;
-			this.checkIsActive.Mappings = "IsActive";
 			this.hbox6.Add (this.checkIsActive);
 			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.checkIsActive]));
 			w24.Position = 3;
@@ -425,18 +392,12 @@ namespace Vodovoz
 			w27.Expand = false;
 			w27.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.entryRegion = new global::Gtk.DataBindings.DataEntry ();
+			this.entryRegion = new global::Gamma.GtkWidgets.yEntry ();
 			this.entryRegion.Sensitive = false;
 			this.entryRegion.CanFocus = true;
 			this.entryRegion.Name = "entryRegion";
 			this.entryRegion.IsEditable = true;
 			this.entryRegion.InvisibleChar = '●';
-			this.entryRegion.InheritedDataSource = true;
-			this.entryRegion.Mappings = "Region";
-			this.entryRegion.InheritedBoundaryDataSource = false;
-			this.entryRegion.InheritedDataSource = true;
-			this.entryRegion.Mappings = "Region";
-			this.entryRegion.InheritedBoundaryDataSource = false;
 			this.hbox7.Add (this.entryRegion);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.entryRegion]));
 			w28.Position = 2;
@@ -518,18 +479,12 @@ namespace Vodovoz
 			w35.Expand = false;
 			w35.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.entryRoom = new global::Gtk.DataBindings.DataEntry ();
+			this.entryRoom = new global::Gamma.GtkWidgets.yEntry ();
 			this.entryRoom.CanFocus = true;
 			this.entryRoom.Name = "entryRoom";
 			this.entryRoom.IsEditable = true;
 			this.entryRoom.MaxLength = 20;
 			this.entryRoom.InvisibleChar = '●';
-			this.entryRoom.InheritedDataSource = true;
-			this.entryRoom.Mappings = "Room";
-			this.entryRoom.InheritedBoundaryDataSource = false;
-			this.entryRoom.InheritedDataSource = true;
-			this.entryRoom.Mappings = "Room";
-			this.entryRoom.InheritedBoundaryDataSource = false;
 			this.hbox9.Add (this.entryRoom);
 			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.entryRoom]));
 			w36.Position = 2;
@@ -544,18 +499,14 @@ namespace Vodovoz
 			w37.Expand = false;
 			w37.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
-			this.spinFloor = new global::Gtk.DataBindings.DataSpinButton (-5, 100, 1);
+			this.spinFloor = new global::Gamma.GtkWidgets.ySpinButton (-5, 100, 1);
 			this.spinFloor.CanFocus = true;
 			this.spinFloor.Name = "spinFloor";
 			this.spinFloor.Adjustment.PageIncrement = 10;
 			this.spinFloor.ClimbRate = 1;
 			this.spinFloor.Numeric = true;
-			this.spinFloor.InheritedDataSource = true;
-			this.spinFloor.Mappings = "Floor";
-			this.spinFloor.InheritedBoundaryDataSource = false;
-			this.spinFloor.InheritedDataSource = true;
-			this.spinFloor.Mappings = "Floor";
-			this.spinFloor.InheritedBoundaryDataSource = false;
+			this.spinFloor.ValueAsDecimal = 0m;
+			this.spinFloor.ValueAsInt = 0;
 			this.hbox9.Add (this.spinFloor);
 			global::Gtk.Box.BoxChild w38 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.spinFloor]));
 			w38.Position = 4;
@@ -681,14 +632,9 @@ namespace Vodovoz
 			w49.XOptions = ((global::Gtk.AttachOptions)(4));
 			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceContact = new global::Gtk.DataBindings.DataEntryReferenceVM ();
+			this.referenceContact = new global::QSOrmProject.yEntryReferenceVM ();
 			this.referenceContact.Events = ((global::Gdk.EventMask)(256));
 			this.referenceContact.Name = "referenceContact";
-			this.referenceContact.InheritedDataSource = true;
-			this.referenceContact.Mappings = "Contact";
-			this.referenceContact.ColumnMappings = "";
-			this.referenceContact.InheritedBoundaryDataSource = false;
-			this.referenceContact.CursorPointsEveryType = false;
 			this.datatable1.Add (this.referenceContact);
 			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceContact]));
 			w50.TopAttach = ((uint)(8));
@@ -698,18 +644,13 @@ namespace Vodovoz
 			w50.XOptions = ((global::Gtk.AttachOptions)(4));
 			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceDeliverySchedule = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceDeliverySchedule = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceDeliverySchedule.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliverySchedule.Name = "referenceDeliverySchedule";
 			this.referenceDeliverySchedule.DisplayFields = new string[] {
 				"Name"
 			};
 			this.referenceDeliverySchedule.DisplayFormatString = "{0}";
-			this.referenceDeliverySchedule.InheritedDataSource = true;
-			this.referenceDeliverySchedule.Mappings = "DeliverySchedule";
-			this.referenceDeliverySchedule.ColumnMappings = "";
-			this.referenceDeliverySchedule.InheritedBoundaryDataSource = false;
-			this.referenceDeliverySchedule.CursorPointsEveryType = false;
 			this.datatable1.Add (this.referenceDeliverySchedule);
 			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceDeliverySchedule]));
 			w51.TopAttach = ((uint)(10));
@@ -719,18 +660,14 @@ namespace Vodovoz
 			w51.XOptions = ((global::Gtk.AttachOptions)(4));
 			w51.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinMinutesToUnload = new global::Gtk.DataBindings.DataSpinButton (0, 100, 1);
+			this.spinMinutesToUnload = new global::Gamma.GtkWidgets.ySpinButton (0, 100, 1);
 			this.spinMinutesToUnload.CanFocus = true;
 			this.spinMinutesToUnload.Name = "spinMinutesToUnload";
 			this.spinMinutesToUnload.Adjustment.PageIncrement = 10;
 			this.spinMinutesToUnload.ClimbRate = 1;
 			this.spinMinutesToUnload.Numeric = true;
-			this.spinMinutesToUnload.InheritedDataSource = true;
-			this.spinMinutesToUnload.Mappings = "MinutesToUnload";
-			this.spinMinutesToUnload.InheritedBoundaryDataSource = false;
-			this.spinMinutesToUnload.InheritedDataSource = true;
-			this.spinMinutesToUnload.Mappings = "MinutesToUnload";
-			this.spinMinutesToUnload.InheritedBoundaryDataSource = false;
+			this.spinMinutesToUnload.ValueAsDecimal = 0m;
+			this.spinMinutesToUnload.ValueAsInt = 0;
 			this.datatable1.Add (this.spinMinutesToUnload);
 			global::Gtk.Table.TableChild w52 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinMinutesToUnload]));
 			w52.TopAttach = ((uint)(6));

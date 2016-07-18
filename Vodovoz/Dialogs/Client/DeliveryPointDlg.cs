@@ -46,20 +46,30 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			entryPhone.SetDefaultCityCode ("812");
-			datatable1.DataSource = subjectAdaptor;
+			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
+			entryPhone.Binding.AddBinding(Entity, e => e.Phone, w => w.Text).InitializeFromSource();
 			comboRoomType.ItemsEnum = typeof(RoomType);
+			comboRoomType.Binding.AddBinding (Entity, entity => entity.RoomType, widget => widget.SelectedItem)
+				.InitializeFromSource ();
 			referenceLogisticsArea.SubjectType = typeof(LogisticsArea);
 			referenceLogisticsArea.Sensitive = QSMain.User.Permissions ["logistican"];
+			referenceLogisticsArea.Binding.AddBinding(Entity, e => e.LogisticsArea, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
-			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
+			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			referenceContact.RepresentationModel = new ViewModel.ContactsVM (UoWGeneric, Entity.Counterparty);
+			referenceContact.Binding.AddBinding(Entity, e => e.Contact, w => w.Subject).InitializeFromSource();
 			entryCity.FocusOutEvent += FocusOut;
 			entryStreet.FocusOutEvent += FocusOut;
 			entryRegion.FocusOutEvent += FocusOut;
 			entryBuilding.FocusOutEvent += FocusOut;
 
-			comboRoomType.Binding.AddBinding (Entity, entity => entity.RoomType, widget => widget.SelectedItem)
-				.InitializeFromSource ();
+			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			labelCompiledAddress.Binding.AddBinding(Entity, e => e.CompiledAddress, w => w.LabelProp).InitializeFromSource();
+			checkIsActive.Binding.AddBinding(Entity, e => e.IsActive, w => w.Active).InitializeFromSource();
+			entryRegion.Binding.AddBinding(Entity, e => e.Region, w => w.Text).InitializeFromSource();
+			entryRoom.Binding.AddBinding(Entity, e => e.Room, w => w.Text).InitializeFromSource();
+			spinFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.ValueAsInt).InitializeFromSource();
+			spinMinutesToUnload.Binding.AddBinding(Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
 
 			ylabelDistrictOfCity.Binding.AddBinding (Entity, entity => entity.StreetDistrict, widget => widget.LabelProp)
 				.InitializeFromSource ();
@@ -86,7 +96,6 @@ namespace Vodovoz
 			};
 
 			entryBuilding.CompletionLoaded += EntryBuilding_Changed;
-
 			entryBuilding.Changed += EntryBuilding_Changed;
 
 			entryCity.Binding
