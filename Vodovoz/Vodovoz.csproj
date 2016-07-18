@@ -61,6 +61,7 @@
       <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
     </Reference>
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -522,6 +523,14 @@
     <ProjectReference Include="..\..\VodovozService\Chat\Chat.csproj">
       <Project>{4E951BE3-3485-47E8-B7DF-5A098034A90E}</Project>
       <Name>Chat</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GMap.NET\GMap.NET.GtkSharp\GMap.NET.GtkSharp.csproj">
+      <Project>{E06DEF77-F933-42FB-AFD8-DB2D0D8D6A98}</Project>
+      <Name>GMap.NET.GtkSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\GMap.NET\GMap.NET.Core\GMap.NET.Core.csproj">
+      <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>
+      <Name>GMap.NET.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

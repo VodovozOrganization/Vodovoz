@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Gamma.Utilities;
+using GMap.NET;
+using GMap.NET.GtkSharp;
+using GMap.NET.GtkSharp.Markers;
+using GMap.NET.MapProviders;
 using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
@@ -14,6 +19,10 @@ namespace Vodovoz
 	public partial class DeliveryPointDlg : OrmGtkDialogBase<DeliveryPoint>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+
+		GMapControl MapWidget;
+		readonly GMapOverlay addressOverlay = new GMapOverlay();
+		GMapMarker addressMarker;
 
 		public DeliveryPointDlg (Counterparty counterparty)
 		{
@@ -103,6 +112,50 @@ namespace Vodovoz
 			menu.Add (menuItem);
 			menuActions.Menu = menu;
 			menu.ShowAll ();
+
+			//Configure map
+			MapWidget = new GMap.NET.GtkSharp.GMapControl();
+			MapWidget.MapProvider = GMapProviders.OpenStreetMap;
+			MapWidget.Position = new PointLatLng(59.93900, 30.31646);
+			MapWidget.MinZoom = 0;
+			MapWidget.MaxZoom = 24;
+			MapWidget.Zoom = 9;
+			MapWidget.WidthRequest = 450;
+			MapWidget.HasFrame = true;
+			MapWidget.Overlays.Add(addressOverlay);
+			rightsidepanel1.Panel = MapWidget;
+			rightsidepanel1.PanelOpened += Rightsidepanel1_PanelOpened;
+			rightsidepanel1.PanelHided += Rightsidepanel1_PanelHided;
+			Entity.PropertyChanged += Entity_PropertyChanged;
+			UpdateAddressOnMap();
+		}
+
+		void Entity_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if(e.PropertyName == Entity.GetPropertyName(x => x.Latitude)
+				|| e.PropertyName == Entity.GetPropertyName(x => x.Longitude))
+			{
+				UpdateMapPosition();
+				UpdateAddressOnMap();
+			}
+		}
+
+		void Rightsidepanel1_PanelHided (object sender, EventArgs e)
+		{
+			var slider = TabParent as QSTDI.TdiSliderTab;
+			if(slider != null)
+			{
+				slider.IsHideJournal = false;
+			}
+		}
+
+		void Rightsidepanel1_PanelOpened (object sender, EventArgs e)
+		{
+			var slider = TabParent as QSTDI.TdiSliderTab;
+			if(slider != null)
+			{
+				slider.IsHideJournal = true;
+			}
 		}
 
 		void OpenCounterparty (object sender, EventArgs e)
@@ -136,6 +189,37 @@ namespace Vodovoz
 			else
 			{
 				labelHouseName.Visible = false;
+			}
+		}
+
+		private void UpdateMapPosition()
+		{
+			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue)
+			{
+				MapWidget.Position = new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value);
+				MapWidget.Zoom = 16;
+			}
+			else
+			{
+				MapWidget.Position = new PointLatLng(59.93900, 30.31646);
+				MapWidget.Zoom = 9;
+			}
+		}
+
+		private void UpdateAddressOnMap()
+		{
+			if(addressMarker != null)
+			{
+				addressOverlay.Markers.Clear();
+				addressMarker = null;
+			}
+
+			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue)
+			{
+				addressMarker = new GMarkerGoogle(new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value),
+					GMarkerGoogleType.arrow);
+				addressMarker.ToolTipText = Entity.ShortAddress;
+				addressOverlay.Markers.Add(addressMarker);
 			}
 		}
 

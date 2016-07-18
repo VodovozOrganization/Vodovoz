@@ -14,6 +14,8 @@ namespace Vodovoz
 		
 		private global::QSWidgetLib.MenuButton menuActions;
 		
+		private global::Gtk.HBox hbox12;
+		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
 		private global::Gtk.DataBindings.DataTable datatable1;
@@ -105,6 +107,8 @@ namespace Vodovoz
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliverySchedule;
 		
 		private global::Gtk.DataBindings.DataSpinButton spinMinutesToUnload;
+		
+		private global::QSWidgetLib.RightSidePanel rightsidepanel1;
 
 		protected virtual void Build ()
 		{
@@ -169,6 +173,10 @@ namespace Vodovoz
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox12 = new global::Gtk.HBox ();
+			this.hbox12.Name = "hbox12";
+			this.hbox12.Spacing = 6;
+			// Container child hbox12.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
@@ -732,9 +740,22 @@ namespace Vodovoz
 			w52.YOptions = ((global::Gtk.AttachOptions)(4));
 			w8.Add (this.datatable1);
 			this.GtkScrolledWindow.Add (w8);
-			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
-			w55.Position = 1;
+			this.hbox12.Add (this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.hbox12 [this.GtkScrolledWindow]));
+			w55.Position = 0;
+			// Container child hbox12.Gtk.Box+BoxChild
+			this.rightsidepanel1 = new global::QSWidgetLib.RightSidePanel ();
+			this.rightsidepanel1.Events = ((global::Gdk.EventMask)(256));
+			this.rightsidepanel1.Name = "rightsidepanel1";
+			this.rightsidepanel1.Title = "Карта";
+			this.rightsidepanel1.IsHided = true;
+			this.hbox12.Add (this.rightsidepanel1);
+			global::Gtk.Box.BoxChild w56 = ((global::Gtk.Box.BoxChild)(this.hbox12 [this.rightsidepanel1]));
+			w56.Position = 1;
+			w56.Expand = false;
+			this.vbox1.Add (this.hbox12);
+			global::Gtk.Box.BoxChild w57 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox12]));
+			w57.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
