@@ -107,8 +107,11 @@ namespace Vodovoz
 			carsOverlay.Clear();
 			foreach(var point in lastPoints)
 			{
-				var marker = new GMap.NET.GtkSharp.Markers.GMarkerGoogle(new PointLatLng(point.Latitude, point.Longitude),
-					GMap.NET.GtkSharp.Markers.GMarkerGoogleType.green_dot);
+				var type = point.Time < DateTime.Now.AddMinutes(-20) 
+					? Vodovoz.Additions.Logistic.CarMarkerType.BlueCar
+					: Vodovoz.Additions.Logistic.CarMarkerType.GreenCar;
+				var marker = new Vodovoz.Additions.Logistic.CarMarker(new PointLatLng(point.Latitude, point.Longitude),
+					type);
 				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 					.First(x => x.Id == point.DriverId);
 				string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);

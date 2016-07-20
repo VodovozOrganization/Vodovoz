@@ -115,6 +115,9 @@
     <EmbeddedResource Include="icons\buttons\document-send.png">
       <LogicalName>document-send.png</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="icons\map\GreenCar.png" />
+    <EmbeddedResource Include="icons\map\BlueCar.png" />
+    <EmbeddedResource Include="icons\map\RedCar.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -433,6 +436,7 @@
     <Compile Include="gtk-gui\Vodovoz.ReturnsReceptionView.cs" />
     <Compile Include="JournalFilters\DeliveryPointFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointFilter.cs" />
+    <Compile Include="Additions\Logistic\CarMarker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -566,6 +570,9 @@
     <Folder Include="Reports\Documents\" />
     <Folder Include="Dialogs\Employees\" />
     <Folder Include="Dialogs\Goods\" />
+    <Folder Include="Additions\" />
+    <Folder Include="Additions\Logistic\" />
+    <Folder Include="icons\map\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
