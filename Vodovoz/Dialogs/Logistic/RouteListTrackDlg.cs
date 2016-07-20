@@ -22,6 +22,8 @@ namespace Vodovoz
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
+		private uint timerId;
+		private const uint carRefreshInterval = 5000;
 		private readonly GMapOverlay carsOverlay = new GMapOverlay();
 
 		public RouteListTrackDlg()
@@ -49,13 +51,11 @@ namespace Vodovoz
 			//Configure map
 			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
-			//gmapWidget.MinZoom = 0;
-			//gmapWidget.MaxZoom = 24;
-			//gmapWidget.Zoom = 9;
 			gmapWidget.HeightRequest = 150;
 			//MapWidget.HasFrame = true;
 			gmapWidget.Overlays.Add(carsOverlay);
 			UpdateCarPosition();
+			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
@@ -96,11 +96,12 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			ChatCallbackObservable.GetInstance().RemoveObserver(this);
+			GLib.Source.Remove(timerId);
 			gmapWidget.Destroy();
 			base.Destroy();
 		}
 
-		private void UpdateCarPosition()
+		private bool UpdateCarPosition()
 		{
 			var driversIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 				.Select(x => x.Id).ToArray();
@@ -121,7 +122,7 @@ namespace Vodovoz
 					var point1 = new PointLatLng(point.Latitude, point.Longitude);
 					var point2 = new PointLatLng(ere20.Latitude, ere20.Longitude);
 					var diff = gmapWidget.MapProvider.Projection.GetDistance(point1, point2);
-					if (diff <= 0.05)
+					if (diff <= 0.1)
 						iconType = CarMarkerType.RedCar;
 					else
 						iconType = CarMarkerType.GreenCar;
@@ -129,7 +130,7 @@ namespace Vodovoz
 				else
 					iconType = CarMarkerType.GreenCar;
 				
-				var marker = new Vodovoz.Additions.Logistic.CarMarker(new PointLatLng(point.Latitude, point.Longitude),
+				var marker = new CarMarker(new PointLatLng(point.Latitude, point.Longitude),
 					iconType);
 				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 					.First(x => x.Id == point.DriverId);
@@ -141,6 +142,7 @@ namespace Vodovoz
 				marker.ToolTipText = text;
 				carsOverlay.Markers.Add(marker);
 			}
+			return true;
 		}
 
 		#region IChatCallbackObserver implementation
