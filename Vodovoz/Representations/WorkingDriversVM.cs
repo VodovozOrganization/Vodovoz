@@ -11,6 +11,7 @@ using Vodovoz.Domain.Chat;
 using ChatClass = Vodovoz.Domain.Chat.Chat;
 using Vodovoz.Repository.Chat;
 using Vodovoz.Repository;
+using NHibernate.Criterion;
 
 namespace Vodovoz.ViewModel
 {
@@ -24,6 +25,15 @@ namespace Vodovoz.ViewModel
 			Employee driverAlias = null;
 			RouteList routeListAlias = null;
 			Car carAlias = null;
+
+			var completedSubquery = QueryOver.Of<RouteListItem>()
+				.Where(i => i.RouteList.Id == routeListAlias.Id)
+				.Where(i => i.Status != RouteListItemStatus.EnRoute)
+				.Select(Projections.RowCount());
+
+			var addressesSubquery = QueryOver.Of<RouteListItem>()
+				.Where(i => i.RouteList.Id == routeListAlias.Id)
+				.Select(Projections.RowCount());
 
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
@@ -42,6 +52,8 @@ namespace Vodovoz.ViewModel
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
+					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
+					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 			             )
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverVMNode>())
 				.List<WorkingDriverVMNode>();
@@ -54,6 +66,8 @@ namespace Vodovoz.ViewModel
 				if (item != null)
 				{
 					result[i].RouteListNumbers += "; " + item.RouteListNumbers;
+					result[i].AddressesAll += item.AddressesAll;
+					result[i].AddressesCompleted += item.AddressesCompleted;
 					result.Remove(item);
 					i--;
 				}
@@ -75,7 +89,9 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
 			.AddColumn("Машина").SetDataProperty(node => node.CarNumber)
 			.AddColumn("Маршрутные листы").SetDataProperty(node => node.RouteListNumbers)
-			.AddColumn("Новые сообщения").AddTextRenderer().AddSetter((w, n) => w.Markup = (n.Unreaded > 0 ? String.Format("<b><span foreground=\"red\">{0}</span></b>", n.Unreaded) : String.Empty))
+			.AddColumn("Чат").AddTextRenderer().AddSetter((w, n) => w.Markup = (n.Unreaded > 0 ? String.Format("<b><span foreground=\"red\">{0}</span></b>", n.Unreaded) : String.Empty))
+			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
+			.AddSetter((c, n) => c.Text = n.CompletedText)
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig
@@ -116,6 +132,23 @@ namespace Vodovoz.ViewModel
 		public string CarNumber { get; set; }
 		public string RouteListNumbers { get; set; }
 		public int Unreaded { get; set; }
+
+		public int AddressesCompleted { get; set; }
+		public int AddressesAll { get; set; }
+
+		public int CompletedPercent{
+			get{
+				if (AddressesAll == 0)
+					return 100;
+				return (int)(((double)AddressesCompleted / AddressesAll) * 100);
+			}
+		}
+
+		public string CompletedText{
+			get{
+				return String.Format("{0}/{1}", AddressesCompleted, AddressesAll);
+			}
+		}
 
 		private int routeListNumber;
 
