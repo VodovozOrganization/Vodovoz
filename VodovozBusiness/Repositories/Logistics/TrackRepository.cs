@@ -27,7 +27,7 @@ namespace Vodovoz.Repository.Logistics
 				.Where()
 		}
 */
-		public static IList<DriverPosition> GetLastPointForDrivers(IUnitOfWork uow, int[] driversIds)
+		public static IList<DriverPosition> GetLastPointForDrivers(IUnitOfWork uow, int[] driversIds, DateTime? beforeTime = null)
 		{
 			Track trackAlias = null;
 			Track subTrackAlias = null;
@@ -36,8 +36,11 @@ namespace Vodovoz.Repository.Logistics
 
 			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
 				.JoinAlias(p => p.Track, () => subTrackAlias)
-				.Where(() => subTrackAlias.Driver.Id == trackAlias.Driver.Id)
-				.Select(Projections.Max(() => subPoint.TimeStamp));
+				.Where(() => subTrackAlias.Driver.Id == trackAlias.Driver.Id);
+			if (beforeTime.HasValue)
+				lastTimeTrackQuery.Where(p => p.TimeStamp <= beforeTime);
+			
+			lastTimeTrackQuery.Select(Projections.Max(() => subPoint.TimeStamp));
 
 			return uow.Session.QueryOver<TrackPoint>()
 				.JoinAlias(p => p.Track, () => trackAlias)

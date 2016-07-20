@@ -8,6 +8,7 @@ using GMap.NET.MapProviders;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
+using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chat;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
@@ -104,14 +105,32 @@ namespace Vodovoz
 			var driversIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 				.Select(x => x.Id).ToArray();
 			var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForDrivers(uow, driversIds);
+			var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.DriverId).ToArray();
+			var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForDrivers(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
 			carsOverlay.Clear();
 			foreach(var point in lastPoints)
 			{
-				var type = point.Time < DateTime.Now.AddMinutes(-20) 
-					? Vodovoz.Additions.Logistic.CarMarkerType.BlueCar
-					: Vodovoz.Additions.Logistic.CarMarkerType.GreenCar;
+				CarMarkerType iconType;
+				var ere20 = ere20Minuts.FirstOrDefault(x => x.DriverId == point.DriverId);
+				if (point.Time < DateTime.Now.AddMinutes(-20))
+				{
+					iconType = CarMarkerType.BlueCar;
+				}
+				else if (ere20 != null)
+				{
+					var point1 = new PointLatLng(point.Latitude, point.Longitude);
+					var point2 = new PointLatLng(ere20.Latitude, ere20.Longitude);
+					var diff = gmapWidget.MapProvider.Projection.GetDistance(point1, point2);
+					if (diff <= 0.05)
+						iconType = CarMarkerType.RedCar;
+					else
+						iconType = CarMarkerType.GreenCar;
+				}
+				else
+					iconType = CarMarkerType.GreenCar;
+				
 				var marker = new Vodovoz.Additions.Logistic.CarMarker(new PointLatLng(point.Latitude, point.Longitude),
-					type);
+					iconType);
 				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
 					.First(x => x.Id == point.DriverId);
 				string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
