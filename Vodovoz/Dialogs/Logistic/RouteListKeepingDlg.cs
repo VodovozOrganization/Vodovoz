@@ -28,6 +28,16 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
+		public override bool HasChanges
+		{
+			get
+			{
+				if (items.All(x => x.Status != RouteListItemStatus.EnRoute))
+					return true; //Хак, чтобы вылезало уведомление о закрытии маршрутного листа, даже если ничего не меняли.
+				return base.HasChanges;
+			}
+		}
+
 		Dictionary<RouteListItemStatus, Gdk.Pixbuf> statusIcons = new Dictionary<RouteListItemStatus, Gdk.Pixbuf>();
 
 		List<RouteListKeepingItemNode> items;
@@ -138,6 +148,14 @@ namespace Vodovoz
 						break;
 				}
 				UoWGeneric.Save(address.Order);
+			}
+
+			if (items.All(x => x.Status != RouteListItemStatus.EnRoute))
+			{
+				if(MessageDialogWorks.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
+				{
+					Entity.CompleteRoute();
+				}
 			}
 
 			UoWGeneric.Save();
