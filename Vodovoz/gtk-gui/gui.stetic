@@ -31446,6 +31446,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.ToggleButton" id="toggleButtonHideAddresses">
                 <property name="MemberName" />
+                <property name="Tooltip" translatable="yes">Скрыть\показать адреса.</property>
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">⇧⇩</property>
@@ -31455,13 +31456,25 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">2</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="label3">
+              <widget class="GMap.NET.GtkSharp.GMapControl" id="gmapWidget">
                 <property name="MemberName" />
-                <property name="HeightRequest">150</property>
-                <property name="LabelProp" translatable="yes">Тут когда-то будет карта</property>
+                <property name="MaxZoom">24</property>
+                <property name="MinZoom">0</property>
+                <property name="MouseWheelZoomEnabled">True</property>
+                <property name="ShowTileGridLines">False</property>
+                <property name="GrayScaleMode">False</property>
+                <property name="NegativeMode">False</property>
+                <property name="HasFrame">False</property>
+                <property name="Bearing">0</property>
+                <property name="Zoom">9</property>
+                <property name="RoutesEnabled">False</property>
+                <property name="PolygonsEnabled">False</property>
+                <property name="MarkersEnabled">True</property>
+                <property name="CanDragMap">True</property>
               </widget>
               <packing>
                 <property name="Position">3</property>

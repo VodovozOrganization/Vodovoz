@@ -1,15 +1,18 @@
 ﻿using System;
-using QSOrmProject;
-using QSTDI;
+using System.Collections.Generic;
+using System.Linq;
 using Chat;
-using System.ServiceModel;
-using System.Threading;
+using GMap.NET;
+using GMap.NET.GtkSharp;
+using GMap.NET.MapProviders;
+using QSOrmProject;
+using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Chat;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
 using ChatClass = Vodovoz.Domain.Chat.Chat;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Chat;
-using Vodovoz.Repository;
-using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -18,6 +21,8 @@ namespace Vodovoz
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
+		private readonly GMapOverlay carsOverlay = new GMapOverlay();
+
 		public RouteListTrackDlg()
 		{
 			this.Build();
@@ -38,6 +43,18 @@ namespace Vodovoz
 					ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 				ChatCallbackObservable.GetInstance().AddObserver(this);
 			}
+
+
+			//Configure map
+			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
+			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
+			//gmapWidget.MinZoom = 0;
+			//gmapWidget.MaxZoom = 24;
+			//gmapWidget.Zoom = 9;
+			gmapWidget.HeightRequest = 150;
+			//MapWidget.HasFrame = true;
+			gmapWidget.Overlays.Add(carsOverlay);
+			UpdateCarPosition();
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
@@ -48,14 +65,7 @@ namespace Vodovoz
 
 		protected void OnToggleButtonHideAddressesToggled(object sender, EventArgs e)
 		{
-			if (toggleButtonHideAddresses.Active)
-			{
-				//TODO Hiding and showing logic
-			}
-			else
-			{
-				//TODO
-			}
+			GtkScrolledWindow1.Visible = label2.Visible = !toggleButtonHideAddresses.Active;
 		}
 
 		protected void OnYTreeViewDriversRowActivated(object o, Gtk.RowActivatedArgs args)
@@ -85,7 +95,30 @@ namespace Vodovoz
 		public override void Destroy()
 		{
 			ChatCallbackObservable.GetInstance().RemoveObserver(this);
+			gmapWidget.Destroy();
 			base.Destroy();
+		}
+
+		private void UpdateCarPosition()
+		{
+			var driversIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
+				.Select(x => x.Id).ToArray();
+			var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForDrivers(uow, driversIds);
+			carsOverlay.Clear();
+			foreach(var point in lastPoints)
+			{
+				var marker = new GMap.NET.GtkSharp.Markers.GMarkerGoogle(new PointLatLng(point.Latitude, point.Longitude),
+					GMap.NET.GtkSharp.Markers.GMarkerGoogleType.green_dot);
+				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
+					.First(x => x.Id == point.DriverId);
+				string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
+				if (point.Time < DateTime.Now.AddSeconds(-30))
+					text += point.Time.Date == DateTime.Today 
+						? String.Format("\nБыл виден: {0:t} ", point.Time)
+						: String.Format("\nБыл виден: {0:g} ", point.Time);
+				marker.ToolTipText = text;
+				carsOverlay.Markers.Add(marker);
+			}
 		}
 
 		#region IChatCallbackObserver implementation

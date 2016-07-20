@@ -28,7 +28,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ToggleButton toggleButtonHideAddresses;
 		
-		private global::Gtk.Label label3;
+		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
 
 		protected virtual void Build ()
 		{
@@ -122,6 +122,7 @@ namespace Vodovoz
 			w10.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.toggleButtonHideAddresses = new global::Gtk.ToggleButton ();
+			this.toggleButtonHideAddresses.TooltipMarkup = "Скрыть\\показать адреса.";
 			this.toggleButtonHideAddresses.CanFocus = true;
 			this.toggleButtonHideAddresses.Name = "toggleButtonHideAddresses";
 			this.toggleButtonHideAddresses.UseUnderline = true;
@@ -129,13 +130,25 @@ namespace Vodovoz
 			this.vbox1.Add (this.toggleButtonHideAddresses);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.toggleButtonHideAddresses]));
 			w11.Position = 2;
+			w11.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.label3 = new global::Gtk.Label ();
-			this.label3.HeightRequest = 150;
-			this.label3.Name = "label3";
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Тут когда-то будет карта");
-			this.vbox1.Add (this.label3);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label3]));
+			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl ();
+			this.gmapWidget.Name = "gmapWidget";
+			this.gmapWidget.MaxZoom = 24;
+			this.gmapWidget.MinZoom = 0;
+			this.gmapWidget.MouseWheelZoomEnabled = true;
+			this.gmapWidget.ShowTileGridLines = false;
+			this.gmapWidget.GrayScaleMode = false;
+			this.gmapWidget.NegativeMode = false;
+			this.gmapWidget.HasFrame = false;
+			this.gmapWidget.Bearing = 0F;
+			this.gmapWidget.Zoom = 9;
+			this.gmapWidget.RoutesEnabled = false;
+			this.gmapWidget.PolygonsEnabled = false;
+			this.gmapWidget.MarkersEnabled = true;
+			this.gmapWidget.CanDragMap = true;
+			this.vbox1.Add (this.gmapWidget);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.gmapWidget]));
 			w12.Position = 3;
 			this.hbox1.Add (this.vbox1);
 			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vbox1]));
