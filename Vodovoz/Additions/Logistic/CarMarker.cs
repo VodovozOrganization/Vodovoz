@@ -13,7 +13,8 @@ namespace Vodovoz.Additions.Logistic
       	none = 0,
       	GreenCar,
 		BlueCar,
-		RedCar
+		RedCar,
+		BlackCar
    }
 		
    [Serializable]
@@ -21,22 +22,44 @@ namespace Vodovoz.Additions.Logistic
    {
       Bitmap Bitmap;
 
-      public readonly CarMarkerType Type;
+		private CarMarkerType type;
+
+		public CarMarkerType Type
+		{
+			get
+			{
+				return type;
+			}
+			set
+			{
+				type = value;
+				if(type != CarMarkerType.none)
+				{
+					LoadBitmap();
+				}
+
+				if(IsVisible)
+				{
+					if(Overlay != null && Overlay.Control != null)
+					{
+						if(!Overlay.Control.HoldInvalidation)
+						{
+							Overlay.Control.Invalidate();
+						}
+					}
+				}
+			}
+		}
 
       public CarMarker(PointLatLng p, CarMarkerType type)
          : base(p)
       {
          this.Type = type;
-
-         if(type != CarMarkerType.none)
-         {
-            LoadBitmap();
-         }
       }
 
       void LoadBitmap()
       {
-         	Bitmap = GetIcon(Type.ToString());
+         	Bitmap = GetIcon(type.ToString());
          	Size = new System.Drawing.Size(Bitmap.Width, Bitmap.Height);
 
         	Offset = new Point(-Size.Width / 2 + 1, -Size.Height / 2 + 1);
@@ -93,7 +116,7 @@ namespace Vodovoz.Additions.Logistic
 
       void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
       {
-         info.AddValue("type", this.Type);
+         info.AddValue("type", this.type);
          //info.AddValue("Bearing", this.Bearing);
 
          base.GetObjectData(info, context);
@@ -102,7 +125,7 @@ namespace Vodovoz.Additions.Logistic
       protected CarMarker(SerializationInfo info, StreamingContext context)
          : base(info, context)
       {
-         this.Type = Extensions.GetStruct<CarMarkerType>(info, "type", CarMarkerType.none);
+         this.type = Extensions.GetStruct<CarMarkerType>(info, "type", CarMarkerType.none);
          //this.Bearing = Extensions.GetStruct<float>(info, "Bearing", null);
       }
 
@@ -112,7 +135,7 @@ namespace Vodovoz.Additions.Logistic
 
       public void OnDeserialization(object sender)
       {
-         if(Type != CarMarkerType.none)
+         if(type != CarMarkerType.none)
          {
             LoadBitmap();
          }

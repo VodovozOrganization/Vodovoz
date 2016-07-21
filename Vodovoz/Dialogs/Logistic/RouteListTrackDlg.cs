@@ -25,6 +25,9 @@ namespace Vodovoz
 		private uint timerId;
 		private const uint carRefreshInterval = 30000;
 		private readonly GMapOverlay carsOverlay = new GMapOverlay();
+		private Dictionary<int, CarMarker> carMarkers;
+		private int lastSelectedDriver = -1;
+		private CarMarkerType lastMarkerType;
 
 		public RouteListTrackDlg()
 		{
@@ -62,6 +65,7 @@ namespace Vodovoz
 		{
 			bool selected = yTreeViewDrivers.Selection.CountSelectedRows() > 0;
 			buttonChat.Sensitive = selected && currentEmployee != null;
+			UpdateSelectionOfCar(selected);
 		}
 
 		protected void OnToggleButtonHideAddressesToggled(object sender, EventArgs e)
@@ -73,6 +77,30 @@ namespace Vodovoz
 		{
 			yTreeAddresses.RepresentationModel = new ViewModel.DriverRouteListAddressesVM(uow, yTreeViewDrivers.GetSelectedId());
 			yTreeAddresses.RepresentationModel.UpdateNodes();
+		}
+
+		void ShowSelectedTrack(int driverId)
+		{
+			
+		}
+
+		void UpdateSelectionOfCar(bool selected)
+		{
+			if(lastSelectedDriver > 0)
+			{
+				carMarkers[lastSelectedDriver].Type = lastMarkerType;
+				lastSelectedDriver = -1;
+			}
+			if(selected)
+			{
+				var driverId = yTreeViewDrivers.GetSelectedId();;
+				if (carMarkers.ContainsKey(driverId))
+				{
+					lastSelectedDriver = driverId;
+					lastMarkerType = carMarkers[lastSelectedDriver].Type;
+					carMarkers[lastSelectedDriver].Type = CarMarkerType.BlackCar;
+				}
+			}
 		}
 
 		protected void OnButtonChatClicked(object sender, EventArgs e)
@@ -109,6 +137,7 @@ namespace Vodovoz
 			var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.DriverId).ToArray();
 			var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForDrivers(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
 			carsOverlay.Clear();
+			carMarkers = new Dictionary<int, CarMarker>();
 			foreach(var point in lastPoints)
 			{
 				CarMarkerType iconType;
@@ -129,6 +158,12 @@ namespace Vodovoz
 				}
 				else
 					iconType = CarMarkerType.GreenCar;
+
+				if(lastSelectedDriver == point.DriverId)
+				{
+					lastMarkerType = iconType;
+					iconType = CarMarkerType.BlackCar;
+				}
 				
 				var marker = new CarMarker(new PointLatLng(point.Latitude, point.Longitude),
 					iconType);
@@ -141,6 +176,7 @@ namespace Vodovoz
 						: String.Format("\nБыл виден: {0:g} ", point.Time);
 				marker.ToolTipText = text;
 				carsOverlay.Markers.Add(marker);
+				carMarkers.Add(point.DriverId, marker);
 			}
 			return true;
 		}
