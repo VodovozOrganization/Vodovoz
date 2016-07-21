@@ -82,7 +82,7 @@ namespace Vodovoz.ViewModel
 				}
 			}
 
-			SetItemsSource(result);
+			SetItemsSource(result.OrderBy(x => x.ShortName).ToList());
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<WorkingDriverVMNode>.Create()
