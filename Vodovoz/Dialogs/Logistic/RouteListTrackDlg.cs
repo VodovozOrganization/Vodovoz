@@ -23,7 +23,7 @@ namespace Vodovoz
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
 		private uint timerId;
-		private const uint carRefreshInterval = 5000;
+		private const uint carRefreshInterval = 30000;
 		private readonly GMapOverlay carsOverlay = new GMapOverlay();
 
 		public RouteListTrackDlg()
