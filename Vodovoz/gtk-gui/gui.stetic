@@ -31485,7 +31485,7 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Type">TextAndIcon</property>
-                    <property name="Icon">stock:stock_zoom-page Menu</property>
+                    <property name="Icon">resource:Vodovoz.icons.buttons.window-new.png</property>
                     <property name="Label" translatable="yes">Карта в окне</property>
                     <property name="UseUnderline">True</property>
                     <signal name="Clicked" handler="OnButtonMapInWindowClicked" />

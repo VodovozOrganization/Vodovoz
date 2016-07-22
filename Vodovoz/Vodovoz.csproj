@@ -119,6 +119,7 @@
     <EmbeddedResource Include="icons\map\BlueCar.png" />
     <EmbeddedResource Include="icons\map\RedCar.png" />
     <EmbeddedResource Include="icons\map\BlackCar.png" />
+    <EmbeddedResource Include="icons\buttons\window-new.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

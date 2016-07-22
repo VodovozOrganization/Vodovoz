@@ -44,6 +44,7 @@ namespace Vodovoz
 			this.Name = "Vodovoz.RouteListTrackDlg";
 			// Container child Vodovoz.RouteListTrackDlg.Gtk.Container+ContainerChild
 			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox2 = new global::Gtk.VBox ();
@@ -158,7 +159,7 @@ namespace Vodovoz
 			this.buttonMapInWindow.UseUnderline = true;
 			this.buttonMapInWindow.Label = global::Mono.Unix.Catalog.GetString ("Карта в окне");
 			global::Gtk.Image w13 = new global::Gtk.Image ();
-			w13.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "stock_zoom-page", global::Gtk.IconSize.Menu);
+			w13.Pixbuf = global::Gdk.Pixbuf.LoadFromResource ("Vodovoz.icons.buttons.window-new.png");
 			this.buttonMapInWindow.Image = w13;
 			this.hbox3.Add (this.buttonMapInWindow);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonMapInWindow]));
