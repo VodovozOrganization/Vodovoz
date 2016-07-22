@@ -5,8 +5,6 @@ using Vodovoz.Domain.Logistic;
 using QSOrmProject;
 using NHibernate.Transform;
 using Gamma.ColumnConfig;
-using System.Linq;
-using QSProjectsLib;
 using Gamma.Utilities;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Client;
@@ -51,9 +49,9 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<DriverRouteListAddressVMNode>.Create()
 			.AddColumn("МЛ №").SetDataProperty(node => node.RouteListNumber.ToString())
-			.AddColumn("Адрес").SetDataProperty(node => node.Address.CompiledAddress)
 			.AddColumn("Время").SetDataProperty(node => node.Time.DeliveryTime)
 			.AddColumn("Статус").SetDataProperty(node => node.Status.GetEnumTitle())
+			.AddColumn("Адрес").SetDataProperty(node => node.Address.CompiledAddress)
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig

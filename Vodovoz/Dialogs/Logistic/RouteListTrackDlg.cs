@@ -4,6 +4,7 @@ using System.Linq;
 using Chat;
 using GMap.NET;
 using GMap.NET.GtkSharp;
+using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QSOrmProject;
 using QSProjectsLib;
@@ -11,8 +12,10 @@ using QSTDI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chat;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
+using Vodovoz.ViewModel;
 using ChatClass = Vodovoz.Domain.Chat.Chat;
 
 namespace Vodovoz
@@ -183,6 +186,7 @@ namespace Vodovoz
 		private void LoadTracksForDriver(int driverId)
 		{
 			tracksOverlay.Clear();
+			//Load tracks
 			var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>).FirstOrDefault(x => x.Id == driverId);
 				int colorIter = 0;
 			foreach(var routeId in driverRow.RouteListsIds)
@@ -201,6 +205,36 @@ namespace Vodovoz
 				route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
 
 				tracksOverlay.Routes.Add(route);
+			}
+
+			//LoadAddresses
+			foreach(var point in yTreeAddresses.RepresentationModel.ItemsList as IList<DriverRouteListAddressVMNode>)
+			{
+				if(point.Address.Latitude.HasValue && point.Address.Longitude.HasValue)
+				{
+					GMarkerGoogleType type;
+					switch(point.Status)
+					{
+						case RouteListItemStatus.Completed:
+							type = GMarkerGoogleType.green_small;
+							break;
+						case RouteListItemStatus.EnRoute:
+							type = GMarkerGoogleType.gray_small;
+							break;
+						case RouteListItemStatus.Canceled:
+							type = GMarkerGoogleType.purple_small;
+							break;
+						case RouteListItemStatus.Overdue:
+							type = GMarkerGoogleType.red_small;
+							break;
+						default:
+							type = GMarkerGoogleType.none;
+							break;
+					}
+					var addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Address.Latitude, (double)point.Address.Longitude),	type);
+					addressMarker.ToolTipText = point.Address.ShortAddress;
+					tracksOverlay.Markers.Add(addressMarker);
+				}
 			}
 		}
 
