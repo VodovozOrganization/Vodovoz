@@ -18,7 +18,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonChat;
 		
-		private global::Gtk.VBox vbox1;
+		private global::Gtk.VBox vboxRight;
 		
 		private global::Gtk.Label label2;
 		
@@ -26,7 +26,11 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.RepresentationTreeView yTreeAddresses;
 		
+		private global::Gtk.HBox hbox3;
+		
 		private global::Gtk.ToggleButton toggleButtonHideAddresses;
+		
+		private global::Gtk.Button buttonMapInWindow;
 		
 		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
 
@@ -38,7 +42,6 @@ namespace Vodovoz
 			this.Name = "Vodovoz.RouteListTrackDlg";
 			// Container child Vodovoz.RouteListTrackDlg.Gtk.Container+ContainerChild
 			this.hbox1 = new global::Gtk.HBox ();
-			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.vbox2 = new global::Gtk.VBox ();
@@ -95,18 +98,18 @@ namespace Vodovoz
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.vbox1 = new global::Gtk.VBox ();
-			this.vbox1.Name = "vbox1";
-			this.vbox1.Spacing = 6;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxRight = new global::Gtk.VBox ();
+			this.vboxRight.Name = "vboxRight";
+			this.vboxRight.Spacing = 6;
+			// Container child vboxRight.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Список адресов");
-			this.vbox1.Add (this.label2);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label2]));
+			this.vboxRight.Add (this.label2);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.label2]));
 			w8.Position = 0;
 			w8.Expand = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			// Container child vboxRight.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -117,21 +120,43 @@ namespace Vodovoz
 			this.yTreeAddresses.CanFocus = true;
 			this.yTreeAddresses.Name = "yTreeAddresses";
 			this.GtkScrolledWindow1.Add (this.yTreeAddresses);
-			this.vbox1.Add (this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow1]));
+			this.vboxRight.Add (this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.GtkScrolledWindow1]));
 			w10.Position = 1;
-			// Container child vbox1.Gtk.Box+BoxChild
+			// Container child vboxRight.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox ();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.toggleButtonHideAddresses = new global::Gtk.ToggleButton ();
 			this.toggleButtonHideAddresses.TooltipMarkup = "Скрыть\\показать адреса.";
 			this.toggleButtonHideAddresses.CanFocus = true;
 			this.toggleButtonHideAddresses.Name = "toggleButtonHideAddresses";
 			this.toggleButtonHideAddresses.UseUnderline = true;
 			this.toggleButtonHideAddresses.Label = global::Mono.Unix.Catalog.GetString ("⇧⇩");
-			this.vbox1.Add (this.toggleButtonHideAddresses);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.toggleButtonHideAddresses]));
-			w11.Position = 2;
-			w11.Expand = false;
-			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox3.Add (this.toggleButtonHideAddresses);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.toggleButtonHideAddresses]));
+			w11.Position = 0;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.buttonMapInWindow = new global::Gtk.Button ();
+			this.buttonMapInWindow.CanFocus = true;
+			this.buttonMapInWindow.Name = "buttonMapInWindow";
+			this.buttonMapInWindow.UseUnderline = true;
+			this.buttonMapInWindow.Label = global::Mono.Unix.Catalog.GetString ("Карта в окне");
+			global::Gtk.Image w12 = new global::Gtk.Image ();
+			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "stock_zoom-page", global::Gtk.IconSize.Menu);
+			this.buttonMapInWindow.Image = w12;
+			this.hbox3.Add (this.buttonMapInWindow);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonMapInWindow]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.vboxRight.Add (this.hbox3);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.hbox3]));
+			w14.Position = 2;
+			w14.Expand = false;
+			w14.Fill = false;
+			// Container child vboxRight.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl ();
 			this.gmapWidget.Name = "gmapWidget";
 			this.gmapWidget.MaxZoom = 24;
@@ -147,12 +172,12 @@ namespace Vodovoz
 			this.gmapWidget.PolygonsEnabled = false;
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
-			this.vbox1.Add (this.gmapWidget);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.gmapWidget]));
-			w12.Position = 3;
-			this.hbox1.Add (this.vbox1);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vbox1]));
-			w13.Position = 1;
+			this.vboxRight.Add (this.gmapWidget);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.gmapWidget]));
+			w15.Position = 3;
+			this.hbox1.Add (this.vboxRight);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vboxRight]));
+			w16.Position = 1;
 			this.Add (this.hbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -161,6 +186,7 @@ namespace Vodovoz
 			this.yTreeViewDrivers.RowActivated += new global::Gtk.RowActivatedHandler (this.OnYTreeViewDriversRowActivated);
 			this.buttonChat.Clicked += new global::System.EventHandler (this.OnButtonChatClicked);
 			this.toggleButtonHideAddresses.Toggled += new global::System.EventHandler (this.OnToggleButtonHideAddressesToggled);
+			this.buttonMapInWindow.Clicked += new global::System.EventHandler (this.OnButtonMapInWindowClicked);
 		}
 	}
 }

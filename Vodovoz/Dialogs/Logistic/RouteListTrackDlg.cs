@@ -32,6 +32,7 @@ namespace Vodovoz
 		private Dictionary<int, CarMarker> carMarkers;
 		private int lastSelectedDriver = -1;
 		private CarMarkerType lastMarkerType;
+		private Gtk.Window mapWindow;
 
 		public RouteListTrackDlg()
 		{
@@ -128,6 +129,8 @@ namespace Vodovoz
 			ChatCallbackObservable.GetInstance().RemoveObserver(this);
 			GLib.Source.Remove(timerId);
 			gmapWidget.Destroy();
+			if (mapWindow != null)
+				mapWindow.Destroy();
 			base.Destroy();
 		}
 
@@ -267,7 +270,39 @@ namespace Vodovoz
 		public int? ChatId { get { return null; } }
 
 		public uint? RequestedRefreshInterval { get { return null; } }
+
 		#endregion
+
+		protected void OnButtonMapInWindowClicked(object sender, EventArgs e)
+		{
+			if (mapWindow == null)
+			{
+				toggleButtonHideAddresses.Sensitive = false;
+				toggleButtonHideAddresses.Active = false;
+				mapWindow = new Gtk.Window("Карта мониторинга автомобилей на маршруте");
+				mapWindow.SetDefaultSize(700, 600);
+				mapWindow.DeleteEvent += MapWindow_DeleteEvent;
+				vboxRight.Remove(gmapWidget);
+				mapWindow.Add(gmapWidget);
+				mapWindow.Show();
+			}
+			else
+			{
+				toggleButtonHideAddresses.Sensitive = true;
+				mapWindow.Remove(gmapWidget);
+				vboxRight.PackEnd(gmapWidget, true, true, 1);
+				gmapWidget.Show();
+				mapWindow.Destroy();
+				mapWindow = null;
+			}
+		}
+
+		void MapWindow_DeleteEvent (object o, Gtk.DeleteEventArgs args)
+		{
+			buttonMapInWindow.Click();
+			args.RetVal = false;
+		}
+
 	}
 }
 
