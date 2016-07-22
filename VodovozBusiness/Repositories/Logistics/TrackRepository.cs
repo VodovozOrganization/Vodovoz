@@ -18,6 +18,23 @@ namespace Vodovoz.Repository.Logistics
 				.SingleOrDefault ();
 		}
 
+		public static IList<TrackPoint> GetPointsForTrack(IUnitOfWork uow, int trackId)
+		{
+			return uow.Session.QueryOver<TrackPoint>()
+				.Where(x => x.Track.Id == trackId)
+				.List();
+		}
+
+		public static IList<TrackPoint> GetPointsForRouteList(IUnitOfWork uow, int routeListId)
+		{
+			Track trackAlias = null;
+
+			return uow.Session.QueryOver<TrackPoint>()
+				.JoinAlias(x => x.Track, () => trackAlias)
+				.Where(() => trackAlias.RouteList.Id == routeListId)
+				.List();
+		}
+
 /*		public static IList<TrackPoint> GetPointsForDrivers(IUnitOfWork uow, int[] driversIds, DateTime startTime)
 		{
 			Track trackAlias = null;

@@ -12,6 +12,7 @@ using ChatClass = Vodovoz.Domain.Chat.Chat;
 using Vodovoz.Repository.Chat;
 using Vodovoz.Repository;
 using NHibernate.Criterion;
+using System.Collections.Generic;
 
 namespace Vodovoz.ViewModel
 {
@@ -60,12 +61,14 @@ namespace Vodovoz.ViewModel
 
 			for (int i = 0; i < result.Count; i++)
 			{
+				result[i].RouteListsIds.Add(result[i].RouteListNumber);
 				WorkingDriverVMNode item;
 				item = result.FirstOrDefault(d => d.Id == result[i].Id &&
 					d.RouteListNumber != result[i].RouteListNumber);
 				if (item != null)
 				{
 					result[i].RouteListNumbers += "; " + item.RouteListNumbers;
+					result[i].RouteListsIds.AddRange(item.RouteListsIds);
 					result[i].AddressesAll += item.AddressesAll;
 					result[i].AddressesCompleted += item.AddressesCompleted;
 					result.Remove(item);
@@ -132,6 +135,8 @@ namespace Vodovoz.ViewModel
 		public string CarNumber { get; set; }
 		public string RouteListNumbers { get; set; }
 		public int Unreaded { get; set; }
+
+		public List<int> RouteListsIds = new List<int>();
 
 		public int AddressesCompleted { get; set; }
 		public int AddressesAll { get; set; }

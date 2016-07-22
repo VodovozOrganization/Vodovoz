@@ -24,7 +24,8 @@ namespace Vodovoz
 		private Employee currentEmployee;
 		private uint timerId;
 		private const uint carRefreshInterval = 30000;
-		private readonly GMapOverlay carsOverlay = new GMapOverlay();
+		private readonly GMapOverlay carsOverlay = new GMapOverlay("cars");
+		private readonly GMapOverlay tracksOverlay = new GMapOverlay("tracks");
 		private Dictionary<int, CarMarker> carMarkers;
 		private int lastSelectedDriver = -1;
 		private CarMarkerType lastMarkerType;
@@ -57,6 +58,7 @@ namespace Vodovoz
 			gmapWidget.HeightRequest = 150;
 			//MapWidget.HasFrame = true;
 			gmapWidget.Overlays.Add(carsOverlay);
+			gmapWidget.Overlays.Add(tracksOverlay);
 			UpdateCarPosition();
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 		}
@@ -75,13 +77,10 @@ namespace Vodovoz
 
 		protected void OnYTreeViewDriversRowActivated(object o, Gtk.RowActivatedArgs args)
 		{
-			yTreeAddresses.RepresentationModel = new ViewModel.DriverRouteListAddressesVM(uow, yTreeViewDrivers.GetSelectedId());
+			var driverId = yTreeViewDrivers.GetSelectedId();
+			yTreeAddresses.RepresentationModel = new ViewModel.DriverRouteListAddressesVM(uow, driverId);
 			yTreeAddresses.RepresentationModel.UpdateNodes();
-		}
-
-		void ShowSelectedTrack(int driverId)
-		{
-			
+			LoadTracksForDriver(driverId);
 		}
 
 		void UpdateSelectionOfCar(bool selected)
@@ -179,6 +178,49 @@ namespace Vodovoz
 				carMarkers.Add(point.DriverId, marker);
 			}
 			return true;
+		}
+
+		private void LoadTracksForDriver(int driverId)
+		{
+			tracksOverlay.Clear();
+			var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>).FirstOrDefault(x => x.Id == driverId);
+				int colorIter = 0;
+			foreach(var routeId in driverRow.RouteListsIds)
+			{
+				var pointList = Repository.Logistics.TrackRepository.GetPointsForRouteList(uow, routeId);
+				if (pointList.Count == 0)
+					continue;
+
+				var points = pointList.Select(p => new PointLatLng(p.Latitude, p.Longitude));
+
+				var route = new GMapRoute(points, routeId.ToString());
+
+				route.Stroke = new System.Drawing.Pen(GetTrackColor(colorIter));
+				colorIter++;
+				route.Stroke.Width = 4;
+				route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+				tracksOverlay.Routes.Add(route);
+			}
+		}
+
+		private System.Drawing.Color[] trackColors = new System.Drawing.Color[]{
+			System.Drawing.Color.Red,
+			System.Drawing.Color.Green,
+			System.Drawing.Color.Blue,
+			System.Drawing.Color.Coral,
+			System.Drawing.Color.DarkOrange,
+			System.Drawing.Color.DarkRed,
+			System.Drawing.Color.DeepPink,
+			System.Drawing.Color.HotPink,
+			System.Drawing.Color.GreenYellow,
+			System.Drawing.Color.Gold,
+		};
+
+		System.Drawing.Color GetTrackColor(int iteration)
+		{
+			var colorNum = iteration % 10;
+			return System.Drawing.Color.FromArgb(144, trackColors[colorNum]);
 		}
 
 		#region IChatCallbackObserver implementation

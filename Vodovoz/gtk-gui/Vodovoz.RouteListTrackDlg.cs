@@ -143,7 +143,7 @@ namespace Vodovoz
 			this.gmapWidget.HasFrame = false;
 			this.gmapWidget.Bearing = 0F;
 			this.gmapWidget.Zoom = 9;
-			this.gmapWidget.RoutesEnabled = false;
+			this.gmapWidget.RoutesEnabled = true;
 			this.gmapWidget.PolygonsEnabled = false;
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
