@@ -65,6 +65,7 @@ namespace Vodovoz
 			gmapWidget.Overlays.Add(tracksOverlay);
 			UpdateCarPosition();
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
+			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
@@ -303,6 +304,10 @@ namespace Vodovoz
 			args.RetVal = false;
 		}
 
+		protected void OnYenumcomboMapTypeChangedByUser(object sender, EventArgs e)
+		{
+			gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
+		}
 	}
 }
 

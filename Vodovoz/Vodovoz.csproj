@@ -438,6 +438,7 @@
     <Compile Include="JournalFilters\DeliveryPointFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointFilter.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
+    <Compile Include="Additions\Logistic\MapProvidersHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

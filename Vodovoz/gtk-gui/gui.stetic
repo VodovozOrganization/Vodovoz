@@ -31463,6 +31463,24 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboMapType">
+                    <property name="MemberName" />
+                    <property name="IsTextCombo">False</property>
+                    <property name="Items" translatable="yes" />
+                    <property name="ShowSpecialStateAll">False</property>
+                    <property name="ShowSpecialStateNot">False</property>
+                    <property name="UseShortTitle">False</property>
+                    <property name="DefaultFirst">True</property>
+                    <signal name="ChangedByUser" handler="OnYenumcomboMapTypeChangedByUser" />
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gtk.Button" id="buttonMapInWindow">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -31473,7 +31491,7 @@ RegistrationNumber</property>
                     <signal name="Clicked" handler="OnButtonMapInWindowClicked" />
                   </widget>
                   <packing>
-                    <property name="Position">1</property>
+                    <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>

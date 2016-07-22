@@ -30,6 +30,8 @@ namespace Vodovoz
 		
 		private global::Gtk.ToggleButton toggleButtonHideAddresses;
 		
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboMapType;
+		
 		private global::Gtk.Button buttonMapInWindow;
 		
 		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
@@ -138,24 +140,36 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.toggleButtonHideAddresses]));
 			w11.Position = 0;
 			// Container child hbox3.Gtk.Box+BoxChild
+			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox ();
+			this.yenumcomboMapType.Name = "yenumcomboMapType";
+			this.yenumcomboMapType.ShowSpecialStateAll = false;
+			this.yenumcomboMapType.ShowSpecialStateNot = false;
+			this.yenumcomboMapType.UseShortTitle = false;
+			this.yenumcomboMapType.DefaultFirst = true;
+			this.hbox3.Add (this.yenumcomboMapType);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.yenumcomboMapType]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonMapInWindow = new global::Gtk.Button ();
 			this.buttonMapInWindow.CanFocus = true;
 			this.buttonMapInWindow.Name = "buttonMapInWindow";
 			this.buttonMapInWindow.UseUnderline = true;
 			this.buttonMapInWindow.Label = global::Mono.Unix.Catalog.GetString ("Карта в окне");
-			global::Gtk.Image w12 = new global::Gtk.Image ();
-			w12.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "stock_zoom-page", global::Gtk.IconSize.Menu);
-			this.buttonMapInWindow.Image = w12;
+			global::Gtk.Image w13 = new global::Gtk.Image ();
+			w13.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "stock_zoom-page", global::Gtk.IconSize.Menu);
+			this.buttonMapInWindow.Image = w13;
 			this.hbox3.Add (this.buttonMapInWindow);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonMapInWindow]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.vboxRight.Add (this.hbox3);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.hbox3]));
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonMapInWindow]));
 			w14.Position = 2;
 			w14.Expand = false;
 			w14.Fill = false;
+			this.vboxRight.Add (this.hbox3);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.hbox3]));
+			w15.Position = 2;
+			w15.Expand = false;
+			w15.Fill = false;
 			// Container child vboxRight.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl ();
 			this.gmapWidget.Name = "gmapWidget";
@@ -173,11 +187,11 @@ namespace Vodovoz
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vboxRight.Add (this.gmapWidget);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.gmapWidget]));
-			w15.Position = 3;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vboxRight [this.gmapWidget]));
+			w16.Position = 3;
 			this.hbox1.Add (this.vboxRight);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vboxRight]));
-			w16.Position = 1;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vboxRight]));
+			w17.Position = 1;
 			this.Add (this.hbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -186,6 +200,7 @@ namespace Vodovoz
 			this.yTreeViewDrivers.RowActivated += new global::Gtk.RowActivatedHandler (this.OnYTreeViewDriversRowActivated);
 			this.buttonChat.Clicked += new global::System.EventHandler (this.OnButtonChatClicked);
 			this.toggleButtonHideAddresses.Toggled += new global::System.EventHandler (this.OnToggleButtonHideAddressesToggled);
+			this.yenumcomboMapType.ChangedByUser += new global::System.EventHandler (this.OnYenumcomboMapTypeChangedByUser);
 			this.buttonMapInWindow.Clicked += new global::System.EventHandler (this.OnButtonMapInWindowClicked);
 		}
 	}
