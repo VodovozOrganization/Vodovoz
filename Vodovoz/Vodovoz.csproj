@@ -440,6 +440,7 @@
     <Compile Include="gtk-gui\Vodovoz.DeliveryPointFilter.cs" />
     <Compile Include="Additions\Logistic\CarMarker.cs" />
     <Compile Include="Additions\Logistic\MapProvidersHelper.cs" />
+    <Compile Include="Additions\Logistic\PrintRouteListHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

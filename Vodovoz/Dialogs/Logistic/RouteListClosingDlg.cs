@@ -11,13 +11,13 @@ using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -335,6 +335,11 @@ namespace Vodovoz
 			result.AddRange(returnableItems);
 			result.AddRange(returnableEquipment);
 			return result;
+		}
+
+		protected void OnButtonPrintClicked(object sender, EventArgs e)
+		{
+			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.RouteList.Id, this);
 		}
 	}
 
