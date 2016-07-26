@@ -22,13 +22,16 @@ namespace Vodovoz.Repository.Chat
 				.List();
 		}
 
-		public static Dictionary<int, int> GetUnreadedChatMessages(IUnitOfWork uow, Employee forEmployee) {
+		public static Dictionary<int, int> GetUnreadedChatMessages(IUnitOfWork uow, Employee forEmployee, bool accessLogisticChat) {
 			ChatMessage chatMessageAlias = null;
 			ChatClass chatAlias = null;
 			LastReadedMessage lastReadedAlias = null;
 
-			var resultList = uow.Session.QueryOver<ChatClass> (() => chatAlias)
-				.JoinAlias(() => chatAlias.LastReaded, () => lastReadedAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin, Restrictions.Where(() => lastReadedAlias.Employee.Id == forEmployee.Id))
+			var chatQuery = uow.Session.QueryOver<ChatClass>(() => chatAlias);
+			if (!accessLogisticChat)
+				chatQuery.Where(x => x.ChatType != ChatType.DriverAndLogists);
+
+			var resultList = chatQuery.JoinAlias(() => chatAlias.LastReaded, () => lastReadedAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin, Restrictions.Where(() => lastReadedAlias.Employee.Id == forEmployee.Id))
 				.JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
 				.Where (() => lastReadedAlias.LastDateTime == null || chatMessageAlias.DateTime > lastReadedAlias.LastDateTime)
 				.SelectList(list => list
