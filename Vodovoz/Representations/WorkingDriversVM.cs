@@ -76,7 +76,7 @@ namespace Vodovoz.ViewModel
 				}
 			}
 			var chats = ChatRepository.GetCurrentUserChats(UoW, null);
-			var unreaded = ChatMessageRepository.GetUnreadedChatMessages(UoW, EmployeeRepository.GetEmployeeForCurrentUser(UoW));
+			var unreaded = ChatMessageRepository.GetUnreadedChatMessages(UoW, EmployeeRepository.GetEmployeeForCurrentUser(UoW), true);
 			foreach (var item in result) {
 				var chat = chats.Where(x => x.Driver.Id == item.Id).FirstOrDefault();
 				if (chat != null && unreaded.ContainsKey(chat.Id))

@@ -20,6 +20,7 @@ namespace Vodovoz
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
+		private bool accessToLigisticChat;
 		private int unreadedMessagesCount = 0;
 		private Menu menu;
 		private Dictionary<MenuItem, int> MenuItems;
@@ -34,6 +35,8 @@ namespace Vodovoz
 				this.Sensitive = false;
 				return;
 			}
+			accessToLigisticChat = QSMain.User.Permissions["logistican"];
+
 			if (!ChatCallbackObservable.IsInitiated)
 				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
@@ -88,7 +91,7 @@ namespace Vodovoz
 
 		public void HandleChatUpdate()
 		{
-			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(uow, currentEmployee);
+			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(uow, currentEmployee, accessToLigisticChat);
 			unreadedMessagesCount = unreadedMessages.Sum(x => x.Value);
 			if (unreadedMessagesCount > 0)
 			{
