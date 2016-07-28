@@ -557,9 +557,11 @@ namespace Vodovoz
 			#region Operations
 
 			DeleteConfig.AddHibernateDeleteInfo<BottlesMovementOperation>()
+				.RequiredCascadeDeletion()
 				.AddClearDependence<Order>(x => x.BottlesMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<WarehouseMovementOperation>()
+				.RequiredCascadeDeletion()
 				.AddDeleteDependence<CarLoadDocumentItem>(x => x.MovementOperation)
 				.AddDeleteDependence<CarUnloadDocumentItem>(x => x.MovementOperation)
 				.AddDeleteDependence<IncomingInvoiceItem>(x => x.IncomeGoodsOperation)
@@ -575,13 +577,16 @@ namespace Vodovoz
 				.AddDeleteDependence<SelfDeliveryDocumentReturned>(x => x.WarehouseMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyMovementOperation>()
+				.RequiredCascadeDeletion()
 				.AddDeleteDependence<MovementDocumentItem>(x => x.CounterpartyMovementOperation)
 				.AddDeleteDependence<WriteoffDocumentItem>(x => x.CounterpartyWriteoffOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<MoneyMovementOperation>()
+				.RequiredCascadeDeletion()
 				.AddClearDependence<Order>(x => x.MoneyMovementOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<DepositOperation>()
+				.RequiredCascadeDeletion()
 				.AddDeleteDependence<OrderDepositItem>(x => x.DepositOperation);
 
 			#endregion
