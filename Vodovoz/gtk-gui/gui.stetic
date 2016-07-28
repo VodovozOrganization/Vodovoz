@@ -27736,7 +27736,7 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gamma.Widgets.yEntryReference" id="referenceCounterparty">
+          <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterparty">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnReferenceCounterpartyChanged" />

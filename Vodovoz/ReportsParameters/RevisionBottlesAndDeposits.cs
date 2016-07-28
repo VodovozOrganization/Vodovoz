@@ -14,7 +14,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			uow = UnitOfWorkFactory.CreateWithoutRoot ();
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM();
+			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(uow);
 		}	
 
 		#region IParametersWidget implementation

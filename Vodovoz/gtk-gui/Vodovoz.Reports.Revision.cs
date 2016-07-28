@@ -14,7 +14,7 @@ namespace Vodovoz.Reports
 		
 		private global::Gtk.Label label2;
 		
-		private global::Gamma.Widgets.yEntryReference referenceCounterparty;
+		private global::QSOrmProject.yEntryReferenceVM referenceCounterparty;
 
 		protected virtual void Build ()
 		{
@@ -74,7 +74,7 @@ namespace Vodovoz.Reports
 			w4.XOptions = ((global::Gtk.AttachOptions)(4));
 			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceCounterparty = new global::Gamma.Widgets.yEntryReference ();
+			this.referenceCounterparty = new global::QSOrmProject.yEntryReferenceVM ();
 			this.referenceCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterparty.Name = "referenceCounterparty";
 			this.table1.Add (this.referenceCounterparty);

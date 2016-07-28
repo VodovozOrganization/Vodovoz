@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
 
 namespace Vodovoz.Reports
 {
@@ -13,7 +12,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			var uow = UnitOfWorkFactory.CreateWithoutRoot ();
-			referenceCounterparty.ItemsQuery = CounterpartyRepository.ActiveClientsQuery ();
+			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(uow);
 		}	
 
 		#region IParametersWidget implementation
