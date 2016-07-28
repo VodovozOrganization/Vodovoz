@@ -24,6 +24,7 @@ public partial class MainWindow : Window
 	Action ActionUnclosedAdvances;
 	Action ActionCashFlow;
 	Action ActionRevision;
+	Action ActionRevisionBottlesAndDeposits;
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
@@ -60,6 +61,8 @@ public partial class MainWindow : Window
 		ActionAccountingTable = new Action ("ActionAccountingTable", "Операции по счету", null, "table");
 		ActionAccountFlow = new Action ("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
+		//Архив
+		ActionRevisionBottlesAndDeposits = new Action ("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
@@ -81,6 +84,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionUnclosedAdvances, null);
 		w1.Add (ActionCashFlow, null);
 		w1.Add (ActionRevision, null);
+		w1.Add (ActionRevisionBottlesAndDeposits, null);
 		w1.Add (ActionTransferBankDocs, null);
 		w1.Add (ActionAccountingTable, null);
 		w1.Add (ActionAccountFlow, null);
@@ -106,11 +110,21 @@ public partial class MainWindow : Window
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
 		ActionRevision.Activated += ActionRevision_Activated;
+		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		#endregion
+	}
+
+	void ActionRevisionBottlesAndDeposits_Activated (object sender, System.EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.RevisionBottlesAndDeposits();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
 	}
 
 	void ActionAccountingTable_Activated (object sender, System.EventArgs e)

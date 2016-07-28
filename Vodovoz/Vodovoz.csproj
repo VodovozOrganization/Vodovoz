@@ -120,6 +120,9 @@
     <EmbeddedResource Include="icons\map\RedCar.png" />
     <EmbeddedResource Include="icons\map\BlackCar.png" />
     <EmbeddedResource Include="icons\buttons\window-new.png" />
+    <EmbeddedResource Include="toolbars\archive.xml">
+      <LogicalName>archive.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -441,6 +444,8 @@
     <Compile Include="Additions\Logistic\CarMarker.cs" />
     <Compile Include="Additions\Logistic\MapProvidersHelper.cs" />
     <Compile Include="Additions\Logistic\PrintRouteListHelper.cs" />
+    <Compile Include="ReportsParameters\RevisionBottlesAndDeposits.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -700,6 +705,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Documents\Torg12.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Client\SummaryBottlesAndDeposits.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

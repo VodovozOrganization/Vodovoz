@@ -257,11 +257,6 @@ public partial class MainWindow: Gtk.Window
 		this.UIManager.EnsureUpdate ();
 	}
 
-	protected void OnActionNewOrderActivated (object sender, EventArgs e)
-	{
-		throw new NotImplementedException ();
-	}
-
 	protected void OnActionServicesToggled (object sender, EventArgs e)
 	{
 		if (ActionServices.Active)
@@ -625,5 +620,11 @@ public partial class MainWindow: Gtk.Window
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg (widget)
 		);
+	}
+
+	protected void OnActionArchiveToggled(object sender, EventArgs e)
+	{
+		if (ActionArchive.Active)
+			SwitchToUI ("archive.xml");
 	}
 }
