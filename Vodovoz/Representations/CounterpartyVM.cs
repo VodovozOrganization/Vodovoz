@@ -36,11 +36,11 @@ namespace Vodovoz.ViewModel
 
 			var query = UoW.Session.QueryOver<Counterparty> (() => counterpartyAlias);
 
-			if (Filter.RestrictCounterpartyType != null) {
+			if (Filter != null && Filter.RestrictCounterpartyType != null) {
 				query.Where (c => c.CounterpartyType == Filter.RestrictCounterpartyType);
 			}
 
-			if(!Filter.RestrictIncludeArhive)
+			if(Filter != null && !Filter.RestrictIncludeArhive)
 			{
 				query.Where(c => !c.IsArchive);
 			}
