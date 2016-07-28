@@ -6,15 +6,15 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Reports
 {
-	public partial class RevisionBottlesAndDeposits : Gtk.Bin, IParametersWidget
+	public partial class RevisionBottlesAndDeposits : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
-		IUnitOfWork uow;
+		public IUnitOfWork UoW { get; private set;}
 
 		public RevisionBottlesAndDeposits()
 		{
 			this.Build();
-			uow = UnitOfWorkFactory.CreateWithoutRoot ();
-			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(uow);
+			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
 		}	
 
 		#region IParametersWidget implementation
@@ -30,6 +30,14 @@ namespace Vodovoz.Reports
 		public event EventHandler<LoadReportEventArgs> LoadReport;
 
 		#endregion
+
+		public object EntityObject
+		{
+			get
+			{
+				return null;
+			}
+		}
 
 		void OnUpdate(bool hide = false)
 		{
@@ -82,7 +90,7 @@ namespace Vodovoz.Reports
 			else
 			{
 				referenceDeliveryPoint.Sensitive = true;
-				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(uow, 
+				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, 
 					referenceCounterparty.GetSubject<Counterparty>());
 			}
 		}
