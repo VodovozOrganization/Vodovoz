@@ -91,6 +91,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <CounterpartyVMNode>.Create ()
+			.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
 			.AddColumn ("Контрагент").AddTextRenderer (node => node.Name).WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Телефоны").AddTextRenderer(x => x.Phones)
 			.AddColumn("ИНН").AddTextRenderer(x => x.INN)
