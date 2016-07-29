@@ -70,6 +70,13 @@ namespace Vodovoz
 			if (!ChatCallbackObservable.IsInitiated)
 				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
+			var lastReaded = LastReadedRepository.GetLastReadedMessageForEmloyee(chatUoW, chatUoW.Root, currentEmployee);
+			if(lastReaded != null)
+			{
+				var readDays = (DateTime.Today - lastReaded.LastDateTime.Date).Days;
+				if (showMessagePeriod < readDays)
+					showMessagePeriod = readDays;
+			}
 			updateChat();
 		}
 

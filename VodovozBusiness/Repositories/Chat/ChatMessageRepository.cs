@@ -1,12 +1,11 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Chat;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
 using System.Collections.Generic;
-using NHibernate.Transform;
 using System.Linq;
 using NHibernate.Criterion;
+using QSOrmProject;
+using Vodovoz.Domain.Chat;
+using Vodovoz.Domain.Employees;
+using ChatClass = Vodovoz.Domain.Chat.Chat;
 
 namespace Vodovoz.Repository.Chat
 {
@@ -17,7 +16,7 @@ namespace Vodovoz.Repository.Chat
 
 			return uow.Session.QueryOver<ChatMessage> (() => chatMessageAlias)
 				.Where (() => chatMessageAlias.Chat.Id == chat.Id)
-				.Where (() => chatMessageAlias.DateTime.Date >= DateTime.Now.Date.AddDays(-days))
+				.Where (() => chatMessageAlias.DateTime >= DateTime.Today.AddDays(-days))
 				.OrderBy(() => chatMessageAlias.DateTime).Asc
 				.List();
 		}
