@@ -27,7 +27,7 @@ namespace Vodovoz
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
 		private uint timerId;
-		private const uint carRefreshInterval = 30000;
+		private const uint carRefreshInterval = 10000;
 		private readonly GMapOverlay carsOverlay = new GMapOverlay("cars");
 		private readonly GMapOverlay tracksOverlay = new GMapOverlay("tracks");
 		private Dictionary<int, CarMarker> carMarkers;
@@ -139,7 +139,7 @@ namespace Vodovoz
 		private bool UpdateCarPosition()
 		{
 			var routesIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
-				.SelectMany(x => x.RouteListsIds).ToArray();
+				.SelectMany(x => x.RouteListsIds.Keys).ToArray();
 			var start = DateTime.Now;
 			var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, routesIds);
 
@@ -200,7 +200,7 @@ namespace Vodovoz
 				int colorIter = 0;
 			foreach(var routeId in driverRow.RouteListsIds)
 			{
-				var pointList = Repository.Logistics.TrackRepository.GetPointsForRouteList(uow, routeId);
+				var pointList = Repository.Logistics.TrackRepository.GetPointsForRouteList(uow, routeId.Key);
 				if (pointList.Count == 0)
 					continue;
 

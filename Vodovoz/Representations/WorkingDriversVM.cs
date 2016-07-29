@@ -36,6 +36,10 @@ namespace Vodovoz.ViewModel
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
 				.Select(Projections.RowCount());
 
+			var trackSubquery = QueryOver.Of<Track>()
+				.Where(x => x.RouteList.Id == routeListAlias.Id)
+				.Select(x => x.Id);
+
 			var query = UoW.Session.QueryOver<RouteList>(() => routeListAlias);
 
 			var result = query
@@ -55,43 +59,39 @@ namespace Vodovoz.ViewModel
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
+					.SelectSubQuery(trackSubquery).WithAlias(() => resultAlias.TrackId)
 			             )
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverVMNode>())
 				.List<WorkingDriverVMNode>();
 
-			for (int i = 0; i < result.Count; i++)
+			var summaryResult = new List<WorkingDriverVMNode>();
+			foreach(var driver in result.GroupBy(x => x.Id))
 			{
-				result[i].RouteListsIds.Add(result[i].RouteListNumber);
-				WorkingDriverVMNode item;
-				item = result.FirstOrDefault(d => d.Id == result[i].Id &&
-					d.RouteListNumber != result[i].RouteListNumber);
-				if (item != null)
-				{
-					result[i].RouteListNumbers += "; " + item.RouteListNumbers;
-					result[i].RouteListsIds.AddRange(item.RouteListsIds);
-					result[i].AddressesAll += item.AddressesAll;
-					result[i].AddressesCompleted += item.AddressesCompleted;
-					result.Remove(item);
-					i--;
-				}
+				var savedRow = driver.First();
+				savedRow.RouteListsText = String.Join("; ", driver.Select(x => x.TrackId != null ? String.Format("<span foreground=\"green\"><b>{0}</b></span>", x.RouteListNumber) : x.RouteListNumber.ToString()));
+				savedRow.RouteListsIds = driver.ToDictionary(x => x.RouteListNumber, x => x.TrackId);
+				savedRow.AddressesAll = driver.Sum(x => x.AddressesAll);
+				savedRow.AddressesCompleted = driver.Sum(x => x.AddressesCompleted);
+				summaryResult.Add(savedRow);
 			}
+
 			var chats = ChatRepository.GetCurrentUserChats(UoW, null);
 			var unreaded = ChatMessageRepository.GetUnreadedChatMessages(UoW, EmployeeRepository.GetEmployeeForCurrentUser(UoW), true);
-			foreach (var item in result) {
-				var chat = chats.Where(x => x.Driver.Id == item.Id).FirstOrDefault();
+			foreach (var item in summaryResult) {
+				var chat = chats.FirstOrDefault(x => x.Driver.Id == item.Id);
 				if (chat != null && unreaded.ContainsKey(chat.Id))
 				{
 					item.Unreaded = unreaded[chat.Id];
 				}
 			}
 
-			SetItemsSource(result.OrderBy(x => x.ShortName).ToList());
+			SetItemsSource(summaryResult.OrderBy(x => x.ShortName).ToList());
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<WorkingDriverVMNode>.Create()
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
 			.AddColumn("Машина").SetDataProperty(node => node.CarNumber)
-			.AddColumn("Маршрутные листы").SetDataProperty(node => node.RouteListNumbers)
+			.AddColumn("Маршрутные листы").AddTextRenderer().AddSetter( (c, node) => c.Markup = node.RouteListsText)
 			.AddColumn("Чат").AddTextRenderer().AddSetter((w, n) => w.Markup = (n.Unreaded > 0 ? String.Format("<b><span foreground=\"red\">{0}</span></b>", n.Unreaded) : String.Empty))
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
@@ -133,10 +133,11 @@ namespace Vodovoz.ViewModel
 		public string LastName { get; set; }
 		public string Patronymic { get; set; }
 		public string CarNumber { get; set; }
-		public string RouteListNumbers { get; set; }
+		public string RouteListsText { get; set; }
 		public int Unreaded { get; set; }
 
-		public List<int> RouteListsIds = new List<int>();
+		//RouteListId, TrackId
+		public Dictionary<int, int?> RouteListsIds;
 
 		public int AddressesCompleted { get; set; }
 		public int AddressesAll { get; set; }
@@ -157,13 +158,15 @@ namespace Vodovoz.ViewModel
 
 		private int routeListNumber;
 
+		public int? TrackId;
+
 		public int RouteListNumber
 		{ 
 			get { return routeListNumber; } 
 			set
 			{ 
 				routeListNumber = value;
-				this.RouteListNumbers = value.ToString();
+				this.RouteListsText = value.ToString();
 			}
 		}
 
