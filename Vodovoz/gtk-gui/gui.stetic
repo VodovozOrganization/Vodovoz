@@ -907,6 +907,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -17387,7 +17388,7 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.Label" id="labelEmptyBottles1">
+                      <widget class="Gtk.Label" id="labelEmptyBottlesFommula">
                         <property name="MemberName" />
                         <property name="LabelProp" translatable="yes">Тара</property>
                         <property name="UseMarkup">True</property>
@@ -17454,11 +17455,34 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.VSeparator" id="vseparator9">
+              <widget class="Gtk.VSeparator" id="vseparator2">
                 <property name="MemberName" />
               </widget>
               <packing>
                 <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelEmptyBottles">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Пустых бутылей</property>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VSeparator" id="vseparator9">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">3</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17470,7 +17494,7 @@ RegistrationNumber</property>
                 <property name="LabelProp" translatable="yes">Адресов</property>
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17481,7 +17505,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
               </widget>
               <packing>
-                <property name="Position">3</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17493,7 +17517,7 @@ RegistrationNumber</property>
                 <property name="LabelProp" translatable="yes">Сот. связь</property>
               </widget>
               <packing>
-                <property name="Position">4</property>
+                <property name="Position">6</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17504,29 +17528,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
               </widget>
               <packing>
-                <property name="Position">5</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.Label" id="labelDeposits">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Залогов</property>
-              </widget>
-              <packing>
-                <property name="Position">6</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.VSeparator" id="vseparator4">
-                <property name="MemberName" />
-              </widget>
-              <packing>
                 <property name="Position">7</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
@@ -17534,27 +17535,12 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Label" id="labelCash">
-                <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Итого(нал)</property>
-              </widget>
-              <packing>
-                <property name="Position">8</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
               <widget class="Gtk.Label" id="labelWage1">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Зарплата:</property>
               </widget>
               <packing>
-                <property name="Position">10</property>
+                <property name="Position">8</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17567,7 +17553,7 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">11</property>
+                <property name="Position">9</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17586,12 +17572,58 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
+              <widget class="Gtk.Label" id="labelDeposits">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Залогов</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VSeparator" id="vseparator4">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelCash">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Итого(нал)</property>
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VSeparator" id="vseparator1">
+                <property name="MemberName" />
+              </widget>
+              <packing>
+                <property name="Position">3</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Label" id="labelTotalCollected">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Итого сдано</property>
               </widget>
               <packing>
-                <property name="Position">0</property>
+                <property name="Position">4</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17602,7 +17634,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">5</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17614,7 +17646,7 @@ RegistrationNumber</property>
                 <property name="LabelProp" translatable="yes">Итого</property>
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">6</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -17635,7 +17667,7 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">4</property>
+                <property name="Position">8</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>

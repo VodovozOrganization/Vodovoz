@@ -192,40 +192,41 @@ namespace Vodovoz
 			decimal totalCollected = items.Sum(item => item.TotalCash);
 			decimal driverWage = items.Sum(item => item.DriverWage);
 			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
-			labelAddressCount.Text = String.Format("Адресов:{0}", Entity.AddressCount);
+			labelAddressCount.Text = String.Format("Адресов: {0}", Entity.AddressCount);
 			labelPhone.Text = String.Format(
-				"Сот. связь:{0} {1}",
+				"Сот. связь: {0} {1}",
 				Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelFullBottles.Text = String.Format("Полн. бутылей:{0}", fullBottlesTotal);
+			labelFullBottles.Text = String.Format("Полных бутылей: {0}", fullBottlesTotal);
+			labelEmptyBottles.Text = String.Format("Пустых бутылей: {0}", bottlesReturnedTotal);
 			labelDeposits.Text = String.Format(
-				"Залогов:{0} {1}",
+				"Залогов: {0} {1}",
 				depositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelCash.Text = String.Format(
-				"Итого(нал.){0} {1}", 
+				"Сдано по накладным: {0} {1}", 
 				totalCollected,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotalCollected.Text = String.Format(
-				"Итого сдано:{0} {1}", 
+				"Итоговая сумма: {0} {1}", 
 				totalCollected + depositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = String.Format(
-				"Итого: <b>{0}</b> {1}",
+				"Итого сдано: <b>{0}</b> {1}",
 				Entity.Total,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = String.Format(
-				"Зарплата водителя:<b>{0}</b> {2}" + "  " + "Зарплата экспедитора:<b>{1}</b> {2}", 
+				"Зарплата водителя: <b>{0}</b> {2}" + "  " + "Зарплата экспедитора: <b>{1}</b> {2}", 
 				driverWage,
 				forwarderWage,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelEmptyBottles1.Markup = String.Format("Тара: <b>{0}</b><sub>(выгружено)</sub> - <b>{1}</b><sub>(итого сдано)</sub> =",
+			labelEmptyBottlesFommula.Markup = String.Format("Тара: <b>{0}</b><sub>(выгружено на склад)</sub> - <b>{1}</b><sub>(по документам)</sub> =",
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
