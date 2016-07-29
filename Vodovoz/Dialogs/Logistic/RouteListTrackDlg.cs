@@ -245,6 +245,7 @@ namespace Vodovoz
 					tracksOverlay.Markers.Add(addressMarker);
 				}
 			}
+			buttonCleanTrack.Sensitive = true;
 		}
 
 		private System.Drawing.Color[] trackColors = new System.Drawing.Color[]{
@@ -312,6 +313,11 @@ namespace Vodovoz
 		protected void OnYenumcomboMapTypeChangedByUser(object sender, EventArgs e)
 		{
 			gmapWidget.MapProvider = MapProvidersHelper.GetPovider((MapProviders)yenumcomboMapType.SelectedItem);
+		}
+
+		protected void OnButtonCleanTrackClicked(object sender, EventArgs e)
+		{
+			tracksOverlay.Clear();
 		}
 	}
 }
