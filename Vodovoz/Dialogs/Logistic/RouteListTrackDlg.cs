@@ -23,6 +23,7 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListTrackDlg : TdiTabBase, IChatCallbackObserver
 	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
 		private uint timerId;
@@ -137,24 +138,28 @@ namespace Vodovoz
 
 		private bool UpdateCarPosition()
 		{
-			var driversIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
-				.Select(x => x.Id).ToArray();
-			var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForDrivers(uow, driversIds);
-			var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.DriverId).ToArray();
-			var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForDrivers(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
+			var routesIds = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
+				.SelectMany(x => x.RouteListsIds).ToArray();
+			var start = DateTime.Now;
+			var lastPoints = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, routesIds);
+
+			var movedDrivers = lastPoints.Where(x => x.Time > DateTime.Now.AddMinutes(-20)).Select(x => x.RouteListId).ToArray();
+			var ere20Minuts = Repository.Logistics.TrackRepository.GetLastPointForRouteLists(uow, movedDrivers, DateTime.Now.AddMinutes(-20));
+			logger.Debug("Время запроса точек: {0}", DateTime.Now - start);
 			carsOverlay.Clear();
 			carMarkers = new Dictionary<int, CarMarker>();
-			foreach(var point in lastPoints)
+			foreach(var pointsForDriver in lastPoints.GroupBy(x => x.DriverId))
 			{
+				var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
 				CarMarkerType iconType;
-				var ere20 = ere20Minuts.FirstOrDefault(x => x.DriverId == point.DriverId);
-				if (point.Time < DateTime.Now.AddMinutes(-20))
+				var ere20 = ere20Minuts.Where(x => x.DriverId == pointsForDriver.Key).OrderBy(x => x.Time).Last();
+				if (lastPoint.Time < DateTime.Now.AddMinutes(-20))
 				{
 					iconType = CarMarkerType.BlueCar;
 				}
 				else if (ere20 != null)
 				{
-					var point1 = new PointLatLng(point.Latitude, point.Longitude);
+					var point1 = new PointLatLng(lastPoint.Latitude, lastPoint.Longitude);
 					var point2 = new PointLatLng(ere20.Latitude, ere20.Longitude);
 					var diff = gmapWidget.MapProvider.Projection.GetDistance(point1, point2);
 					if (diff <= 0.1)
@@ -165,24 +170,24 @@ namespace Vodovoz
 				else
 					iconType = CarMarkerType.GreenCar;
 
-				if(lastSelectedDriver == point.DriverId)
+				if(lastSelectedDriver == lastPoint.DriverId)
 				{
 					lastMarkerType = iconType;
 					iconType = CarMarkerType.BlackCar;
 				}
 				
-				var marker = new CarMarker(new PointLatLng(point.Latitude, point.Longitude),
+				var marker = new CarMarker(new PointLatLng(lastPoint.Latitude, lastPoint.Longitude),
 					iconType);
 				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
-					.First(x => x.Id == point.DriverId);
+					.First(x => x.Id == lastPoint.DriverId);
 				string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
-				if (point.Time < DateTime.Now.AddSeconds(-30))
-					text += point.Time.Date == DateTime.Today 
-						? String.Format("\nБыл виден: {0:t} ", point.Time)
-						: String.Format("\nБыл виден: {0:g} ", point.Time);
+				if (lastPoint.Time < DateTime.Now.AddSeconds(-30))
+					text += lastPoint.Time.Date == DateTime.Today 
+						? String.Format("\nБыл виден: {0:t} ", lastPoint.Time)
+						: String.Format("\nБыл виден: {0:g} ", lastPoint.Time);
 				marker.ToolTipText = text;
 				carsOverlay.Markers.Add(marker);
-				carMarkers.Add(point.DriverId, marker);
+				carMarkers.Add(lastPoint.DriverId, marker);
 			}
 			return true;
 		}

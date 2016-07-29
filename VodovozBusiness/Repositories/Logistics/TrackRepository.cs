@@ -44,27 +44,26 @@ namespace Vodovoz.Repository.Logistics
 				.Where()
 		}
 */
-		public static IList<DriverPosition> GetLastPointForDrivers(IUnitOfWork uow, int[] driversIds, DateTime? beforeTime = null)
+		public static IList<DriverPosition> GetLastPointForRouteLists(IUnitOfWork uow, int[] routeListsIds, DateTime? beforeTime = null)
 		{
 			Track trackAlias = null;
-			Track subTrackAlias = null;
 			TrackPoint subPoint = null;
 			DriverPosition result = null;
 
 			var lastTimeTrackQuery = QueryOver.Of<TrackPoint>(() => subPoint)
-				.JoinAlias(p => p.Track, () => subTrackAlias)
-				.Where(() => subTrackAlias.Driver.Id == trackAlias.Driver.Id);
+				.Where(() => subPoint.Track.Id == trackAlias.Id);
 			if (beforeTime.HasValue)
 				lastTimeTrackQuery.Where(p => p.TimeStamp <= beforeTime);
-			
+
 			lastTimeTrackQuery.Select(Projections.Max(() => subPoint.TimeStamp));
 
 			return uow.Session.QueryOver<TrackPoint>()
 				.JoinAlias(p => p.Track, () => trackAlias)
-				.Where(() => trackAlias.Driver.Id.IsIn(driversIds))
+				.Where(() => trackAlias.RouteList.Id.IsIn(routeListsIds))
 				.WithSubquery.WhereProperty(p => p.TimeStamp).Eq(lastTimeTrackQuery)
 				.SelectList(list => list
 					.Select(() => trackAlias.Driver.Id).WithAlias(() => result.DriverId)
+					.Select(() => trackAlias.RouteList.Id).WithAlias(() => result.RouteListId)
 					.Select(x => x.TimeStamp).WithAlias(() => result.Time)
 					.Select(x => x.Latitude).WithAlias(() => result.Latitude)
 					.Select(x => x.Longitude).WithAlias(() => result.Longitude)
@@ -74,6 +73,7 @@ namespace Vodovoz.Repository.Logistics
 
 		public class DriverPosition{
 			public int DriverId { get; set;}
+			public int RouteListId { get; set;}
 			public DateTime Time { get; set;}
 			public Double Latitude { get; set;}
 			public Double Longitude { get; set;}
