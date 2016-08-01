@@ -142,7 +142,7 @@ namespace Vodovoz
 							|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
 				}
 				routeListItem.BottlesReturned = routeListItem.IsDelivered()
-					? routeListItem.Order.BottlesReturn : 0;
+					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
 				routeListItem.TotalCash = routeListItem.IsDelivered() && 
 					routeListItem.Order.PaymentType==PaymentType.cash
 					? routeListItem.Order.SumToReceive : 0;

@@ -134,6 +134,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.BottlesReturned)
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
+						.AddSetter(EmptyBottleCellSetter)
 				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DepositsCollected)
 						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
@@ -183,6 +184,19 @@ namespace Vodovoz
 				});
 				
 			ytreeviewItems.ColumnsConfig = config.Finish();
+		}
+
+		private void EmptyBottleCellSetter(Gamma.GtkWidgets.Cells.NodeCellRendererSpin<RouteListItem> cell, RouteListItem node)
+		{
+			if(node.DriverBottlesReturned.HasValue)
+			{
+				if(node.BottlesReturned == node.DriverBottlesReturned)
+					cell.Foreground = "Green";
+				else
+					cell.Foreground = "Blue";
+			}
+			else
+				cell.Foreground = "Black";
 		}
 
 		public string WaterToClientString(RouteListItem item, int id)
