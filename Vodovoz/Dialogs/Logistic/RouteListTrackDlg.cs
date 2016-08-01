@@ -152,7 +152,7 @@ namespace Vodovoz
 			{
 				var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
 				CarMarkerType iconType;
-				var ere20 = ere20Minuts.Where(x => x.DriverId == pointsForDriver.Key).OrderBy(x => x.Time).Last();
+				var ere20 = ere20Minuts.Where(x => x.DriverId == pointsForDriver.Key).OrderBy(x => x.Time).LastOrDefault();
 				if (lastPoint.Time < DateTime.Now.AddMinutes(-20))
 				{
 					iconType = CarMarkerType.BlueCar;
