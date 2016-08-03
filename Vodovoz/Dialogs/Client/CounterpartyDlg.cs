@@ -7,7 +7,6 @@ using QSContacts;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
@@ -94,6 +93,12 @@ namespace Vodovoz
 
 			ycheckIsArchived.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
+			var counterpatiesView = new ViewModel.CounterpartyVM(UoW);
+			referenceMainCounterparty.RepresentationModel = counterpatiesView;
+			referenceMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
+			referencePreviousCounterparty.RepresentationModel = counterpatiesView;
+			referencePreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
+
 			//Setting subjects
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
@@ -102,9 +107,6 @@ namespace Vodovoz
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);
-			referenceMainCounterparty.ItemsCriteria = UoWGeneric.Session.CreateCriteria<Counterparty> ()
-				.Add (Restrictions.Not (Restrictions.Eq ("id", UoWGeneric.Root.Id)));
-			referenceMainCounterparty.SubjectType = typeof(Counterparty);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM (UoW, Entity);
 			dataentryFinancialContact.RepresentationModel = new ViewModel.ContactsVM (UoW, Entity);
@@ -219,6 +221,18 @@ namespace Vodovoz
 		protected void OnEnumPaymentEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
+		}
+
+		protected void OnReferencePreviousCounterpartyChangedByUser(object sender, EventArgs e)
+		{
+			if (DomainHelper.EqualDomainObjects(Entity.PreviousCounterparty, Entity))
+				Entity.PreviousCounterparty = null;
+		}
+			
+		protected void OnReferenceMainCounterpartyChangedByUser(object sender, EventArgs e)
+		{
+			if (DomainHelper.EqualDomainObjects(Entity.MainCounterparty, Entity))
+				Entity.MainCounterparty = null;
 		}
 	}
 }

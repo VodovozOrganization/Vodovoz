@@ -206,6 +206,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref mainCounterparty, value, () => MainCounterparty); }
 		}
 
+		Counterparty previousCounterparty;
+
+		[Display (Name = "Предыдущий контрагент")]
+		public virtual Counterparty PreviousCounterparty {
+			get { return previousCounterparty; }
+			set { SetField (ref previousCounterparty, value, () => PreviousCounterparty); }
+		}
+
 		CounterpartyType counterpartyType;
 
 		[Display (Name = "Тип контрагента")]

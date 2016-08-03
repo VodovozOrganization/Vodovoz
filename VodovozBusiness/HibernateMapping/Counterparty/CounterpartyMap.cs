@@ -31,6 +31,7 @@ namespace Vodovoz.HMap
 			References (x => x.Significance).Column ("significance_id");
 			References (x => x.Status).Column ("status_id");
 			References (x => x.MainCounterparty).Column ("maincounterparty_id");
+			References (x => x.PreviousCounterparty).Column ("previous_counterparty_id");
 			References (x => x.Accountant).Column ("accountant_id");
 			References (x => x.SalesManager).Column ("sales_manager_id");
 			References (x => x.BottlesManager).Column ("bottles_manager_id");
