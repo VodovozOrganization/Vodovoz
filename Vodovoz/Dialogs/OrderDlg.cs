@@ -910,12 +910,14 @@ namespace Vodovoz
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
 		{
+			//Заполняем точку доставки если она одна.
 			if(Entity.DeliveryPoint == null && Entity.Client != null && Entity.Client.DeliveryPoints != null 
 				&& Entity.OrderStatus == OrderStatus.NewOrder && !Entity.SelfDelivery
 				&& Entity.Client.DeliveryPoints.Count == 1)
 			{
 				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
 			}
+			//Устанавливаем тип документа
 			if (Entity.Client != null && Entity.Client.DefaultDocumentType != null)
 			{
 				Entity.DocumentType = Entity.Client.DefaultDocumentType;
@@ -924,6 +926,9 @@ namespace Vodovoz
 			{
 				Entity.DocumentType = DefaultDocumentType.upd;
 			}
+			//Устанавливаем тип оплаты
+			if (Entity.Client != null)
+				Entity.PaymentType = Entity.Client.PaymentMethod;
 		}
 
 		protected void OnButtonOpenServiceClaimClicked(object sender, EventArgs e)
