@@ -59,9 +59,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = orders.author_employee_id
 WHERE
-    orders.id = @order_id
-        AND ! counterparty_contract.on_cancellation
-        AND ! counterparty_contract.is_archive;</CommandText>
+    orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>

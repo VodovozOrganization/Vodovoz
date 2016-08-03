@@ -94,7 +94,7 @@ LEFT JOIN organizations ON organizations.id = (SELECT IF(orders.payment_type = '
 LEFT JOIN counterparty_contract ON counterparty_contract.counterparty_id = orders.client_id AND counterparty_contract.organization_id = organizations.id
 LEFT JOIN employees leader ON leader.id = organizations.leader_id 
 LEFT JOIN employees buhgalter ON buhgalter.id = organizations.buhgalter_id 
-WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !counterparty_contract.is_archive;
+WHERE orders.id = @order_id;
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">

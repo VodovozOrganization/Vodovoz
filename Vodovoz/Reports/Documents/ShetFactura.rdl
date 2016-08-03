@@ -125,7 +125,7 @@ LEFT JOIN accounts org_account ON org_account.id = organizations.default_account
 LEFT JOIN banks org_bank ON org_bank.id = org_account.bank_id
 LEFT JOIN accounts client_account ON client_account.id = counterparty.default_account_id
 LEFT JOIN banks client_bank ON client_bank.id = client_account.bank_id
-WHERE orders.id = @order_id AND !counterparty_contract.on_cancellation AND !counterparty_contract.is_archive;</CommandText>
+WHERE orders.id = @order_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="order_id">
             <Value>=Parameters!order_id</Value>
