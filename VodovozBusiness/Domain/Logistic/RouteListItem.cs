@@ -268,7 +268,7 @@ namespace Vodovoz.Domain.Logistic
 			if (!WithForwarder || RouteList.Forwarder==null)
 				return 0;
 
-			if (Status != RouteListItemStatus.Completed)
+			if (!IsDelivered())
 				return 0;
 			
 			bool largeOrder = fullBottleCount >= rates.LargeOrderMinimumBottles;
