@@ -1,6 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain;
 
 namespace Vodovoz.HMap
 {

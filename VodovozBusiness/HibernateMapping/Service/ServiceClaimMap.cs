@@ -1,8 +1,8 @@
 ﻿using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Service;
-using Vodovoz.Domain;
 
-namespace Vodovoz
+namespace Vodovoz.HMap
 {
 	public class ServiceClaimMap: ClassMap<ServiceClaim>
 	{

@@ -4,6 +4,7 @@ using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -171,7 +172,7 @@ namespace Vodovoz.Domain.Logistic
 			var result = new List<DepositOperation>();
 			var bottleDepositNomenclature = NomenclatureRepository.GetBottleDeposit(UoW);
 			var bottleDepositPrice = bottleDepositNomenclature.GetPrice(1);
-			foreach (RouteListItem item in RouteList.Addresses.Where(address=>address.Order.PaymentType==PaymentType.cash))
+			foreach (RouteListItem item in RouteList.Addresses.Where(address=>address.Order.PaymentType == PaymentType.cash))
 			{
 				var deliveredEquipmentForRent = item.Order.OrderEquipments.Where(eq => eq.Confirmed)
 						.Where(eq => eq.Direction == Vodovoz.Domain.Orders.Direction.Deliver)

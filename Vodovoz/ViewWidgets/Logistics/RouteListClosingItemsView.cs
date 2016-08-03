@@ -8,10 +8,10 @@ using Gtk;
 using NLog;
 using QSOrmProject;
 using QSTDI;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {

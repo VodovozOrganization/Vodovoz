@@ -10,6 +10,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -144,7 +145,7 @@ namespace Vodovoz
 				routeListItem.BottlesReturned = routeListItem.IsDelivered()
 					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
 				routeListItem.TotalCash = routeListItem.IsDelivered() && 
-					routeListItem.Order.PaymentType==PaymentType.cash
+					routeListItem.Order.PaymentType == PaymentType.cash
 					? routeListItem.Order.SumToReceive : 0;
 				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(routeListItem.Order.BottlesReturn);
 				routeListItem.DepositsCollected = routeListItem.IsDelivered()

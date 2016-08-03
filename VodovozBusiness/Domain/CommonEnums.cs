@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz.Domain
+namespace Vodovoz.Domain.Goods
 {
 	public enum VAT
 	{
@@ -21,7 +21,10 @@ namespace Vodovoz.Domain
 		{
 		}
 	}
+}
 
+namespace Vodovoz.Domain.Client
+{
 	public enum PaymentType
 	{
 		[Display (Name = "Наличная", ShortName = "нал." )]

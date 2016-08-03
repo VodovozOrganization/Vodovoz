@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using QSOrmProject;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.ExportTo1c.Catalogs;

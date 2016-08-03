@@ -1,8 +1,8 @@
-﻿using Vodovoz.Domain;
+﻿using QSBanks;
 using QSOrmProject;
 using QSSupportLib;
-using System.Collections.Generic;
-using QSBanks;
+using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Repository
 {
@@ -11,7 +11,7 @@ namespace Vodovoz.Repository
 		public const string CashOrganization = "cash_organization_id";
 		public const string CashlessOrganization = "cashless_organization_id";
 
-		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow,PaymentType paymentType)
+		public static Organization GetOrganizationByPaymentType(IUnitOfWork uow, PaymentType paymentType)
 		{
 			string organizationParameter="";
 			switch (paymentType) {
