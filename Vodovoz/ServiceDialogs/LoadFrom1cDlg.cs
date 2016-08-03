@@ -10,6 +10,7 @@ using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.LoadFrom1c;
 using QSWidgetLib;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -262,6 +263,7 @@ namespace Vodovoz
 
 				var jurNode = node.SelectSingleNode ("Свойство[@Имя='ЮрФизЛицо']/Значение");
 				counterparty.PersonType = jurNode.InnerText == "ЮрЛицо" ? PersonType.legal : PersonType.natural;
+				counterparty.PaymentMethod = jurNode.InnerText == "ЮрЛицо" ? PaymentType.cashless : PaymentType.cash;
 
 				var accountNode = node.SelectSingleNode ("Свойство[@Имя='ОсновнойБанковскийСчет']/Ссылка/Свойство[@Имя='Код']/Значение");
 				if(accountNode != null)
