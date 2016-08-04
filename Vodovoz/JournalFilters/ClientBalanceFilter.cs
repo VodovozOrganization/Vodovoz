@@ -19,7 +19,9 @@ namespace Vodovoz
 			set {
 				uow = value;
 				var filter = new CounterpartyFilter (UnitOfWorkFactory.CreateWithoutRoot ());
-				filter.RestrictCounterpartyType = CounterpartyType.customer;
+				filter.RestrictIncludeCustomer = true;
+				filter.RestrictIncludeSupplier = false;
+				filter.RestrictIncludePartner = false;
 				entryreferenceClient.RepresentationModel = new ViewModel.CounterpartyVM (filter);
 			}
 		}

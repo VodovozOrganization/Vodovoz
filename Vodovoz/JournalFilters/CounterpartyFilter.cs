@@ -1,7 +1,6 @@
 ﻿using System;
-using QSOrmProject.RepresentationModel;
 using QSOrmProject;
-using Vodovoz.Domain.Client;
+using QSOrmProject.RepresentationModel;
 
 namespace Vodovoz
 {
@@ -37,20 +36,35 @@ namespace Vodovoz
 			}
 			set {
 				uow = value;
-				comboCounterpartyType.ItemsEnum = typeof(CounterpartyType);
 			}
 		}
 
 		#endregion
 
-		public CounterpartyType? RestrictCounterpartyType {
-			get { return comboCounterpartyType.SelectedItem as CounterpartyType?; }
+		public bool RestrictIncludeCustomer {
+			get { return checkCustomer.Active; }
 			set {
-				comboCounterpartyType.SelectedItem = value;
-				comboCounterpartyType.Sensitive = false;
+				checkCustomer.Active = value;
+				checkCustomer.Sensitive = false;
 			}
 		}
 
+		public bool RestrictIncludeSupplier {
+			get { return checkSupplier.Active; }
+			set {
+				checkSupplier.Active = value;
+				checkSupplier.Sensitive = false;
+			}
+		}
+
+		public bool RestrictIncludePartner {
+			get { return checkPartner.Active; }
+			set {
+				checkPartner.Active = value;
+				checkPartner.Sensitive = false;
+			}
+		}
+			
 		public bool RestrictIncludeArhive {
 			get { return checkIncludeArhive.Active; }
 			set {
@@ -65,6 +79,21 @@ namespace Vodovoz
 		}
 
 		protected void OnCheckIncludeArhiveToggled(object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnCheckPartnerToggled(object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnCheckSupplierToggled(object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+			
+		protected void OnCheckCustomerToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}

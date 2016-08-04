@@ -44,7 +44,7 @@ namespace Vodovoz
 		
 		private global::Gamma.Widgets.yEntryReference yentryrefWagon;
 		
-		private global::Gtk.HBox hbox2;
+		private global::Gtk.HBox hbox3;
 		
 		private global::Gtk.VBox vbox2;
 		
@@ -58,7 +58,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label labelStockFrom;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceCounterpartyFrom;
+		private global::QSOrmProject.yEntryReferenceVM referenceCounterpartyFrom;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPointFrom;
 		
@@ -78,7 +78,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label labelStockTo;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceCounterpartyTo;
+		private global::QSOrmProject.yEntryReferenceVM referenceCounterpartyTo;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPointTo;
 		
@@ -330,10 +330,10 @@ namespace Vodovoz
 			w21.Expand = false;
 			w21.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox ();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox ();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.vbox2 = new global::Gtk.VBox ();
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
@@ -387,17 +387,9 @@ namespace Vodovoz
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSender.Gtk.Table+TableChild
-			this.referenceCounterpartyFrom = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceCounterpartyFrom = new global::QSOrmProject.yEntryReferenceVM ();
 			this.referenceCounterpartyFrom.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterpartyFrom.Name = "referenceCounterpartyFrom";
-			this.referenceCounterpartyFrom.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceCounterpartyFrom.DisplayFormatString = "{0}";
-			this.referenceCounterpartyFrom.InheritedDataSource = true;
-			this.referenceCounterpartyFrom.Mappings = "FromClient";
-			this.referenceCounterpartyFrom.InheritedBoundaryDataSource = false;
-			this.referenceCounterpartyFrom.CursorPointsEveryType = false;
 			this.tableSender.Add (this.referenceCounterpartyFrom);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tableSender [this.referenceCounterpartyFrom]));
 			w26.TopAttach = ((uint)(1));
@@ -446,18 +438,18 @@ namespace Vodovoz
 			w29.Position = 1;
 			w29.Expand = false;
 			w29.Fill = false;
-			this.hbox2.Add (this.vbox2);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
+			this.hbox3.Add (this.vbox2);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.vbox2]));
 			w30.Position = 0;
-			// Container child hbox2.Gtk.Box+BoxChild
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.vseparator1 = new global::Gtk.VSeparator ();
 			this.vseparator1.Name = "vseparator1";
-			this.hbox2.Add (this.vseparator1);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vseparator1]));
+			this.hbox3.Add (this.vseparator1);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.vseparator1]));
 			w31.Position = 1;
 			w31.Expand = false;
 			w31.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.vbox4 = new global::Gtk.VBox ();
 			this.vbox4.Name = "vbox4";
 			this.vbox4.Spacing = 6;
@@ -511,17 +503,9 @@ namespace Vodovoz
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableReceiver.Gtk.Table+TableChild
-			this.referenceCounterpartyTo = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceCounterpartyTo = new global::QSOrmProject.yEntryReferenceVM ();
 			this.referenceCounterpartyTo.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterpartyTo.Name = "referenceCounterpartyTo";
-			this.referenceCounterpartyTo.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceCounterpartyTo.DisplayFormatString = "{0}";
-			this.referenceCounterpartyTo.InheritedDataSource = true;
-			this.referenceCounterpartyTo.Mappings = "ToClient";
-			this.referenceCounterpartyTo.InheritedBoundaryDataSource = false;
-			this.referenceCounterpartyTo.CursorPointsEveryType = false;
 			this.tableReceiver.Add (this.referenceCounterpartyTo);
 			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.tableReceiver [this.referenceCounterpartyTo]));
 			w36.TopAttach = ((uint)(1));
@@ -570,11 +554,11 @@ namespace Vodovoz
 			w39.Position = 1;
 			w39.Expand = false;
 			w39.Fill = false;
-			this.hbox2.Add (this.vbox4);
-			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox4]));
+			this.hbox3.Add (this.vbox4);
+			global::Gtk.Box.BoxChild w40 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.vbox4]));
 			w40.Position = 2;
-			this.vbox3.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.hbox2]));
+			this.vbox3.Add (this.hbox3);
+			global::Gtk.Box.BoxChild w41 = ((global::Gtk.Box.BoxChild)(this.vbox3 [this.hbox3]));
 			w41.Position = 2;
 			w41.Expand = false;
 			w41.Fill = false;

@@ -10,7 +10,7 @@ namespace Vodovoz.Repository
 		public static QueryOver<Counterparty> ActiveClientsQuery ()
 		{
 			return QueryOver.Of<Counterparty> ()
-				.Where (c => c.CounterpartyType == CounterpartyType.customer)
+				.Where (c => c.CooperationCustomer)
 				.Where (c => !c.IsArchive);
 		}
 

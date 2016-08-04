@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using NHibernate.Criterion;
 using NLog;
 using QSBanks;
 using QSContacts;
@@ -82,7 +81,7 @@ namespace Vodovoz
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			//Setting up fields sources
 			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = subjectAdaptor;
-			enumPersonType.DataSource = enumCounterpartyType.DataSource = subjectAdaptor;
+			enumPersonType.DataSource = subjectAdaptor;
 			validatedINN.DataSource = validatedKPP.DataSource = subjectAdaptor;
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
@@ -98,6 +97,10 @@ namespace Vodovoz
 			referenceMainCounterparty.Binding.AddBinding(Entity, e => e.MainCounterparty, w => w.Subject).InitializeFromSource();
 			referencePreviousCounterparty.RepresentationModel = counterpatiesView;
 			referencePreviousCounterparty.Binding.AddBinding(Entity, e => e.PreviousCounterparty, w => w.Subject).InitializeFromSource();
+
+			checkCustomer.Binding.AddBinding(Entity, e => e.CooperationCustomer, w => w.Active).InitializeFromSource();
+			checkSupplier.Binding.AddBinding(Entity, e => e.CooperationSupplier, w => w.Active).InitializeFromSource();
+			checkPartner.Binding.AddBinding(Entity, e => e.CooperationPartner, w => w.Active).InitializeFromSource();
 
 			//Setting subjects
 			accountsView.ParentReference = new ParentReferenceGeneric<Counterparty, Account> (UoWGeneric, c => c.Accounts);
@@ -213,11 +216,6 @@ namespace Vodovoz
 					radioDetails.Visible = radiobuttonProxies.Visible = Entity.PersonType == PersonType.legal;
 		}
 
-		protected void OnEnumCounterpartyTypeChanged (object sender, EventArgs e)
-		{
-			labelDefaultExpense.Visible = referenceDefaultExpense.Visible = Entity.CounterpartyType == CounterpartyType.supplier;
-		}
-
 		protected void OnEnumPaymentEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
 			enumDefaultDocumentType.Visible = labelDefaultDocumentType.Visible = (PaymentType)e.SelectedItem == PaymentType.cashless;
@@ -233,6 +231,11 @@ namespace Vodovoz
 		{
 			if (DomainHelper.EqualDomainObjects(Entity.MainCounterparty, Entity))
 				Entity.MainCounterparty = null;
+		}
+
+		protected void OnCheckSupplierToggled(object sender, EventArgs e)
+		{
+			labelDefaultExpense.Visible = referenceDefaultExpense.Visible = checkSupplier.Active;
 		}
 	}
 }

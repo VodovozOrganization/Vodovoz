@@ -133,7 +133,9 @@ namespace Vodovoz
 			spinBottlesReturn.Binding.AddBinding (Entity, s => s.BottlesReturn, w => w.ValueAsInt).InitializeFromSource ();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictCounterpartyType = CounterpartyType.customer;
+			counterpartyFilter.RestrictIncludeCustomer = true;
+			counterpartyFilter.RestrictIncludeSupplier = false;
+			counterpartyFilter.RestrictIncludePartner = true;
 			counterpartyFilter.RestrictIncludeArhive = false;
 			referenceClient.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceClient.Binding.AddBinding (Entity, s => s.Client, w => w.Subject).InitializeFromSource ();

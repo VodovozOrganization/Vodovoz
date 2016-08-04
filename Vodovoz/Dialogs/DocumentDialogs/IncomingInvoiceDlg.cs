@@ -1,10 +1,8 @@
 ﻿using System;
-using NHibernate.Criterion;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 
@@ -46,10 +44,15 @@ namespace Vodovoz
 		void ConfigureDlg ()
 		{
 			tableInvoice.DataSource = subjectAdaptor;
-			referenceContractor.SubjectType = typeof(Counterparty);
 			referenceWarehouse.SubjectType = typeof(Warehouse);
-			referenceContractor.ItemsCriteria = Session.CreateCriteria<Counterparty> ()
-				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.supplier));
+
+			var counterpartyFilter = new CounterpartyFilter(UoW);
+			counterpartyFilter.RestrictIncludeSupplier = true;
+			counterpartyFilter.RestrictIncludeCustomer = false;
+			counterpartyFilter.RestrictIncludePartner = false;
+			referenceContractor.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceContractor.Binding.AddBinding(Entity, e => e.Contractor, w => w.Subject);
+
 			incominginvoiceitemsview1.DocumentUoW = UoWGeneric;
 			ytextviewComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 		}

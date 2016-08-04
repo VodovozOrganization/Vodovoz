@@ -47,12 +47,21 @@ namespace Vodovoz
 			tableSender.DataSource = subjectAdaptor;
 			tableCommon.DataSource = subjectAdaptor;
 			tableReceiver.DataSource = subjectAdaptor;
-			referenceCounterpartyTo.SubjectType = typeof(Counterparty);
-			referenceCounterpartyFrom.SubjectType = typeof(Counterparty);
-			referenceCounterpartyTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<Counterparty> ()
-				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
-			referenceCounterpartyFrom.ItemsCriteria = UoWGeneric.Session.CreateCriteria<Counterparty> ()
-				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
+
+			var counterpartyFilter = new CounterpartyFilter(UoW);
+			counterpartyFilter.RestrictIncludeSupplier = false;
+			counterpartyFilter.RestrictIncludeCustomer = true;
+			counterpartyFilter.RestrictIncludePartner = false;
+			referenceCounterpartyFrom.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject);
+
+			counterpartyFilter = new CounterpartyFilter(UoW);
+			counterpartyFilter.RestrictIncludeSupplier = false;
+			counterpartyFilter.RestrictIncludeCustomer = true;
+			counterpartyFilter.RestrictIncludePartner = false;
+			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject);
+
 			referenceWarehouseTo.SubjectType = typeof(Warehouse);
 			referenceWarehouseFrom.SubjectType = typeof(Warehouse);
 			referenceDeliveryPointTo.CanEditReference = false;

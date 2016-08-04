@@ -214,12 +214,28 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref previousCounterparty, value, () => PreviousCounterparty); }
 		}
 
-		CounterpartyType counterpartyType;
+		bool cooperationCustomer;
 
-		[Display (Name = "Тип контрагента")]
-		public virtual CounterpartyType CounterpartyType {
-			get { return counterpartyType; }
-			set { SetField (ref counterpartyType, value, () => CounterpartyType); }
+		[Display (Name = "Это покупатель")]
+		public virtual bool CooperationCustomer {
+			get { return cooperationCustomer; }
+			set { SetField (ref cooperationCustomer, value, () => CooperationCustomer); }
+		}
+
+		bool cooperationSupplier;
+
+		[Display (Name = "Это поставщик")]
+		public virtual bool CooperationSupplier {
+			get { return cooperationSupplier; }
+			set { SetField (ref cooperationSupplier, value, () => CooperationSupplier); }
+		}
+
+		bool cooperationPartner;
+
+		[Display (Name = "Это партнер")]
+		public virtual bool CooperationPartner {
+			get { return cooperationPartner; }
+			set { SetField (ref cooperationPartner, value, () => CooperationPartner); }
 		}
 
 		CounterpartyStatus status;
@@ -404,23 +420,6 @@ namespace Vodovoz.Domain.Client
 	public class DefaultDocumentTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public DefaultDocumentTypeStringType () : base (typeof(DefaultDocumentType))
-		{
-		}
-	}
-
-	public enum CounterpartyType
-	{
-		[ItemTitleAttribute ("Покупатель")]
-		customer,
-		[ItemTitleAttribute ("Поставщик")]
-		supplier,
-		[ItemTitleAttribute ("Партнер")]
-		partner,
-	}
-
-	public class CounterpartyTypeStringType : NHibernate.Type.EnumStringType
-	{
-		public CounterpartyTypeStringType () : base (typeof(CounterpartyType))
 		{
 		}
 	}

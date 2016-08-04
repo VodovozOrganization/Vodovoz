@@ -24,9 +24,11 @@ namespace Vodovoz.HMap
 			Map (x => x.KPP).Column ("kpp");
 			Map (x => x.JurAddress).Column ("jur_address");
 			Map (x => x.Address).Column ("address");
+			Map (x => x.CooperationCustomer).Column ("cooperation_customer");
+			Map (x => x.CooperationSupplier).Column ("cooperation_supplier");
+			Map (x => x.CooperationPartner).Column ("cooperation_partner");
 			Map (x => x.PaymentMethod).Column ("payment_method").CustomType<PaymentTypeStringType> ();
 			Map (x => x.PersonType).Column ("person_type").CustomType<PersonTypeStringType> ();
-			Map (x => x.CounterpartyType).Column ("counterparty_type").CustomType<CounterpartyTypeStringType> ();
 			Map (x => x.DefaultDocumentType).Column ("default_document_type").CustomType<DefaultDocumentTypeStringType> ();
 			References (x => x.Significance).Column ("significance_id");
 			References (x => x.Status).Column ("status_id");

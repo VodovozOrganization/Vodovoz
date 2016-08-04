@@ -47,9 +47,14 @@ namespace Vodovoz
 		void ConfigureDlg ()
 		{
 			tableWriteoff.DataSource = subjectAdaptor;
-			referenceCounterparty.SubjectType = typeof(Counterparty);
-			referenceCounterparty.ItemsCriteria = UoWGeneric.Session.CreateCriteria<Counterparty> ()
-				.Add (Restrictions.Eq ("CounterpartyType", CounterpartyType.customer));
+
+			var counterpartyFilter = new CounterpartyFilter(UoW);
+			counterpartyFilter.RestrictIncludeSupplier = false;
+			counterpartyFilter.RestrictIncludeCustomer = true;
+			counterpartyFilter.RestrictIncludePartner = false;
+			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject);
+
 			referenceWarehouse.SubjectType = typeof(Warehouse);
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;

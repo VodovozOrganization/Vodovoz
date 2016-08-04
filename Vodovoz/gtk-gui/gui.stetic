@@ -4338,9 +4338,6 @@ Patronymic</property>
                           <placeholder />
                         </child>
                         <child>
-                          <placeholder />
-                        </child>
-                        <child>
                           <widget class="QSOrmProject.yLegalName" id="datalegalname1">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
@@ -4412,35 +4409,6 @@ Patronymic</property>
                             <property name="AutoSize">False</property>
                             <property name="YOptions">Fill</property>
                             <property name="XExpand">True</property>
-                            <property name="XFill">True</property>
-                            <property name="XShrink">False</property>
-                            <property name="YExpand">False</property>
-                            <property name="YFill">True</property>
-                            <property name="YShrink">False</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <widget class="Gtk.DataBindings.DataEnumComboBox" id="enumCounterpartyType">
-                            <property name="MemberName" />
-                            <property name="IsTextCombo">False</property>
-                            <property name="Items" translatable="yes" />
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">CounterpartyType</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">CounterpartyType</property>
-                            <signal name="Changed" handler="OnEnumCounterpartyTypeChanged" />
-                          </widget>
-                          <packing>
-                            <property name="TopAttach">7</property>
-                            <property name="BottomAttach">8</property>
-                            <property name="LeftAttach">1</property>
-                            <property name="RightAttach">2</property>
-                            <property name="AutoSize">True</property>
-                            <property name="XOptions">Fill</property>
-                            <property name="YOptions">Fill</property>
-                            <property name="XExpand">False</property>
                             <property name="XFill">True</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
@@ -4759,10 +4727,8 @@ Patronymic</property>
                             <property name="LabelProp" translatable="yes">Значимость:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">6</property>
-                            <property name="BottomAttach">7</property>
-                            <property name="LeftAttach">2</property>
-                            <property name="RightAttach">3</property>
+                            <property name="TopAttach">7</property>
+                            <property name="BottomAttach">8</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -4799,8 +4765,10 @@ Patronymic</property>
                             <property name="LabelProp" translatable="yes">Тип контрагента:</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">7</property>
-                            <property name="BottomAttach">8</property>
+                            <property name="TopAttach">6</property>
+                            <property name="BottomAttach">7</property>
+                            <property name="LeftAttach">2</property>
+                            <property name="RightAttach">3</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -4838,6 +4806,7 @@ Patronymic</property>
                         <child>
                           <widget class="Gtk.Label" id="labelDefaultExpense">
                             <property name="MemberName" />
+                            <property name="Visible">False</property>
                             <property name="Xalign">1</property>
                             <property name="LabelProp" translatable="yes">Статья расхода
 по-умолчанию:</property>
@@ -4941,6 +4910,7 @@ Patronymic</property>
                         <child>
                           <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDefaultExpense">
                             <property name="MemberName" />
+                            <property name="Visible">False</property>
                             <property name="Events">ButtonPressMask</property>
                             <property name="DisplayFields">Name</property>
                             <property name="InheritedDataSource">True</property>
@@ -5019,10 +4989,10 @@ Patronymic</property>
                             <property name="CursorPointsEveryType">False</property>
                           </widget>
                           <packing>
-                            <property name="TopAttach">6</property>
-                            <property name="BottomAttach">7</property>
-                            <property name="LeftAttach">3</property>
-                            <property name="RightAttach">4</property>
+                            <property name="TopAttach">7</property>
+                            <property name="BottomAttach">8</property>
+                            <property name="LeftAttach">1</property>
+                            <property name="RightAttach">2</property>
                             <property name="AutoSize">True</property>
                             <property name="XOptions">Fill</property>
                             <property name="YOptions">Fill</property>
@@ -5089,6 +5059,76 @@ Patronymic</property>
                             <property name="XShrink">False</property>
                             <property name="YExpand">False</property>
                             <property name="YFill">True</property>
+                            <property name="YShrink">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.VBox" id="vboxCooperation">
+                            <property name="MemberName" />
+                            <property name="Spacing">1</property>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yCheckButton" id="checkCustomer">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Label" translatable="yes">Покупатель</property>
+                                <property name="DrawIndicator">True</property>
+                                <property name="HasLabel">True</property>
+                                <property name="UseUnderline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">0</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yCheckButton" id="checkSupplier">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Label" translatable="yes">Поставщик</property>
+                                <property name="DrawIndicator">True</property>
+                                <property name="HasLabel">True</property>
+                                <property name="UseUnderline">True</property>
+                                <signal name="Toggled" handler="OnCheckSupplierToggled" />
+                              </widget>
+                              <packing>
+                                <property name="Position">1</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="Gamma.GtkWidgets.yCheckButton" id="checkPartner">
+                                <property name="MemberName" />
+                                <property name="CanFocus">True</property>
+                                <property name="Label" translatable="yes">Партнер</property>
+                                <property name="DrawIndicator">True</property>
+                                <property name="HasLabel">True</property>
+                                <property name="UseUnderline">True</property>
+                              </widget>
+                              <packing>
+                                <property name="Position">2</property>
+                                <property name="AutoSize">True</property>
+                                <property name="Expand">False</property>
+                                <property name="Fill">False</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="TopAttach">6</property>
+                            <property name="BottomAttach">8</property>
+                            <property name="LeftAttach">3</property>
+                            <property name="RightAttach">4</property>
+                            <property name="AutoSize">True</property>
+                            <property name="XOptions">Fill</property>
+                            <property name="YOptions">0</property>
+                            <property name="XExpand">False</property>
+                            <property name="XFill">True</property>
+                            <property name="XShrink">False</property>
+                            <property name="YExpand">False</property>
+                            <property name="YFill">False</property>
                             <property name="YShrink">False</property>
                           </packing>
                         </child>
@@ -13602,15 +13642,9 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceContractor">
+              <widget class="QSOrmProject.yEntryReferenceVM" id="referenceContractor">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Contractor</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -14407,7 +14441,7 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox2">
+          <widget class="Gtk.HBox" id="hbox3">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
@@ -14496,15 +14530,9 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterpartyFrom">
+                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterpartyFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Name</property>
-                        <property name="DisplayFormatString">{0}</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">FromClient</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="CursorPointsEveryType">False</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyFromChanged" />
                       </widget>
                       <packing>
@@ -14683,15 +14711,9 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterpartyTo">
+                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterpartyTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
-                        <property name="DisplayFields">Name</property>
-                        <property name="DisplayFormatString">{0}</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">ToClient</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="CursorPointsEveryType">False</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyToChanged" />
                       </widget>
                       <packing>
@@ -15106,15 +15128,9 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterparty">
+              <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterparty">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="DisplayFields">Name</property>
-                <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Client</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
                 <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
               </widget>
               <packing>
@@ -18223,7 +18239,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrdersFilter" design-size="660 72">
+  <widget class="Gtk.Bin" id="Vodovoz.OrdersFilter" design-size="696 76">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -18547,7 +18563,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyFilter" design-size="300 34">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyFilter" design-size="609 34">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -18580,22 +18596,64 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.EnumComboBox" id="comboCounterpartyType">
+          <widget class="Gtk.HBox" id="hbox1">
             <property name="MemberName" />
-            <property name="IsTextCombo">False</property>
-            <property name="Items" translatable="yes" />
-            <property name="ItemsEnumName" />
-            <property name="ShowSpecialStateAll">True</property>
-            <property name="ShowSpecialStateNot">False</property>
-            <signal name="EnumItemSelected" handler="OnComboCounterpartyTypeEnumItemSelected" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.CheckButton" id="checkCustomer">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Покупатель</property>
+                <property name="Active">True</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnCheckCustomerToggled" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.CheckButton" id="checkSupplier">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Поставщик</property>
+                <property name="Active">True</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnCheckSupplierToggled" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.CheckButton" id="checkPartner">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Партнер</property>
+                <property name="Active">True</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnCheckPartnerToggled" />
+              </widget>
+              <packing>
+                <property name="Position">2</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="LeftAttach">1</property>
             <property name="RightAttach">2</property>
             <property name="AutoSize">True</property>
-            <property name="XOptions">Fill</property>
             <property name="YOptions">Fill</property>
-            <property name="XExpand">False</property>
+            <property name="XExpand">True</property>
             <property name="XFill">True</property>
             <property name="XShrink">False</property>
             <property name="YExpand">False</property>
@@ -18606,7 +18664,7 @@ RegistrationNumber</property>
         <child>
           <widget class="Gtk.Label" id="label1">
             <property name="MemberName" />
-            <property name="LabelProp" translatable="yes">Тип контрагента:</property>
+            <property name="LabelProp" translatable="yes">Показывать только:</property>
           </widget>
           <packing>
             <property name="AutoSize">True</property>

@@ -499,7 +499,7 @@ namespace Vodovoz
 						cuow.Root.FullName = doc.RecipientName;
 						cuow.Root.INN = doc.RecipientInn;
 						cuow.Root.KPP = doc.RecipientKpp;
-						cuow.Root.CounterpartyType = CounterpartyType.supplier;
+						cuow.Root.CooperationSupplier = true;
 						cuow.Root.PaymentMethod = PaymentType.cashless;
 						cuow.Root.TypeOfOwnership = TryGetOrganizationType (doc.RecipientName);
 						if (cuow.Root.TypeOfOwnership != null)
@@ -515,7 +515,6 @@ namespace Vodovoz
 							Number = doc.RecipientCheckingAccount,
 							InBank = BankRepository.GetBankByBik (uow, doc.RecipientBik)
 						});
-						cuow.Root.CounterpartyType = CounterpartyType.supplier;
 						cuow.Save ();
 						documents.SetValue (iter, (int)Columns.RecipientNameColorCol, EvenRowColor);
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
