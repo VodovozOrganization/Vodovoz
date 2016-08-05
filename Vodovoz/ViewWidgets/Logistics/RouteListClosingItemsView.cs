@@ -130,12 +130,12 @@ namespace Vodovoz
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
 				.AddColumn("Предпол.\n пустых").HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Order.BottlesReturn.ToString()).Sensitive(false)
-				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f)
+				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
 						.Adjustment(new Adjustment(0, 0, 100000, 1, 1, 1))
 						.AddSetter(EmptyBottleCellSetter)
-				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f)
+				.AddColumn("Залоги за\n бутыли").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.DepositsCollected)
 						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
@@ -143,7 +143,7 @@ namespace Vodovoz
 					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
 					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
 					})
-				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f)
+				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
 						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 
 													node.IsDelivered())
@@ -182,7 +182,7 @@ namespace Vodovoz
 					}
 					cell.CellBackgroundGdk = color;
 				});
-				
+
 			ytreeviewItems.ColumnsConfig = config.Finish();
 		}
 
@@ -198,7 +198,7 @@ namespace Vodovoz
 			else
 				cell.Foreground = "Black";
 		}
-
+			
 		public string WaterToClientString(RouteListItem item, int id)
 		{
 			var planned = item.GetGoodsAmountForColumn(id);
