@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain;
@@ -19,6 +20,8 @@ namespace Vodovoz.Domain.Logistic
 		Nominative = "закрытие маршрутного листа")]
 	public class RouteListClosing:PropertyChangedBase, IDomainObject
 	{		
+		#region Свойства
+
 		public virtual int Id{ get; set;}
 
 		DateTime closingDate;
@@ -50,6 +53,16 @@ namespace Vodovoz.Domain.Logistic
 				SetField(ref routeList, value, () => RouteList);
 			}
 		}
+
+		Fine bottleFine;
+
+		[Display (Name = "Штраф за бутыли")]
+		public virtual Fine BottleFine {
+			get { return bottleFine; }
+			set { SetField (ref bottleFine, value, () => BottleFine); }
+		}
+
+		#endregion
 
 		public virtual string Title{
 			get{

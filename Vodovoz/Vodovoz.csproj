@@ -123,6 +123,9 @@
     <EmbeddedResource Include="toolbars\archive.xml">
       <LogicalName>archive.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="icons\buttons\add.png" />
+    <EmbeddedResource Include="icons\buttons\edit.png" />
+    <EmbeddedResource Include="icons\buttons\remove.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

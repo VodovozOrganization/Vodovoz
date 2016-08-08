@@ -38,6 +38,14 @@ namespace Vodovoz.Repository
 			return uow.GetById<Nomenclature> (int.Parse(MainSupport.BaseParameters.All [bottleDepositParameter]));
 		}
 
+		public static Nomenclature GetDefaultBottle (IUnitOfWork uow)
+		{
+			var defaultBottleParameter = "default_bottle_nomenclature";
+			if (!MainSupport.BaseParameters.All.ContainsKey (defaultBottleParameter))
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура бутыли по умолчанию.");
+			return uow.GetById<Nomenclature> (int.Parse(MainSupport.BaseParameters.All [defaultBottleParameter]));
+		}
+
 		public static QueryOver<Nomenclature> NomenclatureOfItemsForService ()
 		{
 			return QueryOver.Of<Nomenclature> ()

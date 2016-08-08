@@ -12,6 +12,7 @@ namespace Vodovoz.HMap
 
 			Id (x => x.Id).Column("id").GeneratedBy.Native();
 			Map (x => x.ClosingDate).Column("closing_date");
+			References (x => x.BottleFine).Column("bottles_fine_id");
 			References (x => x.Cashier).Column("cashier_id");
 			References (x => x.RouteList).Column("route_list_id");
 		}

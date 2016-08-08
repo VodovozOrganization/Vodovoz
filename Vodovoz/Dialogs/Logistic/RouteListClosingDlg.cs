@@ -19,6 +19,7 @@ using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
+using System.Text;
 
 namespace Vodovoz
 {
@@ -29,6 +30,7 @@ namespace Vodovoz
 		RouteList routelist;
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
+		int bottlesReturnedTotal;
 
 		public RouteListClosingDlg(RouteListClosing closing)
 		{
@@ -183,10 +185,13 @@ namespace Vodovoz
 			buttonAccept.Sensitive = isConsistentWithUnloadDocument();
 		}
 
+		private bool buttonFineEditState = false;
+		Nomenclature defaultBottle;
+
 		void CalculateTotal ()
 		{
 			var items = routeListAddressesView.Items.Where(item=>item.IsDelivered());
-			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
+			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
 			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
@@ -231,9 +236,34 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
+			var bottleDifference = bottlesReturnedToWarehouse-bottlesReturnedTotal;
 			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
-			labelBottleDifference.Markup = String.Format(bottleDifferenceFormat, bottlesReturnedToWarehouse-bottlesReturnedTotal, differenceAttributes);
+			labelBottleDifference.Markup = String.Format(bottleDifferenceFormat, bottleDifference, differenceAttributes);
+
+			//Штрафы
+			StringBuilder fineText = new StringBuilder();
+			bottleDifference = -bottleDifference;
+			if(bottleDifference != 0)
+			{
+				if(defaultBottle == null)
+					defaultBottle = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
+				fineText.AppendLine(String.Format("Ущерб: {0:C}", defaultBottle.SumOfDamage * bottleDifference));
+			}
+			if(Entity.BottleFine != null)
+			{
+				fineText.AppendLine(String.Format("Штраф: {0:C}", Entity.BottleFine.TotalMoney));
+			}
+			labelBottleFine.LabelProp = fineText.ToString().TrimEnd('\n');
+			buttonBottleAddEditFine.Sensitive = bottleDifference != 0;
+			buttonBottleDelFine.Sensitive = Entity.BottleFine != null;
+			if(buttonFineEditState != (Entity.BottleFine != null))
+			{
+				(buttonBottleAddEditFine.Image as Image).Pixbuf  = new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(),
+					Entity.BottleFine != null ? "Vodovoz.icons.buttons.edit.png" : "Vodovoz.icons.buttons.add.png"
+				);
+				buttonFineEditState = Entity.BottleFine != null;
+			}
 		}
 
 		protected bool isConsistentWithUnloadDocument(){
@@ -342,6 +372,45 @@ namespace Vodovoz
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
 			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.RouteList.Id, this);
+		}
+
+		protected void OnButtonBottleAddEditFineClicked(object sender, EventArgs e)
+		{
+			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
+			var summ = defaultBottle.SumOfDamage * bottleDifference;
+
+			FineDlg fineDlg;
+			if (Entity.BottleFine != null)
+			{
+				fineDlg = new FineDlg(Entity.BottleFine);
+				fineDlg.Entity.TotalMoney = summ;
+				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
+			}
+			else
+			{
+				fineDlg = new FineDlg(summ, Entity.RouteList.Driver);
+				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
+			}
+			TabParent.AddSlaveTab(this, fineDlg);
+		}
+
+		void FineDlgNew_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
+		{
+			Entity.BottleFine = e.Entity as Fine;
+			CalculateTotal();
+		}
+
+		void FineDlgExist_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
+		{
+			UoW.Session.Refresh(Entity.BottleFine);
+			CalculateTotal();
+		}
+
+		protected void OnButtonBottleDelFineClicked(object sender, EventArgs e)
+		{
+			UoW.Delete(Entity.BottleFine);
+			Entity.BottleFine = null;
+			CalculateTotal();
 		}
 	}
 

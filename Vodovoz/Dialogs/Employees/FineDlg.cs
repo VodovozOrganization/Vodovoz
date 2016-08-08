@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -13,6 +14,16 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Fine> ();
 			ConfigureDlg ();
+		}
+
+		/// <summary>
+		/// Создаем новый диалог с штрафа с уже заполненными сотрудниками.
+		/// </summary>
+		public FineDlg(decimal money, params Employee[] employees) : this()
+		{
+			employees.ToList().ForEach(Entity.AddItem);
+			Entity.TotalMoney = money;
+			Entity.DivideAtAll();
 		}
 
 		public FineDlg (int id)
