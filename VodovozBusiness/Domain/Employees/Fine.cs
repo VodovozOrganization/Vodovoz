@@ -115,7 +115,14 @@ namespace Vodovoz.Domain.Employees
 			if(Items.Count == 0)
 				yield return new ValidationResult (String.Format("Отсутствуют сотрудники на которых назначен штраф."),
 					new[] { this.GetPropertyName (o => o.Items) });
+
+			var totalSum = Items.Sum(x => x.Money);
+			if(totalSum != TotalMoney)
+				yield return new ValidationResult (String.Format("Общая сумма штрафа {0:C}, отличается от суммы штрафов всех сотрудников {1:C}.",
+					TotalMoney, totalSum),
+					new[] { this.GetPropertyName (o => o.Items) });
 		}
+		
 
 		#endregion
 	}
