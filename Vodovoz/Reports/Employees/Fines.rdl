@@ -48,7 +48,7 @@
         WHEN
             store_regrading_of_goods_items.id IS NOT NULL
         THEN
-            CONCAT('Акт списания №',
+            CONCAT('Пересортица №',
                     store_regrading_of_goods_items.store_regrading_of_goods_id)
     END AS document,
     nomenclature.name AS nomenclature,
