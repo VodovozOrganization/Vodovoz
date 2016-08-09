@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     CONCAT_WS(' ',
@@ -50,13 +50,21 @@
         THEN
             CONCAT('Пересортица №',
                     store_regrading_of_goods_items.store_regrading_of_goods_id)
+        WHEN
+            routelist_closing.id IS NOT NULL
+        THEN
+            CONCAT('Закрытие МЛ №',
+                    routelist_closing.route_list_id)
     END AS document,
-    nomenclature.name AS nomenclature,
-    CASE
-        WHEN store_inventory_item.id IS NOT NULL THEN store_inventory_item.amount_in_db - store_inventory_item.amount_in_fact
-        WHEN store_writeoff_document_items.id IS NOT NULL THEN store_writeoff_document_items.amount
-        WHEN store_regrading_of_goods_items.id IS NOT NULL THEN store_regrading_of_goods_items.amount
-    END AS nomenclature_amount,
+    GROUP_CONCAT(CONCAT(nomenclature.name,
+                ' - ',
+                CASE
+                    WHEN fines_nomenclatures.amount IS NOT NULL THEN fines_nomenclatures.amount
+                    WHEN store_inventory_item.id IS NOT NULL THEN store_inventory_item.amount_in_db - store_inventory_item.amount_in_fact
+                    WHEN store_writeoff_document_items.id IS NOT NULL THEN store_writeoff_document_items.amount
+                    WHEN store_regrading_of_goods_items.id IS NOT NULL THEN store_regrading_of_goods_items.amount
+                END)
+        SEPARATOR ',\n') AS nomenclature_info,
     CASE
         WHEN store_inventory_item.id IS NOT NULL THEN store_inventory_item.comment
         WHEN store_writeoff_document_items.id IS NOT NULL THEN store_writeoff_document_items.comment
@@ -75,13 +83,19 @@ FROM
         LEFT JOIN
     store_regrading_of_goods_items ON store_regrading_of_goods_items.fine_id = fines.id
         LEFT JOIN
-    nomenclature ON store_inventory_item.nomenclature_id = nomenclature.id
+    routelist_closing ON routelist_closing.bottles_fine_id = fines.id
+        LEFT JOIN
+    fines_nomenclatures ON fines_nomenclatures.fine_id = fines.id
+        LEFT JOIN
+    nomenclature ON fines_nomenclatures.nomenclature_id = nomenclature.id
+        OR store_inventory_item.nomenclature_id = nomenclature.id
         OR store_writeoff_document_items.nomenclature_id = nomenclature.id
         OR store_regrading_of_goods_items.nomenclature_old_id = nomenclature.id
 WHERE
     fines.date &gt;= @startDate
         AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
-ORDER BY employee, date</CommandText>
+GROUP BY fines_items.id
+ORDER BY employee , date</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
             <Value>=Parameters!startDate</Value>
@@ -91,7 +105,7 @@ ORDER BY employee, date</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="employee">
           <DataField>employee</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -108,13 +122,9 @@ ORDER BY employee, date</CommandText>
           <DataField>document</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="nomenclature">
-          <DataField>nomenclature</DataField>
+        <Field Name="nomenclature_info">
+          <DataField>nomenclature_info</DataField>
           <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="nomenclature_amount">
-          <DataField>nomenclature_amount</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
         <Field Name="comment">
           <DataField>comment</DataField>
@@ -365,7 +375,7 @@ ORDER BY employee, date</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="date">
-                      <Value>=Fields!nomenclature.Value + " - " + {nomenclature_amount}</Value>
+                      <Value>=Fields!nomenclature_info.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
