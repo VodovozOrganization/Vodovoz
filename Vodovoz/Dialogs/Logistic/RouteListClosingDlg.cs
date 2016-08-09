@@ -285,10 +285,11 @@ namespace Vodovoz
 
 		protected bool isConsistentWithUnloadDocument(){
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
+			bool hasFine = Entity.BottleFine != null;
 			var items = routeListAddressesView.Items.Where(item=>item.IsDelivered());
 			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
-			return !hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies;
+			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies);
 		}
 
 		public override bool Save ()
