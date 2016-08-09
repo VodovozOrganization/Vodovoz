@@ -55,6 +55,17 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		IList<FineNomenclature> nomenclatures = new List<FineNomenclature> ();
+
+		[Display (Name = "Номенклатура")]
+		public virtual IList<FineNomenclature> Nomenclatures {
+			get { return nomenclatures; }
+			set {
+				SetField (ref nomenclatures, value, () => Nomenclatures);
+				//observableItems = null;
+			}
+		}
+
 		#region Расчетные
 
 		public virtual string Title { 

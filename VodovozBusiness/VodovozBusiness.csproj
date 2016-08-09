@@ -288,6 +288,8 @@
     <Compile Include="Repositories\Chat\LastReadedRepository.cs" />
     <Compile Include="Domain\Order\Documents\ShetFacturaDocument.cs" />
     <Compile Include="Domain\Order\Documents\Torg12Document.cs" />
+    <Compile Include="Domain\Employees\FineNomenclature.cs" />
+    <Compile Include="HibernateMapping\Employees\FineNomenclatureMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
