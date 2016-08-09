@@ -6,6 +6,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using System.Linq;
 using Gamma.Utilities;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -90,21 +91,58 @@ namespace Vodovoz.Domain.Employees
 
 		#endregion
 
-		public virtual void AddItem (Employee employee)
-		{
-			var item = new FineItem()
-			{
-				Employee = employee,
-				Fine = this
-			};
-			ObservableItems.Add (item);
-		}
-
 		public Fine ()
 		{
 		}
 
 		#region Функции
+
+		public virtual void AddItem (Employee employee)
+		{
+			var item = new FineItem()
+				{
+					Employee = employee,
+					Fine = this
+				};
+			ObservableItems.Add (item);
+		}
+
+		public virtual void AddNomenclature (Dictionary<Nomenclature, decimal> nomenclatureAmounts)
+		{
+			foreach(var nom in nomenclatureAmounts)
+			{
+				Nomenclatures.Add(new FineNomenclature{
+					Fine = this,
+					Nomenclature = nom.Key,
+					Amount = nom.Value
+				});
+			}
+		}
+
+		public virtual void UpdateNomenclature (Dictionary<Nomenclature, decimal> nomenclatureAmounts)
+		{
+			foreach(var nom in Nomenclatures.ToList())
+			{
+				if (nomenclatureAmounts.All(x => x.Key.Id != nom.Nomenclature.Id))
+					Nomenclatures.Remove(nom);
+			}
+
+			foreach(var nom in nomenclatureAmounts)
+			{
+				var item = Nomenclatures.FirstOrDefault(x => x.Nomenclature.Id == nom.Key.Id);
+				if (item == null)
+				{
+					Nomenclatures.Add(new FineNomenclature
+						{
+							Fine = this,
+							Nomenclature = nom.Key,
+							Amount = nom.Value
+						});
+				}
+				else
+					item.Amount = nom.Value;
+			}
+		}
 
 		public virtual void DivideAtAll()
 		{

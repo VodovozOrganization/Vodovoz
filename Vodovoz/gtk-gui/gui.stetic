@@ -17491,6 +17491,22 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gtk.CheckButton" id="checkUseBottleFine">
+                        <property name="MemberName" />
+                        <property name="Tooltip" translatable="yes">Штраф за бутыли</property>
+                        <property name="CanFocus">True</property>
+                        <property name="Label" translatable="yes">checkbutton1</property>
+                        <property name="DrawIndicator">True</property>
+                        <property name="HasLabel">True</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Toggled" handler="OnCheckUseBottleFineToggled" />
+                      </widget>
+                      <packing>
+                        <property name="Position">2</property>
+                        <property name="AutoSize">True</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gtk.Button" id="buttonBottleDelFine">
                         <property name="MemberName" />
                         <property name="Tooltip" translatable="yes">Убрать штраф</property>
@@ -17504,7 +17520,7 @@ RegistrationNumber</property>
                       </widget>
                       <packing>
                         <property name="PackType">End</property>
-                        <property name="Position">2</property>
+                        <property name="Position">3</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
@@ -17524,7 +17540,7 @@ RegistrationNumber</property>
                       </widget>
                       <packing>
                         <property name="PackType">End</property>
-                        <property name="Position">3</property>
+                        <property name="Position">4</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
@@ -17537,7 +17553,7 @@ RegistrationNumber</property>
                       </widget>
                       <packing>
                         <property name="PackType">End</property>
-                        <property name="Position">4</property>
+                        <property name="Position">5</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>

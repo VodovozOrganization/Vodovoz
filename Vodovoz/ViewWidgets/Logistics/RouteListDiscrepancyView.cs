@@ -1,16 +1,17 @@
 ﻿using System;
-using Vodovoz.Domain;
-using Gamma.GtkWidgets;
 using System.Collections.Generic;
-using Gtk;
-using Vodovoz.Domain.Logistic;
 using System.Linq;
+using Gamma.GtkWidgets;
+using Gtk;
+using QSOrmProject;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class RouteListDiscrepancyView : Gtk.Bin
+	public partial class RouteListDiscrepancyView : WidgetOnDialogBase
 	{
 		public RouteListDiscrepancyView()
 		{
@@ -30,7 +31,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		protected void Configure()
 		{
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
@@ -38,18 +38,33 @@ namespace Vodovoz
 			ytreeview2.ColumnsConfig = ColumnsConfigFactory.Create<Discrepancy>()
 				.AddColumn("Название")
 					.AddTextRenderer(node => node.Name)
-				.AddColumn("Выгрузка")
+				.AddColumn("Выг-\nрузка")
 					.AddNumericRenderer(node => node.ToWarehouse)
-				.AddColumn("Недовоз")
+				.AddColumn("Не-\nдовоз")
 					.AddTextRenderer(node => node.Returns)
 				.AddColumn("От \nклиента")
 					.AddNumericRenderer(node=>node.PickedUpFromClient)
-				.AddColumn("Расхождения")
+				.AddColumn("Расхо-\nждения")
 					.AddNumericRenderer(node=>node.Remainder)
 						.Adjustment(new Gtk.Adjustment(0, 0, 9999, 1, 1, 0))
+				.AddColumn("Ущерб")
+					.AddTextRenderer(x => x.SumOfDamage.ToString("C"))
+				.AddColumn("Штраф")
+					.AddToggleRenderer(x => x.UseFine).ToggledEvent(UseFine_Toggled)
 				.RowCells()					
 					.AddSetter<CellRenderer>((cell,node) => cell.CellBackgroundGdk = node.Remainder==0 ? colorWhite : colorRed)
 				.Finish();
+		}
+
+		public event EventHandler FineChanged;
+
+		void UseFine_Toggled (object o, ToggledArgs args)
+		{
+			//Вызываем через Application.Invoke что бы событие вызывалось уже после того как поле обновилось.
+			Application.Invoke(delegate {
+				if (FineChanged != null)
+					FineChanged(this, EventArgs.Empty);
+			});
 		}	
 
 		public void FindDiscrepancies(IList<RouteListItem> items, List<ReturnsNode> allReturnsToWarehouse){
@@ -61,6 +76,7 @@ namespace Vodovoz
 			discrepancies.AddRange(goodsDiscrepancies);
 			discrepancies.AddRange(equipmentDiscrepancies);
 
+			DomainHelper.FillPropertyByEntity<Discrepancy, Nomenclature>(MyOrmDialog.UoW, discrepancies, x => x.NomenclatureId, (x, y) => x.Nomenclature = y);
 			Items = discrepancies;
 		}
 
@@ -214,6 +230,7 @@ namespace Vodovoz
 	{
 		public string Name{get;set;}
 		public int NomenclatureId{get;set;}
+		public Nomenclature Nomenclature {get;set;}
 		public int Id{get;set;}
 		public decimal PickedUpFromClient{ get; set; }
 		public decimal ClientRejected{ get; set; }
@@ -238,6 +255,14 @@ namespace Vodovoz
 					return Id > 0 ? Id.ToString () : "(не определен)";
 				} else
 					return String.Empty;
+			}
+		}
+
+		public bool UseFine{ get; set;}
+
+		public decimal SumOfDamage{
+			get{
+				return Nomenclature.SumOfDamage * (-Remainder);
 			}
 		}
 	}

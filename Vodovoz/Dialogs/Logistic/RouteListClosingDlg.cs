@@ -122,6 +122,8 @@ namespace Vodovoz
 			if(UoW.IsNew)
 				Initialize(routeListAddressesView.Items);
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
+			LoadDataFromFine();
 			OnItemsUpdated();
 		}
 
@@ -154,6 +156,11 @@ namespace Vodovoz
 					? routeListItem.Order.GetExpectedBottlesDepositsCount() * bottleDepositPrice : 0;
 				routeListItem.RecalculateWages();
 			}
+		}
+
+		void Routelistdiscrepancyview_FineChanged (object sender, EventArgs e)
+		{
+			CalculateTotal();
 		}
 
 		void OnRouteListItemActivated(object sender, RowActivatedArgs args)
@@ -236,26 +243,36 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
+			if(defaultBottle == null)
+				defaultBottle = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
+			
 			var bottleDifference = bottlesReturnedToWarehouse-bottlesReturnedTotal;
 			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
+			checkUseBottleFine.Visible = bottleDifference != 0;
+			if (bottleDifference != 0)
+			{
+				checkUseBottleFine.Label = String.Format("({0:C})", defaultBottle.SumOfDamage * (-bottleDifference));
+			}
 			labelBottleDifference.Markup = String.Format(bottleDifferenceFormat, bottleDifference, differenceAttributes);
 
 			//Штрафы
+			decimal totalSumOfDamage = 0;
+			if(checkUseBottleFine.Active)
+				totalSumOfDamage += defaultBottle.SumOfDamage * (-bottleDifference);
+			totalSumOfDamage += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
+
 			StringBuilder fineText = new StringBuilder();
-			bottleDifference = -bottleDifference;
-			if(bottleDifference != 0)
+			if(totalSumOfDamage != 0)
 			{
-				if(defaultBottle == null)
-					defaultBottle = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
-				fineText.AppendLine(String.Format("Ущерб: {0:C}", defaultBottle.SumOfDamage * bottleDifference));
+				fineText.AppendLine(String.Format("Выб. ущерб: {0:C}", totalSumOfDamage));
 			}
 			if(Entity.BottleFine != null)
 			{
 				fineText.AppendLine(String.Format("Штраф: {0:C}", Entity.BottleFine.TotalMoney));
 			}
 			labelBottleFine.LabelProp = fineText.ToString().TrimEnd('\n');
-			buttonBottleAddEditFine.Sensitive = bottleDifference != 0;
+			buttonBottleAddEditFine.Sensitive = totalSumOfDamage != 0;
 			buttonBottleDelFine.Sensitive = Entity.BottleFine != null;
 			if(buttonFineEditState != (Entity.BottleFine != null))
 			{
@@ -378,17 +395,25 @@ namespace Vodovoz
 		{
 			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
 			var summ = defaultBottle.SumOfDamage * bottleDifference;
+			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
+			var nomenclatures = routelistdiscrepancyview.Items.Where(x => x.UseFine)
+				.ToDictionary(x => x.Nomenclature, x => -x.Remainder);
+			if (checkUseBottleFine.Active)
+				nomenclatures.Add(defaultBottle, bottleDifference);
 
 			FineDlg fineDlg;
 			if (Entity.BottleFine != null)
 			{
 				fineDlg = new FineDlg(Entity.BottleFine);
+
+				Entity.BottleFine.UpdateNomenclature(nomenclatures);
 				fineDlg.Entity.TotalMoney = summ;
 				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
 			}
 			else
 			{
 				fineDlg = new FineDlg(summ, Entity.RouteList.Driver);
+				fineDlg.Entity.AddNomenclature(nomenclatures);
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}
 			TabParent.AddSlaveTab(this, fineDlg);
@@ -411,6 +436,33 @@ namespace Vodovoz
 			UoW.Delete(Entity.BottleFine);
 			Entity.BottleFine = null;
 			CalculateTotal();
+		}
+
+		protected void OnCheckUseBottleFineToggled(object sender, EventArgs e)
+		{
+			CalculateTotal();
+		}
+
+		void LoadDataFromFine()
+		{
+			if (Entity.BottleFine == null)
+				return;
+
+			if(defaultBottle == null)
+				defaultBottle = NomenclatureRepository.GetDefaultBottle(UoW);
+
+			foreach(var nom in Entity.BottleFine.Nomenclatures)
+			{
+				if (nom.Nomenclature.Id == defaultBottle.Id)
+				{
+					checkUseBottleFine.Active = true;
+					continue;
+				}
+
+				var found = routelistdiscrepancyview.Items.FirstOrDefault(x => x.Nomenclature.Id == nom.Nomenclature.Id);
+				if (found != null)
+					found.UseFine = true;
+			}
 		}
 	}
 
