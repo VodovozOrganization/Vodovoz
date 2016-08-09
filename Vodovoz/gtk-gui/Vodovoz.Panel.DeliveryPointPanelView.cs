@@ -63,6 +63,7 @@ namespace Vodovoz.Panel
 			this.labelAddress.Name = "labelAddress";
 			this.labelAddress.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel1");
 			this.labelAddress.Wrap = true;
+			this.labelAddress.Selectable = true;
 			this.vbox1.Add (this.labelAddress);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.labelAddress]));
 			w3.Position = 2;
@@ -102,6 +103,7 @@ namespace Vodovoz.Panel
 			this.labelBottles.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel1");
 			this.labelBottles.Wrap = true;
 			this.labelBottles.Justify = ((global::Gtk.Justification)(2));
+			this.labelBottles.Selectable = true;
 			this.table2.Add (this.labelBottles);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table2 [this.labelBottles]));
 			w6.TopAttach = ((uint)(1));
@@ -113,6 +115,7 @@ namespace Vodovoz.Panel
 			this.labelDeposits = new global::Vodovoz.WrapLabel ();
 			this.labelDeposits.Name = "labelDeposits";
 			this.labelDeposits.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel3");
+			this.labelDeposits.Selectable = true;
 			this.table2.Add (this.labelDeposits);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table2 [this.labelDeposits]));
 			w7.TopAttach = ((uint)(2));
@@ -141,9 +144,9 @@ namespace Vodovoz.Panel
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.textviewComment = new global::Gtk.TextView ();
-			this.textviewComment.Sensitive = false;
 			this.textviewComment.CanFocus = true;
 			this.textviewComment.Name = "textviewComment";
+			this.textviewComment.Editable = false;
 			this.textviewComment.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow.Add (this.textviewComment);
 			this.vbox1.Add (this.GtkScrolledWindow);

@@ -92,6 +92,7 @@ namespace Vodovoz.Panel
 			this.labelBottlesPerMonth.Name = "labelBottlesPerMonth";
 			this.labelBottlesPerMonth.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel3");
 			this.labelBottlesPerMonth.Wrap = true;
+			this.labelBottlesPerMonth.Selectable = true;
 			this.table1.Add (this.labelBottlesPerMonth);
 			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelBottlesPerMonth]));
 			w5.TopAttach = ((uint)(2));
@@ -103,6 +104,7 @@ namespace Vodovoz.Panel
 			this.labelEquipmentCount = new global::Vodovoz.WrapLabel ();
 			this.labelEquipmentCount.Name = "labelEquipmentCount";
 			this.labelEquipmentCount.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel1");
+			this.labelEquipmentCount.Selectable = true;
 			this.table1.Add (this.labelEquipmentCount);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelEquipmentCount]));
 			w6.TopAttach = ((uint)(1));
@@ -115,6 +117,7 @@ namespace Vodovoz.Panel
 			this.labelNextService.Name = "labelNextService";
 			this.labelNextService.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel1");
 			this.labelNextService.Wrap = true;
+			this.labelNextService.Selectable = true;
 			this.table1.Add (this.labelNextService);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelNextService]));
 			w7.LeftAttach = ((uint)(1));
@@ -144,6 +147,7 @@ namespace Vodovoz.Panel
 			this.labelRent.Name = "labelRent";
 			this.labelRent.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel1");
 			this.labelRent.Wrap = true;
+			this.labelRent.Selectable = true;
 			this.vboxRent.Add (this.labelRent);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vboxRent [this.labelRent]));
 			w10.Position = 1;

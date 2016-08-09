@@ -68,7 +68,6 @@ namespace Vodovoz.Panel
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.textviewComment = new global::Gtk.TextView ();
-			this.textviewComment.Sensitive = false;
 			this.textviewComment.CanFocus = true;
 			this.textviewComment.Name = "textviewComment";
 			this.textviewComment.Editable = false;
@@ -138,6 +137,7 @@ namespace Vodovoz.Panel
 			this.labelLatestOrderDate = new global::Gtk.Label ();
 			this.labelLatestOrderDate.Name = "labelLatestOrderDate";
 			this.labelLatestOrderDate.LabelProp = global::Mono.Unix.Catalog.GetString ("label2");
+			this.labelLatestOrderDate.Selectable = true;
 			this.hbox2.Add (this.labelLatestOrderDate);
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.labelLatestOrderDate]));
 			w10.Position = 1;
@@ -184,6 +184,7 @@ namespace Vodovoz.Panel
 			this.labelDebt.Yalign = 0F;
 			this.labelDebt.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel3");
 			this.labelDebt.Wrap = true;
+			this.labelDebt.Selectable = true;
 			this.table1.Add (this.labelDebt);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelDebt]));
 			w14.TopAttach = ((uint)(1));
@@ -198,6 +199,7 @@ namespace Vodovoz.Panel
 			this.labelName.Yalign = 0F;
 			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString ("wraplabel1");
 			this.labelName.Wrap = true;
+			this.labelName.Selectable = true;
 			this.table1.Add (this.labelName);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelName]));
 			w15.LeftAttach = ((uint)(1));
