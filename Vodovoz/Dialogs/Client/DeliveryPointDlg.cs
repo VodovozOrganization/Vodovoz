@@ -45,7 +45,6 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			entryPhone.SetDefaultCityCode ("812");
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
 			entryPhone.Binding.AddBinding(Entity, e => e.Phone, w => w.Text).InitializeFromSource();
 			comboRoomType.ItemsEnum = typeof(RoomType);
