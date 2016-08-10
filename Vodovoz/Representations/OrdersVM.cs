@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModel
 			var result = query
 				.JoinAlias(o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinQueryOver (o => o.Client, () => counterpartyAlias)
+				.JoinAlias (o => o.Client, () => counterpartyAlias)
 				.SelectList (list => list
 					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => orderAlias.DeliveryDate).WithAlias (() => resultAlias.Date)
@@ -92,7 +92,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
 					.SelectSubQuery(bottleCountSubquery).WithAlias (() => resultAlias.BottleAmount)
-				)
+				).OrderBy(x => x.DeliveryDate).Desc
 				.TransformUsing (Transformers.AliasToBean<OrdersVMNode> ())
 				.List<OrdersVMNode> ();
 
