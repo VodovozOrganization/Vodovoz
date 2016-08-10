@@ -907,7 +907,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4684,7 +4683,7 @@ Patronymic</property>
                           <widget class="Gtk.Label" id="label4">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Предыдущий контагент:</property>
+                            <property name="LabelProp" translatable="yes">Предыдущий контрагент:</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">5</property>

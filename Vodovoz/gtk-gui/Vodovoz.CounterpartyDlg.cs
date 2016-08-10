@@ -583,7 +583,7 @@ namespace Vodovoz {
 			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Предыдущий контагент:");
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Предыдущий контрагент:");
 			this.datatable1.Add(this.label4);
 			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label4]));
 			w35.TopAttach = ((uint)(5));
