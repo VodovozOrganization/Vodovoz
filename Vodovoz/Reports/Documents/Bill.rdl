@@ -13,13 +13,13 @@
   <BottomMargin>0mm</BottomMargin>
   <DataSets>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, 
 counterparty.full_name AS client_name, counterparty.jur_address AS client_address, 
 counterparty.inn, counterparty.kpp,
-phones.number AS phone
+CONCAT('+7 ', phones.number) AS phone
 FROM orders 
 LEFT JOIN counterparty ON orders.client_id = counterparty.id
 LEFT JOIN phones ON counterparty.id = phones.counterparty_id
@@ -30,7 +30,7 @@ WHERE orders.id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -62,7 +62,7 @@ WHERE orders.id = @order_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT 
@@ -88,7 +88,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -124,11 +124,11 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Organization">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 organizations.full_name, organizations.INN, organizations.KPP, organizations.jur_address AS address, organizations.email AS email, 
-phones.number AS phone, 
+CONCAT('+7 ', phones.number) AS phone, 
 banks.name, banks.bik, banks.cor_account, banks.city,
 accounts.number,
 leader.last_name AS leader_last_name, leader.name AS leader_name, leader.patronymic AS leader_patronymic,
@@ -146,7 +146,7 @@ WHERE organizations.id = @organization_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>

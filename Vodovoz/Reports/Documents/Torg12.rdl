@@ -79,7 +79,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Order">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 orders.id AS order_id, 
@@ -90,7 +90,7 @@ DATE_FORMAT(counterparty_contract.issue_date,'%d.%m.%y') AS contract_date,
 counterparty.full_name AS client_name, 
 counterparty.jur_address AS client_address, 
 counterparty.inn AS client_inn, 
-(SELECT phones.number FROM phones WHERE phones.counterparty_id = counterparty.id LIMIT 1) AS client_phone_number,
+(SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.counterparty_id = counterparty.id) AS client_phone_number,
 client_account.number AS client_acc_number,
 client_bank.name AS client_bank_name,
 client_bank.bik AS client_bank_bik,
@@ -99,7 +99,7 @@ client_bank.cor_account AS client_bank_cor_account,
 organizations.full_name AS org_name, 
 organizations.jur_address as org_address, 
 organizations.INN AS org_inn, 
-(SELECT phones.number FROM phones WHERE phones.org_id = organizations.id LIMIT 1) AS org_phone_number,
+(SELECT GROUP_CONCAT(CONCAT('+7 ', phones.number) SEPARATOR '; ') FROM phones WHERE phones.org_id = organizations.id) AS org_phone_number,
 org_account.number AS org_acc_number,
 org_bank.name AS org_bank_name,
 org_bank.bik AS org_bank_bik,
@@ -130,7 +130,7 @@ WHERE orders.id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -4690,7 +4690,7 @@ Public Function SummaString_Val(ByVal Summa As String) As String
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

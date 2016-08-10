@@ -19,7 +19,7 @@
 orders.id AS order_id, DATE_FORMAT(orders.delivery_date,'%d.%m.%y') AS order_date, 
 counterparty.full_name AS client_name, counterparty.jur_address AS client_address, 
 counterparty.inn, counterparty.kpp,
-delivery_points.phone AS phone,
+CONCAT('+7 ', delivery_points.phone) AS phone,
 delivery_points.compiled_address as delivery_address
 FROM orders 
 LEFT JOIN counterparty ON orders.client_id = counterparty.id
@@ -73,7 +73,7 @@ limit 1;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="ServiceClaim">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>select 
 nomenclature.official_name as name,
@@ -93,7 +93,7 @@ WHERE service_claims.id = @service_claim_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="serial">
           <DataField>serial</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1346,7 +1346,7 @@ where service_claim_id = @service_claim_id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="order_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
