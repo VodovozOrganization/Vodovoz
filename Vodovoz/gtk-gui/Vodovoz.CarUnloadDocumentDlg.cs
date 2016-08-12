@@ -293,7 +293,7 @@ namespace Vodovoz
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.yentryrefWarehouse.Changed += new global::System.EventHandler (this.OnYentryrefWarehouseChanged);
-			this.yentryrefRouteList.ChangedByUser += new global::System.EventHandler (this.OnYentryrefRouteListChangedByUser);
+			this.yentryrefRouteList.Changed += new global::System.EventHandler (this.OnYentryrefRouteListChanged);
 		}
 	}
 }

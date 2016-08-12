@@ -31569,7 +31569,7 @@ RegistrationNumber</property>
               <widget class="QSOrmProject.yEntryReferenceVM" id="yentryrefRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <signal name="ChangedByUser" handler="OnYentryrefRouteListChangedByUser" />
+                <signal name="Changed" handler="OnYentryrefRouteListChanged" />
               </widget>
               <packing>
                 <property name="LeftAttach">3</property>

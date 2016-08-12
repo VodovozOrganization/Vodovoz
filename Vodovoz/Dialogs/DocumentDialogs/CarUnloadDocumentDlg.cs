@@ -68,8 +68,6 @@ namespace Vodovoz
 			returnsreceptionview1.UoW = UoW;
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
 
-			SetupForNewRouteList();
-
 			UpdateWidgetsVisible();
 			if(!UoW.IsNew)
 				LoadReception();
@@ -122,20 +120,15 @@ namespace Vodovoz
 			returnsreceptionview1.AlreadyUnloadedEquipment = alreadyUnloadedEquipment;
 		}
 
-		protected void OnYentryrefRouteListChangedByUser(object sender, EventArgs e)
-		{
-			SetupForNewRouteList();
-		}
-
 		void SetupForNewRouteList()
 		{
 			UpdateRouteListInfo();
-			equipmentreceptionview1.RouteList = Entity.RouteList;
-			returnsreceptionview1.RouteList = Entity.RouteList;
 			if (Entity.RouteList != null)
 			{
 				UpdateAlreadyUnloaded();
 			}
+			equipmentreceptionview1.RouteList = Entity.RouteList;
+			returnsreceptionview1.RouteList = Entity.RouteList;
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
@@ -335,6 +328,11 @@ namespace Vodovoz
 		{
 			UpdateWidgetsVisible();
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
+		}
+
+		protected void OnYentryrefRouteListChanged(object sender, EventArgs e)
+		{
+			SetupForNewRouteList();
 		}
 
 		class InternalItem{
