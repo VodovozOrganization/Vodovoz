@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Logistic
 				{
 					var bottlesMovementOperation = new BottlesMovementOperation
 					{
-						OperationTime = DateTime.Now,
+						OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						Order = address.Order,
 						Delivered = amountDelivered,
 						Returned = address.BottlesReturned,
@@ -128,7 +128,7 @@ namespace Vodovoz.Domain.Logistic
 				{
 					var counterpartyMovementOperation = new CounterpartyMovementOperation
 						{
-							OperationTime = DateTime.Now,
+							OperationTime = orderItem.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 							Amount = amount,
 							Nomenclature = orderItem.Nomenclature,
 							Equipment = orderItem.Equipment,
@@ -153,7 +153,7 @@ namespace Vodovoz.Domain.Logistic
 					{
 						var counterpartyMovementOperation = new CounterpartyMovementOperation
 						{
-							OperationTime = DateTime.Now,
+							OperationTime = orderEquipment.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 							Amount = amount,
 							Nomenclature = orderEquipment.Equipment.Nomenclature,
 							Equipment = orderEquipment.Equipment,
@@ -167,7 +167,7 @@ namespace Vodovoz.Domain.Logistic
 					{
 						var counterpartyMovementOperation = new CounterpartyMovementOperation
 							{
-								OperationTime = DateTime.Now,
+								OperationTime = orderEquipment.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 								Amount = amount,
 								Nomenclature = orderEquipment.Equipment.Nomenclature,
 								Equipment = orderEquipment.Equipment,
@@ -206,7 +206,7 @@ namespace Vodovoz.Domain.Logistic
 					var operation = new DepositOperation
 					{
 						Order = item.Order,
-						OperationTime = DateTime.Now,
+						OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 						DepositType = DepositType.Equipment,
 						Counterparty = item.Order.Client,
 						DeliveryPoint = item.Order.DeliveryPoint,
@@ -235,7 +235,7 @@ namespace Vodovoz.Domain.Logistic
 					var operation = new DepositOperation
 						{
 							Order = item.Order,
-							OperationTime = DateTime.Now,
+							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 							DepositType = DepositType.Equipment,
 							Counterparty = item.Order.Client,
 							DeliveryPoint = item.Order.DeliveryPoint,
@@ -248,7 +248,7 @@ namespace Vodovoz.Domain.Logistic
 				var bottleDepositsOperation = new DepositOperation()
 				{
 					Order = item.Order,
-					OperationTime = DateTime.Now,
+					OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 					DepositType = DepositType.Bottles,
 					Counterparty = item.Order.Client,
 					DeliveryPoint = item.Order.DeliveryPoint,
@@ -338,7 +338,7 @@ namespace Vodovoz.Domain.Logistic
 					money = address.TotalCash;
 				var moneyMovementOperation = new MoneyMovementOperation()
 				{
-					OperationTime = DateTime.Now,
+					OperationTime = order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 					Order = order,
 					Counterparty = order.Client,
 					PaymentType = order.PaymentType,
