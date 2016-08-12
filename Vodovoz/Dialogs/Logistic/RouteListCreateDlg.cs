@@ -57,6 +57,8 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
+		public RouteListCreateDlg (RouteList sub) : this(sub.Id) {}
+
 		public RouteListCreateDlg (int id)
 		{
 			this.Build ();
