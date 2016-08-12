@@ -18,6 +18,20 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
+		Counterparty counterparty;
+
+		public Counterparty Counterparty {
+			get {
+				if (CounterpartyUoW != null)
+					return CounterpartyUoW.Root;
+				else
+					return counterparty;
+			}
+			private set {
+				counterparty = value;
+			}
+		}
+
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes ()
@@ -36,7 +50,7 @@ namespace Vodovoz.ViewModel
 			var contractslist = UoW.Session.QueryOver<CounterpartyContract> (() => contractAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
 				.JoinAlias (c => c.Organization, () => organizationAlias)
-				.Where (() => counterpartyAlias.Id == CounterpartyUoW.Root.Id)
+				.Where (() => counterpartyAlias.Id == Counterparty.Id)
 				.SelectList(list => list
 					.Select(() => contractAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => contractAlias.IssueDate).WithAlias(() => resultAlias.IssueDate)
@@ -91,6 +105,17 @@ namespace Vodovoz.ViewModel
 			typeof(WaterSalesAgreement))
 		{
 			this.UoW = uow;
+		}
+
+		public ContractsVM (IUnitOfWork uow, Counterparty counterparty) : base(
+			typeof(DailyRentAgreement), 
+			typeof(FreeRentAgreement), 
+			typeof(NonfreeRentAgreement),
+			typeof(RepairAgreement),
+			typeof(WaterSalesAgreement))
+		{
+			UoW = uow;
+			Counterparty = counterparty;
 		}
 	}
 		

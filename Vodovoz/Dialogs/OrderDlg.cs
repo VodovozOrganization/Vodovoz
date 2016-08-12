@@ -132,6 +132,8 @@ namespace Vodovoz
 
 			spinBottlesReturn.Binding.AddBinding (Entity, s => s.BottlesReturn, w => w.ValueAsInt).InitializeFromSource ();
 
+			referenceContract.Binding.AddBinding(Entity, e => e.Contract, w => w.Subject).InitializeFromSource();
+
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeCustomer = true;
 			counterpartyFilter.RestrictIncludeSupplier = false;
@@ -350,9 +352,10 @@ namespace Vodovoz
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceClient.Subject));
 			if (UoWGeneric.Root.Client != null) {
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Client);
-				referenceDeliveryPoint.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
+				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder;
+				referenceContract.RepresentationModel = new ViewModel.ContractsVM (UoW, Entity.Client);
 			} else {
-				referenceDeliveryPoint.Sensitive = false;
+				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
 			UpdateProxyInfo ();
 		}

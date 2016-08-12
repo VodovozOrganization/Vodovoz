@@ -395,6 +395,10 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult ("Не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName (o => o.SignatureType) });
 
+					if (Contract == null)
+						yield return new ValidationResult ("Не указан договор.",
+							new[] { this.GetPropertyName (o => o.Contract) });
+
 					//Проверка товаров
 					var itemsWithBlankWarehouse = OrderItems
 						.Where(orderItem => Nomenclature.GetCategoriesForShipment().Contains(orderItem.Nomenclature.Category))
