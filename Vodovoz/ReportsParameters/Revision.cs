@@ -46,7 +46,7 @@ namespace Vodovoz.Reports
 		{			
 			return new ReportInfo
 			{
-				Identifier = "Cash.Revision",
+				Identifier = "Client.Revision",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "StartDate", dateperiodpicker1.StartDateOrNull.Value },
