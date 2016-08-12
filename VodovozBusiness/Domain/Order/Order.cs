@@ -138,10 +138,10 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
-		OrderSignatureType signatureType;
+		OrderSignatureType? signatureType;
 
 		[Display (Name = "Подписание документов")]
-		public virtual OrderSignatureType SignatureType {
+		public virtual OrderSignatureType? SignatureType {
 			get { return signatureType; }
 			set { SetField (ref signatureType, value, () => SignatureType); }
 		}
@@ -390,6 +390,10 @@ namespace Vodovoz.Domain.Orders
 					if (!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult ("Не указано время доставки.",
 							new[] { this.GetPropertyName (o => o.DeliverySchedule) });
+
+					if (!SelfDelivery && !SignatureType.HasValue)
+						yield return new ValidationResult ("Не указано как будут подписаны документы.",
+							new[] { this.GetPropertyName (o => o.SignatureType) });
 
 					//Проверка товаров
 					var itemsWithBlankWarehouse = OrderItems
