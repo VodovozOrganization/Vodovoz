@@ -189,6 +189,11 @@ namespace Vodovoz
 
 		void OnItemsUpdated(){
 			CalculateTotal();
+			UpdateButtonState();
+		}
+
+		void UpdateButtonState()
+		{
 			buttonAccept.Sensitive = isConsistentWithUnloadDocument();
 		}
 
@@ -424,6 +429,7 @@ namespace Vodovoz
 		{
 			Entity.BottleFine = e.Entity as Fine;
 			CalculateTotal();
+			UpdateButtonState();
 		}
 
 		void FineDlgExist_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
@@ -437,6 +443,7 @@ namespace Vodovoz
 			UoW.Delete(Entity.BottleFine);
 			Entity.BottleFine = null;
 			CalculateTotal();
+			UpdateButtonState();
 		}
 
 		protected void OnCheckUseBottleFineToggled(object sender, EventArgs e)
