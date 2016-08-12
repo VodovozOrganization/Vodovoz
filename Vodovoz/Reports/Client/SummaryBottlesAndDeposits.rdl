@@ -19,31 +19,9 @@
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
   <BottomMargin>.25in</BottomMargin>
-  <ReportParameters>
-    <ReportParameter Name="client_id">
-      <DataType>Integer</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="delivery_point_id">
-      <DataType>Integer</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="startDate">
-      <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="endDate">
-      <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-  </ReportParameters>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     docs.order_id,
@@ -109,7 +87,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -152,7 +130,7 @@ FROM
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Client" >
+    <DataSet Name="Client">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT full_name FROM Vodovoz.counterparty WHERE id = @client_id;</CommandText>
@@ -182,10 +160,10 @@ FROM
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
-          <TextAlign >Center</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -227,7 +205,7 @@ FROM
           <TableColumn>
             <Width>62.9pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>73.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -249,8 +227,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -265,8 +243,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -281,8 +259,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -297,8 +275,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -313,8 +291,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -329,8 +307,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -345,8 +323,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -361,13 +339,13 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox22">
                       <Value>Оборудование</Value>
@@ -377,8 +355,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -393,8 +371,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -422,8 +400,8 @@ FROM
                               <Default>Solid</Default>
                             </BorderStyle>
                             <FontWeight>Bold</FontWeight>
-                            <BorderColor  />
-                            <BorderWidth  />
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -472,14 +450,14 @@ FROM
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
-                            <BorderColor  />
-                            <BorderWidth  />
-                            <FontWeight >Bold</FontWeight>
-                            <TextAlign >Right</TextAlign>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Right</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan >2</ColSpan>
+                      <ColSpan>2</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
@@ -492,9 +470,9 @@ FROM
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
-                            <BorderColor  />
-                            <BorderWidth  />
-                            <FontWeight >Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -510,9 +488,9 @@ FROM
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
-                            <FontWeight >Bold</FontWeight>
-                            <BorderColor  />
-                            <BorderWidth  />
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -528,9 +506,9 @@ FROM
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
-                            <FontWeight >Bold</FontWeight>
-                            <BorderColor  />
-                            <BorderWidth  />
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -546,14 +524,14 @@ FROM
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
-                            <FontWeight >Bold</FontWeight>
-                            <BorderColor  />
-                            <BorderWidth  />
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox25">
                           <Value>
@@ -579,9 +557,9 @@ FROM
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
                             <TextAlign>Right</TextAlign>
-                            <FontWeight >Bold</FontWeight>
-                            <BorderColor  />
-                            <BorderWidth  />
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -610,12 +588,12 @@ FROM
                         <BorderStyle>
                           <Default>Solid</Default>
                           <Left>Solid</Left>
-                          <Right >Solid</Right>
-                          <Top >Solid</Top>
-                          <Bottom >Solid</Bottom>
+                          <Right>Solid</Right>
+                          <Top>Solid</Top>
+                          <Bottom>Solid</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -630,9 +608,9 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <Format >d</Format>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format>d</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -647,8 +625,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -663,8 +641,8 @@ FROM
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -727,7 +705,7 @@ FROM
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
                       <Value>
@@ -800,14 +778,14 @@ FROM
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <FontWeight >Bold</FontWeight>
-                        <TextAlign >Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan >2</ColSpan>
+                  <ColSpan>2</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -820,9 +798,9 @@ FROM
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -838,9 +816,9 @@ FROM
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -856,9 +834,9 @@ FROM
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -874,14 +852,14 @@ FROM
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
                       <Value>
@@ -907,9 +885,9 @@ FROM
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
-                        <FontWeight >Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -918,8 +896,8 @@ FROM
             </TableRow>
           </TableRows>
         </Footer>
-        <Left >0.0pt</Left>
-        <Top >40.6pt</Top>
+        <Left>0.0pt</Left>
+        <Top>40.6pt</Top>
       </Table>
       <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Top>0.8pt</Top>
@@ -930,13 +908,13 @@ FROM
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
-          <TextAlign >Center</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox27" >
+      <Textbox Name="Textbox27">
         <Height>14.99pt</Height>
         <Width>513.51pt</Width>
         <Value>="Реестр документов с " + Format(CDate({?startDate}), "d") + " по "+ Format(CDate({?endDate}), "d")</Value>
@@ -949,12 +927,12 @@ FROM
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox28" >
+      <Textbox Name="Textbox28">
         <Height>54.12pt</Height>
         <Width>202.33pt</Width>
-        <Value>Генеральный директор
-ООО "Велелый водовоз"
-____________(Сосновцев С.С.)
+        <Value>Руководитель
+
+____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
         <Left>25.80pt</Left>
@@ -966,7 +944,7 @@ ____________(Сосновцев С.С.)
           <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox29" >
+      <Textbox Name="Textbox29">
         <Height>34.58pt</Height>
         <Width>157.34pt</Width>
         <Value>___________(                   )
@@ -981,7 +959,7 @@ ____________(Сосновцев С.С.)
           <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox30" >
+      <Textbox Name="Textbox30">
         <Height>24.01pt</Height>
         <Width>257.45pt</Width>
         <Value>=First({full_name}, "Client")</Value>
@@ -1010,13 +988,47 @@ ____________(Сосновцев С.С.)
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <ReportParameters >
+    <ReportParameter Name="client_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="delivery_point_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="startDate">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="endDate">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>

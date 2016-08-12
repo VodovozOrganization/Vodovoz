@@ -59,8 +59,8 @@ namespace Vodovoz.Reports
 				Identifier = "Client.SummaryBottlesAndDeposits",
 				Parameters = new Dictionary<string, object>
 				{
-					{ "startDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
+					{ "startDate", dateperiodpicker1.StartDateOrNull },
+					{ "endDate", dateperiodpicker1.EndDateOrNull },
 					{ "client_id", referenceCounterparty.GetSubject<Counterparty>().Id},
 					{ "delivery_point_id", referenceDeliveryPoint.Subject == null ? -1 : referenceDeliveryPoint.GetSubject<DeliveryPoint>().Id},
 				}
@@ -74,9 +74,8 @@ namespace Vodovoz.Reports
 
 		private void ValidateParameters()
 		{
-			var datePeriodSelected = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
 			var counterpartySelected = referenceCounterparty.Subject != null;
-			buttonRun.Sensitive = datePeriodSelected && counterpartySelected;
+			buttonRun.Sensitive = counterpartySelected;
 		}
 
 		protected void OnReferenceCounterpartyChanged (object sender, EventArgs e)
