@@ -331,7 +331,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYentryrefWarehouseChangedByUser(object sender, EventArgs e)
+		protected void OnYentryrefWarehouseChanged(object sender, EventArgs e)
 		{
 			UpdateWidgetsVisible();
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
