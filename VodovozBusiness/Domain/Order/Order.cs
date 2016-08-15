@@ -391,7 +391,7 @@ namespace Vodovoz.Domain.Orders
 						yield return new ValidationResult ("Не указано время доставки.",
 							new[] { this.GetPropertyName (o => o.DeliverySchedule) });
 
-					if (!SelfDelivery && !SignatureType.HasValue)
+					if (PaymentType == PaymentType.cashless && !SignatureType.HasValue)
 						yield return new ValidationResult ("Не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName (o => o.SignatureType) });
 
