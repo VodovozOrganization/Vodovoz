@@ -49,6 +49,28 @@ namespace Vodovoz.Repository
 			return bottlesOrdered;
 		}
 
+		public static double GetAvgBottlesOrdered(IUnitOfWork uow, DeliveryPoint deliveryPoint, int? countLastOrders)
+		{
+			Order orderAlias = null;
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			var confirmedQueryResult = uow.Session.QueryOver<Order>(() => orderAlias)
+				.Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
+				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
+				.JoinAlias(() => orderAlias.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.OrderByAlias(() => orderAlias.DeliveryDate).Desc;
+			if (countLastOrders.HasValue)
+				confirmedQueryResult.Take(countLastOrders.Value);
+			
+			var list = confirmedQueryResult.Select(Projections.Group<Order>(x => x.Id),
+				Projections.Sum(()=>orderItemAlias.Count)).List<object[]>();
+
+			return list.Count > 0 ? list.Average (x => (int)x[1]) : 0;
+		}
+
 		public static int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint)
 		{
 			BottlesMovementOperation operationAlias = null;

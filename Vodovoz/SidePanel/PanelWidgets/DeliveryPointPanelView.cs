@@ -32,7 +32,8 @@ namespace Vodovoz.Panel
 				return;			
 			labelAddress.Text = DeliveryPoint.CompiledAddress;
 			var bottlesAtDeliveryPoint = DeliveryPointRepository.GetBottlesAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
-			labelBottles.Text = bottlesAtDeliveryPoint.ToString()+" шт.";
+			var bottlesAvgDeliveryPoint = DeliveryPointRepository.GetAvgBottlesOrdered(InfoProvider.UoW, DeliveryPoint, 5);
+			labelBottles.Text = String.Format("{0} шт. (сред. зак.: {1:G3})", bottlesAtDeliveryPoint, bottlesAvgDeliveryPoint);
 			var depositsAtDeliveryPoint = DepositRepository.GetBottleDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint);
 			labelDeposits.Text = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
