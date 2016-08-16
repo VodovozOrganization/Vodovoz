@@ -133,7 +133,7 @@ FROM
     <DataSet Name="Client">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT full_name FROM Vodovoz.counterparty WHERE id = @client_id;</CommandText>
+        <CommandText>SELECT full_name FROM counterparty WHERE id = @client_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>={?client_id}</Value>
@@ -144,6 +144,153 @@ FROM
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Bottles">
+      <Query >
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(CAST(delivered as SIGNED) - CAST(returned as SIGNED)) AS bottle_balance
+FROM
+    bottles_movement_operations
+WHERE
+    counterparty_id = @client_id
+        AND (@delivery_point_id = - 1
+        OR delivery_point_id = @delivery_point_id)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields >
+        <Field Name="bottle_balance">
+          <DataField>bottle_balance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="BottleDeposit">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(received_deposit - refund_deposit) as bottle_deposit
+FROM
+    deposit_operations
+WHERE
+    deposit_type = 'Bottles'
+        AND counterparty_id = @client_id
+        AND (@delivery_point_id = - 1
+        OR delivery_point_id = @delivery_point_id);</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="bottle_deposit">
+          <DataField>bottle_deposit</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="EquipmentDeposit">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(received_deposit - refund_deposit) as equipment_deposit
+FROM
+    deposit_operations
+WHERE
+    deposit_type = 'Equipment'
+        AND counterparty_id = @client_id
+        AND (@delivery_point_id = - 1
+        OR delivery_point_id = @delivery_point_id);</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="@delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="equipment_deposit">
+          <DataField>equipment_deposit</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="NotReturnedEquipment">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    nomenclature.id,
+    nomenclature.name,
+    (SELECT 
+            SUM(amount)
+        FROM
+            counterparty_movement_operations
+        WHERE
+            counterparty_movement_operations.nomenclature_id = nomenclature.id
+                AND for_rent = 1
+                AND incoming_counterparty_id = @client_id
+                AND (@delivery_point_id = - 1
+                OR incoming_delivery_point_id = @delivery_point_id)) - IFNULL((SELECT 
+                    SUM(amount)
+                FROM
+                    counterparty_movement_operations
+                WHERE
+                    counterparty_movement_operations.nomenclature_id = nomenclature.id
+                        AND for_rent = 1
+                        AND writeoff_counterparty_id = @client_id
+                        AND (@delivery_point_id = - 1
+                        OR writeoff_delivery_point_id = @delivery_point_id)),
+            0) AS amount
+FROM
+    nomenclature
+WHERE
+    nomenclature.category = 'equipment'
+        AND EXISTS( SELECT 
+            id
+        FROM
+            counterparty_movement_operations
+        WHERE
+            counterparty_movement_operations.nomenclature_id = nomenclature.id
+                AND for_rent = 1
+                AND incoming_counterparty_id = @client_id
+                AND (@delivery_point_id = - 1
+                OR incoming_delivery_point_id = @delivery_point_id));</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="client_id">
+            <Value>={?client_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="delivery_point_id">
+            <Value>={?delivery_point_id}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="name">
+          <DataField>name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="amount">
+          <DataField>amount</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -701,6 +848,8 @@ FROM
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -935,8 +1084,8 @@ FROM
 ____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
-        <Left>25.80pt</Left>
-        <Top>125.60pt</Top>
+        <Left>25.8pt</Left>
+        <Top>189.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -951,7 +1100,7 @@ ____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
         <Left>314.7pt</Left>
-        <Top>146.8pt</Top>
+        <Top>210.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -964,8 +1113,8 @@ ____________(                        )
         <Width>257.45pt</Width>
         <Value>=First({full_name}, "Client")</Value>
         <ZIndex>1</ZIndex>
-        <Left>310.90pt</Left>
-        <Top>123.80pt</Top>
+        <Left>310.9pt</Left>
+        <Top>187.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -973,8 +1122,152 @@ ____________(                        )
           <FontSize>11pt</FontSize>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox15">
+        <Height>14.25pt</Height>
+        <Width>210.73pt</Width>
+        <Value>Забрать бутылей:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>13.8pt</Left>
+        <Top>122.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox20">
+        <Height>12.75pt</Height>
+        <Width>118.90pt</Width>
+        <Value>=First({bottle_balance}, 'Bottles')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>224.9pt</Left>
+        <Top>122.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Format>0 шт.</Format>
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox31">
+        <Height>13.50pt</Height>
+        <Width>222.50pt</Width>
+        <Value>Вернуть залогов за бутыли:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.3pt</Left>
+        <Top>153.4pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox32" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>130.88pt</Width>
+        <Value>=First({bottle_deposit}, 'BottleDeposit')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>223.9pt</Left>
+        <Top>152.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Format>C</Format>
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox33">
+        <Height>13.50pt</Height>
+        <Width>222.50pt</Width>
+        <Value>Вернуть залогов за оборудование:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>1.6pt</Left>
+        <Top>167.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>13.50pt</Height>
+        <Width>130.88pt</Width>
+        <Value>=First({equipment_deposit}, 'EquipmentDeposit')</Value>
+        <ZIndex>1</ZIndex>
+        <Left>225.0pt</Left>
+        <Top>167.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Format>C</Format>
+          <TextAlign>Left</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>14.25pt</Height>
+        <Width>210.73pt</Width>
+        <Value>Забрать оборудование:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>14.3pt</Left>
+        <Top>135.8pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <List Name="List1">
+        <Height>15.10pt</Height>
+        <Width>351.50pt</Width>
+        <Left>225.10pt</Left>
+        <Top>135.60pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox36">
+            <Height>12.00pt</Height>
+            <Width>41.47pt</Width>
+            <Value>={amount}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>2.00pt</Left>
+            <Top>0.90pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <Format>0 шт.</Format>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox37">
+            <Height>12.76pt</Height>
+            <Width>310.23pt</Width>
+            <Value>=" - " + Fields!name.Value</Value>
+            <ZIndex>1</ZIndex>
+            <Left>40.00pt</Left>
+            <Top>1.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>NotReturnedEquipment</DataSetName>
+      </List>
     </ReportItems>
-    <Height>187.2pt</Height>
+    <Height>247.7pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -997,7 +1290,7 @@ ____________(                        )
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
