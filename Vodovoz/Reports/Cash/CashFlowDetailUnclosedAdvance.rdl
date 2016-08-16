@@ -467,7 +467,7 @@ ORDER BY Category;</CommandText>
                             <BackgroundColor>Lightgrey</BackgroundColor>
                             <VerticalAlign>Bottom</VerticalAlign>
                           </Style>
-                          <Value>=sum(Fields!Sum.Value)</Value>
+                          <Value>=sum(Iif(Previous({expense_id}) != {expense_id}, Fields!Sum.Value, 0))</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -653,6 +653,15 @@ ORDER BY Category;</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
@@ -671,7 +680,7 @@ ORDER BY Category;</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2015-11-01</Value>
+          <Value>2016-11-01</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -711,16 +720,8 @@ ORDER BY Category;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
