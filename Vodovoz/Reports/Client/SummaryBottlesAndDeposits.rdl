@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     docs.order_id,
@@ -50,18 +50,33 @@
             deposit_operations
         WHERE
             deposit_operations.order_id = docs.order_id
-                AND deposit_operations.deposit_type = 'Equipment') AS equipment_deposit
+                AND deposit_operations.deposit_type = 'Equipment') AS equipment_deposit,
+    (SELECT 
+            GROUP_CONCAT(CONCAT(CASE WHEN writeoff_counterparty_id IS NULL THEN '&gt;&gt; ' WHEN incoming_counterparty_id IS NULL THEN '&lt;&lt; ' ELSE '&lt;&lt;&gt;&gt; ' END, nomenclature.name, ' - ', amount)
+                    SEPARATOR ', ')
+        FROM
+            operations_counterparty_movement_docs
+                LEFT JOIN
+            nomenclature ON nomenclature.id = nomenclature_id
+        WHERE
+        operations_counterparty_movement_docs.order_id = docs.order_id
+                AND ((incoming_counterparty_id = @client_id
+                AND (@delivery_point_id = - 1
+                OR incoming_delivery_point_id = @delivery_point_id))
+                OR (writeoff_counterparty_id = @client_id
+                AND (@delivery_point_id = - 1
+                OR writeoff_delivery_point_id = @delivery_point_id)))) AS equipment_moving
 FROM
     (SELECT 
         orders.id AS order_id,
             orders.bottles_movement_operation_id,
             orders.delivery_date AS doc_date,
             orders.payment_type,
-            delivery_points.id as delivery_point_id,
-            delivery_points.compiled_address as delivery_point_address
+            delivery_points.id AS delivery_point_id,
+            delivery_points.compiled_address AS delivery_point_address
     FROM
         orders
-        LEFT JOIN delivery_points on delivery_points.id = orders.delivery_point_id
+    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
     WHERE
         orders.client_id = @client_id
             AND (@delivery_point_id = - 1
@@ -87,7 +102,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -127,6 +142,10 @@ FROM
         <Field Name="equipment_deposit">
           <DataField>equipment_deposit</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="equipment_moving">
+          <DataField>equipment_moving</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -350,10 +369,10 @@ WHERE
             <Width>43.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>62.9pt</Width>
+            <Width>57.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>73.2pt</Width>
+            <Width>86.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>57.8pt</Width>
@@ -857,15 +876,17 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox23">
-                      <Value>
-                      </Value>
+                      <Value>=Fields!equipment_moving.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Left</TextAlign>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
