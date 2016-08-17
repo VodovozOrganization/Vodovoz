@@ -173,6 +173,34 @@ namespace Vodovoz.Domain.Orders
 		}
 
 		#endregion
+
+		#region Функции
+
+		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation()
+		{
+			if(ActualCount == 0)
+			{
+				//FIXME Проверить может нужно удалять.
+				CounterpartyMovementOperation = null;
+				return null;
+			}
+
+			if (CounterpartyMovementOperation == null)
+			{
+				CounterpartyMovementOperation = new CounterpartyMovementOperation();
+			}
+
+			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+			CounterpartyMovementOperation.Amount = ActualCount;
+			CounterpartyMovementOperation.Nomenclature = Nomenclature;
+			CounterpartyMovementOperation.Equipment = Equipment;
+			CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
+			CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
+
+			return CounterpartyMovementOperation;
+		}
+
+		#endregion
 	
 		#region IValidatableObject implementation
 

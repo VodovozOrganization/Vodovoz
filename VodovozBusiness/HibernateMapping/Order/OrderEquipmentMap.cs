@@ -20,7 +20,7 @@ namespace Vodovoz.HMap
 			References (x => x.Equipment).Column ("equipment_id");
 			References (x => x.OrderItem).Column ("order_item_id");
 			References (x => x.NewEquipmentNomenclature).Column ("new_eq_nomenclature_id");
-			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id");
+			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id").Cascade.All();
 		}
 	}
 }

@@ -22,7 +22,7 @@ namespace Vodovoz.HMap
 			References (x => x.AdditionalAgreement).Column ("additional_agreement_id");
 			References (x => x.Equipment).Column ("equipment_id");
 			References (x => x.Nomenclature).Column ("nomenclature_id");
-			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id");
+			References (x => x.CounterpartyMovementOperation).Column ("counterparty_movement_operation_id").Cascade.All();
 		}
 	}
 }

@@ -320,7 +320,7 @@ namespace Vodovoz
 				return;
 
 			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
-			var counterpartyMovementOperations = Entity.CreateCounterpartyMovementOperations();
+			var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations();
 			var depositsOperations = Entity.CreateDepositOperations(UoW);
 
 			Income cashIncome=null;

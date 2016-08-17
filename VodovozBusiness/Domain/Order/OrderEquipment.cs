@@ -112,6 +112,50 @@ namespace Vodovoz.Domain.Orders
 
 		//TODO Номер заявки на обслуживание
 
+		#region Функции
+
+		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation()
+		{
+			var amount = Confirmed ? 1 : 0;
+
+			if(amount == 0)
+			{
+				//FIXME Проверить может нужно удалять.
+				CounterpartyMovementOperation = null;
+				return null;
+			}
+
+			if (CounterpartyMovementOperation == null)
+			{
+				CounterpartyMovementOperation = new CounterpartyMovementOperation();
+			}
+
+			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
+			CounterpartyMovementOperation.Amount = amount;
+			CounterpartyMovementOperation.Nomenclature = Equipment.Nomenclature;
+			CounterpartyMovementOperation.Equipment = Equipment;
+			CounterpartyMovementOperation.ForRent = (Reason != Reason.Sale);
+			if (Direction == Direction.Deliver)
+			{
+				CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
+				CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
+				CounterpartyMovementOperation.WriteoffCounterparty = null;
+				CounterpartyMovementOperation.WriteoffDeliveryPoint = null;
+			}
+			else
+			{
+				CounterpartyMovementOperation.WriteoffCounterparty = Order.Client;
+				CounterpartyMovementOperation.WriteoffDeliveryPoint = Order.DeliveryPoint;
+				CounterpartyMovementOperation.IncomingCounterparty = null;
+				CounterpartyMovementOperation.IncomingDeliveryPoint = null;
+			}	
+
+			return CounterpartyMovementOperation;
+		}
+
+
+		#endregion
+
 		#region IValidatableObject implementation
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)

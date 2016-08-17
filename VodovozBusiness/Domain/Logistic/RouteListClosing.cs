@@ -116,27 +116,16 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual List<CounterpartyMovementOperation> CreateCounterpartyMovementOperations(){
+		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations(){
 			var result = new List<CounterpartyMovementOperation>();
 			foreach (var orderItem in RouteList.Addresses.SelectMany(item=>item.Order.OrderItems)
 				.Where(item=>Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item=>!item.Nomenclature.Serial)
 			)
 			{
-				var amount = (orderItem.ActualCount);
-				if (amount > 0)
-				{
-					var counterpartyMovementOperation = new CounterpartyMovementOperation
-						{
-							OperationTime = orderItem.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-							Amount = amount,
-							Nomenclature = orderItem.Nomenclature,
-							Equipment = orderItem.Equipment,
-							IncomingCounterparty = orderItem.Order.Client,
-							IncomingDeliveryPoint = orderItem.Order.DeliveryPoint
-						};
-					result.Add(counterpartyMovementOperation);
-				}
+				var operation = orderItem.UpdateCounterpartyOperation();
+				if(operation != null)
+					result.Add(operation);
 			}
 
 			//Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
@@ -146,37 +135,9 @@ namespace Vodovoz.Domain.Logistic
 			foreach (var orderEquipment in RouteList.Addresses.SelectMany(item=>item.Order.OrderEquipments)
 				.Where(item=>Nomenclature.GetCategoriesForShipment().Contains(item.Equipment.Nomenclature.Category)))
 			{
-				var amount = orderEquipment.Confirmed ? 1 : 0;
-				if (amount > 0)
-				{
-					if (orderEquipment.Direction == Direction.Deliver)
-					{
-						var counterpartyMovementOperation = new CounterpartyMovementOperation
-						{
-							OperationTime = orderEquipment.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-							Amount = amount,
-							Nomenclature = orderEquipment.Equipment.Nomenclature,
-							Equipment = orderEquipment.Equipment,
-							ForRent = orderEquipment.Reason == Reason.Rent,
-							IncomingCounterparty = orderEquipment.Order.Client,
-							IncomingDeliveryPoint = orderEquipment.Order.DeliveryPoint
-						};
-						result.Add(counterpartyMovementOperation);
-					}
-					else
-					{
-						var counterpartyMovementOperation = new CounterpartyMovementOperation
-							{
-								OperationTime = orderEquipment.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-								Amount = amount,
-								Nomenclature = orderEquipment.Equipment.Nomenclature,
-								Equipment = orderEquipment.Equipment,
-								WriteoffCounterparty = orderEquipment.Order.Client,
-								WriteoffDeliveryPoint = orderEquipment.Order.DeliveryPoint
-							};
-						result.Add(counterpartyMovementOperation);
-					}
-				}
+				var operation = orderEquipment.UpdateCounterpartyOperation();
+				if(operation != null)
+					result.Add(operation);
 			}
 			return result;
 		}
