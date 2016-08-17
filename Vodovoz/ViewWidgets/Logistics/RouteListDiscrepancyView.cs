@@ -261,7 +261,10 @@ namespace Vodovoz
 		public bool UseFine{ get; set;}
 
 		public decimal SumOfDamage{
-			get{
+			get
+			{
+				if (Nomenclature == null)
+					return 0;
 				return Nomenclature.SumOfDamage * (-Remainder);
 			}
 		}
