@@ -76,6 +76,13 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		CounterpartyMovementOperation counterpartyMovementOperation;
+
+		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
+			get { return counterpartyMovementOperation; }
+			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+		}
+
 		string confirmedComment;
 		[Display (Name = "Комментарий по забору")]
 		[StringLength(200)]

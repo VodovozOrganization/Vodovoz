@@ -98,6 +98,13 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref includeNDS, value, () => IncludeNDS); }
 		}
 
+		CounterpartyMovementOperation counterpartyMovementOperation;
+
+		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
+			get { return counterpartyMovementOperation; }
+			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
+		}
+
 		#endregion
 
 		#region Вычисляемы
