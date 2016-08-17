@@ -933,7 +933,15 @@ namespace Vodovoz
 			}
 			//Устанавливаем тип оплаты
 			if (Entity.Client != null)
+			{
 				Entity.PaymentType = Entity.Client.PaymentMethod;
+				OnEnumPaymentTypeChangedByUser(null, EventArgs.Empty);
+			}
+			else
+			{
+				Entity.Contract = null;
+			}
+				
 		}
 
 		protected void OnButtonOpenServiceClaimClicked(object sender, EventArgs e)
