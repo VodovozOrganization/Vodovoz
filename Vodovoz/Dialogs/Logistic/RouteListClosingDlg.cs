@@ -337,6 +337,7 @@ namespace Vodovoz
 
 			Entity.Confirm();
 
+			UoW.Save(UoWGeneric.Root.RouteList);
 			UoW.Save();
 
 			buttonAccept.Sensitive = false;
