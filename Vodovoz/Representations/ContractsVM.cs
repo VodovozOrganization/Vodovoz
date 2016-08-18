@@ -10,7 +10,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.ViewModel
 {
-	public class ContractsVM : RepresentationModelEntitySubscribingBase<CounterpartyContract, ContractsVMNode>
+	public class ContractsVM : RepresentationModelEntitySubscribingBase<CounterpartyContract, ContractsVMNode>, IRepresentationModelWithParent
 	{
 		public IUnitOfWorkGeneric<Counterparty> CounterpartyUoW {
 			get {
@@ -31,6 +31,18 @@ namespace Vodovoz.ViewModel
 				counterparty = value;
 			}
 		}
+
+		#region IRepresentationModelWithParent implementation
+
+		public object GetParent
+		{
+			get
+			{
+				return Counterparty;
+			}
+		}
+
+		#endregion
 
 		#region IRepresentationModel implementation
 
