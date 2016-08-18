@@ -1,6 +1,7 @@
-﻿using QSOrmProject;
+﻿using System.Collections.Generic;
 using NHibernate.Criterion;
-using System.Collections.Generic;
+using QSBanks;
+using QSOrmProject;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Repository
@@ -28,6 +29,20 @@ namespace Vodovoz.Repository
 				.Take (1)
 				.SingleOrDefault ();
 		}
+
+		public static Counterparty GetCounterpartyByAccount (IUnitOfWork uow, string accountNumber)
+		{
+			if (string.IsNullOrWhiteSpace (accountNumber))
+				return null;
+			Account accountAlias = null;
+
+			return uow.Session.QueryOver<Counterparty> ()
+				.JoinAlias(x => x.Accounts, () => accountAlias)
+				.Where (() => accountAlias.Number == accountNumber)
+				.Take (1)
+				.SingleOrDefault ();
+		}
+
 	}
 }
 
