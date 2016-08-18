@@ -350,6 +350,9 @@ namespace Vodovoz
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, NeedToAdd);
 					//Ищем плательщика
 					var payerCounterparty = CounterpartyRepository.GetCounterpartyByINN (uow, doc.PayerInn);
+					if(payerCounterparty == null)
+						payerCounterparty = CounterpartyRepository.GetCounterpartyByAccount (uow, doc.PayerAccount);
+					
 					if (payerCounterparty == null) {
 						documents.SetValue (iter, (int)Columns.PayerNameColorCol, NeedToAdd);
 						documents.SetValue (iter, (int)Columns.PayerAccountColorCol, NeedToAdd);
@@ -550,7 +553,6 @@ namespace Vodovoz
 
 			if (!documents.GetIterFirst (out iter))
 				return;
-			try {
 				do {
 					//Шевелим прогрессбаром. I'd like to move it, move it.
 					if (progressBar.Fraction + progressStep > 1)
@@ -596,7 +598,11 @@ namespace Vodovoz
 							incomeUoW.Root.Date = doc.Date;
 							incomeUoW.Root.Total = doc.Total;
 							incomeUoW.Root.Description = doc.PaymentPurpose;
-							incomeUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (incomeUoW, doc.PayerInn);
+						var counterparty = CounterpartyRepository.GetCounterpartyByINN (incomeUoW, doc.PayerInn);
+						if(counterparty == null)
+							counterparty  = CounterpartyRepository.GetCounterpartyByAccount (incomeUoW, doc.PayerAccount);
+							
+							incomeUoW.Root.Counterparty = counterparty;
 							incomeUoW.Root.CounterpartyAccount = incomeUoW.Root.Counterparty.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							incomeUoW.Root.Organization = organization;
 							incomeUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.RecipientCheckingAccount);
@@ -605,11 +611,6 @@ namespace Vodovoz
 						}
 					}
 				} while (documents.IterNext (ref iter));
-			} catch (Exception ex) {
-				progressBar.Text = "Произошла ошибка!";
-				progressBar.Fraction = 0;
-				throw ex;
-			}
 			progressBar.Text = "Загрузка завершена успешно";
 		}
 
