@@ -94,7 +94,7 @@ namespace Vodovoz.ViewModel
 
 		protected override bool NeedUpdateFunc (CounterpartyContract updatedSubject)
 		{
-			return CounterpartyUoW.Root.Id == updatedSubject.Counterparty.Id;
+			return Counterparty.Id == updatedSubject.Counterparty.Id;
 		}
 			
 		#endregion
@@ -104,7 +104,7 @@ namespace Vodovoz.ViewModel
 		protected override bool NeedUpdateFunc(object updatedSubject)
 		{
 			var agreement = updatedSubject as AdditionalAgreement;
-			return CounterpartyUoW.Root.Id == agreement.Contract.Counterparty.Id;
+			return Counterparty.Id == agreement.Contract.Counterparty.Id;
 		}
 
 		#endregion
