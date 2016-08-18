@@ -63,7 +63,6 @@ namespace Vodovoz.Domain.Employees
 			get { return nomenclatures; }
 			set {
 				SetField (ref nomenclatures, value, () => Nomenclatures);
-				//observableItems = null;
 			}
 		}
 
