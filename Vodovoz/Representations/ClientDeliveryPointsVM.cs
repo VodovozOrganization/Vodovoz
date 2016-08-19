@@ -100,6 +100,8 @@ namespace Vodovoz.ViewModel
 
 		public int Id { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string CompiledAddress { get; set; }
 
 		public bool IsActive { get; set; }
