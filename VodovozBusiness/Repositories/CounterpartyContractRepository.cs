@@ -10,7 +10,7 @@ namespace Vodovoz.Repository
 	{
 		public static CounterpartyContract GetCounterpartyContractByPaymentType (IUnitOfWork uow, Counterparty counterparty, PaymentType paymentType)
 		{
-			Organization organization = OrganizationRepository.GetOrganizationByPaymentType (uow,paymentType);
+			Organization organization = OrganizationRepository.GetOrganizationByPaymentType (uow, paymentType);
 			if (organization == null)
 				throw new InvalidProgramException(String.Format("В параметрах базы не указана организация для типа оплаты {0}",
 					paymentType));
@@ -25,6 +25,8 @@ namespace Vodovoz.Repository
 			!co.IsArchive &&
 			!co.OnCancellation &&
 			organizationAlias.Id == organization.Id))
+				.OrderBy(x => x.IssueDate).Desc
+				.Take(1)
 				.SingleOrDefault ();
 		}
 
