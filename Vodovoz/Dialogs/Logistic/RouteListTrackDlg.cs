@@ -6,6 +6,7 @@ using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
+using Pango;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -34,6 +35,7 @@ namespace Vodovoz
 		private int lastSelectedDriver = -1;
 		private CarMarkerType lastMarkerType;
 		private Gtk.Window mapWindow;
+		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
 		public RouteListTrackDlg()
 		{
@@ -64,9 +66,27 @@ namespace Vodovoz
 			//MapWidget.HasFrame = true;
 			gmapWidget.Overlays.Add(carsOverlay);
 			gmapWidget.Overlays.Add(tracksOverlay);
+			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
 			UpdateCarPosition();
 			timerId = GLib.Timeout.Add(carRefreshInterval, new GLib.TimeoutHandler (UpdateCarPosition));
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
+		}
+
+		void GmapWidget_ExposeEvent (object o, Gtk.ExposeEventArgs args)
+		{
+			if (tracksDistance.Count == 0)
+				return;
+			var g = args.Event.Window;
+			var aria = args.Event.Area;
+			int layoutWidth, layoutHeight, voffset = 0;
+			var gc = gmapWidget.Style.TextGC(Gtk.StateType.Normal);
+
+			foreach(var distance in tracksDistance)
+			{
+				distance.PangoLayout.GetPixelSize(out layoutWidth, out layoutHeight);
+				g.DrawLayout(gc, aria.Right - 6 - layoutWidth, aria.Top + 6 + voffset, distance.PangoLayout);
+				voffset += 3 + layoutHeight;
+			}
 		}
 
 		void OnSelectionChanged(object sender, EventArgs e)
@@ -213,6 +233,7 @@ namespace Vodovoz
 				route.Stroke.Width = 4;
 				route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
 
+				tracksDistance.Add(MakeDistanceLayout(route));
 				tracksOverlay.Routes.Add(route);
 			}
 
@@ -246,6 +267,18 @@ namespace Vodovoz
 				}
 			}
 			buttonCleanTrack.Sensitive = true;
+		}
+
+		private DistanceTextInfo MakeDistanceLayout(GMapRoute route)
+		{
+			var layout = new Pango.Layout(this.PangoContext);
+			layout.Alignment = Pango.Alignment.Right;
+			var colTXT = System.Drawing.ColorTranslator.ToHtml(route.Stroke.Color);
+			layout.SetMarkup(String.Format("<span foreground=\"{1}\">⛽ {0:N1} км.</span>", route.Distance, colTXT));
+
+			return new DistanceTextInfo{
+				PangoLayout = layout
+			};
 		}
 
 		private System.Drawing.Color[] trackColors = new System.Drawing.Color[]{
@@ -318,6 +351,10 @@ namespace Vodovoz
 		protected void OnButtonCleanTrackClicked(object sender, EventArgs e)
 		{
 			tracksOverlay.Clear();
+		}
+
+		class DistanceTextInfo{
+			public Layout PangoLayout;
 		}
 	}
 }
