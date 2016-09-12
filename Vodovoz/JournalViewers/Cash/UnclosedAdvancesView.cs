@@ -28,6 +28,15 @@ namespace Vodovoz
 			}
 		}
 
+		public bool? UseSlider
+		{
+			get
+			{
+				return null;
+			}
+		}
+
+
 		public UnclosedAdvancesView(Employee accountable, ExpenseCategory expense): this()
 		{
 			if (accountable != null)

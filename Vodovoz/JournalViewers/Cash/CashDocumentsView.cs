@@ -17,6 +17,14 @@ namespace Vodovoz
 
 		private IUnitOfWork uow;
 
+		public bool? UseSlider
+		{
+			get
+			{
+				return null;
+			}
+		}
+
 		public CashDocumentsView ()
 		{
 			this.Build ();

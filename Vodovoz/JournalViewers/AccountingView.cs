@@ -12,6 +12,14 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
+		public bool? UseSlider
+		{
+			get
+			{
+				return null;
+			}
+		}
+
 		public AccountingView ()
 		{
 			this.Build ();
