@@ -18,6 +18,8 @@ namespace Vodovoz.Domain.Client
 	)]
 	public class CounterpartyContract : BusinessObjectBase<CounterpartyContract>, IDomainObject, IValidatableObject
 	{
+		#region Сохраняемые поля
+
 		private IList<AdditionalAgreement> agreements { get; set; }
 
 		[Display (Name = "Дополнительные соглашения")]
@@ -91,6 +93,25 @@ namespace Vodovoz.Domain.Client
 			protected set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
+		DocTemplate contractTemplate;
+
+		[Display (Name = "Шаблон договора")]
+		public virtual DocTemplate ContractTemplate {
+			get { return contractTemplate; }
+			protected set { SetField (ref contractTemplate, value, () => ContractTemplate); }
+		}
+
+		byte[] changedTemplateFile;
+
+		[Display (Name = "Измененный договор")]
+		//[PropertyChangedAlso("FileSize")]
+		public virtual byte[] ChangedTemplateFile {
+			get { return changedTemplateFile; }
+			set { SetField (ref changedTemplateFile, value, () => ChangedTemplateFile); }
+		}
+
+		#endregion
+
 		public virtual string Title { 
 			get { return String.Format ("Договор №{0} от {1:d}", Id, IssueDate); }
 		}
@@ -118,6 +139,8 @@ namespace Vodovoz.Domain.Client
 			uow.Root.Counterparty = counterparty;
 			return uow;
 		}
+
+		#region Функции
 
 		/// <summary>
 		/// Проверяет, не создано ли уже подобное доп. соглашение.
@@ -173,6 +196,26 @@ namespace Vodovoz.Domain.Client
 				return false;
 			return AdditionalAgreements.Any (a => a.Type == AgreementType.Repair && !a.IsCancelled);
 		}
+
+		public virtual void UpdateContractTemplate(IUnitOfWork uow)
+		{
+			if (Organization == null)
+			{
+				ContractTemplate = null;
+				ChangedTemplateFile = null;
+			}
+			else
+			{
+				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, TemplateType.Contract, Organization);
+				if(!DomainHelper.EqualDomainObjects(newTemplate, ContractTemplate))
+				{
+					ContractTemplate = newTemplate;
+					ChangedTemplateFile = null;
+				}
+			}
+		}
+
+		#endregion
 	}
 
 	public interface IContractSaved

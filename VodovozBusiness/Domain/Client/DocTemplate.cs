@@ -41,29 +41,52 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
-		byte[] file;
+		Organization organization;
+
+		[Display (Name = "Организация")]
+		public virtual Organization Organization {
+			get { return organization; }
+			set { SetField (ref organization, value, () => Organization); }
+		}
+
+		byte[] templateFile;
 
 		[Display (Name = "Файл шаблона")]
 		[PropertyChangedAlso("FileSize")]
 		[Required]
-		public virtual byte[] File {
-			get { return file; }
-			set { SetField (ref file, value, () => File); }
+		public virtual byte[] TempalteFile {
+			get { return templateFile; }
+			set { SetField (ref templateFile, value, () => TempalteFile); }
 		}
-
+			
 		#endregion
 
 		#region Вычисляемые
 
 		public virtual long FileSize{
 			get{
-				return File != null ? File.LongLength : 0;
+				return TempalteFile != null ? TempalteFile.LongLength : 0;
+			}
+		}
+
+		public virtual byte[] File{
+			get{
+				return ChangedDocFile ?? TempalteFile;
 			}
 		}
 			
 		#endregion
 
 		#region Не сохраняемые
+
+		byte[] changedDocFile;
+
+		[Display (Name = "Измененный Файл шаблона")]
+		[PropertyChangedAlso("FileSize")]
+		public virtual byte[] ChangedDocFile {
+			get { return changedDocFile; }
+			set { SetField (ref changedDocFile, value, () => ChangedDocFile); }
+		}
 
 		IDocParser docParser;
 
@@ -84,6 +107,13 @@ namespace Vodovoz.Domain.Client
 			Name = templateType.GetEnumTitle();
 		}
 
+		#region Функции
+
+
+		#endregion
+
+		#region Статические
+
 		public static IDocParser CreateParser(TemplateType type)
 		{
 			switch (type)
@@ -94,6 +124,8 @@ namespace Vodovoz.Domain.Client
 					throw new NotImplementedException(String.Format("Тип шаблона {0}, не реализован.", type));
 			}
 		}
+
+		#endregion
 	}
 
 	public enum TemplateType

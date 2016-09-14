@@ -18,9 +18,6 @@ namespace Vodovoz
 			get { return isEditable; } 
 			set {
 				isEditable = value; 
-				buttonSave.Sensitive = entryNumber.Sensitive = dateIssue.Sensitive = 
-					referenceOrganization.Sensitive = checkArchive.Sensitive = 
-						checkOnCancellation.Sensitive = spinDelay.Sensitive = 
 							additionalagreementsview1.IsEditable = value;
 			}
 		}
@@ -33,10 +30,14 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
+		/// <summary>
+		/// Новый договор с заполненной организацией.
+		/// </summary>
 		public CounterpartyContractDlg (Counterparty counterparty, Organization organization) : this (counterparty)
 		{
 			UoWGeneric.Root.Organization = organization;
 			referenceOrganization.Sensitive = false;
+			Entity.UpdateContractTemplate(UoW);
 		}
 
 		public CounterpartyContractDlg(Counterparty counterparty, Organization organizetion, DateTime? date):this(counterparty,organizetion){
@@ -60,6 +61,12 @@ namespace Vodovoz
 			datatable5.DataSource = subjectAdaptor;
 			referenceOrganization.SubjectType = typeof(Organization);
 			additionalagreementsview1.AgreementUoW = UoWGeneric;
+
+			if (Entity.ContractTemplate == null && Entity.Organization != null)
+				Entity.UpdateContractTemplate(UoW);
+
+			templatewidget1.Binding.AddBinding(Entity, e => e.ContractTemplate, w => w.Template).InitializeFromSource();
+			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 		}
 
 		public override bool Save ()

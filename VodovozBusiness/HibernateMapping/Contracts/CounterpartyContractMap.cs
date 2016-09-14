@@ -14,6 +14,8 @@ namespace Vodovoz.HMap
 			Map (x => x.IssueDate).Column ("issue_date");
 			Map (x => x.IsArchive).Column ("is_archive");
 			Map (x => x.OnCancellation).Column ("on_cancellation");
+			Map(x => x.ChangedTemplateFile).Column("doc_changed_template").LazyLoad();
+			References(x => x.ContractTemplate).Column("doc_template_id");
 			References (x => x.Organization).Column ("organization_id");
 			References (x => x.Counterparty).Column ("counterparty_id");
 			HasMany (x => x.AdditionalAgreements).Inverse().Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("counterparty_contract_id");
