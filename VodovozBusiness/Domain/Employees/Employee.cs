@@ -183,10 +183,12 @@ namespace Vodovoz.Domain.Employees
 			AddressCurrent = String.Empty;
 		}
 
+		[Display (Name = "ФИО")]
 		public virtual string FullName {
 			get { return String.Format ("{0} {1} {2}", LastName, Name, Patronymic); }
 		}
 
+		[Display (Name = "Фамилия и инициалы")]
 		public virtual string ShortName {
 			get { return StringWorks.PersonNameWithInitials (LastName, Name, Patronymic); }
 		}
