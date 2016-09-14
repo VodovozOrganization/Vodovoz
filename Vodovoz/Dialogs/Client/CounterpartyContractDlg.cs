@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.DocTemplates;
 
 namespace Vodovoz
 {
@@ -64,6 +65,9 @@ namespace Vodovoz
 
 			if (Entity.ContractTemplate == null && Entity.Organization != null)
 				Entity.UpdateContractTemplate(UoW);
+
+			if (Entity.ContractTemplate != null)
+				(Entity.ContractTemplate.DocParser as ContractParser).RootObject = Entity;
 
 			templatewidget1.Binding.AddBinding(Entity, e => e.ContractTemplate, w => w.Template).InitializeFromSource();
 			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();

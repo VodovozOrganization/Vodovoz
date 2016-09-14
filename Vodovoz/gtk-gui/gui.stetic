@@ -12118,7 +12118,6 @@ Patronymic</property>
               <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="FileChanged">False</property>
               </widget>
               <packing>
                 <property name="BottomAttach">5</property>
