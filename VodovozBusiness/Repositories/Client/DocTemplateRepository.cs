@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NHibernate.Criterion;
 using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
@@ -9,13 +8,6 @@ namespace Vodovoz.Repository.Client
 {
 	public static class DocTemplateRepository
 	{
-		public static QueryOver<Counterparty> ActiveClientsQuery ()
-		{
-			return QueryOver.Of<Counterparty> ()
-				.Where (c => c.CooperationCustomer)
-				.Where (c => !c.IsArchive);
-		}
-
 		public static IList<DocTemplate> GetTemplatesOnlyForOrganization (IUnitOfWork uow, TemplateType type, Organization org)
 		{
 			return uow.Session.QueryOver<DocTemplate> ()
