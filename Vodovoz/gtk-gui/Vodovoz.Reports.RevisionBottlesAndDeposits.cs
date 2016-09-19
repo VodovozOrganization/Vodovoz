@@ -16,9 +16,9 @@ namespace Vodovoz.Reports
 		
 		private global::Gtk.Label label3;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceCounterparty;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceCounterparty;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceDeliveryPoint;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceDeliveryPoint;
 
 		protected virtual void Build ()
 		{
@@ -90,7 +90,7 @@ namespace Vodovoz.Reports
 			w5.XOptions = ((global::Gtk.AttachOptions)(4));
 			w5.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceCounterparty = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceCounterparty = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterparty.Name = "referenceCounterparty";
 			this.table1.Add (this.referenceCounterparty);
@@ -102,7 +102,7 @@ namespace Vodovoz.Reports
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceDeliveryPoint = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceDeliveryPoint = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceDeliveryPoint.Sensitive = false;
 			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";

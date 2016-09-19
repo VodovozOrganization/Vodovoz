@@ -84,11 +84,11 @@ namespace Vodovoz
 		
 		private global::Gamma.Widgets.yEntryReference referenceAuthor;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceClient;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceClient;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceContract;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceContract;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceDeliveryPoint;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceDeliveryPoint;
 		
 		private global::Gamma.Widgets.yEntryReference referenceDeliverySchedule;
 		
@@ -636,7 +636,7 @@ namespace Vodovoz
 			w38.XOptions = ((global::Gtk.AttachOptions)(4));
 			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceClient = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceClient = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceClient.Events = ((global::Gdk.EventMask)(256));
 			this.referenceClient.Name = "referenceClient";
 			this.table1.Add (this.referenceClient);
@@ -648,7 +648,7 @@ namespace Vodovoz
 			w39.XOptions = ((global::Gtk.AttachOptions)(4));
 			w39.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceContract = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceContract = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceContract.Sensitive = false;
 			this.referenceContract.Events = ((global::Gdk.EventMask)(256));
 			this.referenceContract.Name = "referenceContract";
@@ -661,7 +661,7 @@ namespace Vodovoz
 			w40.XOptions = ((global::Gtk.AttachOptions)(4));
 			w40.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceDeliveryPoint = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceDeliveryPoint = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
 			this.table1.Add (this.referenceDeliveryPoint);

@@ -34,7 +34,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label5;
 		
-		private global::QSOrmProject.yEntryReferenceVM yentryrefOrder;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryrefOrder;
 		
 		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
 		
@@ -212,7 +212,7 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryrefOrder = new global::QSOrmProject.yEntryReferenceVM ();
+			this.yentryrefOrder = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.yentryrefOrder.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefOrder.Name = "yentryrefOrder";
 			this.tableWriteoff.Add (this.yentryrefOrder);

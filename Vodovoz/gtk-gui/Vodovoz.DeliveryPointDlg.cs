@@ -102,7 +102,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label8;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceContact;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceContact;
 		
 		private global::Gamma.Widgets.yEntryReference referenceDeliverySchedule;
 		
@@ -632,7 +632,7 @@ namespace Vodovoz
 			w49.XOptions = ((global::Gtk.AttachOptions)(4));
 			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceContact = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceContact = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceContact.Events = ((global::Gdk.EventMask)(256));
 			this.referenceContact.Name = "referenceContact";
 			this.datatable1.Add (this.referenceContact);

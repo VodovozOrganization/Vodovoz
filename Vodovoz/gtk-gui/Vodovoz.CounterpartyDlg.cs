@@ -94,9 +94,9 @@ namespace Vodovoz {
 		
 		private global::Gamma.Widgets.yEntryReference referenceDefaultExpense;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceMainCounterparty;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceMainCounterparty;
 		
-		private global::QSOrmProject.yEntryReferenceVM referencePreviousCounterparty;
+		private global::Gamma.Widgets.yEntryReferenceVM referencePreviousCounterparty;
 		
 		private global::Gamma.Widgets.yEntryReference referenceSignificance;
 		
@@ -116,9 +116,9 @@ namespace Vodovoz {
 		
 		private global::Gtk.Table datatable2;
 		
-		private global::QSOrmProject.yEntryReferenceVM dataentryFinancialContact;
+		private global::Gamma.Widgets.yEntryReferenceVM dataentryFinancialContact;
 		
-		private global::QSOrmProject.yEntryReferenceVM dataentryMainContact;
+		private global::Gamma.Widgets.yEntryReferenceVM dataentryMainContact;
 		
 		private global::QSContacts.EmailsView emailsView;
 		
@@ -701,7 +701,7 @@ namespace Vodovoz {
 			w46.XOptions = ((global::Gtk.AttachOptions)(4));
 			w46.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceMainCounterparty = new global::QSOrmProject.yEntryReferenceVM();
+			this.referenceMainCounterparty = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referenceMainCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceMainCounterparty.Name = "referenceMainCounterparty";
 			this.table1.Add(this.referenceMainCounterparty);
@@ -713,7 +713,7 @@ namespace Vodovoz {
 			w47.XOptions = ((global::Gtk.AttachOptions)(4));
 			w47.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referencePreviousCounterparty = new global::QSOrmProject.yEntryReferenceVM();
+			this.referencePreviousCounterparty = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.referencePreviousCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referencePreviousCounterparty.Name = "referencePreviousCounterparty";
 			this.table1.Add(this.referencePreviousCounterparty);
@@ -833,7 +833,7 @@ namespace Vodovoz {
 			this.datatable2.ColumnSpacing = ((uint)(6));
 			this.datatable2.BorderWidth = ((uint)(6));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.dataentryFinancialContact = new global::QSOrmProject.yEntryReferenceVM();
+			this.dataentryFinancialContact = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.dataentryFinancialContact.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryFinancialContact.Name = "dataentryFinancialContact";
 			this.datatable2.Add(this.dataentryFinancialContact);
@@ -845,7 +845,7 @@ namespace Vodovoz {
 			w59.XOptions = ((global::Gtk.AttachOptions)(4));
 			w59.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable2.Gtk.Table+TableChild
-			this.dataentryMainContact = new global::QSOrmProject.yEntryReferenceVM();
+			this.dataentryMainContact = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.dataentryMainContact.Events = ((global::Gdk.EventMask)(256));
 			this.dataentryMainContact.Name = "dataentryMainContact";
 			this.datatable2.Add(this.dataentryMainContact);

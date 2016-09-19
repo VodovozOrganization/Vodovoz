@@ -58,7 +58,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label labelStockFrom;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceCounterpartyFrom;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceCounterpartyFrom;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPointFrom;
 		
@@ -78,7 +78,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label labelStockTo;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceCounterpartyTo;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceCounterpartyTo;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPointTo;
 		
@@ -387,7 +387,7 @@ namespace Vodovoz
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSender.Gtk.Table+TableChild
-			this.referenceCounterpartyFrom = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceCounterpartyFrom = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceCounterpartyFrom.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterpartyFrom.Name = "referenceCounterpartyFrom";
 			this.tableSender.Add (this.referenceCounterpartyFrom);
@@ -503,7 +503,7 @@ namespace Vodovoz
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableReceiver.Gtk.Table+TableChild
-			this.referenceCounterpartyTo = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceCounterpartyTo = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceCounterpartyTo.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterpartyTo.Name = "referenceCounterpartyTo";
 			this.tableReceiver.Add (this.referenceCounterpartyTo);

@@ -36,7 +36,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataLabel labelTimeStamp;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceContractor;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceContractor;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceWarehouse;
 		
@@ -240,7 +240,7 @@ namespace Vodovoz
 			w16.RightAttach = ((uint)(2));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInvoice.Gtk.Table+TableChild
-			this.referenceContractor = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceContractor = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceContractor.Events = ((global::Gdk.EventMask)(256));
 			this.referenceContractor.Name = "referenceContractor";
 			this.tableInvoice.Add (this.referenceContractor);

@@ -34,7 +34,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label5;
 		
-		private global::QSOrmProject.yEntryReferenceVM yentryrefRouteList;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryrefRouteList;
 		
 		private global::Gamma.Widgets.yEntryReference yentryrefWarehouse;
 		
@@ -215,7 +215,7 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryrefRouteList = new global::QSOrmProject.yEntryReferenceVM ();
+			this.yentryrefRouteList = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.yentryrefRouteList.Events = ((global::Gdk.EventMask)(256));
 			this.yentryrefRouteList.Name = "yentryrefRouteList";
 			this.tableWriteoff.Add (this.yentryrefRouteList);

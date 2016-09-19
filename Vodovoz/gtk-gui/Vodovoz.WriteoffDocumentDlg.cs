@@ -38,7 +38,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataLabel labelTimeStamp;
 		
-		private global::QSOrmProject.yEntryReferenceVM referenceCounterparty;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceCounterparty;
 		
 		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPoint;
 		
@@ -254,7 +254,7 @@ namespace Vodovoz
 			w18.RightAttach = ((uint)(2));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.referenceCounterparty = new global::QSOrmProject.yEntryReferenceVM ();
+			this.referenceCounterparty = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.referenceCounterparty.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCounterparty.Name = "referenceCounterparty";
 			this.tableWriteoff.Add (this.referenceCounterparty);

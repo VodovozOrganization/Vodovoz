@@ -4901,7 +4901,7 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.yEntryReferenceVM" id="referenceMainCounterparty">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceMainCounterparty">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                             <signal name="ChangedByUser" handler="OnReferenceMainCounterpartyChangedByUser" />
@@ -4923,7 +4923,7 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.yEntryReferenceVM" id="referencePreviousCounterparty">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referencePreviousCounterparty">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                             <signal name="ChangedByUser" handler="OnReferencePreviousCounterpartyChangedByUser" />
@@ -5110,7 +5110,7 @@ Patronymic</property>
                 <property name="ColumnSpacing">6</property>
                 <property name="BorderWidth">6</property>
                 <child>
-                  <widget class="QSOrmProject.yEntryReferenceVM" id="dataentryFinancialContact">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="dataentryFinancialContact">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -5131,7 +5131,7 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSOrmProject.yEntryReferenceVM" id="dataentryMainContact">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="dataentryMainContact">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                   </widget>
@@ -8605,7 +8605,7 @@ Patronymic</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.yEntryReferenceVM" id="referenceContact">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceContact">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -13720,7 +13720,7 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.yEntryReferenceVM" id="referenceContractor">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceContractor">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>
@@ -14608,7 +14608,7 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterpartyFrom">
+                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterpartyFrom">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyFromChanged" />
@@ -14789,7 +14789,7 @@ Patronymic</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterpartyTo">
+                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterpartyTo">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceCounterpartyToChanged" />
@@ -15206,7 +15206,7 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterparty">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
@@ -24152,7 +24152,7 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceClient">
+                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceClient">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceClientChanged" />
@@ -24175,7 +24175,7 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceContract">
+                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceContract">
                         <property name="MemberName" />
                         <property name="Sensitive">False</property>
                         <property name="Events">ButtonPressMask</property>
@@ -24197,7 +24197,7 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="QSOrmProject.yEntryReferenceVM" id="referenceDeliveryPoint">
+                      <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <signal name="Changed" handler="OnReferenceDeliveryPointChanged" />
@@ -28083,7 +28083,7 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterparty">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
@@ -28236,7 +28236,7 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.yEntryReferenceVM" id="referenceCounterparty">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
             <property name="MemberName" />
             <property name="Events">ButtonPressMask</property>
             <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
@@ -28258,7 +28258,7 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="QSOrmProject.yEntryReferenceVM" id="referenceDeliveryPoint">
+          <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
             <property name="MemberName" />
             <property name="Sensitive">False</property>
             <property name="Events">ButtonPressMask</property>
@@ -30830,7 +30830,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.yEntryReferenceVM" id="yentryrefOrder">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefOrder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnYentryrefOrderChangedByUser" />
@@ -31247,7 +31247,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.yEntryReferenceVM" id="yentryrefRouteList">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="ChangedByUser" handler="OnYentryrefRouteListChangedByUser" />
@@ -31683,7 +31683,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.yEntryReferenceVM" id="yentryrefRouteList">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryrefRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <signal name="Changed" handler="OnYentryrefRouteListChanged" />
