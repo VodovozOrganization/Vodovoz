@@ -42,7 +42,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label19;
 		
-		private global::Gamma.GtkWidgets.yValidatedEntry entryPhone;
+		private global::Gamma.Widgets.yValidatedEntry entryPhone;
 		
 		private global::Gtk.HBox hbox6;
 		
@@ -297,7 +297,7 @@ namespace Vodovoz
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hbox5.Gtk.Box+BoxChild
-			this.entryPhone = new global::Gamma.GtkWidgets.yValidatedEntry ();
+			this.entryPhone = new global::Gamma.Widgets.yValidatedEntry ();
 			this.entryPhone.WidthRequest = 0;
 			this.entryPhone.CanFocus = true;
 			this.entryPhone.Name = "entryPhone";

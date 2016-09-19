@@ -74,15 +74,18 @@ namespace Vodovoz
 			if (UoWGeneric.Root.CounterpartyContracts == null) {
 				UoWGeneric.Root.CounterpartyContracts = new List<CounterpartyContract> ();
 			}
-			//Setting up editable property
-			entryJurAddress.IsEditable = entryFullName.IsEditable = true;
-			dataComment.Editable = dataWaybillComment.Editable = true;
 			//Other fields properties
 			validatedINN.ValidationMode = validatedKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
-			//Setting up fields sources
-			datatable1.DataSource = datatable2.DataSource = datatable3.DataSource = datatable4.DataSource = subjectAdaptor;
-			enumPersonType.DataSource = subjectAdaptor;
-			validatedINN.DataSource = validatedKPP.DataSource = subjectAdaptor;
+			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
+			validatedKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
+
+			entryFIO.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			entryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
+
+			spinMaxCredit.Binding.AddBinding(Entity, e => e.MaxCredit, w => w.ValueAsDecimal).InitializeFromSource();
+
+			dataComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			dataWaybillComment.Binding.AddBinding(Entity, e => e.WaybillComment, w => w.Buffer.Text).InitializeFromSource();
 
 			enumPayment.ItemsEnum = typeof(PaymentType);
 			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
@@ -107,12 +110,17 @@ namespace Vodovoz
 			deliveryPointView.DeliveryPointUoW = UoWGeneric;
 			counterpartyContractsView.CounterpartyUoW = UoWGeneric;
 			referenceSignificance.SubjectType = typeof(Significance);
+			referenceSignificance.Binding.AddBinding(Entity, e => e.Significance, w => w.Subject).InitializeFromSource();
 			referenceStatus.SubjectType = typeof(CounterpartyStatus);
+			referenceStatus.Binding.AddBinding(Entity, e => e.Status, w => w.Subject).InitializeFromSource();
 			referenceDefaultExpense.SubjectType = typeof(ExpenseCategory);
+			referenceDefaultExpense.Binding.AddBinding(Entity, e => e.DefaultExpenseCategory, w => w.Subject).InitializeFromSource();
 			referenceAccountant.SubjectType = referenceBottleManager.SubjectType = referenceSalesManager.SubjectType = typeof(Employee);
 			proxiesview1.CounterpartyUoW = UoWGeneric;
 			dataentryMainContact.RepresentationModel = new ViewModel.ContactsVM (UoW, Entity);
+			dataentryMainContact.Binding.AddBinding(Entity, e => e.MainContact, w => w.Subject).InitializeFromSource();
 			dataentryFinancialContact.RepresentationModel = new ViewModel.ContactsVM (UoW, Entity);
+			dataentryFinancialContact.Binding.AddBinding(Entity, e => e.FinancialContact, w => w.Subject).InitializeFromSource();
 			//Setting Contacts
 			contactsview1.CounterpartyUoW = UoWGeneric;
 			//Setting permissions
