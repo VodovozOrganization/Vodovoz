@@ -79,6 +79,10 @@ namespace Vodovoz
 			validatedINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
 			validatedKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
 
+			yentrySignFIO.Binding.AddBinding(Entity, e => e.SignatoryFIO, w => w.Text).InitializeFromSource();
+			yentrySignPost.Binding.AddBinding(Entity, e => e.SignatoryPost, w => w.Text).InitializeFromSource();
+			yentrySignBaseOf.Binding.AddBinding(Entity, e => e.SignatoryBaseOf, w => w.Text).InitializeFromSource();
+
 			entryFIO.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
 			entryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
 
@@ -245,6 +249,31 @@ namespace Vodovoz
 		{
 			labelDefaultExpense.Visible = referenceDefaultExpense.Visible = checkSupplier.Active;
 		}
+
+		protected void OnYentrySignPostFocusInEvent(object o, Gtk.FocusInEventArgs args)
+		{
+			if(yentrySignPost.Completion == null)
+			{
+				yentrySignPost.Completion = new Gtk.EntryCompletion();
+				var list = Repository.CounterpartyRepository.GetUniqueSignatoryPosts(UoW);
+				yentrySignPost.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
+				yentrySignPost.Completion.TextColumn = 0;
+				yentrySignPost.Completion.Complete();
+			}
+		}
+
+		protected void OnYentrySignBaseOfFocusInEvent(object o, Gtk.FocusInEventArgs args)
+		{
+			if(yentrySignBaseOf.Completion == null)
+			{
+				yentrySignBaseOf.Completion = new Gtk.EntryCompletion();
+				var list = Repository.CounterpartyRepository.GetUniqueSignatoryBaseOf(UoW);
+				yentrySignBaseOf.Completion.Model = ListStoreWorks.CreateFromEnumerable(list);
+				yentrySignBaseOf.Completion.TextColumn = 0;
+				yentrySignBaseOf.Completion.Complete();
+			}
+		}
+
 	}
 }
 

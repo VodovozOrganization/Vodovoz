@@ -318,6 +318,30 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref defaultDocumentType, value, () => DefaultDocumentType); }
 		}
 
+		string signatoryFIO;
+
+		[Display (Name = "ФИО подписанта")]
+		public virtual string SignatoryFIO {
+			get { return signatoryFIO; }
+			set { SetField (ref signatoryFIO, value, () => SignatoryFIO); }
+		}
+
+		string signatoryPost;
+
+		[Display (Name = "Должность подписанта")]
+		public virtual string SignatoryPost {
+			get { return signatoryPost; }
+			set { SetField (ref signatoryPost, value, () => SignatoryPost); }
+		}
+
+		string signatoryBaseOf;
+
+		[Display (Name = "На основании")]
+		public virtual string SignatoryBaseOf {
+			get { return signatoryBaseOf; }
+			set { SetField (ref signatoryBaseOf, value, () => SignatoryBaseOf); }
+		}
+
 		#endregion
 
 		public Counterparty ()
