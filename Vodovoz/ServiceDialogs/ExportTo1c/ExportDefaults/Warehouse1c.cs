@@ -10,7 +10,7 @@ namespace Vodovoz.ExportTo1c
 		public string Name{ get; set; }
 		public string Type{ get; set;}
 
-		public static Warehouse1c Default{ get;}
+		public static Warehouse1c Default { get; private set;}
 
 		static Warehouse1c(){
 			Default = new Warehouse1c

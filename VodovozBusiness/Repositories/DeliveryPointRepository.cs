@@ -74,7 +74,7 @@ namespace Vodovoz.Repository
 		public static int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint)
 		{
 			BottlesMovementOperation operationAlias = null;
-			BottlesAtDeliveryPointQueryResult result;
+			BottlesAtDeliveryPointQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
 				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id)
 				.SelectList(list => list

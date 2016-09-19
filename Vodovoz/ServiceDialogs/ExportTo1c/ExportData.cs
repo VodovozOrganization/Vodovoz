@@ -24,25 +24,25 @@ namespace Vodovoz.ExportTo1c
 		public string ConversionRulesId{get;set;}
 		public string Comment{ get; set;}
 			
-		public List<ObjectNode> Objects{ get; }
+		public List<ObjectNode> Objects{ get; private set; }
 		public RulesNode ExchangeRules{ get; set; }
 
 		public int objectCounter;
 
 		public readonly IUnitOfWork UoW;
 
-		public AccountCatalog AccountCatalog{ get; }
-		public BankCatalog BankCatalog{ get; }
-		public ContractCatalog ContractCatalog{ get; }
-		public CounterpartyCatalog CounterpartyCatalog{ get; }
-		public CurrencyCatalog CurrencyCatalog{ get; }
-		public MeasurementUnitsCatalog MeasurementUnitCatalog{ get; }
-		public NomenclatureCatalog NomenclatureCatalog{ get; }
-		public OrganizationCatalog OrganizationCatalog{ get; }
-		public WarehouseCatalog WarehouseCatalog{ get; }
+		public AccountCatalog AccountCatalog { get; private set;}
+		public BankCatalog BankCatalog { get; private set;}
+		public ContractCatalog ContractCatalog { get; private set;}
+		public CounterpartyCatalog CounterpartyCatalog { get; private set;}
+		public CurrencyCatalog CurrencyCatalog { get; private set;}
+		public MeasurementUnitsCatalog MeasurementUnitCatalog { get; private set;}
+		public NomenclatureCatalog NomenclatureCatalog { get; private set;}
+		public OrganizationCatalog OrganizationCatalog { get; private set;}
+		public WarehouseCatalog WarehouseCatalog { get; private set;}
 
 		public Dictionary<NomenclatureCategory, Nomenclature> CategoryToNomenclatureMap;
-		public Organization CashlessOrganization{ get;}
+		public Organization CashlessOrganization { get; private set;}
 
 		public ExportData(IUnitOfWork uow, DateTime dateStart, DateTime dateEnd)
 		{			

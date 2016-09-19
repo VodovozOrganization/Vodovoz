@@ -10,7 +10,7 @@ namespace Vodovoz.ExportTo1c
 		public string Name{ get; set; }
 		public string FullName{ get; set;}
 
-		public static Currency Default{ get;}
+		public static Currency Default { get; private set;}
 
 		static Currency()
 		{

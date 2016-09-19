@@ -8,7 +8,7 @@ namespace Vodovoz.ExportTo1c
 	{		
 		public int Id{get;set;}
 
-		public virtual string Type{get;}
+		public virtual string Type { get; private set;}
 
 		public virtual string RuleName{get;set;}
 

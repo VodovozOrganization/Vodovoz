@@ -28,7 +28,7 @@ namespace Vodovoz.ExportTo1c
 
 		public ReferenceNode Reference{ get; set;}
 
-		public List<PropertyNode> Properties{ get;}
+		public List<PropertyNode> Properties { get; private set;}
 
 		public List<TableNode> Tables{ get; set; }
 
