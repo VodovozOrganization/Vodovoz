@@ -291,6 +291,7 @@
     <Compile Include="Domain\Employees\FineNomenclature.cs" />
     <Compile Include="HibernateMapping\Employees\FineNomenclatureMap.cs" />
     <Compile Include="Repositories\Client\DocTemplateRepository.cs" />
+    <Compile Include="DocTemplates\WaterAgreementParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

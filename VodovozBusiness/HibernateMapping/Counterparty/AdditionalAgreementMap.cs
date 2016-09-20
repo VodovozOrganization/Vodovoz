@@ -15,9 +15,11 @@ namespace Vodovoz.HMap
 			Map(x => x.StartDate).Column("start_date");
 			Map(x => x.IssueDate).Column("issue_date");
 			Map(x => x.IsCancelled).Column("is_cancelled");
+			Map(x => x.ChangedTemplateFile).Column("template_file").LazyLoad();
 
 			References (x => x.Contract).Column ("counterparty_contract_id");
 			References (x => x.DeliveryPoint).Column ("delivery_point_id");
+			References(x => x.AgreementTemplate).Column("template_id");
 		}
 	}
 

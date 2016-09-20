@@ -907,6 +907,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4176,7 +4177,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -6490,7 +6490,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.WaterAgreementDlg" design-size="449 251">
+  <widget class="Gtk.Bin" id="Vodovoz.WaterAgreementDlg" design-size="755 360">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -6547,7 +6547,7 @@ Patronymic</property>
           <widget class="Gtk.DataBindings.DataTable" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">5</property>
-            <property name="NColumns">2</property>
+            <property name="NColumns">3</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">6</property>
@@ -6807,6 +6807,26 @@ Patronymic</property>
                 <property name="AutoSize">False</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSDocTemplates.TemplateWidget" id="templatewidget1">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="BottomAttach">5</property>
+                <property name="LeftAttach">2</property>
+                <property name="RightAttach">3</property>
+                <property name="AutoSize">False</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -11779,7 +11799,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyContractDlg" design-size="737 455">
+  <widget class="Gtk.Bin" id="Vodovoz.CounterpartyContractDlg" design-size="775 455">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>

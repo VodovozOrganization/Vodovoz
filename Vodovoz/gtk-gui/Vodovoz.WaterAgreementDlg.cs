@@ -38,6 +38,8 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataEntryReferenceVM referenceDeliveryPoint;
 		
+		private global::QSDocTemplates.TemplateWidget templatewidget1;
+		
 		private global::Gamma.GtkWidgets.yLabel ylabelNumber;
 
 		protected virtual void Build ()
@@ -88,7 +90,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(5)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(5)), ((uint)(3)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -263,21 +265,32 @@ namespace Vodovoz
 			w17.RightAttach = ((uint)(2));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
+			this.templatewidget1 = new global::QSDocTemplates.TemplateWidget ();
+			this.templatewidget1.Events = ((global::Gdk.EventMask)(256));
+			this.templatewidget1.Name = "templatewidget1";
+			this.datatable1.Add (this.templatewidget1);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.templatewidget1]));
+			w18.BottomAttach = ((uint)(5));
+			w18.LeftAttach = ((uint)(2));
+			w18.RightAttach = ((uint)(3));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
 			this.ylabelNumber = new global::Gamma.GtkWidgets.yLabel ();
 			this.ylabelNumber.Name = "ylabelNumber";
 			this.ylabelNumber.Xalign = 0F;
 			this.ylabelNumber.LabelProp = global::Mono.Unix.Catalog.GetString ("ylabel1");
 			this.datatable1.Add (this.ylabelNumber);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.ylabelNumber]));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.ylabelNumber]));
+			w19.LeftAttach = ((uint)(1));
+			w19.RightAttach = ((uint)(2));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w19.Position = 1;
-			w19.Expand = false;
-			w19.Fill = false;
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w20.Position = 1;
+			w20.Expand = false;
+			w20.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

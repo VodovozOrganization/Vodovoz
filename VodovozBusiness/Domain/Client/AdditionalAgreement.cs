@@ -26,6 +26,25 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref agreementNumber, value, () => AgreementNumber); }
 		}
 
+		DocTemplate agreeemntTemplate;
+
+		[Display (Name = "Шаблон договора")]
+		public virtual DocTemplate AgreementTemplate {
+			get { return agreeemntTemplate; }
+			protected set { SetField (ref agreeemntTemplate, value, () => AgreementTemplate); }
+		}
+
+		byte[] changedTemplateFile;
+
+		[Display (Name = "Измененное соглашение")]
+		//[PropertyChangedAlso("FileSize")]
+		public virtual byte[] ChangedTemplateFile {
+			get { return changedTemplateFile; }
+			set { SetField (ref changedTemplateFile, value, () => ChangedTemplateFile); }
+		}
+
+
+
 		[Display (Name = "Тип доп. соглашения")]
 		public virtual AgreementType Type {
 			get {	 
@@ -93,6 +112,24 @@ namespace Vodovoz.Domain.Client
 				yield return new ValidationResult ("Доп. соглашение с таким номером уже существует.", new[] { "AgreementNumber" });
 		}
 
+
+		public virtual void UpdateContractTemplate(IUnitOfWork uow)
+		{
+			if (Contract == null)
+			{
+				AgreementTemplate = null;
+				ChangedTemplateFile = null;
+			}
+			else
+			{
+				var newTemplate = Repository.Client.DocTemplateRepository.GetTemplate(uow, GetTemplateType(Type), Contract.Organization);
+				if (!DomainHelper.EqualDomainObjects(newTemplate, AgreementTemplate))
+				{
+					AgreementTemplate = newTemplate;
+					ChangedTemplateFile = null;
+				}
+			}
+		}
 		#region Статические
 
 		public static int GetNumber (CounterpartyContract contract)
@@ -126,6 +163,28 @@ namespace Vodovoz.Domain.Client
 					throw new InvalidOperationException(String.Format("Тип {0} не поддерживается.", type));
 			}
 		}
+			
+
+		public static TemplateType GetTemplateType(AgreementType type)
+		{
+			switch (type)
+			{
+				case AgreementType.DailyRent:
+					return TemplateType.AgShortRent;
+				case AgreementType.NonfreeRent:
+					return TemplateType.AgLongRent;
+				case AgreementType.FreeRent:
+					return TemplateType.AgFreeRent;
+				case AgreementType.Repair:
+					return TemplateType.AgRepair;
+				case AgreementType.WaterSales:
+					return TemplateType.AgWater;
+				default:
+					throw new InvalidOperationException(String.Format("Тип {0} не поддерживается.", type));
+			}
+		}
+			
+			
 
 		#endregion
 	}

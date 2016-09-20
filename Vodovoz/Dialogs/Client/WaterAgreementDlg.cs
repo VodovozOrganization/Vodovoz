@@ -2,13 +2,16 @@
 using NLog;
 using QSOrmProject;
 using QSValidation;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.DocTemplates;
 
 namespace Vodovoz
 {
 	public partial class WaterAgreementDlg : OrmGtkDialogBase<WaterSalesAgreement>, IAgreementSaved, IEditableDialog
 	{
 		public event EventHandler<AgreementSavedEventArgs> AgreementSaved;
+		public event EventHandler<ContractSavedEventArgs> ContractSaved;
 
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
 
@@ -54,6 +57,14 @@ namespace Vodovoz
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 			spinFixedPrice.Sensitive = currencylabel1.Sensitive = UoWGeneric.Root.IsFixedPrice;
+
+			if (Entity.AgreementTemplate == null && Entity.Contract != null)
+				Entity.UpdateContractTemplate(UoW);
+
+			if (Entity.AgreementTemplate != null)
+				(Entity.AgreementTemplate.DocParser as WaterAgreementParser).RootObject = Entity;
+			templatewidget1.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
+			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 		}
 
 		public override bool Save ()

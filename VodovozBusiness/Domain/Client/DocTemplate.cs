@@ -120,6 +120,8 @@ namespace Vodovoz.Domain.Client
 			{
 				case TemplateType.Contract:
 					return new ContractParser();
+				case TemplateType.AgWater:
+					return new WaterAgreementParser();
 				default:
 					throw new NotImplementedException(String.Format("Тип шаблона {0}, не реализован.", type));
 			}
