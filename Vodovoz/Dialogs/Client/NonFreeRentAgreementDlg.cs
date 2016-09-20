@@ -3,6 +3,8 @@ using NLog;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain;
+using Vodovoz.DocTemplates;
 
 namespace Vodovoz
 {
@@ -58,6 +60,13 @@ namespace Vodovoz
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 
 			paidrentpackagesview1.AgreementUoW = UoWGeneric;
+			if (Entity.AgreementTemplate == null && Entity.Contract != null)
+				Entity.UpdateContractTemplate(UoW);
+
+			if (Entity.AgreementTemplate != null)
+				(Entity.AgreementTemplate.DocParser as NonFreeRentAgreementParser).RootObject = Entity;
+			templatewidget1.Binding.AddBinding(Entity, e => e.AgreementTemplate, w => w.Template).InitializeFromSource();
+			templatewidget1.Binding.AddBinding(Entity, e => e.ChangedTemplateFile, w => w.ChangedDoc).InitializeFromSource();
 		}
 
 		public override bool Save ()

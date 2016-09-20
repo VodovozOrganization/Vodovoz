@@ -42,6 +42,8 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataEntryReferenceVM referenceDeliveryPoint;
 		
+		private global::QSDocTemplates.TemplateWidget templatewidget3;
+		
 		private global::Gamma.GtkWidgets.yLabel ylabelNumber;
 
 		protected virtual void Build ()
@@ -92,7 +94,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(5)), ((uint)(4)), false);
+			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(5)), ((uint)(5)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -110,7 +112,7 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.dailyrentpackagesview1]));
 			w6.TopAttach = ((uint)(4));
 			w6.BottomAttach = ((uint)(5));
-			w6.RightAttach = ((uint)(4));
+			w6.RightAttach = ((uint)(5));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.dateEnd = new global::QSOrmProject.DataDatePicker ();
@@ -281,19 +283,30 @@ namespace Vodovoz
 			w19.RightAttach = ((uint)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
+			this.templatewidget3 = new global::QSDocTemplates.TemplateWidget ();
+			this.templatewidget3.Events = ((global::Gdk.EventMask)(256));
+			this.templatewidget3.Name = "templatewidget3";
+			this.datatable1.Add (this.templatewidget3);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.templatewidget3]));
+			w20.BottomAttach = ((uint)(4));
+			w20.LeftAttach = ((uint)(4));
+			w20.RightAttach = ((uint)(5));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child datatable1.Gtk.Table+TableChild
 			this.ylabelNumber = new global::Gamma.GtkWidgets.yLabel ();
 			this.ylabelNumber.Name = "ylabelNumber";
 			this.ylabelNumber.Xalign = 0F;
 			this.ylabelNumber.LabelProp = global::Mono.Unix.Catalog.GetString ("ylabel1");
 			this.datatable1.Add (this.ylabelNumber);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.ylabelNumber]));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(4));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.ylabelNumber]));
+			w21.LeftAttach = ((uint)(1));
+			w21.RightAttach = ((uint)(4));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w21 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w21.Position = 1;
+			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w22.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

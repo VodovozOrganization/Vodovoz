@@ -292,6 +292,10 @@
     <Compile Include="HibernateMapping\Employees\FineNomenclatureMap.cs" />
     <Compile Include="Repositories\Client\DocTemplateRepository.cs" />
     <Compile Include="DocTemplates\WaterAgreementParser.cs" />
+    <Compile Include="DocTemplates\NonFreeRentAgreementParser.cs" />
+    <Compile Include="DocTemplates\FreeRentAgreementParser.cs" />
+    <Compile Include="DocTemplates\ShortRentAgreementParser.cs" />
+    <Compile Include="DocTemplates\RepairAgreementParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

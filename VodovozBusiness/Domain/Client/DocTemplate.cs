@@ -122,6 +122,14 @@ namespace Vodovoz.Domain.Client
 					return new ContractParser();
 				case TemplateType.AgWater:
 					return new WaterAgreementParser();
+				case TemplateType.AgLongRent:
+					return new NonFreeRentAgreementParser();
+				case TemplateType.AgFreeRent:
+					return new FreeRentAgreementParser();
+				case TemplateType.AgShortRent:
+					return new ShortRentAgreementParser();
+				case TemplateType.AgRepair:
+					return new RepairAgreementParser();
 				default:
 					throw new NotImplementedException(String.Format("Тип шаблона {0}, не реализован.", type));
 			}
