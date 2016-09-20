@@ -46,9 +46,10 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.Counterparty.DefaultAccount.InBank.CorAccount, PatternFieldType.FString);
 			AddField(x => x.Counterparty.DefaultAccount.InBank.Name, PatternFieldType.FString);
 			//Директор клиента
-			//AddField(x => x.Counterparty.Leader.FullName, PatternFieldType.FString);
-			//AddField(x => x.Counterparty.Leader.ShortName, PatternFieldType.FString);
-
+			AddField(x => x.Counterparty.SignatoryFIO, PatternFieldType.FString);
+			AddField(x => x.Counterparty.SignatoryPost, PatternFieldType.FString);
+			AddField(x => x.Counterparty.SignatoryBaseOf, PatternFieldType.FString);
+				
 			SortFields();
 		}
 	}
