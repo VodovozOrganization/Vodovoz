@@ -296,6 +296,8 @@
     <Compile Include="DocTemplates\FreeRentAgreementParser.cs" />
     <Compile Include="DocTemplates\ShortRentAgreementParser.cs" />
     <Compile Include="DocTemplates\RepairAgreementParser.cs" />
+    <Compile Include="Domain\Client\WaterSalesAgreementFixedPrice.cs" />
+    <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

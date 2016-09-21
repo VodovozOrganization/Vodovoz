@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
+using System.Data.Bindings.Collections.Generic;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
@@ -16,6 +18,25 @@ namespace Vodovoz.Domain.Client
 		[Display (Name = "Фиксированная стоимость воды")]
 		public virtual decimal FixedPrice { get; set; }
 
+		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice> ();
+
+		[Display (Name = "Список оборудования")]
+		public virtual IList<WaterSalesAgreementFixedPrice> FixedPrices {
+			get { return fixedPrices; }
+			set { SetField (ref fixedPrices, value, () => FixedPrices); }
+		}
+
+		GenericObservableList<WaterSalesAgreementFixedPrice> observableFixedPrices;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<WaterSalesAgreementFixedPrice> ObservablFixedPrices {
+			get {
+				if (observableFixedPrices == null)
+					observableFixedPrices = new GenericObservableList<WaterSalesAgreementFixedPrice> (FixedPrices);
+				return observableFixedPrices;
+			}
+		}
+
+
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
@@ -28,6 +49,17 @@ namespace Vodovoz.Domain.Client
 					yield return new ValidationResult ("Общее доп. соглашение по продаже воды уже существует. " +
 					"Пожалуйста, закройте действующее соглашение для создания нового.", new[] { "DeliveryPoint" });
 			}
+		}
+
+		public virtual void  AddFixedPrice(Nomenclature nomenclature, decimal price)
+		{
+			var nomenculaturePrice = new WaterSalesAgreementFixedPrice{
+				Nomenclature = nomenclature,
+				AdditionalAgreement = this,
+				Price = price
+			};
+
+			ObservablFixedPrices.Add(nomenculaturePrice);
 		}
 
 		public static IUnitOfWorkGeneric<WaterSalesAgreement> Create (CounterpartyContract contract)

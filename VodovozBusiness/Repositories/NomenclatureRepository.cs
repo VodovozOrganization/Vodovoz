@@ -30,6 +30,12 @@ namespace Vodovoz.Repository
 				.Where (n => n.Category.IsIn (Nomenclature.GetCategoriesForGoods ()));
 		}
 
+		public static QueryOver<Nomenclature> NomenclatureWaterOnlyQuery ()
+		{
+			return QueryOver.Of<Nomenclature> ()
+				.Where (n => n.Category == NomenclatureCategory.water);
+		}
+
 		public static Nomenclature GetBottleDeposit (IUnitOfWork uow)
 		{
 			var bottleDepositParameter = "bottleDeposit_id";
