@@ -6,6 +6,7 @@ using QSProjectsLib;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Domain.Client
 {
@@ -168,18 +169,28 @@ namespace Vodovoz.Domain.Client
 				!a.IsCancelled);
 		}
 
-		public virtual WaterSalesAgreement GetWaterSalesAgreement (DeliveryPoint deliveryPoint)
+		public virtual WaterSalesAgreement GetWaterSalesAgreement (DeliveryPoint deliveryPoint, Nomenclature nomenclature)
 		{
 			if (AdditionalAgreements == null || AdditionalAgreements.Count < 1) {
 				return null;
 			}
 			AdditionalAgreement agreement = null;
 			if (deliveryPoint != null) {
-				agreement = AdditionalAgreements.FirstOrDefault (a => 
-				a.DeliveryPoint != null &&
-				a.DeliveryPoint.Id == deliveryPoint.Id &&
-				a.Type == AgreementType.WaterSales &&
-				!a.IsCancelled);
+				agreement = AdditionalAgreements.OfType<WaterSalesAgreement>().FirstOrDefault (a => 
+					a.DeliveryPoint != null &&
+					a.DeliveryPoint.Id == deliveryPoint.Id &&
+					!a.IsCancelled
+					&& a.IsFixedPrice
+					&& a.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id)
+				);
+				if (agreement == null)
+				{
+					agreement = AdditionalAgreements.FirstOrDefault(a => 
+						a.DeliveryPoint != null &&
+						a.DeliveryPoint.Id == deliveryPoint.Id &&
+						a.Type == AgreementType.WaterSales &&
+						!a.IsCancelled);
+				}
 			}
 			if (agreement == null) {
 				agreement = AdditionalAgreements.FirstOrDefault (a => 
@@ -187,7 +198,8 @@ namespace Vodovoz.Domain.Client
 				a.Type == AgreementType.WaterSales &&
 				!a.IsCancelled);
 			}
-			return agreement != null ? agreement as WaterSalesAgreement : null;
+			return agreement as WaterSalesAgreement;
+			//return agreement != null ? agreement as WaterSalesAgreement : null;
 		}
 
 		public virtual bool RepairAgreementExists ()

@@ -19,7 +19,7 @@ namespace Vodovoz.Domain.Client
 
 		Nomenclature nomenclature;
 
-		[Display (Name = "Оборудование")]
+		[Display (Name = "Номенклатура")]
 		public virtual Nomenclature Nomenclature {
 			get { return nomenclature; }
 			set { SetField (ref nomenclature, value, () => Nomenclature); }

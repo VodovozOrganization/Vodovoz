@@ -3,6 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
+using System.Linq;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -132,8 +133,9 @@ namespace Vodovoz.Domain.Orders
 			result = Nomenclature.GetPrice(count);
 			if (Nomenclature.Category == NomenclatureCategory.water) {
 				var waterSalesAgreement = AdditionalAgreement as WaterSalesAgreement;
-				if (waterSalesAgreement != null && waterSalesAgreement.IsFixedPrice)
-					result = waterSalesAgreement.FixedPrice;
+				if (waterSalesAgreement != null && waterSalesAgreement.IsFixedPrice
+					&& waterSalesAgreement.FixedPrices.Any(x => x.Nomenclature.Id == Nomenclature.Id))
+					result = waterSalesAgreement.FixedPrices.First(x => x.Nomenclature.Id == Nomenclature.Id).Price;
 			}
 			return result;
 		}

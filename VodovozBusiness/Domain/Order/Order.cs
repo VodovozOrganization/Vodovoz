@@ -559,13 +559,19 @@ namespace Vodovoz.Domain.Orders
 			if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
 			    item.AdditionalAgreement.Id == wsa.Id))
 				return;
+			decimal price;
+			if (wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id))
+				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
+			else
+				price = nomenclature.GetPrice(1);
+
 			ObservableOrderItems.Add (new OrderItem {
 				Order = this,
 				AdditionalAgreement = wsa,
 				Count = 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = wsa.IsFixedPrice ? wsa.FixedPrice : nomenclature.GetPrice (1)
+				Price = price
 			});
 			UpdateDocuments ();
 		}

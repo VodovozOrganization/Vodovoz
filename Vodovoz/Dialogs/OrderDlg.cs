@@ -416,10 +416,10 @@ namespace Vodovoz
 					var result = AskCreateContract ();
 					switch (result) {
 					case (int)ResponseType.Yes:
-						RunContractAndWaterAgreementDialog ();
+							RunContractAndWaterAgreementDialog (nomenclature);
 						break;
 					case (int)ResponseType.Accept:
-						CreateDefaultContractWithAgreement ();
+							CreateDefaultContractWithAgreement (nomenclature);
 						break;
 					default:
 						break;
@@ -427,7 +427,7 @@ namespace Vodovoz
 					return;
 				}
 				UoWGeneric.Session.Refresh (contract);
-				WaterSalesAgreement wsa = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
+				WaterSalesAgreement wsa = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint, nomenclature);
 				if (wsa == null) {	
 					//Если нет доп. соглашения продажи воды.
 					if (MessageDialogWorks.RunQuestionDialog ("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?")) {
@@ -586,7 +586,7 @@ namespace Vodovoz
 			return result;
 		}
 
-		protected void RunContractAndWaterAgreementDialog(){
+		protected void RunContractAndWaterAgreementDialog(Nomenclature nomenclature){
 			ITdiTab dlg = new CounterpartyContractDlg (UoWGeneric.Root.Client,
 				              OrganizationRepository.GetOrganizationByPaymentType (UoWGeneric, UoWGeneric.Root.PaymentType),
 				              UoWGeneric.Root.DeliveryDate);
@@ -598,7 +598,7 @@ namespace Vodovoz
 						UoWGeneric.Root.Client,
 						UoWGeneric.Root.PaymentType);
 				if(contract!=null){
-					bool hasWaterAgreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint)!=null;
+					bool hasWaterAgreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint, nomenclature)!=null;
 					if(!hasWaterAgreement)
 						RunAdditionalAgreementWaterDialog();
 				}
@@ -620,11 +620,11 @@ namespace Vodovoz
 			TabParent.AddSlaveTab (this, dlg);
 		}
 
-		protected void CreateDefaultContractWithAgreement(){
+		protected void CreateDefaultContractWithAgreement(Nomenclature nomenclature){
 			var contract = CreateDefaultContract ();
 			Entity.Contract = contract;
 			AddContractDocument (contract);
-			AdditionalAgreement agreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint);
+			AdditionalAgreement agreement = contract.GetWaterSalesAgreement (UoWGeneric.Root.DeliveryPoint, nomenclature);
 			if(agreement==null){
 				agreement = CreateDefaultWaterAgreement (contract);
 				contract.AdditionalAgreements.Add (agreement);

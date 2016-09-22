@@ -15,12 +15,10 @@ namespace Vodovoz.Domain.Client
 	{
 		public virtual bool IsFixedPrice { get; set; }
 
-		[Display (Name = "Фиксированная стоимость воды")]
-		public virtual decimal FixedPrice { get; set; }
 
 		IList<WaterSalesAgreementFixedPrice> fixedPrices = new List<WaterSalesAgreementFixedPrice> ();
 
-		[Display (Name = "Список оборудования")]
+		[Display (Name = "Фиксированные цены")]
 		public virtual IList<WaterSalesAgreementFixedPrice> FixedPrices {
 			get { return fixedPrices; }
 			set { SetField (ref fixedPrices, value, () => FixedPrices); }
