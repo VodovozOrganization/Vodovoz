@@ -29,6 +29,7 @@ public partial class MainWindow : Window
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
+	Action ActionResidue;
 
 	public void BuildToolbarActions ()
 	{
@@ -63,6 +64,7 @@ public partial class MainWindow : Window
 		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
 		//Архив
 		ActionRevisionBottlesAndDeposits = new Action ("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
+		ActionResidue = new Action("ActionResidue", "Вввод остатков", null, "table");
 		#endregion
 		#region Inserting actions to the toolbar
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
@@ -89,6 +91,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionAccountingTable, null);
 		w1.Add (ActionAccountFlow, null);
 		w1.Add (ActionExportTo1c, null);
+		w1.Add(ActionResidue, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -115,6 +118,7 @@ public partial class MainWindow : Window
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
+		ActionResidue.Activated += ActionResidueActivated;
 		#endregion
 	}
 
@@ -304,5 +308,16 @@ public partial class MainWindow : Window
 			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
 			() => new ReferenceRepresentation (new OrdersVM ()).CustomTabName("Журнал заказов")
 		);
+	}
+
+	void ActionResidueActivated (object sender, System.EventArgs e)
+	{
+		tdiMain.AddTab(new ResidueDlg());
+		/*
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
+			() => new ReferenceRepresentation (new OrdersVM ()).CustomTabName("Журнал заказов")
+		);
+		*/
 	}
 }

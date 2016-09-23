@@ -449,6 +449,8 @@
     <Compile Include="Additions\Logistic\PrintRouteListHelper.cs" />
     <Compile Include="ReportsParameters\RevisionBottlesAndDeposits.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.RevisionBottlesAndDeposits.cs" />
+    <Compile Include="Dialogs\ResidueDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ResidueDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

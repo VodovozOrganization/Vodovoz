@@ -6,7 +6,7 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
+	
 	public partial class ProductSpecificationDlg : OrmGtkDialogBase<ProductSpecification>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();

@@ -298,6 +298,8 @@
     <Compile Include="DocTemplates\RepairAgreementParser.cs" />
     <Compile Include="Domain\Client\WaterSalesAgreementFixedPrice.cs" />
     <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
+    <Compile Include="HibernateMapping\ResidueMap.cs" />
+    <Compile Include="Domain\Residue.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -312,7 +314,7 @@
     <Folder Include="Repositories\Client\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HibernateMapping\Database.hbm.xml">
+    <EmbeddedResource Include="HibernateMapping\Organization\Database.hbm.xml">
       <LogicalName>Vodovoz.Database.hbm.xml</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
