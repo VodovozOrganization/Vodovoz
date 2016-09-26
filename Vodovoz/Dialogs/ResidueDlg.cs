@@ -50,9 +50,9 @@ namespace Vodovoz
 			yreferenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			disablespinBottlesResidue.Binding.AddBinding(Entity, e => e.BottlesResidue, w => w.ValueAsInt).InitializeFromSource();
-			yspinbuttonBottlesDeposit.Binding.AddBinding(Entity, e => e.DepositResidueBottels, w => w.ValueAsDecimal).InitializeFromSource();
-			yspinbuttonEquipmentDeposit.Binding.AddBinding(Entity, e => e.DepositResidueEquipment, w => w.ValueAsDecimal).InitializeFromSource();
-			yspinbuttonMoney.Binding.AddBinding(Entity, e => e.MoneyResidue, w => w.ValueAsDecimal).InitializeFromSource();
+			disablespinBottlesDeposit.Binding.AddBinding(Entity, e => e.DepositResidueBottels, w => w.ValueAsDecimal).InitializeFromSource();
+			disablespinEquipmentDeposit.Binding.AddBinding(Entity, e => e.DepositResidueEquipment, w => w.ValueAsDecimal).InitializeFromSource();
+			disablespinMoney.Binding.AddBinding(Entity, e => e.MoneyResidue, w => w.ValueAsDecimal).InitializeFromSource();
 		}
 
 		public override bool Save ()
@@ -64,6 +64,9 @@ namespace Vodovoz
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
 				return false;
 			}
+
+
+
 
 			var valid = new QSValidator<Residue> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))

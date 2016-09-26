@@ -32570,6 +32570,30 @@ RegistrationNumber</property>
               <placeholder />
             </child>
             <child>
+              <widget class="QSOrmProject.DisableSpinButton" id="disablespinBottlesDeposit">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="Active">False</property>
+                <property name="Upper">100000</property>
+                <property name="Lower">0</property>
+                <property name="Digits">0</property>
+              </widget>
+              <packing>
+                <property name="TopAttach">2</property>
+                <property name="BottomAttach">3</property>
+                <property name="LeftAttach">3</property>
+                <property name="RightAttach">4</property>
+                <property name="AutoSize">True</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="QSOrmProject.DisableSpinButton" id="disablespinBottlesResidue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
@@ -32594,95 +32618,13 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.HBox" id="hbox5">
+              <widget class="QSOrmProject.DisableSpinButton" id="disablespinEquipmentDeposit">
                 <property name="MemberName" />
-                <property name="Spacing">6</property>
-                <child>
-                  <widget class="Gtk.CheckButton" id="checkbuttonBottlesDeposit">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Label" translatable="yes" />
-                    <property name="DrawIndicator">True</property>
-                    <property name="HasLabel">True</property>
-                    <property name="UseUnderline">True</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
-                    <property name="Expand">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonBottlesDeposit">
-                    <property name="MemberName" />
-                    <property name="Sensitive">False</property>
-                    <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">False</property>
-                  </packing>
-                </child>
-              </widget>
-              <packing>
-                <property name="TopAttach">2</property>
-                <property name="BottomAttach">3</property>
-                <property name="LeftAttach">3</property>
-                <property name="RightAttach">4</property>
-                <property name="AutoSize">True</property>
-                <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
-                <property name="XFill">True</property>
-                <property name="XShrink">False</property>
-                <property name="YExpand">False</property>
-                <property name="YFill">True</property>
-                <property name="YShrink">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.HBox" id="hbox6">
-                <property name="MemberName" />
-                <property name="Spacing">6</property>
-                <child>
-                  <widget class="Gtk.CheckButton" id="checkbuttonEquipmentDeposit">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Label" translatable="yes" />
-                    <property name="DrawIndicator">True</property>
-                    <property name="HasLabel">True</property>
-                    <property name="UseUnderline">True</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
-                    <property name="Expand">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonEquipmentDeposit">
-                    <property name="MemberName" />
-                    <property name="Sensitive">False</property>
-                    <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">False</property>
-                  </packing>
-                </child>
+                <property name="Events">ButtonPressMask</property>
+                <property name="Active">False</property>
+                <property name="Upper">100000</property>
+                <property name="Lower">0</property>
+                <property name="Digits">0</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -32700,42 +32642,13 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.HBox" id="hbox7">
+              <widget class="QSOrmProject.DisableSpinButton" id="disablespinMoney">
                 <property name="MemberName" />
-                <property name="Spacing">6</property>
-                <child>
-                  <widget class="Gtk.CheckButton" id="checkbuttonMoney">
-                    <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="Label" translatable="yes" />
-                    <property name="DrawIndicator">True</property>
-                    <property name="HasLabel">True</property>
-                    <property name="UseUnderline">True</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
-                    <property name="Expand">False</property>
-                  </packing>
-                </child>
-                <child>
-                  <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonMoney">
-                    <property name="MemberName" />
-                    <property name="Sensitive">False</property>
-                    <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
-                    <property name="ValueAsDecimal">0</property>
-                    <property name="ValueAsInt">0</property>
-                  </widget>
-                  <packing>
-                    <property name="Position">1</property>
-                    <property name="AutoSize">False</property>
-                  </packing>
-                </child>
+                <property name="Events">ButtonPressMask</property>
+                <property name="Active">False</property>
+                <property name="Upper">100000</property>
+                <property name="Lower">0</property>
+                <property name="Digits">0</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -32880,7 +32793,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="moneyLabel">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes">Деньги</property>
+                <property name="LabelProp" translatable="yes">Деньги:</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
