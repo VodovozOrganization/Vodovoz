@@ -5,6 +5,8 @@ using QSValidation;
 using Vodovoz.Domain.Client;
 using System.Linq;
 using NHibernate.Criterion;
+using Gamma.ColumnConfig;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -43,10 +45,21 @@ namespace Vodovoz
 			yspinbuttonMoney.Binding.AddBinding(Entity, e => e.MoneyResidue, w => w.ValueAsDecimal).InitializeFromSource();
 
 			checkbuttonBottlesResidue.Active = Entity.BottlesResidue.HasValue;
+
+
+
 		}
 
 		public override bool Save ()
 		{
+			Entity.LastEditAuthor = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			Entity.LastEditTime = DateTime.Now;
+			if(Entity.LastEditAuthor == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете изменять складские документы, так как некого указывать в качестве кладовщика.");
+				return false;
+			}
+
 			var valid = new QSValidator<Residue> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
