@@ -16,7 +16,7 @@ namespace Vodovoz.HMap
 			References(x => x.DeliveryPoint).Column("delivery_point_id");
 			References(x => x.Author).Column("autor_id");
 			Map(x => x.LastEditTime).Column("last_edit_time");
-			References(x => x.LastEditAuthor).Column("last_edit_author");
+			References(x => x.LastEditAuthor).Column("last_edit_author_id");
 			Map (x => x.BottlesResidue).Column ("bottles_residue");
 			References(x => x.BottlesMovementOperation).Column("bottles_movment_operation_id");
 			Map(x => x.DepositResidueBottels).Column("deposit_residue_bottles");
