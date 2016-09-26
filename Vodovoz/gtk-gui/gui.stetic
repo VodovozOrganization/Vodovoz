@@ -32575,8 +32575,8 @@ RegistrationNumber</property>
                 <property name="Events">ButtonPressMask</property>
                 <property name="Active">False</property>
                 <property name="Upper">100000</property>
-                <property name="Lower">0</property>
-                <property name="Digits">0</property>
+                <property name="Lower">-100000</property>
+                <property name="Digits">2</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -32599,7 +32599,7 @@ RegistrationNumber</property>
                 <property name="Events">ButtonPressMask</property>
                 <property name="Active">False</property>
                 <property name="Upper">100000</property>
-                <property name="Lower">0</property>
+                <property name="Lower">-100000</property>
                 <property name="Digits">0</property>
               </widget>
               <packing>
@@ -32623,8 +32623,8 @@ RegistrationNumber</property>
                 <property name="Events">ButtonPressMask</property>
                 <property name="Active">False</property>
                 <property name="Upper">100000</property>
-                <property name="Lower">0</property>
-                <property name="Digits">0</property>
+                <property name="Lower">-100000</property>
+                <property name="Digits">2</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -32646,9 +32646,9 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="Active">False</property>
-                <property name="Upper">100000</property>
-                <property name="Lower">0</property>
-                <property name="Digits">0</property>
+                <property name="Upper">10000000</property>
+                <property name="Lower">-10000000</property>
+                <property name="Digits">2</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>

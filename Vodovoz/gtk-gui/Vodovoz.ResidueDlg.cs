@@ -100,8 +100,8 @@ namespace Vodovoz
 			this.disablespinBottlesDeposit.Name = "disablespinBottlesDeposit";
 			this.disablespinBottlesDeposit.Active = false;
 			this.disablespinBottlesDeposit.Upper = 100000;
-			this.disablespinBottlesDeposit.Lower = 0;
-			this.disablespinBottlesDeposit.Digits = ((uint)(0));
+			this.disablespinBottlesDeposit.Lower = -100000;
+			this.disablespinBottlesDeposit.Digits = ((uint)(2));
 			this.table1.Add (this.disablespinBottlesDeposit);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.disablespinBottlesDeposit]));
 			w6.TopAttach = ((uint)(2));
@@ -115,7 +115,7 @@ namespace Vodovoz
 			this.disablespinBottlesResidue.Name = "disablespinBottlesResidue";
 			this.disablespinBottlesResidue.Active = false;
 			this.disablespinBottlesResidue.Upper = 100000;
-			this.disablespinBottlesResidue.Lower = 0;
+			this.disablespinBottlesResidue.Lower = -100000;
 			this.disablespinBottlesResidue.Digits = ((uint)(0));
 			this.table1.Add (this.disablespinBottlesResidue);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1 [this.disablespinBottlesResidue]));
@@ -130,8 +130,8 @@ namespace Vodovoz
 			this.disablespinEquipmentDeposit.Name = "disablespinEquipmentDeposit";
 			this.disablespinEquipmentDeposit.Active = false;
 			this.disablespinEquipmentDeposit.Upper = 100000;
-			this.disablespinEquipmentDeposit.Lower = 0;
-			this.disablespinEquipmentDeposit.Digits = ((uint)(0));
+			this.disablespinEquipmentDeposit.Lower = -100000;
+			this.disablespinEquipmentDeposit.Digits = ((uint)(2));
 			this.table1.Add (this.disablespinEquipmentDeposit);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1 [this.disablespinEquipmentDeposit]));
 			w8.TopAttach = ((uint)(3));
@@ -144,9 +144,9 @@ namespace Vodovoz
 			this.disablespinMoney.Events = ((global::Gdk.EventMask)(256));
 			this.disablespinMoney.Name = "disablespinMoney";
 			this.disablespinMoney.Active = false;
-			this.disablespinMoney.Upper = 100000;
-			this.disablespinMoney.Lower = 0;
-			this.disablespinMoney.Digits = ((uint)(0));
+			this.disablespinMoney.Upper = 10000000;
+			this.disablespinMoney.Lower = -10000000;
+			this.disablespinMoney.Digits = ((uint)(2));
 			this.table1.Add (this.disablespinMoney);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1 [this.disablespinMoney]));
 			w9.TopAttach = ((uint)(3));
