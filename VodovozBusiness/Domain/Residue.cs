@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Gamma.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain
@@ -60,7 +56,6 @@ namespace Vodovoz.Domain
 			set { SetField(ref lastEditTime, value, () => LastEditTime); }
 		}
 
-
 		Employee lastEditAuthor;
 
 		[Display (Name = "Автор последнего редактирования")]
@@ -68,8 +63,6 @@ namespace Vodovoz.Domain
 			get { return lastEditAuthor; }
 			set { SetField (ref lastEditAuthor, value, () => LastEditAuthor); }
 		}
-
-
 
 		int? bottlesResidue;
 
@@ -87,19 +80,19 @@ namespace Vodovoz.Domain
 			set { SetField (ref bottlesMovementOperation, value, () => BottlesMovementOperation); }
 		}
 
-		decimal depositResidueBottels;
+		decimal? depositResidueBottels;
 
 		[Display (Name = "Залог за тару")]
-		public virtual decimal DepositResidueBottels{
+		public virtual decimal? DepositResidueBottels{
 			get{ return depositResidueBottels; }
 			set { SetField(ref depositResidueBottels, value, () => DepositResidueBottels); }
 		}
 
-		decimal depositResidueEquipment;
+		decimal? depositResidueEquipment;
 
 
 		[Display (Name = "Залог за оборудование")]
-		public virtual decimal DepositResidueEquipment{
+		public virtual decimal? DepositResidueEquipment{
 			get{ return depositResidueEquipment; }
 			set { SetField(ref depositResidueEquipment, value, () => DepositResidueEquipment); }
 		}
@@ -111,7 +104,6 @@ namespace Vodovoz.Domain
 			get { return depositBottlesOperation; }
 			set { SetField(ref depositBottlesOperation, value, () => DepositBottlesOperation); }
 		}
-		//deposit_equipment_operation_id
 
 		DepositOperation depositEquipmentOperation;
 
@@ -120,17 +112,14 @@ namespace Vodovoz.Domain
 			get { return depositEquipmentOperation; }
 			set {SetField(ref depositEquipmentOperation, value, () => DepositEquipmentOperation); }
 		}
-		//money_residue
 
-		decimal moneyResidue;
+		decimal? moneyResidue;
 
 		[Display (Name = "остаток денег")]
-		public virtual decimal MoneyResidue{
+		public virtual decimal? MoneyResidue{
 			get { return moneyResidue; }
 			set { SetField(ref moneyResidue, value, () => MoneyResidue); }
 		}
-
-		//money_movement_operation_id
 
 		MoneyMovementOperation moneyMovementOperation;
 
@@ -140,7 +129,6 @@ namespace Vodovoz.Domain
 			set { SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation); }
 		}
 	
-
 		#endregion
 
 	}
