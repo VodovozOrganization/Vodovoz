@@ -312,12 +312,11 @@ public partial class MainWindow : Window
 
 	void ActionResidueActivated (object sender, System.EventArgs e)
 	{
-		tdiMain.AddTab(new ResidueDlg());
-		/*
+		//tdiMain.AddTab(new ResidueDlg());
+
 		tdiMain.OpenTab(
-			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
-			() => new ReferenceRepresentation (new OrdersVM ()).CustomTabName("Журнал заказов")
+			ReferenceRepresentation.GenerateHashName<ResidueVM>(),
+			() => new ReferenceRepresentation (new ResidueVM ()).CustomTabName("Журнал остатков")
 		);
-		*/
 	}
 }

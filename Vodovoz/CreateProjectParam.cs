@@ -85,6 +85,7 @@ namespace Vodovoz
 				OrmObjectMapping<Counterparty>.Create().Dialog<CounterpartyDlg>().DefaultTableView().SearchColumn("Название", x => x.FullName).End(),
 				OrmObjectMapping<CounterpartyContract>.Create().Dialog<CounterpartyContractDlg>(),
 				OrmObjectMapping<DocTemplate>.Create().Dialog<DocTemplateDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).Column("Тип", x => x.TemplateType.GetEnumTitle()).End(),
+				OrmObjectMapping<Residue>.Create().Dialog<ResidueDlg>(),
 				// Документы
 				OrmObjectMapping<IncomingInvoice>.Create().Dialog<IncomingInvoiceDlg>(),
 					OrmObjectMapping<IncomingWater>.Create().Dialog<IncomingWaterDlg>(),

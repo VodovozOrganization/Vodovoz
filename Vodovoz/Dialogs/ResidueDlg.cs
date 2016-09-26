@@ -1,9 +1,14 @@
-﻿using System;
+using System;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using System.Linq;
+using NHibernate.Criterion;
+using Gamma.ColumnConfig;
+using Vodovoz.ViewModel;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -13,6 +18,13 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Residue> ();
+			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+			if(Entity.Author == null)
+			{
+				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+				FailInitialize = true;
+				return;
+			}
 			ConfigureDlg ();
 		}
 
