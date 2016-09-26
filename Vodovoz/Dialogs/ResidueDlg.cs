@@ -1,12 +1,9 @@
 ﻿using System;
 using QSOrmProject;
-using Vodovoz.Domain;
+using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
-using System.Linq;
-using NHibernate.Criterion;
-using Gamma.ColumnConfig;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -18,6 +15,7 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Residue> ();
 			ConfigureDlg ();
 		}
+
 		public ResidueDlg (Residue sub) : this (sub.Id)
 		{
 		}
@@ -39,15 +37,10 @@ namespace Vodovoz
 			//yreferenceDeliveryPoint.CanEditReference = false;
 			yreferenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
-			yspinbuttonBottlesResidue.Binding.AddBinding(Entity, e => e.BottlesResidue, w => w.ValueAsInt).InitializeFromSource();
+			disablespinBottlesResidue.Binding.AddBinding(Entity, e => e.BottlesResidue, w => w.ValueAsInt).InitializeFromSource();
 			yspinbuttonBottlesDeposit.Binding.AddBinding(Entity, e => e.DepositResidueBottels, w => w.ValueAsDecimal).InitializeFromSource();
 			yspinbuttonEquipmentDeposit.Binding.AddBinding(Entity, e => e.DepositResidueEquipment, w => w.ValueAsDecimal).InitializeFromSource();
 			yspinbuttonMoney.Binding.AddBinding(Entity, e => e.MoneyResidue, w => w.ValueAsDecimal).InitializeFromSource();
-
-			checkbuttonBottlesResidue.Active = Entity.BottlesResidue.HasValue;
-
-
-
 		}
 
 		public override bool Save ()
@@ -86,15 +79,6 @@ namespace Vodovoz
 				yreferenceDeliveryPoint.Subject = null;
 				yreferenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, (Counterparty)yreferenceClientSelector.Subject);
 			}
-		}
-
-		protected void OnCheckbuttonBottlesResidueToggled (object sender, EventArgs e)
-		{
-			
-			yspinbuttonBottlesResidue.Sensitive = checkbuttonBottlesResidue.Active;
-			if (checkbuttonBottlesResidue.Active)
-				Entity.BottlesResidue = null;
-			
 		}
 	}
 }
