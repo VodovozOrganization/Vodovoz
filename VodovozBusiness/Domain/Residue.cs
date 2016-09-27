@@ -4,7 +4,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
-
+using money = Vodovoz.Repository.Operations.MoneyRepository;
 namespace Vodovoz.Domain
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
@@ -128,7 +128,48 @@ namespace Vodovoz.Domain
 			get { return moneyMovementOperation; }
 			set { SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation); }
 		}
-	
+		#endregion
+
+		#region Функции
+		public virtual void UpdateOperations(IUnitOfWork uow)
+		{
+			if (MoneyResidue == null)
+				MoneyMovementOperation = null;///
+			else
+			{
+				if(MoneyMovementOperation == null)
+					MoneyMovementOperation = new MoneyMovementOperation();
+
+				var date = moneyMovementOperation != null ? moneyMovementOperation.OperationTime : Date;
+				moneyMovementOperation.Counterparty = customer;
+				moneyMovementOperation.OperationTime = date;
+				money.CounterpartyDebtQueryResult counterpartyMoney =  money.GetCounterpartyMoney(uow, customer, date);
+				var Charged = counterpartyMoney.Charged;
+				var Payed = counterpartyMoney.Payed;
+				var Deposit = counterpartyMoney.Deposit;
+				// Deb = Charged - (Payed - Deposit)
+				// Считаем, что дерозит не оплачен
+				// И платится из денег в Payed
+
+				var dep = depositBottlesOperation == null ? 0 : depositBottlesOperation;
+				dep = depositEquipmentOperation == null ? dep : dep + depositEquipmentOperation;
+
+				var XDeposit = dep - Deposit;
+				var XDebt = 
+			}
+			//be
+
+				
+		}
+
+		void CreateOperation(DateTime dt, IUnitOfWork uow)
+		{
+			
+
+
+
+		}
+
 		#endregion
 
 	}

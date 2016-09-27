@@ -10,23 +10,29 @@ namespace Vodovoz.Repository.Operations
 {
 	public static class MoneyRepository
 	{
-		public static decimal GetCounterpartyDebt(IUnitOfWork UoW, Counterparty counterparty)
+		public static CounterpartyDebtQueryResult GetCounterpartyMoney(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
 		{
 			MoneyMovementOperation operationAlias = null;
 			CounterpartyDebtQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<MoneyMovementOperation>(() => operationAlias)
-				.Where(() => operationAlias.Counterparty.Id == counterparty.Id)
-				.SelectList(list => list
+				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
+			if (before.HasValue)
+				queryResult.Where(() => operationAlias.OperationTime < before);			
+			var debt = queryResult
+			.SelectList(list => list
 					.SelectSum(() => operationAlias.Debt).WithAlias(() => result.Charged)
 					.SelectSum(() => operationAlias.Money).WithAlias(() => result.Payed)
 					.SelectSum(() => operationAlias.Deposit).WithAlias(() => result.Deposit)
 				).TransformUsing(Transformers.AliasToBean<CounterpartyDebtQueryResult>()).List<CounterpartyDebtQueryResult>();
-			var debt = queryResult
-				.FirstOrDefault()?.Debt ?? 0;
-			return debt;
+			return debt.FirstOrDefault();
 		}			
+		public static decimal GetCounterpartyDebt(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
+		{
+			return (GetCounterpartyMoney(UoW, counterparty, before))?.Debt ?? 0;
+		}
 
-		class CounterpartyDebtQueryResult
+
+		public class CounterpartyDebtQueryResult
 		{
 			public decimal Charged{ get; set; }
 			public decimal Payed{ get; set; }
