@@ -400,7 +400,7 @@ namespace Vodovoz.Domain.Client
 						String.Format("Вы не можете сдать контрагента в архив с незакрытыми заказами: {0}", String.Join(", ", activeOrders.Select(o => o.Id.ToString()))),
 						new[] { this.GetPropertyName (o => o.CounterpartyContracts) });
 				
-				var deposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, this);
+				var deposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, this, null);
 				if(balance != 0)
 					yield return new ValidationResult (
 						String.Format("Вы не можете сдать контрагента в архив так как у него есть невозвращенные залоги: {0}", CurrencyWorks.GetShortCurrencyString(deposit)));

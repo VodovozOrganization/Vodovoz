@@ -10,32 +10,39 @@ namespace Vodovoz.Repository.Operations
 {
 	public static class BottlesRepository
 	{
-		public static int GetBottlesAtCounterparty(IUnitOfWork UoW, Counterparty counterparty)
+		public static int GetBottlesAtCounterparty(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
-				.Where(() => operationAlias.Counterparty.Id == counterparty.Id)
-				.SelectList(list => list
+				.Where(() => operationAlias.Counterparty.Id == counterparty.Id);
+			if (before.HasValue)
+				queryResult.Where(() => operationAlias.OperationTime < before);			
+			
+			var bottles =  queryResult.SelectList(list => list
 					.SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
 					.SelectSum(() => operationAlias.Returned).WithAlias(() => result.Returned)
-				).TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>();
-			var bottles = queryResult.FirstOrDefault()?.BottlesDebt ?? 0;
+				).TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>()
+				.FirstOrDefault()?.BottlesDebt ?? 0;
 			return bottles;
 		}
 
-		public static int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint)
+		public static int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint, DateTime? before = null)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
-				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id)
-				.SelectList(list => list
+				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id);
+			if (before.HasValue)
+				queryResult.Where(() => operationAlias.OperationTime < before);			
+			
+			var bottles =  queryResult.SelectList(list => list
 					.SelectSum(()=>operationAlias.Delivered).WithAlias(()=>result.Delivered)
 					.SelectSum(()=>operationAlias.Returned).WithAlias(()=>result.Returned)
 				)
-				.TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>();
-			return queryResult.FirstOrDefault()?.BottlesDebt ?? 0;
+				.TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>()
+				.FirstOrDefault()?.BottlesDebt ?? 0;
+			return bottles;
 		}
 
 		class BottlesBalanceQueryResult

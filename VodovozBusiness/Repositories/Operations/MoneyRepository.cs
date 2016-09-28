@@ -10,7 +10,7 @@ namespace Vodovoz.Repository.Operations
 {
 	public static class MoneyRepository
 	{
-		public static CounterpartyDebtQueryResult GetCounterpartyMoney(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
+		public static CounterpartyDebtQueryResult GetCounterpartyBalanceResult(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
 		{
 			MoneyMovementOperation operationAlias = null;
 			CounterpartyDebtQueryResult result = null;
@@ -25,12 +25,12 @@ namespace Vodovoz.Repository.Operations
 					.SelectSum(() => operationAlias.Deposit).WithAlias(() => result.Deposit)
 				).TransformUsing(Transformers.AliasToBean<CounterpartyDebtQueryResult>()).List<CounterpartyDebtQueryResult>();
 			return debt.FirstOrDefault();
-		}			
-		public static decimal GetCounterpartyDebt(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
-		{
-			return (GetCounterpartyMoney(UoW, counterparty, before))?.Debt ?? 0;
 		}
 
+		public static decimal GetCounterpartyDebt(IUnitOfWork UoW, Counterparty counterparty, DateTime? before = null)
+		{
+			return (GetCounterpartyBalanceResult(UoW, counterparty, before))?.Debt ?? 0;
+		}
 
 		public class CounterpartyDebtQueryResult
 		{
@@ -40,6 +40,12 @@ namespace Vodovoz.Repository.Operations
 			public decimal Debt{
 				get{
 					return Charged-(Payed - Deposit);
+				}
+			}
+
+			public decimal Balance{
+				get{
+					return Payed - Deposit - Charged;
 				}
 			}
 		}

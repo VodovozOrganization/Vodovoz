@@ -4,7 +4,7 @@ using QSOrmProject;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Operations;
-using money = Vodovoz.Repository.Operations.MoneyRepository;
+
 namespace Vodovoz.Domain
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
@@ -26,7 +26,8 @@ namespace Vodovoz.Domain
 
 		Counterparty customer;
 
-		[Display (Name = "Клиент")]
+		[Display (Name = "Контрагент")]
+		[Required(ErrorMessage = "Контрагент должен быть указан.")]
 		public virtual Counterparty Customer {
 			get { return customer; }
 			set { SetField (ref customer, value, () => Customer); }
@@ -99,7 +100,7 @@ namespace Vodovoz.Domain
 
 		DepositOperation depositBottlesOperation;
 
-		[Display (Name = "операция по залогу за тару")]
+		[Display (Name = "Операция по залогу за тару")]
 		public virtual DepositOperation DepositBottlesOperation{
 			get { return depositBottlesOperation; }
 			set { SetField(ref depositBottlesOperation, value, () => DepositBottlesOperation); }
@@ -107,23 +108,23 @@ namespace Vodovoz.Domain
 
 		DepositOperation depositEquipmentOperation;
 
-		[Display (Name = "операция по залогу за оборудование")]
+		[Display (Name = "Операция по залогу за оборудование")]
 		public virtual DepositOperation DepositEquipmentOperation{
 			get { return depositEquipmentOperation; }
 			set {SetField(ref depositEquipmentOperation, value, () => DepositEquipmentOperation); }
 		}
 
-		decimal? moneyResidue;
+		decimal? debtResidue;
 
-		[Display (Name = "остаток денег")]
-		public virtual decimal? MoneyResidue{
-			get { return moneyResidue; }
-			set { SetField(ref moneyResidue, value, () => MoneyResidue); }
+		[Display (Name = "Долг по деньгам")]
+		public virtual decimal? DebtResidue{
+			get { return debtResidue; }
+			set { SetField(ref debtResidue, value, () => DebtResidue); }
 		}
 
 		MoneyMovementOperation moneyMovementOperation;
 
-		[Display (Name = "передвижение денег")]
+		[Display (Name = "Операция по передвижение денег")]
 		public virtual MoneyMovementOperation MoneyMovementOperation{
 			get { return moneyMovementOperation; }
 			set { SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation); }
@@ -133,41 +134,125 @@ namespace Vodovoz.Domain
 		#region Функции
 		public virtual void UpdateOperations(IUnitOfWork uow)
 		{
-			if (MoneyResidue == null)
-				MoneyMovementOperation = null;///
+			//Обновляем операции по бутылям.
+			if (BottlesResidue == null)
+				BottlesMovementOperation = DeleteOperation(uow, BottlesMovementOperation);
+			else
+			{
+				if(BottlesMovementOperation == null)
+					BottlesMovementOperation = new BottlesMovementOperation();
+
+				BottlesMovementOperation.Counterparty = customer;
+				BottlesMovementOperation.OperationTime = Date;
+				BottlesMovementOperation.DeliveryPoint = DeliveryPoint;
+				int bottleDebt;
+				if(DeliveryPoint == null)
+					bottleDebt = Repository.Operations.BottlesRepository.GetBottlesAtCounterparty(uow, Customer, Date);
+				else
+					bottleDebt = Repository.Operations.BottlesRepository.GetBottlesAtDeliveryPoint(uow, DeliveryPoint, Date);
+
+				var needCorrect = BottlesResidue.Value - bottleDebt;
+
+				if (needCorrect > 0)
+				{
+					BottlesMovementOperation.Delivered = needCorrect;
+					BottlesMovementOperation.Returned = 0;
+				}
+				else
+				{
+					BottlesMovementOperation.Returned = Math.Abs(needCorrect);
+					BottlesMovementOperation.Delivered = 0;
+				}
+			}
+
+			//Обновляем операции по залогам за бутыли.
+			if (DepositResidueBottels == null)
+				DepositBottlesOperation = DeleteOperation(uow, DepositBottlesOperation);
+			else
+			{
+				if(DepositBottlesOperation == null)
+					DepositBottlesOperation = new DepositOperation();
+
+				DepositBottlesOperation.Counterparty = customer;
+				DepositBottlesOperation.OperationTime = Date;
+				DepositBottlesOperation.DeliveryPoint = DeliveryPoint;
+				DepositBottlesOperation.DepositType = DepositType.Bottles;
+				decimal bottleDeposit;
+				if(DeliveryPoint == null)
+					bottleDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(uow, Customer, DepositType.Bottles, Date);
+				else
+					bottleDeposit = Repository.Operations.DepositRepository.GetDepositsAtDeliveryPoint(uow, DeliveryPoint, DepositType.Bottles, Date);
+
+				var needCorrect = DepositResidueBottels.Value - bottleDeposit;
+
+				if (needCorrect > 0)
+				{
+					DepositBottlesOperation.ReceivedDeposit = needCorrect;
+					DepositBottlesOperation.RefundDeposit = 0;
+				}
+				else
+				{
+					DepositBottlesOperation.RefundDeposit = Math.Abs(needCorrect);
+					DepositBottlesOperation.ReceivedDeposit = 0;
+				}
+			}
+
+			//Обновляем операции по залогам за бутыли.
+			if (DepositResidueEquipment == null)
+				DepositEquipmentOperation = DeleteOperation(uow, DepositEquipmentOperation);
+			else
+			{
+				if(DepositEquipmentOperation == null)
+					DepositEquipmentOperation = new DepositOperation();
+
+				DepositEquipmentOperation.Counterparty = customer;
+				DepositEquipmentOperation.OperationTime = Date;
+				DepositEquipmentOperation.DeliveryPoint = DeliveryPoint;
+				DepositEquipmentOperation.DepositType = DepositType.Equipment;
+				decimal equipmentDeposit;
+				if(DeliveryPoint == null)
+					equipmentDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(uow, Customer, DepositType.Equipment, Date);
+				else
+					equipmentDeposit = Repository.Operations.DepositRepository.GetDepositsAtDeliveryPoint(uow, DeliveryPoint, DepositType.Equipment, Date);
+
+				var needCorrect = DepositResidueEquipment.Value - equipmentDeposit;
+
+				if (needCorrect > 0)
+				{
+					DepositEquipmentOperation.ReceivedDeposit = needCorrect;
+					DepositEquipmentOperation.RefundDeposit = 0;
+				}
+				else
+				{
+					DepositEquipmentOperation.RefundDeposit = Math.Abs(needCorrect);
+					DepositEquipmentOperation.ReceivedDeposit = 0;
+				}
+			}
+
+			//Обновляем операции по деньгам.
+			if (DebtResidue == null)
+				MoneyMovementOperation = DeleteOperation(uow, MoneyMovementOperation);
 			else
 			{
 				if(MoneyMovementOperation == null)
 					MoneyMovementOperation = new MoneyMovementOperation();
 
-				var date = moneyMovementOperation != null ? moneyMovementOperation.OperationTime : Date;
-				moneyMovementOperation.Counterparty = customer;
-				moneyMovementOperation.OperationTime = date;
-				money.CounterpartyDebtQueryResult counterpartyMoney =  money.GetCounterpartyMoney(uow, customer, date);
-				var Charged = counterpartyMoney.Charged;
-				var Payed = counterpartyMoney.Payed;
-				var Deposit = counterpartyMoney.Deposit;
-				// Deb = Charged - (Payed - Deposit)
-				// Считаем, что дерозит не оплачен
-				// И платится из денег в Payed
+				MoneyMovementOperation.Counterparty = customer;
+				MoneyMovementOperation.OperationTime = Date;
+				MoneyMovementOperation.PaymentType = PaymentType.barter;
 
-				var dep = depositBottlesOperation == null ? 0 : depositBottlesOperation;
-				dep = depositEquipmentOperation == null ? dep : dep + depositEquipmentOperation;
+				decimal debt = Repository.Operations.MoneyRepository.GetCounterpartyDebt(uow, Customer, Date);
 
-				var XDeposit = dep - Deposit;
-				var XDebt = 
+				var needCorrect = DebtResidue.Value - debt;
+				MoneyMovementOperation.Debt = needCorrect;
 			}
-			//be
-
-				
 		}
 
-		void CreateOperation(DateTime dt, IUnitOfWork uow)
+		private TOperation DeleteOperation<TOperation>(IUnitOfWork uow, TOperation op) where TOperation : OperationBase
 		{
-			
-
-
-
+			if (op != null && op.Id > 0)
+				uow.Delete(op);
+			return null;
 		}
 
 		#endregion
