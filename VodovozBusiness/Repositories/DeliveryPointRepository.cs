@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
-using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain.Client;
-using Vodovoz.Domain.Operations;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Repository
 {
@@ -69,31 +67,6 @@ namespace Vodovoz.Repository
 				Projections.Sum(()=>orderItemAlias.Count)).List<object[]>();
 
 			return list.Count > 0 ? list.Average (x => (int)x[1]) : 0;
-		}
-
-		public static int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint)
-		{
-			BottlesMovementOperation operationAlias = null;
-			BottlesAtDeliveryPointQueryResult result = null;
-			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
-				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id)
-				.SelectList(list => list
-					.SelectSum(()=>operationAlias.Delivered).WithAlias(()=>result.Delivered)
-					.SelectSum(()=>operationAlias.Returned).WithAlias(()=>result.Returned)
-				)
-				.TransformUsing(Transformers.AliasToBean<BottlesAtDeliveryPointQueryResult>()).List<BottlesAtDeliveryPointQueryResult>();
-			var bottleCount = queryResult.FirstOrDefault()?.Total ?? 0;
-			return bottleCount;
-		}
-
-		class BottlesAtDeliveryPointQueryResult
-		{
-			public int Delivered{ get; set; }
-			public int Returned{get;set;}
-			public int Total
-			{
-				get{ return Delivered - Returned; }
-			}
 		}
 	}
 }

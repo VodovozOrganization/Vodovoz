@@ -10,7 +10,7 @@ namespace Vodovoz.Repository.Operations
 {
 	public static class BottlesRepository
 	{
-		public static decimal GetBottlesAtCounterparty(IUnitOfWork UoW, Counterparty counterparty)
+		public static int GetBottlesAtCounterparty(IUnitOfWork UoW, Counterparty counterparty)
 		{
 			BottlesMovementOperation operationAlias = null;
 			BottlesBalanceQueryResult result = null;
@@ -20,15 +20,29 @@ namespace Vodovoz.Repository.Operations
 					.SelectSum(() => operationAlias.Delivered).WithAlias(() => result.Delivered)
 					.SelectSum(() => operationAlias.Returned).WithAlias(() => result.Returned)
 				).TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>();
-			var deposits = queryResult.FirstOrDefault()?.BottlesDebt ?? 0;
-			return deposits;
+			var bottles = queryResult.FirstOrDefault()?.BottlesDebt ?? 0;
+			return bottles;
+		}
+
+		public static int GetBottlesAtDeliveryPoint(IUnitOfWork UoW, DeliveryPoint deliveryPoint)
+		{
+			BottlesMovementOperation operationAlias = null;
+			BottlesBalanceQueryResult result = null;
+			var queryResult = UoW.Session.QueryOver<BottlesMovementOperation>(() => operationAlias)
+				.Where(() => operationAlias.DeliveryPoint.Id == deliveryPoint.Id)
+				.SelectList(list => list
+					.SelectSum(()=>operationAlias.Delivered).WithAlias(()=>result.Delivered)
+					.SelectSum(()=>operationAlias.Returned).WithAlias(()=>result.Returned)
+				)
+				.TransformUsing(Transformers.AliasToBean<BottlesBalanceQueryResult>()).List<BottlesBalanceQueryResult>();
+			return queryResult.FirstOrDefault()?.BottlesDebt ?? 0;
 		}
 
 		class BottlesBalanceQueryResult
 		{
-			public decimal Delivered{get;set;}
-			public decimal Returned{get;set;}
-			public decimal BottlesDebt{
+			public int Delivered{get;set;}
+			public int Returned{get;set;}
+			public int BottlesDebt{
 				get{
 					return Delivered - Returned;
 				}
