@@ -23,8 +23,9 @@ namespace Vodovoz.HMap
 			Map(x => x.DepositResidueEquipment).Column("deposit_residue_equipment");
 			References(x => x.DepositBottlesOperation).Column("deposit_bottles_operation_id").Cascade.All();
 			References(x => x.DepositEquipmentOperation).Column("deposit_equipment_operation_id").Cascade.All();
-			Map(x => x.DebtResidue).Column("money_residue");
+			Map(x => x.DebtResidue).Column("money_debt_residue");
 			References(x => x.MoneyMovementOperation).Column("money_movement_operation_id").Cascade.All();
+			Map(x => x.Comment).Column("comment");
 		}
 	}
 }

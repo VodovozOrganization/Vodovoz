@@ -47,6 +47,7 @@ namespace Vodovoz
 			disablespinBottlesDeposit.Binding.AddBinding(Entity, e => e.DepositResidueBottels, w => w.ValueAsDecimal).InitializeFromSource();
 			disablespinEquipmentDeposit.Binding.AddBinding(Entity, e => e.DepositResidueEquipment, w => w.ValueAsDecimal).InitializeFromSource();
 			disablespinMoneyDebt.Binding.AddBinding(Entity, e => e.DebtResidue, w => w.ValueAsDecimal).InitializeFromSource();
+			ytextviewComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 		}
 
 		public override bool Save ()

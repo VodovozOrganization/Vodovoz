@@ -129,6 +129,15 @@ namespace Vodovoz.Domain
 			get { return moneyMovementOperation; }
 			set { SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation); }
 		}
+
+		string comment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string Comment {
+			get { return comment; }
+			set { SetField (ref comment, value, () => Comment); }
+		}
+
 		#endregion
 
 		#region Функции
