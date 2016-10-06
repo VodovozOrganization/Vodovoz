@@ -94,6 +94,7 @@ namespace Vodovoz.Domain.Goods
 					Serial); } 
 		}
 
+		[Display (Name = "Наименование")]
 		public virtual string NomenclatureName { get { return Nomenclature == null ? String.Empty : Nomenclature.Name; } }
 
 		public Equipment ()

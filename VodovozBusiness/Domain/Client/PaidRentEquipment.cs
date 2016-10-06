@@ -55,13 +55,9 @@ namespace Vodovoz.Domain.Client
 
 		public virtual string PackageName { get { return PaidRentPackage != null ? PaidRentPackage.Name : ""; } }
 
-		public virtual string EquipmentName { get { return Equipment != null ? Equipment.NomenclatureName : ""; } }
-
-		public virtual string EquipmentSerial { get { return Equipment != null ? Equipment.Serial : ""; } }
-
 		public virtual string PriceString { get { return CurrencyWorks.GetShortCurrencyString (Price); } }
 
-		public virtual string Title {get { return String.Format("Платная аренда {0}", EquipmentName); }}
+		public virtual string Title {get { return String.Format("Платная аренда {0}", Equipment.NomenclatureName); }}
 
 		#region IValidatableObject implementation
 
