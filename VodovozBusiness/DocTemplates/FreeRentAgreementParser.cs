@@ -4,7 +4,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.DocTemplates
 {
-	public class FreeRentAgreementParser : DocParserBase<AdditionalAgreement>
+	public class FreeRentAgreementParser : DocParserBase<FreeRentAgreement>
 	{
 		public FreeRentAgreementParser()
 		{
@@ -26,6 +26,9 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
 			AddField(x => x.DeliveryPoint.CompiledAddress, PatternFieldType.FString);
 
+			AddTable("Оборудование", x => x.Equipment)
+				.AddColumn(x => x.Equipment.NomenclatureName, PatternFieldType.FString)
+				.AddColumn(x => x.Equipment.Serial, PatternFieldType.FString);
 
 			SortFields();
 		}

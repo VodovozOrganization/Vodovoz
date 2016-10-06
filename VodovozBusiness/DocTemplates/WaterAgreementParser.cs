@@ -4,7 +4,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.DocTemplates
 {
-	public class WaterAgreementParser : DocParserBase<AdditionalAgreement>
+	public class WaterAgreementParser : DocParserBase<WaterSalesAgreement>
 	{
 		public WaterAgreementParser()
 		{
@@ -26,6 +26,10 @@ namespace Vodovoz.DocTemplates
 			AddField(x => x.IssueDate, PatternFieldType.FDate);
 			AddField(x => x.DeliveryPoint.CompiledAddress, PatternFieldType.FString);
 
+			AddTable(x => x.FixedPrices)
+				.AddColumn(x => x.Nomenclature.OfficialName, PatternFieldType.FString)
+				.AddColumn(x => x.Price, PatternFieldType.FCurrency);
+			
 
 			SortFields();
 		}
