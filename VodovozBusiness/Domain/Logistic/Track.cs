@@ -4,6 +4,8 @@ using Vodovoz.Domain.Employees;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using GMap.NET;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -48,6 +50,16 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		double? distance;
+
+		[Display (Name = "Пройденное расстояние")]
+		public virtual double? Distance {
+			get { return distance; }
+			set { 
+				SetField (ref distance, value, () => distance); 
+			}
+		}
+
 		GenericObservableList<TrackPoint> observableTrackPoints;
 		//FIXME Костыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<TrackPoint> ObservableTrackPoints {
@@ -57,6 +69,18 @@ namespace Vodovoz.Domain.Logistic
 				}
 				return observableTrackPoints;
 			}
+		}
+
+		public virtual void CalculateDistance() {
+			if (TrackPoints.Count == 0)
+			{
+				Distance = null;
+				return;
+			}
+
+			var points = TrackPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude));
+
+			Distance = new MapRoute(points, "").Distance;
 		}
 	}
 }

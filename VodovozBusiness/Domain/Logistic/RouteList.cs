@@ -189,6 +189,9 @@ namespace Vodovoz.Domain.Logistic
 			foreach (var item in Addresses) {
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
+			track.CalculateDistance();
+			UoW.Save(track);
 		}
 
 		public virtual bool ShipIfCan(IUnitOfWork uow)
