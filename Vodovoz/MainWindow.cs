@@ -627,4 +627,12 @@ public partial class MainWindow: Gtk.Window
 		if (ActionArchive.Active)
 			SwitchToUI ("archive.xml");
 	}
+
+	protected void OnGazTicketActionActivated (object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<GazTicket>(),
+			() => new OrmReference(typeof(GazTicket))
+		);
+	}
 }

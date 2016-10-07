@@ -300,6 +300,8 @@
     <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\ResidueMap.cs" />
     <Compile Include="Domain\Residue.cs" />
+    <Compile Include="Domain\Logistic\GazTicket.cs" />
+    <Compile Include="HibernateMapping\Logistic\GazTicketMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

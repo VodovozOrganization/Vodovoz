@@ -452,6 +452,8 @@
     <Compile Include="Dialogs\ResidueDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ResidueDlg.cs" />
     <Compile Include="Representations\ResidueVM.cs" />
+    <Compile Include="Dialogs\Logistic\GazTicketDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.GazTicketDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
