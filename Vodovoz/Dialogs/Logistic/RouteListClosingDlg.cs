@@ -121,6 +121,10 @@ namespace Vodovoz
 			}
 			if(UoW.IsNew)
 				Initialize(routeListAddressesView.Items);
+
+			hbox6.Remove(vboxHidenPanel);
+			rightsidepanel1.Panel = vboxHidenPanel;
+
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 			LoadDataFromFine();
