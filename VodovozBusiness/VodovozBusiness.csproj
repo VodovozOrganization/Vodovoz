@@ -309,6 +309,8 @@
     <Compile Include="gtk-gui\Vodovoz.FuelOperationMap.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelOperation.cs" />
     <Compile Include="HibernateMapping\Documents\FuelDocumentMap.cs" />
+    <Compile Include="HibernateMapping\Documents\FuelDocumentItemMap.cs" />
+    <Compile Include="Domain\Documents\FuelDocumentItem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

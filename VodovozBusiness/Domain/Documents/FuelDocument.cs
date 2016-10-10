@@ -2,6 +2,7 @@
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {

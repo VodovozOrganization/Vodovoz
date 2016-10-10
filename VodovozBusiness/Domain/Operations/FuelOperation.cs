@@ -1,7 +1,9 @@
 ﻿using System;
+using QSOrmProject;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -29,7 +31,7 @@ namespace Vodovoz
 		private decimal litersGived;
 
 		[Display (Name = "Выдано литров топлива")]
-		public virtual DateTime LitersGived {
+		public virtual decimal LitersGived {
 			get { return litersGived; }
 			set {SetField(ref litersGived, value, () => LitersGived);}
 		}
@@ -37,7 +39,7 @@ namespace Vodovoz
 		private decimal litersOutlayed;
 
 		[Display (Name = "Потрачено литров топлива")]
-		public virtual DateTime LitersOutlayed {
+		public virtual decimal LitersOutlayed {
 			get { return litersOutlayed; }
 			set {SetField(ref litersOutlayed, value, () => LitersOutlayed);}
 		}
