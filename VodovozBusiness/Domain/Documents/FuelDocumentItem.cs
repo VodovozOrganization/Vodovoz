@@ -2,6 +2,7 @@
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
@@ -34,6 +35,14 @@ namespace Vodovoz
 		public virtual int  TicketsCount {
 			get { return ticketsCount; }
 			set { SetField(ref ticketsCount, value, () => TicketsCount); }
+		}
+
+		private IList<FuelDocumentItem> items;
+
+		[Display (Name = "Строки")]
+		public virtual IList<FuelDocumentItem>  Items {
+			get { return items; }
+			set { SetField(ref items, value, () => Items); }
 		}
 
 		public FuelDocumentItem()
