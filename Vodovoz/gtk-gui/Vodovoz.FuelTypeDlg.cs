@@ -87,6 +87,7 @@ namespace Vodovoz
 			this.yspinbuttonCost.Name = "yspinbuttonCost";
 			this.yspinbuttonCost.Adjustment.PageIncrement = 1;
 			this.yspinbuttonCost.ClimbRate = 1;
+			this.yspinbuttonCost.Digits = ((uint)(2));
 			this.yspinbuttonCost.Numeric = true;
 			this.yspinbuttonCost.ValueAsDecimal = 0m;
 			this.yspinbuttonCost.ValueAsInt = 0;

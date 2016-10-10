@@ -28,7 +28,7 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			yentryName.Binding.AddBinding 	  (Entity, e => e.Name, w => w.Text).InitializeFromSource();
-			yspinbuttonCost.Binding.AddBinding(Entity, e => e.Cost, w => w.Value).InitializeFromSource();
+			yspinbuttonCost.Binding.AddBinding(Entity, e => e.Cost, w => w.ValueAsDecimal).InitializeFromSource();
 		}
 
 		public override bool Save ()

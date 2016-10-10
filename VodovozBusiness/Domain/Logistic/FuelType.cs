@@ -23,11 +23,11 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref name, value, () => Name); }
 		}
 
-		double cost;
+		decimal cost;
 
 		[Display (Name = "Название")]
 		[Required (ErrorMessage = "Цена должна быть заполнена.")]
-		public virtual double Cost {
+		public virtual decimal Cost {
 			get { return cost; }
 			set { SetField (ref cost, value, () => Cost); }
 		}
