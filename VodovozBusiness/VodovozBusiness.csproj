@@ -304,6 +304,11 @@
     <Compile Include="HibernateMapping\Logistic\GazTicketMap.cs" />
     <Compile Include="HibernateMapping\Operations\FuelOperationMap.cs" />
     <Compile Include="Domain\Operations\FuelOperation.cs" />
+    <Compile Include="Domain\Documents\FuelDocument.cs" />
+    <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FuelOperationMap.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FuelOperation.cs" />
+    <Compile Include="HibernateMapping\Documents\FuelDocumentMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -320,6 +325,9 @@
   <ItemGroup>
     <EmbeddedResource Include="HibernateMapping\Organization\Database.hbm.xml">
       <LogicalName>Vodovoz.Database.hbm.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="gtk-gui\gui.stetic">
+      <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

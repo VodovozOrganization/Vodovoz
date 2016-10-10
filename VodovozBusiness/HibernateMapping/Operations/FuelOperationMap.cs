@@ -7,7 +7,7 @@ namespace Vodovoz.HMap
 	{
 		public FuelOperationMap ()
 		{
-			Table ("deposit_operations");
+			Table ("fuel_operations");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
