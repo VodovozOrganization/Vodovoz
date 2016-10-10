@@ -302,6 +302,8 @@
     <Compile Include="Domain\Residue.cs" />
     <Compile Include="Domain\Logistic\GazTicket.cs" />
     <Compile Include="HibernateMapping\Logistic\GazTicketMap.cs" />
+    <Compile Include="HibernateMapping\Operations\FuelOperationMap.cs" />
+    <Compile Include="Domain\Operations\FuelOperation.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
