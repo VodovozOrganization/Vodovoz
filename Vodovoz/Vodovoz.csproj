@@ -454,6 +454,8 @@
     <Compile Include="Representations\ResidueVM.cs" />
     <Compile Include="Dialogs\Logistic\GazTicketDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.GazTicketDlg.cs" />
+    <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -444,8 +444,10 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionFuelTypeActivated (object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof(FuelType));
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<FuelType>(),
+			() => new OrmReference(typeof(FuelType))
+		);
 	}
 
 	protected void OnActionDeliveryShiftActivated (object sender, EventArgs e)
