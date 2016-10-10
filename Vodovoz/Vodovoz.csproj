@@ -138,7 +138,6 @@
     <Compile Include="gtk-gui\Vodovoz.OrganizationDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.EmployeeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CarsDlg.cs" />
-    <Compile Include="Dialogs\CarsDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.NomenclatureDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.CounterpartyDlg.cs" />
     <Compile Include="PricesView.cs" />
@@ -452,10 +451,11 @@
     <Compile Include="Dialogs\ResidueDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ResidueDlg.cs" />
     <Compile Include="Representations\ResidueVM.cs" />
-    <Compile Include="Dialogs\Logistic\GazTicketDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.GazTicketDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
+    <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
+    <Compile Include="Dialogs\Logistic\GasTicketDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
