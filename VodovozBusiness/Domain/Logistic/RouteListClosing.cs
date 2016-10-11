@@ -62,6 +62,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref bottleFine, value, () => BottleFine); }
 		}
 
+		private FuelOperation fuelOutlayedOperation;
+
+		[Display (Name = "Операции расхода топлива")]
+		public virtual FuelOperation FuelOutlayedOperation {
+			get { return fuelOutlayedOperation; }
+			set {SetField(ref fuelOutlayedOperation, value, () => FuelOutlayedOperation);}
+		}
+
 		#endregion
 
 		public virtual string Title{
@@ -360,6 +368,26 @@ namespace Vodovoz.Domain.Logistic
 					address.Order.ChangeStatus(OrderStatus.NotDelivered);
 			}
 			ClosingDate = DateTime.Now;
+		}
+
+		public virtual void UpdateFuelOperation(IUnitOfWork uow) {
+			if (RouteList.ActualDistance == 0) {
+				if (FuelOutlayedOperation != null) {
+					uow.Delete(FuelOutlayedOperation);
+					FuelOutlayedOperation = null;
+				}
+			} else {
+				if (FuelOutlayedOperation == null) {
+					FuelOutlayedOperation = new FuelOperation();
+				}
+				decimal litresOutlayed = (decimal) RouteList.Car.FuelConsumption
+					/ 100 * RouteList.ActualDistance;
+				
+				FuelOutlayedOperation.Driver 		 = RouteList.Driver;
+				FuelOutlayedOperation.Fuel 			 = RouteList.Car.FuelType;
+				FuelOutlayedOperation.OperationTime  = DateTime.Now;
+				FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
+			}
 		}
 	}
 }

@@ -301,6 +301,8 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			Entity.UpdateFuelOperation(UoW);
+
 			var valid = new QSValidator<RouteListClosing> (Entity);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -460,19 +462,27 @@ namespace Vodovoz
 
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
 
-			if(track != null)
+			bool hasTrack = track != null && track.Distance.HasValue;
+			buttonGetDistFromTrack.Sensitive = hasTrack;
+
+			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:f1} км.", track.Distance));
 			
-			if(Entity.RouteList.Car.FuelType != null)
+			if (Entity.RouteList.Car.FuelType != null)
 				text.Add(string.Format("Вид топлива: {0}", Entity.RouteList.Car.FuelType.Name));
+			else
+				text.Add("Не указан вид топлива");
 			
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
 					fc / 100 * Entity.RouteList.ActualDistance, fc));
 
-			var fuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-				UoW, Entity.RouteList.Driver, Entity.RouteList.Car.FuelType);
+			if (Entity.RouteList.Car.FuelType != null)
+			{
+				var fuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
+					                 UoW, Entity.RouteList.Driver, Entity.RouteList.Car.FuelType);
 
-			text.Add(string.Format("Текущий остаток топлива {0} л.", fuelBalance));
+				text.Add(string.Format("Текущий остаток топлива {0} л.", fuelBalance));
+			}
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
@@ -502,6 +512,12 @@ namespace Vodovoz
 		protected void OnYspinActualDistanceValueChanged (object sender, EventArgs e)
 		{
 			UpdateFuelInfo();
+		}
+
+		protected void OnButtonGetDistFromTrackClicked (object sender, EventArgs e)
+		{
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
+			Entity.RouteList.ActualDistance = (decimal)track.Distance.Value;
 		}
 	}
 

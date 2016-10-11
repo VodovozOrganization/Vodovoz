@@ -4,7 +4,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vodovoz
+namespace Vodovoz.Domain.Logistic
 {
 	public class FuelDocument: PropertyChangedBase, IDomainObject
 	{
@@ -28,7 +28,7 @@ namespace Vodovoz
 
 		private FuelOperation operation;
 
-		[Display (Name = "Номер операции")]
+		[Display (Name = "Операции выдачи")]
 		public virtual FuelOperation Operation {
 			get { return operation; }
 			set {SetField(ref operation, value, () => Operation);}

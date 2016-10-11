@@ -4,7 +4,7 @@ using Vodovoz.Domain.Logistic;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 
-namespace Vodovoz
+namespace Vodovoz.Domain.Logistic
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 	NominativePlural = "строки оплаты топлива",
