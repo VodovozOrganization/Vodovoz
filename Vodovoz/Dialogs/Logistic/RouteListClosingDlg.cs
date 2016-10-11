@@ -84,9 +84,6 @@ namespace Vodovoz
 			speccomboShift.Binding.AddBinding(routelist, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 			speccomboShift.Sensitive = false;
 
-			yspinPlannedDistance.Binding.AddBinding(routelist, rl => rl.PlannedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinPlannedDistance.Sensitive = false;
-
 			yspinActualDistance.Binding.AddBinding(routelist, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
 			yspinActualDistance.IsEditable = true;
 
@@ -129,6 +126,7 @@ namespace Vodovoz
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 			LoadDataFromFine();
 			OnItemsUpdated();
+			UpdateFuelInfo();
 		}
 
 		protected void Initialize(IList<RouteListItem> items)
@@ -456,6 +454,29 @@ namespace Vodovoz
 			CalculateTotal();
 		}
 
+		private void UpdateFuelInfo() {
+			var text = new List<string>();
+			decimal fc = (decimal)Entity.RouteList.Car.FuelConsumption;
+
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
+
+			if(track != null)
+				text.Add(string.Format("Расстояние по треку: {0:f1} км.", track.Distance));
+			
+			if(Entity.RouteList.Car.FuelType != null)
+				text.Add(string.Format("Вид топлива: {0}", Entity.RouteList.Car.FuelType.Name));
+			
+			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
+					fc / 100 * Entity.RouteList.ActualDistance, fc));
+
+			var fuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
+				UoW, Entity.RouteList.Driver, Entity.RouteList.Car.FuelType);
+
+			text.Add(string.Format("Текущий остаток топлива {0} л.", fuelBalance));
+
+			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
+		}
+
 		void LoadDataFromFine()
 		{
 			if (Entity.BottleFine == null)
@@ -476,6 +497,11 @@ namespace Vodovoz
 				if (found != null)
 					found.UseFine = true;
 			}
+		}
+
+		protected void OnYspinActualDistanceValueChanged (object sender, EventArgs e)
+		{
+			UpdateFuelInfo();
 		}
 	}
 
