@@ -12,7 +12,7 @@ namespace Vodovoz.Repository.Operations
 {
 	public static class FuelRepository
 	{
-		public static int GetFuelBalance(IUnitOfWork UoW, Employee driver, FuelType fuel, DateTime? before = null)
+		public static decimal GetFuelBalance(IUnitOfWork UoW, Employee driver, FuelType fuel, DateTime? before = null)
 		{
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
@@ -32,9 +32,9 @@ namespace Vodovoz.Repository.Operations
 
 		class FuelQueryResult
 		{
-			public int Gived{get;set;}
-			public int Outlayed{get;set;}
-			public int FuelBalance{
+			public decimal Gived{get;set;}
+			public decimal Outlayed{get;set;}
+			public decimal FuelBalance{
 				get{
 					return Gived - Outlayed;
 				}
