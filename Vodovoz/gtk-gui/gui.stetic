@@ -17368,6 +17368,7 @@ RegistrationNumber</property>
                         <property name="Type">TextOnly</property>
                         <property name="Label" translatable="yes">Удалить</property>
                         <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnButtonDeleteTicketClicked" />
                       </widget>
                       <packing>
                         <property name="Position">1</property>
