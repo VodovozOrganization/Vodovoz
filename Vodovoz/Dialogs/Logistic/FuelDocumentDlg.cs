@@ -126,7 +126,7 @@ namespace Vodovoz
 				}
 
 				totalBalance += FuelBalance;
-				text.Add(string.Format("Текущий остаток топлива {0} л.", totalBalance));
+				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", totalBalance));
 			}
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);

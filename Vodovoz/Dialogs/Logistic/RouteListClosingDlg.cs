@@ -484,9 +484,10 @@ namespace Vodovoz
 				text.Add(string.Format("Текущий остаток топлива {0} л.", fuelBalance));
 			}
 
-			if (Entity.FuelGivedDocument != null)
+			if (Entity.FuelGivedDocument?.Operation != null)
 			{
-				text.Add(string.Format("Выдано {0:F2} литров", Entity.FuelGivedDocument.Operation.LitersGived));
+				text.Add(string.Format("Выдано {0:F2} литров",
+					Entity.FuelGivedDocument.Operation.LitersGived));
 			}
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
@@ -550,7 +551,7 @@ namespace Vodovoz
 			{
 				UoW.Session.Refresh(Entity.FuelGivedDocument);
 			}
-
+			UpdateFuelInfo();
 		}
 
 	}
