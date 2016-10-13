@@ -190,8 +190,11 @@ namespace Vodovoz.Domain.Logistic
 				item.Order.OrderStatus = OrderStatus.UnloadingOnStock;
 			}
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Id);
-			track.CalculateDistance();
-			UoW.Save(track);
+			if (track != null)
+			{
+				track.CalculateDistance();
+				UoW.Save(track);
+			}
 		}
 
 		public virtual bool ShipIfCan(IUnitOfWork uow)
