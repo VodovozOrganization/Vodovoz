@@ -124,6 +124,7 @@ namespace Vodovoz
 
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
+
 			LoadDataFromFine();
 			OnItemsUpdated();
 			UpdateFuelInfo();
@@ -490,6 +491,8 @@ namespace Vodovoz
 					Entity.FuelGivedDocument.Operation.LitersGived));
 			}
 
+			buttonDeleteTicket.Sensitive = Entity.FuelGivedDocument != null;
+
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
 
@@ -554,6 +557,15 @@ namespace Vodovoz
 			UpdateFuelInfo();
 		}
 
+		protected void OnButtonDeleteTicketClicked (object sender, EventArgs e)
+		{
+			if (Entity.FuelGivedDocument != null)
+			{
+				UoW.Delete(Entity.FuelGivedDocument);
+				Entity.FuelGivedDocument = null;
+			}
+			UpdateFuelInfo();
+		}
 	}
 
 	public class ReturnsNode{
