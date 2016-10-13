@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModel
 				var queryRoutes = UoW.Session.QueryOver<RouteList> (() => routeListAlias)
 					.JoinAlias (rl => rl.Driver, () => employeeAlias)
 					.JoinAlias (rl => rl.Car, () => carAlias)
-				.Where (r => routeListAlias.Status == RouteListStatus.EnRoute);
+				.Where (r => routeListAlias.Status == RouteListStatus.OnClosing);
 
 				if (Filter.RestrictWarehouse != null) {
 
