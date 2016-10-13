@@ -257,7 +257,7 @@ namespace Vodovoz
 			var bottleDifference = bottlesReturnedToWarehouse-bottlesReturnedTotal;
 			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
-			checkUseBottleFine.Visible = bottleDifference != 0;
+			checkUseBottleFine.Visible = bottleDifference <= 0;
 			if (bottleDifference != 0)
 			{
 				checkUseBottleFine.Label = String.Format("({0:C})", defaultBottle.SumOfDamage * (-bottleDifference));
