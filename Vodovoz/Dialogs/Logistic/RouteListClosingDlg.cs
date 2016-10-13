@@ -466,14 +466,14 @@ namespace Vodovoz
 			buttonGetDistFromTrack.Sensitive = hasTrack;
 
 			if(hasTrack)
-				text.Add(string.Format("Расстояние по треку: {0:f1} км.", track.Distance));
+				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.Distance));
 			
 			if (Entity.RouteList.Car.FuelType != null)
 				text.Add(string.Format("Вид топлива: {0}", Entity.RouteList.Car.FuelType.Name));
 			else
 				text.Add("Не указан вид топлива");
 			
-			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
+			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:f2} л/100км)",
 					fc / 100 * Entity.RouteList.ActualDistance, fc));
 
 			if (Entity.RouteList.Car.FuelType != null)
@@ -482,6 +482,11 @@ namespace Vodovoz
 					                 UoW, Entity.RouteList.Driver, Entity.RouteList.Car.FuelType);
 
 				text.Add(string.Format("Текущий остаток топлива {0} л.", fuelBalance));
+			}
+
+			if (Entity.FuelGivedDocument != null)
+			{
+				text.Add(string.Format("Выдано {0:F2} литров", Entity.FuelGivedDocument.Operation.LitersGived));
 			}
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
