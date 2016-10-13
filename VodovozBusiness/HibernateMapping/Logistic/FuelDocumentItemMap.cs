@@ -16,8 +16,6 @@ namespace Vodovoz
 
 			References (x => x.GasTicket).Column ("gas_ticket_id");
 			References (x => x.Document).Column ("fuel_document_id");
-
-			HasMany (x => x.Items).Cascade.AllDeleteOrphan().Inverse().KeyColumn ("fuel_document_id");
 		}
 	}
 }

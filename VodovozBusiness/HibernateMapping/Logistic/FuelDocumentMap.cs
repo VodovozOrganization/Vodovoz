@@ -18,7 +18,9 @@ namespace Vodovoz
 
 			References (x => x.Fuel).Column ("fuel_type_id");
 			References (x => x.Driver).Column ("driver_id");
-			References (x => x.Operation).Column ("fuel_operation_id");
+			References (x => x.Operation).Column ("fuel_operation_id").Cascade.All();
+
+			HasMany(x => x.FuelTickets).KeyColumn("fuel_document_id").LazyLoad().Inverse().Cascade.AllDeleteOrphan();
 		}
 	}
 }

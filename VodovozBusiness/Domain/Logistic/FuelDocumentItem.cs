@@ -37,14 +37,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref ticketsCount, value, () => TicketsCount); }
 		}
 
-		private IList<FuelDocumentItem> items;
-
-		[Display (Name = "Строки")]
-		public virtual IList<FuelDocumentItem>  Items {
-			get { return items; }
-			set { SetField(ref items, value, () => Items); }
-		}
-
 		public FuelDocumentItem()
 		{
 		}

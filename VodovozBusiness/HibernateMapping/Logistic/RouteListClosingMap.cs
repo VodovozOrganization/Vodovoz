@@ -16,7 +16,7 @@ namespace Vodovoz.HMap
 			References (x => x.Cashier).Column("cashier_id");
 			References (x => x.RouteList).Column("route_list_id");
 			References (x  => x.FuelOutlayedOperation).Column("fuel_outlayed_operation_id").Cascade.All();
-			References (x  => x.FuelOutlayedOperation).Column("fuel_gived_document_id").Cascade.All();
+			References (x  => x.FuelGivedDocument).Column("fuel_gived_document_id");
 		}
 	}
 }

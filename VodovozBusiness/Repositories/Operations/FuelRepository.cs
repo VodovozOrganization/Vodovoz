@@ -7,12 +7,13 @@ using Vodovoz.Domain.Operations;
 using Order = Vodovoz.Domain.Orders.Order;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using NHibernate.Criterion;
 
 namespace Vodovoz.Repository.Operations
 {
 	public static class FuelRepository
 	{
-		public static decimal GetFuelBalance(IUnitOfWork UoW, Employee driver, FuelType fuel, DateTime? before = null)
+		public static decimal GetFuelBalance(IUnitOfWork UoW, Employee driver, FuelType fuel, DateTime? before = null, params int[] excludeOperationsIds)
 		{
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
@@ -20,14 +21,15 @@ namespace Vodovoz.Repository.Operations
 				.Where(() => operationAlias.Driver.Id == driver.Id)
 				.Where(() => operationAlias.Fuel.Id == fuel.Id);
 			if (before.HasValue)
-				queryResult.Where(() => operationAlias.OperationTime < before);			
+				queryResult.Where(() => operationAlias.OperationTime < before);
+			if (excludeOperationsIds != null)
+				queryResult.Where(() => !operationAlias.Id.IsIn(excludeOperationsIds));
 			
-			var bottles =  queryResult.SelectList(list => list
+			return queryResult.SelectList(list => list
 				.SelectSum(() => operationAlias.LitersGived).WithAlias(() => result.Gived)
 				.SelectSum(() => operationAlias.LitersOutlayed).WithAlias(() => result.Outlayed)
 				).TransformUsing(Transformers.AliasToBean<FuelQueryResult>()).List<FuelQueryResult>()
 				.FirstOrDefault()?.FuelBalance ?? 0;
-			return bottles;
 		}
 
 		class FuelQueryResult

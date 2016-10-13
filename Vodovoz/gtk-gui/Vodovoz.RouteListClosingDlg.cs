@@ -743,6 +743,7 @@ namespace Vodovoz
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonPrint.Clicked += new global::System.EventHandler (this.OnButtonPrintClicked);
 			this.yspinActualDistance.ValueChanged += new global::System.EventHandler (this.OnYspinActualDistanceValueChanged);
+			this.buttonAddTicket.Clicked += new global::System.EventHandler (this.OnButtonAddTicketClicked);
 			this.buttonGetDistFromTrack.Clicked += new global::System.EventHandler (this.OnButtonGetDistFromTrackClicked);
 			this.checkUseBottleFine.Toggled += new global::System.EventHandler (this.OnCheckUseBottleFineToggled);
 			this.buttonBottleAddEditFine.Clicked += new global::System.EventHandler (this.OnButtonBottleAddEditFineClicked);

@@ -73,7 +73,7 @@ namespace Vodovoz.Domain.Logistic
 		private FuelDocument fuelGivedDocument;
 
 		[Display (Name = "Документ выдачи топлива")]
-		public virtual FuelOperation FuelGivedDocument {
+		public virtual FuelDocument FuelGivedDocument {
 			get { return fuelGivedDocument; }
 			set {SetField(ref fuelGivedDocument, value, () => FuelGivedDocument);}
 		}

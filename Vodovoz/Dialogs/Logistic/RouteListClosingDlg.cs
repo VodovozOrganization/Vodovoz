@@ -519,6 +519,35 @@ namespace Vodovoz
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
 			Entity.RouteList.ActualDistance = (decimal)track.Distance.Value;
 		}
+
+		protected void OnButtonAddTicketClicked (object sender, EventArgs e)
+		{
+			var document = Entity.FuelGivedDocument;
+			FuelDocumentDlg tab;
+
+			if (document == null) {
+				tab = new FuelDocumentDlg(Entity.RouteList);
+			}
+			else {
+				tab = new FuelDocumentDlg(Entity.RouteList, document.Id);
+			}
+			tab.EntitySaved += FuelDoc_EntitySaved;
+			TabParent.AddSlaveTab(this, tab);
+		}
+
+		void FuelDoc_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
+		{
+			if (Entity.FuelGivedDocument == null)
+			{
+				Entity.FuelGivedDocument = e.Entity as FuelDocument;
+			}
+			else
+			{
+				UoW.Session.Refresh(Entity.FuelGivedDocument);
+			}
+
+		}
+
 	}
 
 	public class ReturnsNode{
