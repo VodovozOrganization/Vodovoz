@@ -72,11 +72,14 @@ namespace Vodovoz
 
 		protected void OnButtonFromFileClicked(object sender, EventArgs e)
 		{
-			Entity.TempalteFile = TemplatesMain.GetTemplateFromDisk();
+			byte[] tempTempalte = TemplatesMain.GetTemplateFromDisk();
+			if (tempTempalte != null)
+				Entity.TempalteFile = tempTempalte;
 		}
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
+			//System.IO.File.GetAccessControl(@"/tmp/Доп. соглашение долгосрочной аренды.odt");
 			worker.OpenInOffice(Entity, false, FileEditMode.Template);
 		}
 	}
