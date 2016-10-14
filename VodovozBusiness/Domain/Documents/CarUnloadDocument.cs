@@ -105,6 +105,15 @@ namespace Vodovoz.Domain.Documents
 						yield return new ValidationResult (String.Format("Для оборудования {0}, не указана заявка на обслуживание.", item.MovementOperation.Nomenclature.Name),
 							new[] { this.GetPropertyName (o => o.Items)});
 				}
+
+				if (item.MovementOperation.Nomenclature.Category == NomenclatureCategory.bottle)
+				{
+					if (item.MovementOperation.Amount < 0)
+					{
+						yield return new ValidationResult (String.Format("Для оборудования {0}, нельзя указывать отрицательное значение.", item.MovementOperation.Nomenclature.Name),
+							new[] { this.GetPropertyName (o => o.Items)});
+					}
+				}
 			}
 
 			var hasDublicateServiceClaims = Items

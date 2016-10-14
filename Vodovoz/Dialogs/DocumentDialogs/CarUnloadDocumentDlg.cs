@@ -57,6 +57,10 @@ namespace Vodovoz
 		{
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
+
+			bottlereceptionview1.UoW = UoW;
+			returnsreceptionview1.UoW = UoW;
+
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
@@ -64,8 +68,7 @@ namespace Vodovoz
 			yentryrefRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryrefRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
 
-			bottlereceptionview1.UoW = UoW;
-			returnsreceptionview1.UoW = UoW;
+
 			returnsreceptionview1.Warehouse = Entity.Warehouse;
 
 			UpdateWidgetsVisible();
