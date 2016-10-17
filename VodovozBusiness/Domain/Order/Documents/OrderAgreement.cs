@@ -1,10 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
+using QSReport;
+using QSDocTemplates;
+using QSOrmProject;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderAgreement : OrderDocument
+	public class OrderAgreement : OrderDocument, ITemplatePrntDoc, ITemplateOdtDocument
 	{
 		#region implemented abstract members of OrderDocument
 
@@ -35,7 +38,20 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override string DocumentDate {
 			get { return AdditionalAgreement.DocumentDate; }
 		}
-			
+
+		public virtual void PrepareTemplate(IUnitOfWork uow)
+		{
+			if (AdditionalAgreement.AgreementTemplate == null && AdditionalAgreement.AgreementTemplate != null)
+				AdditionalAgreement.UpdateContractTemplate(uow);
+
+			if (AdditionalAgreement.AgreementTemplate != null)
+				AdditionalAgreement.AgreementTemplate.DocParser.SetDocObject(AdditionalAgreement);
+		}
+
+		public virtual IDocTemplate GetTemplate()
+		{
+			return AdditionalAgreement.AgreementTemplate;
+		}
 	}
 }
 

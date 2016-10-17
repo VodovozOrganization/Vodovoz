@@ -91,5 +91,9 @@ namespace Vodovoz.Domain.Orders.Documents
 		ShetFactura
 	}
 
+	public interface ITemplateOdtDocument
+	{
+		void PrepareTemplate(IUnitOfWork uow);
+	}
 }
 

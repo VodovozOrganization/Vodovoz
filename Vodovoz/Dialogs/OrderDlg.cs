@@ -21,6 +21,7 @@ using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
+using QSDocTemplates;
 
 namespace Vodovoz
 {
@@ -811,19 +812,34 @@ namespace Vodovoz
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
 		{
-			var selectedPrintableDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
-				.Where(doc => doc.PrintType != PrinterType.None).ToList();
-			if (selectedPrintableDocuments.Count > 0)
-			{
-				string whatToPrint = selectedPrintableDocuments.Count > 1 
-					? "документов" 
-					: "документа \""+selectedPrintableDocuments.First().Type.GetEnumTitle()+"\"";
-				if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
-					UoWGeneric.Save();
-				DocumentPrinter.PrintAll(selectedPrintableDocuments);
-			}
-		}
+			var allList = treeDocuments.GetSelectedObjects().Cast<OrderDocument>().ToList();
+			if (allList.Count <= 0)
+				return;
 
+			allList.OfType<ITemplateOdtDocument>().ToList().ForEach(x => x.PrepareTemplate(UoW));
+
+			string whatToPrint = allList.Count > 1 
+				? "документов" 
+				: "документа \""+allList.First().Type.GetEnumTitle()+"\"";
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint(typeof(Order), whatToPrint))
+				UoWGeneric.Save();
+			
+			var selectedPrintableRDLDocuments = treeDocuments.GetSelectedObjects().Cast<OrderDocument>()
+				.Where(doc => doc.PrintType == PrinterType.RDL).ToList();
+			if (selectedPrintableRDLDocuments.Count > 0)
+			{
+				DocumentPrinter.PrintAll(selectedPrintableRDLDocuments);
+			}
+
+			var selectedPrintableODTDocuments = treeDocuments.GetSelectedObjects()
+				.OfType<ITemplatePrntDoc>().ToList();
+			if (selectedPrintableODTDocuments.Count > 0)
+			{
+				TemplatePrinter.PrintAll(selectedPrintableODTDocuments);
+			}
+
+		}
+			
 		protected void OnTreeServiceClaimRowActivated (object o, RowActivatedArgs args)
 		{
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
