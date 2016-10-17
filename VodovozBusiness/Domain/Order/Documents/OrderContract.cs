@@ -1,10 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Client;
+using QSDocTemplates;
 
 namespace Vodovoz.Domain.Orders.Documents
 {
-	public class OrderContract : OrderDocument
+	public class OrderContract : OrderDocument, ITemplatePrntDoc
 	{
 		#region implemented abstract members of OrderDocument
 					
@@ -31,8 +32,11 @@ namespace Vodovoz.Domain.Orders.Documents
 		public override string DocumentDate {
 			get { return String.Format ("от {0}", Contract.IssueDate.ToShortDateString ()); }
 		}
-
-	
+			
+		public virtual IDocTemplate GetTemplate()
+		{
+			return Contract.ContractTemplate;
+		}
 	}
 
 }
