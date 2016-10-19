@@ -5,6 +5,10 @@ using QSContacts;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;
+using Gamma.ColumnConfig;
+using QSTDI;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -39,6 +43,11 @@ namespace Vodovoz
 			personsView.Persons = UoWGeneric.Root.Persons;
 			datepickerIssue.DateChanged += OnIssueDateChanged;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty);
+
+			ytreeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
+				.AddColumn("Точки доставки").AddTextRenderer(x => x.CompiledAddress).Finish();
+
+			ytreeDeliveryPoints.ItemsDataSource = Entity.ObservableDeliveryPoints;
 		}
 
 		private void OnIssueDateChanged (object sender, EventArgs e)
@@ -60,6 +69,21 @@ namespace Vodovoz
 			logger.Info ("Ok");
 			return true;
 		}
+
+		protected void OnButtonAddDeliveryPointsClicked (object sender, EventArgs e)
+		{
+			var dlg = new ReferenceRepresentation(new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty));
+			dlg.Mode = OrmReferenceMode.MultiSelect;
+			dlg.ObjectSelected += Dlg_ObjectSelected;
+			TabParent.AddSlaveTab (this, dlg);
+		}
+
+		void Dlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			var points = UoW.GetById<DeliveryPoint>(e.GetSelectedIds()).ToList();
+			points.ForEach(Entity.AddDeliveryPoint);
+		}
+			
 	}
 }
 

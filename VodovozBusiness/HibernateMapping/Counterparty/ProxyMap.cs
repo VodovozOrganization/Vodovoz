@@ -14,9 +14,12 @@ namespace Vodovoz.HMap
 			Map (x => x.IssueDate).Column ("issue_date");
 			Map (x => x.StartDate).Column ("start_date");
 			Map (x => x.ExpirationDate).Column ("expiration_date");
-			References (x => x.DeliveryPoint).Column ("delivery_point_id");
 			References (x => x.Counterparty).Column ("counterparty_id");
 
+			HasManyToMany(x => x.DeliveryPoints).Table("counterparty_delivery_points")
+				.ParentKeyColumn("counterparty_proxy_id")
+				.ChildKeyColumn("delivery_point_id")
+				.LazyLoad();
 			HasMany (x => x.Persons).Cascade.AllDeleteOrphan ().LazyLoad ()
 				.KeyColumn ("counterparty_proxy_id");
 		}

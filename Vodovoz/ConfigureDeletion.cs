@@ -326,11 +326,11 @@ namespace Vodovoz
 				.AddDeleteDependence<DepositOperation> (item => item.DeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.WriteoffDeliveryPoint)
 				.AddDeleteDependence<CounterpartyMovementOperation> (item => item.IncomingDeliveryPoint)
-				.AddDeleteDependence<Proxy> (item => item.DeliveryPoint)
 				.AddDeleteDependence<Order>(x => x.DeliveryPoint)
 				.AddDeleteDependence<MovementDocument>(x => x.FromDeliveryPoint)
 				.AddDeleteDependence<MovementDocument>(x => x.ToDeliveryPoint)
 				.AddDeleteDependence<WriteoffDocument>(x => x.DeliveryPoint)
+				.AddRemoveFromDependence<Proxy> (item => item.DeliveryPoints)
 				.AddClearDependence<ServiceClaim>(x => x.DeliveryPoint);
 			
 			#endregion
