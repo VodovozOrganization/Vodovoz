@@ -44,10 +44,19 @@ namespace Vodovoz
 			datepickerIssue.DateChanged += OnIssueDateChanged;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty);
 
+			buttonDeleteDeliveryPoint.Sensitive = false;
+
 			ytreeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
 				.AddColumn("Точки доставки").AddTextRenderer(x => x.CompiledAddress).Finish();
+			ytreeDeliveryPoints.Selection.Mode = Gtk.SelectionMode.Multiple;
 
 			ytreeDeliveryPoints.ItemsDataSource = Entity.ObservableDeliveryPoints;
+			ytreeDeliveryPoints.Selection.Changed += YtreeDeliveryPoints_Selection_Changed;
+		}
+
+		void YtreeDeliveryPoints_Selection_Changed (object sender, EventArgs e)
+		{
+			buttonDeleteDeliveryPoint.Sensitive = ytreeDeliveryPoints.GetSelectedObjects().Length > 0;
 		}
 
 		private void OnIssueDateChanged (object sender, EventArgs e)
@@ -69,7 +78,13 @@ namespace Vodovoz
 			logger.Info ("Ok");
 			return true;
 		}
-
+			
+		void Dlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			var points = UoW.GetById<DeliveryPoint>(e.GetSelectedIds()).ToList();
+			points.ForEach(Entity.AddDeliveryPoint);
+		}
+			
 		protected void OnButtonAddDeliveryPointsClicked (object sender, EventArgs e)
 		{
 			var dlg = new ReferenceRepresentation(new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty));
@@ -78,12 +93,14 @@ namespace Vodovoz
 			TabParent.AddSlaveTab (this, dlg);
 		}
 
-		void Dlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		protected void OnButtonDeleteDekiveryPointClicked (object sender, EventArgs e)
 		{
-			var points = UoW.GetById<DeliveryPoint>(e.GetSelectedIds()).ToList();
-			points.ForEach(Entity.AddDeliveryPoint);
+			var selected = ytreeDeliveryPoints.GetSelectedObjects<DeliveryPoint>();
+			foreach (var toDelete in selected)
+			{
+				Entity.ObservableDeliveryPoints.Remove(toDelete);
+			}
 		}
-			
 	}
 }
 

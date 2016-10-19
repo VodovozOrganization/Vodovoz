@@ -9220,12 +9220,13 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Button" id="buttonDeleteDekiveryPoint">
+                  <widget class="Gtk.Button" id="buttonDeleteDeliveryPoint">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Type">TextOnly</property>
                     <property name="Label" translatable="yes">Удалить</property>
                     <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonDeleteDekiveryPointClicked" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>

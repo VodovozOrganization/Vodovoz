@@ -34,7 +34,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonAddDeliveryPoints;
 		
-		private global::Gtk.Button buttonDeleteDekiveryPoint;
+		private global::Gtk.Button buttonDeleteDeliveryPoint;
 		
 		private global::Gtk.Label label1;
 		
@@ -226,13 +226,13 @@ namespace Vodovoz
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.buttonDeleteDekiveryPoint = new global::Gtk.Button ();
-			this.buttonDeleteDekiveryPoint.CanFocus = true;
-			this.buttonDeleteDekiveryPoint.Name = "buttonDeleteDekiveryPoint";
-			this.buttonDeleteDekiveryPoint.UseUnderline = true;
-			this.buttonDeleteDekiveryPoint.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
-			this.hbox8.Add (this.buttonDeleteDekiveryPoint);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonDeleteDekiveryPoint]));
+			this.buttonDeleteDeliveryPoint = new global::Gtk.Button ();
+			this.buttonDeleteDeliveryPoint.CanFocus = true;
+			this.buttonDeleteDeliveryPoint.Name = "buttonDeleteDeliveryPoint";
+			this.buttonDeleteDeliveryPoint.UseUnderline = true;
+			this.buttonDeleteDeliveryPoint.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
+			this.hbox8.Add (this.buttonDeleteDeliveryPoint);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonDeleteDeliveryPoint]));
 			w15.Position = 1;
 			w15.Expand = false;
 			w15.Fill = false;
@@ -347,6 +347,7 @@ namespace Vodovoz
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonAddDeliveryPoints.Clicked += new global::System.EventHandler (this.OnButtonAddDeliveryPointsClicked);
+			this.buttonDeleteDeliveryPoint.Clicked += new global::System.EventHandler (this.OnButtonDeleteDekiveryPointClicked);
 		}
 	}
 }
