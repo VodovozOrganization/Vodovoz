@@ -7,6 +7,9 @@ using QSContacts;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate;
 
 namespace Vodovoz.ViewModel
 {
@@ -26,10 +29,12 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			ProxiesVMNode resultAlias = null;
 			Person personAlias = null;
+			DeliveryPoint deliveryPointAlias = null;
 
 			var proxieslist = UoW.Session.QueryOver<Proxy> (() => proxyAlias)
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias)
 				.JoinAlias (c => c.Persons, () => personAlias)
+				.JoinAlias (c => c.DeliveryPoints, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where (() => counterpartyAlias.Id == CounterpartyUoW.Root.Id)
 				.SelectList(list => list
 					.SelectGroup(() => proxyAlias.Id).WithAlias(() => resultAlias.Id)
@@ -38,6 +43,11 @@ namespace Vodovoz.ViewModel
 					.Select(() => proxyAlias.StartDate).WithAlias(() => resultAlias.StartDate)
 					.Select(() => proxyAlias.ExpirationDate).WithAlias(() => resultAlias.EndDate)
 					.SelectCount(() => personAlias.Id ).WithAlias(() => resultAlias.PeopleCount)
+					.Select(Projections.SqlFunction (
+						new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.Property (() => deliveryPointAlias.ShortAddress),
+						Projections.Constant ("\n"))).WithAlias(() => resultAlias.DeliveryPoints)
 				)
 				.TransformUsing(Transformers.AliasToBean<ProxiesVMNode>())
 				.List<ProxiesVMNode>();
@@ -50,6 +60,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Начало действия").SetDataProperty (node => node.Start)
 			.AddColumn ("Окончание действия").SetDataProperty (node => node.End)
 			.AddColumn ("Кол-во лиц").SetDataProperty (node => node.PeopleCount)
+			.AddColumn ("Точки доставки").AddTextRenderer(node => node.DeliveryPoints)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -105,6 +116,8 @@ namespace Vodovoz.ViewModel
 		}
 			
 		public int PeopleCount{ get; set;}
+
+		public string DeliveryPoints { get; set;}
 	}
 }
 
