@@ -398,12 +398,16 @@ namespace Vodovoz
 		}
 
 		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e){					
-			NomenclatureSelected (this, new OrmReferenceObjectSectedEventArgs (UoWGeneric.Session.Get<Nomenclature> (e.ObjectId)));
+			AddNomenclature(UoWGeneric.Session.Get<Nomenclature> (e.ObjectId));
 		}
 
 		void NomenclatureSelected (object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			Nomenclature nomenclature = e.Subject as Nomenclature;
+			AddNomenclature( e.Subject as Nomenclature);
+		}
+
+		void AddNomenclature(Nomenclature nomenclature) 
+		{
 			if (nomenclature.Category == NomenclatureCategory.additional || nomenclature.Category == NomenclatureCategory.bottle){
 				UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
 			} else if (nomenclature.Category == NomenclatureCategory.disposableBottleWater){
