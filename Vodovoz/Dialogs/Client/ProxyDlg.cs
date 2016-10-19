@@ -42,16 +42,14 @@ namespace Vodovoz
 				UoWGeneric.Root.Persons = new List<Person> ();
 			personsView.Persons = UoWGeneric.Root.Persons;
 			datepickerIssue.DateChanged += OnIssueDateChanged;
-			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Counterparty);
 
 			buttonDeleteDeliveryPoint.Sensitive = false;
 
 			ytreeDeliveryPoints.ColumnsConfig = FluentColumnsConfig<DeliveryPoint>.Create()
 				.AddColumn("Точки доставки").AddTextRenderer(x => x.CompiledAddress).Finish();
-			ytreeDeliveryPoints.Selection.Mode = Gtk.SelectionMode.Multiple;
-
-			ytreeDeliveryPoints.ItemsDataSource = Entity.ObservableDeliveryPoints;
-			ytreeDeliveryPoints.Selection.Changed += YtreeDeliveryPoints_Selection_Changed;
+			ytreeDeliveryPoints.Selection.Mode 		= Gtk.SelectionMode.Multiple;
+			ytreeDeliveryPoints.ItemsDataSource 	= Entity.ObservableDeliveryPoints;
+			ytreeDeliveryPoints.Selection.Changed  += YtreeDeliveryPoints_Selection_Changed;
 		}
 
 		void YtreeDeliveryPoints_Selection_Changed (object sender, EventArgs e)

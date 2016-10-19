@@ -30,7 +30,7 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.DataDatePicker datepickerExpiration;
 		
-		private global::Gtk.HBox hbox8;
+		private global::Gtk.HBox hbox6;
 		
 		private global::Gtk.Button buttonAddDeliveryPoints;
 		
@@ -44,13 +44,9 @@ namespace Vodovoz
 		
 		private global::Gtk.Label label4;
 		
-		private global::Gtk.Label label6;
-		
 		private global::Gtk.Label label7;
 		
 		private global::QSContacts.PersonsView personsView;
-		
-		private global::Gtk.DataBindings.DataEntryReferenceVM referenceDeliveryPoint;
 
 		protected virtual void Build ()
 		{
@@ -100,7 +96,7 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(5)), ((uint)(3)), false);
+			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(4)), ((uint)(3)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -149,13 +145,14 @@ namespace Vodovoz
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
 			this.ytreeDeliveryPoints = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeDeliveryPoints.WidthRequest = 400;
 			this.ytreeDeliveryPoints.CanFocus = true;
 			this.ytreeDeliveryPoints.Name = "ytreeDeliveryPoints";
 			this.GtkScrolledWindow.Add (this.ytreeDeliveryPoints);
 			this.datatable1.Add (this.GtkScrolledWindow);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.GtkScrolledWindow]));
 			w9.TopAttach = ((uint)(1));
-			w9.BottomAttach = ((uint)(4));
+			w9.BottomAttach = ((uint)(3));
 			w9.LeftAttach = ((uint)(2));
 			w9.RightAttach = ((uint)(3));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -211,35 +208,35 @@ namespace Vodovoz
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.hbox8 = new global::Gtk.HBox ();
-			this.hbox8.Name = "hbox8";
-			this.hbox8.Spacing = 6;
-			// Container child hbox8.Gtk.Box+BoxChild
+			this.hbox6 = new global::Gtk.HBox ();
+			this.hbox6.Name = "hbox6";
+			this.hbox6.Spacing = 6;
+			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonAddDeliveryPoints = new global::Gtk.Button ();
 			this.buttonAddDeliveryPoints.CanFocus = true;
 			this.buttonAddDeliveryPoints.Name = "buttonAddDeliveryPoints";
 			this.buttonAddDeliveryPoints.UseUnderline = true;
 			this.buttonAddDeliveryPoints.Label = global::Mono.Unix.Catalog.GetString ("Добавить");
-			this.hbox8.Add (this.buttonAddDeliveryPoints);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonAddDeliveryPoints]));
+			this.hbox6.Add (this.buttonAddDeliveryPoints);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonAddDeliveryPoints]));
 			w14.Position = 0;
 			w14.Expand = false;
 			w14.Fill = false;
-			// Container child hbox8.Gtk.Box+BoxChild
+			// Container child hbox6.Gtk.Box+BoxChild
 			this.buttonDeleteDeliveryPoint = new global::Gtk.Button ();
 			this.buttonDeleteDeliveryPoint.CanFocus = true;
 			this.buttonDeleteDeliveryPoint.Name = "buttonDeleteDeliveryPoint";
 			this.buttonDeleteDeliveryPoint.UseUnderline = true;
 			this.buttonDeleteDeliveryPoint.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
-			this.hbox8.Add (this.buttonDeleteDeliveryPoint);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonDeleteDeliveryPoint]));
+			this.hbox6.Add (this.buttonDeleteDeliveryPoint);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.buttonDeleteDeliveryPoint]));
 			w15.Position = 1;
 			w15.Expand = false;
 			w15.Fill = false;
-			this.datatable1.Add (this.hbox8);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox8]));
-			w16.TopAttach = ((uint)(4));
-			w16.BottomAttach = ((uint)(5));
+			this.datatable1.Add (this.hbox6);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox6]));
+			w16.TopAttach = ((uint)(3));
+			w16.BottomAttach = ((uint)(4));
 			w16.LeftAttach = ((uint)(2));
 			w16.RightAttach = ((uint)(3));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -287,58 +284,32 @@ namespace Vodovoz
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label6 = new global::Gtk.Label ();
-			this.label6.Name = "label6";
-			this.label6.Xalign = 1F;
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Точка доставки:");
-			this.datatable1.Add (this.label6);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label6]));
-			w21.TopAttach = ((uint)(4));
-			w21.BottomAttach = ((uint)(5));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label ();
 			this.label7.Name = "label7";
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Точки доставки");
 			this.datatable1.Add (this.label7);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label7]));
-			w22.LeftAttach = ((uint)(2));
-			w22.RightAttach = ((uint)(3));
-			w22.XOptions = ((global::Gtk.AttachOptions)(4));
-			w22.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label7]));
+			w21.LeftAttach = ((uint)(2));
+			w21.RightAttach = ((uint)(3));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.personsView = new global::QSContacts.PersonsView ();
 			this.personsView.Events = ((global::Gdk.EventMask)(256));
 			this.personsView.Name = "personsView";
 			this.datatable1.Add (this.personsView);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.personsView]));
-			w23.TopAttach = ((uint)(3));
-			w23.BottomAttach = ((uint)(4));
-			w23.LeftAttach = ((uint)(1));
-			w23.RightAttach = ((uint)(2));
-			w23.XOptions = ((global::Gtk.AttachOptions)(4));
-			w23.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceDeliveryPoint = new global::Gtk.DataBindings.DataEntryReferenceVM ();
-			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
-			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
-			this.referenceDeliveryPoint.InheritedDataSource = true;
-			this.referenceDeliveryPoint.Mappings = "DeliveryPoint";
-			this.referenceDeliveryPoint.InheritedBoundaryDataSource = false;
-			this.referenceDeliveryPoint.CursorPointsEveryType = false;
-			this.datatable1.Add (this.referenceDeliveryPoint);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceDeliveryPoint]));
-			w24.TopAttach = ((uint)(4));
-			w24.BottomAttach = ((uint)(5));
-			w24.LeftAttach = ((uint)(1));
-			w24.RightAttach = ((uint)(2));
-			w24.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.personsView]));
+			w22.TopAttach = ((uint)(3));
+			w22.BottomAttach = ((uint)(4));
+			w22.LeftAttach = ((uint)(1));
+			w22.RightAttach = ((uint)(2));
+			w22.XOptions = ((global::Gtk.AttachOptions)(4));
+			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add (this.datatable1);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
-			w25.Position = 1;
-			w25.Expand = false;
-			w25.Fill = false;
+			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.datatable1]));
+			w23.Position = 1;
+			w23.Expand = false;
+			w23.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
