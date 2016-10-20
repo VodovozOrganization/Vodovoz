@@ -417,7 +417,7 @@ namespace Vodovoz
 
 			if (!documents.GetIterFirst (out iter))
 				return;
-			try {
+//			try {
 				do {
 					//Шевелим прогрессбаром. I'd like to move it, move it.
 					if (progressBar.Fraction + progressStep > 1)
@@ -535,11 +535,11 @@ namespace Vodovoz
 						documents.SetValue (iter, (int)Columns.RecipientAccountColorCol, OddRowColor);
 					}
 				} while (documents.IterNext (ref iter));
-			} catch (Exception ex) {
-				progressBar.Text = "Произошла ошибка!";
-				progressBar.Fraction = 0;
-				throw ex;
-			}
+//			} catch (Exception ex) {
+//				progressBar.Text = "Произошла ошибка!";
+//				progressBar.Fraction = 0;
+//				throw ex;
+//			}
 			progressBar.Text = "Исправление/создание недостающих объектов завершено";
 		}
 
