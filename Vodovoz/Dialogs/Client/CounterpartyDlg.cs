@@ -94,6 +94,9 @@ namespace Vodovoz
 			enumPayment.ItemsEnum = typeof(PaymentType);
 			enumPayment.Binding.AddBinding(Entity, s => s.PaymentMethod, w => w.SelectedItemOrNull).InitializeFromSource();
 
+			enumPersonType.ItemsEnum = typeof(PersonType);
+			enumPersonType.Binding.AddBinding(Entity, s => s.PersonType, w => w.SelectedItemOrNull).InitializeFromSource();
+
 			enumDefaultDocumentType.ItemsEnum = typeof(DefaultDocumentType);
 			enumDefaultDocumentType.Binding.AddBinding(Entity, s => s.DefaultDocumentType, w => w.SelectedItemOrNull).InitializeFromSource();
 
