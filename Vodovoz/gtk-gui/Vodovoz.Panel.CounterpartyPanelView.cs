@@ -38,7 +38,7 @@ namespace Vodovoz.Panel
 		
 		private global::Vodovoz.WrapLabel labelName;
 		
-		private global::Gamma.GtkWidgets.yLabel ylabel1;
+		private global::Gamma.GtkWidgets.yLabel ylabelDebtInfo;
 
 		protected virtual void Build ()
 		{
@@ -206,11 +206,11 @@ namespace Vodovoz.Panel
 			w15.RightAttach = ((uint)(2));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel ();
-			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("Баланс:");
-			this.table1.Add (this.ylabel1);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.ylabel1]));
+			this.ylabelDebtInfo = new global::Gamma.GtkWidgets.yLabel ();
+			this.ylabelDebtInfo.Name = "ylabelDebtInfo";
+			this.ylabelDebtInfo.LabelProp = global::Mono.Unix.Catalog.GetString ("Баланс:");
+			this.table1.Add (this.ylabelDebtInfo);
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.ylabelDebtInfo]));
 			w16.TopAttach = ((uint)(1));
 			w16.BottomAttach = ((uint)(2));
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));

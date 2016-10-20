@@ -43,10 +43,26 @@ namespace Vodovoz.Panel
 			Counterparty = (InfoProvider as ICounterpartyInfoProvider)?.Counterparty;
 			if (Counterparty == null)
 				return;
-			labelName.Text = Counterparty.FullName;
+			labelName.LabelProp = Counterparty.FullName;
 			textviewComment.Buffer.Text = Counterparty.Comment;
+
 			var debt = MoneyRepository.GetCounterpartyDebt(InfoProvider.UoW, Counterparty);
-			labelDebt.Text = CurrencyWorks.GetShortCurrencyString(debt);
+			string labelDebtFormat 		 = "<span {0}>{1}</span>";
+			string backgroundDebtColor 	 = "";
+			if (debt > 0)
+			{
+				backgroundDebtColor 	 = "bacground=\"red\"";
+				ylabelDebtInfo.LabelProp = "Долг:";
+			}
+			if (debt < 0)
+//			else
+			{
+				backgroundDebtColor 	 = "bacground=\"lightgreen\"";
+				ylabelDebtInfo.LabelProp = "Баланс:";
+				debt 	= -debt;
+			}
+			labelDebt.Markup = string.Format(labelDebtFormat, backgroundDebtColor, CurrencyWorks.GetShortCurrencyString(debt));
+
 			var latestOrder = OrderRepository.GetLatestCompleteOrderForCounterparty(InfoProvider.UoW, Counterparty);
 			if (latestOrder != null)
 			{
