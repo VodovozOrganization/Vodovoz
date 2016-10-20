@@ -129,11 +129,10 @@ namespace Vodovoz.ViewModel
 		public string RowColor { get { return IsActive ? "black" : "grey"; } }
 
 		public string Point { 
-			get { if (String.IsNullOrWhiteSpace (Name) && String.IsNullOrWhiteSpace (City) && String.IsNullOrWhiteSpace (Street))
+			get { if (String.IsNullOrWhiteSpace (Name))
 					return String.Empty;
 				else
-					return String.Format ("{0}г. {1}, ул. {2}, д.{3}, квартира/офис {4}",
-						(Name == String.Empty ? "" : "\"" + Name + "\": "), City, Street, Building, Room); }
+					return String.Format ("{0}", (Name == String.Empty ? "" : "\"" + Name + "\": ")); }
 		}
 	}
 }
