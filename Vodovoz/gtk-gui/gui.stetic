@@ -914,6 +914,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5911,7 +5912,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementsView" design-size="491 300">
+  <widget class="Gtk.Bin" id="Vodovoz.AdditionalAgreementsView" design-size="505 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -27799,7 +27800,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.GtkWidgets.yLabel" id="ylabel1">
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabelDebtInfo">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Баланс:</property>
               </widget>
