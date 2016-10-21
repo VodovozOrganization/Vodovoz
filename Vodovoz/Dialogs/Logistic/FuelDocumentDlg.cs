@@ -15,7 +15,7 @@ namespace Vodovoz
 
 		GenericObservableList<TicketsRow> rows;
 
-		public RouteList RouteList { get; set; }
+		public RouteListClosing RouteListClosing { get; set; }
 
 		public decimal FuelBalance { get; set; }
 
@@ -26,27 +26,27 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public FuelDocumentDlg (RouteList routeList, int id)
+		public FuelDocumentDlg (RouteListClosing routeListClosing, int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FuelDocument> (id);
-			RouteList = routeList;
+			RouteListClosing = routeListClosing;
 			ConfigureDlg ();
 		}
 
 		//public FuelDocumentDlg (FuelDocument sub) : this (sub.Id) {}
 
-		public FuelDocumentDlg(RouteList routeList)
+		public FuelDocumentDlg(RouteListClosing routeListClosing)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument> ();
 
-			RouteList = routeList;
+			RouteListClosing = routeListClosing;
 
 			UoWGeneric.Root.Date = DateTime.Now;
-			UoWGeneric.Root.Driver = routeList.Car.Driver;
-			UoWGeneric.Root.Fuel = routeList.Car.FuelType;
-			UoWGeneric.Root.LiterCost = routeList.Car.FuelType.Cost;
+			UoWGeneric.Root.Driver = routeListClosing.RouteList.Car.Driver;
+			UoWGeneric.Root.Fuel = routeListClosing.RouteList.Car.FuelType;
+			UoWGeneric.Root.LiterCost = routeListClosing.RouteList.Car.FuelType.Cost;
 
 			ConfigureDlg();
 		}
@@ -72,7 +72,7 @@ namespace Vodovoz
 			rows = new GenericObservableList<TicketsRow>(list);
 			rows.ListContentChanged += Rows_ListContentChanged;
 
-			yspinDistance.Text = RouteList.ActualDistance.ToString();
+			yspinDistance.Text = RouteListClosing.RouteList.ActualDistance.ToString();
 
 			disablespinMoney.Binding.AddBinding(Entity, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
 
@@ -91,53 +91,60 @@ namespace Vodovoz
 
 		private void UpdateFuelInfo() {
 			var text = new List<string>();
-			decimal fc = (decimal)RouteList.Car.FuelConsumption;
+			RouteList routeList = RouteListClosing.RouteList;
+			decimal fc = (decimal)routeList.Car.FuelConsumption;
 
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, RouteList.Id);
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, RouteListClosing.Id);
 			bool hasTrack = track != null && track.Distance.HasValue;
 
 			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:f1} км.", track.Distance));
 			
-			if(RouteList.ActualDistance > 0)
-				text.Add(string.Format("Оплачиваемое расстояние {0}", RouteList.ActualDistance));
+			if(routeList.ActualDistance > 0)
+				text.Add(string.Format("Оплачиваемое расстояние {0}", routeList.ActualDistance));
 
-			if (RouteList.Car.FuelType != null)
-				text.Add(string.Format("Вид топлива: {0}", RouteList.Car.FuelType.Name));
-			else
+			if (routeList.Car.FuelType != null)
+			{
+				var fuelOtlayedOp = RouteListClosing.FuelOutlayedOperation;
+				var entityOp = Entity.Operation;
+
+				text.Add(string.Format("Вид топлива: {0}", routeList.Car.FuelType.Name));
+
+				var exclude = new List<int>();
+				if (entityOp != null && entityOp.Id != 0)
+				{
+					exclude.Add(Entity.Operation.Id);
+				}
+				if (fuelOtlayedOp != null && fuelOtlayedOp.Id != 0)
+				{
+					exclude.Add(RouteListClosing.FuelOutlayedOperation.Id);
+				}
+				if (exclude.Count == 0)
+					exclude = null;
+
+				FuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
+						UoW, routeList.Driver, routeList.Car.FuelType, null, exclude?.ToArray());
+
+				text.Add(string.Format("Остаток без документа {0:F2} л.", FuelBalance));
+			} else {
 				text.Add("Не указан вид топлива");
+			}
 
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
-				fc / 100 * RouteList.ActualDistance, fc));
-
-			if (RouteList.Car.FuelType != null)
-			{
-				decimal totalBalance = 0;
-				if (Entity.Operation == null || Entity.Operation.Id == 0)
-				{
-					FuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-						UoW, RouteList.Driver, RouteList.Car.FuelType);
-				}
-				else
-				{
-					FuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-						UoW, RouteList.Driver, RouteList.Car.FuelType, null, Entity.Operation.Id);
-					totalBalance -= Entity.Operation.LitersGived;
-				}
-
-				totalBalance += FuelBalance;
-				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", totalBalance));
-			}
+				fc / 100 * routeList.ActualDistance, fc));
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
 
 		private void UpdateResutlInfo () 
 		{
-			var text = new List<string>();
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
+			decimal spentFuel = (decimal)RouteListClosing.RouteList.Car.FuelConsumption
+								 / 100 * RouteListClosing.RouteList.ActualDistance;
+			
+			var text = new List<string>();
 			text.Add(string.Format("Итого выдано {0:N2} литров", litersGived));
-			text.Add(string.Format("Баланс после выдачи {0:N2}", FuelBalance + litersGived));
+			text.Add(string.Format("Баланс после выдачи {0:N2}", FuelBalance + litersGived - spentFuel));
 			labelResultInfo.Text = string.Join("\n", text);
 		}
 
@@ -178,11 +185,11 @@ namespace Vodovoz
 
 		protected void OnButtonSetRemainClicked (object sender, EventArgs e)
 		{
-			decimal balance = 0;
+			decimal litersBalance = 0;
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
-			balance = FuelBalance + litersGived;
+			litersBalance = FuelBalance + litersGived;
 
-			decimal moneyToPay = -balance * Entity.Fuel.Cost;
+			decimal moneyToPay = -litersBalance * Entity.Fuel.Cost;
 
 			if (Entity.PayedForFuel == null && moneyToPay > 0)
 				Entity.PayedForFuel = 0;

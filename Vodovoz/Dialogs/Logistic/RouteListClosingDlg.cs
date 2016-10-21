@@ -25,7 +25,10 @@ namespace Vodovoz
 {
 	public partial class RouteListClosingDlg : OrmGtkDialogBase<RouteListClosing>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
+
+		private Track track = null;
+		private decimal balanceBeforeOp = default(decimal);
 
 		RouteList routelist;
 		List<ReturnsNode> allReturnsToWarehouse;
@@ -37,47 +40,47 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteListClosing>(closing.Id);
 			routelist = UoW.GetById<RouteList>(closing.RouteList.Id);
-			TabName = String.Format("Закрытие маршрутного листа №{0}",routelist.Id);
-			ConfigureDlg ();
+			TabName = String.Format("Закрытие маршрутного листа №{0}", routelist.Id);
+			ConfigureDlg();
 		}
 
-		public RouteListClosingDlg (int routeListId)
+		public RouteListClosingDlg(int routeListId)
 		{
-			this.Build ();
+			this.Build();
 
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteListClosing>();
 			routelist = UoW.GetById<RouteList>(routeListId);
 
 			Entity.RouteList = routelist;
-			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if(Entity.Cashier == null)
+			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if (Entity.Cashier == null)
 			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
 				return;
 			}
-			TabName = String.Format("Закрытие маршрутного листа №{0}",routelist.Id);
-			ConfigureDlg ();
+			TabName = String.Format("Закрытие маршрутного листа №{0}", routelist.Id);
+			ConfigureDlg();
 		}
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{			
 			referenceCar.Binding.AddBinding(routelist, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = false;
 
-			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
+			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
 			referenceDriver.Binding.AddBinding(routelist, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
-			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			referenceDriver.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceDriver.Sensitive = false;
 
-			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
+			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
 			referenceForwarder.Binding.AddBinding(routelist, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
-			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			referenceForwarder.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Sensitive = false;
 
 			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
 			referenceLogistican.Binding.AddBinding(routelist, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
-			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			referenceLogistican.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceLogistican.Sensitive = false;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
@@ -100,23 +103,25 @@ namespace Vodovoz
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
-			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(routelist.Id, new []{NomenclatureCategory.bottle})
-				.Sum(item=>item.Amount);
+			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(routelist.Id, new []{ NomenclatureCategory.bottle })
+				.Sum(item => item.Amount);
 			var returnableOrderItems = routeListAddressesView.Items
 				.Where(address => address.IsDelivered())
 				.SelectMany(address => address.Order.OrderItems)
-				.Where(orderItem=>!orderItem.Nomenclature.Serial)
+				.Where(orderItem => !orderItem.Nomenclature.Serial)
 				.Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
-			foreach(var item in returnableOrderItems){
+			foreach (var item in returnableOrderItems)
+			{
 				if (allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
-					allReturnsToWarehouse.Add(new ReturnsNode{
-						Name=item.Nomenclature.Name,
-						Trackable=item.Nomenclature.Serial,
-						NomenclatureId = item.Nomenclature.Id,
-						Amount=0
-					});
+					allReturnsToWarehouse.Add(new ReturnsNode
+						{
+							Name = item.Nomenclature.Name,
+							Trackable = item.Nomenclature.Serial,
+							NomenclatureId = item.Nomenclature.Id,
+							Amount = 0
+						});
 			}
-			if(UoW.IsNew)
+			if (UoW.IsNew)
 				Initialize(routeListAddressesView.Items);
 
 			hbox6.Remove(vboxHidenPanel);
@@ -127,6 +132,7 @@ namespace Vodovoz
 
 			LoadDataFromFine();
 			OnItemsUpdated();
+			GetFuelInfo();
 			UpdateFuelInfo();
 		}
 
@@ -137,22 +143,22 @@ namespace Vodovoz
 				var nomenclatures = routeListItem.Order.OrderItems
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 					.Where(item => !item.Nomenclature.Serial).ToList();
-				foreach(var item in nomenclatures)
+				foreach (var item in nomenclatures)
 				{
 					item.ActualCount = routeListItem.IsDelivered() ? item.Count : 0;
 				}
-				var equipments = routeListItem.Order.OrderEquipments.Where(orderEq=>orderEq.Equipment!=null);
-				foreach(var item in equipments)
+				var equipments = routeListItem.Order.OrderEquipments.Where(orderEq => orderEq.Equipment != null);
+				foreach (var item in equipments)
 				{
 					var returnedToWarehouse = allReturnsToWarehouse.Any(ret => ret.Id == item.Equipment.Id && ret.Amount > 0);
 					item.Confirmed = routeListItem.IsDelivered()
-						&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
-							|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
+					&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
+					|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
 				}
 				routeListItem.BottlesReturned = routeListItem.IsDelivered()
 					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
-				routeListItem.TotalCash = routeListItem.IsDelivered() && 
-					routeListItem.Order.PaymentType == PaymentType.cash
+				routeListItem.TotalCash = routeListItem.IsDelivered() &&
+				routeListItem.Order.PaymentType == PaymentType.cash
 					? routeListItem.Order.SumToReceive : 0;
 				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(routeListItem.Order.BottlesReturn);
 				routeListItem.DepositsCollected = routeListItem.IsDelivered()
@@ -161,7 +167,7 @@ namespace Vodovoz
 			}
 		}
 
-		void Routelistdiscrepancyview_FineChanged (object sender, EventArgs e)
+		void Routelistdiscrepancyview_FineChanged(object sender, EventArgs e)
 		{
 			CalculateTotal();
 		}
@@ -173,7 +179,7 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, dlg);
 		}
 
-		void OnRouteListItemChanged (object aList, int[] aIdx)
+		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{			
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
@@ -188,9 +194,10 @@ namespace Vodovoz
 			}
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
-		}			
+		}
 
-		void OnItemsUpdated(){
+		void OnItemsUpdated()
+		{
 			CalculateTotal();
 			UpdateButtonState();
 		}
@@ -203,9 +210,9 @@ namespace Vodovoz
 		private bool buttonFineEditState = false;
 		Nomenclature defaultBottle;
 
-		void CalculateTotal ()
+		void CalculateTotal()
 		{
-			var items = routeListAddressesView.Items.Where(item=>item.IsDelivered());
+			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
 			bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
@@ -251,10 +258,10 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
-			if(defaultBottle == null)
+			if (defaultBottle == null)
 				defaultBottle = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
 			
-			var bottleDifference = bottlesReturnedToWarehouse-bottlesReturnedTotal;
+			var bottleDifference = bottlesReturnedToWarehouse - bottlesReturnedTotal;
 			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
 			checkUseBottleFine.Visible = bottleDifference < 0;
@@ -266,70 +273,72 @@ namespace Vodovoz
 
 			//Штрафы
 			decimal totalSumOfDamage = 0;
-			if(checkUseBottleFine.Active)
+			if (checkUseBottleFine.Active)
 				totalSumOfDamage += defaultBottle.SumOfDamage * (-bottleDifference);
 			totalSumOfDamage += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
 
 			StringBuilder fineText = new StringBuilder();
-			if(totalSumOfDamage != 0)
+			if (totalSumOfDamage != 0)
 			{
 				fineText.AppendLine(String.Format("Выб. ущерб: {0:C}", totalSumOfDamage));
 			}
-			if(Entity.BottleFine != null)
+			if (Entity.BottleFine != null)
 			{
 				fineText.AppendLine(String.Format("Штраф: {0:C}", Entity.BottleFine.TotalMoney));
 			}
 			labelBottleFine.LabelProp = fineText.ToString().TrimEnd('\n');
 			buttonBottleAddEditFine.Sensitive = totalSumOfDamage != 0;
 			buttonBottleDelFine.Sensitive = Entity.BottleFine != null;
-			if(buttonFineEditState != (Entity.BottleFine != null))
+			if (buttonFineEditState != (Entity.BottleFine != null))
 			{
-				(buttonBottleAddEditFine.Image as Image).Pixbuf  = new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(),
+				(buttonBottleAddEditFine.Image as Image).Pixbuf = new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(),
 					Entity.BottleFine != null ? "Vodovoz.icons.buttons.edit.png" : "Vodovoz.icons.buttons.add.png"
 				);
 				buttonFineEditState = Entity.BottleFine != null;
 			}
 		}
 
-		protected bool isConsistentWithUnloadDocument(){
+		protected bool isConsistentWithUnloadDocument()
+		{
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
 			bool hasFine = Entity.BottleFine != null;
-			var items = routeListAddressesView.Items.Where(item=>item.IsDelivered());
+			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
 			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies);
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
 			Entity.UpdateFuelOperation(UoW);
 
-			var valid = new QSValidator<RouteListClosing> (Entity);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+			var valid = new QSValidator<RouteListClosing>(Entity);
+			if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
 			UoW.Save();
 			return true;
 		}
 
-		protected void OnButtonAcceptClicked (object sender, EventArgs e)
+		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			if (!isConsistentWithUnloadDocument())
 				return;
 
-			var valid = new QSValidator<RouteList> (UoWGeneric.Root.RouteList, 
-				new Dictionary<object, object> {
-				{ "NewStatus", RouteListStatus.MileageCheck }
-			});
-			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+			var valid = new QSValidator<RouteList>(UoWGeneric.Root.RouteList, 
+				            new Dictionary<object, object>
+				{
+					{ "NewStatus", RouteListStatus.MileageCheck }
+				});
+			if (valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
 			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
 			var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations();
 			var depositsOperations = Entity.CreateDepositOperations(UoW);
 
-			Income cashIncome=null;
-			Expense cashExpense=null;
+			Income cashIncome = null;
+			Expense cashExpense = null;
 			var moneyMovementOperations = Entity.CreateMoneyMovementOperations(UoW, ref cashIncome, ref cashExpense);
 			bottleMovementOperations.ForEach(op => UoW.Save(op));
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
@@ -348,7 +357,7 @@ namespace Vodovoz
 			buttonAccept.Sensitive = false;
 		}
 
-		public List<ReturnsNode> GetReturnsToWarehouseByCategory(int routeListId,NomenclatureCategory[] categories)
+		public List<ReturnsNode> GetReturnsToWarehouseByCategory(int routeListId, NomenclatureCategory[] categories)
 		{
 			List<ReturnsNode> result = new List<ReturnsNode>();		
 			Nomenclature nomenclatureAlias = null;
@@ -360,19 +369,19 @@ namespace Vodovoz
 			var returnableItems = UoW.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
 				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
 				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
-				.Where(Restrictions.IsNotNull(Projections.Property(()=>movementOperationAlias.IncomingWarehouse)))
-				.JoinAlias(() => movementOperationAlias.Nomenclature, ()=>nomenclatureAlias)
-				.Where (() => !nomenclatureAlias.Serial)		
-				.Where (() => nomenclatureAlias.Category.IsIn(categories))
-				.SelectList (list => list
-					.SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
-					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
-					.Select (() => false).WithAlias (() => resultAlias.Trackable)
-					.Select (() => nomenclatureAlias.Category).WithAlias (() => resultAlias.NomenclatureCategory)
-					.SelectSum(()=>movementOperationAlias.Amount).WithAlias(()=>resultAlias.Amount)
-				)
-				.TransformUsing (Transformers.AliasToBean<ReturnsNode> ())
-				.List<ReturnsNode> ();
+				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
+				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => !nomenclatureAlias.Serial)		
+				.Where(() => nomenclatureAlias.Category.IsIn(categories))
+				.SelectList(list => list
+					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
+					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => false).WithAlias(() => resultAlias.Trackable)
+					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
+					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
+			                      )
+				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
+				.List<ReturnsNode>();
 
 			var returnableEquipment = UoW.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
 				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
@@ -431,14 +440,14 @@ namespace Vodovoz
 			TabParent.AddSlaveTab(this, fineDlg);
 		}
 
-		void FineDlgNew_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
+		void FineDlgNew_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
 		{
 			Entity.BottleFine = e.Entity as Fine;
 			CalculateTotal();
 			UpdateButtonState();
 		}
 
-		void FineDlgExist_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
+		void FineDlgExist_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
 		{
 			UoW.Session.Refresh(Entity.BottleFine);
 			CalculateTotal();
@@ -457,16 +466,44 @@ namespace Vodovoz
 			CalculateTotal();
 		}
 
-		private void UpdateFuelInfo() {
+		private void GetFuelInfo()
+		{
+			track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
+
+			var fuelOtlayedOp = UoWGeneric.Root.FuelOutlayedOperation;
+			var givedOp = Entity.FuelGivedDocument?.Operation;
+			//Проверяем существование операций и исключаем их.
+			var exclude = new List<int>();
+			if (givedOp != null && givedOp.Id != 0)
+			{
+				exclude.Add(givedOp.Id);
+			}
+			if (fuelOtlayedOp != null && fuelOtlayedOp.Id != 0)
+			{
+				exclude.Add(fuelOtlayedOp.Id);
+			}
+			if (exclude.Count == 0)
+				exclude = null;
+
+			if (Entity.RouteList.Car.FuelType != null)
+			{
+				balanceBeforeOp = Repository.Operations.FuelRepository.GetFuelBalance(
+					UoW, Entity.RouteList.Driver, Entity.RouteList.Car.FuelType,
+					null, exclude?.ToArray());
+			}
+		}
+
+		private void UpdateFuelInfo()
+		{
 			var text = new List<string>();
-			decimal fc = (decimal)Entity.RouteList.Car.FuelConsumption;
-
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
-
-			bool hasTrack = track != null && track.Distance.HasValue;
+			decimal spentFuel = (decimal)Entity.RouteList.Car.FuelConsumption
+			                    		/ 100 * routelist.ActualDistance;
+			
+			//Проверка существования трека и заполнения дистанции
+			bool hasTrack = track?.Distance.HasValue ?? false;
 			buttonGetDistFromTrack.Sensitive = hasTrack;
 
-			if(hasTrack)
+			if (hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.Distance));
 			
 			if (Entity.RouteList.Car.FuelType != null)
@@ -474,21 +511,27 @@ namespace Vodovoz
 			else
 				text.Add("Не указан вид топлива");
 			
-			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:f2} л/100км)",
-					fc / 100 * Entity.RouteList.ActualDistance, fc));
+			if (Entity.FuelGivedDocument?.Operation != null)
+				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
 
-			if (Entity.RouteList.Car.FuelType != null)
-			{
-				var fuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-					                 UoW, Entity.RouteList.Driver, Entity.RouteList.Car.FuelType);
-
-				text.Add(string.Format("Текущий остаток топлива {0} л.", fuelBalance));
-			}
+			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)",
+				spentFuel, (decimal)Entity.RouteList.Car.FuelConsumption));
 
 			if (Entity.FuelGivedDocument?.Operation != null)
 			{
 				text.Add(string.Format("Выдано {0:F2} литров",
-					Entity.FuelGivedDocument.Operation.LitersGived));
+						Entity.FuelGivedDocument.Operation.LitersGived));
+			}
+
+			if (Entity.RouteList.Car.FuelType != null)
+			{
+				//Исключаем операцию расхода, чтобы не пересчитывать ее 2 раза
+				int excludeId = 0;
+				if (Entity.FuelOutlayedOperation != null) {
+					excludeId = Entity.FuelOutlayedOperation.Id;
+				}
+				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
+					+ (Entity.FuelGivedDocument?.Operation.LitersGived ?? 0) - spentFuel));
 			}
 
 			buttonDeleteTicket.Sensitive = Entity.FuelGivedDocument != null;
@@ -501,10 +544,10 @@ namespace Vodovoz
 			if (Entity.BottleFine == null)
 				return;
 
-			if(defaultBottle == null)
+			if (defaultBottle == null)
 				defaultBottle = NomenclatureRepository.GetDefaultBottle(UoW);
 
-			foreach(var nom in Entity.BottleFine.Nomenclatures)
+			foreach (var nom in Entity.BottleFine.Nomenclatures)
 			{
 				if (nom.Nomenclature.Id == defaultBottle.Id)
 				{
@@ -518,33 +561,35 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnYspinActualDistanceValueChanged (object sender, EventArgs e)
+		protected void OnYspinActualDistanceValueChanged(object sender, EventArgs e)
 		{
 			UpdateFuelInfo();
 		}
 
-		protected void OnButtonGetDistFromTrackClicked (object sender, EventArgs e)
+		protected void OnButtonGetDistFromTrackClicked(object sender, EventArgs e)
 		{
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
 			Entity.RouteList.ActualDistance = (decimal)track.Distance.Value;
 		}
 
-		protected void OnButtonAddTicketClicked (object sender, EventArgs e)
+		protected void OnButtonAddTicketClicked(object sender, EventArgs e)
 		{
 			var document = Entity.FuelGivedDocument;
 			FuelDocumentDlg tab;
 
-			if (document == null) {
-				tab = new FuelDocumentDlg(Entity.RouteList);
+			if (document == null)
+			{
+				tab = new FuelDocumentDlg(UoWGeneric.Root);
 			}
-			else {
-				tab = new FuelDocumentDlg(Entity.RouteList, document.Id);
+			else
+			{
+				tab = new FuelDocumentDlg(UoWGeneric.Root, document.Id);
 			}
 			tab.EntitySaved += FuelDoc_EntitySaved;
 			TabParent.AddSlaveTab(this, tab);
 		}
 
-		void FuelDoc_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
+		void FuelDoc_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
 		{
 			if (Entity.FuelGivedDocument == null)
 			{
@@ -554,15 +599,17 @@ namespace Vodovoz
 			{
 				UoW.Session.Refresh(Entity.FuelGivedDocument);
 			}
+			Save();
 			UpdateFuelInfo();
 		}
 
-		protected void OnButtonDeleteTicketClicked (object sender, EventArgs e)
+		protected void OnButtonDeleteTicketClicked(object sender, EventArgs e)
 		{
 			if (Entity.FuelGivedDocument != null)
 			{
 				UoW.Delete(Entity.FuelGivedDocument);
 				Entity.FuelGivedDocument = null;
+				this.HasChanges = true;
 			}
 			UpdateFuelInfo();
 		}
