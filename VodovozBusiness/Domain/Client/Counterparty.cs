@@ -418,10 +418,8 @@ namespace Vodovoz.Domain.Client
 
 	public enum PersonType
 	{
-		[ItemTitleAttribute ("Физическое лицо")]
 		[Display 	 (Name = "Физическое лицо")]
 		natural,
-		[ItemTitleAttribute ("Юридическое лицо")]
 		[Display 	 (Name = "Юридическое лицо")]
 		legal
 	}
