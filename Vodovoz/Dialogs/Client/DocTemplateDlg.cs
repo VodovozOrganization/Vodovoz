@@ -79,7 +79,6 @@ namespace Vodovoz
 
 		protected void OnButtonEditClicked(object sender, EventArgs e)
 		{
-			//System.IO.File.GetAccessControl(@"/tmp/Доп. соглашение долгосрочной аренды.odt");
 			worker.OpenInOffice(Entity, false, FileEditMode.Template);
 		}
 	}
