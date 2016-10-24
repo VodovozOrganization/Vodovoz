@@ -914,7 +914,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2847,11 +2846,7 @@ Patronymic</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Upper">999</property>
-                        <property name="PageIncrement">10</property>
-                        <property name="StepIncrement">1</property>
-                        <property name="ClimbRate">1</property>
                         <property name="Digits">2</property>
-                        <property name="Numeric">True</property>
                         <property name="InheritedDataSource">True</property>
                         <property name="Mappings">FuelConsumption</property>
                         <property name="InheritedBoundaryDataSource">False</property>
@@ -3379,11 +3374,7 @@ Patronymic</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Upper">100000</property>
-                                <property name="PageIncrement">10</property>
-                                <property name="StepIncrement">1</property>
-                                <property name="ClimbRate">1</property>
                                 <property name="Digits">2</property>
-                                <property name="Numeric">True</property>
                                 <property name="ValueAsDecimal">0</property>
                                 <property name="ValueAsInt">0</property>
                               </widget>
@@ -3717,11 +3708,7 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Upper">999</property>
-                            <property name="PageIncrement">10</property>
-                            <property name="StepIncrement">1</property>
-                            <property name="ClimbRate">1</property>
                             <property name="Digits">3</property>
-                            <property name="Numeric">True</property>
                             <property name="InheritedDataSource">True</property>
                             <property name="Mappings">Weight</property>
                             <property name="InheritedBoundaryDataSource">False</property>
@@ -4201,6 +4188,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -4336,7 +4324,7 @@ Patronymic</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">2</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
                 <property name="MemberName" />
@@ -4486,7 +4474,6 @@ Patronymic</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="ShowScrollbars">True</property>
-                                <property name="Editable">False</property>
                                 <property name="Text" translatable="yes" />
                               </widget>
                             </child>
@@ -4516,7 +4503,6 @@ Patronymic</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="ShowScrollbars">True</property>
-                                <property name="Editable">False</property>
                                 <property name="Text" translatable="yes" />
                               </widget>
                             </child>
@@ -5017,10 +5003,7 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Upper">1000000</property>
-                            <property name="PageIncrement">10</property>
                             <property name="StepIncrement">100</property>
-                            <property name="ClimbRate">1</property>
-                            <property name="Numeric">True</property>
                             <property name="ValueAsDecimal">0</property>
                             <property name="ValueAsInt">0</property>
                           </widget>
@@ -7066,10 +7049,6 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">99999</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">Deposit</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -7268,11 +7247,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataSpinButton" id="spinMinWaterAmount">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">MinWaterAmount</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -7406,11 +7380,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">9000000</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">PriceDaily</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -7461,11 +7431,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">9000000</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">PriceMonthly</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -7516,11 +7482,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">99999</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">Deposit</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -8488,11 +8450,6 @@ Patronymic</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Lower">-5</property>
-                                <property name="Upper">100</property>
-                                <property name="PageIncrement">10</property>
-                                <property name="StepIncrement">1</property>
-                                <property name="ClimbRate">1</property>
-                                <property name="Numeric">True</property>
                                 <property name="ValueAsDecimal">0</property>
                                 <property name="ValueAsInt">0</property>
                               </widget>
@@ -8773,11 +8730,6 @@ Patronymic</property>
                           <widget class="Gamma.GtkWidgets.ySpinButton" id="spinMinutesToUnload">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
-                            <property name="Upper">100</property>
-                            <property name="PageIncrement">10</property>
-                            <property name="StepIncrement">1</property>
-                            <property name="ClimbRate">1</property>
-                            <property name="Numeric">True</property>
                             <property name="ValueAsDecimal">0</property>
                             <property name="ValueAsInt">0</property>
                           </widget>
@@ -11059,11 +11011,6 @@ Patronymic</property>
                   <widget class="Gtk.DataBindings.DataSpinButton" id="spinRentDays">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
                     <property name="InheritedDataSource">True</property>
                     <property name="Mappings">RentDays</property>
                     <property name="InheritedBoundaryDataSource">False</property>
@@ -12351,11 +12298,6 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataSpinButton" id="spinDelay">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="Value">3</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">MaxDelay</property>
@@ -14321,11 +14263,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Lower">1</property>
-                <property name="Upper">100</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="Value">1</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">Amount</property>
@@ -16119,11 +16056,6 @@ Patronymic</property>
                   <widget class="Gtk.SpinButton" id="spinAmount">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
                     <signal name="ValueChanged" handler="OnSpinAmountValueChanged" />
                   </widget>
                   <packing>
@@ -17187,11 +17119,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">10000</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
                 <property name="Digits">3</property>
-                <property name="Numeric">True</property>
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">PlannedDistance</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -17726,10 +17654,6 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">10000</property>
-                    <property name="PageIncrement">10</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
                     <property name="ValueAsDecimal">0</property>
                     <property name="ValueAsInt">0</property>
                     <signal name="ValueChanged" handler="OnYspinActualDistanceValueChanged" />
@@ -20947,9 +20871,7 @@ RegistrationNumber</property>
                     <property name="Upper">1000000</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="ValueAsDecimal">0</property>
                     <property name="ValueAsInt">0</property>
                   </widget>
@@ -21470,9 +21392,7 @@ RegistrationNumber</property>
                     <property name="Upper">1000000</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="ValueAsDecimal">0</property>
                     <property name="ValueAsInt">0</property>
                   </widget>
@@ -21846,9 +21766,7 @@ RegistrationNumber</property>
                     <property name="Upper">1000000</property>
                     <property name="PageIncrement">1000</property>
                     <property name="StepIncrement">100</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="ValueAsDecimal">0</property>
                     <property name="ValueAsInt">0</property>
                     <signal name="ValueChanged" handler="OnYspinMoneyValueChanged" />
@@ -24832,10 +24750,6 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Upper">10000</property>
-                        <property name="PageIncrement">10</property>
-                        <property name="StepIncrement">1</property>
-                        <property name="ClimbRate">1</property>
-                        <property name="Numeric">True</property>
                         <property name="ValueAsDecimal">0</property>
                         <property name="ValueAsInt">0</property>
                         <signal name="ValueChanged" handler="OnSpinBottlesReturnValueChanged" />
@@ -24859,10 +24773,6 @@ RegistrationNumber</property>
                         <property name="CanFocus">True</property>
                         <property name="Lower">-100000</property>
                         <property name="Upper">100000</property>
-                        <property name="PageIncrement">10</property>
-                        <property name="StepIncrement">1</property>
-                        <property name="ClimbRate">1</property>
-                        <property name="Numeric">True</property>
                         <signal name="ValueChanged" handler="OnSpinSumDifferenceValueChanged" />
                       </widget>
                       <packing>
@@ -26591,10 +26501,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">10000</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="ValueAsDecimal">0</property>
                 <property name="ValueAsInt">0</property>
               </widget>
@@ -26619,10 +26525,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">10000</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="ValueAsDecimal">0</property>
                 <property name="ValueAsInt">0</property>
               </widget>
@@ -27145,10 +27047,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">10000</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="ValueAsDecimal">0</property>
                 <property name="ValueAsInt">0</property>
               </widget>
@@ -27173,10 +27071,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">10000</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="ValueAsDecimal">0</property>
                 <property name="ValueAsInt">0</property>
               </widget>
@@ -27201,10 +27095,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">10000</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="ValueAsDecimal">0</property>
                 <property name="ValueAsInt">0</property>
               </widget>
@@ -30043,10 +29933,7 @@ RegistrationNumber</property>
                     <property name="CanFocus">True</property>
                     <property name="Upper">100000</property>
                     <property name="PageIncrement">100</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="ValueAsDecimal">0</property>
                     <property name="ValueAsInt">0</property>
                   </widget>
@@ -33343,11 +33230,7 @@ RegistrationNumber</property>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinbuttonLitres">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
-                    <property name="Upper">100</property>
-                    <property name="PageIncrement">10</property>
                     <property name="StepIncrement">10</property>
-                    <property name="ClimbRate">1</property>
-                    <property name="Numeric">True</property>
                     <property name="ValueAsDecimal">0</property>
                     <property name="ValueAsInt">0</property>
                   </widget>
@@ -33536,10 +33419,7 @@ RegistrationNumber</property>
                     <property name="CanFocus">True</property>
                     <property name="Upper">1000</property>
                     <property name="PageIncrement">1</property>
-                    <property name="StepIncrement">1</property>
-                    <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
-                    <property name="Numeric">True</property>
                     <property name="ValueAsDecimal">0</property>
                     <property name="ValueAsInt">0</property>
                   </widget>
@@ -33962,11 +33842,6 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
-                <property name="PageIncrement">10</property>
-                <property name="StepIncrement">1</property>
-                <property name="ClimbRate">1</property>
-                <property name="Numeric">True</property>
                 <property name="ValueAsDecimal">0</property>
                 <property name="ValueAsInt">0</property>
               </widget>

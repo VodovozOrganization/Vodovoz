@@ -44,6 +44,8 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty> ();
 			TabName = "Новый контрагент";
+			//Покупатель - значение по умолчанию.
+			UoWGeneric.Root.CooperationCustomer = true;
 			ConfigureDlg ();
 		}
 

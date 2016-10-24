@@ -363,7 +363,7 @@ namespace Vodovoz {
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 2;
+			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
@@ -455,7 +455,6 @@ namespace Vodovoz {
 			this.dataWaybillComment = new global::Gamma.GtkWidgets.yTextView();
 			this.dataWaybillComment.CanFocus = true;
 			this.dataWaybillComment.Name = "dataWaybillComment";
-			this.dataWaybillComment.Editable = false;
 			this.GtkScrolledWindow5.Add(this.dataWaybillComment);
 			this.table1.Add(this.GtkScrolledWindow5);
 			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow5]));
@@ -473,7 +472,6 @@ namespace Vodovoz {
 			this.dataComment = new global::Gamma.GtkWidgets.yTextView();
 			this.dataComment.CanFocus = true;
 			this.dataComment.Name = "dataComment";
-			this.dataComment.Editable = false;
 			this.GtkScrolledWindow6.Add(this.dataComment);
 			this.table1.Add(this.GtkScrolledWindow6);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1[this.GtkScrolledWindow6]));
@@ -756,9 +754,6 @@ namespace Vodovoz {
 			this.spinMaxCredit = new global::Gamma.GtkWidgets.ySpinButton(0, 1000000, 100);
 			this.spinMaxCredit.CanFocus = true;
 			this.spinMaxCredit.Name = "spinMaxCredit";
-			this.spinMaxCredit.Adjustment.PageIncrement = 10;
-			this.spinMaxCredit.ClimbRate = 1;
-			this.spinMaxCredit.Numeric = true;
 			this.spinMaxCredit.ValueAsDecimal = 0m;
 			this.spinMaxCredit.ValueAsInt = 0;
 			this.table1.Add(this.spinMaxCredit);
