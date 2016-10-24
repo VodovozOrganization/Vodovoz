@@ -161,17 +161,38 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			Entity.UoW = UoW;
-			var valid = new QSValidator<Counterparty> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
-				return false;
+			bool hasDuplicate = CheckDuplicate();
+			bool userAnswer = true;
 
-			logger.Info ("Сохраняем контрагента...");
-			phonesView.SaveChanges ();
-			emailsView.SaveChanges ();
-			UoWGeneric.Save ();
-			logger.Info ("Ok.");
-			return true;
+			if (hasDuplicate)
+			{
+				userAnswer = MessageDialogWorks.RunQuestionDialog(
+							"Контрагент с данным ИНН уже существует. Сохранить?");
+			}
+
+			if (userAnswer)
+			{
+				Entity.UoW = UoW;
+				var valid = new QSValidator<Counterparty>(UoWGeneric.Root);
+				if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+					return false;
+
+				logger.Info("Сохраняем контрагента...");
+				phonesView.SaveChanges();
+				emailsView.SaveChanges();
+				UoWGeneric.Save();
+				logger.Info("Ok.");
+				return true;
+			}
+			return false;
+		}
+
+		private bool CheckDuplicate()
+		{
+			string INN = UoWGeneric.Root.INN;
+			if (Repository.CounterpartyRepository.GetCounterpartyByINN(UoW, INN) != null)
+				return true;
+			return false;
 		}
 
 		protected void OnRadioInfoToggled (object sender, EventArgs e)
