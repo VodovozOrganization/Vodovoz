@@ -221,7 +221,7 @@ namespace Vodovoz
 				.AddSetter ((c, node) => c.Editable = node.CanEditAmount)
 				.WidthChars (10)
 				.AddTextRenderer (node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
-				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2)
+				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2).WidthChars(10)
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0)).Editing (true)
 				.AddSetter((c,node)=>c.ForegroundGdk = node.HasUserSpecifiedPrice() && Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category) ? colorBlue: colorBlack)
 				.AddSetter((c,node)=>c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
