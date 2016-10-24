@@ -525,11 +525,6 @@ namespace Vodovoz
 
 			if (Entity.RouteList.Car.FuelType != null)
 			{
-				//Исключаем операцию расхода, чтобы не пересчитывать ее 2 раза
-				int excludeId = 0;
-				if (Entity.FuelOutlayedOperation != null) {
-					excludeId = Entity.FuelOutlayedOperation.Id;
-				}
 				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
 					+ (Entity.FuelGivedDocument?.Operation.LitersGived ?? 0) - spentFuel));
 			}
