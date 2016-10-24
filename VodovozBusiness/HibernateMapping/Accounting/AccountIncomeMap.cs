@@ -20,6 +20,8 @@ namespace Vodovoz.HMap
 			References (x => x.OrganizationAccount).Column ("organization_account_id");
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.CounterpartyAccount).Column ("counterparty_account_id");
+			References (x => x.MoneyOperation).Column("money_movement_operation_id").Cascade.All();
+
 		}
 	}
 }

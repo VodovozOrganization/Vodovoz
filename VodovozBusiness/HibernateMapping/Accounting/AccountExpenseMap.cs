@@ -22,6 +22,7 @@ namespace Vodovoz.HMap
 			References (x => x.Employee).Column ("employee_id");
 			References (x => x.EmployeeAccount).Column ("employee_account_id");
 			References (x => x.Category).Column ("cash_expense_category_id");
+			References (x => x.MoneyOperation).Column("money_movement_operation_id").Cascade.All();
 		}
 	}
 }

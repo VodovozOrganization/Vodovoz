@@ -4,6 +4,7 @@ using QSBanks;
 using QSOrmProject;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Accounting
 {
@@ -28,14 +29,21 @@ namespace Vodovoz.Domain.Accounting
 		[Display (Name = "Дата")]
 		public DateTime Date {
 			get { return date; }
-			set { SetField (ref date, value, () => Date); }
+			set { SetField (ref date, value, () => Date);
+				if (MoneyOperation.OperationTime != Date)
+					MoneyOperation.OperationTime = Date;
+			}
 		}
 
 		decimal total;
 
 		public virtual decimal Total {
 			get { return total; }
-			set { SetField (ref total, value, () => Total); }
+			set { SetField (ref total, value, () => Total);
+				if (MoneyOperation.Money != Total)
+				{
+					MoneyOperation.Money = Total;
+				}}
 		}
 
 		string description;
@@ -63,7 +71,11 @@ namespace Vodovoz.Domain.Accounting
 
 		public virtual Counterparty Counterparty { 
 			get { return counterparty; }
-			set { SetField (ref counterparty, value, () => Counterparty); }
+			set { SetField (ref counterparty, value, () => Counterparty);
+				if (MoneyOperation.Counterparty != Counterparty)
+				{
+					MoneyOperation.Counterparty = Counterparty;
+				}}
 		}
 
 		Account counterpartyAccount;
@@ -78,6 +90,15 @@ namespace Vodovoz.Domain.Accounting
 		public virtual IncomeCategory Category {
 			get { return category; }
 			set { SetField (ref category, value, () => Category); }
+		}
+			
+		private MoneyMovementOperation moneyOperation = new MoneyMovementOperation();
+
+		[Display(Name = "Операция движения денег")]
+		public virtual MoneyMovementOperation MoneyOperation
+		{
+			get { return moneyOperation; }
+			set { SetField(ref moneyOperation, value, () => MoneyOperation); }
 		}
 
 		#endregion
