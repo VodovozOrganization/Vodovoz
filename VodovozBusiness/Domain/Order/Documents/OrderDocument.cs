@@ -61,9 +61,9 @@ namespace Vodovoz.Domain.Orders.Documents
 
 	public enum OrderDocumentType
 	{
-		[ItemTitleAttribute ("Доп. соглашение для заказа")]
+		[Display (Name = "Доп. соглашение для заказа")]
 		AdditionalAgreement,
-		[ItemTitleAttribute ("Договор для заказа")]
+		[Display (Name = "Договор для заказа")]
 		Contract,
 		[Display (Name = "Счет")]
 		Bill,
