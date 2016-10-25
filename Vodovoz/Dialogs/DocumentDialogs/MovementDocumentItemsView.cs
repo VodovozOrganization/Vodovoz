@@ -9,6 +9,7 @@ using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -66,7 +67,10 @@ namespace Vodovoz
 		protected void OnButtonAddClicked (object sender, EventArgs e)
 		{
 			if (DocumentUoW.Root.FromWarehouse == null)
-				throw new NotImplementedException ();
+			{
+				MessageDialogWorks.RunErrorDialog ("Не добавлен склад отправителя.");
+				return;
+			}
 
 			ITdiTab mytab = TdiHelper.FindMyTab (this);
 			if (mytab == null) {
