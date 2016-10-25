@@ -46,6 +46,7 @@ namespace Vodovoz
 				items = RouteListUoW.Root.ObservableAddresses;
 				items.ElementChanged += Items_ElementChanged;
 				items.ListChanged += Items_ListChanged;
+				items.ElementAdded += Items_ElementAdded;
 
 				UpdateColumns ();
 
@@ -53,6 +54,12 @@ namespace Vodovoz
 				ytreeviewItems.Reorderable = true;
 				CalculateTotal ();
 			}
+		}
+
+		void Items_ElementAdded (object aList, int[] aIdx)
+		{
+			UpdateColumns ();
+			CalculateTotal ();
 		}
 
 		void Items_ListChanged (object aList)
@@ -139,14 +146,14 @@ namespace Vodovoz
 		{
 			AddOrderEnum choice = (AddOrderEnum)e.ItemEnum;
 			switch (choice) {
-			case AddOrderEnum.AddOrders:
-				AddOrders ();
+				case AddOrderEnum.AddOrders:
+					AddOrders();
 				break;
-			case AddOrderEnum.AddAllForRegion:
-				AddOrdersFromRegion ();
-				break;
-			default:
-				break;
+				case AddOrderEnum.AddAllForRegion:
+					AddOrdersFromRegion ();
+					break;
+				default:
+					break;
 			}
 		}
 
