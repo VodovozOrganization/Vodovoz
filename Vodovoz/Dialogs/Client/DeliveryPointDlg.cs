@@ -123,7 +123,7 @@ namespace Vodovoz
 
 			//Configure map
 			MapWidget = new GMap.NET.GtkSharp.GMapControl();
-			MapWidget.MapProvider = GMapProviders.OpenStreetMap;
+			MapWidget.MapProvider = GMapProviders.GoogleMap;
 			MapWidget.Position = new PointLatLng(59.93900, 30.31646);
 			MapWidget.MinZoom = 0;
 			MapWidget.MaxZoom = 24;
