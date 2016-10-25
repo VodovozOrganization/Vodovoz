@@ -110,6 +110,7 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonFillAllItems.Clicked += new global::System.EventHandler (this.OnButtonFillAllItemsClicked);
 			this.buttonFillWarehouseItems.Clicked += new global::System.EventHandler (this.OnButtonFillWarehouseItemsClicked);
+			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
 		}
 	}
 }

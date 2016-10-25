@@ -125,7 +125,7 @@ namespace Vodovoz.Domain.Documents
 		public virtual void FillFromRouteList(IUnitOfWork uow, bool warehouseOnly)
 		{
 			ObservableItems.Clear();
-			if (RouteList == null || Warehouse == null)
+			if (RouteList == null || (Warehouse == null && warehouseOnly))
 				return;
 
 			var goods = Repository.Logistics.RouteListRepository.GetGoodsInRLWithoutEquipments(uow, 
