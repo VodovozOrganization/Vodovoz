@@ -113,9 +113,6 @@ namespace Vodovoz
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
 
-			enumPaymentType.ItemsEnum = typeof(PaymentType);
-			enumPaymentType.Binding.AddBinding (Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource ();
-
 			enumStatus.ItemsEnum = typeof(OrderStatus);
 			enumStatus.Binding.AddBinding (Entity, s => s.OrderStatus, w => w.SelectedItem).InitializeFromSource ();
 
@@ -258,6 +255,9 @@ namespace Vodovoz
 				.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 				.Finish ();
 			treeServiceClaim.Selection.Changed += TreeServiceClaim_Selection_Changed;
+
+			enumPaymentType.ItemsEnum = typeof(PaymentType);
+			enumPaymentType.Binding.AddBinding (Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource ();
 			
 			UpdateSum ();
 
@@ -926,6 +926,8 @@ namespace Vodovoz
 			enumSignatureType.Visible = checkDelivered.Visible = labelSignatureType.Visible = 
 				enumDocumentType.Visible = labelDocumentType.Visible = 
 				(Entity.PaymentType == PaymentType.cashless);
+
+			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType != PaymentType.cash;
 		}
 
 		protected void OnPickerDeliveryDateDateChanged (object sender, EventArgs e)
