@@ -625,6 +625,7 @@ namespace Vodovoz.Domain.Orders
 			if (expectedBottleDepositsCount<0) {
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
+				//Проверяем, сколько надо отдать клиенту залог за бутыли
 				decimal clientDeposit 	= default(decimal);
 				decimal deposit 		= NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount);
 				int 	count 			= -expectedBottleDepositsCount;
