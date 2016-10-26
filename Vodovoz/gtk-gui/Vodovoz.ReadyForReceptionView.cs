@@ -16,11 +16,9 @@ namespace Vodovoz
 		
 		private global::QSOrmProject.RepresentationTreeView tableReadyForReception;
 		
-		private global::Gtk.HBox hbox2;
+		private global::Gtk.HBox hbox4;
 		
 		private global::Gtk.Button buttonOpen;
-		
-		private global::Gtk.Button buttonConfirmReception;
 
 		protected virtual void Build ()
 		{
@@ -72,10 +70,10 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
 			w5.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox ();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
+			this.hbox4 = new global::Gtk.HBox ();
+			this.hbox4.Name = "hbox4";
+			this.hbox4.Spacing = 6;
+			// Container child hbox4.Gtk.Box+BoxChild
 			this.buttonOpen = new global::Gtk.Button ();
 			this.buttonOpen.Sensitive = false;
 			this.buttonOpen.CanFocus = true;
@@ -85,31 +83,16 @@ namespace Vodovoz
 			global::Gtk.Image w6 = new global::Gtk.Image ();
 			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-ok", global::Gtk.IconSize.Menu);
 			this.buttonOpen.Image = w6;
-			this.hbox2.Add (this.buttonOpen);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonOpen]));
+			this.hbox4.Add (this.buttonOpen);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.buttonOpen]));
 			w7.Position = 0;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonConfirmReception = new global::Gtk.Button ();
-			this.buttonConfirmReception.Sensitive = false;
-			this.buttonConfirmReception.CanFocus = true;
-			this.buttonConfirmReception.Name = "buttonConfirmReception";
-			this.buttonConfirmReception.UseUnderline = true;
-			this.buttonConfirmReception.Label = global::Mono.Unix.Catalog.GetString ("Отправить в кассу");
-			global::Gtk.Image w8 = new global::Gtk.Image ();
-			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-go-forward", global::Gtk.IconSize.Menu);
-			this.buttonConfirmReception.Image = w8;
-			this.hbox2.Add (this.buttonConfirmReception);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonConfirmReception]));
-			w9.Position = 1;
-			w9.Expand = false;
-			w9.Fill = false;
-			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
-			w10.Position = 3;
-			w10.Expand = false;
-			w10.Fill = false;
+			this.vbox1.Add (this.hbox4);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox4]));
+			w8.Position = 3;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -118,7 +101,6 @@ namespace Vodovoz
 			this.searchentity1.TextChanged += new global::System.EventHandler (this.OnSearchentity1TextChanged);
 			this.tableReadyForReception.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTableReadyForReceptionRowActivated);
 			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
-			this.buttonConfirmReception.Clicked += new global::System.EventHandler (this.OnButtonConfirmReceptionClicked);
 		}
 	}
 }

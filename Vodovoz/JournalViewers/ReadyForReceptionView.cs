@@ -40,7 +40,6 @@ namespace Vodovoz
 		void OnSelectionChanged (object sender, EventArgs e)
 		{
 			buttonOpen.Sensitive = tableReadyForReception.Selection.CountSelectedRows () > 0;
-			buttonConfirmReception.Sensitive = tableReadyForReception.Selection.CountSelectedRows() > 0;
 		}
 
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
@@ -53,15 +52,6 @@ namespace Vodovoz
 		protected void OnTableReadyForReceptionRowActivated (object o, Gtk.RowActivatedArgs args)
 		{
 			buttonOpen.Click ();
-		}
-
-		protected void OnButtonConfirmReceptionClicked (object sender, EventArgs e)
-		{
-			var node = tableReadyForReception.GetSelectedNode () as ViewModel.ReadyForReceptionVMNode;
-			var routeList = UoW.GetById<RouteList>(node.Id);
-			routeList.CompleteRoute();
-			UoW.Save(routeList);
-			UoW.Commit();
 		}
 
 		protected void OnSearchentity1TextChanged(object sender, EventArgs e)
