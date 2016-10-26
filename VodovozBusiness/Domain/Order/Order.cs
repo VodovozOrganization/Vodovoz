@@ -625,20 +625,26 @@ namespace Vodovoz.Domain.Orders
 			if (expectedBottleDepositsCount<0) {
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
-				if (depositRefundItem != null) {
-					depositRefundItem.Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount);
-					depositRefundItem.Count = -expectedBottleDepositsCount;
-				} else
-					ObservableOrderDepositItems.Add (new OrderDepositItem {
-						Order = this,
-						DepositOperation = null,
-						DepositType = DepositType.Bottles,
-						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount),
-						PaidRentItem = null,
-						FreeRentItem = null,
-						PaymentDirection = PaymentDirection.ToClient,
-						Count = -expectedBottleDepositsCount
-					});
+				decimal clientDeposit 	= default(decimal);
+				decimal deposit 		= NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount);
+				int 	count 			= -expectedBottleDepositsCount;
+				if(Client != null)
+					clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, Client, DepositType.Bottles);
+				if (clientDeposit - deposit * count >= 0)
+					if (depositRefundItem != null) {
+						depositRefundItem.Deposit 	= deposit;
+						depositRefundItem.Count 	= count;
+					} else
+						ObservableOrderDepositItems.Add (new OrderDepositItem {
+							Order 				= this,
+							DepositOperation 	= null,
+							DepositType 		= DepositType.Bottles,
+							Deposit 			= deposit,
+							PaidRentItem 		= null,
+							FreeRentItem 		= null,
+							PaymentDirection 	= PaymentDirection.ToClient,
+							Count 				= count
+						});
 				return;
 			}
 		}
