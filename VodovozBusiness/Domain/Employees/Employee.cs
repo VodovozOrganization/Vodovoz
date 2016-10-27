@@ -190,6 +190,7 @@ namespace Vodovoz.Domain.Employees
 			Category = EmployeeCategory.office;
 			AddressRegistration = String.Empty;
 			AddressCurrent = String.Empty;
+			DateOfCreate = DateTime.Now;
 		}
 
 		[Display (Name = "ФИО")]
