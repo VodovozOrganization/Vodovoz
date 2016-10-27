@@ -168,6 +168,15 @@ namespace Vodovoz.Domain.Employees
 			set { SetField (ref photo, value, () => Photo); }
 		}
 
+		private DateTime dateOfCreate;
+
+		[Display (Name = "Дата создания")]
+		public virtual DateTime DateOfCreate
+		{
+			get { return dateOfCreate; }
+			set { SetField (ref dateOfCreate, value, () => DateOfCreate); }
+		}
+
 		#endregion
 
 		public Employee ()
