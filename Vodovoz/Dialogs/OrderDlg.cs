@@ -215,8 +215,7 @@ namespace Vodovoz
 				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
 				.AddSetter ((c, node) => c.Digits = node.Nomenclature.Unit == null ? 0 : (uint)node.Nomenclature.Unit.Digits)
-				.AddSetter ((c, node) => c.Editable = node.CanEditAmount)
-				.WidthChars (10)
+				.AddSetter ((c, node) => c.Editable = node.CanEditAmount).WidthChars (10)
 				.AddTextRenderer (node => node.Nomenclature.Unit == null ? String.Empty : node.Nomenclature.Unit.Name, false)
 				.AddColumn ("Цена").AddNumericRenderer (node => node.Price).Digits (2).WidthChars(10)
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0)).Editing (true)
@@ -224,7 +223,9 @@ namespace Vodovoz
 				.AddSetter((c,node)=>c.Editable = Nomenclature.GetCategoriesWithEditablePrice().Contains(node.Nomenclature.Category))
 				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
 				.AddColumn("В т.ч. НДС").AddTextRenderer(x => CurrencyWorks.GetShortCurrencyString (x.IncludeNDS))
-				.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Price * node.Count))
+				.AddColumn ("Сумма").AddTextRenderer (node => CurrencyWorks.GetShortCurrencyString (node.Price * node.Count - (node.Price * node.Count * node.Discount/100)))
+				.AddColumn("Скидка %").AddNumericRenderer(node => node.Discount)
+				.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();
 
@@ -1003,6 +1004,15 @@ namespace Vodovoz
 					UoW.Save(doc.Contract.Organization);
 					Entity.Contract = doc.Contract;
 				}
+			}
+		}
+
+		protected void OnButtonSetDiscountClicked (object sender, EventArgs e)
+		{
+			int discount = (int)yspinDiscountOrder.Value;
+			foreach (OrderItem item in UoWGeneric.Root.ObservableOrderItems)
+			{
+				item.Discount = discount;
 			}
 		}
 	}

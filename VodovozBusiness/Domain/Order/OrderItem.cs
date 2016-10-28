@@ -99,6 +99,15 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref includeNDS, value, () => IncludeNDS); }
 		}
 
+		private int discount;
+
+		[Display(Name = "Процент скидки на товар")]
+		public virtual int Discount
+		{
+			get { return discount; }
+			set { SetField(ref discount, value, () => Discount); }
+		}
+
 		CounterpartyMovementOperation counterpartyMovementOperation;
 
 		public virtual CounterpartyMovementOperation CounterpartyMovementOperation {
