@@ -61,6 +61,7 @@ namespace Vodovoz
 		{
 			chatUoW = UnitOfWorkFactory.CreateForRoot<ChatClass>(chatId);
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
+
 			if (currentEmployee == null)
 			{
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Невозможно открыть чат.");
@@ -71,6 +72,7 @@ namespace Vodovoz
 				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
 			var lastReaded = LastReadedRepository.GetLastReadedMessageForEmloyee(chatUoW, chatUoW.Root, currentEmployee);
+
 			if (lastReaded != null)
 			{
 				var readDays = (DateTime.Today - lastReaded.LastDateTime.Date).Days;
@@ -115,6 +117,7 @@ namespace Vodovoz
 					);
 				textViewMessage.Buffer.Text = String.Empty;
 			}
+			ChatCallbackObservable.GetInstance().NotifyChatUpdate(chatUoW.Root.Id, this);
 		}
 
 		protected void OnButtonHistoryClicked(object sender, EventArgs e)
@@ -134,9 +137,8 @@ namespace Vodovoz
 
 		private void updateChat()
 		{
-			IList<ChatMessage> messages = new List<ChatMessage>();
-			messages = ChatMessageRepository.GetChatMessagesForPeriod(chatUoW, chatUoW.Root, showMessagePeriod);
-			
+			var messages = ChatMessageRepository.GetChatMessagesForPeriod(chatUoW, chatUoW.Root, showMessagePeriod);
+
 			TextBuffer tempBuffer = new TextBuffer(textTags);
 			TextIter iter = tempBuffer.EndIter;
 			DateTime maxDate = default(DateTime);
@@ -160,7 +162,7 @@ namespace Vodovoz
 			}
 			textViewChat.Buffer = tempBuffer;
 			updateTitle();
-			ChatCallbackObservable.GetInstance().NotifyChatUpdate(chatUoW.Root.Id, this);
+			//ChatCallbackObservable.GetInstance().NotifyChatUpdate(chatUoW.Root.Id, this);
 			scrollToEnd();
 		}
 
