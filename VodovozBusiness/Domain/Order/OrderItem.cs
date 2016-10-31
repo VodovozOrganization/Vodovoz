@@ -167,7 +167,7 @@ namespace Vodovoz.Domain.Orders
 
 		public decimal Sum{
 			get{
-				return Price * Count * (1 - Discount/100) ;
+				return Price * Count * (1 - (decimal)Discount/100) ;
 			}
 		}
 

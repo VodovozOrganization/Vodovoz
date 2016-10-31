@@ -465,7 +465,7 @@ namespace Vodovoz.Domain.Orders
 			get {
 				Decimal sum = 0;
 				foreach (OrderItem item in ObservableOrderItems) {
-					sum += item.Price * item.Count * (1 - item.Discount / 100);
+					sum += item.Price * item.Count * (1 - (decimal)item.Discount / 100);
 				}
 				foreach (OrderDepositItem dep in ObservableOrderDepositItems) {
 					if (dep.PaymentDirection == PaymentDirection.ToClient)
@@ -479,7 +479,7 @@ namespace Vodovoz.Domain.Orders
 			get {
 				Decimal sum = 0;
 				foreach (OrderItem item in ObservableOrderItems) {
-					sum += item.Price * item.ActualCount * (1 - item.Discount / 100);
+					sum += item.Price * item.ActualCount * (1 - (decimal)item.Discount / 100);
 				}
 				foreach (OrderDepositItem dep in ObservableOrderDepositItems) {
 					if (dep.PaymentDirection == PaymentDirection.ToClient)

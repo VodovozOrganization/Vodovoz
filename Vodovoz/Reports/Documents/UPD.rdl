@@ -24,6 +24,7 @@
     order_items.count AS count,
     order_items.price AS item_price,
     order_items.include_nds,
+    order_items.discount AS item_discount,
     CASE nomenclature.vat
         WHEN 'No' THEN 1
         WHEN 'Vat10' THEN 1.1
@@ -75,6 +76,10 @@ WHERE
         <Field Name="vat">
           <DataField>vat</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="item_discount">
+          <DataField>item_discount</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -497,7 +502,7 @@ WHERE orders.id = @order_id;
               <BorderColor />
               <BorderWidth />
               <TextDecoration>None</TextDecoration>
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -513,7 +518,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox19" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -529,7 +534,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox20" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -545,7 +550,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox21" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -561,7 +566,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox22" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -578,7 +583,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -594,7 +599,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox24" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -610,7 +615,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox25" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -626,7 +631,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -642,7 +647,7 @@ WHERE orders.id = @order_id;
               </BorderStyle>
               <BorderColor />
               <BorderWidth />
-              <FontSize >8pt</FontSize>
+              <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -1824,7 +1829,7 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=Fields!item_price / Fields!vat</Value>
+                      <Value>=Fields!item_price / Fields!vat * (1 - Fields!item_discount/100)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1843,7 +1848,7 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox59">
-                      <Value>=(Fields!item_price * Fields!count) -  Fields!include_nds</Value>
+                      <Value>=((Fields!item_price * Fields!count) -  Fields!include_nds)  * (1 - Fields!item_discount/100)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1899,7 +1904,7 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>=Fields!include_nds</Value>
+                      <Value>=Fields!include_nds * (1 - Fields!item_discount/100)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1918,7 +1923,7 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox63">
-                      <Value>=Fields!item_price * Fields!count</Value>
+                      <Value>=Fields!item_price * Fields!count * (1 - Fields!item_discount/100)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2034,7 +2039,7 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum((Fields!item_price * Fields!count) -  Fields!include_nds)</Value>
+                      <Value>=Sum(((Fields!item_price * Fields!count) -  Fields!include_nds) * (1 - Fields!item_discount/100))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2070,7 +2075,7 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox71">
-                      <Value>=Sum(Fields!include_nds)</Value>
+                      <Value>=Sum(Fields!include_nds * (1 - Fields!item_discount/100))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2088,7 +2093,7 @@ WHERE orders.id = @order_id;
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox72">
-                      <Value>=Sum(Fields!item_price * Fields!count)</Value>
+                      <Value>=Sum(Fields!item_price * Fields!count * (1 - Fields!item_discount/100))</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -2141,7 +2146,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox133">
@@ -2155,7 +2160,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox134">
@@ -2186,7 +2191,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox136">
@@ -2213,7 +2218,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox138">
@@ -2330,7 +2335,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox152">
@@ -2415,7 +2420,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox164" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -2713,7 +2718,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >10pt</FontSize>
+              <FontSize>10pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox160" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -3089,7 +3094,7 @@ WHERE orders.id = @order_id;
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
-              <FontSize >9pt</FontSize>
+              <FontSize>9pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox129">
@@ -3106,7 +3111,7 @@ WHERE orders.id = @order_id;
               <FontSize>8pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox130" >
+          <Textbox Name="Textbox130">
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
             <Value>(подпись клиента)</Value>
@@ -3123,7 +3128,7 @@ WHERE orders.id = @order_id;
               <FontSize>7pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox174" >
+          <Textbox Name="Textbox174">
             <Height>10.50pt</Height>
             <Width>104.59pt</Width>
             <Value>(расшифровка подписи)</Value>
@@ -3140,7 +3145,7 @@ WHERE orders.id = @order_id;
               <FontSize>7pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox175" >
+          <Textbox Name="Textbox175">
             <Height>10.50pt</Height>
             <Width>79.06pt</Width>
             <Value>(подпись водителя)</Value>
@@ -3157,7 +3162,7 @@ WHERE orders.id = @order_id;
               <FontSize>7pt</FontSize>
             </Style>
           </Textbox>
-          <Textbox Name="Textbox176" >
+          <Textbox Name="Textbox176">
             <Height>10.50pt</Height>
             <Width>109.09pt</Width>
             <Value>(расшифровка подписи)</Value>
@@ -3179,9 +3184,9 @@ WHERE orders.id = @order_id;
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <BackgroundGradientEndColor >
+          <BackgroundGradientEndColor>
           </BackgroundGradientEndColor>
-          <BackgroundColor >
+          <BackgroundColor>
           </BackgroundColor>
         </Style>
         <DataSetName>Order</DataSetName>

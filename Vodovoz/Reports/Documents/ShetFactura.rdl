@@ -24,6 +24,7 @@
     order_items.count AS count,
     order_items.price AS item_price,
     order_items.include_nds,
+    order_items.discount AS item_discount,
     CASE nomenclature.vat
         WHEN 'No' THEN 1
         WHEN 'Vat10' THEN 1.1
@@ -75,6 +76,10 @@ WHERE
         <Field Name="vat">
           <DataField>vat</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="item_discount">
+          <DataField>item_discount</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1109,7 +1114,7 @@ WHERE orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>={item_price}</Value>
+                      <Value>={item_price} * (1 - {item_discount}/100)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1126,7 +1131,7 @@ WHERE orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox61">
-                      <Value>={item_price} * {count} - {include_nds}</Value>
+                      <Value>=({item_price} * {count} - {include_nds}) * (1 - {item_discount}/100)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1182,7 +1187,7 @@ WHERE orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox107">
-                      <Value>=Iif({include_nds} &gt; 0, Convert.ToString({include_nds}), "без НДС")</Value>
+                      <Value>=Iif({include_nds} &gt; 0, Format({include_nds} * (1 - {item_discount}/100), "N2"), "без НДС")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1193,6 +1198,7 @@ WHERE orders.id = @order_id;</CommandText>
                         <FontSize>8pt</FontSize>
                         <PaddingLeft>2pt</PaddingLeft>
                         <PaddingRight>2pt</PaddingRight>
+                        <Format>0.00</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1200,7 +1206,7 @@ WHERE orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox113">
-                      <Value>=Fields!item_price.Value * Fields!count.Value</Value>
+                      <Value>=Fields!item_price.Value * Fields!count.Value * (1 - Fields!item_discount.Value/100)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1307,14 +1313,14 @@ WHERE orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox112">
-                      <Value>=Sum({item_price} * {count} - {include_nds})</Value>
+                      <Value>=Sum({item_price} * {count} * (1 - {item_discount}/100) - {include_nds} * (1 - {item_discount}/100))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>0.000</Format>
+                        <Format>0.00</Format>
                         <TextAlign>Right</TextAlign>
                         <FontSize>8pt</FontSize>
                         <PaddingRight>2pt</PaddingRight>
@@ -1342,7 +1348,7 @@ WHERE orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox408">
-                      <Value>=Iif(Sum({include_nds}) &gt; 0, Convert.ToString(Sum({include_nds})), "без НДС")</Value>
+                      <Value>=Iif(Sum({include_nds}) &gt; 0, Sum({include_nds} * (1 - {item_discount}/100)), "без НДС")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1361,7 +1367,7 @@ WHERE orders.id = @order_id;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox508">
-                      <Value>=Sum({item_price} * {count})</Value>
+                      <Value>=Sum({item_price} * {count} * (1 - {item_discount}/100))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
