@@ -13,28 +13,36 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Operations">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     COALESCE(orders.id,account_income.number) as num,
+    CASE
+		WHEN doc_residue.id IS NOT NULL
+		THEN
+			CONCAT ('Ввод остатков №', doc_residue.id)
+		WHEN orders.id IS NOT NULL
+		THEN
+			CONCAT ('П №', orders.id)
+		WHEN account_income.number IS NOT NULL
+		THEN
+			CONCAT ('Оплата №', account_income.number)
+	END AS document,
     IFNULL(debt, 0) as debt,
+    IFNULL(deposit, 0) as deposit,
     money,
-    IFNULL(deposit, 0) as deposit,    
     money_movement_operations.operation_time as date
 FROM
     money_movement_operations
-    left join 
-    orders on order_id = orders.id and money_movement_operations.debt is not null
-    left join account_income on account_income.money_movement_operation_id = money_movement_operations.id
-where 
-money_movement_operations.counterparty_id=@counterparty_id
-and 
-money_movement_operations.payment_type='cashless'
-and
-@date_start &lt;= operation_time
-and operation_time &lt;= DATE_ADD(@date_end, INTERVAL 1 DAY)
-order by date asc
-</CommandText>
+    LEFT JOIN orders 		 ON order_id = orders.id AND money_movement_operations.debt is not null
+    LEFT JOIN account_income ON account_income.money_movement_operation_id = money_movement_operations.id
+    LEFT JOIN doc_residue 	 ON money_movement_operations.id = doc_residue.money_movement_operation_id
+WHERE 
+	money_movement_operations.counterparty_id=@counterparty_id
+	AND money_movement_operations.payment_type='cashless'
+	AND	@date_start &lt;= operation_time
+	AND operation_time &lt;= DATE_ADD(@date_end, INTERVAL 1 DAY)
+ORDER BY date ASC</CommandText>
         <QueryParameters>
           <QueryParameter Name="counterparty_id">
             <Value>=Parameters!CounterpartyID</Value>
@@ -47,7 +55,7 @@ order by date asc
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="num">
           <DataField>num</DataField>
           <TypeName>System.String</TypeName>
@@ -67,6 +75,10 @@ order by date asc
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="document">
+          <DataField>document</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -547,7 +559,7 @@ First(Fields!total,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
-                      <Value>=Iif(Fields!debt.IsMissing, "Оплата", "Продажа") +" №"+ Fields!num.Value</Value>
+                      <Value>=Fields!document.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -576,9 +588,9 @@ Fields!debt.Value - Fields!deposit.Value
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
-                      <Visibility >
+                      <Visibility>
                         <Hidden>
                         </Hidden>
                       </Visibility>
