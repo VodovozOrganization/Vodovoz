@@ -44,6 +44,9 @@ namespace Vodovoz
 			yreferenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			disablespinBottlesResidue.Binding.AddBinding(Entity, e => e.BottlesResidue, w => w.ValueAsInt).InitializeFromSource();
+			yenumcomboDebtPaymentType.ItemsEnum = typeof(PaymentType);
+			yenumcomboDebtPaymentType.Binding.AddBinding(Entity, e => e.DebtPaymentType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboDebtPaymentType.Sensitive = disablespinMoneyDebt.Active;
 			disablespinBottlesDeposit.Binding.AddBinding(Entity, e => e.DepositResidueBottels, w => w.ValueAsDecimal).InitializeFromSource();
 			disablespinEquipmentDeposit.Binding.AddBinding(Entity, e => e.DepositResidueEquipment, w => w.ValueAsDecimal).InitializeFromSource();
 			disablespinMoneyDebt.Binding.AddBinding(Entity, e => e.DebtResidue, w => w.ValueAsDecimal).InitializeFromSource();
@@ -112,6 +115,11 @@ namespace Vodovoz
 		protected void OnYreferenceDeliveryPointChanged(object sender, EventArgs e)
 		{
 			UpdateResidue();
+		}
+
+		protected void OnDisablespinMoneyDebtActiveChanged (object sender, EventArgs e)
+		{
+			yenumcomboDebtPaymentType.Sensitive = disablespinMoneyDebt.Active;
 		}
 	}
 }

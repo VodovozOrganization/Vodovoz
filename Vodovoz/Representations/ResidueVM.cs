@@ -67,11 +67,9 @@ namespace Vodovoz.ViewModel
 
 
 			result.Sort ((x, y) => { 
-				if (x.Date < y.Date)
-					return 1;
-				if (x.Date == y.Date)
-					return 0;
-				return -1;
+				if (x.Date < y.Date)  return 1;
+				if (x.Date == y.Date) return 0;
+									  return -1;
 			});
 
 			SetItemsSource (result);

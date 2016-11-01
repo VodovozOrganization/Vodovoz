@@ -17,9 +17,9 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     COALESCE(orders.id,account_income.number) as num,
-    debt,
+    IFNULL(debt, 0) as debt,
     money,
-    deposit,    
+    IFNULL(deposit, 0) as deposit,    
     money_movement_operations.operation_time as date
 FROM
     money_movement_operations
@@ -562,7 +562,13 @@ First(Fields!total,'Initial')&lt;0,
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
-                      <Value>=Fields!debt.Value - Fields!deposit.Value</Value>
+                      <Value>=Iif(
+Fields!debt.Value - Fields!deposit.Value=0
+,
+""
+,
+Fields!debt.Value - Fields!deposit.Value
+)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -570,7 +576,12 @@ First(Fields!total,'Initial')&lt;0,
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign >Right</TextAlign>
                       </Style>
+                      <Visibility >
+                        <Hidden>
+                        </Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>

@@ -138,6 +138,15 @@ namespace Vodovoz.Domain
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
+		private PaymentType debtPaymentType;
+
+		[Display(Name = "Тип долга")]
+		public virtual PaymentType DebtPaymentType
+		{
+			get { return debtPaymentType; }
+			set { SetField(ref debtPaymentType, value, () => DebtPaymentType); }
+		}
+
 		#endregion
 
 		#region Функции
@@ -246,9 +255,9 @@ namespace Vodovoz.Domain
 				if(MoneyMovementOperation == null)
 					MoneyMovementOperation = new MoneyMovementOperation();
 
-				MoneyMovementOperation.Counterparty = customer;
+				MoneyMovementOperation.Counterparty  = customer;
 				MoneyMovementOperation.OperationTime = Date;
-				MoneyMovementOperation.PaymentType = PaymentType.barter;
+				MoneyMovementOperation.PaymentType 	 = DebtPaymentType;
 
 				decimal debt = Repository.Operations.MoneyRepository.GetCounterpartyDebt(uow, Customer, Date);
 
