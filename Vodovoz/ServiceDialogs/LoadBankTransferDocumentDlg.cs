@@ -577,6 +577,7 @@ namespace Vodovoz
 							expenseUoW.Root.Date = doc.Date;
 							expenseUoW.Root.Total = doc.Total;
 							expenseUoW.Root.Description = doc.PaymentPurpose;
+							expenseUoW.Root.MoneyOperation.PaymentType = PaymentType.cashless;
 							expenseUoW.Root.Organization = organization;
 							expenseUoW.Root.OrganizationAccount = organization.Accounts.First (acc => acc.Number == doc.PayerCheckingAccount);
 							expenseUoW.Root.Counterparty = CounterpartyRepository.GetCounterpartyByINN (expenseUoW, doc.RecipientInn);
@@ -598,6 +599,7 @@ namespace Vodovoz
 							incomeUoW.Root.Date = doc.Date;
 							incomeUoW.Root.Total = doc.Total;
 							incomeUoW.Root.Description = doc.PaymentPurpose;
+							incomeUoW.Root.MoneyOperation.PaymentType = PaymentType.cashless;
 						var counterparty = CounterpartyRepository.GetCounterpartyByINN (incomeUoW, doc.PayerInn);
 						if(counterparty == null)
 							counterparty  = CounterpartyRepository.GetCounterpartyByAccount (incomeUoW, doc.PayerAccount);
