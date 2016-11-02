@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     docs.order_id,
@@ -92,7 +92,8 @@
                 OR incoming_delivery_point_id = @delivery_point_id))
                 OR (writeoff_counterparty_id = @client_id
                 AND (@delivery_point_id = - 1
-                OR writeoff_delivery_point_id = @delivery_point_id)))) AS equipment_moving
+                OR writeoff_delivery_point_id = @delivery_point_id)))) AS equipment_moving,
+                doc_name
 FROM
     (SELECT 
         orders.id AS order_id,
@@ -100,7 +101,8 @@ FROM
             orders.delivery_date AS doc_date,
             orders.payment_type,
             delivery_points.id AS delivery_point_id,
-            delivery_points.compiled_address AS delivery_point_address
+            delivery_points.compiled_address AS delivery_point_address,
+            'Заказ' AS doc_name
     FROM
         orders
     LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
@@ -117,7 +119,8 @@ FROM
             doc_residue.date AS doc_date,
             doc_residue.debt_payment_type,
             doc_residue.delivery_point_id AS delivery_point_id,
-            delivery_points.compiled_address AS delivery_point_address
+            delivery_points.compiled_address AS delivery_point_address,
+            'Ввод остатков' AS doc_name
     FROM
         doc_residue
     LEFT JOIN delivery_points ON delivery_points.id = doc_residue.delivery_point_id
@@ -146,7 +149,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -189,6 +192,10 @@ FROM
         </Field>
         <Field Name="equipment_moving">
           <DataField>equipment_moving</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="doc_name">
+          <DataField>doc_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
       </Fields>
@@ -828,8 +835,8 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="doc_date">
-                      <Value>="Заказ №" + {order_id}</Value>
-                      <CanGrow>false</CanGrow>
+                      <Value>={doc_name} + " №" + {order_id}</Value>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
