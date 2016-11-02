@@ -29,37 +29,64 @@
     docs.payment_type,
     docs.delivery_point_id,
     docs.delivery_point_address,
-    (SELECT 
-            SUM(order_items.price * order_items.count)
-        FROM
-            order_items
-        WHERE
-            order_items.order_id = docs.order_id) AS sum,
+    IFNULL((SELECT 
+                    SUM(order_items.price * order_items.count)
+                FROM
+                    order_items
+                WHERE
+                    order_items.order_id = docs.order_id),
+            (SELECT 
+                    debt
+                FROM
+                    doc_residue
+                        LEFT JOIN
+                    money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
+                WHERE
+                    doc_residue.id = docs.order_id)) AS sum,
     bottles_movement_operations.delivered,
     bottles_movement_operations.returned,
+    IFNULL((SELECT 
+                    SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+                FROM
+                    deposit_operations
+                WHERE
+                    deposit_operations.order_id = docs.order_id
+                        AND deposit_operations.deposit_type = 'Bottles'),
+            (SELECT 
+                    deposit_residue_bottles
+                FROM
+                    doc_residue
+                WHERE
+                    doc_residue.id = docs.order_id)) AS bottles_deposit,
+    IFNULL((SELECT 
+                    SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+                FROM
+                    deposit_operations
+                WHERE
+                    deposit_operations.order_id = docs.order_id
+                        AND deposit_operations.deposit_type = 'Equipment'),
+            (SELECT 
+                    deposit_residue_equipment
+                FROM
+                    doc_residue
+                WHERE
+                    doc_residue.id = docs.order_id)) AS equipment_deposit,
     (SELECT 
-            SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-        FROM
-            deposit_operations
-        WHERE
-            deposit_operations.order_id = docs.order_id
-                AND deposit_operations.deposit_type = 'Bottles') AS bottles_deposit,
-    (SELECT 
-            SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-        FROM
-            deposit_operations
-        WHERE
-            deposit_operations.order_id = docs.order_id
-                AND deposit_operations.deposit_type = 'Equipment') AS equipment_deposit,
-    (SELECT 
-            GROUP_CONCAT(CONCAT(CASE WHEN writeoff_counterparty_id IS NULL THEN '&gt;&gt; ' WHEN incoming_counterparty_id IS NULL THEN '&lt;&lt; ' ELSE '&lt;&lt;&gt;&gt; ' END, nomenclature.name, ' - ', amount)
+            GROUP_CONCAT(CONCAT(CASE
+                                WHEN writeoff_counterparty_id IS NULL THEN '&gt;&gt; '
+                                WHEN incoming_counterparty_id IS NULL THEN '&lt;&lt; '
+                                ELSE '&lt;&lt;&gt;&gt; '
+                            END,
+                            nomenclature.name,
+                            ' - ',
+                            amount)
                     SEPARATOR ', ')
         FROM
             operations_counterparty_movement_docs
                 LEFT JOIN
             nomenclature ON nomenclature.id = nomenclature_id
         WHERE
-        operations_counterparty_movement_docs.order_id = docs.order_id
+            operations_counterparty_movement_docs.order_id = docs.order_id
                 AND ((incoming_counterparty_id = @client_id
                 AND (@delivery_point_id = - 1
                 OR incoming_delivery_point_id = @delivery_point_id))
@@ -84,7 +111,24 @@ FROM
             AND (@startDate = ''
             OR orders.delivery_date &gt;= @startDate)
             AND (@endDate = ''
-            OR orders.delivery_date &lt;= @endDate)) AS docs
+            OR orders.delivery_date &lt;= @endDate) UNION SELECT 
+        doc_residue.id AS doc_residue_id,
+            doc_residue.bottles_movement_operation_id,
+            doc_residue.date AS doc_date,
+            doc_residue.debt_payment_type,
+            doc_residue.delivery_point_id AS delivery_point_id,
+            delivery_points.compiled_address AS delivery_point_address
+    FROM
+        doc_residue
+    LEFT JOIN delivery_points ON delivery_points.id = doc_residue.delivery_point_id
+    WHERE
+        doc_residue.client_id = @client_id
+            AND (@delivery_point_id = - 1
+            OR doc_residue.delivery_point_id = @delivery_point_id)
+            AND (@startDate = ''
+            OR doc_residue.date &gt;= @startDate)
+            AND (@endDate = ''
+            OR doc_residue.date &lt;= @endDate)) AS docs
         LEFT JOIN
     bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id;</CommandText>
         <QueryParameters>
@@ -167,7 +211,7 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(CAST(delivered as SIGNED) - CAST(returned as SIGNED)) AS bottle_balance
@@ -186,7 +230,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -867,8 +911,8 @@ WHERE
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -883,10 +927,10 @@ WHERE
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Left</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
