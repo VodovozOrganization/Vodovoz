@@ -19254,17 +19254,13 @@ RegistrationNumber</property>
             <property name="CanFocus">True</property>
             <property name="CurrentPage">0</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+              <widget class="Gtk.Table" id="datatable1">
                 <property name="MemberName" />
                 <property name="NRows">9</property>
                 <property name="NColumns">4</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
                 <property name="BorderWidth">6</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
                 <child>
                   <placeholder />
                 </child>
@@ -19275,21 +19271,13 @@ RegistrationNumber</property>
                   <placeholder />
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataCheckButton" id="checkRepeated">
+                  <widget class="Gamma.GtkWidgets.yCheckButton" id="checkRepeated">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Повторный ремонт</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">RepeatedService</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="Editable">True</property>
-                    <property name="AutomaticTitle">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">RepeatedService</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">6</property>
@@ -19307,16 +19295,9 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataLabel" id="dataNumber">
+                  <widget class="Gamma.GtkWidgets.yLabel" id="dataNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Id</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="Important">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Id</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
@@ -19332,16 +19313,13 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSOrmProject.DataDatePicker" id="datePickUpDate">
+                  <widget class="Gamma.Widgets.yDatePicker" id="datePickUpDate">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <property name="WithTime">False</property>
                     <property name="Date">0</property>
                     <property name="IsEditable">True</property>
                     <property name="AutoSeparation">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">ServiceStartDate</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
                   </widget>
                   <packing>
                     <property name="TopAttach">5</property>
@@ -19469,17 +19447,11 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
-                      <widget class="Gtk.DataBindings.DataTextView" id="textReason">
+                      <widget class="Gamma.GtkWidgets.yTextView" id="textReason">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
                         <property name="Text" translatable="yes" />
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Reason</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Reason</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
                       </widget>
                     </child>
                   </widget>
@@ -19503,17 +19475,11 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
-                      <widget class="Gtk.DataBindings.DataTextView" id="textKit">
+                      <widget class="Gamma.GtkWidgets.yTextView" id="textKit">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
                         <property name="Text" translatable="yes" />
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Kit</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Kit</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
                       </widget>
                     </child>
                   </widget>
@@ -19802,14 +19768,9 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCounterparty">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceCounterparty">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFormatString" />
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Counterparty</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="CursorPointsEveryType">False</property>
                     <signal name="Changed" handler="OnReferenceCounterpartyChanged" />
                   </widget>
                   <packing>
@@ -19829,13 +19790,9 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReferenceVM" id="referenceDeliveryPoint">
+                  <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">DeliveryPoint</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="CursorPointsEveryType">False</property>
                     <signal name="Changed" handler="OnReferenceDeliveryPointChanged" />
                   </widget>
                   <packing>
@@ -19855,16 +19812,11 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipment">
+                  <widget class="Gamma.Widgets.yEntryReference" id="referenceEquipment">
                     <property name="MemberName" />
                     <property name="Sensitive">False</property>
                     <property name="Events">ButtonPressMask</property>
-                    <property name="DisplayFields">Serial</property>
-                    <property name="DisplayFormatString">{0}</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Equipment</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="CursorPointsEveryType">False</property>
+                    <property name="DisplayFormatString" />
                     <signal name="Changed" handler="OnReferenceEquipmentChanged" />
                   </widget>
                   <packing>
@@ -19884,16 +19836,12 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceNomenclature">
+                  <widget class="Gamma.Widgets.yEntryReference" id="referenceNomenclature">
                     <property name="MemberName" />
                     <property name="Sensitive">False</property>
                     <property name="Events">ButtonPressMask</property>
                     <property name="DisplayFields">Name</property>
                     <property name="DisplayFormatString">{0}</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Nomenclature</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="CursorPointsEveryType">False</property>
                     <signal name="Changed" handler="OnReferenceNomenclatureChanged" />
                   </widget>
                   <packing>
@@ -19972,32 +19920,22 @@ RegistrationNumber</property>
                 <property name="Spacing">6</property>
                 <property name="BorderWidth">6</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataTable" id="datatable2">
+                  <widget class="Gtk.Table" id="datatable2">
                     <property name="MemberName" />
                     <property name="NRows">2</property>
                     <property name="NColumns">2</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
-                    <property name="InheritedDataSource">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
                     <child>
                       <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow2">
                         <property name="MemberName" />
                         <property name="ShadowType">In</property>
                         <child>
-                          <widget class="Gtk.DataBindings.DataTextView" id="textDiagnosticsResult">
+                          <widget class="Gamma.GtkWidgets.yTextView" id="textDiagnosticsResult">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
                             <property name="Text" translatable="yes" />
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">DiagnosticsResult</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">DiagnosticsResult</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                         </child>
                       </widget>
@@ -20055,15 +19993,11 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEngineer">
+                      <widget class="Gamma.Widgets.yEntryReference" id="referenceEngineer">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
                         <property name="DisplayFields">FullName</property>
                         <property name="DisplayFormatString">{0}</property>
-                        <property name="InheritedDataSource">True</property>
-                        <property name="Mappings">Engineer</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="CursorPointsEveryType">False</property>
                       </widget>
                       <packing>
                         <property name="LeftAttach">1</property>
@@ -20091,15 +20025,10 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
-                      <widget class="Gtk.DataBindings.DataTreeView" id="treePartsAndServices">
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="treePartsAndServices">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
-                        <property name="CursorPointsEveryType">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
                       </widget>
                     </child>
                   </widget>
@@ -20175,17 +20104,10 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.DataBindings.DataLabel" id="labelTotalPrice">
+                      <widget class="Gamma.GtkWidgets.yLabel" id="labelTotalPrice">
                         <property name="MemberName" />
                         <property name="Xalign">1</property>
                         <property name="LabelProp" translatable="yes">Цена</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="Mappings">TotalPrice</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="Important">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="Mappings">TotalPrice</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
                       </widget>
                       <packing>
                         <property name="Position">4</property>
@@ -20225,15 +20147,10 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>
-                      <widget class="Gtk.DataBindings.DataTreeView" id="treeHistory">
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="treeHistory">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="ShowScrollbars">True</property>
-                        <property name="CursorPointsEveryType">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
-                        <property name="InheritedDataSource">False</property>
-                        <property name="InheritedBoundaryDataSource">False</property>
                       </widget>
                     </child>
                   </widget>
@@ -20243,16 +20160,12 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataTable" id="datatable3">
+                  <widget class="Gtk.Table" id="datatable3">
                     <property name="MemberName" />
                     <property name="NRows">2</property>
                     <property name="NColumns">2</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
-                    <property name="InheritedDataSource">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
                     <child>
                       <widget class="QSOrmProject.EnumListComboBox" id="enumStatusEditable">
                         <property name="MemberName" />
@@ -20278,17 +20191,11 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="ShadowType">In</property>
                         <child>
-                          <widget class="Gtk.DataBindings.DataTextView" id="textComment">
+                          <widget class="Gamma.GtkWidgets.yTextView" id="textComment">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
                             <property name="Text" translatable="yes" />
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Comment</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Comment</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                         </child>
                       </widget>

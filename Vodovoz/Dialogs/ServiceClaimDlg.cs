@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
-using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
@@ -11,12 +11,12 @@ using QSTDI;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -108,12 +108,6 @@ namespace Vodovoz
 			enumStatusEditable.Sensitive = true;
 			notebook1.ShowTabs = false;
 			notebook1.CurrentPage = 0;
-			subjectAdaptor.Target = UoWGeneric.Root;
-
-			datatable1.DataSource = subjectAdaptor;
-			datatable2.DataSource = subjectAdaptor;
-			datatable3.DataSource = subjectAdaptor;
-			labelTotalPrice.DataSource = subjectAdaptor;
 
 			enumcomboWithSerial.ItemsEnum = typeof(ServiceClaimComboEnum);
 			enumStatus.ItemsEnum = typeof(ServiceClaimStatus);
@@ -123,10 +117,23 @@ namespace Vodovoz
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
 			enumPaymentType.Binding.AddBinding(Entity, e => e.Payment, w => w.SelectedItem).InitializeFromSource();
 
-			referenceCounterparty.SubjectType = typeof(Counterparty);
+			checkRepeated.Binding.AddBinding(Entity, e => e.RepeatedService, w => w.Active).InitializeFromSource();
+			dataNumber.Binding.AddBinding(Entity, e => e.Id, w => w.LabelProp, new IdToStringConverter()).InitializeFromSource();
+			labelTotalPrice.Binding.AddFuncBinding(Entity, e => e.TotalPrice.ToString("C"), w => w.LabelProp).InitializeFromSource();
+			datePickUpDate.Binding.AddBinding(Entity, e => e.ServiceStartDate, w => w.Date).InitializeFromSource();
+			textReason.Binding.AddBinding(Entity, e => e.Reason, w => w.Buffer.Text).InitializeFromSource();
+			textKit.Binding.AddBinding(Entity, e => e.Kit, w => w.Buffer.Text).InitializeFromSource();
+			textDiagnosticsResult.Binding.AddBinding(Entity, e => e.DiagnosticsResult, w => w.Buffer.Text).InitializeFromSource();
+
+			var counterpartyFilter = new CounterpartyFilter(UoW);
+			counterpartyFilter.RestrictIncludeCustomer = true;
+			counterpartyFilter.RestrictIncludeSupplier = false;
+			counterpartyFilter.RestrictIncludePartner = true;
+			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
+			referenceCounterparty.Binding.AddBinding(Entity, e => e.Counterparty, w => w.Subject).InitializeFromSource();
+
 			referenceEngineer.SubjectType = typeof(Employee);
-			referenceEquipment.SubjectType = typeof(Equipment);
-			referenceNomenclature.SubjectType = typeof(Nomenclature);
+			referenceEngineer.Binding.AddBinding(Entity, e => e.Engineer, w => w.Subject).InitializeFromSource();
 
 			yentryEquipmentReplacement.ItemsQuery = EquipmentRepository.AvailableOnDutyEquipmentQuery ();
 			yentryEquipmentReplacement.SetObjectDisplayFunc<Equipment> (e => e.Title);
@@ -135,14 +142,19 @@ namespace Vodovoz
 				.InitializeFromSource();
 
 			referenceDeliveryPoint.Sensitive = (UoWGeneric.Root.Counterparty != null);
-			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
+			referenceDeliveryPoint.Binding.AddBinding(Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource();
 
 			referenceNomenclature.ItemsQuery = NomenclatureRepository.NomenclatureOfItemsForService ();
+			referenceNomenclature.Binding.AddBinding(Entity, e => e.Nomenclature, w => w.Subject).InitializeFromSource();
+
+			referenceEquipment.SubjectType = typeof(Equipment);
+			referenceEquipment.Sensitive = (UoWGeneric.Root.Nomenclature != null);
+			referenceEquipment.Binding.AddBinding(Entity, e => e.Equipment, w => w.Subject).InitializeFromSource();
 
 			treePartsAndServices.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimItems;
 			treeHistory.ItemsDataSource = UoWGeneric.Root.ObservableServiceClaimHistory;
 
-			treePartsAndServices.ColumnMappingConfig = FluentMappingConfig <ServiceClaimItem>.Create ()
+			treePartsAndServices.ColumnsConfig = FluentColumnsConfig <ServiceClaimItem>.Create ()
 				.AddColumn ("Номенклатура").SetDataProperty (node => node.Nomenclature != null ? node.Nomenclature.Name : "-")
 				.AddColumn ("Кол-во").AddNumericRenderer (node => node.Count)
 				.Adjustment (new Adjustment (0, 0, 1000000, 1, 100, 0))
@@ -155,7 +167,7 @@ namespace Vodovoz
 				.AddTextRenderer (node => CurrencyWorks.CurrencyShortName, false)
 				.Finish ();
 
-			treeHistory.ColumnMappingConfig = FluentMappingConfig <ServiceClaimHistory>.Create ()
+			treeHistory.ColumnsConfig = FluentColumnsConfig <ServiceClaimHistory>.Create ()
 				.AddColumn ("Дата").SetDataProperty (node => node.Date.ToShortDateString ())
 				.AddColumn ("Время").SetDataProperty (node => node.Date.ToString ("HH:mm"))
 				.AddColumn ("Статус").SetDataProperty (node => node.Status.GetEnumTitle ())
