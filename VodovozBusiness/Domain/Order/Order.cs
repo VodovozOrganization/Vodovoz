@@ -581,7 +581,8 @@ namespace Vodovoz.Domain.Orders
 				if (depositPaymentItem != null)
 					depositPaymentItem.Count = expectedBottleDepositsCount;
 				else {
-					ObservableOrderItems.Add (new OrderItem {
+/* Временно отключил взятие с клиента залогов за бутыли. Удалить если залоги так и не вернутся.
+ * 					ObservableOrderItems.Add (new OrderItem {
 						Order = this,
 						AdditionalAgreement = null,
 						Count = expectedBottleDepositsCount,
@@ -598,7 +599,7 @@ namespace Vodovoz.Domain.Orders
 						FreeRentItem = null,
 						PaidRentItem = null,
 						PaymentDirection = PaymentDirection.FromClient
-					});
+					}); */
 				}
 				return;
 			}
