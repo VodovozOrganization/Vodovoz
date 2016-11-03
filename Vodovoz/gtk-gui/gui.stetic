@@ -23776,6 +23776,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24671,6 +24672,29 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
+                          <widget class="Gtk.VSeparator" id="vseparatorDiscont">
+                            <property name="MemberName" />
+                          </widget>
+                          <packing>
+                            <property name="Position">1</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="Gtk.Label" id="labelDiscont">
+                            <property name="MemberName" />
+                            <property name="LabelProp" translatable="yes">Скидка на все:</property>
+                          </widget>
+                          <packing>
+                            <property name="Position">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
+                        </child>
+                        <child>
                           <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinDiscountOrder">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
@@ -24683,7 +24707,7 @@ RegistrationNumber</property>
                             <property name="ValueAsInt">0</property>
                           </widget>
                           <packing>
-                            <property name="Position">1</property>
+                            <property name="Position">3</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -24694,12 +24718,12 @@ RegistrationNumber</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Type">TextOnly</property>
-                            <property name="Label" translatable="yes">Применить скидку к заказу</property>
+                            <property name="Label" translatable="yes">Применить</property>
                             <property name="UseUnderline">True</property>
                             <signal name="Clicked" handler="OnButtonSetDiscountClicked" />
                           </widget>
                           <packing>
-                            <property name="Position">2</property>
+                            <property name="Position">4</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -24712,7 +24736,7 @@ RegistrationNumber</property>
                             <property name="LabelProp" translatable="yes">Сумма:</property>
                           </widget>
                           <packing>
-                            <property name="Position">3</property>
+                            <property name="Position">5</property>
                             <property name="AutoSize">False</property>
                           </packing>
                         </child>
@@ -24723,7 +24747,7 @@ RegistrationNumber</property>
                             <property name="LabelProp" translatable="yes">%$$$%</property>
                           </widget>
                           <packing>
-                            <property name="Position">4</property>
+                            <property name="Position">6</property>
                             <property name="AutoSize">False</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -24734,7 +24758,7 @@ RegistrationNumber</property>
                             <property name="MemberName" />
                           </widget>
                           <packing>
-                            <property name="Position">5</property>
+                            <property name="Position">7</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -24746,7 +24770,7 @@ RegistrationNumber</property>
                             <property name="LabelProp" translatable="yes">Итого:</property>
                           </widget>
                           <packing>
-                            <property name="Position">6</property>
+                            <property name="Position">8</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
@@ -24759,7 +24783,7 @@ RegistrationNumber</property>
                             <property name="LabelProp" translatable="yes">%$$$%</property>
                           </widget>
                           <packing>
-                            <property name="Position">7</property>
+                            <property name="Position">9</property>
                             <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
