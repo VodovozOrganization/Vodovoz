@@ -188,6 +188,7 @@ namespace Vodovoz
 
 			UoWGeneric.Root.ObservableOrderDepositItems.ListContentChanged += (sender, e) => {
 				UpdateSum ();
+				UpdateVisibleOfWingets();
 			};
 
 			UoWGeneric.Root.ObservableFinalOrderService.ElementAdded += (aList, aIdx) => {
@@ -196,6 +197,11 @@ namespace Vodovoz
 			
 			UoWGeneric.Root.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => {
 				UpdateSum ();
+				UpdateVisibleOfWingets();
+			};
+
+			Entity.ObservableOrderDepositItems.ListChanged += delegate(object aList) {
+				UpdateVisibleOfWingets();
 			};
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
@@ -261,6 +267,7 @@ namespace Vodovoz
 			enumPaymentType.Binding.AddBinding (Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource ();
 			
 			UpdateSum ();
+			UpdateVisibleOfWingets();
 
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable ();
@@ -493,6 +500,12 @@ namespace Vodovoz
 			labelSum.Text = CurrencyWorks.GetShortCurrencyString (sum);
 			UoWGeneric.Root.SumToReceive = sum + (Decimal)spinSumDifference.Value;
 			labelSumTotal.Text = CurrencyWorks.GetShortCurrencyString (UoWGeneric.Root.SumToReceive);
+		}
+
+		void UpdateVisibleOfWingets()
+		{
+			bool visibleDeposit = Entity.OrderDepositItems.Count > 0;
+			GtkScrolledWindowDeposit.Visible = labelDeposit.Visible = visibleDeposit;
 		}
 
 		protected void OnButtonViewDocumentClicked (object sender, EventArgs e)

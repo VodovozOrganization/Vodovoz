@@ -24594,7 +24594,7 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="label8">
+                  <widget class="Gtk.Label" id="labelDeposit">
                     <property name="MemberName" />
                     <property name="LabelProp" translatable="yes">Возврат залогов</property>
                   </widget>
@@ -24606,7 +24606,7 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindowDeposit">
                     <property name="MemberName" />
                     <property name="ShadowType">In</property>
                     <child>

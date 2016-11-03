@@ -104,9 +104,9 @@ namespace Vodovoz
 		
 		private global::Gamma.GtkWidgets.yTreeView treeItems;
 		
-		private global::Gtk.Label label8;
+		private global::Gtk.Label labelDeposit;
 		
-		private global::Gtk.ScrolledWindow GtkScrolledWindow4;
+		private global::Gtk.ScrolledWindow GtkScrolledWindowDeposit;
 		
 		private global::Gamma.GtkWidgets.yTreeView treeDepositRefundItems;
 		
@@ -737,25 +737,25 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.hbox8]));
 			w48.Position = 1;
 			// Container child vbox4.Gtk.Box+BoxChild
-			this.label8 = new global::Gtk.Label ();
-			this.label8.Name = "label8";
-			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString ("Возврат залогов");
-			this.vbox4.Add (this.label8);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.label8]));
+			this.labelDeposit = new global::Gtk.Label ();
+			this.labelDeposit.Name = "labelDeposit";
+			this.labelDeposit.LabelProp = global::Mono.Unix.Catalog.GetString ("Возврат залогов");
+			this.vbox4.Add (this.labelDeposit);
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.labelDeposit]));
 			w49.Position = 2;
 			w49.Expand = false;
 			w49.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
-			this.GtkScrolledWindow4 = new global::Gtk.ScrolledWindow ();
-			this.GtkScrolledWindow4.Name = "GtkScrolledWindow4";
-			this.GtkScrolledWindow4.ShadowType = ((global::Gtk.ShadowType)(1));
-			// Container child GtkScrolledWindow4.Gtk.Container+ContainerChild
+			this.GtkScrolledWindowDeposit = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindowDeposit.Name = "GtkScrolledWindowDeposit";
+			this.GtkScrolledWindowDeposit.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindowDeposit.Gtk.Container+ContainerChild
 			this.treeDepositRefundItems = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeDepositRefundItems.CanFocus = true;
 			this.treeDepositRefundItems.Name = "treeDepositRefundItems";
-			this.GtkScrolledWindow4.Add (this.treeDepositRefundItems);
-			this.vbox4.Add (this.GtkScrolledWindow4);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.GtkScrolledWindow4]));
+			this.GtkScrolledWindowDeposit.Add (this.treeDepositRefundItems);
+			this.vbox4.Add (this.GtkScrolledWindowDeposit);
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox4 [this.GtkScrolledWindowDeposit]));
 			w51.Position = 3;
 			// Container child vbox4.Gtk.Box+BoxChild
 			this.table2 = new global::Gtk.Table (((uint)(3)), ((uint)(4)), false);
