@@ -10,6 +10,7 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Panel;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -192,9 +193,8 @@ namespace Vodovoz
 		private bool CheckDuplicate()
 		{
 			string INN = UoWGeneric.Root.INN;
-			int counterpartyCounter = UoW.IsNew ? 1 : 0;
-			counterpartyCounter += Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN).Count;
-			if (counterpartyCounter > 1)
+			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			if (counterarties.Where(x => x.Id != UoWGeneric.Root.Id).Count() > 0)
 				return true;
 			return false;
 		}
