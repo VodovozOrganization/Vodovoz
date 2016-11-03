@@ -192,10 +192,9 @@ namespace Vodovoz
 		private bool CheckDuplicate()
 		{
 			string INN = UoWGeneric.Root.INN;
-			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
-			if (counterarties.Contains(UoWGeneric.Root))
-				return false;
-			if (counterarties.Count > 0)
+			int counterpartyCounter = UoW.IsNew ? 1 : 0;
+			counterpartyCounter += Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN).Count;
+			if (counterpartyCounter > 1)
 				return true;
 			return false;
 		}
