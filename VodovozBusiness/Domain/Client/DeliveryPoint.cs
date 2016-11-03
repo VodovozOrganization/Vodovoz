@@ -4,6 +4,9 @@ using QSOrmProject;
 using QSOsm.DTO;
 using Vodovoz.Domain.Logistic;
 using QSOsm;
+using System.Data.Bindings.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz.Domain.Client
 {
@@ -242,6 +245,25 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref contact, value, () => Contact); }
 		}
 
+		private IList<Contact> contacts;
+
+		[Display(Name = "Ответственные лица")]
+		public virtual IList<Contact> Contacts
+		{
+			get { return contacts; }
+			set { SetField(ref contacts, value, () => Contacts); }
+		}
+
+		GenericObservableList<Contact> observableContacts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<Contact> ObservableContacts {
+			get {
+				if (observableContacts == null)
+					observableContacts = new GenericObservableList<Contact> (Contacts);
+				return observableContacts;
+			}
+		}
+
 		string phone;
 
 		[Display (Name = "Телефон точки")]
@@ -318,6 +340,13 @@ namespace Vodovoz.Domain.Client
 			Room = String.Empty;
 			Comment = String.Empty;
 			Phone = String.Empty;
+		}
+
+		public virtual void AddContact(Contact contact)
+		{
+			if (Contacts.Any(x => x.Id == contact.Id))
+				return;
+			ObservableContacts.Add(contact);
 		}
 
 		public static IUnitOfWorkGeneric<DeliveryPoint> Create (Counterparty counterparty)

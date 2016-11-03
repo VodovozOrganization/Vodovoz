@@ -13,6 +13,9 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using System.Data.Bindings.Collections.Generic;
+using Gamma.ColumnConfig;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -45,6 +48,19 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
+			notebook1.CurrentPage = 0;
+			notebook1.ShowTabs = false;
+
+			buttonDeleteResponsiblePerson.Sensitive = false;
+			ytreeviewResponsiblePersons.ColumnsConfig = FluentColumnsConfig<Contact>.Create()
+				.AddColumn("Ответственные лица").AddTextRenderer(x => x.FullName)
+				.AddColumn("Телефоны").AddTextRenderer(x => String.Join("\n", x.Phones))
+				.Finish();
+			ytreeviewResponsiblePersons.Selection.Mode = Gtk.SelectionMode.Multiple;
+			ytreeviewResponsiblePersons.ItemsDataSource = Entity.ObservableContacts;
+			ytreeviewResponsiblePersons.Selection.Changed += YtreeviewResponsiblePersons_Selection_Changed;
+
+
 			entryPhone.ValidationMode = QSWidgetLib.ValidationType.phone;
 			entryPhone.Binding.AddBinding(Entity, e => e.Phone, w => w.Text).InitializeFromSource();
 			comboRoomType.ItemsEnum = typeof(RoomType);
@@ -136,6 +152,11 @@ namespace Vodovoz
 			rightsidepanel1.PanelHided += Rightsidepanel1_PanelHided;
 			Entity.PropertyChanged += Entity_PropertyChanged;
 			UpdateAddressOnMap();
+		}
+
+		void YtreeviewResponsiblePersons_Selection_Changed (object sender, EventArgs e)
+		{
+			buttonDeleteResponsiblePerson.Sensitive = ytreeviewResponsiblePersons.GetSelectedObjects().Length > 0;
 		}
 
 		void Entity_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -259,6 +280,45 @@ namespace Vodovoz
 				.List<DeliveryPoint> ();
 			if (sameAddress.Count > 0) {
 				UoWGeneric.Root.LogisticsArea = sameAddress [0].LogisticsArea;
+			}
+		}
+
+		protected void OnRadoiInformationToggled (object sender, EventArgs e)
+		{
+			if (radioInformation.Active)
+			{
+				notebook1.CurrentPage = 0;
+			}
+		}
+
+		protected void OnRadioContactsToggled (object sender, EventArgs e)
+		{
+			if (radioContacts.Active)
+			{
+				notebook1.CurrentPage = 1;
+			}
+		}
+
+		protected void OnButtonAddResponsiblePersonClicked (object sender, EventArgs e)
+		{
+			var dlg = new ReferenceRepresentation(new ViewModel.ContactsVM(UoW, Entity.Counterparty));
+			dlg.Mode = OrmReferenceMode.MultiSelect;
+			dlg.ObjectSelected += Dlg_ObjectSelected;
+			TabParent.AddSlaveTab (this, dlg);
+		}
+
+		void Dlg_ObjectSelected (object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			var contacts = UoW.GetById<Contact>(e.GetSelectedIds()).ToList();
+			contacts.ForEach(Entity.AddContact);
+		}
+
+		protected void OnButtonDeleteResponsiblePersonClicked (object sender, EventArgs e)
+		{
+			var selected = ytreeviewResponsiblePersons.GetSelectedObjects<Contact>();
+			foreach (var toDelete in selected)
+			{
+				Entity.ObservableContacts.Remove(toDelete);
 			}
 		}
 	}

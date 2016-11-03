@@ -172,7 +172,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="Goods">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <Timeout>30</Timeout>
         <CommandText>SELECT
@@ -193,7 +193,7 @@ WHERE order_items.order_id = @order_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.String</TypeName>
@@ -261,6 +261,44 @@ payment_type='ToClient'</CommandText>
         <CommandText>SELECT * FROM order_deposit_items LIMIT 1;</CommandText>
       </Query>
       <Fields />
+    </DataSet>
+    <DataSet Name="ResponsiblePerson">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+	CONCAT (
+    counterparty_contacts.surname, ' ',
+    counterparty_contacts.name, ' ',
+    counterparty_contacts.patronymic) AS responsible_person_name,
+    GROUP_CONCAT(number SEPARATOR '\n') AS responsible_person_phone
+FROM
+    orders
+        LEFT JOIN
+    counterparty_delivery_point_contacts ON counterparty_delivery_point_contacts.delivery_point_id = orders.delivery_point_id
+        LEFT JOIN
+    counterparty_contacts ON counterparty_contacts.counterparty_id = orders.client_id
+        AND counterparty_contacts.id = counterparty_delivery_point_contacts.contact_person_id
+        LEFT JOIN
+    phones ON phones.counterparty_contact_id = counterparty_contacts.id
+WHERE
+    orders.id = @order_id
+GROUP BY responsible_person_name</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="order_id">
+            <Value>=Parameters!order_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="responsible_person_name">
+          <DataField>responsible_person_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="responsible_person_phone">
+          <DataField>responsible_person_phone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
     </DataSet>
   </DataSets>
   <PageHeader>
@@ -790,8 +828,8 @@ payment_type='ToClient'</CommandText>
       <List Name="List2">
         <Height>105.65pt</Height>
         <Width>539.07pt</Width>
-        <Left>35.00pt</Left>
-        <Top>277.40pt</Top>
+        <Left>32.6pt</Left>
+        <Top>311.5pt</Top>
         <ReportItems>
           <Textbox Name="Textbox42">
             <Height>13.50pt</Height>
@@ -894,7 +932,7 @@ payment_type='ToClient'</CommandText>
         <Height>11.26pt</Height>
         <Width>598.34pt</Width>
         <Left>0.0pt</Left>
-        <Top>239.4pt</Top>
+        <Top>273.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -908,6 +946,128 @@ payment_type='ToClient'</CommandText>
           </Parameter>
         </Parameters>
       </Subreport>
+      <Table Name="Table2">
+        <DataSetName>ResponsiblePerson</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>237.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>133.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Ответственное лицо</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Телефон</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>=Fields!responsible_person_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>=Fields!responsible_person_phone.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>53.8pt</Left>
+        <Top>234.5pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
