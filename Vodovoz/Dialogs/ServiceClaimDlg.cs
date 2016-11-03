@@ -9,7 +9,6 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Orders;
@@ -21,7 +20,6 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ServiceClaimDlg : OrmGtkDialogBase<ServiceClaim>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
 		#region IPanelInfoProvider implementation
@@ -427,11 +425,25 @@ namespace Vodovoz
 		{
 			if (CurrentObjectChanged != null)
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(DeliveryPoint));
+
+			UpdateEquipmentState();
 			FixNomenclatureAndEquipmentSensitivity ();
 			referenceEquipment.ItemsQuery = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (UoWGeneric.Root.Counterparty, UoWGeneric.Root.DeliveryPoint);
 		}
 
-		protected void FixNomenclatureAndEquipmentSensitivity(){
+		void UpdateEquipmentState()
+		{
+			int equipmentsCounts = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (Entity.Counterparty, Entity.DeliveryPoint).GetExecutableQueryOver(UoW.Session).RowCount();
+			if (equipmentsCounts == 0 && Entity.Equipment == null)
+			{
+				enumcomboWithSerial.SelectedItem = ServiceClaimComboEnum.WithoutSerial;
+			}
+			ylabelEquipmentInfo.LabelProp = RusNumber.FormatCase(equipmentsCounts, "На точке числится {0} единица оборудования", "На точке числится {0} единицы оборудования", "На точке числится {0} единиц оборудования");
+			enumcomboWithSerial.Sensitive = equipmentsCounts > 0;
+		}
+
+		protected void FixNomenclatureAndEquipmentSensitivity()
+		{
 			bool withSerial = ((ServiceClaimComboEnum)enumcomboWithSerial.SelectedItem) == ServiceClaimComboEnum.WithSerial;
 			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && 
 				(UoWGeneric.Root.DeliveryPoint !=null || UoWGeneric.Root.ServiceClaimType==ServiceClaimType.JustService);
