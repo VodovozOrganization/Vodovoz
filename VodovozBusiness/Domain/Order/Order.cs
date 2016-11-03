@@ -525,12 +525,13 @@ namespace Vodovoz.Domain.Orders
 
 		public void AddAnyGoodsNomenclatureForSale (Nomenclature nomenclature)
 		{
-			if (nomenclature.Category != NomenclatureCategory.additional && nomenclature.Category != NomenclatureCategory.bottle)
+			if (nomenclature.Category != NomenclatureCategory.additional && nomenclature.Category != NomenclatureCategory.bottle &&
+				nomenclature.Category != NomenclatureCategory.service && nomenclature.Category != NomenclatureCategory.disposableBottleWater)
 				return;
 			ObservableOrderItems.Add (new OrderItem {
 				Order = this,
 				AdditionalAgreement = null,
-				Count = 0,
+				Count = nomenclature.Category == NomenclatureCategory.service ? 1 : 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
 				Price = nomenclature.GetPrice (1)

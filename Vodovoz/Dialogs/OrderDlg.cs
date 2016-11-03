@@ -409,11 +409,7 @@ namespace Vodovoz
 
 		void AddNomenclature(Nomenclature nomenclature) 
 		{
-			if (nomenclature.Category == NomenclatureCategory.additional || nomenclature.Category == NomenclatureCategory.bottle){
-				UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
-			} else if (nomenclature.Category == NomenclatureCategory.disposableBottleWater){
-				UoWGeneric.Root.AddDisposableBottleWater(nomenclature);
-			} else if (nomenclature.Category == NomenclatureCategory.equipment) {
+			if (nomenclature.Category == NomenclatureCategory.equipment) {
 				UoWGeneric.Root.AddEquipmentNomenclatureForSale (nomenclature, UoWGeneric);
 			} else if (nomenclature.Category == NomenclatureCategory.water) {
 				CounterpartyContract contract = CounterpartyContractRepository.
@@ -445,6 +441,8 @@ namespace Vodovoz
 					UoWGeneric.Root.RecalcBottlesDeposits (UoWGeneric);
 				}
 			}
+			else
+				UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
 			UpdateSum ();
 		}
 
