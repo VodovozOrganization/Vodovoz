@@ -30,6 +30,14 @@ namespace Vodovoz.Repository
 				.SingleOrDefault ();
 		}
 
+		public static IList<Counterparty> GetCounterpartiesByINN(IUnitOfWork uow, string inn) 
+		{
+			if (string.IsNullOrWhiteSpace (inn))
+				return null;
+			return uow.Session.QueryOver<Counterparty>()
+				.Where(c => c.INN == inn).List<Counterparty>();
+		}
+
 		public static Counterparty GetCounterpartyByAccount (IUnitOfWork uow, string accountNumber)
 		{
 			if (string.IsNullOrWhiteSpace (accountNumber))
