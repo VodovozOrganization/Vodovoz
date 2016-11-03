@@ -187,7 +187,9 @@ namespace Vodovoz
 		{
 			decimal litersBalance = 0;
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
-			litersBalance = FuelBalance + litersGived;
+			decimal spentFuel = (decimal)RouteListClosing.RouteList.Car.FuelConsumption
+				/ 100 * RouteListClosing.RouteList.ActualDistance;
+			litersBalance = FuelBalance + litersGived - spentFuel;
 
 			decimal moneyToPay = -litersBalance * Entity.Fuel.Cost;
 
