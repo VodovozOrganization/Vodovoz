@@ -291,7 +291,7 @@ namespace Vodovoz
 			var equipments = UoW.GetById<Equipment>(tempItemList.Select(x => x.EquipmentId).ToArray());
 			foreach (var tempItem in tempItemList) {
 				var item = tempItem.EquipmentId > 0
-					? Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment.Id == tempItem.EquipmentId)
+					? Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment?.Id == tempItem.EquipmentId)
 					: Entity.Items.FirstOrDefault(x => x.MovementOperation.Nomenclature.Id == tempItem.NomenclatureId);
 				if (item == null) {
 					var nom = nomenclatures.First(x => x.Id == tempItem.NomenclatureId);
