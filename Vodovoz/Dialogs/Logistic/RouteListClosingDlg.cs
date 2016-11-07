@@ -511,7 +511,7 @@ namespace Vodovoz
 			else
 				text.Add("Не указан вид топлива");
 			
-			if (Entity.FuelGivedDocument?.Operation != null)
+			if (Entity.FuelGivedDocument?.Operation != null || Entity.RouteList.ActualDistance > 0)
 				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
 
 			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)",

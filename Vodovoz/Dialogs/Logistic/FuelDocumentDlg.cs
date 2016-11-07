@@ -180,7 +180,6 @@ namespace Vodovoz
 			}
 		}
 
-
 		protected void OnButtonSetRemainClicked (object sender, EventArgs e)
 		{
 			decimal litersBalance = 0;
