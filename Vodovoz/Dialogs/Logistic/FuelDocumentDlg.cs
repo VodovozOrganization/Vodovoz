@@ -72,8 +72,6 @@ namespace Vodovoz
 			rows = new GenericObservableList<TicketsRow>(list);
 			rows.ListContentChanged += Rows_ListContentChanged;
 
-			yspinDistance.Text = RouteListClosing.RouteList.ActualDistance.ToString();
-
 			disablespinMoney.Binding.AddBinding(Entity, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
 
 			UpdateFuelInfo();
