@@ -145,6 +145,7 @@ namespace Vodovoz.Domain.Documents
 			operation.Amount = amount;
 			operation.Nomenclature = nomenclature;
 			operation.IncomingWarehouse = Warehouse;
+			operation.Equipment = equipment;
 			operation.OperationTime = TimeStamp;
 			AddItem(new CarUnloadDocumentItem{
 				ReciveType = reciveType,
