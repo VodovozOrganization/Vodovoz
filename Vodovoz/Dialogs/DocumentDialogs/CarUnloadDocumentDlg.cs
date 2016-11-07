@@ -265,6 +265,9 @@ namespace Vodovoz
 					};
 					tempItemList.Add(item);
 
+				if (node.ServiceClaim == null)
+					continue;
+
 				node.ServiceClaim.UoW = UoW;
 				if (node.IsNew)
 				{
