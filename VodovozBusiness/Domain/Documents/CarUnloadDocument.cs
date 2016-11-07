@@ -92,7 +92,11 @@ namespace Vodovoz.Domain.Documents
 			if (RouteList == null)
 				yield return new ValidationResult ("Не указан маршрутный лист, по которому осуществляется разгрузка.",
 					new[] { this.GetPropertyName (o => o.RouteList)});
-
+			
+			if(Warehouse == null)
+				yield return new ValidationResult ("Не указан склад разгрузки.",
+					new[] { this.GetPropertyName (o => o.Warehouse)});
+			
 			foreach(var item in Items)
 			{
 				if(item.MovementOperation.Nomenclature.Category == NomenclatureCategory.equipment)
