@@ -152,6 +152,19 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		decimal defaultTotalCash=-1;
+		public virtual decimal DefaultTotalCash{
+			get{ 
+				if (defaultTotalCash == -1) {
+					defaultTotalCash = TotalCash;
+				}
+				return defaultTotalCash; 
+			}
+			set{
+				SetField(ref defaultTotalCash, value, () => DefaultTotalCash);
+			}
+		}
+
 		decimal forwarderWage;
 		public virtual decimal ForwarderWage{
 			get{
@@ -187,6 +200,10 @@ namespace Vodovoz.Domain.Logistic
 			return DriverWage != DefaultDriverWage;
 		}
 
+		public virtual bool HasUserSpecifiedTotalCash(){
+			return TotalCash != DefaultTotalCash;
+		}
+
 		public virtual string Title{
 			get{
 				return String.Format("Адрес в МЛ {0}", Order.DeliveryPoint.CompiledAddress);
@@ -213,6 +230,18 @@ namespace Vodovoz.Domain.Logistic
 			{
 				ForwarderWage = CalculateForwarderWage();
 				DefaultForwarderWage = ForwarderWage;
+			}
+		}
+
+		public virtual void RecalculateTotalCash()
+		{
+			if (!HasUserSpecifiedTotalCash())
+			{
+				TotalCash = 0;
+				foreach (var item in Order.OrderItems)
+				{
+					TotalCash += item.ActualCount * item.Price;
+				}
 			}
 		}
 

@@ -191,6 +191,7 @@ namespace Vodovoz
 			foreach (var item in routeListAddressesView.Items)
 			{
 				(item as RouteListItem).RecalculateWages();
+				(item as RouteListItem).RecalculateTotalCash();
 			}
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
