@@ -183,6 +183,12 @@ namespace Vodovoz
 		{			
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
+			item.RecalculateTotalCash();
+			if (!item.IsDelivered())
+				foreach (var itm in item.Order.OrderItems) {
+					itm.ActualCount = 0;
+				}
+			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
 		}
 
@@ -190,8 +196,9 @@ namespace Vodovoz
 		{
 			foreach (var item in routeListAddressesView.Items)
 			{
-				(item as RouteListItem).RecalculateWages();
-				(item as RouteListItem).RecalculateTotalCash();
+				var rli = item as RouteListItem;
+				rli.RecalculateWages();
+				rli.RecalculateTotalCash();
 			}
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();

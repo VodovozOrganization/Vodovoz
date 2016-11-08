@@ -237,11 +237,8 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if (!HasUserSpecifiedTotalCash())
 			{
-				TotalCash = 0;
-				foreach (var item in Order.OrderItems)
-				{
-					TotalCash += item.ActualCount * item.Price;
-				}
+				TotalCash = CalculateTotalCash();
+				DefaultTotalCash = TotalCash;
 			}
 		}
 
@@ -325,6 +322,14 @@ namespace Vodovoz.Domain.Logistic
 				+ smallFullBottlesPayment;
 			
 			return wage;
+		}
+
+		public virtual decimal CalculateTotalCash()
+		{
+			if (!IsDelivered())
+				return 0;
+
+			return Order.OrderItems.Sum(item => item.ActualCount * item.Price);
 		}
 
 		public virtual int CoolersToClient{
