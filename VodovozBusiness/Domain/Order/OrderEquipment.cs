@@ -3,6 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Service;
 
 namespace Vodovoz.Domain.Orders
 {
@@ -104,6 +105,15 @@ namespace Vodovoz.Domain.Orders
 				else
 					return "Неизвестное оборудование";
 			}
+		}
+
+		private ServiceClaim serviceClaim;
+
+		[Display(Name = "Номер заявки на обслуживание")]
+		public virtual ServiceClaim ServiceClaim
+		{
+			get { return serviceClaim; }
+			set { SetField(ref serviceClaim, value, () => ServiceClaim); }
 		}
 
 		public virtual string DirectionString { get { return Direction.GetEnumTitle (); } }

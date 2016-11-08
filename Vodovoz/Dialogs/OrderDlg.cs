@@ -105,7 +105,7 @@ namespace Vodovoz
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
 
-			//Подписывемся на изменения листов для засеривания клинета
+			//Подписывемся на изменения листов для засеривания клиента
 			Entity.ObservableOrderDocuments.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
@@ -235,10 +235,14 @@ namespace Vodovoz
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
 				.Finish ();
 
-			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment> ()
-				.AddColumn ("Наименование").SetDataProperty (node => node.NameString)
-				.AddColumn ("Направление").SetDataProperty (node => node.DirectionString)
-				.AddColumn ("Причина").SetDataProperty (node => node.ReasonString)
+			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
+				.AddColumn("Наименование").SetDataProperty(node => node.NameString)
+				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
+				.AddColumn("Причина").SetDataProperty(node => node.ReasonString)
+				.AddColumn("Номер заявки").AddTextRenderer(
+					node => node.ServiceClaim != null
+					? node.ServiceClaim.Id.ToString()
+					: "")
 				.Finish ();
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument> ()

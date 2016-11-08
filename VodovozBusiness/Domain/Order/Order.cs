@@ -766,7 +766,8 @@ namespace Vodovoz.Domain.Orders
 						Equipment = service.Equipment,
 						NewEquipmentNomenclature = service.Equipment == null ? service.Nomenclature : null,
 						OrderItem = null,
-						Reason = Reason.Service
+						Reason = Reason.Service,
+						ServiceClaim = service
 					});
 				}
 				if (service.ReplacementEquipment != null) {

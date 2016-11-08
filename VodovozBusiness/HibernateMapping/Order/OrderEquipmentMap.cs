@@ -16,6 +16,7 @@ namespace Vodovoz.HMap
 			Map (x => x.Confirmed).Column("confirmed");
 			Map (x => x.ConfirmedComment).Column("confirmed_comments");
 
+			References (x => x.ServiceClaim).Column("service_claim_id");
 			References (x => x.Order).Column ("order_id");
 			References (x => x.Equipment).Column ("equipment_id");
 			References (x => x.OrderItem).Column ("order_item_id");
