@@ -183,7 +183,7 @@ namespace Vodovoz
 						}
 						else
 						{
-							Entity.ChangeStatus(RouteListStatus.InLoading);
+							Entity.ChangeStatus(RouteListStatus.EnRoute);
 						}
 					}
 					else

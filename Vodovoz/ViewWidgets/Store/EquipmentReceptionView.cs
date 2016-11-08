@@ -35,8 +35,6 @@ namespace Vodovoz
 
 		ReceptionEquipmentItemNode equipmentToSetSerial;
 
-		string colTitleServiceClaim = "Заявка на сервис";
-
 		public EquipmentReceptionView()
 		{
 			this.Build();
@@ -47,16 +45,11 @@ namespace Vodovoz
 				.AddColumn ("Кол-во")
 				.AddToggleRenderer (node => node.Returned, false)						
 				.AddNumericRenderer (node => node.Amount, false)
-				.AddColumn(colTitleServiceClaim)
-				.AddComboRenderer(node=>node.ServiceClaim)
-				.Editing()
-				.SetDisplayFunc(service=>{
-					var serviceClaim = service as ServiceClaim;
-					var orderId = serviceClaim.InitialOrder.Id;
-					return String.Format("Заявка №{0}, заказ №{1}",serviceClaim.Id,orderId);
-				})
-				.AddSetter((cell,node)=>cell.Sensitive = node.IsNew)
-				.AddSetter((cell,node)=>cell.Editable = node.IsNew)
+				.AddColumn("Номер заявки на сервис")
+				.AddTextRenderer(
+					node => node.ServiceClaim != null
+					? node.ServiceClaim.Id.ToString()
+					: "")
 				.AddColumn("")
 				.Finish ();
 
@@ -92,12 +85,6 @@ namespace Vodovoz
 				routeList = value;
 				if (routeList != null)
 				{
-					serviceClaims = RouteList.Addresses
-					.SelectMany(address => address.Order.InitialOrderService)
-					.ToList();
-					var column = (ColumnMapping<ReceptionEquipmentItemNode>)ytreeEquipment.ColumnsConfig.ConfiguredColumns.First(x => x.Title == colTitleServiceClaim);
-					var cell = (ComboRendererMapping<ReceptionEquipmentItemNode>) column.ConfiguredRenderersGeneric.First();
-					cell.FillItems<ServiceClaim>(serviceClaims.Where(sc=>sc.Equipment==null).ToList());
 					FillListEquipmentFromRoute();
 				}	
 				else
@@ -138,6 +125,7 @@ namespace Vodovoz
 						Projections.Constant(true),
 						Projections.Constant(false)
 					)).WithAlias (() => resultAlias.IsNew)
+					.Select(() => orderEquipmentAlias.ServiceClaim).WithAlias(() => resultAlias.ServiceClaim)
 				)
 				.TransformUsing (Transformers.AliasToBean<ReceptionEquipmentItemNode> ())
 				.List<ReceptionEquipmentItemNode> ();
