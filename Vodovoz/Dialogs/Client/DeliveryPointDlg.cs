@@ -71,8 +71,6 @@ namespace Vodovoz
 			referenceLogisticsArea.Binding.AddBinding(Entity, e => e.LogisticsArea, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
-			referenceContact.RepresentationModel = new ViewModel.ContactsVM (UoWGeneric, Entity.Counterparty);
-			referenceContact.Binding.AddBinding(Entity, e => e.Contact, w => w.Subject).InitializeFromSource();
 			entryCity.FocusOutEvent += FocusOut;
 			entryStreet.FocusOutEvent += FocusOut;
 			entryRegion.FocusOutEvent += FocusOut;
