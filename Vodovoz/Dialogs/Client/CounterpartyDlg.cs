@@ -194,6 +194,8 @@ namespace Vodovoz
 		{
 			string INN = UoWGeneric.Root.INN;
 			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
+			if (counterarties == null)
+				return false;
 			if (counterarties.Where(x => x.Id != UoWGeneric.Root.Id).Count() > 0)
 				return true;
 			return false;
