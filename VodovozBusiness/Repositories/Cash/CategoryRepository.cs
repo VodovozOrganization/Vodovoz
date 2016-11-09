@@ -9,9 +9,10 @@ namespace Vodovoz.Repository.Cash
 {
 	public class CategoryRepository
 	{
-		const string defaultIncomeCategory = "default_income_category";
-		const string routeListClosingIncomeCategory = "route_list_income";
+		const string defaultIncomeCategory 			 = "default_income_category";
+		const string routeListClosingIncomeCategory  = "route_list_income";
 		const string routeListClosingExpenseCategory = "route_list_expense";
+		const string fuelDocumentExpenseCategory 	 = "fuel_expense";
 
 		public static IList<IncomeCategory> IncomeCategories (IUnitOfWork uow)
 		{
@@ -74,6 +75,22 @@ namespace Vodovoz.Repository.Cash
 					return null;
 				return uow.Session.QueryOver<ExpenseCategory> ()
 					.Where (inc => inc.Id == id)
+					.Take (1)
+					.SingleOrDefault ();
+			}
+			return null;
+		}
+
+		public static ExpenseCategory FuelDocumentExpenseCategory(IUnitOfWork uow)
+		{
+			if (MainSupport.BaseParameters.All.ContainsKey(fuelDocumentExpenseCategory))
+			{
+				int id = -1;
+				id = int.Parse (MainSupport.BaseParameters.All [fuelDocumentExpenseCategory]);
+				if (id == -1)
+					return null;
+				return uow.Session.QueryOver<ExpenseCategory> ()
+					.Where (fExp => fExp.Id == id)
 					.Take (1)
 					.SingleOrDefault ();
 			}

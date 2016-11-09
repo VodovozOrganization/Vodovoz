@@ -43,9 +43,9 @@ namespace Vodovoz
 
 			RouteListClosing = routeListClosing;
 
-			UoWGeneric.Root.Date = DateTime.Now;
-			UoWGeneric.Root.Driver = routeListClosing.RouteList.Car.Driver;
-			UoWGeneric.Root.Fuel = routeListClosing.RouteList.Car.FuelType;
+			UoWGeneric.Root.Date 	  = DateTime.Now;
+			UoWGeneric.Root.Driver 	  = routeListClosing.RouteList.Car.Driver;
+			UoWGeneric.Root.Fuel 	  = routeListClosing.RouteList.Car.FuelType;
 			UoWGeneric.Root.LiterCost = routeListClosing.RouteList.Car.FuelType.Cost;
 
 			ConfigureDlg();
@@ -76,7 +76,7 @@ namespace Vodovoz
 
 			UpdateFuelInfo();
 			UpdateResutlInfo();
-			LoadTicketsFromEntiry();
+			LoadTicketsFromEntity();
 
 			ytreeTickets.ItemsDataSource = rows;
 		}
@@ -143,6 +143,7 @@ namespace Vodovoz
 			var text = new List<string>();
 			text.Add(string.Format("Итого выдано {0:N2} литров", litersGived));
 			text.Add(string.Format("Баланс после выдачи {0:N2}", FuelBalance + litersGived - spentFuel));
+
 			labelResultInfo.Text = string.Join("\n", text);
 		}
 
@@ -161,11 +162,31 @@ namespace Vodovoz
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
 		{
 			Entity.UpdateOperation(rows.ToDictionary(k => k.GasTicket, v => v.Count));
+			Entity.UpdateFuelCashExpense(UoW, RouteListClosing.Cashier, RouteListClosing.RouteList.Id);
 			UpdateResutlInfo();
-
+			UpdateFuelCashExpenseInfo();
 		}
 
-		private void LoadTicketsFromEntiry() 
+		private void UpdateFuelCashExpenseInfo()
+		{
+			if (Entity.FuelCashExpense == null && !Entity.PayedForFuel.HasValue)
+			{
+				buttonOpenExpense.Sensitive = false;
+				labelExpenseInfo.Text = "";
+			}
+			if (Entity.PayedForFuel.HasValue) {
+				if (Entity.FuelCashExpense.Id <= 0) {
+					buttonOpenExpense.Sensitive = false;
+					labelExpenseInfo.Text = "Расходный ордер будет создан";
+				}
+				if (Entity.FuelCashExpense.Id > 0) {
+					buttonOpenExpense.Sensitive = true;
+					labelExpenseInfo.Text = "";
+				}
+			}
+		}
+
+		private void LoadTicketsFromEntity() 
 		{
 			foreach (var ticket in Entity.FuelTickets)
 			{
@@ -197,6 +218,12 @@ namespace Vodovoz
 
 			if (Entity.PayedForFuel <= 0)
 				Entity.PayedForFuel = null;
+		}
+
+		protected void OnButtonOpenExpenseClicked (object sender, EventArgs e)
+		{
+			if (Entity.FuelCashExpense?.Id > 0)
+				TabParent.AddSlaveTab(this, new CashExpenseDlg(Entity.FuelCashExpense.Id));
 		}
 
 		private class TicketsRow : PropertyChangedBase

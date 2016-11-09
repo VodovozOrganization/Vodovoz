@@ -5,6 +5,7 @@ using Vodovoz.Domain.Logistic;
 using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Linq;
+using Vodovoz.Domain.Cash;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -75,6 +76,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private Expense fuelCashExpense;
+
+		[Display(Name = "Оплата топлива")]
+		public virtual Expense FuelCashExpense {
+			get { return fuelCashExpense; }
+			set { SetField(ref fuelCashExpense, value, () => FuelCashExpense); }
+		}
+
 		public FuelDocument()
 		{
 		}
@@ -89,11 +98,31 @@ namespace Vodovoz.Domain.Logistic
 			if (Operation == null)
 				Operation = new FuelOperation();
 
-			Operation.Driver = Driver;
-			Operation.Fuel = Fuel;
-			Operation.LitersGived = litersByTickets + litersByMoney;
+			Operation.Driver 		 = Driver;
+			Operation.Fuel 			 = Fuel;
+			Operation.LitersGived 	 = litersByTickets + litersByMoney;
 			Operation.LitersOutlayed = 0;
-			Operation.OperationTime = Date;
+			Operation.OperationTime  = Date;
+		}
+
+		public virtual void UpdateFuelCashExpense(IUnitOfWork uow, Employee cashier, int routeListId)
+		{
+			if (PayedForFuel.HasValue) {
+				if (FuelCashExpense == null) {
+					FuelCashExpense = new Expense
+					{
+						ExpenseCategory = Repository.Cash.CategoryRepository.FuelDocumentExpenseCategory(uow),
+						TypeOperation 	= ExpenseType.Expense,
+						Date 			= DateTime.Now,
+						Casher 			= cashier,
+						Employee 		= Driver,
+						Description 	=$"Оплата топлива по МЛ №{routeListId}",
+					};
+				}
+				FuelCashExpense.Money = PayedForFuel.Value;
+			}
+			else
+				FuelCashExpense = null;
 		}
 
 		public virtual void UpdateRowList(Dictionary<GazTicket, int> ticketsList)
