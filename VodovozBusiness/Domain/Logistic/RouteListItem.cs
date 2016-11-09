@@ -329,7 +329,7 @@ namespace Vodovoz.Domain.Logistic
 			if (!IsDelivered())
 				return 0;
 
-			return Order.OrderItems.Sum(item => item.ActualCount * item.Price);
+			return Order.OrderItems.Sum(item => item.ActualCount * item.Price * (1 - item.Discount/100));
 		}
 
 		public virtual int CoolersToClient{
