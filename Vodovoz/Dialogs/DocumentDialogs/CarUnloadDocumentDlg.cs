@@ -213,7 +213,7 @@ namespace Vodovoz
 
 			foreach(var item in equipmentreceptionview1.Items)
 			{
-				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment.Id == item.EquipmentId);
+				var returned = Entity.Items.FirstOrDefault(x => x.MovementOperation.Equipment?.Id == item.EquipmentId);
 				item.Amount = returned != null ? (int)returned.MovementOperation.Amount : 0;
 			}
 
