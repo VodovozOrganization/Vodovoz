@@ -245,7 +245,7 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref contact, value, () => Contact); }
 		}
 
-		private IList<Contact> contacts;
+		private IList<Contact> contacts = new List<Contact>();
 
 		[Display(Name = "Ответственные лица")]
 		public virtual IList<Contact> Contacts
