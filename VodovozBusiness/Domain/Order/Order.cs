@@ -372,8 +372,8 @@ namespace Vodovoz.Domain.Orders
 			order.DeliveryDate = service.ServiceStartDate;
 			order.PaymentType = service.Payment;
 			order.Author = author;
-			order.AddServiceClaimAsInitial(service);
 			service.InitialOrder = order;
+			order.AddServiceClaimAsInitial(service);
 			return order;
 		}
 
