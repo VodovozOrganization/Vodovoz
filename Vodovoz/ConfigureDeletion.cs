@@ -257,8 +257,7 @@ namespace Vodovoz
 				.AddDeleteDependenceFromBag(item => item.Emails)
 				.AddDeleteDependenceFromBag(item => item.Phones)
 				.AddClearDependence<Counterparty> (item => item.MainContact)
-				.AddClearDependence<Counterparty> (item => item.FinancialContact)
-				.AddClearDependence<DeliveryPoint> (item => item.Contact);
+				.AddClearDependence<Counterparty> (item => item.FinancialContact);
 
 			DeleteConfig.AddClearDependence<Post> (ClearDependenceInfo.Create<Contact> (item => item.Post));
 

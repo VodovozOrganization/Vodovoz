@@ -914,7 +914,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8083,7 +8082,7 @@ Patronymic</property>
                           <widget class="Gtk.Table" id="datatable1">
                             <property name="MemberName" />
                             <property name="ShowScrollbars">True</property>
-                            <property name="NRows">11</property>
+                            <property name="NRows">10</property>
                             <property name="NColumns">2</property>
                             <property name="RowSpacing">6</property>
                             <property name="ColumnSpacing">6</property>
@@ -8258,8 +8257,8 @@ Patronymic</property>
                                 </child>
                               </widget>
                               <packing>
-                                <property name="TopAttach">9</property>
-                                <property name="BottomAttach">10</property>
+                                <property name="TopAttach">8</property>
+                                <property name="BottomAttach">9</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>
@@ -8631,26 +8630,6 @@ Patronymic</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gtk.Label" id="label14">
-                                <property name="MemberName" />
-                                <property name="Xalign">1</property>
-                                <property name="LabelProp" translatable="yes">Ответственное лицо:</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="Gtk.Label" id="label15">
                                 <property name="MemberName" />
                                 <property name="Xalign">1</property>
@@ -8659,8 +8638,8 @@ Patronymic</property>
                                 <property name="Justify">Right</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">9</property>
-                                <property name="BottomAttach">10</property>
+                                <property name="TopAttach">8</property>
+                                <property name="BottomAttach">9</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -8681,8 +8660,8 @@ Patronymic</property>
                                 <property name="Justify">Right</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">10</property>
-                                <property name="BottomAttach">11</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="AutoSize">True</property>
                                 <property name="XOptions">Fill</property>
                                 <property name="YOptions">Fill</property>
@@ -8776,27 +8755,6 @@ Patronymic</property>
                               </packing>
                             </child>
                             <child>
-                              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceContact">
-                                <property name="MemberName" />
-                                <property name="Events">ButtonPressMask</property>
-                              </widget>
-                              <packing>
-                                <property name="TopAttach">8</property>
-                                <property name="BottomAttach">9</property>
-                                <property name="LeftAttach">1</property>
-                                <property name="RightAttach">2</property>
-                                <property name="AutoSize">True</property>
-                                <property name="XOptions">Fill</property>
-                                <property name="YOptions">Fill</property>
-                                <property name="XExpand">False</property>
-                                <property name="XFill">True</property>
-                                <property name="XShrink">False</property>
-                                <property name="YExpand">False</property>
-                                <property name="YFill">True</property>
-                                <property name="YShrink">False</property>
-                              </packing>
-                            </child>
-                            <child>
                               <widget class="Gamma.Widgets.yEntryReference" id="referenceDeliverySchedule">
                                 <property name="MemberName" />
                                 <property name="Events">ButtonPressMask</property>
@@ -8804,8 +8762,8 @@ Patronymic</property>
                                 <property name="DisplayFormatString">{0}</property>
                               </widget>
                               <packing>
-                                <property name="TopAttach">10</property>
-                                <property name="BottomAttach">11</property>
+                                <property name="TopAttach">9</property>
+                                <property name="BottomAttach">10</property>
                                 <property name="LeftAttach">1</property>
                                 <property name="RightAttach">2</property>
                                 <property name="AutoSize">True</property>

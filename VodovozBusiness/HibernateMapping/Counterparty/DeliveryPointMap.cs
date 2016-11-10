@@ -36,7 +36,6 @@ namespace Vodovoz.HMap
 			Map (x => x.IsActive).Column ("is_active");
 			Map (x => x.Phone).Column ("phone");
 
-			References (x => x.Contact).Column ("contact_person_id");
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.LogisticsArea).Column ("logistic_area_id");
 			References (x => x.DeliverySchedule).Column ("delivery_schedule_id");
