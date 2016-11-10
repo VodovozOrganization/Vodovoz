@@ -914,6 +914,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -23767,7 +23768,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="951 588">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="955 588">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -23828,6 +23829,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25340,6 +25342,20 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
+              <widget class="Gtk.Button" id="buttonWaitForPayment">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Ожидание оплаты</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonWaitForPaymentClicked" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">False</property>
+              </packing>
+            </child>
+            <child>
               <widget class="Gtk.Button" id="buttonCancelOrder">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -25350,7 +25366,7 @@ RegistrationNumber</property>
                 <signal name="Clicked" handler="OnButtonCancelOrderClicked" />
               </widget>
               <packing>
-                <property name="Position">1</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">False</property>
               </packing>
             </child>

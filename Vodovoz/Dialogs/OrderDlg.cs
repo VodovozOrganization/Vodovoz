@@ -791,7 +791,10 @@ namespace Vodovoz
 				buttonAccept.Label = "Подтвердить";
 			}
 
-			buttonCancelOrder.Sensitive = Entity.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.NewOrder;
+			buttonWaitForPayment.Sensitive = Entity.OrderStatus == OrderStatus.NewOrder;
+			buttonCancelOrder.Sensitive    = Entity.OrderStatus == OrderStatus.Accepted
+										  || Entity.OrderStatus == OrderStatus.NewOrder 
+										  || Entity.OrderStatus == OrderStatus.WaitForPayment;
 		}
 
 		protected void OnEnumSignatureTypeChanged (object sender, EventArgs e)
@@ -992,7 +995,7 @@ namespace Vodovoz
 			);
 		}
 
-		protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
+	protected void OnButtonCancelOrderClicked(object sender, EventArgs e)
 		{
 			var valid = new QSValidator<Order> (UoWGeneric.Root, 
 				new Dictionary<object, object> {
@@ -1030,6 +1033,19 @@ namespace Vodovoz
 			{
 				item.Discount = discount;
 			}
+		}
+
+		protected void OnButtonWaitForPaymentClicked (object sender, EventArgs e)
+		{
+			var valid = new QSValidator<Order> (UoWGeneric.Root, 
+				new Dictionary<object, object> {
+				{ "NewStatus", OrderStatus.WaitForPayment }
+			});
+			if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+				return;
+
+			Entity.ChangeStatus(OrderStatus.WaitForPayment);
+			UpdateButtonState();
 		}
 	}
 }

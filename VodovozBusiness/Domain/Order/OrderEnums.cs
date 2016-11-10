@@ -28,7 +28,9 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Недовоз")]
 		NotDelivered,
 		[Display (Name = "Доставка отменена")]
-		DeliveryCanceled
+		DeliveryCanceled,
+		[Display (Name = "Ожидание оплаты")]
+		WaitForPayment
 	}
 
 	public class OrderStatusStringType : NHibernate.Type.EnumStringType

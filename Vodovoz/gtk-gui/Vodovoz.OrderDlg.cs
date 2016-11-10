@@ -204,6 +204,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonAccept;
 		
+		private global::Gtk.Button buttonWaitForPayment;
+		
 		private global::Gtk.Button buttonCancelOrder;
 
 		protected virtual void Build ()
@@ -1224,22 +1226,31 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w103 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons [this.buttonAccept]));
 			w103.Position = 0;
 			// Container child hboxStatusButtons.Gtk.Box+BoxChild
+			this.buttonWaitForPayment = new global::Gtk.Button ();
+			this.buttonWaitForPayment.CanFocus = true;
+			this.buttonWaitForPayment.Name = "buttonWaitForPayment";
+			this.buttonWaitForPayment.UseUnderline = true;
+			this.buttonWaitForPayment.Label = global::Mono.Unix.Catalog.GetString ("Ожидание оплаты");
+			this.hboxStatusButtons.Add (this.buttonWaitForPayment);
+			global::Gtk.Box.BoxChild w104 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons [this.buttonWaitForPayment]));
+			w104.Position = 1;
+			// Container child hboxStatusButtons.Gtk.Box+BoxChild
 			this.buttonCancelOrder = new global::Gtk.Button ();
 			this.buttonCancelOrder.CanFocus = true;
 			this.buttonCancelOrder.Name = "buttonCancelOrder";
 			this.buttonCancelOrder.UseUnderline = true;
 			this.buttonCancelOrder.Label = global::Mono.Unix.Catalog.GetString ("Отменить заказ");
-			global::Gtk.Image w104 = new global::Gtk.Image ();
-			w104.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-cancel", global::Gtk.IconSize.Menu);
-			this.buttonCancelOrder.Image = w104;
+			global::Gtk.Image w105 = new global::Gtk.Image ();
+			w105.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-cancel", global::Gtk.IconSize.Menu);
+			this.buttonCancelOrder.Image = w105;
 			this.hboxStatusButtons.Add (this.buttonCancelOrder);
-			global::Gtk.Box.BoxChild w105 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons [this.buttonCancelOrder]));
-			w105.Position = 1;
-			this.vbox2.Add (this.hboxStatusButtons);
-			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hboxStatusButtons]));
+			global::Gtk.Box.BoxChild w106 = ((global::Gtk.Box.BoxChild)(this.hboxStatusButtons [this.buttonCancelOrder]));
 			w106.Position = 2;
-			w106.Expand = false;
-			w106.Fill = false;
+			this.vbox2.Add (this.hboxStatusButtons);
+			global::Gtk.Box.BoxChild w107 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hboxStatusButtons]));
+			w107.Position = 2;
+			w107.Expand = false;
+			w107.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -1272,6 +1283,7 @@ namespace Vodovoz
 			this.buttonViewDocument.Clicked += new global::System.EventHandler (this.OnButtonViewDocumentClicked);
 			this.buttonPrintSelected.Clicked += new global::System.EventHandler (this.OnButtonPrintSelectedClicked);
 			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
+			this.buttonWaitForPayment.Clicked += new global::System.EventHandler (this.OnButtonWaitForPaymentClicked);
 			this.buttonCancelOrder.Clicked += new global::System.EventHandler (this.OnButtonCancelOrderClicked);
 		}
 	}
