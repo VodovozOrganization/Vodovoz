@@ -325,6 +325,7 @@ namespace Vodovoz.Domain.Service
 			InitialOrder = order;
 			Counterparty = order.Client;
 			DeliveryPoint = order.DeliveryPoint;
+			Payment = order.PaymentType;
 			Status = ServiceClaimStatus.PickUp;
 			if(order.DeliveryDate.HasValue)
 				ServiceStartDate = order.DeliveryDate.Value;
