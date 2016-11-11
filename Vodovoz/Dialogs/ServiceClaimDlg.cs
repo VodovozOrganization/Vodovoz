@@ -109,7 +109,8 @@ namespace Vodovoz
 			notebook1.ShowTabs = false;
 			notebook1.CurrentPage = 0;
 
-			enumcomboWithSerial.ItemsEnum = typeof(ServiceClaimComboEnum);
+			enumcomboWithSerial.ItemsEnum = typeof(ServiceClaimEquipmentSerialType);
+			enumcomboWithSerial.Binding.AddBinding(Entity, e => e.WithSerial, w => w.SelectedItem).InitializeFromSource();
 			enumStatus.ItemsEnum = typeof(ServiceClaimStatus);
 			enumStatus.Binding.AddBinding(Entity, e => e.Status, w => w.SelectedItem).InitializeFromSource();
 			enumType.ItemsEnum = typeof(ServiceClaimType);
@@ -448,7 +449,7 @@ namespace Vodovoz
 			int equipmentsCounts = EquipmentRepository.GetEquipmentAtDeliveryPointQuery (Entity.Counterparty, Entity.DeliveryPoint).GetExecutableQueryOver(UoW.Session).RowCount();
 			if (equipmentsCounts == 0 && Entity.Equipment == null)
 			{
-				enumcomboWithSerial.SelectedItem = ServiceClaimComboEnum.WithoutSerial;
+				enumcomboWithSerial.SelectedItem = ServiceClaimEquipmentSerialType.WithoutSerial;
 			}
 			ylabelEquipmentInfo.LabelProp = RusNumber.FormatCase(equipmentsCounts, "На точке числится {0} единица оборудования", "На точке числится {0} единицы оборудования", "На точке числится {0} единиц оборудования");
 			enumcomboWithSerial.Sensitive = equipmentsCounts > 0;
@@ -456,20 +457,11 @@ namespace Vodovoz
 
 		protected void FixNomenclatureAndEquipmentSensitivity()
 		{
-			bool withSerial = ((ServiceClaimComboEnum)enumcomboWithSerial.SelectedItem) == ServiceClaimComboEnum.WithSerial;
+			bool withSerial = ((ServiceClaimEquipmentSerialType)enumcomboWithSerial.SelectedItem) == ServiceClaimEquipmentSerialType.WithSerial;
 			referenceEquipment.Sensitive = withSerial && UoWGeneric.Root.Counterparty!=null && 
 				(UoWGeneric.Root.DeliveryPoint !=null || UoWGeneric.Root.ServiceClaimType==ServiceClaimType.JustService);
 			referenceNomenclature.Sensitive = !withSerial && UoWGeneric.Root.Counterparty!=null;
 		}
-	}
-
-	enum ServiceClaimComboEnum
-	{
-		[Display (Name="с серийным номером")]
-		WithSerial,
-		[Display (Name="без серийного номера")]
-		WithoutSerial
-
 	}
 }
 

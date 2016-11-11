@@ -155,6 +155,14 @@ namespace Vodovoz.Domain.Service
 			}
 		}
 
+		private ServiceClaimEquipmentSerialType withSerial;
+
+		[Display(Name = "С/Без серийным номером")]
+		public virtual ServiceClaimEquipmentSerialType WithSerial
+		{
+			get { return withSerial; }
+			set { SetField(ref withSerial, value, () => WithSerial); }
+		}
 		GenericObservableList<ServiceClaimItem> observableServiceClaimItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public GenericObservableList<ServiceClaimItem> ObservableServiceClaimItems {
@@ -390,9 +398,25 @@ namespace Vodovoz.Domain.Service
 		RepairmanCall
 	}
 
+	public enum ServiceClaimEquipmentSerialType
+	{
+		[Display (Name="с серийным номером")]
+		WithSerial,
+		[Display (Name="без серийного номера")]
+		WithoutSerial
+
+	}
+
 	public class ServiceClaimTypeStringType : NHibernate.Type.EnumStringType
 	{
 		public ServiceClaimTypeStringType () : base (typeof(ServiceClaimType))
+		{
+		}
+	}
+
+	public class ServiceClaimEquipmentSerialStringType : NHibernate.Type.EnumStringType
+	{
+		public ServiceClaimEquipmentSerialStringType () : base (typeof(ServiceClaimEquipmentSerialType))
 		{
 		}
 	}
