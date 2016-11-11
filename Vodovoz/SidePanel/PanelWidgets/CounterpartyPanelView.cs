@@ -51,13 +51,12 @@ namespace Vodovoz.Panel
 			string backgroundDebtColor 	 = "";
 			if (debt > 0)
 			{
-				backgroundDebtColor 	 = "bacground=\"red\"";
+				backgroundDebtColor 	 = "background=\"red\"";
 				ylabelDebtInfo.LabelProp = "Долг:";
 			}
 			if (debt < 0)
-//			else
 			{
-				backgroundDebtColor 	 = "bacground=\"lightgreen\"";
+				backgroundDebtColor 	 = "background=\"lightgreen\"";
 				ylabelDebtInfo.LabelProp = "Баланс:";
 				debt 	= -debt;
 			}
