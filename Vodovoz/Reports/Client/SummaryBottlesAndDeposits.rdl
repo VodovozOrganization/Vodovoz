@@ -87,6 +87,7 @@
             nomenclature ON nomenclature.id = nomenclature_id
         WHERE
             operations_counterparty_movement_docs.order_id = docs.order_id
+            AND nomenclature.category = 'equipment'
                 AND ((incoming_counterparty_id = @client_id
                 AND (@delivery_point_id = - 1
                 OR incoming_delivery_point_id = @delivery_point_id))
@@ -134,7 +135,7 @@ FROM
             OR doc_residue.date &lt;= @endDate)) AS docs
         LEFT JOIN
     bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id
-ORDER BY docs.doc_date;</CommandText>
+    ORDER BY docs.doc_date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>=Parameters!client_id</Value>
