@@ -162,7 +162,7 @@ namespace Vodovoz.Domain.Logistic
 			var result = new List<DepositOperation>();
 			var bottleDepositNomenclature = NomenclatureRepository.GetBottleDeposit(UoW);
 			var bottleDepositPrice = bottleDepositNomenclature.GetPrice(1);
-			foreach (RouteListItem item in RouteList.Addresses.Where(address=>address.Order.PaymentType == PaymentType.cash))
+			foreach (RouteListItem item in RouteList.Addresses)//.Where(address=>address.Order.PaymentType == PaymentType.cash))
 			{
 				var deliveredEquipmentForRent = item.Order.OrderEquipments.Where(eq => eq.Confirmed)
 						.Where(eq => eq.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
@@ -222,83 +222,83 @@ namespace Vodovoz.Domain.Logistic
 					result.Add(operation);
 				}					
 
-				var bottleDepositsOperation = new DepositOperation()
-				{
-					Order = item.Order,
-					OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-					DepositType = DepositType.Bottles,
-					Counterparty = item.Order.Client,
-					DeliveryPoint = item.Order.DeliveryPoint,
-					ReceivedDeposit = item.DepositsCollected>0 ? item.DepositsCollected : 0,
-					RefundDeposit = item.DepositsCollected<0 ? -item.DepositsCollected : 0
-				};					
+//				var bottleDepositsOperation = new DepositOperation()
+//				{
+//					Order = item.Order,
+//					OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+//					DepositType = DepositType.Bottles,
+//					Counterparty = item.Order.Client,
+//					DeliveryPoint = item.Order.DeliveryPoint,
+//					ReceivedDeposit = item.DepositsCollected>0 ? item.DepositsCollected : 0,
+//					RefundDeposit = item.DepositsCollected<0 ? -item.DepositsCollected : 0
+//				};					
 				
-				var depositsCount = (int)(Math.Abs(item.DepositsCollected) / bottleDepositPrice);
-				var depositOrderItem = item.Order.ObservableOrderItems.FirstOrDefault (i => i.Nomenclature.Id == bottleDepositNomenclature.Id);
-				var depositItem = item.Order.ObservableOrderDepositItems.FirstOrDefault (i => i.DepositType == DepositType.Bottles);
+//				var depositsCount = (int)(Math.Abs(item.DepositsCollected) / bottleDepositPrice);
+//				var depositOrderItem = item.Order.ObservableOrderItems.FirstOrDefault (i => i.Nomenclature.Id == bottleDepositNomenclature.Id);
+//				var depositItem = item.Order.ObservableOrderDepositItems.FirstOrDefault (i => i.DepositType == DepositType.Bottles);
 
-				if (item.DepositsCollected>0) {
-					if (depositItem != null) {
-						depositItem.Deposit = bottleDepositPrice;
-						depositItem.Count = depositsCount;
-						depositItem.PaymentDirection = PaymentDirection.FromClient;
-						depositItem.DepositOperation = bottleDepositsOperation;
-					}
-					if (depositOrderItem != null)
-					{
-						depositOrderItem.Count = depositsCount;
-						depositOrderItem.ActualCount = depositsCount;
-					}
-					else {
-						item.Order.ObservableOrderItems.Add (new OrderItem {
-							Order = item.Order,
-							AdditionalAgreement = null,
-							Count = depositsCount,
-							ActualCount = depositsCount,
-							Equipment = null,
-							Nomenclature = bottleDepositNomenclature,
-							Price = bottleDepositPrice
-						});
-						item.Order.ObservableOrderDepositItems.Add (new OrderDepositItem {
-							Order = item.Order,
-							Count = depositsCount,
-							Deposit = bottleDepositPrice,
-							DepositOperation = bottleDepositsOperation,
-							DepositType = DepositType.Bottles,
-							FreeRentItem = null,
-							PaidRentItem = null,
-							PaymentDirection = PaymentDirection.FromClient
-						});
-					}
-				}
-				if (item.DepositsCollected==0) {
-					if (depositItem != null)
-						item.Order.ObservableOrderDepositItems.Remove (depositItem);
-					if (depositOrderItem != null)
-						item.Order.ObservableOrderItems.Remove (depositOrderItem);					
-				}
-				if (item.DepositsCollected<0) {
-					if (depositOrderItem != null)
-						item.Order.ObservableOrderItems.Remove (depositOrderItem);
-					if (depositItem != null) {
-						depositItem.Deposit = bottleDepositPrice;
-						depositItem.Count = depositsCount;
-						depositItem.PaymentDirection = PaymentDirection.ToClient;
-						depositItem.DepositOperation = bottleDepositsOperation;
-					} else
-						item.Order.ObservableOrderDepositItems.Add (new OrderDepositItem {
-							Order = item.Order,
-							DepositOperation = bottleDepositsOperation,
-							DepositType = DepositType.Bottles,
-							Deposit = bottleDepositPrice,
-							PaidRentItem = null,
-							FreeRentItem = null,
-							PaymentDirection = PaymentDirection.ToClient,
-							Count = depositsCount
-						});
-				}
-				if(bottleDepositsOperation.RefundDeposit!=0 || bottleDepositsOperation.ReceivedDeposit!=0)
-					result.Add(bottleDepositsOperation);
+//				if (item.DepositsCollected>0) {
+//					if (depositItem != null) {
+//						depositItem.Deposit = bottleDepositPrice;
+//						depositItem.Count = depositsCount;
+//						depositItem.PaymentDirection = PaymentDirection.FromClient;
+//						depositItem.DepositOperation = bottleDepositsOperation;
+//					}
+//					if (depositOrderItem != null)
+//					{
+//						depositOrderItem.Count = depositsCount;
+//						depositOrderItem.ActualCount = depositsCount;
+//					}
+//					else {
+//						item.Order.ObservableOrderItems.Add (new OrderItem {
+//							Order = item.Order,
+//							AdditionalAgreement = null,
+//							Count = depositsCount,
+//							ActualCount = depositsCount,
+//							Equipment = null,
+//							Nomenclature = bottleDepositNomenclature,
+//							Price = bottleDepositPrice
+//						});
+//						item.Order.ObservableOrderDepositItems.Add (new OrderDepositItem {
+//							Order = item.Order,
+//							Count = depositsCount,
+//							Deposit = bottleDepositPrice,
+//							DepositOperation = bottleDepositsOperation,
+//							DepositType = DepositType.Bottles,
+//							FreeRentItem = null,
+//							PaidRentItem = null,
+//							PaymentDirection = PaymentDirection.FromClient
+//						});
+//					}
+//				}
+//				if (item.DepositsCollected==0) {
+//					if (depositItem != null)
+//						item.Order.ObservableOrderDepositItems.Remove (depositItem);
+//					if (depositOrderItem != null)
+//						item.Order.ObservableOrderItems.Remove (depositOrderItem);					
+//				}
+//				if (item.DepositsCollected<0) {
+//					if (depositOrderItem != null)
+//						item.Order.ObservableOrderItems.Remove (depositOrderItem);
+//					if (depositItem != null) {
+//						depositItem.Deposit = bottleDepositPrice;
+//						depositItem.Count = depositsCount;
+//						depositItem.PaymentDirection = PaymentDirection.ToClient;
+//						depositItem.DepositOperation = bottleDepositsOperation;
+//					} else
+//						item.Order.ObservableOrderDepositItems.Add (new OrderDepositItem {
+//							Order = item.Order,
+//							DepositOperation = bottleDepositsOperation,
+//							DepositType = DepositType.Bottles,
+//							Deposit = bottleDepositPrice,
+//							PaidRentItem = null,
+//							FreeRentItem = null,
+//							PaymentDirection = PaymentDirection.ToClient,
+//							Count = depositsCount
+//						});
+//				}
+//				if(bottleDepositsOperation.RefundDeposit!=0 || bottleDepositsOperation.ReceivedDeposit!=0)
+//					result.Add(bottleDepositsOperation);
 			}
 			return result;
 		}
