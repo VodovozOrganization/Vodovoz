@@ -21,7 +21,6 @@ using ChatClass = Vodovoz.Domain.Chat.Chat;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListTrackDlg : TdiTabBase, IChatCallbackObserver
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();

@@ -458,6 +458,8 @@
     <Compile Include="Dialogs\Logistic\GasTicketDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentDlg.cs" />
+    <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RoutesAtDayDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

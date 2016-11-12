@@ -12,6 +12,7 @@ public partial class MainWindow : Window
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
 	Action ActionRouteListTable;
+	Action ActionRouteListsAtDay;
 	Action ActionRouteListClosingTable;
 	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
@@ -47,6 +48,7 @@ public partial class MainWindow : Window
 		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
+		ActionRouteListsAtDay = new Action ("ActionRouteListsAtDay", "Маршруты на день", null, "table");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин",null,"table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");
@@ -77,6 +79,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionWarehouseStock, null);
 		w1.Add (ActionClientBalance, null);
 		w1.Add (ActionRouteListTable, null);
+		w1.Add (ActionRouteListsAtDay, null);
 		w1.Add (ActionRouteListClosingTable, null);
 		w1.Add (ActionRouteListKeeping, null);
 		w1.Add (ActionRouteListTracking, null);
@@ -104,6 +107,7 @@ public partial class MainWindow : Window
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
+		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
 		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
@@ -128,6 +132,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
+
+	void ActionRouteListsAtDay_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<RoutesAtDayDlg>(),
+			() => new RoutesAtDayDlg ()
 		);
 	}
 

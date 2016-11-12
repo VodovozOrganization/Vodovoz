@@ -1,6 +1,7 @@
 ﻿<ui>
 	<toolbar name='toolbarSub'>
 		<toolitem name='ActionRouteListTable' action='ActionRouteListTable'/>
+		<toolitem name='ActionRouteListsAtDay' action='ActionRouteListsAtDay'/>
 		<toolitem name='ActionRouteListKeeping' action='ActionRouteListKeeping'/>
 		<toolitem name='ActionRouteListTracking' action='ActionRouteListTracking'/>
 		<toolitem name='ActionRouteListMileageCheck' action='ActionRouteListMileageCheck'/>
