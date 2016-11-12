@@ -27,12 +27,11 @@ namespace Vodovoz.Repository
 			}
 			return store;
 		}
-
-		//FIXME Удалить если не понадобится.
-		public static QueryOver<VodovozOrder> GetAcceptedOrdersForDateQueryOver (DateTime date)
+			
+		public static QueryOver<VodovozOrder> GetAcceptedOrdersForDateQuery (DateTime date)
 		{
 			return QueryOver.Of<VodovozOrder> ()
-				.Where (order => order.OrderStatus == Vodovoz.Domain.Orders.OrderStatus.Accepted
+				.Where (order => order.OrderStatus == OrderStatus.Accepted
 			&& order.DeliveryDate == date.Date
 			&& !order.SelfDelivery);
 		}

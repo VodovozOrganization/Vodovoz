@@ -233,14 +233,6 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		#region Вычисляемые
-
-		public virtual string Title { 
-			get { return String.Format ("Заказ №{0}", Id); }
-		}
-
-		#endregion
-
 		public bool CanChangeContractor ()
 		{
 			if ((NHibernate.NHibernateUtil.IsInitialized (OrderDocuments) && OrderDocuments.Count > 0) ||
@@ -459,6 +451,19 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
+		#region Вычисляемые
+
+		public virtual string Title { 
+			get { return String.Format ("Заказ №{0}", Id); }
+		}
+
+		public virtual int TotalDeliveredBottles
+		{
+			get{
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+			}
+		}
+
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
 		public virtual decimal TotalSum {
@@ -495,6 +500,10 @@ namespace Vodovoz.Domain.Orders
 				return OrderItems.Sum(item => item.Price * item.ActualCount);
 			}
 		}
+
+		#endregion
+
+		#region Функции
 
 		public void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)
 		{
@@ -950,6 +959,8 @@ namespace Vodovoz.Domain.Orders
 			//FIXME Правильно закрывать заказ
 			OrderStatus = OrderStatus.Closed;
 		}
+
+		#endregion
 	}
 }
 

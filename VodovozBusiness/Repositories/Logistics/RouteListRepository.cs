@@ -26,6 +26,12 @@ namespace Vodovoz.Repository.Logistics
 				.List ();
 		}
 
+		public static QueryOver<RouteList> GetRoutesAtDay(DateTime date)
+		{
+			return QueryOver.Of<RouteList>()
+				.Where(x => x.Date == date);
+		}
+
 		public static IList<GoodsInRouteListResult> GetGoodsInRLWithoutEquipments (IUnitOfWork uow, RouteList routeList, Warehouse warehouse = null)
 		{
 			GoodsInRouteListResult resultAlias = null;
