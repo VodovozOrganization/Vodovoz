@@ -10,6 +10,9 @@ using QSTDI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Gamma.Binding;
+using Gamma.ColumnConfig;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -47,7 +50,52 @@ namespace Vodovoz
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 
+			ytreeRoutes.ColumnsConfig = FluentColumnsConfig <object>.Create()
+				.AddColumn("МЛ/Адрес").AddTextRenderer(x => GetRowTitle(x))
+				.AddColumn("Время").AddTextRenderer(x => GetRowTime(x))
+				.AddColumn("Бутылей").AddTextRenderer(x => GetRowBottles(x))
+				.Finish();
+
 			ydateForRoutes.Date = DateTime.Today;
+		}
+
+		string GetRowTitle(object row)
+		{
+			if(row is RouteList)
+			{
+				var rl = (RouteList)row;
+				return String.Format("Маршрутный лист №{0} - {1}({2})",
+					rl.Id,
+					rl.Driver.ShortName,
+					rl.Car.RegistrationNumber
+				);
+			}
+			if(row is RouteListItem)
+			{
+				var rli = (RouteListItem)row;
+				return rli.Order.DeliveryPoint.ShortAddress;
+			}
+			return null;
+		}
+
+		string GetRowTime(object row)
+		{
+			var rl = row as RouteList;
+			if (rl != null)
+				return rl.Addresses.Count.ToString();
+			return (row as RouteListItem)?.Order.DeliverySchedule.Name;
+		}
+
+		string GetRowBottles(object row)
+		{
+			var rl = row as RouteList;
+			if (rl != null)
+				return rl.Addresses.Sum(x => x.Order.TotalDeliveredBottles).ToString();
+			
+			var rli = row as RouteListItem;
+			if(rli != null)
+				return rli.Order.TotalDeliveredBottles.ToString();
+			return null;
 		}
 
 		void FillDialogAtDay()
@@ -59,10 +107,21 @@ namespace Vodovoz
 				.Fetch(x => x.OrderItems).Eager
 				.List();
 
-			routesAtDay = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+			var routesQuery = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(uow.Session)
-				.Fetch(x => x.Addresses).Eager
-				.List();
+				.Fetch(x => x.Addresses).Default
+				.Future();
+
+			Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+				.GetExecutableQueryOver(uow.Session)
+				.Fetch(x => x.Driver).Eager
+				.Fetch(x => x.Car).Eager
+				.Future();
+
+			routesAtDay = routesQuery.ToList();
+
+			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem>(x => x.Addresses).LastLevel(c => c.RouteList).EndConfig();
+			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList>(routesAtDay, levels);
 
 			UpdateAddressesOnMap();
 		}
