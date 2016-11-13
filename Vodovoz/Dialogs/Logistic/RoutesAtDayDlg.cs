@@ -21,7 +21,7 @@ using QSWidgetLib;
 
 namespace Vodovoz
 {
-	public partial class RoutesAtDayDlg : TdiTabBase
+	public partial class RoutesAtDayDlg : TdiTabBase, ITdiDialog
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
@@ -269,6 +269,7 @@ namespace Vodovoz
 
 		void RoutesWasUpdated()
 		{
+			ydateForRoutes.Sensitive = false;
 			ytreeRoutes.YTreeModel.EmitModelChanged();
 		}
 
@@ -306,8 +307,10 @@ namespace Vodovoz
 						continue;
 						
 					alreadyIn.RemoveAddress(alreadyIn.Addresses.First(x => x.Order.Id == order.Id));
+					uow.Save(alreadyIn);
 				}
 				route.AddAddressFromOrder(order);
+				uow.Save(route);
 			}
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			UpdateAddressesOnMap();
@@ -323,6 +326,44 @@ namespace Vodovoz
 				return new Gdk.Pixbuf (ms); 
 			}
 		}
+
+		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
+		{
+			Save();
+		}
+
+		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
+		{
+			uow.Session.Clear();
+			ydateForRoutes.Sensitive = true;
+			FillDialogAtDay();
+		}
+
+		#region TDIDialog
+
+		public event EventHandler<EntitySavedEventArgs> EntitySaved;
+
+		public bool Save()
+		{
+			uow.Commit();
+			ydateForRoutes.Sensitive = true;
+			return true;
+		}
+
+		public void SaveAndClose()
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool HasChanges
+		{
+			get
+			{
+				return uow.HasChanges;
+			}
+		}
+
+		#endregion
 	}
 }
 
