@@ -288,6 +288,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref foundOnOsm, value, () => FoundOnOsm); }
 		}
 
+		bool manualCoordinates;
+
+		[Display (Name = "Ручные координаты")]
+		public virtual bool ManualCoordinates {
+			get { return manualCoordinates; }
+			set { SetField (ref manualCoordinates, value, () => ManualCoordinates); }
+		}
+
 		bool isFixedInOsm;
 
 		[Display (Name = "Исправлен в OSM")]
@@ -317,6 +325,12 @@ namespace Vodovoz.Domain.Client
 				if (Latitude == null || Longitude == null)
 					return String.Empty;
 				return String.Format("(ш. {0:F5}, д. {1:F5})", Latitude, Longitude);
+			}
+		}
+
+		public virtual bool СoordinatesExist{
+			get{
+				return (Latitude != null && Longitude != null);
 			}
 		}
 

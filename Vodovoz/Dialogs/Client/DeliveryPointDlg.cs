@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using GMap.NET;
 using GMap.NET.GtkSharp;
@@ -13,9 +15,6 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
-using System.Data.Bindings.Collections.Generic;
-using Gamma.ColumnConfig;
-using System.Linq;
 
 namespace Vodovoz
 {
@@ -90,8 +89,9 @@ namespace Vodovoz
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
-				entity => entity.FoundOnOsm 
-				? String.Format("<span foreground='green'>{0}</span>", entity.СoordinatesText) 
+				entity => entity.СoordinatesExist 
+				? String.Format("<span foreground='{1}'>{0}</span>", entity.СoordinatesText,
+					(entity.FoundOnOsm ? "green" : "blue")) 
 				: "<span foreground='red'>Не найден на карте.</span>",
 				widget => widget.LabelProp)
 				.InitializeFromSource ();
@@ -145,6 +145,9 @@ namespace Vodovoz
 			MapWidget.WidthRequest = 450;
 			MapWidget.HasFrame = true;
 			MapWidget.Overlays.Add(addressOverlay);
+			MapWidget.ButtonPressEvent += MapWidget_ButtonPressEvent;
+			MapWidget.ButtonReleaseEvent += MapWidget_ButtonReleaseEvent;
+			MapWidget.MotionNotifyEvent += MapWidget_MotionNotifyEvent;
 			rightsidepanel1.Panel = MapWidget;
 			rightsidepanel1.PanelOpened += Rightsidepanel1_PanelOpened;
 			rightsidepanel1.PanelHided += Rightsidepanel1_PanelHided;
@@ -155,6 +158,54 @@ namespace Vodovoz
 		void YtreeviewResponsiblePersons_Selection_Changed (object sender, EventArgs e)
 		{
 			buttonDeleteResponsiblePerson.Sensitive = ytreeviewResponsiblePersons.GetSelectedObjects().Length > 0;
+		}
+
+		void MapWidget_MotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
+		{
+			if(addressMoving)
+			{
+				addressMarker.Position = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
+			}
+		}
+
+		void MapWidget_ButtonReleaseEvent (object o, Gtk.ButtonReleaseEventArgs args)
+		{
+			if(args.Event.Button == 1)
+			{
+				addressMoving = false;
+				var newPoint = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
+				if(!Entity.ManualCoordinates && Entity.FoundOnOsm)
+				{
+					if (!MessageDialogWorks.RunQuestionDialog("Координаты точки установлены по адресу. Вы уверены что хотите установить новые координаты?"))
+					{
+						UpdateAddressOnMap();
+						return;
+					}
+				}
+
+				Entity.ManualCoordinates = true;
+				Entity.Latitude = (decimal)newPoint.Lat;
+				Entity.Longitude = (decimal)newPoint.Lng;
+			}
+		}
+
+		private bool addressMoving;
+
+		void MapWidget_ButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
+		{
+			if (args.Event.Button == 1)
+			{
+				var newPoint = MapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
+				if (addressMarker == null)
+				{
+					addressMarker = new GMarkerGoogle(newPoint,	GMarkerGoogleType.arrow);
+					addressMarker.ToolTipText = Entity.ShortAddress;
+					addressOverlay.Markers.Add(addressMarker);
+				}
+				else
+					addressMarker.Position = newPoint;
+				addressMoving = true;
+			}
 		}
 
 		void Entity_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -223,8 +274,12 @@ namespace Vodovoz
 		{
 			if(Entity.Latitude.HasValue && Entity.Longitude.HasValue)
 			{
-				MapWidget.Position = new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value);
-				MapWidget.Zoom = 16;
+				var position = new PointLatLng((double)Entity.Latitude.Value, (double)Entity.Longitude.Value);
+				if(!MapWidget.ViewArea.Contains(position))
+				{
+					MapWidget.Position = position;
+					MapWidget.Zoom = 15;
+				}
 			}
 			else
 			{
@@ -252,7 +307,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			if(!Entity.FoundOnOsm)
+			if(!Entity.СoordinatesExist)
 			{
 				if(!MessageDialogWorks.RunQuestionDialog ("Адрес точки доставки не найден на карте, вы точно хотите сохранить точку доставки?"))
 					return false;

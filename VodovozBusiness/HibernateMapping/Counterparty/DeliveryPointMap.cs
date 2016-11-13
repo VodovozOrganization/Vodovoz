@@ -30,6 +30,7 @@ namespace Vodovoz.HMap
 			Map (x => x.АddressAddition).Column ("address_addition");
 			Map (x => x.Comment).Column ("comment");
 			Map (x => x.FoundOnOsm).Column ("found_on_osm");
+			Map (x => x.ManualCoordinates).Column ("manual_coordinates");
 			Map (x => x.IsFixedInOsm).Column ("is_fixed_in_osm");
 			Map (x => x.Latitude).Column ("latitude");
 			Map (x => x.Longitude).Column ("longitude");
