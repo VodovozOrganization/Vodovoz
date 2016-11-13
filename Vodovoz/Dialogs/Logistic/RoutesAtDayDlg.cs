@@ -267,6 +267,11 @@ namespace Vodovoz
 			}
 		}
 
+		void RoutesWasUpdated()
+		{
+			ytreeRoutes.YTreeModel.EmitModelChanged();
+		}
+
 		void UpdateRoutesButton()
 		{
 			var menu = new Gtk.Menu();
@@ -306,6 +311,7 @@ namespace Vodovoz
 			}
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			UpdateAddressesOnMap();
+			RoutesWasUpdated();
 		}
 
 		private static Gdk.Pixbuf PixbufFromBitmap (Bitmap bitmap)
