@@ -1,5 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using Gamma.Binding;
+using Gamma.ColumnConfig;
+using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -10,9 +17,6 @@ using QSTDI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Gamma.Binding;
-using Gamma.ColumnConfig;
-using System.Linq;
 
 namespace Vodovoz
 {
@@ -24,6 +28,7 @@ namespace Vodovoz
 		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
 		int addressesWithoutCoordinats, addressesWithoutRoutes;
+		Pixbuf[] pixbufMarkers;
 
 		public override string TabName
 		{
@@ -57,6 +62,7 @@ namespace Vodovoz
 				.AddColumn("МЛ/Адрес").AddTextRenderer(x => GetRowTitle(x))
 				.AddColumn("Время").AddTextRenderer(x => GetRowTime(x))
 				.AddColumn("Бутылей").AddTextRenderer(x => GetRowBottles(x))
+				.AddColumn("Маркер").AddPixbufRenderer(x => GetRowMarker(x))
 				.Finish();
 
 			ydateForRoutes.Date = DateTime.Today;
@@ -101,6 +107,21 @@ namespace Vodovoz
 			return null;
 		}
 
+		Pixbuf GetRowMarker(object row)
+		{
+			var rl = row as RouteList;
+			if (rl == null)
+			{
+				var rli = row as RouteListItem;
+				if (rli != null)
+					rl = rli.RouteList;
+			}
+			if (rl != null)
+				return pixbufMarkers[routesAtDay.IndexOf(rl)];
+			else
+				return null;
+		}
+
 		void FillDialogAtDay()
 		{
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
@@ -125,6 +146,8 @@ namespace Vodovoz
 
 			routesAtDay = routesQuery.ToList();
 
+			UpdateRoutesPixBuf();
+
 			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem>(x => x.Addresses).LastLevel(c => c.RouteList).EndConfig();
 			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList>(routesAtDay, levels);
 
@@ -148,12 +171,17 @@ namespace Vodovoz
 				if (order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;
-					type = GMarkerGoogleType.gray_small;
+					if (route == null)
+						type = GMarkerGoogleType.black_small;
+					else
+						type = GetAddressMarker(routesAtDay.IndexOf(route));
 					var addressMarker = new GMarkerGoogle(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
 					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}",
 						order.DeliveryPoint.ShortAddress,
 						order.TotalDeliveredBottles
 					);
+					if (route != null)
+						addressMarker.ToolTipText += String.Format(" Везёт: {0}", route.Driver.ShortName);
 					addressesOverlay.Markers.Add(addressMarker);
 				}
 				else
@@ -195,6 +223,45 @@ namespace Vodovoz
 				progressOrders.Text = "Готово.";
 			else
 				progressOrders.Text = RusNumber.FormatCase(addressesWithoutRoutes, "Остался {0} заказ", "Осталось {0} заказа", "Осталось {0} заказов");
+		}
+
+		private GMarkerGoogleType[] pointMarkers = new []{
+			GMarkerGoogleType.blue_small,
+			GMarkerGoogleType.brown_small,
+			GMarkerGoogleType.green_small,
+			GMarkerGoogleType.yellow_small,
+			GMarkerGoogleType.orange_small,
+			GMarkerGoogleType.purple_small,
+			GMarkerGoogleType.red_small,
+			GMarkerGoogleType.gray_small,
+			GMarkerGoogleType.white_small,
+		};
+
+		GMarkerGoogleType GetAddressMarker(int routeNum)
+		{
+			var markerNum = routeNum % 9;
+			return pointMarkers[markerNum];
+		}
+
+		void UpdateRoutesPixBuf()
+		{
+			if (pixbufMarkers != null && routesAtDay.Count == pixbufMarkers.Length)
+				return;
+			pixbufMarkers = new Pixbuf[routesAtDay.Count];
+			for(int i = 0; i < routesAtDay.Count; i++)
+			{
+				pixbufMarkers[i] =  PixbufFromBitmap(GMarkerGoogle.GetIcon(GetAddressMarker(i).ToString()));
+			}
+		}
+
+		private static Gdk.Pixbuf PixbufFromBitmap (Bitmap bitmap)
+		{
+			using(MemoryStream ms = new MemoryStream ())
+			{
+				bitmap.Save (ms, ImageFormat.Png);
+				ms.Position = 0;
+				return new Gdk.Pixbuf (ms); 
+			}
 		}
 	}
 }
