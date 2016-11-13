@@ -17,6 +17,7 @@ using QSTDI;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using QSWidgetLib;
 
 namespace Vodovoz
 {
@@ -55,6 +56,8 @@ namespace Vodovoz
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
 			gmapWidget.Overlays.Add(addressesOverlay);
+			gmapWidget.DisableAltForSelection = true;
+			gmapWidget.OnSelectionChange += GmapWidget_OnSelectionChange;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 
@@ -66,6 +69,14 @@ namespace Vodovoz
 				.Finish();
 
 			ydateForRoutes.Date = DateTime.Today;
+		}
+
+		void GmapWidget_OnSelectionChange (RectLatLng Selection, bool ZoomToFit)
+		{
+			var selected = addressesOverlay.Markers.Where(m => Selection.Contains(m.Position)).ToList();
+			var selectedBottle = selected.Select(x => x.Tag).Cast<Order>().Sum(o => o.TotalDeliveredBottles);
+			labelSelected.LabelProp = String.Format("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
+			menuAddToRL.Sensitive = selected.Count > 0 && routesAtDay.Count > 0;
 		}
 
 		string GetRowTitle(object row)
@@ -147,6 +158,7 @@ namespace Vodovoz
 			routesAtDay = routesQuery.ToList();
 
 			UpdateRoutesPixBuf();
+			UpdateRoutesButton();
 
 			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem>(x => x.Addresses).LastLevel(c => c.RouteList).EndConfig();
 			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList>(routesAtDay, levels);
@@ -176,6 +188,7 @@ namespace Vodovoz
 					else
 						type = GetAddressMarker(routesAtDay.IndexOf(route));
 					var addressMarker = new GMarkerGoogle(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
+					addressMarker.Tag = order;
 					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}",
 						order.DeliveryPoint.ShortAddress,
 						order.TotalDeliveredBottles
@@ -252,6 +265,47 @@ namespace Vodovoz
 			{
 				pixbufMarkers[i] =  PixbufFromBitmap(GMarkerGoogle.GetIcon(GetAddressMarker(i).ToString()));
 			}
+		}
+
+		void UpdateRoutesButton()
+		{
+			var menu = new Gtk.Menu();
+			foreach(var route in routesAtDay)
+			{
+				var name = String.Format("МЛ №{0} - {1}", route.Id, route.Driver.ShortName);
+				var item = new MenuItemId<RouteList>(name);
+				item.ID = route;
+				item.Activated += AddToRLItem_Activated;
+				menu.Append(item);
+			}
+			menu.ShowAll();
+			menuAddToRL.Menu = menu;
+		}
+
+		void AddToRLItem_Activated (object sender, EventArgs e)
+		{
+			var selectedOrders = addressesOverlay.Markers
+				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
+				.Select(x => x.Tag).Cast<Order>().ToList();
+
+			var route = ((MenuItemId<RouteList>)sender).ID;
+
+			foreach(var order in selectedOrders)
+			{
+				if(order.OrderStatus == OrderStatus.InTravelList)
+				{
+					var alreadyIn = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
+					if (alreadyIn == null)
+						throw new InvalidProgramException(String.Format("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
+					if (alreadyIn.Id == route.Id) // Уже в нужном маршрутном листе.
+						continue;
+						
+					alreadyIn.RemoveAddress(alreadyIn.Addresses.First(x => x.Order.Id == order.Id));
+				}
+				route.AddAddressFromOrder(order);
+			}
+			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
+			UpdateAddressesOnMap();
 		}
 
 		private static Gdk.Pixbuf PixbufFromBitmap (Bitmap bitmap)

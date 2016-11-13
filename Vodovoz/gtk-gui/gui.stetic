@@ -34327,19 +34327,62 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboMapType">
+                  <widget class="Gtk.HBox" id="hbox3">
                     <property name="MemberName" />
-                    <property name="IsTextCombo">False</property>
-                    <property name="Items" translatable="yes" />
-                    <property name="ShowSpecialStateAll">False</property>
-                    <property name="ShowSpecialStateNot">False</property>
-                    <property name="UseShortTitle">False</property>
-                    <property name="DefaultFirst">True</property>
-                    <signal name="ChangedByUser" handler="OnYenumcomboMapTypeChangedByUser" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Label" id="labelSelected">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Адресов не выбрано</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="QSWidgetLib.MenuButton" id="menuAddToRL">
+                        <property name="MemberName" />
+                        <property name="Sensitive">False</property>
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-add Menu</property>
+                        <property name="Label" translatable="yes">В маршрутный лист</property>
+                        <property name="UseUnderline">True</property>
+                        <property name="UseMarkup">False</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboMapType">
+                        <property name="MemberName" />
+                        <property name="IsTextCombo">False</property>
+                        <property name="Items" translatable="yes" />
+                        <property name="ShowSpecialStateAll">False</property>
+                        <property name="ShowSpecialStateNot">False</property>
+                        <property name="UseShortTitle">False</property>
+                        <property name="DefaultFirst">True</property>
+                        <signal name="ChangedByUser" handler="OnYenumcomboMapTypeChangedByUser" />
+                      </widget>
+                      <packing>
+                        <property name="PackType">End</property>
+                        <property name="Position">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">False</property>
+                    <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
                   </packing>
