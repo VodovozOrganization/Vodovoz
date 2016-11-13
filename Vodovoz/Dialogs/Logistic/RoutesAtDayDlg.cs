@@ -68,7 +68,15 @@ namespace Vodovoz
 				.AddColumn("Маркер").AddPixbufRenderer(x => GetRowMarker(x))
 				.Finish();
 
+			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
+
 			ydateForRoutes.Date = DateTime.Today;
+		}
+
+		void YtreeRoutes_Selection_Changed (object sender, EventArgs e)
+		{
+			var row = ytreeRoutes.GetSelectedObject();
+			buttonRemoveAddress.Sensitive = row is RouteListItem;
 		}
 
 		void GmapWidget_OnSelectionChange (RectLatLng Selection, bool ZoomToFit)
@@ -156,6 +164,7 @@ namespace Vodovoz
 				.Future();
 
 			routesAtDay = routesQuery.ToList();
+			routesAtDay.ToList().ForEach(rl => rl.UoW = uow);
 
 			UpdateRoutesPixBuf();
 			UpdateRoutesButton();
@@ -337,6 +346,16 @@ namespace Vodovoz
 			uow.Session.Clear();
 			ydateForRoutes.Sensitive = true;
 			FillDialogAtDay();
+		}
+
+		protected void OnButtonRemoveAddressClicked(object sender, EventArgs e)
+		{
+			var row = ytreeRoutes.GetSelectedObject<RouteListItem>();
+			var route = row.RouteList;
+			route.RemoveAddress(row);
+			uow.Save(route);
+			UpdateAddressesOnMap();
+			RoutesWasUpdated();
 		}
 
 		#region TDIDialog
