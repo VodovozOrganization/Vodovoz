@@ -25,6 +25,12 @@ public partial class MainWindow: Gtk.Window
 	private static Logger logger = LogManager.GetCurrentClassLogger ();
 	uint LastUiId;
 
+	public TdiNotebook TdiMain{
+		get{
+			return tdiMain;
+		}
+	}
+
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		Build ();

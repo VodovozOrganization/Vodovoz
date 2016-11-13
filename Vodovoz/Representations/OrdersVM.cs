@@ -1,21 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
 using Gtk;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.ViewModel
 {
-	public class OrdersVM : RepresentationModelEntityBase<Order, OrdersVMNode>
+	public class OrdersVM : RepresentationModelEntityBase<Vodovoz.Domain.Orders.Order, OrdersVMNode>
 	{
 		public OrdersFilter Filter {
 			get {
@@ -30,14 +32,14 @@ namespace Vodovoz.ViewModel
 		public override void UpdateNodes ()
 		{
 			OrdersVMNode resultAlias = null;
-			Order orderAlias = null;
+			Vodovoz.Domain.Orders.Order orderAlias = null;
 			Nomenclature nomenclatureAlias = null;
 			OrderItem orderItemAlias = null;
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
 
-			var query = UoW.Session.QueryOver<Order> (() => orderAlias);
+			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
 			if(Filter.RestrictStatus != null)
 			{
@@ -127,6 +129,13 @@ namespace Vodovoz.ViewModel
 			lastMenuSelected = selected;
 
 			Menu popupMenu = new Gtk.Menu();
+			Gtk.MenuItem menuItemRouteList = new MenuItem("Перейти в маршрутный лист");
+			menuItemRouteList.Activated += MenuItemRouteList_Activated;
+			menuItemRouteList.Sensitive = selected.Any(x => ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.Accepted && ((OrdersVMNode)x.VMNode).StatusEnum != OrderStatus.NewOrder);
+			popupMenu.Add(menuItemRouteList);
+
+			popupMenu.Add(new SeparatorMenuItem());
+
 			Gtk.MenuItem menuItemYandex = new MenuItem("Открыть на Yandex картах(координаты)");
 			menuItemYandex.Activated += MenuItemYandex_Activated; 
 			popupMenu.Add(menuItemYandex);
@@ -147,7 +156,7 @@ namespace Vodovoz.ViewModel
 		{
 			foreach(var sel in lastMenuSelected)
 			{
-				var order = UoW.GetById<Order>(sel.EntityId);
+				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
 				if (order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
 					continue;
 
@@ -155,11 +164,30 @@ namespace Vodovoz.ViewModel
 			}
 		}
 
+		void MenuItemRouteList_Activated (object sender, EventArgs e)
+		{
+			var ordersIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+			var addresses = UoW.Session.QueryOver<RouteListItem>()
+				.Where(x => x.Order.Id.IsIn(ordersIds)).List();
+
+			var routesIds = addresses.Select(x => x.RouteList.Id).Distinct().ToArray();
+
+			var tdiMain = MainClass.MainWin.TdiMain;
+
+			foreach(var routeId in routesIds)
+			{
+				tdiMain.OpenTab(
+					OrmMain.GenerateDialogHashName<RouteList>(routeId),
+					() => new RouteListKeepingDlg (routeId)
+				);
+			}
+		}
+
 		void MenuItemYandexAddress_Activated (object sender, EventArgs e)
 		{
 			foreach(var sel in lastMenuSelected)
 			{
-				var order = UoW.GetById<Order>(sel.EntityId);
+				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
 				if (order.DeliveryPoint == null)
 					continue;
 
@@ -177,7 +205,7 @@ namespace Vodovoz.ViewModel
 		{
 			foreach(var sel in lastMenuSelected)
 			{
-				var order = UoW.GetById<Order>(sel.EntityId);
+				var order = UoW.GetById<Vodovoz.Domain.Orders.Order>(sel.EntityId);
 				if (order.DeliveryPoint == null || order.DeliveryPoint.Latitude == null || order.DeliveryPoint.Longitude == null)
 					continue;
 
@@ -187,7 +215,7 @@ namespace Vodovoz.ViewModel
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc (Order updatedSubject)
+		protected override bool NeedUpdateFunc (Vodovoz.Domain.Orders.Order updatedSubject)
 		{
 			return true;
 		}
