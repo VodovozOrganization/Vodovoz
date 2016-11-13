@@ -23,7 +23,7 @@ namespace Vodovoz
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
-		int addressesWithoutCoordinats;
+		int addressesWithoutCoordinats, addressesWithoutRoutes;
 
 		public override string TabName
 		{
@@ -40,6 +40,9 @@ namespace Vodovoz
 		public RoutesAtDayDlg()
 		{
 			this.Build();
+
+			if (progressOrders.Adjustment == null)
+				progressOrders.Adjustment = new Gtk.Adjustment(0, 0, 0, 1, 1, 0);
 
 			//Configure map
 			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
@@ -101,7 +104,7 @@ namespace Vodovoz
 		void FillDialogAtDay()
 		{
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
-			ordersAtDay = Repository.OrderRepository.GetAcceptedOrdersForDateQuery(ydateForRoutes.Date)
+			ordersAtDay = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date)
 				.GetExecutableQueryOver(uow.Session)
 				.Fetch(x => x.DeliveryPoint).Eager
 				.Fetch(x => x.OrderItems).Eager
@@ -109,11 +112,13 @@ namespace Vodovoz
 
 			var routesQuery = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(uow.Session)
+				.Where(x => x.Status == RouteListStatus.New)
 				.Fetch(x => x.Addresses).Default
 				.Future();
 
 			Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(uow.Session)
+				.Where(x => x.Status == RouteListStatus.New)
 				.Fetch(x => x.Driver).Eager
 				.Fetch(x => x.Car).Eager
 				.Future();
@@ -130,10 +135,16 @@ namespace Vodovoz
 		{
 			logger.Info("Обновляем адреса на карте...");
 			addressesWithoutCoordinats = 0;
+			addressesWithoutRoutes = 0;
 			addressesOverlay.Clear();
 
 			foreach(var order in ordersAtDay)
 			{
+				var route = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
+
+				if (route == null)
+					addressesWithoutRoutes++;
+
 				if (order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;
@@ -166,12 +177,24 @@ namespace Vodovoz
 		void UpdateOrdersInfo()
 		{
 			var text = new List<string>();
-			text.Add(RusNumber.FormatCase(ordersAtDay.Count, "На день {0} заказ", "На день {0} заказа", "На день {0} заказов"));
+			text.Add(RusNumber.FormatCase(ordersAtDay.Count, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."));
 			if (addressesWithoutCoordinats > 0)
-				text.Add(String.Format("Из них {0} без координат", addressesWithoutCoordinats));
-			text.Add(RusNumber.FormatCase(routesAtDay.Count, "Всего {0} маршрутный лист", "Всего {0} маршрутных листа", "Всего {0} маршрутных листов") );
+				text.Add(String.Format("Из них {0} без координат.", addressesWithoutCoordinats));
+			if (addressesWithoutRoutes > 0)
+				text.Add(String.Format("Из них {0} без маршрутных листов.", addressesWithoutRoutes));
+			
+			text.Add(RusNumber.FormatCase(routesAtDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов.") );
 
 			textOrdersInfo.Buffer.Text = String.Join("\n", text);
+
+			progressOrders.Adjustment.Upper = ordersAtDay.Count;
+			progressOrders.Adjustment.Value = ordersAtDay.Count - addressesWithoutRoutes;
+			if (ordersAtDay.Count == 0)
+				progressOrders.Text = String.Empty;
+			else if (addressesWithoutRoutes == 0)
+				progressOrders.Text = "Готово.";
+			else
+				progressOrders.Text = RusNumber.FormatCase(addressesWithoutRoutes, "Остался {0} заказ", "Осталось {0} заказа", "Осталось {0} заказов");
 		}
 	}
 }

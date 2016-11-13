@@ -28,10 +28,10 @@ namespace Vodovoz.Repository
 			return store;
 		}
 			
-		public static QueryOver<VodovozOrder> GetAcceptedOrdersForDateQuery (DateTime date)
+		public static QueryOver<VodovozOrder> GetOrdersForRLEditingQuery (DateTime date)
 		{
 			return QueryOver.Of<VodovozOrder> ()
-				.Where (order => order.OrderStatus == OrderStatus.Accepted
+				.Where (order => (order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList)
 			&& order.DeliveryDate == date.Date
 			&& !order.SelfDelivery);
 		}

@@ -11,7 +11,7 @@ namespace Vodovoz.Domain.Orders
 		Accepted,
 		[Display (Name = "В маршрутном листе")]
 		InTravelList,
-		[Display (Name = "Готов к отгрузке")]
+		[Display (Name = "На погрузке")]
 		ReadyForShipment,
 		[Display (Name = "В пути")]
 		OnTheWay,
