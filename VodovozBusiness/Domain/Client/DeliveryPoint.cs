@@ -313,6 +313,15 @@ namespace Vodovoz.Domain.Client
 			protected set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
+		private string code1C;
+
+		[Display(Name = "Код 1С")]
+		public virtual string Code1C
+		{
+			get { return code1C; }
+			set { SetField(ref code1C, value, () => Code1C); }
+		}
+
 		//Масштаб карты
 		//Файл схемы проезда
 

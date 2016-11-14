@@ -32,6 +32,7 @@ namespace Vodovoz
 			"03281439",
 		};
 
+		#region Свойства
 		private IList<Bank> banks;
 
 		private IList<Bank> Banks {
@@ -148,6 +149,7 @@ namespace Vodovoz
 				QSMain.WaitRedraw ();
 			}
 		}
+		#endregion
 
 		List<Counterparty> CounterpatiesList = new List<Counterparty>();
 		List<Account1c> AccountsList = new List<Account1c>();
@@ -228,6 +230,7 @@ namespace Vodovoz
 			buttonSave.Sensitive = checkRewrite.Sensitive = CounterpatiesList.Count > 0;
 		}
 
+		#region Парсеры Xml
 		void ParseCounterparty(XmlNode node)
 		{
 			var parrentNode = node.SelectSingleNode ("Свойство[@Имя='Родитель']/Ссылка/Свойство[@Имя='Код']/Значение");
@@ -445,6 +448,7 @@ namespace Vodovoz
 
 		private void ParseNomenclature(XmlNode node)
 		{
+			logger.Debug("Парсим номенклатуру");
 			var parentNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
 			if (parentNode != null)
 				return;
@@ -454,6 +458,7 @@ namespace Vodovoz
 			var officialNameNode = node.SelectSingleNode("Свойство[@Имя='НаименованиеПолное']/Значение");
 			var servicelNode 	 = node.SelectSingleNode("Свойство[@Имя='Услуга']/Значение");
 
+			logger.Debug("Создаем номенклатуру");
 			var nomenclature = new Nomenclature
 			{
 				Code1c = code1cNode?.InnerText,
@@ -471,6 +476,7 @@ namespace Vodovoz
 		{
 			List<OrderItem> orderItems = new List<OrderItem>();
 
+			logger.Debug("Парсим заказ");
 			var code1cNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
 			var dateNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
 			var organisationNode = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
@@ -479,6 +485,7 @@ namespace Vodovoz
 			var goodsNodes 		 = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
 
+			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
 			Order order = new Order
 				{
 					Code1c 	= code1cNode?.InnerText,
@@ -486,10 +493,12 @@ namespace Vodovoz
 					Client 	= CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText)
 				};
 			//Заполняем товары для заказа
+			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
 			foreach(var item in goodsNodes){
 				orderItems.Add(ParseOrderItem(item as XmlNode, order));
 			}
 			//Заполняем услуги для заказа
+			logger.Debug($"Парсим услуги {code1cNode?.InnerText}");
 			foreach (var item in servicesNodes){
 				orderItems.Add(ParseOrderItem(item as XmlNode, order));
 			}
@@ -528,6 +537,7 @@ namespace Vodovoz
 				Order 		 = order
 			};
 		}
+		#endregion
 
 		protected void OnFilechooserXMLSelectionChanged (object sender, EventArgs e)
 		{
