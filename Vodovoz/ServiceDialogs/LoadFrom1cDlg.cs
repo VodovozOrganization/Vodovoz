@@ -11,6 +11,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.LoadFrom1c;
 using QSWidgetLib;
 using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -149,6 +150,7 @@ namespace Vodovoz
 		List<Counterparty> CounterpatiesList = new List<Counterparty>();
 		List<Account1c> AccountsList = new List<Account1c>();
 		List<Bank1c> Banks1cList = new List<Bank1c>();
+		List<Nomenclature> NomenclatureList = new List<Nomenclature>();
 
 		public LoadFrom1cDlg ()
 		{
@@ -190,6 +192,9 @@ namespace Vodovoz
 					break;
 				case "КонтактнаяИнформация":
 					ParseContactInfo (node);
+					break;
+				case "Номенклатура":
+					ParseNomenclature (node);
 					break;
 				}
 			}
@@ -431,6 +436,30 @@ namespace Vodovoz
 				logger.Warn ("Неизвестный тип контактной информации ({0})", typeNode.InnerText);
 				break;
 			}
+		}
+
+		private void ParseNomenclature(XmlNode node)
+		{
+			var parentNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
+			if (parentNode != null)
+				return;
+			
+			var code1cNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Код']/Значение");
+			var nameNode 		 = node.SelectSingleNode("Свойство[@Имя='Наименование']/Значение");
+			var officialNameNode = node.SelectSingleNode("Свойство[@Имя='НаименованиеПолное']/Значение");
+			var servicelNode 	 = node.SelectSingleNode("Свойство[@Имя='Услуга']/Значение");
+
+			var nomenclature = new Nomenclature
+			{
+				Code1c = code1cNode?.InnerText,
+				Name = nameNode?.InnerText,
+				OfficialName = officialNameNode?.InnerText,
+			};
+			nomenclature.Category = servicelNode?.InnerText == "true"
+				? NomenclatureCategory.service
+				: NomenclatureCategory.additional;
+
+			NomenclatureList.Add(nomenclature);
 		}
 
 		protected void OnFilechooserXMLSelectionChanged (object sender, EventArgs e)
