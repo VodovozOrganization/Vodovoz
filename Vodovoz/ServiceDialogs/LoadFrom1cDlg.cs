@@ -12,6 +12,8 @@ using Vodovoz.LoadFrom1c;
 using QSWidgetLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Orders;
+using System.Globalization;
 
 namespace Vodovoz
 {
@@ -195,6 +197,9 @@ namespace Vodovoz
 					break;
 				case "Номенклатура":
 					ParseNomenclature (node);
+					break;
+				case "РеализацияТоваровУслуг":
+					ParseOrders (node);
 					break;
 				}
 			}
@@ -460,6 +465,68 @@ namespace Vodovoz
 				: NomenclatureCategory.additional;
 
 			NomenclatureList.Add(nomenclature);
+		}
+
+		private void ParseOrders(XmlNode node)
+		{
+			List<OrderItem> orderItems = new List<OrderItem>();
+
+			var code1cNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
+			var dateNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
+			var organisationNode = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var commentNode 	 = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
+			var counterpartyNode = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var goodsNodes 		 = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
+			var servicesNodes 	 = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+
+			Order order = new Order
+				{
+					Code1c 	= code1cNode?.InnerText,
+					Comment = commentNode?.InnerText,
+					Client 	= CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText)
+				};
+			//Заполняем товары для заказа
+			foreach(var item in goodsNodes){
+				orderItems.Add(ParseOrderItem(item as XmlNode, order));
+			}
+			//Заполняем услуги для заказа
+			foreach (var item in servicesNodes){
+				orderItems.Add(ParseOrderItem(item as XmlNode, order));
+			}
+
+			order.OrderItems = orderItems;
+		}
+
+		private OrderItem ParseOrderItem(XmlNode node, Order order)
+		{
+			var nCode1c = node.SelectSingleNode("Свойство[@Имя='Номенклатура']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var nCount 	= node.SelectSingleNode("Свойство[@Имя='Количество']/Значение");
+			var nPrice 	= node.SelectSingleNode("Свойство[@Имя='Цена']/Значение");
+			var nSumm 	= node.SelectSingleNode("Свойство[@Имя='Сумма']/Значение");
+			var nNDS 	= node.SelectSingleNode("Свойство[@Имя='СуммаНДС']/Значение");
+
+			var nfi = new NumberFormatInfo();
+
+			int count 	  = Convert.ToInt32(nCount?.InnerText ?? "0");
+			decimal price = Convert.ToDecimal(nPrice?.InnerText ?? "0", nfi);
+			decimal summ  = Convert.ToDecimal(nSumm?.InnerText ?? "0", nfi);
+			int discount  = 0;
+			//Проверяем на наличие скидки и вычисляем ее
+			if (summ != price * count)
+			{
+				decimal tempDiscount = summ / (price * count);
+				discount = (int)(1 - tempDiscount * 100);
+			}
+
+			return new OrderItem
+			{
+				Nomenclature = NomenclatureList.FirstOrDefault(n => n.Code1c == nCode1c?.InnerText),
+				IncludeNDS 	 = nNDS?.InnerText == null ? 0 : Convert.ToDecimal(nNDS.InnerText, nfi),
+				Count 		 = count,
+				Price 		 = price,
+				Discount 	 = discount,
+				Order 		 = order
+			};
 		}
 
 		protected void OnFilechooserXMLSelectionChanged (object sender, EventArgs e)

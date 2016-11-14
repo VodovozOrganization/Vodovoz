@@ -231,6 +231,15 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref documentType, value, () => DocumentType); }
 		}
 
+		private string code1c;
+
+		[Display(Name = "Код 1С")]
+		public virtual string Code1c
+		{
+			get { return code1c; }
+			set { SetField(ref code1c, value, () => Code1c); }
+		}
+
 		#endregion
 
 		public bool CanChangeContractor ()
