@@ -21,8 +21,9 @@ namespace Vodovoz.HMap
 			Map (x => x.SumToReceive)		.Column ("sum_to_receive");
 			Map (x => x.Shipped)			.Column ("shipped");
 			Map (x => x.SumDifferenceReason).Column ("sum_difference_reason");
-			Map (x => x.CollectBottles)		.Column("collect_bottles");
-			Map (x => x.Code1c)				.Column("code1c");
+			Map (x => x.CollectBottles)		.Column ("collect_bottles");
+			Map (x => x.Code1c)				.Column ("code1c");
+			Map (x => x.Address1c)			.Column ("address_1c");
 			Map (x => x.OrderStatus)		.Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType)		.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map (x => x.PaymentType)		.Column ("payment_type").CustomType<PaymentTypeStringType> ();
@@ -34,8 +35,8 @@ namespace Vodovoz.HMap
 			References (x => x.DeliveryPoint)			.Column ("delivery_point_id");
 			References (x => x.DeliverySchedule)		.Column ("delivery_schedule_id");
 			References (x => x.PreviousOrder)			.Column ("previous_order_id");
-			References (x => x.BottlesMovementOperation).Column("bottles_movement_operation_id");
-			References (x => x.MoneyMovementOperation)	.Column("money_movement_operation_id");
+			References (x => x.BottlesMovementOperation).Column ("bottles_movement_operation_id");
+			References (x => x.MoneyMovementOperation)	.Column ("money_movement_operation_id");
 
 			HasMany (x => x.OrderDocuments)		.Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("attached_to_order_id");
 			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("order_id");

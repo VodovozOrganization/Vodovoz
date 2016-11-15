@@ -803,6 +803,7 @@
                 <child>
                   <widget class="Gtk.Label" id="labelUser">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -814,6 +815,7 @@
                 <child>
                   <widget class="Gtk.Label" id="labelStatus">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">2</property>
@@ -3037,6 +3039,7 @@ Patronymic</property>
                   <widget class="Gtk.Label" id="textDriverInfo">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">5</property>
@@ -8141,6 +8144,7 @@ Patronymic</property>
                                     <property name="MemberName" />
                                     <property name="Visible">False</property>
                                     <property name="Xalign">1</property>
+                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Justify">Right</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -8280,6 +8284,7 @@ Patronymic</property>
                                   <widget class="Gamma.GtkWidgets.yLabel" id="labelCompiledAddress">
                                     <property name="MemberName" />
                                     <property name="Xalign">0</property>
+                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Wrap">True</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -12902,6 +12907,7 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -13582,7 +13588,7 @@ Patronymic</property>
             <child>
               <widget class="Gtk.Label" id="labelCurrentCash">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">label1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -13597,7 +13603,7 @@ Patronymic</property>
             <child>
               <widget class="Gtk.Label" id="labelDocsSum">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">label1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -14039,6 +14045,7 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">DateString</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -14331,6 +14338,7 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">DateString</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -14741,6 +14749,7 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">DateString</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -15525,6 +15534,7 @@ Patronymic</property>
               <widget class="Gtk.DataBindings.DataLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="InheritedDataSource">True</property>
                 <property name="Mappings">DateString</property>
                 <property name="InheritedBoundaryDataSource">False</property>
@@ -15763,6 +15773,7 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -15871,6 +15882,7 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -16041,6 +16053,7 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -18183,6 +18196,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="labelSum1">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -19499,6 +19513,7 @@ RegistrationNumber</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="dataNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
+                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
@@ -22749,7 +22764,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelCurrentDebt">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">label1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -23426,7 +23441,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelDescription1">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">label1</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -23849,7 +23864,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="955 588">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="955 631">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -23910,6 +23925,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -23997,7 +24013,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -24006,7 +24022,7 @@ RegistrationNumber</property>
                 <child>
                   <widget class="Gtk.Table" id="table1">
                     <property name="MemberName" />
-                    <property name="NRows">13</property>
+                    <property name="NRows">14</property>
                     <property name="NColumns">4</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
@@ -24015,6 +24031,31 @@ RegistrationNumber</property>
                     </child>
                     <child>
                       <placeholder />
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="buttonCreateDeliveryPoint">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextOnly</property>
+                        <property name="Label" translatable="yes">Создать точку доставки</property>
+                        <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnButtonCreateDeliveryPointClicked" />
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">4</property>
+                        <property name="BottomAttach">5</property>
+                        <property name="LeftAttach">3</property>
+                        <property name="RightAttach">4</property>
+                        <property name="AutoSize">False</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
                     </child>
                     <child>
                       <widget class="Gamma.GtkWidgets.yCheckButton" id="checkDelivered">
@@ -24026,8 +24067,8 @@ RegistrationNumber</property>
                         <property name="UseUnderline">True</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">10</property>
-                        <property name="BottomAttach">11</property>
+                        <property name="TopAttach">11</property>
+                        <property name="BottomAttach">12</property>
                         <property name="LeftAttach">3</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">True</property>
@@ -24052,8 +24093,8 @@ RegistrationNumber</property>
                         <property name="Xalign">0</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">8</property>
-                        <property name="BottomAttach">9</property>
+                        <property name="TopAttach">9</property>
+                        <property name="BottomAttach">10</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">False</property>
@@ -24077,8 +24118,8 @@ RegistrationNumber</property>
                         <property name="DefaultFirst">False</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">5</property>
-                        <property name="BottomAttach">6</property>
+                        <property name="TopAttach">6</property>
+                        <property name="BottomAttach">7</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">True</property>
@@ -24105,8 +24146,8 @@ RegistrationNumber</property>
                         <signal name="ChangedByUser" handler="OnEnumPaymentTypeChangedByUser" />
                       </widget>
                       <packing>
-                        <property name="TopAttach">4</property>
-                        <property name="BottomAttach">5</property>
+                        <property name="TopAttach">5</property>
+                        <property name="BottomAttach">6</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
@@ -24132,8 +24173,8 @@ RegistrationNumber</property>
                         <signal name="Changed" handler="OnEnumSignatureTypeChanged" />
                       </widget>
                       <packing>
-                        <property name="TopAttach">10</property>
-                        <property name="BottomAttach">11</property>
+                        <property name="TopAttach">11</property>
+                        <property name="BottomAttach">12</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
@@ -24212,8 +24253,8 @@ RegistrationNumber</property>
                         </child>
                       </widget>
                       <packing>
-                        <property name="TopAttach">12</property>
-                        <property name="BottomAttach">13</property>
+                        <property name="TopAttach">13</property>
+                        <property name="BottomAttach">14</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">False</property>
@@ -24230,8 +24271,8 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                       </widget>
                       <packing>
-                        <property name="TopAttach">6</property>
-                        <property name="BottomAttach">7</property>
+                        <property name="TopAttach">7</property>
+                        <property name="BottomAttach">8</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
@@ -24249,8 +24290,8 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                       </widget>
                       <packing>
-                        <property name="TopAttach">9</property>
-                        <property name="BottomAttach">10</property>
+                        <property name="TopAttach">10</property>
+                        <property name="BottomAttach">11</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
@@ -24289,8 +24330,8 @@ RegistrationNumber</property>
                         <property name="LabelProp" translatable="yes">Комментарий:</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">12</property>
-                        <property name="BottomAttach">13</property>
+                        <property name="TopAttach">13</property>
+                        <property name="BottomAttach">14</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -24330,8 +24371,8 @@ RegistrationNumber</property>
                         <property name="Justify">Right</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">4</property>
-                        <property name="BottomAttach">5</property>
+                        <property name="TopAttach">5</property>
+                        <property name="BottomAttach">6</property>
                         <property name="LeftAttach">2</property>
                         <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
@@ -24393,6 +24434,26 @@ RegistrationNumber</property>
                         <property name="LabelProp" translatable="yes">Форма оплаты:</property>
                       </widget>
                       <packing>
+                        <property name="TopAttach">5</property>
+                        <property name="BottomAttach">6</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Label" id="label8">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Адрес из 1С</property>
+                      </widget>
+                      <packing>
                         <property name="TopAttach">4</property>
                         <property name="BottomAttach">5</property>
                         <property name="AutoSize">True</property>
@@ -24414,8 +24475,8 @@ RegistrationNumber</property>
                         <property name="LabelProp" translatable="yes">Дата доставки:</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">7</property>
-                        <property name="BottomAttach">8</property>
+                        <property name="TopAttach">8</property>
+                        <property name="BottomAttach">9</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -24434,8 +24495,8 @@ RegistrationNumber</property>
                         <property name="LabelProp" translatable="yes">Время доставки:</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">7</property>
-                        <property name="BottomAttach">8</property>
+                        <property name="TopAttach">8</property>
+                        <property name="BottomAttach">9</property>
                         <property name="LeftAttach">2</property>
                         <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
@@ -24456,8 +24517,8 @@ RegistrationNumber</property>
                         <property name="LabelProp" translatable="yes">Тип документов:</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">5</property>
-                        <property name="BottomAttach">6</property>
+                        <property name="TopAttach">6</property>
+                        <property name="BottomAttach">7</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -24498,8 +24559,8 @@ RegistrationNumber</property>
                         <property name="Justify">Fill</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">11</property>
-                        <property name="BottomAttach">12</property>
+                        <property name="TopAttach">12</property>
+                        <property name="BottomAttach">13</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">False</property>
@@ -24519,8 +24580,8 @@ RegistrationNumber</property>
                         <property name="LabelProp" translatable="yes">Подписание документов:</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">10</property>
-                        <property name="BottomAttach">11</property>
+                        <property name="TopAttach">11</property>
+                        <property name="BottomAttach">12</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -24543,8 +24604,8 @@ RegistrationNumber</property>
                         <signal name="DateChanged" handler="OnPickerDeliveryDateDateChanged" />
                       </widget>
                       <packing>
-                        <property name="TopAttach">7</property>
-                        <property name="BottomAttach">8</property>
+                        <property name="TopAttach">8</property>
+                        <property name="BottomAttach">9</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">2</property>
                         <property name="AutoSize">True</property>
@@ -24607,8 +24668,8 @@ RegistrationNumber</property>
                         <property name="Events">ButtonPressMask</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">4</property>
-                        <property name="BottomAttach">5</property>
+                        <property name="TopAttach">5</property>
+                        <property name="BottomAttach">6</property>
                         <property name="LeftAttach">3</property>
                         <property name="RightAttach">4</property>
                         <property name="AutoSize">True</property>
@@ -24650,10 +24711,33 @@ RegistrationNumber</property>
                         <property name="Events">ButtonPressMask</property>
                       </widget>
                       <packing>
-                        <property name="TopAttach">7</property>
-                        <property name="BottomAttach">8</property>
+                        <property name="TopAttach">8</property>
+                        <property name="BottomAttach">9</property>
                         <property name="LeftAttach">3</property>
                         <property name="RightAttach">4</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yEntry" id="yentryAddress1cDeliveryPoint">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="IsEditable">False</property>
+                        <property name="InvisibleChar">●</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">4</property>
+                        <property name="BottomAttach">5</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -29152,6 +29236,7 @@ RegistrationNumber</property>
                 <child>
                   <widget class="Gtk.Label" id="labelFileChanged">
                     <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes" />
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
@@ -30441,7 +30526,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelTotal">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">label1</property>
+                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -32746,6 +32831,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="labelUnreadedMessages">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
+                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
             </child>

@@ -240,6 +240,15 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref code1c, value, () => Code1c); }
 		}
 
+		private string address1c;
+
+		[Display(Name = "Адрес 1С")]
+		public virtual string Address1c
+		{
+			get { return address1c; }
+			set { SetField(ref address1c, value, () => Address1c); }
+		}
+
 		#endregion
 
 		public bool CanChangeContractor ()
@@ -727,7 +736,7 @@ namespace Vodovoz.Domain.Orders
 					ObservableOrderEquipments.Add (
 						new OrderEquipment { 
 							Order = this,
-							Direction = Vodovoz.Domain.Orders.Direction.Deliver,
+							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
 							OrderItem = ObservableOrderItems [ItemId]

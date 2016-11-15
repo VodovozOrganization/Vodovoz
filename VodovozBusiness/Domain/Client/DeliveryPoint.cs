@@ -313,13 +313,13 @@ namespace Vodovoz.Domain.Client
 			protected set { SetField (ref counterparty, value, () => Counterparty); }
 		}
 
-		private string code1C;
+		private string address1c;
 
-		[Display(Name = "Код 1С")]
-		public virtual string Code1C
+		[Display(Name = "Адрес 1С")]
+		public virtual string Address1c
 		{
-			get { return code1C; }
-			set { SetField(ref code1C, value, () => Code1C); }
+			get { return address1c; }
+			set { SetField(ref address1c, value, () => Address1c); }
 		}
 
 		//Масштаб карты

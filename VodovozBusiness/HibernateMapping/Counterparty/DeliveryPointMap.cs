@@ -37,7 +37,7 @@ namespace Vodovoz.HMap
 			Map (x => x.Longitude)		  .Column ("longitude");
 			Map (x => x.IsActive)		  .Column ("is_active");
 			Map (x => x.Phone)			  .Column ("phone");
-			Map (x => x.Code1C)			  .Column("code1c");
+			Map (x => x.Address1c)		  .Column ("address_1c");
 
 			References (x => x.Counterparty).Column ("counterparty_id");
 			References (x => x.LogisticsArea).Column ("logistic_area_id");

@@ -43,8 +43,6 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref changedTemplateFile, value, () => ChangedTemplateFile); }
 		}
 
-
-
 		[Display (Name = "Тип доп. соглашения")]
 		public virtual AgreementType Type {
 			get {	 

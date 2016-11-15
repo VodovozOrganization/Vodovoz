@@ -132,6 +132,9 @@ namespace Vodovoz
 
 			referenceContract.Binding.AddBinding(Entity, e => e.Contract, w => w.Subject).InitializeFromSource();
 
+			yentryAddress1cDeliveryPoint.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
+			yentryAddress1cDeliveryPoint.Binding.AddBinding(Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
+
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeCustomer = true;
 			counterpartyFilter.RestrictIncludeSupplier = false;
@@ -1046,6 +1049,19 @@ namespace Vodovoz
 
 			Entity.ChangeStatus(OrderStatus.WaitForPayment);
 			UpdateButtonState();
+		}
+
+		protected void OnButtonCreateDeliveryPointClicked (object sender, EventArgs e)
+		{
+			if (string.IsNullOrEmpty(Entity.Address1c) && Entity.DeliveryPoint == null)
+				return;
+
+			ITdiTab mytab = TdiHelper.FindMyTab (this);
+			if (mytab == null)
+				return;
+
+			DeliveryPointDlg dlg = new DeliveryPointDlg (Entity.Client, Entity.Address1c);
+			mytab.TabParent.AddSlaveTab (mytab, dlg);
 		}
 	}
 }

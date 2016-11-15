@@ -182,6 +182,7 @@ namespace Vodovoz
 		List<Bank1c> Banks1cList = new List<Bank1c>();
 		List<Nomenclature> NomenclatureList = new List<Nomenclature>();
 		List<Order> OrdersList = new List<Order>();
+		List<DeliveryPoint> DeliveryPointsList = null;
 
 		public LoadFrom1cDlg ()
 		{
@@ -193,6 +194,8 @@ namespace Vodovoz
 			Filter.AddMimeType("application/xml");
 			Filter.AddPattern("*.xml");
 			filechooserXML.Filter = Filter;
+
+			DeliveryPointsList = UoW.GetAll<DeliveryPoint>().ToList<DeliveryPoint>();
 		}
 
 		protected void OnButtonLoadClicked (object sender, EventArgs e)
@@ -510,16 +513,22 @@ namespace Vodovoz
 			var organisationNode = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var commentNode 	 = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
 			var counterpartyNode = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var addressNode 	 = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
 			var goodsNodes 		 = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+
+			//TODO Предусмотреть самовывоз в адресе
+			DeliveryPoint deliveryPoint = DeliveryPointsList.FirstOrDefault(d => d.Address1c == addressNode?.InnerText);
 
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
 			Order order = new Order
 				{
-					Code1c 	= code1cNode?.InnerText,
-					Comment = commentNode?.InnerText,
-					Client 	= CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText),
-					DeliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0])
+					Code1c 		  = code1cNode?.InnerText,
+					Comment 	  = commentNode?.InnerText,
+					Client 		  = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText),
+					DeliveryDate  = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01"),
+					DeliveryPoint = deliveryPoint,
+					Address1c 	  = addressNode?.InnerText
 				};
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
