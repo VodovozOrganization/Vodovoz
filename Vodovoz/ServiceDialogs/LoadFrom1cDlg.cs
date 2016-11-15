@@ -149,12 +149,39 @@ namespace Vodovoz
 				QSMain.WaitRedraw ();
 			}
 		}
+
+		int readedNomenclatures = 0;
+
+		public int ReadedNomenclatures {
+			get {
+				return readedNomenclatures;
+			}
+			set {
+				readedNomenclatures = value;
+				labelReadedNomenclatures.LabelProp = ReadedNomenclatures.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
+		int readedOrders = 0;
+
+		public int ReadedOrders {
+			get {
+				return readedOrders;
+			}
+			set {
+				readedOrders = value;
+				labelReadedOrders.LabelProp = ReadedOrders.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
 		#endregion
 
 		List<Counterparty> CounterpatiesList = new List<Counterparty>();
 		List<Account1c> AccountsList = new List<Account1c>();
 		List<Bank1c> Banks1cList = new List<Bank1c>();
 		List<Nomenclature> NomenclatureList = new List<Nomenclature>();
+		List<Order> OrdersList = new List<Order>();
 
 		public LoadFrom1cDlg ()
 		{
@@ -470,6 +497,7 @@ namespace Vodovoz
 				: NomenclatureCategory.additional;
 
 			NomenclatureList.Add(nomenclature);
+			ReadedNomenclatures++;
 		}
 
 		private void ParseOrders(XmlNode node)
@@ -490,7 +518,8 @@ namespace Vodovoz
 				{
 					Code1c 	= code1cNode?.InnerText,
 					Comment = commentNode?.InnerText,
-					Client 	= CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText)
+					Client 	= CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText),
+					DeliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0])
 				};
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
@@ -504,6 +533,8 @@ namespace Vodovoz
 			}
 
 			order.OrderItems = orderItems;
+			OrdersList.Add(order);
+			ReadedOrders++;
 		}
 
 		private OrderItem ParseOrderItem(XmlNode node, Order order)
@@ -513,7 +544,7 @@ namespace Vodovoz
 			var nPrice 	= node.SelectSingleNode("Свойство[@Имя='Цена']/Значение");
 			var nSumm 	= node.SelectSingleNode("Свойство[@Имя='Сумма']/Значение");
 			var nNDS 	= node.SelectSingleNode("Свойство[@Имя='СуммаНДС']/Значение");
-
+			//NumberFormatInfo нужен для корректного перевода строки
 			var nfi = new NumberFormatInfo();
 
 			int count 	  = Convert.ToInt32(nCount?.InnerText ?? "0");
@@ -550,7 +581,7 @@ namespace Vodovoz
 			QSMain.WaitRedraw ();
 			var ExistCouterpaties = Repository.CounterpartyRepository.All (UoW);
 
-			progressbar.Text = "Сверяем контрагентов..";
+			progressbar.Text = "Сверяем контрагентов...";
 			progressbar.Adjustment.Value = 0;
 			progressbar.Adjustment.Upper = CounterpatiesList.Count;
 			QSMain.WaitRedraw ();
@@ -562,12 +593,12 @@ namespace Vodovoz
 
 				var exist = ExistCouterpaties.FirstOrDefault (c => c.Code1c == loaded.Code1c);
 				//TODO подумать про проверку по ИНН если надо.
-
-				if (exist != null && !checkRewrite.Active)
-					continue;
-
+				//Проверка контрагентов
 				if(exist != null)
 				{
+					if (!checkRewrite.Active)
+						continue;
+					
 					loaded.Id = exist.Id;
 					foreach(var loadedAcc in  loaded.Accounts)
 					{
@@ -584,7 +615,60 @@ namespace Vodovoz
 				SavedCounterparty++;
 			}
 
-			progressbar.Text = "Записывам в базу..";
+			progressbar.Text = "Загружаем таблицу существующих номенклатур.";
+			var ExistNomenclatures = UoW.GetAll<Nomenclature>().ToList<Nomenclature>();
+
+			progressbar.Text = "Сверяем номенклатуры...";
+			progressbar.Adjustment.Value = 0;
+			progressbar.Adjustment.Upper = NomenclatureList.Count;
+			QSMain.WaitRedraw ();
+			//Проверка номенклатур
+			foreach (var loaded in NomenclatureList)
+			{
+				progressbar.Adjustment.Value++;
+				QSMain.WaitRedraw ();
+
+				var exist = ExistNomenclatures.FirstOrDefault (n => n.Code1c == loaded.Code1c);
+
+				if(exist != null)
+				{
+					if (!checkRewrite.Active)
+						continue;
+
+					loaded.Id = exist.Id;
+				}
+
+				UoW.Save (loaded);
+			}
+
+			progressbar.Text = "Загружаем таблицу существующих заказов.";
+			var ExistOrders = Repository.OrderRepository.All(UoW);
+
+			progressbar.Text = "Сверяем заказы...";
+			progressbar.Adjustment.Value = 0;
+			progressbar.Adjustment.Upper = OrdersList.Count;
+			QSMain.WaitRedraw ();
+
+			//Проверка заказов
+			foreach (var loaded in OrdersList)
+			{
+				progressbar.Adjustment.Value++;
+				QSMain.WaitRedraw ();
+
+				var exist = ExistOrders.FirstOrDefault (o => o.Code1c == loaded.Code1c);
+
+				if(exist != null)
+				{
+					if (!checkRewrite.Active)
+						continue;
+
+					loaded.Id = exist.Id;
+				}
+
+				UoW.Save (loaded);
+			}
+
+			progressbar.Text = "Записывам в базу...";
 			UoW.Commit ();
 			progressbar.Text = "Выполнено";
 		}

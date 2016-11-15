@@ -77,6 +77,11 @@ namespace Vodovoz.Repository
 				.Where(() => orderAlias.OrderStatus == OrderStatus.Closed)
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
+
+		public static IList<VodovozOrder> All (IUnitOfWork uow)
+		{
+			return uow.Session.QueryOver<VodovozOrder> ().List<VodovozOrder> ();
+		}
 	}
 }
 
