@@ -519,13 +519,17 @@ namespace Vodovoz
 
 			//TODO Предусмотреть самовывоз в адресе
 			DeliveryPoint deliveryPoint = DeliveryPointsList.FirstOrDefault(d => d.Address1c == addressNode?.InnerText);
+			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
+
+			if (client == null)
+				return;
 
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
 			Order order = new Order
 				{
 					Code1c 		  = code1cNode?.InnerText,
 					Comment 	  = commentNode?.InnerText,
-					Client 		  = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText),
+					Client 		  = client,
 					DeliveryDate  = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01"),
 					DeliveryPoint = deliveryPoint,
 					Address1c 	  = addressNode?.InnerText
@@ -621,8 +625,12 @@ namespace Vodovoz
 					loaded.AddAccount (loaded.DefaultAccount);
 
 				UoW.Save (loaded);
+				ExistCouterpaties.Add(loaded);
 				SavedCounterparty++;
 			}
+
+			progressbar.Text = "Записываем контрагентов в базу...";
+			//UoW.Commit ();
 
 			progressbar.Text = "Загружаем таблицу существующих номенклатур.";
 			var ExistNomenclatures = UoW.GetAll<Nomenclature>().ToList<Nomenclature>();
@@ -639,16 +647,18 @@ namespace Vodovoz
 
 				var exist = ExistNomenclatures.FirstOrDefault (n => n.Code1c == loaded.Code1c);
 
-				if(exist != null)
-				{
+				if(exist != null) {
 					if (!checkRewrite.Active)
 						continue;
 
 					loaded.Id = exist.Id;
 				}
-
 				UoW.Save (loaded);
+				ExistNomenclatures.Add(loaded);
 			}
+
+			progressbar.Text = "Записываем номенклатуру в базу...";
+			//UoW.Commit ();
 
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
 			var ExistOrders = Repository.OrderRepository.All(UoW);
@@ -665,19 +675,33 @@ namespace Vodovoz
 				QSMain.WaitRedraw ();
 
 				var exist = ExistOrders.FirstOrDefault (o => o.Code1c == loaded.Code1c);
+				var existCounterparty = ExistCouterpaties.FirstOrDefault (n => n.Code1c == loaded.Client.Code1c);
 
-				if(exist != null)
-				{
+				if (exist != null && existCounterparty != null) {
 					if (!checkRewrite.Active)
 						continue;
 
 					loaded.Id = exist.Id;
+					loaded.Client.Id = exist.Client.Id;
+					foreach(var loadedAcc in  loaded.Client.Accounts)
+					{
+						var existAcc = existCounterparty.Accounts.FirstOrDefault (a => a.Code1c == loadedAcc.Code1c);
+						if (existAcc != null)
+							loadedAcc.Id = existAcc.Id;
+					}
 				}
 
+				if (loaded.Client.DefaultAccount != null && !loaded.Client.Accounts.Contains (loaded.Client.DefaultAccount))
+					loaded.Client.AddAccount (loaded.Client.DefaultAccount);
+				foreach (var item in loaded.OrderItems)
+				{
+					UoW.Save(item.Nomenclature);
+				}
+				UoW.Save (loaded.Client);
 				UoW.Save (loaded);
 			}
 
-			progressbar.Text = "Записывам в базу...";
+			progressbar.Text = "Записываем заказы в базу...";
 			UoW.Commit ();
 			progressbar.Text = "Выполнено";
 		}
