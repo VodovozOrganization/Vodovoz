@@ -96,7 +96,6 @@ namespace Vodovoz
 				labelPreviousOrder.Visible = false;
 			hboxStatusButtons.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder 
 				|| UoWGeneric.Root.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled);
-			UpdateButtonState();
 
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
@@ -275,6 +274,14 @@ namespace Vodovoz
 			
 			UpdateSum ();
 			UpdateVisibleOfWingets();
+			UpdateButtonState();
+
+			if (Entity.DeliveryPoint == null && !string.IsNullOrWhiteSpace(Entity.Address1c))
+			{
+				var deliveryPoint = Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c);
+				if (deliveryPoint != null)
+					Entity.DeliveryPoint = deliveryPoint;
+			}
 
 			if (UoWGeneric.Root.OrderStatus != OrderStatus.NewOrder)
 				IsEditable ();
@@ -798,6 +805,13 @@ namespace Vodovoz
 			buttonCancelOrder.Sensitive    = Entity.OrderStatus == OrderStatus.Accepted
 										  || Entity.OrderStatus == OrderStatus.NewOrder 
 										  || Entity.OrderStatus == OrderStatus.WaitForPayment;
+			
+			if (Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
+				&& !string.IsNullOrWhiteSpace(Entity.Address1c)
+				&& DeliveryPoint == null) {
+				buttonCreateDeliveryPoint.Sensitive = true;
+			} else
+				buttonCreateDeliveryPoint.Sensitive = false;
 		}
 
 		protected void OnEnumSignatureTypeChanged (object sender, EventArgs e)
@@ -1061,7 +1075,14 @@ namespace Vodovoz
 				return;
 
 			DeliveryPointDlg dlg = new DeliveryPointDlg (Entity.Client, Entity.Address1c);
+			dlg.EntitySaved += Dlg_EntitySaved;
 			mytab.TabParent.AddSlaveTab (mytab, dlg);
+		}
+
+		void Dlg_EntitySaved (object sender, EntitySavedEventArgs e)
+		{
+			Entity.DeliveryPoint = (e.Entity as DeliveryPoint);
+			UpdateButtonState();
 		}
 	}
 }
