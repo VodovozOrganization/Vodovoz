@@ -35,7 +35,7 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref counterpartyContracts, value, () => CounterpartyContracts); }
 		}
 
-		private IList<DeliveryPoint> deliveryPoints;
+		private IList<DeliveryPoint> deliveryPoints = new List<DeliveryPoint>();
 
 		[Display (Name = "Точки доставки")]
 		public virtual IList<DeliveryPoint> DeliveryPoints {
