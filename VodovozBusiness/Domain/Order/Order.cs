@@ -431,14 +431,24 @@ namespace Vodovoz.Domain.Orders
 						var reserved = Repository.StockRepository.NomenclatureReserved(UoW, item.Nomenclature);
 						if (inStock-reserved < item.Count)
 						{
-							yield return new ValidationResult (
-								String.Format("Товара \"{0}\" нет на складе \"{1}\" в достаточном количестве(на складе: {2}, в резерве: {3}).",
-									item.NomenclatureString,
-									item.Nomenclature.Warehouse.Name,
-									item.Nomenclature.Unit.MakeAmountShortStr(inStock),
-									item.Nomenclature.Unit.MakeAmountShortStr(reserved)
-								),
-								new[] { this.GetPropertyName (o => o.OrderItems) });						
+							if (item.Nomenclature.Unit == null)
+							{
+								yield return new ValidationResult(
+									String.Format("У номенклатуры \"{0}\" с кодом {1} не стоит единица измерения).",
+										item.NomenclatureString,
+										item.Nomenclature.Id
+									),
+									new[] { this.GetPropertyName(o => o.OrderItems) });
+							} else {
+								yield return new ValidationResult(
+									String.Format("Товара \"{0}\" нет на складе \"{1}\" в достаточном количестве(на складе: {2}, в резерве: {3}).",
+										item.NomenclatureString,
+										item.Nomenclature.Warehouse.Name,
+										item.Nomenclature.Unit.MakeAmountShortStr(inStock),
+										item.Nomenclature.Unit.MakeAmountShortStr(reserved)
+									),
+									new[] { this.GetPropertyName(o => o.OrderItems) });
+							}
 						}
 					}
 				}
