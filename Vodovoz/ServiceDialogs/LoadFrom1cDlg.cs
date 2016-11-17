@@ -14,6 +14,8 @@ using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using System.Globalization;
+using QSBusinessCommon.Domain;
+using QSBusinessCommon.Repository;
 
 namespace Vodovoz
 {
@@ -236,6 +238,9 @@ namespace Vodovoz
 		List<Order> OrdersList = new List<Order>();
 		List<DeliveryPoint> DeliveryPointsList = null;
 
+		MeasurementUnits unitU;
+		MeasurementUnits UnitServ;
+
 		public LoadFrom1cDlg ()
 		{
 			this.Build ();
@@ -248,6 +253,8 @@ namespace Vodovoz
 			filechooserXML.Filter = Filter;
 
 			DeliveryPointsList = UoW.GetAll<DeliveryPoint>().ToList<DeliveryPoint>();
+			unitU = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
+			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(UoW);
 		}
 
 		protected void OnButtonLoadClicked (object sender, EventArgs e)
@@ -562,11 +569,23 @@ namespace Vodovoz
 			{
 				Code1c = code1cNode?.InnerText,
 				Name = nameNode?.InnerText,
-				OfficialName = officialNameNode?.InnerText,
+				OfficialName = officialNameNode?.InnerText
 			};
 			nomenclature.Category = servicelNode?.InnerText == "true"
 				? NomenclatureCategory.service
 				: NomenclatureCategory.additional;
+			switch (nomenclature.Category)
+			{
+				case NomenclatureCategory.service:
+					nomenclature.Unit = UnitServ;
+					break;
+				case NomenclatureCategory.additional:
+					nomenclature.Unit = unitU;
+					break;
+				default:
+					nomenclature.Unit = unitU;
+					break;
+			}
 
 			NomenclatureList.Add(nomenclature);
 			ReadedNomenclatures++;
