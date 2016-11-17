@@ -77,6 +77,7 @@ namespace Vodovoz
 		{
 			var row = ytreeRoutes.GetSelectedObject();
 			buttonRemoveAddress.Sensitive = row is RouteListItem;
+			buttonOpen.Sensitive = row is RouteListItem;
 		}
 
 		void GmapWidget_OnSelectionChange (RectLatLng Selection, bool ZoomToFit)
@@ -382,6 +383,17 @@ namespace Vodovoz
 			}
 		}
 
+
+		protected void OnButtonOpenClicked (object sender, EventArgs e)
+		{
+			var order = ytreeRoutes.GetSelectedObject<RouteListItem>().Order;
+
+			TabParent.OpenTab(
+				OrmMain.GenerateDialogHashName<Order>(order.Id),
+				() => new OrderDlg (order)
+			);
+
+		}
 		#endregion
 	}
 }
