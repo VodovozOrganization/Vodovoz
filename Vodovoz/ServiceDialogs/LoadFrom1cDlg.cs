@@ -16,6 +16,7 @@ using Vodovoz.Domain.Orders;
 using System.Globalization;
 using QSBusinessCommon.Domain;
 using QSBusinessCommon.Repository;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -752,6 +753,7 @@ namespace Vodovoz
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
 			var orderCodes1c = OrdersList.Select(c => c.Code1c).ToArray();
 			var ExistOrders = Repository.OrderRepository.GetOrdersByCode1c(UoW, orderCodes1c);
+			var DeliverySchedules = UoW.GetAll<DeliverySchedule>().ToList();
 
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
@@ -783,6 +785,10 @@ namespace Vodovoz
 				{
 					loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
 				}
+
+				var time = DeliverySchedules.FirstOrDefault(x => x.Name == loaded.Comment);
+				if (time != null)
+					loaded.DeliverySchedule = time;
 
 				foreach (var item in loaded.OrderItems)
 				{
