@@ -97,6 +97,9 @@ namespace Vodovoz
 
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
 
+			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
+			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
+
 			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
 				entity => entity.СoordinatesExist 
 				? String.Format("<span foreground='{1}'>{0}</span>", entity.СoordinatesText,
