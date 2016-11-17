@@ -810,7 +810,7 @@ namespace Vodovoz
 										  || Entity.OrderStatus == OrderStatus.NewOrder 
 										  || Entity.OrderStatus == OrderStatus.WaitForPayment;
 			
-			if (Counterparty.DeliveryPoints.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
+			if (Counterparty?.DeliveryPoints?.FirstOrDefault(d => d.Address1c == Entity.Address1c) == null
 				&& !string.IsNullOrWhiteSpace(Entity.Address1c)
 				&& DeliveryPoint == null) {
 				buttonCreateDeliveryPoint.Sensitive = true;
