@@ -730,10 +730,14 @@ namespace Vodovoz
 				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
 					return;
 
+				#if !SHORT
+
 				if (UoWGeneric.Root.BottlesReturn == 0 && Entity.OrderItems.Any (i => i.Nomenclature.Category == NomenclatureCategory.water)) {
 					if (!MessageDialogWorks.RunQuestionDialog ("Указано нулевое количество бутылей на возврат. Вы действительно хотите продолжить?"))
 						return;
 				}
+
+				#endif
 
 				foreach (OrderItem item in UoWGeneric.Root.ObservableOrderItems)
 				{
