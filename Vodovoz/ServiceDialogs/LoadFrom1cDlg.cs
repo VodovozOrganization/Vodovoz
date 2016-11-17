@@ -760,6 +760,11 @@ namespace Vodovoz
 				if (existCounterparty != null)
 					loaded.Client = existCounterparty;
 
+				if (loaded.Client.Id > 0)
+				{
+					loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
+				}
+
 				foreach (var item in loaded.OrderItems)
 				{
 					var existNom = ExistNomenclatures.FirstOrDefault(n => n.Code1c == item.Nomenclature.Code1c);
@@ -768,6 +773,12 @@ namespace Vodovoz
 						item.Nomenclature = existNom;
 					}
 				}
+
+				if (loaded.DeliveryPoint == null)
+					NewAddresses++;
+				else
+					loaded.ChangeStatus(OrderStatus.Accepted);
+				
 				UoW.Save (loaded);
 			}
 
