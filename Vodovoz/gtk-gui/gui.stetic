@@ -34559,7 +34559,7 @@ RegistrationNumber</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <child>
-              <widget class="Gtk.CheckButton" id="checkbutton1">
+              <widget class="Gtk.CheckButton" id="checkWatchLeaved">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Покаывать уехавших</property>
