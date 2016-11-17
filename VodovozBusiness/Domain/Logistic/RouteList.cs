@@ -262,7 +262,7 @@ namespace Vodovoz.Domain.Logistic
 					Status = RouteListStatus.InLoading;
 					foreach (var item in Addresses)
 					{
-						item.Order.ChangeStatus(OrderStatus.ReadyForShipment);
+						item.Order.ChangeStatus(OrderStatus.OnLoading);
 					}
 				}
 				else if (Status == RouteListStatus.New)

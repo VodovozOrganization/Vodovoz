@@ -165,6 +165,11 @@ namespace Vodovoz
 					return;
 
 				UoWGeneric.Root.ChangeStatus(RouteListStatus.InLoading);
+
+				foreach (var address in UoWGeneric.Root.Addresses)
+				{
+					address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.OnLoading);
+				}
 				Save();
 
 				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
