@@ -8,7 +8,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Table table1;
 		
-		private global::Gtk.CheckButton checkWatchLeaved;
+		private global::Gtk.CheckButton checkShowCompleted;
 		
 		private global::Gtk.HBox hbox4;
 		
@@ -68,14 +68,14 @@ namespace Vodovoz
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkWatchLeaved = new global::Gtk.CheckButton ();
-			this.checkWatchLeaved.CanFocus = true;
-			this.checkWatchLeaved.Name = "checkWatchLeaved";
-			this.checkWatchLeaved.Label = global::Mono.Unix.Catalog.GetString ("Покаывать уехавших");
-			this.checkWatchLeaved.DrawIndicator = true;
-			this.checkWatchLeaved.UseUnderline = true;
-			this.table1.Add (this.checkWatchLeaved);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1 [this.checkWatchLeaved]));
+			this.checkShowCompleted = new global::Gtk.CheckButton ();
+			this.checkShowCompleted.CanFocus = true;
+			this.checkShowCompleted.Name = "checkShowCompleted";
+			this.checkShowCompleted.Label = global::Mono.Unix.Catalog.GetString ("Показывать уехавшие");
+			this.checkShowCompleted.DrawIndicator = true;
+			this.checkShowCompleted.UseUnderline = true;
+			this.table1.Add (this.checkShowCompleted);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1 [this.checkShowCompleted]));
 			w1.LeftAttach = ((uint)(2));
 			w1.RightAttach = ((uint)(3));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
@@ -317,6 +317,7 @@ namespace Vodovoz
 			this.buttonSaveChanges.Clicked += new global::System.EventHandler (this.OnButtonSaveChangesClicked);
 			this.buttonCancelChanges.Clicked += new global::System.EventHandler (this.OnButtonCancelChangesClicked);
 			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
+			this.checkShowCompleted.Toggled += new global::System.EventHandler (this.OnCheckShowCompletedToggled);
 			this.buttonRemoveAddress.Clicked += new global::System.EventHandler (this.OnButtonRemoveAddressClicked);
 			this.yenumcomboMapType.ChangedByUser += new global::System.EventHandler (this.OnYenumcomboMapTypeChangedByUser);
 		}

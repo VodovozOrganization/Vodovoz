@@ -28,12 +28,14 @@ namespace Vodovoz.Repository
 			return store;
 		}
 			
-		public static QueryOver<VodovozOrder> GetOrdersForRLEditingQuery (DateTime date)
+		public static QueryOver<VodovozOrder> GetOrdersForRLEditingQuery (DateTime date, bool showShipped)
 		{
-			return QueryOver.Of<VodovozOrder> ()
-				.Where (order => (order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList)
-			&& order.DeliveryDate == date.Date
-			&& !order.SelfDelivery);
+			var query = QueryOver.Of<VodovozOrder>();
+			if (!showShipped)
+				query.Where(order => order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.InTravelList);
+			else
+				query.Where(order => order.OrderStatus != OrderStatus.Canceled && order.OrderStatus != OrderStatus.NewOrder && order.OrderStatus != OrderStatus.WaitForPayment);
+			return query.Where(order => order.DeliveryDate == date.Date && !order.SelfDelivery);
 		}
 
 		public static IList<VodovozOrder> GetAcceptedOrdersForRegion (IUnitOfWork uow, DateTime date, LogisticsArea area)

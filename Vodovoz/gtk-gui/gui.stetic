@@ -914,6 +914,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -34559,13 +34560,14 @@ RegistrationNumber</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <child>
-              <widget class="Gtk.CheckButton" id="checkWatchLeaved">
+              <widget class="Gtk.CheckButton" id="checkShowCompleted">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Label" translatable="yes">Покаывать уехавших</property>
+                <property name="Label" translatable="yes">Показывать уехавшие</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnCheckShowCompletedToggled" />
               </widget>
               <packing>
                 <property name="LeftAttach">2</property>

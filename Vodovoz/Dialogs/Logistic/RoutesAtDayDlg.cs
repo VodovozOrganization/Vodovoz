@@ -76,7 +76,7 @@ namespace Vodovoz
 		void YtreeRoutes_Selection_Changed (object sender, EventArgs e)
 		{
 			var row = ytreeRoutes.GetSelectedObject();
-			buttonRemoveAddress.Sensitive = row is RouteListItem;
+			buttonRemoveAddress.Sensitive = row is RouteListItem && !checkShowCompleted.Active;
 			buttonOpen.Sensitive = row is RouteListItem;
 		}
 
@@ -85,7 +85,7 @@ namespace Vodovoz
 			var selected = addressesOverlay.Markers.Where(m => Selection.Contains(m.Position)).ToList();
 			var selectedBottle = selected.Select(x => x.Tag).Cast<Order>().Sum(o => o.TotalDeliveredBottles);
 			labelSelected.LabelProp = String.Format("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
-			menuAddToRL.Sensitive = selected.Count > 0 && routesAtDay.Count > 0;
+			menuAddToRL.Sensitive = selected.Count > 0 && routesAtDay.Count > 0 && !checkShowCompleted.Active;
 		}
 
 		string GetRowTitle(object row)
@@ -145,20 +145,26 @@ namespace Vodovoz
 		void FillDialogAtDay()
 		{
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
-			ordersAtDay = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date)
+
+			ordersAtDay = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(uow.Session)
 				.Fetch(x => x.DeliveryPoint).Eager
 				.Fetch(x => x.OrderItems).Eager
 				.List();
 
-			var routesQuery = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
-				.GetExecutableQueryOver(uow.Session)
-				.Where(x => x.Status == RouteListStatus.New)
+			var routesQuery1 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+				.GetExecutableQueryOver(uow.Session);
+			if (!checkShowCompleted.Active)
+				routesQuery1.Where(x => x.Status == RouteListStatus.New);
+			var routesQuery = routesQuery1
 				.Fetch(x => x.Addresses).Default
 				.Future();
 
-			Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
-				.GetExecutableQueryOver(uow.Session)
+			var routesQuery2 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
+				.GetExecutableQueryOver(uow.Session);
+			if (!checkShowCompleted.Active)
+				routesQuery2.Where(x => x.Status == RouteListStatus.New);
+			routesQuery2
 				.Where(x => x.Status == RouteListStatus.New)
 				.Fetch(x => x.Driver).Eager
 				.Fetch(x => x.Car).Eager
@@ -279,7 +285,7 @@ namespace Vodovoz
 
 		void RoutesWasUpdated()
 		{
-			ydateForRoutes.Sensitive = false;
+			ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = false;
 			ytreeRoutes.YTreeModel.EmitModelChanged();
 		}
 
@@ -345,7 +351,7 @@ namespace Vodovoz
 		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
 		{
 			uow.Session.Clear();
-			ydateForRoutes.Sensitive = true;
+			ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = true;
 			FillDialogAtDay();
 		}
 
@@ -359,6 +365,12 @@ namespace Vodovoz
 			RoutesWasUpdated();
 		}
 
+		protected void OnCheckShowCompletedToggled(object sender, EventArgs e)
+		{
+			FillDialogAtDay();
+			buttonSaveChanges.Sensitive = !checkShowCompleted.Active;
+		}
+
 		#region TDIDialog
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
@@ -366,7 +378,7 @@ namespace Vodovoz
 		public bool Save()
 		{
 			uow.Commit();
-			ydateForRoutes.Sensitive = true;
+			ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = true;
 			return true;
 		}
 
