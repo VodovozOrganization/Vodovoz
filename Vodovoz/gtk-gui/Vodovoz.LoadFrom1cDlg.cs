@@ -18,11 +18,21 @@ namespace Vodovoz
 		
 		private global::Gtk.CheckButton checkRewrite;
 		
+		private global::Gtk.CheckButton checkSkipCounterparties;
+		
 		private global::Gtk.Label label1;
 		
 		private global::Gtk.Label label10;
 		
 		private global::Gtk.Label label11;
+		
+		private global::Gtk.Label label12;
+		
+		private global::Gtk.Label label13;
+		
+		private global::Gtk.Label label14;
+		
+		private global::Gtk.Label label15;
 		
 		private global::Gtk.Label label2;
 		
@@ -45,6 +55,14 @@ namespace Vodovoz
 		private global::Gtk.Label labelInactiveBanks;
 		
 		private global::Gtk.Label labelLinkedAccount;
+		
+		private global::Gtk.Label labelNewAddresses;
+		
+		private global::Gtk.Label labelNewCounterparties;
+		
+		private global::Gtk.Label labelNewNomenclatures;
+		
+		private global::Gtk.Label labelNewOrders;
 		
 		private global::Gtk.Label labelReadedAccounts;
 		
@@ -73,7 +91,7 @@ namespace Vodovoz
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table (((uint)(13)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table (((uint)(17)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
@@ -125,266 +143,368 @@ namespace Vodovoz
 			this.hbox1.Add (this.checkRewrite);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.checkRewrite]));
 			w4.Position = 2;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.checkSkipCounterparties = new global::Gtk.CheckButton ();
+			this.checkSkipCounterparties.CanFocus = true;
+			this.checkSkipCounterparties.Name = "checkSkipCounterparties";
+			this.checkSkipCounterparties.Label = global::Mono.Unix.Catalog.GetString ("Пропускать контрагентов");
+			this.checkSkipCounterparties.DrawIndicator = true;
+			this.checkSkipCounterparties.UseUnderline = true;
+			this.hbox1.Add (this.checkSkipCounterparties);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.checkSkipCounterparties]));
+			w5.Position = 3;
 			this.table1.Add (this.hbox1);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1 [this.hbox1]));
-			w5.TopAttach = ((uint)(1));
-			w5.BottomAttach = ((uint)(2));
-			w5.RightAttach = ((uint)(2));
-			w5.XOptions = ((global::Gtk.AttachOptions)(0));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.hbox1]));
+			w6.TopAttach = ((uint)(1));
+			w6.BottomAttach = ((uint)(2));
+			w6.RightAttach = ((uint)(2));
+			w6.XOptions = ((global::Gtk.AttachOptions)(0));
+			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
 			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Файл для загрузка:");
 			this.table1.Add (this.label1);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
-			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
+			w7.XOptions = ((global::Gtk.AttachOptions)(4));
+			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label10 = new global::Gtk.Label ();
 			this.label10.Name = "label10";
 			this.label10.Xalign = 1F;
 			this.label10.LabelProp = global::Mono.Unix.Catalog.GetString ("Загружено номенклатуры:");
 			this.table1.Add (this.label10);
-			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.table1 [this.label10]));
-			w7.TopAttach = ((uint)(11));
-			w7.BottomAttach = ((uint)(12));
-			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1 [this.label10]));
+			w8.TopAttach = ((uint)(11));
+			w8.BottomAttach = ((uint)(12));
+			w8.XOptions = ((global::Gtk.AttachOptions)(4));
+			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label11 = new global::Gtk.Label ();
 			this.label11.Name = "label11";
 			this.label11.Xalign = 1F;
 			this.label11.LabelProp = global::Mono.Unix.Catalog.GetString ("Загружено заказов:");
 			this.table1.Add (this.label11);
-			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.table1 [this.label11]));
-			w8.TopAttach = ((uint)(12));
-			w8.BottomAttach = ((uint)(13));
-			w8.XOptions = ((global::Gtk.AttachOptions)(4));
-			w8.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1 [this.label11]));
+			w9.TopAttach = ((uint)(12));
+			w9.BottomAttach = ((uint)(13));
+			w9.XOptions = ((global::Gtk.AttachOptions)(4));
+			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label12 = new global::Gtk.Label ();
+			this.label12.Name = "label12";
+			this.label12.Xalign = 1F;
+			this.label12.LabelProp = global::Mono.Unix.Catalog.GetString ("Новых контрагентов:");
+			this.table1.Add (this.label12);
+			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1 [this.label12]));
+			w10.TopAttach = ((uint)(13));
+			w10.BottomAttach = ((uint)(14));
+			w10.XOptions = ((global::Gtk.AttachOptions)(4));
+			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label13 = new global::Gtk.Label ();
+			this.label13.Name = "label13";
+			this.label13.Xalign = 1F;
+			this.label13.LabelProp = global::Mono.Unix.Catalog.GetString ("Новых номенклатур:");
+			this.table1.Add (this.label13);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1 [this.label13]));
+			w11.TopAttach = ((uint)(14));
+			w11.BottomAttach = ((uint)(15));
+			w11.XOptions = ((global::Gtk.AttachOptions)(4));
+			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label14 = new global::Gtk.Label ();
+			this.label14.Name = "label14";
+			this.label14.Xalign = 1F;
+			this.label14.LabelProp = global::Mono.Unix.Catalog.GetString ("Новых заказов:");
+			this.table1.Add (this.label14);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1 [this.label14]));
+			w12.TopAttach = ((uint)(15));
+			w12.BottomAttach = ((uint)(16));
+			w12.XOptions = ((global::Gtk.AttachOptions)(4));
+			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.label15 = new global::Gtk.Label ();
+			this.label15.Name = "label15";
+			this.label15.Xalign = 1F;
+			this.label15.LabelProp = global::Mono.Unix.Catalog.GetString ("Новых адресов:");
+			this.table1.Add (this.label15);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1 [this.label15]));
+			w13.TopAttach = ((uint)(16));
+			w13.BottomAttach = ((uint)(17));
+			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 1F;
 			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Контрагентов загружено:");
 			this.table1.Add (this.label2);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.table1 [this.label2]));
-			w9.TopAttach = ((uint)(3));
-			w9.BottomAttach = ((uint)(4));
-			w9.XOptions = ((global::Gtk.AttachOptions)(4));
-			w9.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.label2]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label ();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Контрагентов пропущено:");
 			this.table1.Add (this.label3);
-			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1 [this.label3]));
-			w10.TopAttach = ((uint)(4));
-			w10.BottomAttach = ((uint)(5));
-			w10.XOptions = ((global::Gtk.AttachOptions)(4));
-			w10.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1 [this.label3]));
+			w15.TopAttach = ((uint)(4));
+			w15.BottomAttach = ((uint)(5));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label4 = new global::Gtk.Label ();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
 			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Счетов привязаных к контрагенту:");
 			this.table1.Add (this.label4);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.table1 [this.label4]));
-			w11.TopAttach = ((uint)(8));
-			w11.BottomAttach = ((uint)(9));
-			w11.XOptions = ((global::Gtk.AttachOptions)(4));
-			w11.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.label4]));
+			w16.TopAttach = ((uint)(8));
+			w16.BottomAttach = ((uint)(9));
+			w16.XOptions = ((global::Gtk.AttachOptions)(4));
+			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label5 = new global::Gtk.Label ();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
 			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Загружено расчетных счетов:");
 			this.table1.Add (this.label5);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1 [this.label5]));
-			w12.TopAttach = ((uint)(6));
-			w12.BottomAttach = ((uint)(7));
-			w12.XOptions = ((global::Gtk.AttachOptions)(4));
-			w12.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1 [this.label5]));
+			w17.TopAttach = ((uint)(6));
+			w17.BottomAttach = ((uint)(7));
+			w17.XOptions = ((global::Gtk.AttachOptions)(4));
+			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label ();
 			this.label6.Name = "label6";
 			this.label6.Xalign = 1F;
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Контрагентов сохранено:");
 			this.table1.Add (this.label6);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1 [this.label6]));
-			w13.TopAttach = ((uint)(5));
-			w13.BottomAttach = ((uint)(6));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
-			w13.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1 [this.label6]));
+			w18.TopAttach = ((uint)(5));
+			w18.BottomAttach = ((uint)(6));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
+			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label7 = new global::Gtk.Label ();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
 			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Загружено банков:");
 			this.table1.Add (this.label7);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1 [this.label7]));
-			w14.TopAttach = ((uint)(9));
-			w14.BottomAttach = ((uint)(10));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.label7]));
+			w19.TopAttach = ((uint)(9));
+			w19.BottomAttach = ((uint)(10));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
+			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label8 = new global::Gtk.Label ();
 			this.label8.Name = "label8";
 			this.label8.Xalign = 1F;
 			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString ("Из них несуществующих:");
 			this.table1.Add (this.label8);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1 [this.label8]));
-			w15.TopAttach = ((uint)(10));
-			w15.BottomAttach = ((uint)(11));
-			w15.XOptions = ((global::Gtk.AttachOptions)(4));
-			w15.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1 [this.label8]));
+			w20.TopAttach = ((uint)(10));
+			w20.BottomAttach = ((uint)(11));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
+			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.label9 = new global::Gtk.Label ();
 			this.label9.Name = "label9";
 			this.label9.LabelProp = global::Mono.Unix.Catalog.GetString ("Из них в несуществующих банках:");
 			this.table1.Add (this.label9);
-			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.table1 [this.label9]));
-			w16.TopAttach = ((uint)(7));
-			w16.BottomAttach = ((uint)(8));
-			w16.XOptions = ((global::Gtk.AttachOptions)(4));
-			w16.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1 [this.label9]));
+			w21.TopAttach = ((uint)(7));
+			w21.BottomAttach = ((uint)(8));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
+			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.labelInactiveAccounts = new global::Gtk.Label ();
 			this.labelInactiveAccounts.Name = "labelInactiveAccounts";
 			this.labelInactiveAccounts.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
 			this.table1.Add (this.labelInactiveAccounts);
-			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelInactiveAccounts]));
-			w17.TopAttach = ((uint)(7));
-			w17.BottomAttach = ((uint)(8));
-			w17.LeftAttach = ((uint)(1));
-			w17.RightAttach = ((uint)(2));
-			w17.XOptions = ((global::Gtk.AttachOptions)(4));
-			w17.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelInactiveBanks = new global::Gtk.Label ();
-			this.labelInactiveBanks.Name = "labelInactiveBanks";
-			this.labelInactiveBanks.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelInactiveBanks);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelInactiveBanks]));
-			w18.TopAttach = ((uint)(10));
-			w18.BottomAttach = ((uint)(11));
-			w18.LeftAttach = ((uint)(1));
-			w18.RightAttach = ((uint)(2));
-			w18.XOptions = ((global::Gtk.AttachOptions)(4));
-			w18.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelLinkedAccount = new global::Gtk.Label ();
-			this.labelLinkedAccount.Name = "labelLinkedAccount";
-			this.labelLinkedAccount.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelLinkedAccount);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelLinkedAccount]));
-			w19.TopAttach = ((uint)(8));
-			w19.BottomAttach = ((uint)(9));
-			w19.LeftAttach = ((uint)(1));
-			w19.RightAttach = ((uint)(2));
-			w19.XOptions = ((global::Gtk.AttachOptions)(4));
-			w19.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelReadedAccounts = new global::Gtk.Label ();
-			this.labelReadedAccounts.Name = "labelReadedAccounts";
-			this.labelReadedAccounts.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelReadedAccounts);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelReadedAccounts]));
-			w20.TopAttach = ((uint)(6));
-			w20.BottomAttach = ((uint)(7));
-			w20.LeftAttach = ((uint)(1));
-			w20.RightAttach = ((uint)(2));
-			w20.XOptions = ((global::Gtk.AttachOptions)(4));
-			w20.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelReadedNomenclatures = new global::Gtk.Label ();
-			this.labelReadedNomenclatures.Name = "labelReadedNomenclatures";
-			this.labelReadedNomenclatures.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelReadedNomenclatures);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelReadedNomenclatures]));
-			w21.TopAttach = ((uint)(11));
-			w21.BottomAttach = ((uint)(12));
-			w21.LeftAttach = ((uint)(1));
-			w21.RightAttach = ((uint)(2));
-			w21.XOptions = ((global::Gtk.AttachOptions)(4));
-			w21.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
-			this.labelReadedOrders = new global::Gtk.Label ();
-			this.labelReadedOrders.Name = "labelReadedOrders";
-			this.labelReadedOrders.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelReadedOrders);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelReadedOrders]));
-			w22.TopAttach = ((uint)(12));
-			w22.BottomAttach = ((uint)(13));
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelInactiveAccounts]));
+			w22.TopAttach = ((uint)(7));
+			w22.BottomAttach = ((uint)(8));
 			w22.LeftAttach = ((uint)(1));
 			w22.RightAttach = ((uint)(2));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelSaved = new global::Gtk.Label ();
-			this.labelSaved.Name = "labelSaved";
-			this.labelSaved.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelSaved);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelSaved]));
-			w23.TopAttach = ((uint)(5));
-			w23.BottomAttach = ((uint)(6));
+			this.labelInactiveBanks = new global::Gtk.Label ();
+			this.labelInactiveBanks.Name = "labelInactiveBanks";
+			this.labelInactiveBanks.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelInactiveBanks);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelInactiveBanks]));
+			w23.TopAttach = ((uint)(10));
+			w23.BottomAttach = ((uint)(11));
 			w23.LeftAttach = ((uint)(1));
 			w23.RightAttach = ((uint)(2));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelSkipedCounterparty = new global::Gtk.Label ();
-			this.labelSkipedCounterparty.Name = "labelSkipedCounterparty";
-			this.labelSkipedCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelSkipedCounterparty);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelSkipedCounterparty]));
-			w24.TopAttach = ((uint)(4));
-			w24.BottomAttach = ((uint)(5));
+			this.labelLinkedAccount = new global::Gtk.Label ();
+			this.labelLinkedAccount.Name = "labelLinkedAccount";
+			this.labelLinkedAccount.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelLinkedAccount);
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelLinkedAccount]));
+			w24.TopAttach = ((uint)(8));
+			w24.BottomAttach = ((uint)(9));
 			w24.LeftAttach = ((uint)(1));
 			w24.RightAttach = ((uint)(2));
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelTotalBanks = new global::Gtk.Label ();
-			this.labelTotalBanks.Name = "labelTotalBanks";
-			this.labelTotalBanks.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelTotalBanks);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelTotalBanks]));
-			w25.TopAttach = ((uint)(9));
-			w25.BottomAttach = ((uint)(10));
+			this.labelNewAddresses = new global::Gtk.Label ();
+			this.labelNewAddresses.Name = "labelNewAddresses";
+			this.labelNewAddresses.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelNewAddresses);
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelNewAddresses]));
+			w25.TopAttach = ((uint)(16));
+			w25.BottomAttach = ((uint)(17));
 			w25.LeftAttach = ((uint)(1));
 			w25.RightAttach = ((uint)(2));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelTotalCounterparty = new global::Gtk.Label ();
-			this.labelTotalCounterparty.Name = "labelTotalCounterparty";
-			this.labelTotalCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
-			this.table1.Add (this.labelTotalCounterparty);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelTotalCounterparty]));
-			w26.TopAttach = ((uint)(3));
-			w26.BottomAttach = ((uint)(4));
+			this.labelNewCounterparties = new global::Gtk.Label ();
+			this.labelNewCounterparties.Name = "labelNewCounterparties";
+			this.labelNewCounterparties.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelNewCounterparties);
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelNewCounterparties]));
+			w26.TopAttach = ((uint)(13));
+			w26.BottomAttach = ((uint)(14));
 			w26.LeftAttach = ((uint)(1));
 			w26.RightAttach = ((uint)(2));
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.progressbar = new global::Gtk.ProgressBar ();
-			this.progressbar.Name = "progressbar";
-			this.table1.Add (this.progressbar);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1 [this.progressbar]));
-			w27.TopAttach = ((uint)(2));
-			w27.BottomAttach = ((uint)(3));
+			this.labelNewNomenclatures = new global::Gtk.Label ();
+			this.labelNewNomenclatures.Name = "labelNewNomenclatures";
+			this.labelNewNomenclatures.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelNewNomenclatures);
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelNewNomenclatures]));
+			w27.TopAttach = ((uint)(14));
+			w27.BottomAttach = ((uint)(15));
+			w27.LeftAttach = ((uint)(1));
 			w27.RightAttach = ((uint)(2));
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelNewOrders = new global::Gtk.Label ();
+			this.labelNewOrders.Name = "labelNewOrders";
+			this.labelNewOrders.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelNewOrders);
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelNewOrders]));
+			w28.TopAttach = ((uint)(15));
+			w28.BottomAttach = ((uint)(16));
+			w28.LeftAttach = ((uint)(1));
+			w28.RightAttach = ((uint)(2));
+			w28.XOptions = ((global::Gtk.AttachOptions)(4));
+			w28.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelReadedAccounts = new global::Gtk.Label ();
+			this.labelReadedAccounts.Name = "labelReadedAccounts";
+			this.labelReadedAccounts.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelReadedAccounts);
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelReadedAccounts]));
+			w29.TopAttach = ((uint)(6));
+			w29.BottomAttach = ((uint)(7));
+			w29.LeftAttach = ((uint)(1));
+			w29.RightAttach = ((uint)(2));
+			w29.XOptions = ((global::Gtk.AttachOptions)(4));
+			w29.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelReadedNomenclatures = new global::Gtk.Label ();
+			this.labelReadedNomenclatures.Name = "labelReadedNomenclatures";
+			this.labelReadedNomenclatures.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelReadedNomenclatures);
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelReadedNomenclatures]));
+			w30.TopAttach = ((uint)(11));
+			w30.BottomAttach = ((uint)(12));
+			w30.LeftAttach = ((uint)(1));
+			w30.RightAttach = ((uint)(2));
+			w30.XOptions = ((global::Gtk.AttachOptions)(4));
+			w30.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelReadedOrders = new global::Gtk.Label ();
+			this.labelReadedOrders.Name = "labelReadedOrders";
+			this.labelReadedOrders.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelReadedOrders);
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelReadedOrders]));
+			w31.TopAttach = ((uint)(12));
+			w31.BottomAttach = ((uint)(13));
+			w31.LeftAttach = ((uint)(1));
+			w31.RightAttach = ((uint)(2));
+			w31.XOptions = ((global::Gtk.AttachOptions)(4));
+			w31.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelSaved = new global::Gtk.Label ();
+			this.labelSaved.Name = "labelSaved";
+			this.labelSaved.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelSaved);
+			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelSaved]));
+			w32.TopAttach = ((uint)(5));
+			w32.BottomAttach = ((uint)(6));
+			w32.LeftAttach = ((uint)(1));
+			w32.RightAttach = ((uint)(2));
+			w32.XOptions = ((global::Gtk.AttachOptions)(4));
+			w32.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelSkipedCounterparty = new global::Gtk.Label ();
+			this.labelSkipedCounterparty.Name = "labelSkipedCounterparty";
+			this.labelSkipedCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelSkipedCounterparty);
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelSkipedCounterparty]));
+			w33.TopAttach = ((uint)(4));
+			w33.BottomAttach = ((uint)(5));
+			w33.LeftAttach = ((uint)(1));
+			w33.RightAttach = ((uint)(2));
+			w33.XOptions = ((global::Gtk.AttachOptions)(4));
+			w33.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelTotalBanks = new global::Gtk.Label ();
+			this.labelTotalBanks.Name = "labelTotalBanks";
+			this.labelTotalBanks.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelTotalBanks);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelTotalBanks]));
+			w34.TopAttach = ((uint)(9));
+			w34.BottomAttach = ((uint)(10));
+			w34.LeftAttach = ((uint)(1));
+			w34.RightAttach = ((uint)(2));
+			w34.XOptions = ((global::Gtk.AttachOptions)(4));
+			w34.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.labelTotalCounterparty = new global::Gtk.Label ();
+			this.labelTotalCounterparty.Name = "labelTotalCounterparty";
+			this.labelTotalCounterparty.LabelProp = global::Mono.Unix.Catalog.GetString ("0");
+			this.table1.Add (this.labelTotalCounterparty);
+			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelTotalCounterparty]));
+			w35.TopAttach = ((uint)(3));
+			w35.BottomAttach = ((uint)(4));
+			w35.LeftAttach = ((uint)(1));
+			w35.RightAttach = ((uint)(2));
+			w35.XOptions = ((global::Gtk.AttachOptions)(4));
+			w35.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.progressbar = new global::Gtk.ProgressBar ();
+			this.progressbar.Name = "progressbar";
+			this.table1.Add (this.progressbar);
+			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.table1 [this.progressbar]));
+			w36.TopAttach = ((uint)(2));
+			w36.BottomAttach = ((uint)(3));
+			w36.RightAttach = ((uint)(2));
+			w36.XOptions = ((global::Gtk.AttachOptions)(4));
+			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add (this.table1);
-			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.table1]));
-			w28.Position = 0;
-			w28.Expand = false;
-			w28.Fill = false;
+			global::Gtk.Box.BoxChild w37 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.table1]));
+			w37.Position = 0;
+			w37.Expand = false;
+			w37.Fill = false;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

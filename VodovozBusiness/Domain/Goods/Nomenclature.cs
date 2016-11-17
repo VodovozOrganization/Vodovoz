@@ -173,8 +173,14 @@ namespace Vodovoz.Domain.Goods
 			get { return nomenclaturePrice; }
 			set { SetField (ref nomenclaturePrice, value, () => NomenclaturePrice); }
 		}
-
+			
 		#endregion
+
+		public override string ToString()
+		{
+			return String.Format("id ={0} Name = {1}", Id, Name);
+
+		}
 
 		public Nomenclature ()
 		{

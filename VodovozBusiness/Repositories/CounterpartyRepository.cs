@@ -15,9 +15,11 @@ namespace Vodovoz.Repository
 				.Where (c => !c.IsArchive);
 		}
 
-		public static IList<Counterparty> All (IUnitOfWork uow)
+		public static IList<Counterparty> GetCounterpartiesByCode1c (IUnitOfWork uow, string[] codes1c)
 		{
-			return uow.Session.QueryOver<Counterparty> ().List<Counterparty> ();
+			return uow.Session.QueryOver<Counterparty> ()
+				.Where(c => c.Code1c.IsIn(codes1c))
+				.List<Counterparty> ();
 		}
 
 		public static Counterparty GetCounterpartyByINN (IUnitOfWork uow, string inn)

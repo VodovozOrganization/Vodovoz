@@ -78,9 +78,11 @@ namespace Vodovoz.Repository
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
 
-		public static IList<VodovozOrder> All (IUnitOfWork uow)
+		public static IList<VodovozOrder> GetOrdersByCode1c (IUnitOfWork uow, string[] codes1c)
 		{
-			return uow.Session.QueryOver<VodovozOrder> ().List<VodovozOrder> ();
+			return uow.Session.QueryOver<VodovozOrder> ()
+				.Where(c => c.Code1c.IsIn(codes1c))
+				.List<VodovozOrder> ();
 		}
 	}
 }

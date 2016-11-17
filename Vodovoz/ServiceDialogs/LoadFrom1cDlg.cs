@@ -175,6 +175,58 @@ namespace Vodovoz
 				QSMain.WaitRedraw ();
 			}
 		}
+
+		int newCounterparties = 0;
+
+		public int NewCounterparties {
+			get {
+				return newCounterparties;
+			}
+			set {
+				newCounterparties = value;
+				labelNewCounterparties.LabelProp = NewCounterparties.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
+		int newNomenclatures = 0;
+
+		public int NewNomenclatures {
+			get {
+				return newNomenclatures;
+			}
+			set {
+				newNomenclatures = value;
+				labelNewNomenclatures.LabelProp = NewNomenclatures.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
+		int newOrders = 0;
+
+		public int NewOrders {
+			get {
+				return newOrders;
+			}
+			set {
+				newOrders = value;
+				labelNewOrders.LabelProp = NewOrders.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
+		int newAddresses = 0;
+
+		public int NewAddresses {
+			get {
+				return newAddresses;
+			}
+			set {
+				newAddresses = value;
+				labelNewAddresses.LabelProp = NewAddresses.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
 		#endregion
 
 		List<Counterparty> CounterpatiesList = new List<Counterparty>();
@@ -200,12 +252,23 @@ namespace Vodovoz
 
 		protected void OnButtonLoadClicked (object sender, EventArgs e)
 		{
+			checkSkipCounterparties.Sensitive = false;
 			logger.Info ("Читаем XML файл...");
 			progressbar.Text = "Читаем XML файл...";
-			TotalCounterparty = SkipedCounterparty = ReadedAccounts = LinkedAccounts = InactiveAccounts = ReadedBanks = InactiveBanks = 0;
-			CounterpatiesList.Clear ();
-			AccountsList.Clear ();
-			Banks1cList.Clear ();
+			TotalCounterparty = SkipedCounterparty 		= ReadedAccounts
+				= LinkedAccounts		= InactiveAccounts 		= ReadedBanks
+				= InactiveBanks			= ReadedNomenclatures 	= ReadedOrders
+				= NewCounterparties		= NewNomenclatures 		= NewOrders
+				= NewAddresses
+				= 0;
+			
+			CounterpatiesList .Clear();
+			AccountsList	  .Clear();
+			Banks1cList		  .Clear();
+			NomenclatureList  .Clear();
+			OrdersList		  .Clear();
+			DeliveryPointsList.Clear();
+
 			XmlDocument content = new XmlDocument ();
 			content.Load (filechooserXML.Filename);
 
@@ -258,25 +321,31 @@ namespace Vodovoz
 
 			progressbar.Text = "Выполнено";
 			buttonSave.Sensitive = checkRewrite.Sensitive = CounterpatiesList.Count > 0;
+			checkSkipCounterparties.Sensitive = true;
 		}
 
 		#region Парсеры Xml
 		void ParseCounterparty(XmlNode node)
 		{
+			bool skipCounterparties = checkSkipCounterparties.Active;
+
 			var parrentNode = node.SelectSingleNode ("Свойство[@Имя='Родитель']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			if(parrentNode == null || !IncludeParents.Contains (parrentNode.InnerText))
+			if (skipCounterparties)
 			{
-				logger.Debug ("Пропускаем... так как не входит в выборку.");
-				SkipedCounterparty++;
-				return;
-			}
-
-			if(ExcludeParents.Contains (parrentNode.InnerText))
-			{
-				logger.Debug ("Пропускаем... так как попадает в исключение.");
-				SkipedCounterparty++;
-				return;
+				if((parrentNode == null || !IncludeParents.Contains (parrentNode.InnerText)))
+				{
+					logger.Debug ("Пропускаем... так как не входит в выборку.");
+					SkipedCounterparty++;
+					return;
+				}
+				
+				if(ExcludeParents.Contains (parrentNode.InnerText))
+				{
+					logger.Debug ("Пропускаем... так как попадает в исключение.");
+					SkipedCounterparty++;
+					return;
+				}
 			}
 
 			bool isGroup = false;
@@ -590,9 +659,12 @@ namespace Vodovoz
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
+			bool rewrite = checkRewrite.Active;
+			checkRewrite.Sensitive = false;
 			progressbar.Text = "Загружаем таблицу существующих контрагентов.";
 			QSMain.WaitRedraw ();
-			var ExistCouterpaties = Repository.CounterpartyRepository.All (UoW);
+			var counterpartyCodes1c = CounterpatiesList.Select(c => c.Code1c).ToArray();
+			var ExistCouterpaties = Repository.CounterpartyRepository.GetCounterpartiesByCode1c (UoW, counterpartyCodes1c);
 
 			progressbar.Text = "Сверяем контрагентов...";
 			progressbar.Adjustment.Value = 0;
@@ -607,30 +679,28 @@ namespace Vodovoz
 				var exist = ExistCouterpaties.FirstOrDefault (c => c.Code1c == loaded.Code1c);
 				//TODO подумать про проверку по ИНН если надо.
 				//Проверка контрагентов
-				if(exist != null)
+				if (exist != null)
 				{
-					if (!checkRewrite.Active)
+					if (!rewrite)
 						continue;
 					
 					loaded.Id = exist.Id;
-					foreach(var loadedAcc in  loaded.Accounts)
+					foreach (var loadedAcc in  loaded.Accounts)
 					{
-						var existAcc = exist.Accounts.FirstOrDefault (a => a.Code1c == loadedAcc.Code1c);
+						var existAcc = exist.Accounts.FirstOrDefault(a => a.Code1c == loadedAcc.Code1c);
 						if (existAcc != null)
 							loadedAcc.Id = existAcc.Id;
 					}
 				}
+				else
+					NewCounterparties++;
 
 				if (loaded.DefaultAccount != null && !loaded.Accounts.Contains (loaded.DefaultAccount))
 					loaded.AddAccount (loaded.DefaultAccount);
 
 				UoW.Save (loaded);
-				ExistCouterpaties.Add(loaded);
 				SavedCounterparty++;
 			}
-
-			progressbar.Text = "Записываем контрагентов в базу...";
-			//UoW.Commit ();
 
 			progressbar.Text = "Загружаем таблицу существующих номенклатур.";
 			var ExistNomenclatures = UoW.GetAll<Nomenclature>().ToList<Nomenclature>();
@@ -639,6 +709,7 @@ namespace Vodovoz
 			progressbar.Adjustment.Value = 0;
 			progressbar.Adjustment.Upper = NomenclatureList.Count;
 			QSMain.WaitRedraw ();
+
 			//Проверка номенклатур
 			foreach (var loaded in NomenclatureList)
 			{
@@ -647,21 +718,21 @@ namespace Vodovoz
 
 				var exist = ExistNomenclatures.FirstOrDefault (n => n.Code1c == loaded.Code1c);
 
-				if(exist != null) {
-					if (!checkRewrite.Active)
+				if (exist != null)
+				{
+					if (!rewrite)
 						continue;
 
 					loaded.Id = exist.Id;
 				}
+				else
+					NewNomenclatures++;
 				UoW.Save (loaded);
-				ExistNomenclatures.Add(loaded);
 			}
 
-			progressbar.Text = "Записываем номенклатуру в базу...";
-			//UoW.Commit ();
-
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
-			var ExistOrders = Repository.OrderRepository.All(UoW);
+			var orderCodes1c = OrdersList.Select(c => c.Code1c).ToArray();
+			var ExistOrders = Repository.OrderRepository.GetOrdersByCode1c(UoW, orderCodes1c);
 
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
@@ -675,35 +746,36 @@ namespace Vodovoz
 				QSMain.WaitRedraw ();
 
 				var exist = ExistOrders.FirstOrDefault (o => o.Code1c == loaded.Code1c);
-				var existCounterparty = ExistCouterpaties.FirstOrDefault (n => n.Code1c == loaded.Client.Code1c);
-
-				if (exist != null && existCounterparty != null) {
-					if (!checkRewrite.Active)
+				if (exist != null)
+				{
+					if (!rewrite)
 						continue;
 
 					loaded.Id = exist.Id;
-					loaded.Client.Id = exist.Client.Id;
-					foreach(var loadedAcc in  loaded.Client.Accounts)
-					{
-						var existAcc = existCounterparty.Accounts.FirstOrDefault (a => a.Code1c == loadedAcc.Code1c);
-						if (existAcc != null)
-							loadedAcc.Id = existAcc.Id;
-					}
 				}
+				else
+					NewOrders++;
 
-				if (loaded.Client.DefaultAccount != null && !loaded.Client.Accounts.Contains (loaded.Client.DefaultAccount))
-					loaded.Client.AddAccount (loaded.Client.DefaultAccount);
+				var existCounterparty = ExistCouterpaties.FirstOrDefault(n => n.Code1c == loaded.Client.Code1c);
+				if (existCounterparty != null)
+					loaded.Client = existCounterparty;
+
 				foreach (var item in loaded.OrderItems)
 				{
-					UoW.Save(item.Nomenclature);
+					var existNom = ExistNomenclatures.FirstOrDefault(n => n.Code1c == item.Nomenclature.Code1c);
+					if (existNom != null)
+					{
+						item.Nomenclature = existNom;
+					}
 				}
-				UoW.Save (loaded.Client);
 				UoW.Save (loaded);
 			}
 
 			progressbar.Text = "Записываем заказы в базу...";
 			UoW.Commit ();
 			progressbar.Text = "Выполнено";
+			checkRewrite.Sensitive = true;
+
 		}
 	}
 }
