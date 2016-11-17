@@ -18,6 +18,7 @@ public partial class MainWindow : Window
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
 	Action ActionAddOrder;
+	Action ActionLoadOrders;
 	Action ActionReadyForShipment;
 	Action ActionReadyForReception;
 	Action ActionCashDocuments;
@@ -38,6 +39,7 @@ public partial class MainWindow : Window
 		//Заказы
 		ActionOrdersTable = new Action ("ActionOrdersTable", "Журнал заказов", null, "table");
 		ActionAddOrder = new Action ("ActionAddOrder", "Новый заказ", null, "table");
+		ActionLoadOrders = new Action("ActionLoadOrders", "Загрузить из 1С", null, "table");
 		//Сервис
 		ActionServiceClaims = new Action ("ActionServiceTickets", "Журнал заявок", null, "table");
 		//Склад
@@ -72,6 +74,7 @@ public partial class MainWindow : Window
 		ActionGroup w1 = new ActionGroup ("ToolbarActions");
 		w1.Add (ActionOrdersTable, null);
 		w1.Add (ActionAddOrder, null);
+		w1.Add (ActionLoadOrders, null);
 		w1.Add (ActionServiceClaims, null);
 		w1.Add (ActionWarehouseDocuments, null);
 		w1.Add (ActionReadyForShipment, null);
@@ -100,6 +103,7 @@ public partial class MainWindow : Window
 		#region Creating events
 		ActionOrdersTable.Activated += ActionOrdersTableActivated;
 		ActionAddOrder.Activated += ActionAddOrder_Activated;
+		ActionLoadOrders.Activated += ActionLoadOrders_Activated;
 		ActionServiceClaims.Activated += ActionServiceClaimsActivated;
 		ActionWarehouseDocuments.Activated += ActionWarehouseDocumentsActivated;
 		ActionReadyForShipment.Activated += ActionReadyForShipmentActivated;
@@ -124,6 +128,14 @@ public partial class MainWindow : Window
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionResidue.Activated += ActionResidueActivated;
 		#endregion
+	}
+
+	void ActionLoadOrders_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<LoadFrom1cDlg>(),
+			() => new LoadFrom1cDlg ()
+		);
 	}
 
 	void ActionRevisionBottlesAndDeposits_Activated (object sender, System.EventArgs e)
