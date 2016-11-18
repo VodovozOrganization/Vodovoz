@@ -189,11 +189,17 @@ namespace Vodovoz
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
 			uow.Session.Clear();
 
-			ordersAtDay = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+			var ordersQuery = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(uow.Session)
 				.Fetch(x => x.DeliveryPoint).Eager
+				.Future();
+
+			Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
+				.GetExecutableQueryOver(uow.Session)
 				.Fetch(x => x.OrderItems).Eager
-				.List();
+				.Future();
+
+			ordersAtDay = ordersQuery.ToList();
 
 			var routesQuery1 = Repository.Logistics.RouteListRepository.GetRoutesAtDay(ydateForRoutes.Date)
 				.GetExecutableQueryOver(uow.Session);
