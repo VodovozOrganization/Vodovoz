@@ -107,7 +107,7 @@ namespace Vodovoz.Domain.Client
 		public virtual string ShortAddress {
 			get {
 				string address = String.Empty;
-				if (!String.IsNullOrWhiteSpace (City))
+				if (!String.IsNullOrWhiteSpace (City) && City != "Санкт-Петербург")
 					address += String.Format ("{0} {1}, ", GetShortNameOfLocalityType (LocalityType), AddressHelper.ShortenCity(City));
 				if (!String.IsNullOrWhiteSpace (Street))
 					address += String.Format ("{0}, ", AddressHelper.ShortenStreet(Street));
