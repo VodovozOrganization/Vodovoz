@@ -316,8 +316,8 @@ namespace Vodovoz
 			this.ydateForRoutes.DateChanged += new global::System.EventHandler (this.OnYdateForRoutesDateChanged);
 			this.buttonSaveChanges.Clicked += new global::System.EventHandler (this.OnButtonSaveChangesClicked);
 			this.buttonCancelChanges.Clicked += new global::System.EventHandler (this.OnButtonCancelChangesClicked);
-			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
 			this.checkShowCompleted.Toggled += new global::System.EventHandler (this.OnCheckShowCompletedToggled);
+			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
 			this.buttonRemoveAddress.Clicked += new global::System.EventHandler (this.OnButtonRemoveAddressClicked);
 			this.yenumcomboMapType.ChangedByUser += new global::System.EventHandler (this.OnYenumcomboMapTypeChangedByUser);
 		}

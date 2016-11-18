@@ -17,6 +17,7 @@ namespace Vodovoz.Domain.Orders
 
 		Order order;
 
+		[Display(Name = "Заказ")]
 		public virtual Order Order {
 			get { return order; }
 			set { SetField (ref order, value, () => Order); }
@@ -24,6 +25,7 @@ namespace Vodovoz.Domain.Orders
 
 		int count;
 
+		[Display(Name = "Количество")]
 		public virtual int Count {
 			get { return count; }
 			set { SetField (ref count, value, () => Count); }
@@ -31,6 +33,7 @@ namespace Vodovoz.Domain.Orders
 
 		PaymentDirection paymentDirection;
 
+		[Display(Name = "Кто платит")]
 		public virtual PaymentDirection PaymentDirection {
 			get { return paymentDirection; }
 			set { SetField (ref paymentDirection, value, () => PaymentDirection); }
@@ -38,6 +41,7 @@ namespace Vodovoz.Domain.Orders
 
 		DepositOperation depositOperation;
 
+		[Display(Name = "Операция залога")]
 		public virtual DepositOperation DepositOperation {
 			get { return depositOperation; }
 			set { SetField (ref depositOperation, value, () => DepositOperation); }
@@ -45,6 +49,7 @@ namespace Vodovoz.Domain.Orders
 
 		PaidRentEquipment paidRentItem;
 
+		[Display(Name = "Залог за оплачиваемое оборудование")]
 		public virtual PaidRentEquipment PaidRentItem {
 			get { return paidRentItem; }
 			set { SetField (ref paidRentItem, value, () => PaidRentItem); }
@@ -52,6 +57,7 @@ namespace Vodovoz.Domain.Orders
 
 		FreeRentEquipment freeRentItem;
 
+		[Display(Name = "Залог за бесплатное оборудование")]
 		public virtual FreeRentEquipment FreeRentItem {
 			get { return freeRentItem; }
 			set { SetField (ref freeRentItem, value, () => FreeRentItem); }
@@ -59,6 +65,7 @@ namespace Vodovoz.Domain.Orders
 
 		DepositType depositType;
 
+		[Display(Name = "Тип залога")]
 		public virtual DepositType DepositType {
 			get { return depositType; }
 			set { SetField (ref depositType, value, () => DepositType); }
@@ -83,6 +90,7 @@ namespace Vodovoz.Domain.Orders
 
 		Decimal deposit;
 
+		[Display(Name = "Залог")]
 		public virtual Decimal Deposit {
 			get { return deposit; }
 			set { SetField (ref deposit, value, () => Deposit); }

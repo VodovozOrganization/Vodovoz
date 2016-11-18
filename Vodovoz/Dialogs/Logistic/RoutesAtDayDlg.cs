@@ -31,6 +31,22 @@ namespace Vodovoz
 		int addressesWithoutCoordinats, addressesWithoutRoutes;
 		Pixbuf[] pixbufMarkers;
 
+		#region Свойства
+		private bool hasNoChanges;
+
+		public bool HasNoChanges  {
+			get {return hasNoChanges; }
+
+			private set {
+				hasNoChanges = value;
+
+				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive
+					= hasNoChanges;
+			}
+		}
+
+		#endregion
+
 		public override string TabName
 		{
 			get
@@ -71,13 +87,22 @@ namespace Vodovoz
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
 
 			ydateForRoutes.Date = DateTime.Today;
+
+//			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
+
+//		void RouteListExternalUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<RouteList> e)
+//		{
+//			e.UpdatedSubjects;
+//			FillDialogAtDay();
+//
+//		}
 
 		void YtreeRoutes_Selection_Changed (object sender, EventArgs e)
 		{
 			var row = ytreeRoutes.GetSelectedObject();
 			buttonRemoveAddress.Sensitive = row is RouteListItem && !checkShowCompleted.Active;
-			buttonOpen.Sensitive = row is RouteListItem;
+			buttonOpen.Sensitive = (row is RouteListItem) || (row is RouteList);
 		}
 
 		void GmapWidget_OnSelectionChange (RectLatLng Selection, bool ZoomToFit)
@@ -285,7 +310,7 @@ namespace Vodovoz
 
 		void RoutesWasUpdated()
 		{
-			ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = false;
+			HasNoChanges = false;
 			ytreeRoutes.YTreeModel.EmitModelChanged();
 		}
 
@@ -351,7 +376,7 @@ namespace Vodovoz
 		protected void OnButtonCancelChangesClicked(object sender, EventArgs e)
 		{
 			uow.Session.Clear();
-			ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = true;
+			HasNoChanges = true;
 			FillDialogAtDay();
 		}
 
@@ -378,7 +403,7 @@ namespace Vodovoz
 		public bool Save()
 		{
 			uow.Commit();
-			ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = true;
+			HasNoChanges = true;
 			return true;
 		}
 
@@ -398,13 +423,32 @@ namespace Vodovoz
 
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
-			var order = ytreeRoutes.GetSelectedObject<RouteListItem>().Order;
-
-			TabParent.OpenTab(
-				OrmMain.GenerateDialogHashName<Order>(order.Id),
-				() => new OrderDlg (order)
-			);
-
+			var row = ytreeRoutes.GetSelectedObject();
+			//Открываем заказ
+			if (row is RouteListItem)
+			{
+				Order order = (row as RouteListItem).Order;
+				TabParent.OpenTab(
+					OrmMain.GenerateDialogHashName<Order>(order.Id),
+					() => new OrderDlg (order)
+				);
+			}
+			//Открываем МЛ
+			if (row is RouteList)
+			{
+				RouteList routeList = row as RouteList;
+				if (!HasNoChanges)
+				{
+					if (MessageDialogWorks.RunQuestionDialog("Сохранить маршрутный лист перед открытием?"))
+					{
+						Save();
+						TabParent.OpenTab(
+							OrmMain.GenerateDialogHashName<RouteList>(routeList.Id),
+							() => new RouteListKeepingDlg (routeList)
+						);
+					}
+				}
+			}
 		}
 		#endregion
 	}
