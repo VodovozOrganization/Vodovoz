@@ -28,11 +28,7 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public RouteListKeepingDlg(RouteList routeList)
-			: this(routeList.Id)
-		{
-			
-		}
+		public RouteListKeepingDlg(RouteList sub) : this(sub.Id){ }
 
 		public override bool HasChanges
 		{

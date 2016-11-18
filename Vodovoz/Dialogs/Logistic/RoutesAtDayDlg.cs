@@ -88,15 +88,32 @@ namespace Vodovoz
 
 			ydateForRoutes.Date = DateTime.Today;
 
-//			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
+			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
 
-//		void RouteListExternalUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<RouteList> e)
-//		{
-//			e.UpdatedSubjects;
-//			FillDialogAtDay();
-//
-//		}
+		void RouteListExternalUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<RouteList> e)
+		{
+			List<RouteList> routeLists = e.UpdatedSubjects
+											.Where(rl => rl.Date.Date == ydateForRoutes.Date.Date)
+											.ToList<RouteList>();
+			
+			bool foundRL = routeLists?.Count > 0;
+
+			if (foundRL)
+			{
+				bool answer;
+				if (HasNoChanges)
+					answer = false;
+				else
+					answer = MessageDialogWorks.RunQuestionDialog(
+						"Сохраненный маршрут открыт на вкадке маршруты за день." +
+						"При продолжении работы в этой вкладке внесенные внешние измменения могут быть потеряны. " +
+						"При отмене, данные в этом диалоге будут перезаписаны." +
+						"\nПродолжить работу в этой вкладке?");
+				if (!answer)
+					FillDialogAtDay();
+			}
+		}
 
 		void YtreeRoutes_Selection_Changed (object sender, EventArgs e)
 		{
@@ -170,6 +187,7 @@ namespace Vodovoz
 		void FillDialogAtDay()
 		{
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
+			uow.Session.Clear();
 
 			ordersAtDay = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, checkShowCompleted.Active)
 				.GetExecutableQueryOver(uow.Session)
@@ -404,6 +422,7 @@ namespace Vodovoz
 		{
 			uow.Commit();
 			HasNoChanges = true;
+			FillDialogAtDay();
 			return true;
 		}
 
@@ -440,14 +459,14 @@ namespace Vodovoz
 				if (!HasNoChanges)
 				{
 					if (MessageDialogWorks.RunQuestionDialog("Сохранить маршрутный лист перед открытием?"))
-					{
 						Save();
-						TabParent.OpenTab(
-							OrmMain.GenerateDialogHashName<RouteList>(routeList.Id),
-							() => new RouteListKeepingDlg (routeList)
-						);
-					}
+					else
+						return;
 				}
+				TabParent.OpenTab(
+					OrmMain.GenerateDialogHashName<RouteList>(routeList.Id),
+					() => new RouteListCreateDlg (routeList)
+				);
 			}
 		}
 		#endregion
