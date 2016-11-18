@@ -21,6 +21,7 @@ namespace Vodovoz
 	public partial class DeliveryPointDlg : OrmGtkDialogBase<DeliveryPoint>
 	{
 		protected static Logger logger = LogManager.GetCurrentClassLogger ();
+		private Gtk.Clipboard clipboard = Gtk.Clipboard.Get (Gdk.Atom.Intern ("CLIPBOARD", false));
 
 		GMapControl MapWidget;
 		readonly GMapOverlay addressOverlay = new GMapOverlay();
@@ -81,13 +82,11 @@ namespace Vodovoz
 			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryCity.FocusOutEvent += FocusOut;
 			entryStreet.FocusOutEvent += FocusOut;
-			entryRegion.FocusOutEvent += FocusOut;
 			entryBuilding.FocusOutEvent += FocusOut;
 
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelCompiledAddress.Binding.AddBinding(Entity, e => e.CompiledAddress, w => w.LabelProp).InitializeFromSource();
 			checkIsActive.Binding.AddBinding(Entity, e => e.IsActive, w => w.Active).InitializeFromSource();
-			entryRegion.Binding.AddBinding(Entity, e => e.Region, w => w.Text).InitializeFromSource();
 			entryRoom.Binding.AddBinding(Entity, e => e.Room, w => w.Text).InitializeFromSource();
 			spinFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.ValueAsInt).InitializeFromSource();
 			spinMinutesToUnload.Binding.AddBinding(Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
@@ -384,6 +383,34 @@ namespace Vodovoz
 			{
 				Entity.ObservableContacts.Remove(toDelete);
 			}
+		}
+
+		protected void OnButtonInsertFromBufferClicked (object sender, EventArgs e)
+		{
+			bool error = true;
+
+			string booferCoordinates = clipboard.WaitForText();
+
+			string[] coordinates = booferCoordinates?.Split(',');
+			if (coordinates?.Length == 2)
+			{
+				coordinates[0] = coordinates[0].Replace('.', ',');
+				coordinates[1] = coordinates[1].Replace('.', ',');
+
+				decimal latitude, longitude;
+				bool goodLat = decimal.TryParse(coordinates[0].Trim(), out latitude);
+				bool goodLon = decimal.TryParse(coordinates[1].Trim(), out longitude);
+
+				if (goodLat && goodLon)
+				{
+					Entity.Latitude  = latitude;
+					Entity.Longitude = longitude;
+					error = false;
+				}
+			}
+			if (error)
+				MessageDialogWorks.RunErrorDialog(
+					"Буфер обмена не содержит координат или содержит неправильные координаты");
 		}
 	}
 }
