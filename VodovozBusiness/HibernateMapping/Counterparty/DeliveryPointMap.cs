@@ -16,7 +16,6 @@ namespace Vodovoz.HMap
 			Map (x => x.ShortAddress)	  .Column ("compiled_address_short");
 			Map (x => x.MinutesToUnload)  .Column ("minutes_to_unload");
 			Map (x => x.Floor)			  .Column ("floor");
-			Map (x => x.Region)			  .Column ("region");
 			Map (x => x.City)			  .Column ("city");
 			Map (x => x.LocalityType)	  .Column ("locality_type").CustomType<LocalityTypeStringType> ();
 			Map (x => x.CityDistrict)	  .Column ("city_district");

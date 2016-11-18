@@ -127,14 +127,6 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref shortAddress, value, () => ShortAddress); }
 		}
 
-		string region;
-
-		[Display (Name = "Регион")]
-		public virtual string Region {
-			get { return region; }
-			set { SetField (ref region, value, () => Region); }
-		}
-
 		string city;
 
 		[Display (Name = "Город")]
@@ -348,7 +340,6 @@ namespace Vodovoz.Domain.Client
 		public DeliveryPoint ()
 		{
 			CompiledAddress = String.Empty;
-			Region = String.Empty;
 			City = String.Empty;
 			Street = String.Empty;
 			Building = String.Empty;

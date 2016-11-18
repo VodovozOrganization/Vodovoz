@@ -336,7 +336,6 @@ namespace Vodovoz
 		protected void SetLogisticsArea ()
 		{
 			IList <DeliveryPoint> sameAddress = UoWGeneric.Session.CreateCriteria<DeliveryPoint> ()
-				.Add (Restrictions.Eq ("Region", UoWGeneric.Root.Region))
 				.Add (Restrictions.Eq ("City", UoWGeneric.Root.City))
 				.Add (Restrictions.Eq ("Street", UoWGeneric.Root.Street))
 				.Add (Restrictions.Eq ("Building", UoWGeneric.Root.Building))
