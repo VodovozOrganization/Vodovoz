@@ -722,7 +722,7 @@ namespace Vodovoz
 			}
 
 			List<Nomenclature> ExistNomenclatures = null;
-			if (checkOnlyAddress.Active)
+			if (!checkOnlyAddress.Active)
 			{
 				progressbar.Text = "Загружаем таблицу существующих номенклатур.";
 				ExistNomenclatures = UoW.GetAll<Nomenclature>().ToList<Nomenclature>();
