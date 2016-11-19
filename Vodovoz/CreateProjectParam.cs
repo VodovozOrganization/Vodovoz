@@ -105,8 +105,8 @@ namespace Vodovoz
 				//Логисткика
 				OrmObjectMapping<RouteList>.Create().Dialog<RouteListCreateDlg>()
 					.DefaultTableView().SearchColumn("Номер", x => x.Id.ToString()).Column("Дата", x => x.Date.ToShortDateString()).Column("Статус", x => x.Status.GetEnumTitle ()).Column("Водитель", x => String.Format ("{0} - {1}", x.Driver.FullName, x.Car.Title)).End(),
-				OrmObjectMapping<RouteColumn>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-					OrmObjectMapping<GazTicket>.Create().Dialog<GazTicketDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<RouteColumn>.Create().DefaultTableView().Column("Код", x => x.Id.ToString()).SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<GazTicket>.Create().Dialog<GazTicketDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Сервис
 				OrmObjectMapping<ServiceClaim>.Create().Dialog<ServiceClaimDlg>().DefaultTableView().Column("Номер", x => x.Id.ToString()).Column("Тип", x => x.ServiceClaimType.GetEnumTitle()).Column("Оборудование", x => x.Equipment.Title).Column("Подмена", x => x.ReplacementEquipment != null ? "Да" : "Нет").Column("Точка доставки", x => x.DeliveryPoint.Title).End(),
 				//Касса
