@@ -30,7 +30,7 @@ namespace Vodovoz
 		public DeliveryPointDlg (Counterparty counterparty)
 		{
 			this.Build ();
-			UoWGeneric = DeliveryPoint.Create (counterparty);
+			UoWGeneric = DeliveryPoint.CreateUowForNew (counterparty);
 			TabName = "Новая точка доставки";
 			ConfigureDlg ();
 		}
@@ -38,7 +38,7 @@ namespace Vodovoz
 		public DeliveryPointDlg (Counterparty counterparty, string address1c)
 		{
 			this.Build ();
-			UoWGeneric = DeliveryPoint.Create (counterparty);
+			UoWGeneric = DeliveryPoint.CreateUowForNew (counterparty);
 			TabName = "Новая точка доставки";
 			Entity.Address1c = address1c;
 			ConfigureDlg ();
@@ -267,10 +267,12 @@ namespace Vodovoz
 				Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
 				decimal? latitude, longitude;
 				entryBuilding.GetCoordinates(out longitude, out latitude);
-				if (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))
+
+				if (!Entity.ManualCoordinates || (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?")))
 				{
 					Entity.Latitude = latitude;
 					Entity.Longitude = longitude;
+					Entity.ManualCoordinates = false;
 				}
 			}
 			if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name))
