@@ -60,8 +60,8 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Испр.").AddTextRenderer(x => x.FixedInOsm ? "Да": "")
 			//.AddColumn("Логистический район").AddTextRenderer(x => x.LogisticsArea)
 			.AddColumn ("Адрес").SetDataProperty (node => node.CompiledAddress)
-			.AddColumn("Клиент").AddTextRenderer(x => x.Client)
 			.AddColumn("Адрес из 1с").AddTextRenderer(x => x.Address1c)
+			.AddColumn("Клиент").AddTextRenderer(x => x.Client)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
