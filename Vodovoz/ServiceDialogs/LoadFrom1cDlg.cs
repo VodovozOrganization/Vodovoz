@@ -820,7 +820,8 @@ namespace Vodovoz
 				if (loaded.DeliveryPoint == null)
 					NewAddresses++;
 
-				if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null)
+				if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null 
+					&& String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
 					loaded.ChangeStatus(OrderStatus.Accepted);
 				
 				UoW.Save (loaded);
