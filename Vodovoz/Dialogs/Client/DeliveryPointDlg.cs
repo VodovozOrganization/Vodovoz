@@ -91,7 +91,7 @@ namespace Vodovoz
 			spinFloor.Binding.AddBinding(Entity, e => e.Floor, w => w.ValueAsInt).InitializeFromSource();
 			spinMinutesToUnload.Binding.AddBinding(Entity, e => e.MinutesToUnload, w => w.ValueAsInt).InitializeFromSource();
 
-			ylabelDistrictOfCity.Binding.AddBinding (Entity, entity => entity.StreetDistrict, widget => widget.LabelProp)
+			ylabelDistrictOfCity.Binding.AddFuncBinding (Entity, entity => entity.StreetDistrict != null ? entity.StreetDistrict.Replace(",", "\n") : null, widget => widget.LabelProp)
 				.InitializeFromSource ();
 
 			yentryAddition.Binding.AddBinding(Entity, e => e.АddressAddition, w => w.Text).InitializeFromSource();
