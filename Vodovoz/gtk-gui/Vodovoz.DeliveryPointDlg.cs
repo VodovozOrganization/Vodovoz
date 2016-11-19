@@ -424,6 +424,7 @@ namespace Vodovoz
 			this.entryCity.CanFocus = true;
 			this.entryCity.Name = "entryCity";
 			this.entryCity.IsEditable = true;
+			this.entryCity.MaxLength = 45;
 			this.entryCity.InvisibleChar = '●';
 			this.hbox7.Add (this.entryCity);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox7 [this.entryCity]));
@@ -466,6 +467,7 @@ namespace Vodovoz
 			this.entryStreet.CanFocus = true;
 			this.entryStreet.Name = "entryStreet";
 			this.entryStreet.IsEditable = true;
+			this.entryStreet.MaxLength = 50;
 			this.entryStreet.InvisibleChar = '●';
 			this.entryStreet.CityId = 0;
 			this.hbox8.Add (this.entryStreet);
