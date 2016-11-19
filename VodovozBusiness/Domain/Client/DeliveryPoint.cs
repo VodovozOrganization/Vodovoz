@@ -314,9 +314,6 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref address1c, value, () => Address1c); }
 		}
 
-		//Масштаб карты
-		//Файл схемы проезда
-
 		#endregion
 
 		#region Расчетные
@@ -355,11 +352,19 @@ namespace Vodovoz.Domain.Client
 			ObservableContacts.Add(contact);
 		}
 
-		public static IUnitOfWorkGeneric<DeliveryPoint> Create (Counterparty counterparty)
+		public static IUnitOfWorkGeneric<DeliveryPoint> CreateUowForNew (Counterparty counterparty)
 		{
 			var uow = UnitOfWorkFactory.CreateWithNewRoot<DeliveryPoint> ();
 			uow.Root.Counterparty = counterparty;
 			return uow;
+		}
+
+		public static DeliveryPoint Create (Counterparty counterparty)
+		{
+			var point = new DeliveryPoint ();
+			point.Counterparty = counterparty;
+			counterparty.DeliveryPoints.Add(point);
+			return point;
 		}
 
 		public static string GetShortNameOfRoomType (RoomType type)
