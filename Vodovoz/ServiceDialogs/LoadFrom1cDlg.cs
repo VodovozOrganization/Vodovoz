@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml;
 using Gtk;
 using QSBanks;
+using QSBusinessCommon.Domain;
+using QSBusinessCommon.Repository;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain.Client;
-using Vodovoz.LoadFrom1c;
 using QSWidgetLib;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using Vodovoz.Domain.Orders;
-using System.Globalization;
-using QSBusinessCommon.Domain;
-using QSBusinessCommon.Repository;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
+using Vodovoz.LoadFrom1c;
 
 namespace Vodovoz
 {
@@ -328,7 +327,7 @@ namespace Vodovoz
 			}
 
 			progressbar.Text = "Выполнено";
-			buttonSave.Sensitive = checkRewrite.Sensitive = CounterpatiesList.Count > 0;
+			buttonSave.Sensitive = checkRewrite.Sensitive = checkOnlyAddress.Sensitive = CounterpatiesList.Count > 0;
 			checkSkipCounterparties.Sensitive = true;
 		}
 
@@ -722,32 +721,36 @@ namespace Vodovoz
 				SavedCounterparty++;
 			}
 
-			progressbar.Text = "Загружаем таблицу существующих номенклатур.";
-			var ExistNomenclatures = UoW.GetAll<Nomenclature>().ToList<Nomenclature>();
-
-			progressbar.Text = "Сверяем номенклатуры...";
-			progressbar.Adjustment.Value = 0;
-			progressbar.Adjustment.Upper = NomenclatureList.Count;
-			QSMain.WaitRedraw ();
-
-			//Проверка номенклатур
-			foreach (var loaded in NomenclatureList)
+			List<Nomenclature> ExistNomenclatures = null;
+			if (checkOnlyAddress.Active)
 			{
-				progressbar.Adjustment.Value++;
-				QSMain.WaitRedraw ();
+				progressbar.Text = "Загружаем таблицу существующих номенклатур.";
+				ExistNomenclatures = UoW.GetAll<Nomenclature>().ToList<Nomenclature>();
 
-				var exist = ExistNomenclatures.FirstOrDefault (n => n.Code1c == loaded.Code1c);
+				progressbar.Text = "Сверяем номенклатуры...";
+				progressbar.Adjustment.Value = 0;
+				progressbar.Adjustment.Upper = NomenclatureList.Count;
+				QSMain.WaitRedraw();
 
-				if (exist != null)
+				//Проверка номенклатур
+				foreach (var loaded in NomenclatureList)
 				{
-					if (!rewrite)
-						continue;
+					progressbar.Adjustment.Value++;
+					QSMain.WaitRedraw();
 
-					loaded.Id = exist.Id;
+					var exist = ExistNomenclatures.FirstOrDefault(n => n.Code1c == loaded.Code1c);
+
+					if (exist != null)
+					{
+						if (!rewrite)
+							continue;
+
+						loaded.Id = exist.Id;
+					}
+					else
+						NewNomenclatures++;
+					UoW.Save(loaded);
 				}
-				else
-					NewNomenclatures++;
-				UoW.Save (loaded);
 			}
 
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
@@ -766,16 +769,19 @@ namespace Vodovoz
 				progressbar.Adjustment.Value++;
 				QSMain.WaitRedraw ();
 
-				var exist = ExistOrders.FirstOrDefault (o => o.Code1c == loaded.Code1c);
-				if (exist != null)
+				if (!checkOnlyAddress.Active)
 				{
-					if (!rewrite)
-						continue;
+					var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c);
+					if (exist != null)
+					{
+						if (!rewrite)
+							continue;
 
-					loaded.Id = exist.Id;
+						loaded.Id = exist.Id;
+					}
+					else
+						NewOrders++;
 				}
-				else
-					NewOrders++;
 
 				var existCounterparty = ExistCouterpaties.FirstOrDefault(n => n.Code1c == loaded.Client.Code1c);
 				if (existCounterparty != null)
@@ -784,6 +790,18 @@ namespace Vodovoz
 				if (loaded.Client.Id > 0)
 				{
 					loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
+				}
+
+				if (checkOnlyAddress.Active)
+				{
+					if(loaded.DeliveryPoint == null)
+					{
+						var newPoint = DeliveryPoint.Create(loaded.Client);
+						newPoint.Address1c = loaded.Address1c;
+						UoW.Save(newPoint);
+						NewAddresses++;
+					}
+					continue;
 				}
 
 				var time = DeliverySchedules.FirstOrDefault(x => x.Name == loaded.Comment);
@@ -801,17 +819,18 @@ namespace Vodovoz
 
 				if (loaded.DeliveryPoint == null)
 					NewAddresses++;
-				else
+
+				if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null)
 					loaded.ChangeStatus(OrderStatus.Accepted);
 				
 				UoW.Save (loaded);
 			}
 
-			progressbar.Text = "Записываем заказы в базу...";
+			progressbar.Text = "Записываем данные в базу...";
+			logger.Info("Записываем данные в базу...");
 			UoW.Commit ();
 			progressbar.Text = "Выполнено";
 			checkRewrite.Sensitive = true;
-
 		}
 	}
 }
