@@ -33,6 +33,8 @@ namespace Vodovoz.ViewModel
 			var pointsQuery = UoW.Session.QueryOver<DeliveryPoint>(() => deliveryPointAlias);
 			if (Filter.RestrictOnlyNotFoundOsm)
 				pointsQuery.Where(x => x.FoundOnOsm == false);
+			if (Filter.RestrictOnlyWithoutStreet)
+				pointsQuery.Where(p => p.Street == "" || p.Street == null);
 
 			var deliveryPointslist = pointsQuery
 				.JoinAlias (c => c.Counterparty, () => counterpartyAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)

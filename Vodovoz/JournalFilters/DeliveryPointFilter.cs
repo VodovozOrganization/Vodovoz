@@ -20,7 +20,20 @@ namespace Vodovoz
 			}
 		}
 
+		public bool RestrictOnlyWithoutStreet {
+			get { return checkWithoutStreet.Active; }
+			set {
+				checkWithoutStreet.Active = value;
+				checkWithoutStreet.Sensitive = false;
+			}
+		}
+
 		protected void OnCheckOnlyNotFoundOsmToggled(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnCheckWithoutStreetToggled(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}
