@@ -281,15 +281,8 @@ namespace Vodovoz
 			}.FillFromMetaInfo ()
 			);
 
-			DeleteConfig.AddDeleteInfo (new DeleteInfo {
-				ObjectClass = typeof(Proxy),
-				SqlSelect = "SELECT id, number, issue_date FROM @tablename ",
-				DisplayString = "{1} от {2:d}",
-				DeleteItems = new List<DeleteDependenceInfo> {
-					DeleteDependenceInfo.CreateFromBag<Proxy> (item => item.Persons)
-				}
-			}.FillFromMetaInfo ()
-			);
+			DeleteConfig.AddHibernateDeleteInfo<Proxy>()
+				.AddDeleteDependenceFromBag(item => item.Persons);
 
 			DeleteConfig.AddHibernateDeleteInfo<CounterpartyContract>()
 				.AddDeleteDependence<AdditionalAgreement> (item => item.Contract)
