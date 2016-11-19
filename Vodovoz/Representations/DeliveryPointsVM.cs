@@ -43,6 +43,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.FoundOnOsm).WithAlias (() => resultAlias.FoundOnOsm)
 					.Select (() => deliveryPointAlias.IsFixedInOsm).WithAlias (() => resultAlias.FixedInOsm)
 					.Select (() => deliveryPointAlias.IsActive).WithAlias (() => resultAlias.IsActive)
+					.Select (() => deliveryPointAlias.Address1c).WithAlias (() => resultAlias.Address1c)
 					.Select (() => counterpartyAlias.FullName).WithAlias (() => resultAlias.Client)
 					.Select (() => logisticsAreaAlias.Name).WithAlias (() => resultAlias.LogisticsArea)
 			                         )
@@ -55,9 +56,10 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig columnsConfig = FluentColumnsConfig<DeliveryPointVMNode>.Create ()
 			.AddColumn("OSM").AddTextRenderer(x => x.FoundOnOsm ? "Да": "")
 			.AddColumn("Испр.").AddTextRenderer(x => x.FixedInOsm ? "Да": "")
-			.AddColumn("Логистический район").AddTextRenderer(x => x.LogisticsArea)
+			//.AddColumn("Логистический район").AddTextRenderer(x => x.LogisticsArea)
 			.AddColumn ("Адрес").SetDataProperty (node => node.CompiledAddress)
 			.AddColumn("Клиент").AddTextRenderer(x => x.Client)
+			.AddColumn("Адрес из 1с").AddTextRenderer(x => x.Address1c)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -100,6 +102,8 @@ namespace Vodovoz.ViewModel
 		public string CompiledAddress { get; set; }
 
 		public string LogisticsArea { get; set; }
+
+		public string Address1c { get; set; }
 
 		[UseForSearch]
 		public string Client { get; set; }
