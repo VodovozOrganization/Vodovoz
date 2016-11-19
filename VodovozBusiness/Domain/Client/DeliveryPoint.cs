@@ -70,7 +70,7 @@ namespace Vodovoz.Domain.Client
 		}
 
 		public virtual string Title { 
-			get { return CompiledAddress; }
+			get { return String.IsNullOrWhiteSpace(CompiledAddress) ? "АДРЕС ПУСТОЙ" : CompiledAddress; }
 		}
 
 		string compiledAddress;
