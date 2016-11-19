@@ -385,8 +385,8 @@ namespace Vodovoz
 
 		private void IsEditable (bool val = false)
 		{
-			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.Sensitive = 
-				referenceClient.Sensitive = val;
+			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable = 
+				referenceClient.IsEditable = val;
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive = enumStatus.Sensitive = 
 				enumPaymentType.Sensitive = enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive = 
