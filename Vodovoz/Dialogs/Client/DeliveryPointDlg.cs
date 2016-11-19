@@ -267,8 +267,11 @@ namespace Vodovoz
 				Entity.FoundOnOsm = entryBuilding.OsmCompletion.Value;
 				decimal? latitude, longitude;
 				entryBuilding.GetCoordinates(out longitude, out latitude);
-				Entity.Latitude = latitude;
-				Entity.Longitude = longitude;
+				if (Entity.ManualCoordinates && MessageDialogWorks.RunQuestionDialog("Координаты были установлены вручную, заменить их на коордитаты адреса?"))
+				{
+					Entity.Latitude = latitude;
+					Entity.Longitude = longitude;
+				}
 			}
 			if(entryBuilding.OsmHouse != null && !String.IsNullOrWhiteSpace(entryBuilding.OsmHouse.Name))
 			{
