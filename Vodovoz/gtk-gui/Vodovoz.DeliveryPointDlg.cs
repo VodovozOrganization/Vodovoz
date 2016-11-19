@@ -467,7 +467,6 @@ namespace Vodovoz
 			this.entryStreet.CanFocus = true;
 			this.entryStreet.Name = "entryStreet";
 			this.entryStreet.IsEditable = true;
-			this.entryStreet.MaxLength = 50;
 			this.entryStreet.InvisibleChar = '●';
 			this.entryStreet.CityId = 0;
 			this.hbox8.Add (this.entryStreet);

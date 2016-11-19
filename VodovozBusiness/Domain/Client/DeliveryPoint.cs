@@ -156,6 +156,7 @@ namespace Vodovoz.Domain.Client
 
 		[Display (Name = "Улица")]
 		[Required (ErrorMessage = "Улица должна быть заполнена.")]
+		[StringLength(50)]
 		public virtual string Street {
 			get { return street; }
 			set { SetField (ref street, value, () => Street); }
