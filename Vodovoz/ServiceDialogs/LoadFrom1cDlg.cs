@@ -796,6 +796,8 @@ namespace Vodovoz
 				{
 					if(loaded.DeliveryPoint == null)
 					{
+						if (loaded.Address1c.ToLower().Contains("самовывоз"))
+							continue;
 						var newPoint = DeliveryPoint.Create(loaded.Client);
 						newPoint.Address1c = loaded.Address1c;
 						UoW.Save(newPoint);
@@ -803,6 +805,9 @@ namespace Vodovoz
 					}
 					continue;
 				}
+
+				if (loaded.Address1c.ToLower().Contains("самовывоз"))
+					loaded.SelfDelivery = true;
 
 				var time = DeliverySchedules.FirstOrDefault(x => x.Name == loaded.Comment);
 				if (time != null)
