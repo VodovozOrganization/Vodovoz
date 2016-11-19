@@ -101,13 +101,17 @@ namespace Vodovoz.ViewModel
 		public int Id { get; set; }
 
 		[UseForSearch]
+		[SearchHighlight]
 		public string CompiledAddress { get; set; }
 
 		public string LogisticsArea { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string Address1c { get; set; }
 
 		[UseForSearch]
+		[SearchHighlight]
 		public string Client { get; set; }
 
 		public bool IsActive { get; set; }
