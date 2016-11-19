@@ -89,6 +89,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => orderAlias.DeliveryDate).WithAlias (() => resultAlias.Date)
 					.Select (() => deliveryScheduleAlias.Name).WithAlias (() => resultAlias.DeliveryTime)
 					.Select (() => orderAlias.OrderStatus).WithAlias (() => resultAlias.StatusEnum)
+					.Select (() => orderAlias.Address1c).WithAlias (() => resultAlias.Address1c)
 					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
@@ -109,6 +110,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
 			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
+			.AddColumn ("Адрес из 1с").SetDataProperty (node => node.Address1c)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -255,6 +257,8 @@ namespace Vodovoz.ViewModel
 		public string City { get; set; }
 		public string Street { get; set; }
 		public string Building { get; set; }
+
+		public string Address1c { get; set; }
 
 		[UseForSearch]
 		public string Address { get{ return String.Format("{0}, {1} д.{2}", City, Street, Building); } }
