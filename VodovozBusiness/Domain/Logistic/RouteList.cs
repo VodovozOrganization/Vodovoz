@@ -165,6 +165,22 @@ namespace Vodovoz.Domain.Logistic
 			ObservableAddresses.Remove (address);
 		}
 
+		public virtual void ReorderAddressesByTime()
+		{
+			var orderedList = Addresses
+				.OrderBy(x => x.Order.DeliverySchedule.From)
+				.ThenBy(x => x.Order.DeliverySchedule.To)
+				.ToList();
+			for(int i = 0; i < ObservableAddresses.Count; i++)
+			{
+				if (orderedList[i] == ObservableAddresses[i])
+					continue;
+
+				ObservableAddresses.Remove(orderedList[i]);
+				ObservableAddresses.Insert(i, orderedList[i]);
+			}
+		}
+
 		private void CheckAddressOrder ()
 		{
 			int i = 0;

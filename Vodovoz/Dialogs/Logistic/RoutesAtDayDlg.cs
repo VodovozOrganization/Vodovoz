@@ -375,8 +375,9 @@ namespace Vodovoz
 					uow.Save(alreadyIn);
 				}
 				route.AddAddressFromOrder(order);
-				uow.Save(route);
 			}
+			route.ReorderAddressesByTime();
+			uow.Save(route);
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
