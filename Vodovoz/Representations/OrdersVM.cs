@@ -71,6 +71,11 @@ namespace Vodovoz.ViewModel
 				query.Where (o => o.DeliveryDate <= Filter.RestrictEndDate.Value.AddDays (1).AddTicks (-1));
 			}
 
+			if(Filter.RestrictOnlyWithoutCoodinates)
+			{
+				query.Where (() => deliveryPointAlias.Longitude == null && deliveryPointAlias.Latitude == null);
+			}
+
 			if(Filter.ExceptIds!=null && Filter.ExceptIds.Length>0)
 				query.Where(o => !NHibernate.Criterion.RestrictionExtensions.IsIn(o.Id, Filter.ExceptIds));
 
@@ -94,6 +99,8 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
 					.Select (() => deliveryPointAlias.Building).WithAlias (() => resultAlias.Building)
+					.Select (() => deliveryPointAlias.Latitude).WithAlias (() => resultAlias.Latitude)
+					.Select (() => deliveryPointAlias.Longitude).WithAlias (() => resultAlias.Longitude)
 					.SelectSubQuery(bottleCountSubquery).WithAlias (() => resultAlias.BottleAmount)
 				).OrderBy(x => x.DeliveryDate).Desc
 				.TransformUsing (Transformers.AliasToBean<OrdersVMNode> ())
@@ -109,6 +116,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Статус").SetDataProperty (node => node.StatusEnum.GetEnumTitle ())
 			.AddColumn ("Бутыли").AddTextRenderer(node => node.BottleAmount.ToString())
 			.AddColumn ("Клиент").SetDataProperty (node => node.Counterparty)
+			.AddColumn ("Коор.").AddTextRenderer(x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
 			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
 			.AddColumn ("Адрес из 1с").SetDataProperty (node => node.Address1c)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
@@ -243,6 +251,7 @@ namespace Vodovoz.ViewModel
 	public class OrdersVMNode
 	{
 		[UseForSearch]
+		[SearchHighlight]
 		public int Id { get; set; }
 
 		public OrderStatus StatusEnum { get; set; }
@@ -252,6 +261,7 @@ namespace Vodovoz.ViewModel
 		public int BottleAmount { get; set; }
 
 		[UseForSearch]
+		[SearchHighlight]
 		public string Counterparty { get; set; }
 
 		public string City { get; set; }
@@ -261,7 +271,11 @@ namespace Vodovoz.ViewModel
 		public string Address1c { get; set; }
 
 		[UseForSearch]
+		[SearchHighlight]
 		public string Address { get{ return String.Format("{0}, {1} д.{2}", City, Street, Building); } }
+
+		public decimal? Latitude { get; set; }
+		public decimal? Longitude { get; set; }
 
 		public string RowColor {
 			get {

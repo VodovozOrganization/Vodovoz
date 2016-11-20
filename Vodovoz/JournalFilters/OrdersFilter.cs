@@ -88,6 +88,14 @@ namespace Vodovoz
 			}
 		}
 
+		public bool RestrictOnlyWithoutCoodinates {
+			get { return checkWithoutCoordinates.Active; }
+			set {
+				checkWithoutCoordinates.Active = value;
+				checkWithoutCoordinates.Sensitive = false;
+			}
+		}
+
 		public bool? RestrictSelfDelivery { get; set;}
 
 		public int[] ExceptIds{ get; set; }
@@ -115,6 +123,11 @@ namespace Vodovoz
 		}
 
 		protected void OnEnumcomboStatusChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnCheckWithoutCoordinatesToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}
