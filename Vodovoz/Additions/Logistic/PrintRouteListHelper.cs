@@ -6,6 +6,7 @@ using QSProjectsLib;
 using QSReport;
 using QSTDI;
 using Vodovoz.Repository.Logistics;
+using System.Linq;
 
 namespace Vodovoz.Additions.Logistic
 {
@@ -84,7 +85,8 @@ namespace Vodovoz.Additions.Logistic
 					"<TypeName>System.Int32</TypeName>" +
 					"</Field>", "Water" + column.Id.ToString ());
 				//Формула итоговой суммы по всем бутялым.
-				TotalSum += "+ Sum({Water" + column.Id.ToString () + "})";
+				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water))
+					TotalSum += "+ Sum({Water" + column.Id.ToString () + "})";
 			}
 			RdlText = RdlText.Replace ("<!--table_cell_name-->", CellColumnHeader);
 			RdlText = RdlText.Replace ("<!--table_cell_value-->", CellColumnValue);
