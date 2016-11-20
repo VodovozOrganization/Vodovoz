@@ -66,15 +66,15 @@ namespace Vodovoz.Additions.Logistic
 					TextBoxNumber++, column.Name);
 				//Формула для колонки с водой для информации из запроса
 				CellColumnValue += String.Format (CellTemplate,
-					TextBoxNumber++, "={Water" + column.Id.ToString () + "}");
+					TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id ));
 				//Ячейка с запасом. Пока там пусто
 				CellColumnStock += String.Format (CellTemplate,
 					TextBoxNumber++, "");
 				//Ячейка с суммой по бутылям + запасы.
 				CellColumnTotal += String.Format (CellTemplate,
-					TextBoxNumber++, "=Sum({Water" + column.Id.ToString () + "})");
+					TextBoxNumber++, String.Format("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id ));
 				//Запрос..
-				SqlSelect += String.Format (", wt_qry.Water{0}", column.Id.ToString ());
+				SqlSelect += String.Format (", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString ());
 				SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
 					column.Id, "Water" + column.Id.ToString ());
 				//Линкуем запрос на переменные RDL

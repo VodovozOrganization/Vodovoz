@@ -808,7 +808,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
-                      <Value>={EmptyBottles}</Value>
+                      <Value>=Iif({EmptyBottles} = 0, "", {EmptyBottles})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -823,7 +823,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
-                      <Value>={BottlesDeposit}</Value>
+                      <Value>=Iif({BottlesDeposit} = 0, "", {BottlesDeposit})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -839,7 +839,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>={Total}</Value>
+                      <Value>=Iif({Total} = 0, "", {Total})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1024,7 +1024,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox68">
-                      <Value>=Sum({EmptyBottles})</Value>
+                      <Value>=Iif(Sum({EmptyBottles}) = 0, "", Sum({EmptyBottles}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1039,7 +1039,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox69">
-                      <Value>=Sum({BottlesDeposit})</Value>
+                      <Value>=Iif(Sum({BottlesDeposit}) = 0, "", Sum({BottlesDeposit}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1054,7 +1054,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox70">
-                      <Value>=Sum({Total})</Value>
+                      <Value>=Iif(Sum({Total}) = 0, "", Sum({Total}))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1125,7 +1125,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox80">
-                      <Value>=Sum({BottlesDeposit}) + Sum({Total})</Value>
+                      <Value>=Iif(Sum({BottlesDeposit}) + Sum({Total}) = 0, "", Sum({BottlesDeposit}) + Sum({Total}))
+</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
