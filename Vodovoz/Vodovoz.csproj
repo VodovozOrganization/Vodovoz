@@ -137,6 +137,39 @@
     <EmbeddedResource Include="icons\buttons\add.png" />
     <EmbeddedResource Include="icons\buttons\edit.png" />
     <EmbeddedResource Include="icons\buttons\remove.png" />
+    <EmbeddedResource Include="icons\map\points\black.png" />
+    <EmbeddedResource Include="icons\map\points\black_and_red.png" />
+    <EmbeddedResource Include="icons\map\points\blue.png" />
+    <EmbeddedResource Include="icons\map\points\blue_stripes.png" />
+    <EmbeddedResource Include="icons\map\points\gray.png" />
+    <EmbeddedResource Include="icons\map\points\green.png" />
+    <EmbeddedResource Include="icons\map\points\orange.png" />
+    <EmbeddedResource Include="icons\map\points\purple.png" />
+    <EmbeddedResource Include="icons\map\points\red.png" />
+    <EmbeddedResource Include="icons\map\points\white.png" />
+    <EmbeddedResource Include="icons\map\points\color2.png" />
+    <EmbeddedResource Include="icons\map\points\color3.png" />
+    <EmbeddedResource Include="icons\map\points\color4.png" />
+    <EmbeddedResource Include="icons\map\points\color5.png" />
+    <EmbeddedResource Include="icons\map\points\color6.png" />
+    <EmbeddedResource Include="icons\map\points\color7.png" />
+    <EmbeddedResource Include="icons\map\points\color8.png" />
+    <EmbeddedResource Include="icons\map\points\color9.png" />
+    <EmbeddedResource Include="icons\map\points\color10.png" />
+    <EmbeddedResource Include="icons\map\points\color11.png" />
+    <EmbeddedResource Include="icons\map\points\color12.png" />
+    <EmbeddedResource Include="icons\map\points\color13.png" />
+    <EmbeddedResource Include="icons\map\points\color14.png" />
+    <EmbeddedResource Include="icons\map\points\color15.png" />
+    <EmbeddedResource Include="icons\map\points\color16.png" />
+    <EmbeddedResource Include="icons\map\points\color17.png" />
+    <EmbeddedResource Include="icons\map\points\color18.png" />
+    <EmbeddedResource Include="icons\map\points\color20.png" />
+    <EmbeddedResource Include="icons\map\points\color21.png" />
+    <EmbeddedResource Include="icons\map\points\color22.png" />
+    <EmbeddedResource Include="icons\map\points\color23.png" />
+    <EmbeddedResource Include="icons\map\points\color24.png" />
+    <EmbeddedResource Include="icons\map\points\marker_shadow.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -471,6 +504,7 @@
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentDlg.cs" />
     <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.RoutesAtDayDlg.cs" />
+    <Compile Include="Additions\Logistic\PointMarker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -739,6 +773,9 @@
   <ProjectExtensions>
     <MonoDevelop>
       <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="Hierarchical" ResourceNamePolicy="MSBuild" />
+        </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>
     </MonoDevelop>

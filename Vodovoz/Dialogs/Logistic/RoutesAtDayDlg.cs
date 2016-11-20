@@ -247,12 +247,12 @@ namespace Vodovoz
 
 				if (order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
 				{
-					GMarkerGoogleType type;
+					PointMarkerType type;
 					if (route == null)
-						type = GMarkerGoogleType.black_small;
+						type = PointMarkerType.black;
 					else
 						type = GetAddressMarker(routesAtDay.IndexOf(route));
-					var addressMarker = new GMarkerGoogle(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
+					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
 					addressMarker.Tag = order;
 					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}",
 						order.DeliveryPoint.ShortAddress,
@@ -303,21 +303,41 @@ namespace Vodovoz
 				progressOrders.Text = RusNumber.FormatCase(addressesWithoutRoutes, "Остался {0} заказ", "Осталось {0} заказа", "Осталось {0} заказов");
 		}
 
-		private GMarkerGoogleType[] pointMarkers = new []{
-			GMarkerGoogleType.blue_small,
-			GMarkerGoogleType.brown_small,
-			GMarkerGoogleType.green_small,
-			GMarkerGoogleType.yellow_small,
-			GMarkerGoogleType.orange_small,
-			GMarkerGoogleType.purple_small,
-			GMarkerGoogleType.red_small,
-			GMarkerGoogleType.gray_small,
-			GMarkerGoogleType.white_small,
+		private PointMarkerType[] pointMarkers = new []{
+			PointMarkerType.blue,
+			PointMarkerType.green,
+			PointMarkerType.orange,
+			PointMarkerType.purple,
+			PointMarkerType.red,
+			PointMarkerType.gray,
+			PointMarkerType.white,
+			PointMarkerType.color2,
+			PointMarkerType.color3,
+			PointMarkerType.color4,
+			PointMarkerType.color5,
+			PointMarkerType.color6,
+			PointMarkerType.color7,
+			PointMarkerType.color8,
+			PointMarkerType.color9,
+			PointMarkerType.color10,
+			PointMarkerType.color11,
+			PointMarkerType.color12,
+			PointMarkerType.color13,
+			PointMarkerType.color14,
+			PointMarkerType.color15,
+			PointMarkerType.color16,
+			PointMarkerType.color17,
+			PointMarkerType.color18,
+			PointMarkerType.color20,
+			PointMarkerType.color21,
+			PointMarkerType.color22,
+			PointMarkerType.color23,
+			PointMarkerType.color24,
 		};
 
-		GMarkerGoogleType GetAddressMarker(int routeNum)
+		PointMarkerType GetAddressMarker(int routeNum)
 		{
-			var markerNum = routeNum % 9;
+			var markerNum = routeNum % 29;
 			return pointMarkers[markerNum];
 		}
 
@@ -328,7 +348,7 @@ namespace Vodovoz
 			pixbufMarkers = new Pixbuf[routesAtDay.Count];
 			for(int i = 0; i < routesAtDay.Count; i++)
 			{
-				pixbufMarkers[i] =  PixbufFromBitmap(GMarkerGoogle.GetIcon(GetAddressMarker(i).ToString()));
+				pixbufMarkers[i] = PointMarker.GetIconPixbuf(GetAddressMarker(i).ToString());
 			}
 		}
 
@@ -381,16 +401,6 @@ namespace Vodovoz
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
-		}
-
-		private static Gdk.Pixbuf PixbufFromBitmap (Bitmap bitmap)
-		{
-			using(MemoryStream ms = new MemoryStream ())
-			{
-				bitmap.Save (ms, ImageFormat.Png);
-				ms.Position = 0;
-				return new Gdk.Pixbuf (ms); 
-			}
 		}
 
 		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
