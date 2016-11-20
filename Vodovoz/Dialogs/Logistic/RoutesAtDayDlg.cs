@@ -249,7 +249,14 @@ namespace Vodovoz
 				{
 					PointMarkerType type;
 					if (route == null)
-						type = PointMarkerType.black;
+					{
+						if ((order.DeliverySchedule.To - order.DeliverySchedule.From).TotalHours <= 1)
+							type = PointMarkerType.black_and_red;
+						else if (order.DeliverySchedule.From.Hours >= 17)
+							type = PointMarkerType.blue_stripes;
+						else
+							type = PointMarkerType.black;
+					}
 					else
 						type = GetAddressMarker(routesAtDay.IndexOf(route));
 					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
