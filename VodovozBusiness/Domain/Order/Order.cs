@@ -249,6 +249,22 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref address1c, value, () => Address1c); }
 		}
 
+		private string fromClientText;
+
+		[Display (Name = "Колонка МЛ от клиента")]
+		public virtual string FromClientText {
+		    get { return fromClientText; }
+		    set { SetField (ref fromClientText, value, () => FromClientText); }
+		}
+
+		private string toClientText;
+
+		[Display (Name = "Колонка МЛ к клиенту")]
+		public virtual string ToClientText {
+		    get { return toClientText; }
+		    set { SetField (ref toClientText, value, () => ToClientText); }
+		}
+
 		#endregion
 
 		public bool CanChangeContractor ()

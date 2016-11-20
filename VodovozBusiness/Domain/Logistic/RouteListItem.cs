@@ -474,6 +474,27 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Order.OrderStatus = OrderStatus.Accepted;
 		}
+
+		#region Проброс полей для редактирования в заказе.
+		public virtual string FromClientText {
+			get{
+				return Order.FromClientText;
+			}
+			set{
+				Order.FromClientText = value;
+			}
+		}
+
+		public virtual string ToClientText {
+			get{
+				return Order.ToClientText;
+			}
+			set{
+				Order.ToClientText = value;
+			}
+		}
+
+		#endregion
 	}
 
 	public enum RouteListItemStatus{

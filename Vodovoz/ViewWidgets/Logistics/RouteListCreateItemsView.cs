@@ -100,9 +100,11 @@ namespace Vodovoz
 			{
 				config
 					.AddColumn("C экспедитором")
-					.AddToggleRenderer(node => node.WithForwarder)			
-					.AddColumn("");
+					.AddToggleRenderer(node => node.WithForwarder);
 			}
+			config
+				.AddColumn("К клиенту").AddTextRenderer(x => x.ToClientText).Editable()
+				.AddColumn("От клиента").AddTextRenderer(x => x.FromClientText).Editable();
 			ytreeviewItems.ColumnsConfig = 
 				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish ();
