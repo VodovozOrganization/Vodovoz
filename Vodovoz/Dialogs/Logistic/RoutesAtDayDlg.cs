@@ -300,8 +300,11 @@ namespace Vodovoz
 
 			textOrdersInfo.Buffer.Text = String.Join("\n", text);
 
-			progressOrders.Adjustment.Upper = ordersAtDay.Count;
-			progressOrders.Adjustment.Value = ordersAtDay.Count - addressesWithoutRoutes;
+			if (progressOrders.Adjustment != null)
+			{
+				progressOrders.Adjustment.Upper = ordersAtDay.Count;
+				progressOrders.Adjustment.Value = ordersAtDay.Count - addressesWithoutRoutes;
+			}
 			if (ordersAtDay.Count == 0)
 				progressOrders.Text = String.Empty;
 			else if (addressesWithoutRoutes == 0)
