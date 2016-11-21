@@ -82,6 +82,10 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			//Проверка на случай пустой строки
+			if (string.IsNullOrWhiteSpace(Entity.AndroidLogin))
+				Entity.AndroidLogin = null;
+			
 			var valid = new QSValidator<Employee> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -89,7 +93,7 @@ namespace Vodovoz
 			if (Entity.User != null) {
 				var associatedEmployees = Repository.EmployeeRepository.GetEmployeesForUser (UoW, Entity.User.Id);
 				if (associatedEmployees.Any (e => e.Id != Entity.Id)) {
-					string mes = String.Format ("Пользователь {0} уже связан с сотрудником {1}, при привязки этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
+					string mes = String.Format ("Пользователь {0} уже связан с сотрудником {1}, при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
 						             Entity.User.Name,
 						             String.Join (", ", associatedEmployees.Select (e => e.ShortName))
 					             );
@@ -102,7 +106,7 @@ namespace Vodovoz
 						return false;
 				}
 			}
-
+				
 			phonesView.SaveChanges ();	
 			logger.Info ("Сохраняем сотрудника...");
 			try {

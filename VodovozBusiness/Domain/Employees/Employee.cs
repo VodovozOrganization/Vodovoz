@@ -10,9 +10,11 @@ namespace Vodovoz.Domain.Employees
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "сотрудники",
 		Nominative = "сотрудник")]
-	public class Employee : AccountOwnerBase, IDomainObject, IValidatableObject, ISpecialRowsRender
+	public class Employee : AccountOwnerBase, IDomainObject, IValidatableObject, ISpecialRowsRender, IBusinessObject
 	{
 		#region Свойства
+
+		public virtual IUnitOfWork UoW { set; get;}
 
 		public virtual int Id { get; set; }
 
@@ -214,6 +216,11 @@ namespace Vodovoz.Domain.Employees
 			if (String.IsNullOrEmpty (Name) && String.IsNullOrEmpty (LastName) && String.IsNullOrEmpty (Patronymic))
 				yield return new ValidationResult ("Должно быть заполнено хотя бы одно из следующих полей: " +
 				"Фамилия, Имя, Отчество)", new[] { "Name", "LastName", "Patronymic" });
+
+			Employee employee = Repository.EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
+			if(employee != this && employee != null)
+				yield return new ValidationResult ("Водитель с таким логином для Android уже существует",
+					new[] { "AndroidLogin" });
 		}
 
 		#endregion
