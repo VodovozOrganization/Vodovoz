@@ -75,16 +75,20 @@ namespace Vodovoz.ViewModel
 				summaryResult.Add(savedRow);
 			}
 
-			var chats = ChatRepository.GetCurrentUserChats(UoW, null);
-			var unreaded = ChatMessageRepository.GetUnreadedChatMessages(UoW, EmployeeRepository.GetEmployeeForCurrentUser(UoW), true);
-			foreach (var item in summaryResult) {
-				var chat = chats.FirstOrDefault(x => x.Driver.Id == item.Id);
-				if (chat != null && unreaded.ContainsKey(chat.Id))
+			var currentEmploee = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if (currentEmploee != null)
+			{
+				var chats = ChatRepository.GetCurrentUserChats(UoW, null);
+				var unreaded = ChatMessageRepository.GetUnreadedChatMessages(UoW, currentEmploee, true);
+				foreach (var item in summaryResult)
 				{
-					item.Unreaded = unreaded[chat.Id];
+					var chat = chats.FirstOrDefault(x => x.Driver.Id == item.Id);
+					if (chat != null && unreaded.ContainsKey(chat.Id))
+					{
+						item.Unreaded = unreaded[chat.Id];
+					}
 				}
 			}
-
 			SetItemsSource(summaryResult.OrderBy(x => x.ShortName).ToList());
 		}
 

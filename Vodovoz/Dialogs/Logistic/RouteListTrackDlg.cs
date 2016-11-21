@@ -57,7 +57,6 @@ namespace Vodovoz
 				ChatCallbackObservable.GetInstance().AddObserver(this);
 			}
 
-
 			//Configure map
 			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
 			gmapWidget.Position = new PointLatLng(59.93900, 30.31646);
@@ -147,7 +146,8 @@ namespace Vodovoz
 
 		public override void Destroy()
 		{
-			ChatCallbackObservable.GetInstance().RemoveObserver(this);
+			if(ChatCallbackObservable.IsInitiated)
+				ChatCallbackObservable.GetInstance().RemoveObserver(this);
 			GLib.Source.Remove(timerId);
 			gmapWidget.Destroy();
 			if (mapWindow != null)
