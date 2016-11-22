@@ -82,7 +82,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			//Проверка на случай пустой строки
+			//Проверяем, чтобы в БД не попала пустая строка
 			if (string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 				Entity.AndroidLogin = null;
 			

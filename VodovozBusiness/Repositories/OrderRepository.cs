@@ -80,6 +80,13 @@ namespace Vodovoz.Repository
 				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
 		}
 
+		public static IList<VodovozOrder> GetOrdersBetweenDates(IUnitOfWork UoW, DateTime startDate, DateTime endDate)
+		{
+			VodovozOrder orderAlias = null;
+			return UoW.Session.QueryOver<VodovozOrder>(() => orderAlias)
+				.Where(() => startDate <= orderAlias.DeliveryDate && orderAlias.DeliveryDate <= endDate).List();
+		}
+
 		public static IList<VodovozOrder> GetOrdersByCode1c (IUnitOfWork uow, string[] codes1c)
 		{
 			return uow.Session.QueryOver<VodovozOrder> ()

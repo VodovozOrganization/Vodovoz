@@ -229,17 +229,50 @@ namespace Vodovoz
 				QSMain.WaitRedraw ();
 			}
 		}
+
+		int changedCounterparties = 0;
+
+		public int ChangedCounterparties {
+			get {
+				return changedCounterparties;
+			}
+			set {
+				changedCounterparties = value;
+				labelCounterpartiesChanged.LabelProp = ChangedCounterparties.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
+		int changedOrders = 0;
+
+		public int ChangedOrders {
+			get {
+				return changedOrders;
+			}
+			set {
+				changedOrders = value;
+				labelOrdersChanged.LabelProp = ChangedOrders.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
 		#endregion
 
-		List<Counterparty> CounterpatiesList = new List<Counterparty>();
-		List<Account1c> AccountsList = new List<Account1c>();
-		List<Bank1c> Banks1cList = new List<Bank1c>();
-		List<Nomenclature> NomenclatureList = new List<Nomenclature>();
-		List<Order> OrdersList = new List<Order>();
-		List<DeliveryPoint> DeliveryPointsList = null;
+		List<Counterparty> 	CounterpatiesList = new List<Counterparty>();
+//		List<Counterparty> 	ChangedCounterpartiesList = new List<Counterparty>();
+		List<Account1c> 	AccountsList = new List<Account1c>();
+		List<Bank1c> 		Banks1cList = new List<Bank1c>();
+		List<Nomenclature> 	NomenclaturesList = new List<Nomenclature>();
+		List<Order> 		OrdersList = new List<Order>();
+		List<Order> 		ChangedOrdersList = new List<Order>();
+		List<DateTime> 		LoadedOrderDates = new List<DateTime>();
+		List<string> 		Changes = new List<string>();
+
+		List<DeliveryPoint> 	DeliveryPointsList = null;
+		List<DeliverySchedule> 	DeliverySchedules = null;
 
 		MeasurementUnits unitU;
 		MeasurementUnits UnitServ;
+
 
 		public LoadFrom1cDlg ()
 		{
@@ -253,7 +286,8 @@ namespace Vodovoz
 			filechooserXML.Filter = Filter;
 
 			DeliveryPointsList = UoW.GetAll<DeliveryPoint>().ToList<DeliveryPoint>();
-			unitU = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
+			DeliverySchedules  = UoW.GetAll<DeliverySchedule>().ToList();
+			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
 			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(UoW);
 		}
 
@@ -266,15 +300,16 @@ namespace Vodovoz
 				= LinkedAccounts		= InactiveAccounts 		= ReadedBanks
 				= InactiveBanks			= ReadedNomenclatures 	= ReadedOrders
 				= NewCounterparties		= NewNomenclatures 		= NewOrders
-				= NewAddresses
+				= NewAddresses			= ChangedCounterparties = ChangedOrders
 				= 0;
 			
-			CounterpatiesList .Clear();
-			AccountsList	  .Clear();
-			Banks1cList		  .Clear();
-			NomenclatureList  .Clear();
-			OrdersList		  .Clear();
-			DeliveryPointsList.Clear();
+			CounterpatiesList		 .Clear();
+			AccountsList	  		 .Clear();
+			Banks1cList		  		 .Clear();
+			NomenclaturesList 		 .Clear();
+			OrdersList		  		 .Clear();
+			ChangedOrdersList		 .Clear();
+			DeliveryPointsList		 .Clear();
 
 			XmlDocument content = new XmlDocument ();
 			content.Load (filechooserXML.Filename);
@@ -327,7 +362,9 @@ namespace Vodovoz
 			}
 
 			progressbar.Text = "Выполнено";
-			buttonSave.Sensitive = checkRewrite.Sensitive = checkOnlyAddress.Sensitive = CounterpatiesList.Count > 0;
+			buttonCreate.Sensitive = checkRewrite.Sensitive = checkOnlyAddress.Sensitive =
+				CounterpatiesList.Count > 0 || OrdersList.Count > 0 || NomenclaturesList.Count > 0 ||
+				DeliveryPointsList.Count > 0;
 			checkSkipCounterparties.Sensitive = true;
 		}
 
@@ -587,7 +624,7 @@ namespace Vodovoz
 					break;
 			}
 
-			NomenclatureList.Add(nomenclature);
+			NomenclaturesList.Add(nomenclature);
 			ReadedNomenclatures++;
 		}
 
@@ -596,14 +633,15 @@ namespace Vodovoz
 			List<OrderItem> orderItems = new List<OrderItem>();
 
 			logger.Debug("Парсим заказ");
-			var code1cNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
-			var dateNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
-			var organisationNode = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var commentNode 	 = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
-			var counterpartyNode = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var addressNode 	 = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
-			var goodsNodes 		 = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
-			var servicesNodes 	 = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+			var code1cNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
+			var dateNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
+			var organisationNode 	  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var commentNode 	 	  = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
+			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
+			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
+			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
+			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
 
 			//TODO Предусмотреть самовывоз в адресе
 			DeliveryPoint deliveryPoint = DeliveryPointsList.FirstOrDefault(d => d.Address1c == addressNode?.InnerText);
@@ -612,15 +650,22 @@ namespace Vodovoz
 			if (client == null)
 				return;
 
+			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
+			if (!LoadedOrderDates.Contains(deliveryDate))
+				LoadedOrderDates.Add(deliveryDate);
+
+			var deliverySchedule = DeliverySchedules.FirstOrDefault(x => x.Name == deliverySchedulesNode?.InnerText);
+
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
 			Order order = new Order
 				{
-					Code1c 		  = code1cNode?.InnerText,
-					Comment 	  = commentNode?.InnerText,
-					Client 		  = client,
-					DeliveryDate  = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01"),
-					DeliveryPoint = deliveryPoint,
-					Address1c 	  = addressNode?.InnerText
+					Code1c 		  	 = code1cNode?.InnerText,
+					Comment 	  	 = commentNode?.InnerText,
+					Client 		  	 = client,
+					DeliveryDate  	 = deliveryDate,
+					DeliverySchedule = deliverySchedule,
+					DeliveryPoint 	 = deliveryPoint,
+					Address1c 	  	 = addressNode?.InnerText
 				};
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
@@ -661,7 +706,7 @@ namespace Vodovoz
 
 			return new OrderItem
 			{
-				Nomenclature = NomenclatureList.FirstOrDefault(n => n.Code1c == nCode1c?.InnerText),
+				Nomenclature = NomenclaturesList.FirstOrDefault(n => n.Code1c == nCode1c?.InnerText),
 				IncludeNDS 	 = nNDS?.InnerText == null ? 0 : Convert.ToDecimal(nNDS.InnerText, nfi),
 				Count 		 = count,
 				Price 		 = price,
@@ -677,6 +722,14 @@ namespace Vodovoz
 		}
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
+		{
+			progressbar.Text = "Записываем данные в базу...";
+			logger.Info("Записываем данные в базу...");
+			UoW.Commit ();
+			progressbar.Text = "Выполнено";
+		}
+
+		protected void OnButtonCreateClicked (object sender, EventArgs e)
 		{
 			bool rewrite = checkRewrite.Active;
 			checkRewrite.Sensitive = false;
@@ -700,9 +753,15 @@ namespace Vodovoz
 				//Проверка контрагентов
 				if (exist != null)
 				{
+					string change = Compare(exist, loaded);
+					if (change != string.Empty) {
+						ChangedCounterparties++;
+						Changes.Add(change);
+					}
+						
 					if (!rewrite)
 						continue;
-					
+
 					loaded.Id = exist.Id;
 					foreach (var loadedAcc in  loaded.Accounts)
 					{
@@ -729,11 +788,11 @@ namespace Vodovoz
 
 				progressbar.Text = "Сверяем номенклатуры...";
 				progressbar.Adjustment.Value = 0;
-				progressbar.Adjustment.Upper = NomenclatureList.Count;
+				progressbar.Adjustment.Upper = NomenclaturesList.Count;
 				QSMain.WaitRedraw();
 
 				//Проверка номенклатур
-				foreach (var loaded in NomenclatureList)
+				foreach (var loaded in NomenclaturesList)
 				{
 					progressbar.Adjustment.Value++;
 					QSMain.WaitRedraw();
@@ -756,7 +815,6 @@ namespace Vodovoz
 			progressbar.Text = "Загружаем таблицу существующих заказов.";
 			var orderCodes1c = OrdersList.Select(c => c.Code1c).ToArray();
 			var ExistOrders = Repository.OrderRepository.GetOrdersByCode1c(UoW, orderCodes1c);
-			var DeliverySchedules = UoW.GetAll<DeliverySchedule>().ToList();
 
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
@@ -769,9 +827,16 @@ namespace Vodovoz
 				progressbar.Adjustment.Value++;
 				QSMain.WaitRedraw ();
 
+
 				if (!checkOnlyAddress.Active)
 				{
 					var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c);
+
+					if(exist != null && !Compare(exist, loaded)) {
+						ChangedOrders++;
+						ChangedOrdersList.Add(exist);
+					}
+
 					if (exist != null)
 					{
 						if (!rewrite)
@@ -809,9 +874,9 @@ namespace Vodovoz
 				if (loaded.Address1c.ToLower().Contains("самовывоз"))
 					loaded.SelfDelivery = true;
 
-				var time = DeliverySchedules.FirstOrDefault(x => x.Name == loaded.Comment);
-				if (time != null)
-					loaded.DeliverySchedule = time;
+//				var time = DeliverySchedules.FirstOrDefault(x => x.Name == loaded.Comment);
+//				if (time != null)
+//					loaded.DeliverySchedule = time;
 
 				foreach (var item in loaded.OrderItems)
 				{
@@ -828,15 +893,86 @@ namespace Vodovoz
 				if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null 
 					&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
 					loaded.ChangeStatus(OrderStatus.Accepted);
-				
+
+
+
 				UoW.Save (loaded);
 			}
-
-			progressbar.Text = "Записываем данные в базу...";
-			logger.Info("Записываем данные в базу...");
-			UoW.Commit ();
 			progressbar.Text = "Выполнено";
-			checkRewrite.Sensitive = true;
+			buttonSave.Sensitive = checkRewrite.Sensitive = true;
+		}
+
+		private string Compare(Counterparty oldCP, Counterparty newCP)
+		{
+			string result = string.Empty;
+			if (oldCP == null || newCP == null)
+				return result;
+			
+			if (oldCP.Name != newCP.Name)
+				result += string.Format("Изменено имя: {0}->{1}{2}",
+					oldCP.Name, newCP.Name, Environment.NewLine);
+			if (oldCP.PersonType != newCP.PersonType)
+				result += string.Format("Изменен тип: {0}->{1}{2}",
+					oldCP.PersonType, newCP.PersonType, Environment.NewLine);
+			if (oldCP.PaymentMethod != newCP.PaymentMethod)
+				result += string.Format("Изменен метод оплаты: {0}->{1}{2}",
+					oldCP.PaymentMethod, newCP.PaymentMethod, Environment.NewLine);
+			if (oldCP.Comment != newCP.Comment)
+				result += string.Format("Изменен комментарий: {0}->{1}{2}",
+					oldCP.Comment, newCP.Comment, Environment.NewLine);
+			if (oldCP.FullName != newCP.FullName)
+				result += string.Format("Изменено полное имя: {0}->{1}{2}",
+					oldCP.FullName, newCP.FullName, Environment.NewLine);
+			if (oldCP.INN != newCP.INN)
+				result += string.Format("Изменен ИНН: {0}->{1}{2}",
+					oldCP.INN, newCP.INN, Environment.NewLine);
+			if (oldCP.KPP != newCP.KPP)
+				result += string.Format("Изменен КПП: {0}->{1}{2}",
+					oldCP.KPP, newCP.KPP, Environment.NewLine);
+			if (oldCP.TypeOfOwnership != newCP.TypeOfOwnership)
+				result += string.Format("Изменена форма собственности: {0}->{1}{2}",
+					oldCP.TypeOfOwnership, newCP.TypeOfOwnership, Environment.NewLine);
+
+			if (result != string.Empty)
+				result = string.Format("Контрагент с кодом {0} был изменен {1}{2}",
+					oldCP.Code1c, Environment.NewLine, result);
+			return result;
+		}
+
+		private bool Compare(Order o1, Order o2)
+		{
+			if (o1 == null || o2 == null)
+				return false;
+			
+			if (o1.Comment != o2.Comment)
+				return false;
+			if (o1.Client.Code1c != o2.Client.Code1c)
+				return false;
+			if (o1.DeliveryDate != o2.DeliveryDate)
+				return false;
+			if (o1.DeliveryPoint != o2.DeliveryPoint)
+				return false;
+			if (o1.Address1c != o2.Address1c)
+				return false;
+			if (o1.OrderItems.Count != o2.OrderItems.Count)
+				return false;
+			return true;
+		}
+
+		private List<Order> GetNotLoadedOrders() 
+		{
+			List<Order> OrdersInDataBase = null;
+			foreach (var date in LoadedOrderDates)
+				OrdersInDataBase.AddRange(Repository.OrderRepository.GetOrdersBetweenDates(UoW, date, date));
+
+			foreach (var loadedOrder in OrdersList)
+			{
+				var order = OrdersInDataBase?.FirstOrDefault(o => o.Code1c == loadedOrder.Code1c);
+				if (order != null)
+					OrdersInDataBase.Remove(order);
+			}
+
+			return OrdersInDataBase;
 		}
 	}
 }
