@@ -311,7 +311,7 @@ namespace Vodovoz
 		{
 			var item = ytreeEntites.GetSelectedObject<ChangedItem>();
 			ytreeChanges.ItemsDataSource = item?.Fields;
-			ytreeChanges.ReconfigureColumns();
+			ytreeChanges.ColumnsAutosize();
 		}
 
 		protected void OnButtonLoadClicked (object sender, EventArgs e)
