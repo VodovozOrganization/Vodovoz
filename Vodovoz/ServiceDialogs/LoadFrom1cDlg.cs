@@ -16,6 +16,8 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.LoadFrom1c;
+using ServiceDialogs.LoadFrom1c;
+using Gamma.GtkWidgets;
 
 namespace Vodovoz
 {
@@ -265,7 +267,7 @@ namespace Vodovoz
 		List<Order> 		OrdersList = new List<Order>();
 		List<Order> 		ChangedOrdersList = new List<Order>();
 		List<DateTime> 		LoadedOrderDates = new List<DateTime>();
-		List<string> 		Changes = new List<string>();
+		List<ChangedItem> 	Changes = new List<ChangedItem>();
 
 		List<DeliveryPoint> 	DeliveryPointsList = null;
 		List<DeliverySchedule> 	DeliverySchedules = null;
@@ -289,6 +291,27 @@ namespace Vodovoz
 			DeliverySchedules  = UoW.GetAll<DeliverySchedule>().ToList();
 			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
 			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(UoW);
+
+			vboxChanges.Visible = false;
+			ytreeEntites.ColumnsConfig = ColumnsConfigFactory.Create<ChangedItem>()
+				.AddColumn("Название").AddTextRenderer(x => x.Title)
+				.Finish();
+
+			ytreeEntites.Selection.Mode = SelectionMode.Browse;
+			ytreeEntites.Selection.Changed += YtreeEntites_Selection_Changed;
+
+			ytreeChanges.ColumnsConfig = ColumnsConfigFactory.Create<FieldChange>()
+				.AddColumn("Поле").AddTextRenderer(x => x.Title)
+				.AddColumn("Старое значение").AddTextRenderer(x => x.OldPangoText, useMarkup: true)
+				.AddColumn("Новое значение").AddTextRenderer(x => x.NewPangoText, useMarkup: true)
+				.Finish();
+		}
+
+		void YtreeEntites_Selection_Changed (object sender, EventArgs e)
+		{
+			var item = ytreeEntites.GetSelectedObject<ChangedItem>();
+			ytreeChanges.ItemsDataSource = item?.Fields;
+			ytreeChanges.ReconfigureColumns();
 		}
 
 		protected void OnButtonLoadClicked (object sender, EventArgs e)
@@ -753,8 +776,8 @@ namespace Vodovoz
 				//Проверка контрагентов
 				if (exist != null)
 				{
-					string change = Compare(exist, loaded);
-					if (change != string.Empty) {
+					var change = ChangedItem.Compare(exist, loaded);
+					if (change != null) {
 						ChangedCounterparties++;
 						Changes.Add(change);
 					}
@@ -894,50 +917,15 @@ namespace Vodovoz
 					&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
 					loaded.ChangeStatus(OrderStatus.Accepted);
 
-
-
 				UoW.Save (loaded);
 			}
 			progressbar.Text = "Выполнено";
 			buttonSave.Sensitive = checkRewrite.Sensitive = true;
+			buttonCreate.Sensitive = buttonLoad.Sensitive = false;
+			vboxChanges.Visible = Changes.Count > 0;
+			ytreeEntites.ItemsDataSource = Changes;
 		}
 
-		private string Compare(Counterparty oldCP, Counterparty newCP)
-		{
-			string result = string.Empty;
-			if (oldCP == null || newCP == null)
-				return result;
-			
-			if (oldCP.Name != newCP.Name)
-				result += string.Format("Изменено имя: {0}->{1}{2}",
-					oldCP.Name, newCP.Name, Environment.NewLine);
-			if (oldCP.PersonType != newCP.PersonType)
-				result += string.Format("Изменен тип: {0}->{1}{2}",
-					oldCP.PersonType, newCP.PersonType, Environment.NewLine);
-			if (oldCP.PaymentMethod != newCP.PaymentMethod)
-				result += string.Format("Изменен метод оплаты: {0}->{1}{2}",
-					oldCP.PaymentMethod, newCP.PaymentMethod, Environment.NewLine);
-			if (oldCP.Comment != newCP.Comment)
-				result += string.Format("Изменен комментарий: {0}->{1}{2}",
-					oldCP.Comment, newCP.Comment, Environment.NewLine);
-			if (oldCP.FullName != newCP.FullName)
-				result += string.Format("Изменено полное имя: {0}->{1}{2}",
-					oldCP.FullName, newCP.FullName, Environment.NewLine);
-			if (oldCP.INN != newCP.INN)
-				result += string.Format("Изменен ИНН: {0}->{1}{2}",
-					oldCP.INN, newCP.INN, Environment.NewLine);
-			if (oldCP.KPP != newCP.KPP)
-				result += string.Format("Изменен КПП: {0}->{1}{2}",
-					oldCP.KPP, newCP.KPP, Environment.NewLine);
-			if (oldCP.TypeOfOwnership != newCP.TypeOfOwnership)
-				result += string.Format("Изменена форма собственности: {0}->{1}{2}",
-					oldCP.TypeOfOwnership, newCP.TypeOfOwnership, Environment.NewLine);
-
-			if (result != string.Empty)
-				result = string.Format("Контрагент с кодом {0} был изменен {1}{2}",
-					oldCP.Code1c, Environment.NewLine, result);
-			return result;
-		}
 
 		private bool Compare(Order o1, Order o2)
 		{

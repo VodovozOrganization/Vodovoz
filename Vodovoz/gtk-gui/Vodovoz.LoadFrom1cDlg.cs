@@ -6,6 +6,8 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox2;
 		
+		private global::Gtk.Notebook notebook1;
+		
 		private global::Gtk.Table table1;
 		
 		private global::Gtk.FileChooserButton filechooserXML;
@@ -93,6 +95,24 @@ namespace Vodovoz
 		private global::Gtk.CheckButton checkRewrite;
 		
 		private global::Gtk.CheckButton checkSkipCounterparties;
+		
+		private global::Gtk.Label label17;
+		
+		private global::Gtk.VBox vboxChanges;
+		
+		private global::Gtk.Label label20;
+		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow;
+		
+		private global::Gamma.GtkWidgets.yTreeView ytreeEntites;
+		
+		private global::Gtk.Label label21;
+		
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+		
+		private global::Gamma.GtkWidgets.yTreeView ytreeChanges;
+		
+		private global::Gtk.Label label19;
 
 		protected virtual void Build ()
 		{
@@ -105,6 +125,11 @@ namespace Vodovoz
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
+			this.notebook1 = new global::Gtk.Notebook ();
+			this.notebook1.CanFocus = true;
+			this.notebook1.Name = "notebook1";
+			this.notebook1.CurrentPage = 1;
+			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.table1 = new global::Gtk.Table (((uint)(12)), ((uint)(4)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
@@ -616,11 +641,71 @@ namespace Vodovoz
 			w43.RightAttach = ((uint)(4));
 			w43.XOptions = ((global::Gtk.AttachOptions)(4));
 			w43.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.vbox2.Add (this.table1);
-			global::Gtk.Box.BoxChild w44 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.table1]));
-			w44.Position = 0;
-			w44.Expand = false;
-			w44.Fill = false;
+			this.notebook1.Add (this.table1);
+			// Notebook tab
+			this.label17 = new global::Gtk.Label ();
+			this.label17.Name = "label17";
+			this.label17.LabelProp = global::Mono.Unix.Catalog.GetString ("Загрузка");
+			this.notebook1.SetTabLabel (this.table1, this.label17);
+			this.label17.ShowAll ();
+			// Container child notebook1.Gtk.Notebook+NotebookChild
+			this.vboxChanges = new global::Gtk.VBox ();
+			this.vboxChanges.Name = "vboxChanges";
+			this.vboxChanges.Spacing = 6;
+			// Container child vboxChanges.Gtk.Box+BoxChild
+			this.label20 = new global::Gtk.Label ();
+			this.label20.Name = "label20";
+			this.label20.LabelProp = global::Mono.Unix.Catalog.GetString ("Объекты изменились");
+			this.vboxChanges.Add (this.label20);
+			global::Gtk.Box.BoxChild w45 = ((global::Gtk.Box.BoxChild)(this.vboxChanges [this.label20]));
+			w45.Position = 0;
+			w45.Expand = false;
+			w45.Fill = false;
+			// Container child vboxChanges.Gtk.Box+BoxChild
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
+			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
+			this.ytreeEntites = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeEntites.CanFocus = true;
+			this.ytreeEntites.Name = "ytreeEntites";
+			this.GtkScrolledWindow.Add (this.ytreeEntites);
+			this.vboxChanges.Add (this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vboxChanges [this.GtkScrolledWindow]));
+			w47.Position = 1;
+			// Container child vboxChanges.Gtk.Box+BoxChild
+			this.label21 = new global::Gtk.Label ();
+			this.label21.Name = "label21";
+			this.label21.LabelProp = global::Mono.Unix.Catalog.GetString ("Что изменилось");
+			this.vboxChanges.Add (this.label21);
+			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.vboxChanges [this.label21]));
+			w48.Position = 2;
+			w48.Expand = false;
+			w48.Fill = false;
+			// Container child vboxChanges.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.ytreeChanges = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeChanges.CanFocus = true;
+			this.ytreeChanges.Name = "ytreeChanges";
+			this.GtkScrolledWindow1.Add (this.ytreeChanges);
+			this.vboxChanges.Add (this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vboxChanges [this.GtkScrolledWindow1]));
+			w50.Position = 3;
+			this.notebook1.Add (this.vboxChanges);
+			global::Gtk.Notebook.NotebookChild w51 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.vboxChanges]));
+			w51.Position = 1;
+			// Notebook tab
+			this.label19 = new global::Gtk.Label ();
+			this.label19.Name = "label19";
+			this.label19.LabelProp = global::Mono.Unix.Catalog.GetString ("Изменения");
+			this.notebook1.SetTabLabel (this.vboxChanges, this.label19);
+			this.label19.ShowAll ();
+			this.vbox2.Add (this.notebook1);
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.notebook1]));
+			w52.Position = 0;
 			this.Add (this.vbox2);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
