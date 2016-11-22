@@ -75,20 +75,6 @@ namespace Vodovoz
 			}
 		}
 
-		int savedCounterparty = 0;
-
-		public int SavedCounterparty {
-			get {
-				return savedCounterparty;
-			}
-			set {
-				savedCounterparty = value;
-				labelSaved.LabelProp = SavedCounterparty.ToString ();
-				QSMain.WaitRedraw ();
-			}
-		}
-
-
 		int readedAccounts = 0;
 
 		public int ReadedAccounts {
@@ -750,6 +736,7 @@ namespace Vodovoz
 			logger.Info("Записываем данные в базу...");
 			UoW.Commit ();
 			progressbar.Text = "Выполнено";
+			buttonSave.Sensitive = false;
 		}
 
 		protected void OnButtonCreateClicked (object sender, EventArgs e)
@@ -780,12 +767,11 @@ namespace Vodovoz
 					if (change != null) {
 						ChangedCounterparties++;
 						Changes.Add(change);
+						UoW.Save(exist);
 					}
+					//FIXME Если понадобится тут нужно реклизовать проверку счетов на изменения.
+					continue;
 						
-					if (!rewrite)
-						continue;
-
-					loaded.Id = exist.Id;
 					foreach (var loadedAcc in  loaded.Accounts)
 					{
 						var existAcc = exist.Accounts.FirstOrDefault(a => a.Code1c == loadedAcc.Code1c);
@@ -794,15 +780,16 @@ namespace Vodovoz
 					}
 				}
 				else
+				{
 					NewCounterparties++;
-
-				if (loaded.DefaultAccount != null && !loaded.Accounts.Contains (loaded.DefaultAccount))
-					loaded.AddAccount (loaded.DefaultAccount);
-
-				UoW.Save (loaded);
-				SavedCounterparty++;
+					
+					if (loaded.DefaultAccount != null && !loaded.Accounts.Contains (loaded.DefaultAccount))
+						loaded.AddAccount (loaded.DefaultAccount);
+					
+					UoW.Save (loaded);
+				}
+					
 			}
-
 			List<Nomenclature> ExistNomenclatures = null;
 			if (!checkOnlyAddress.Active)
 			{

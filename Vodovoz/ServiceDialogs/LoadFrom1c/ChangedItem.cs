@@ -19,21 +19,45 @@ namespace ServiceDialogs.LoadFrom1c
 			var result = new List<FieldChange>();
 
 			if (oldCP.Name != newCP.Name)
+			{
 				result.Add(new FieldChange("Изменено имя", oldCP.Name, newCP.Name));
+				oldCP.Name = newCP.Name;
+			}
 			if (oldCP.PersonType != newCP.PersonType)
+			{
 				result.Add(new FieldChange("Изменен тип", oldCP.PersonType.GetEnumTitle(), newCP.PersonType.GetEnumTitle()));
+				oldCP.PersonType = newCP.PersonType;
+			}
 			if (oldCP.PaymentMethod != newCP.PaymentMethod)
+			{
 				result.Add(new FieldChange("Изменен метод оплаты", oldCP.PaymentMethod.GetEnumTitle(), newCP.PaymentMethod.GetEnumTitle()));
+				oldCP.PaymentMethod = newCP.PaymentMethod;
+			}
 			if (oldCP.Comment != newCP.Comment)
+			{
 				result.Add(new FieldChange("Изменен комментарий", oldCP.Comment, newCP.Comment));
+				oldCP.Comment = newCP.Comment;
+			}
 			if (oldCP.FullName != newCP.FullName)
+			{
 				result.Add(new FieldChange("Изменено полное имя", oldCP.FullName, newCP.FullName));
+				oldCP.FullName = newCP.FullName;
+			}
 			if (oldCP.INN != newCP.INN)
+			{
 				result.Add(new FieldChange("Изменен ИНН", oldCP.INN, newCP.INN));
+				oldCP.INN = newCP.INN;
+			}
 			if (oldCP.KPP != newCP.KPP)
+			{
 				result.Add(new FieldChange("Изменен КПП", oldCP.KPP, newCP.KPP));
+				oldCP.KPP = newCP.KPP;
+			}
 			if (oldCP.TypeOfOwnership != newCP.TypeOfOwnership)
+			{
 				result.Add(new FieldChange("Изменена форма собственности", oldCP.TypeOfOwnership, newCP.TypeOfOwnership));
+				oldCP.TypeOfOwnership = newCP.TypeOfOwnership;
+			}
 
 			if (result.Count > 0)
 				return new ChangedItem
