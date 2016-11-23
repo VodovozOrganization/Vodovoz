@@ -914,7 +914,10 @@ namespace Vodovoz
 			}
 			var notLoaded = GetNotLoadedOrders(OrdersInDataBase);
 			if (notLoaded != null)
+			{
 				Changes.Add(notLoaded);
+				labelLostOrders.LabelProp = notLoaded.Fields.Count.ToString();
+			}
 				
 			progressbar.Text = "Выполнено";
 			buttonSave.Sensitive = checkRewrite.Sensitive = true;
