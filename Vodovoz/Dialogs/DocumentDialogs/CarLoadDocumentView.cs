@@ -126,6 +126,24 @@ namespace Vodovoz
 					return;
 			}
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
+
+			var items = DocumentUoW.Root.Items;
+			string errorNomenclatures = string.Empty;
+			foreach (var item in items)
+			{
+				if (item.Nomenclature.Unit == null)
+					errorNomenclatures += string.Format("{0} код {1}{2}",
+						item.Nomenclature.Name, item.Nomenclature.Id, Environment.NewLine);
+			}
+			if (!string.IsNullOrEmpty(errorNomenclatures))
+			{
+				errorNomenclatures = "Не указаны единицы измерения для следующих номенклатур:"
+					+ Environment.NewLine + errorNomenclatures;
+				MessageDialogWorks.RunErrorDialog(errorNomenclatures);
+				DocumentUoW.Root.Items.Clear();
+				return;
+			}	
+
 			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW);
 			if (DocumentUoW.Root.Warehouse != null)
 			{
