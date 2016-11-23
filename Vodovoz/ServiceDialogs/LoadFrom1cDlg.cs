@@ -912,8 +912,10 @@ namespace Vodovoz
 
 				UoW.Save (loaded);
 			}
-
-			Changes.Add(GetNotLoadedOrders(OrdersInDataBase));
+			var notLoaded = GetNotLoadedOrders(OrdersInDataBase);
+			if (notLoaded != null)
+				Changes.Add(notLoaded);
+				
 			progressbar.Text = "Выполнено";
 			buttonSave.Sensitive = checkRewrite.Sensitive = true;
 			buttonCreate.Sensitive = buttonLoad.Sensitive = false;
