@@ -261,9 +261,10 @@ namespace Vodovoz
 						type = GetAddressMarker(routesAtDay.IndexOf(route));
 					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
 					addressMarker.Tag = order;
-					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}",
+					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}, Время доставки: {2}",
 						order.DeliveryPoint.ShortAddress,
-						order.TotalDeliveredBottles
+						order.TotalDeliveredBottles,
+						order.DeliverySchedule?.Name ?? "Не назначено"
 					);
 					if (route != null)
 						addressMarker.ToolTipText += String.Format(" Везёт: {0}", route.Driver.ShortName);
