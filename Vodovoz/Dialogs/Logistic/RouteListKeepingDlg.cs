@@ -124,7 +124,8 @@ namespace Vodovoz
 		}
 
 		public void OnSelectionChanged(object sender, EventArgs args){
-			buttonNewRouteList.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
+			buttonNewRouteList		.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
+			buttonSetStatusComplete	.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
 			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
 		}
 
@@ -252,6 +253,15 @@ namespace Vodovoz
 				}
 			};
 			TabParent.AddSlaveTab (this, SelectDialog);
+		}
+
+		protected void OnButtonSetStatusCompleteClicked (object sender, EventArgs e)
+		{
+			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
+			foreach (RouteListKeepingItemNode item in selectedObjects)
+			{
+				item.RouteListItem.Status = RouteListItemStatus.Completed;
+			}
 		}
 	}	
 

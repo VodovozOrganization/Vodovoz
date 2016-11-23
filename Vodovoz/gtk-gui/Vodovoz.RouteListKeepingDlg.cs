@@ -58,6 +58,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonNewRouteList;
 		
+		private global::Gtk.Button buttonSetStatusComplete;
+		
 		private global::Gtk.Button buttonRefresh;
 
 		protected virtual void Build ()
@@ -364,25 +366,36 @@ namespace Vodovoz
 			w29.Expand = false;
 			w29.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonSetStatusComplete = new global::Gtk.Button ();
+			this.buttonSetStatusComplete.CanFocus = true;
+			this.buttonSetStatusComplete.Name = "buttonSetStatusComplete";
+			this.buttonSetStatusComplete.UseUnderline = true;
+			this.buttonSetStatusComplete.Label = global::Mono.Unix.Catalog.GetString ("Установить в статус \"Выпонено\"");
+			this.hbox8.Add (this.buttonSetStatusComplete);
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonSetStatusComplete]));
+			w30.Position = 2;
+			w30.Expand = false;
+			w30.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
 			this.buttonRefresh = new global::Gtk.Button ();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
 			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString ("Обновить");
-			global::Gtk.Image w30 = new global::Gtk.Image ();
-			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.buttonRefresh.Image = w30;
+			global::Gtk.Image w31 = new global::Gtk.Image ();
+			w31.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w31;
 			this.hbox8.Add (this.buttonRefresh);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
-			w31.PackType = ((global::Gtk.PackType)(1));
-			w31.Position = 2;
-			w31.Expand = false;
-			w31.Fill = false;
-			this.vbox1.Add (this.hbox8);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
+			w32.PackType = ((global::Gtk.PackType)(1));
 			w32.Position = 3;
 			w32.Expand = false;
 			w32.Fill = false;
+			this.vbox1.Add (this.hbox8);
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			w33.Position = 3;
+			w33.Expand = false;
+			w33.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -392,6 +405,7 @@ namespace Vodovoz
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonChangeDeliveryTime.Clicked += new global::System.EventHandler (this.OnButtonChangeDeliveryTimeClicked);
 			this.buttonNewRouteList.Clicked += new global::System.EventHandler (this.OnButtonNewRouteListClicked);
+			this.buttonSetStatusComplete.Clicked += new global::System.EventHandler (this.OnButtonSetStatusCompleteClicked);
 			this.buttonRefresh.Clicked += new global::System.EventHandler (this.OnButtonRefreshClicked);
 		}
 	}
