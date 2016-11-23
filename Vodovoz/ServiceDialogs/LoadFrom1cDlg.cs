@@ -699,7 +699,7 @@ namespace Vodovoz
 			var nPrice 	= node.SelectSingleNode("Свойство[@Имя='Цена']/Значение");
 			var nSumm 	= node.SelectSingleNode("Свойство[@Имя='Сумма']/Значение");
 			var nNDS 	= node.SelectSingleNode("Свойство[@Имя='СуммаНДС']/Значение");
-			//NumberFormatInfo нужен для корректного перевода строки
+			//NumberFormatInfo нужен для корректного перевода строки в число
 			var nfi = new NumberFormatInfo();
 
 			int count 	  = Convert.ToInt32(nCount?.InnerText ?? "0");
@@ -763,7 +763,7 @@ namespace Vodovoz
 				//Проверка контрагентов
 				if (exist != null)
 				{
-					var change = ChangedItem.Compare(exist, loaded);
+					var change = ChangedItem.CompareAndChange(exist, loaded);
 					if (change != null) {
 						ChangedCounterparties++;
 						Changes.Add(change);
@@ -829,6 +829,11 @@ namespace Vodovoz
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
 			progressbar.Adjustment.Upper = OrdersList.Count;
+
+			List<Order> OrdersInDataBase = new List<Order>();
+			foreach (var date in LoadedOrderDates)
+				OrdersInDataBase.AddRange(Repository.OrderRepository.GetOrdersBetweenDates(UoW, date, date));
+			
 			QSMain.WaitRedraw ();
 
 			//Проверка заказов
@@ -842,9 +847,10 @@ namespace Vodovoz
 				{
 					var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c);
 
-					if(exist != null && !Compare(exist, loaded)) {
+					var change = ChangedItem.CompareAndChange(exist, loaded);
+					if (change != null) {
 						ChangedOrders++;
-						ChangedOrdersList.Add(exist);
+						Changes.Add(change);
 					}
 
 					if (exist != null)
@@ -906,6 +912,8 @@ namespace Vodovoz
 
 				UoW.Save (loaded);
 			}
+
+			Changes.Add(GetNotLoadedOrders(OrdersInDataBase));
 			progressbar.Text = "Выполнено";
 			buttonSave.Sensitive = checkRewrite.Sensitive = true;
 			buttonCreate.Sensitive = buttonLoad.Sensitive = false;
@@ -913,41 +921,35 @@ namespace Vodovoz
 			ytreeEntites.ItemsDataSource = Changes;
 		}
 
-
-		private bool Compare(Order o1, Order o2)
+		private ChangedItem GetNotLoadedOrders(List<Order> orders) 
 		{
-			if (o1 == null || o2 == null)
-				return false;
-			
-			if (o1.Comment != o2.Comment)
-				return false;
-			if (o1.Client.Code1c != o2.Client.Code1c)
-				return false;
-			if (o1.DeliveryDate != o2.DeliveryDate)
-				return false;
-			if (o1.DeliveryPoint != o2.DeliveryPoint)
-				return false;
-			if (o1.Address1c != o2.Address1c)
-				return false;
-			if (o1.OrderItems.Count != o2.OrderItems.Count)
-				return false;
-			return true;
-		}
-
-		private List<Order> GetNotLoadedOrders() 
-		{
-			List<Order> OrdersInDataBase = null;
-			foreach (var date in LoadedOrderDates)
-				OrdersInDataBase.AddRange(Repository.OrderRepository.GetOrdersBetweenDates(UoW, date, date));
-
 			foreach (var loadedOrder in OrdersList)
 			{
-				var order = OrdersInDataBase?.FirstOrDefault(o => o.Code1c == loadedOrder.Code1c);
+				var order = orders?.FirstOrDefault(o => o.Code1c == loadedOrder.Code1c);
 				if (order != null)
-					OrdersInDataBase.Remove(order);
+					orders.Remove(order);
+			}
+				
+			var result = new List<FieldChange>();
+
+			foreach (var order in orders)
+			{
+				result.Add(new FieldChange(
+					string.Format("Заказ с кодом {0} и номером {1}",
+						string.IsNullOrWhiteSpace(order.Code1c)
+						? "(нет кода)" : order.Code1c,
+						order.Id),
+					string.Empty, string.Empty));
 			}
 
-			return OrdersInDataBase;
+			if (result.Count > 0)
+				return new ChangedItem
+				{
+					Title = string.Format("Заказы, которые не были загружены ({0} штук(а))", orders.Count),
+					Fields = result
+				};
+			else
+				return null;
 		}
 	}
 }
