@@ -14,6 +14,7 @@ using Chat;
 using System.ServiceModel;
 using Vodovoz.Repository;
 using NHibernate;
+using QSContacts;
 
 namespace Vodovoz
 {
@@ -113,6 +114,11 @@ namespace Vodovoz
 				.Finish();
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
+
+			string phones = string.Join("\n", Entity.Driver.Phones);
+			if (string.IsNullOrWhiteSpace(phones))
+				phones = "Нет телефонов";
+			ytextviewDriverPhones.Buffer.Text = phones;
 			UpdateNodes();
 		}
 
