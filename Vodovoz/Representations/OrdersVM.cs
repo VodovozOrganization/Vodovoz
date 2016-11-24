@@ -268,6 +268,8 @@ namespace Vodovoz.ViewModel
 		public string Street { get; set; }
 		public string Building { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string Address1c { get; set; }
 
 		[UseForSearch]
