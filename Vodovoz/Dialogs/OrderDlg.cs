@@ -145,6 +145,7 @@ namespace Vodovoz
 			referenceDeliverySchedule.ItemsQuery = DeliveryScheduleRepository.AllQuery ();
 			referenceDeliverySchedule.SetObjectDisplayFunc<DeliverySchedule> (e => e.Name);
 			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule, w => w.Subject).InitializeFromSource ();
+			referenceDeliverySchedule.Binding.AddBinding (Entity, s => s.DeliverySchedule1c, w => w.TooltipText).InitializeFromSource();
 
 			referenceAuthor.ItemsQuery = EmployeeRepository.ActiveEmployeeOrderedQuery ();
 			referenceAuthor.SetObjectDisplayFunc<Employee> (e => e.ShortName);

@@ -668,13 +668,14 @@ namespace Vodovoz
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
 			Order order = new Order
 				{
-					Code1c 		  	 = code1cNode?.InnerText,
-					Comment 	  	 = commentNode?.InnerText,
-					Client 		  	 = client,
-					DeliveryDate  	 = deliveryDate,
-					DeliverySchedule = deliverySchedule,
-					DeliveryPoint 	 = deliveryPoint,
-					Address1c 	  	 = addressNode?.InnerText
+					Code1c 		  	 	= code1cNode?.InnerText,
+					Comment 	  	 	= commentNode?.InnerText,
+					Client 		  	 	= client,
+					DeliveryDate  	 	= deliveryDate,
+					DeliverySchedule 	= deliverySchedule,
+					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
+					DeliveryPoint 	 	= deliveryPoint,
+					Address1c 	  	 	= addressNode?.InnerText
 				};
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");

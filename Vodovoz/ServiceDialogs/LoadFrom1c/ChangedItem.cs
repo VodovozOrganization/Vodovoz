@@ -98,12 +98,19 @@ namespace ServiceDialogs.LoadFrom1c
 					newOrder.DeliveryDate?.ToString() ?? noValue));
 				oldOrder.DeliveryDate = newOrder.DeliveryDate;
 			}
-			if (oldOrder.DeliverySchedule != newOrder.DeliverySchedule && newOrder.DeliverySchedule != null)
+			if (newOrder.DeliverySchedule != null && oldOrder.DeliverySchedule != newOrder.DeliverySchedule)
 			{
 				result.Add(new FieldChange("Изменено время доставки",
 					oldOrder.DeliverySchedule?.Name ?? noValue,
 					newOrder.DeliverySchedule?.Name ?? noValue));
 				oldOrder.DeliverySchedule = newOrder.DeliverySchedule;
+			}
+			if (oldOrder.DeliverySchedule1c != newOrder.DeliverySchedule1c)
+			{
+				result.Add(new FieldChange("Изменено время доставки из 1С",
+					oldOrder.DeliverySchedule1c,
+					newOrder.DeliverySchedule1c));
+				oldOrder.DeliverySchedule1c = newOrder.DeliverySchedule1c;
 			}
 			if (oldOrder.DeliveryPoint != newOrder.DeliveryPoint)
 			{

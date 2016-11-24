@@ -106,6 +106,17 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
 		}
 
+		private string deliverySchedule1c;
+
+		[Display(Name = "Время доставки из 1С")]
+		public virtual string DeliverySchedule1c
+		{
+			get { return string.IsNullOrWhiteSpace(deliverySchedule1c)
+					? "Время доставки из 1С не загружено"
+					: deliverySchedule1c; }
+			set { SetField(ref deliverySchedule1c, value, () => DeliverySchedule1c); }
+		}
+
 		bool selfDelivery;
 
 		[Display (Name = "Самовывоз")]
