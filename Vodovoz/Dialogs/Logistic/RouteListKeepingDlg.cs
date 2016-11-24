@@ -169,16 +169,27 @@ namespace Vodovoz
 
 			UoWGeneric.Save();
 
-			foreach (var item in items.Where(item=>item.ChangedDeliverySchedule || item.HasChanged))
+			var changedList = items.Where(item => item.ChangedDeliverySchedule || item.HasChanged).ToList();
+			if (changedList.Count == 0)
+				return true;
+
+			var currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric);
+			if (currentEmployee == null)
+			{
+				MessageDialogWorks.RunInfoDialog("Ваш пользователь не привязан к сотруднику, уведомления об изменениях в маршрутном листе не будут отправлены водителю.");
+				return true;
+			}
+				
+			foreach (var item in changedList)
 			{
 				if (item.HasChanged)
 					getChatService().SendOrderStatusNotificationToDriver(
-						EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric).Id,
+						currentEmployee.Id,
 						item.RouteListItem.Id
 					);
 				if (item.ChangedDeliverySchedule)
 					getChatService().SendDeliveryScheduleNotificationToDriver(
-						EmployeeRepository.GetEmployeeForCurrentUser(UoWGeneric).Id,
+						currentEmployee.Id,
 					item.RouteListItem.Id
 					);
 			}
