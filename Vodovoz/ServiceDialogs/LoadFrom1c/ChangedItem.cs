@@ -98,7 +98,7 @@ namespace ServiceDialogs.LoadFrom1c
 					newOrder.DeliveryDate?.ToString() ?? noValue));
 				oldOrder.DeliveryDate = newOrder.DeliveryDate;
 			}
-			if (oldOrder.DeliverySchedule != newOrder.DeliverySchedule)
+			if (oldOrder.DeliverySchedule != newOrder.DeliverySchedule && newOrder.DeliverySchedule != null)
 			{
 				result.Add(new FieldChange("Изменено время доставки",
 					oldOrder.DeliverySchedule?.Name ?? noValue,

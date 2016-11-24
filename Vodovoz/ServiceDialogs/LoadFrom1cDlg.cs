@@ -842,28 +842,6 @@ namespace Vodovoz
 				progressbar.Adjustment.Value++;
 				QSMain.WaitRedraw ();
 
-
-				if (!checkOnlyAddress.Active)
-				{
-					var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c);
-
-					var change = ChangedItem.CompareAndChange(exist, loaded);
-					if (change != null) {
-						ChangedOrders++;
-						Changes.Add(change);
-					}
-
-					if (exist != null)
-					{
-						if (!rewrite)
-							continue;
-
-						loaded.Id = exist.Id;
-					}
-					else
-						NewOrders++;
-				}
-
 				var existCounterparty = ExistCouterpaties.FirstOrDefault(n => n.Code1c == loaded.Client.Code1c);
 				if (existCounterparty != null)
 					loaded.Client = existCounterparty;
@@ -890,10 +868,6 @@ namespace Vodovoz
 				if (loaded.Address1c.ToLower().Contains("самовывоз"))
 					loaded.SelfDelivery = true;
 
-//				var time = DeliverySchedules.FirstOrDefault(x => x.Name == loaded.Comment);
-//				if (time != null)
-//					loaded.DeliverySchedule = time;
-
 				foreach (var item in loaded.OrderItems)
 				{
 					var existNom = ExistNomenclatures.FirstOrDefault(n => n.Code1c == item.Nomenclature.Code1c);
@@ -903,14 +877,29 @@ namespace Vodovoz
 					}
 				}
 
-				if (loaded.DeliveryPoint == null)
-					NewAddresses++;
+				var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c);
 
-				if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null 
-					&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
-					loaded.ChangeStatus(OrderStatus.Accepted);
+				if (exist != null)
+				{
+					var change = ChangedItem.CompareAndChange(exist, loaded);
+					if (change != null) {
+						ChangedOrders++;
+						Changes.Add(change);
+						UoW.Save(exist);
+					}
+				}
+				else
+				{
+					NewOrders++;
+					if (loaded.DeliveryPoint == null)
+						NewAddresses++;
 
-				UoW.Save (loaded);
+					if (loaded.DeliveryPoint != null && loaded.DeliverySchedule != null 
+						&& !String.IsNullOrWhiteSpace(loaded.DeliveryPoint.CompiledAddress))
+						loaded.ChangeStatus(OrderStatus.Accepted);
+
+					UoW.Save (loaded);
+				}
 			}
 			var notLoaded = GetNotLoadedOrders(OrdersInDataBase);
 			if (notLoaded != null)
