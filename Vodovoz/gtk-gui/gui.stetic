@@ -32585,6 +32585,7 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-print Menu</property>
                 <property name="Label" translatable="yes">Печать</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonPrintClicked" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
