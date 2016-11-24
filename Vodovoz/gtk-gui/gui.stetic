@@ -18749,6 +18749,7 @@ RegistrationNumber</property>
                 <child>
                   <widget class="Gtk.Label" id="label6">
                     <property name="MemberName" />
+                    <property name="Xalign">1</property>
                     <property name="LabelProp" translatable="yes">Заказы пропавшие из загрузки:</property>
                   </widget>
                   <packing>

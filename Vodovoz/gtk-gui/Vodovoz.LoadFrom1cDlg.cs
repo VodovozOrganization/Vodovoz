@@ -346,6 +346,7 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.label6 = new global::Gtk.Label ();
 			this.label6.Name = "label6";
+			this.label6.Xalign = 1F;
 			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Заказы пропавшие из загрузки:");
 			this.table1.Add (this.label6);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.table1 [this.label6]));
