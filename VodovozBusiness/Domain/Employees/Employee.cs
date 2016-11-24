@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
+using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -217,10 +218,13 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult ("Должно быть заполнено хотя бы одно из следующих полей: " +
 				"Фамилия, Имя, Отчество)", new[] { "Name", "LastName", "Patronymic" });
 
-			Employee employee = Repository.EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
-			if(employee != this && employee != null)
-				yield return new ValidationResult ("Водитель с таким логином для Android уже существует",
-					new[] { "AndroidLogin" });
+			if(!String.IsNullOrEmpty(AndroidLogin))
+			{
+				Employee exist = Repository.EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);
+				if(exist != null && exist.Id != Id)
+					yield return new ValidationResult (String.Format("Другой водитель с логином {0} для Android уже есть в БД.", AndroidLogin),
+						new[] { this.GetPropertyName(x => x.AndroidLogin)});
+			}
 		}
 
 		#endregion
