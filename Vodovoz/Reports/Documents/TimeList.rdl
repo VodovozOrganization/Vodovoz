@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>0mm</TopMargin>
+  <LeftMargin>0mm</LeftMargin>
+  <RightMargin>0mm</RightMargin>
+  <BottomMargin>0mm</BottomMargin>
+  <ReportParameters>
+    <ReportParameter Name="route_list_id">
+      <DataType>Integer</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+  </ReportParameters>
+  <PageHeader>
+    <Height>.0in</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageHeader>
+  <Body>
+    <Height>160.0pt</Height>
+    <ReportItems >
+      <Textbox Name="DocumentName">
+        <Height>25.54pt</Height>
+        <Width>140.78pt</Width>
+        <Value>Лист времени</Value>
+        <ZIndex>1</ZIndex>
+        <Left>250.9pt</Left>
+        <Top>13.2pt</Top>
+        <Style>
+          <FontSize>20pt</FontSize>
+        </Style>
+      </Textbox>
+      <Table Name="Table1">
+        <DataSetName>Addresses</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>300.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>87.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>104.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>79.4pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox1">
+                      <Value>Адрес</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Время доставки</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextDecoration>None</TextDecoration>
+                        <WritingMode>lr-tb</WritingMode>
+                        <VerticalAlign>Top</VerticalAlign>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                      <DataElementOutput>Auto</DataElementOutput>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Фактическое время</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Подпись</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>=Fields!address.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>=Fields!schedule.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>22.8pt</Left>
+        <Top>62.3pt</Top>
+      </Table>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>0pt</Height>
+    <PrintOnFirstPage>false</PrintOnFirstPage>
+    <PrintOnLastPage>false</PrintOnLastPage>
+  </PageFooter>
+  <DataSets >
+    <DataSet Name="Addresses">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    delivery_points.compiled_address as address,
+    delivery_schedule.name as schedule
+FROM route_list_addresses
+LEFT JOIN orders ON orders.id = route_list_addresses.order_id
+LEFT JOIN delivery_points ON delivery_points.id=orders.delivery_point_id
+LEFT JOIN delivery_schedule ON delivery_schedule.id=orders.delivery_schedule_id
+WHERE route_list_id = @route_list_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="route_list_id">
+            <Value>=Parameters!route_list_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="address">
+          <DataField>address</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="schedule">
+          <DataField>schedule</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=vad;password=123;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+</Report>

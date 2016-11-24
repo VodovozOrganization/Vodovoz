@@ -14,6 +14,33 @@ namespace Vodovoz.Additions.Logistic
 	{
 		public static void Print(IUnitOfWork uow, int routeListId, ITdiTab myTab)
 		{
+			ShowAndPrintRouteList(uow, routeListId, myTab);
+			ShowAndPrintTimeList(routeListId, myTab);
+		}
+
+		public static void ShowAndPrintTimeList(int routeListId, ITdiTab myTab)
+		{
+			string rdlText = String.Empty;
+			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/Documents/TimeList.rdl"))) {
+				rdlText = rdr.ReadToEnd ();
+			}
+
+			var tempFile = System.IO.Path.GetTempFileName ();
+			using (StreamWriter sw = new StreamWriter (tempFile)) {
+				sw.Write (rdlText);
+			}
+
+			ReportInfo timeList = new ReportInfo ();
+			timeList.Parameters = new Dictionary<string, object> ();
+			timeList.Parameters.Add ("route_list_id", routeListId);
+			timeList.Title = "Лист времени";
+			timeList.Path = tempFile;
+			var report = new QSReport.ReportViewDlg (timeList);
+			myTab.TabParent.AddSlaveTab (myTab, report);
+		}
+
+		public static void ShowAndPrintRouteList(IUnitOfWork uow, int routeListId, ITdiTab myTab)
+		{
 			var RouteColumns = RouteColumnRepository.ActiveColumns (uow);
 
 			if (RouteColumns.Count < 1)
