@@ -96,7 +96,21 @@ namespace Vodovoz
 			}
 		}
 
-		public bool? RestrictSelfDelivery { get; set;}
+		bool? restrictSelfDelivery;
+
+		public bool? RestrictSelfDelivery
+		{
+			get
+			{
+				return checkOnlySelfDelivery.Active ? true : restrictSelfDelivery;
+			}
+			set
+			{
+				restrictSelfDelivery = value;
+				checkOnlySelfDelivery.Active = value == true;
+				checkOnlySelfDelivery.Sensitive = false;
+			}
+		}
 
 		public int[] ExceptIds{ get; set; }
 
@@ -128,6 +142,11 @@ namespace Vodovoz
 		}
 
 		protected void OnCheckWithoutCoordinatesToggled(object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnCheckOnlySelfDeliveryToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
 		}
