@@ -866,7 +866,7 @@ namespace Vodovoz
 					continue;
 				}
 
-				if (loaded.Address1c.ToLower().Contains("самовывоз"))
+				if (loaded.Address1c != null && loaded.Address1c.ToLower().Contains("самовывоз"))
 					loaded.SelfDelivery = true;
 
 				foreach (var item in loaded.OrderItems)
