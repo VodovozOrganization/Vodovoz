@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using QSOrmProject;
@@ -7,33 +7,41 @@ using QSReport;
 using QSTDI;
 using Vodovoz.Repository.Logistics;
 using System.Linq;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Additions.Logistic
 {
 	public static class PrintRouteListHelper
 	{
-		public static void Print(IUnitOfWork uow, int routeListId, ITdiTab myTab)
+		public static void Print(IUnitOfWork uow, int routeListId)
 		{
-			ShowAndPrintRouteList(uow, routeListId, myTab);
-			ShowAndPrintTimeList(routeListId, myTab);
+			List<RouteListPrintableDocs> docsList = new List<RouteListPrintableDocs>
+				{
+					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.LoadDocument),
+					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.TimeList),
+					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.RouteList)
+				};
+			
+//			DocumentPrinter.PrintAll(docsList);
 		}
 
-		public static void ShowAndPrintTimeList(int routeListId, ITdiTab myTab)
+		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
-			var document = new QSReport.ReportInfo {
+			return new ReportInfo {
 				Title = String.Format ("Лист времени для МЛ№ {0}", routeListId),
 				Identifier = "Documents.TimeList",
 				Parameters = new Dictionary<string, object> {
 					{ "route_list_id", routeListId }
 				}
 			};
+		}
 
 			myTab.TabParent.OpenTab(
 				TdiTabBase.GenerateHashName<ReportViewDlg>(),
 				() => new QSReport.ReportViewDlg(document));
 		}
 
-		public static void ShowAndPrintRouteList(IUnitOfWork uow, int routeListId, ITdiTab myTab)
+		public static ReportInfo GetRDLRouteList(IUnitOfWork uow, int routeListId)
 		{
 			var RouteColumns = RouteColumnRepository.ActiveColumns (uow);
 
@@ -126,22 +134,18 @@ namespace Vodovoz.Additions.Logistic
 			Console.WriteLine(RdlText);
 			#endif
 
-			var document = new QSReport.ReportInfo {
+			return new ReportInfo {
 				Title = String.Format ("Маршрутный лист № {0}", routeListId),
 				Path = TempFile,
 				Parameters = new Dictionary<string, object> {
 					{ "RouteListId", routeListId }
 				}
 			};
-
-			myTab.TabParent.OpenTab(
-				TdiTabBase.GenerateHashName<ReportViewDlg>(),
-				() => new QSReport.ReportViewDlg(document));
 		}
-
-		public static void ShowAndPrintWater(int routeListId, ITdiTab myTab)
+			
+		public static ReportInfo GetRDLLoadDocument(int routeListId)
 		{
-			var document = new QSReport.ReportInfo {
+			return new ReportInfo {
 				Title = String.Format ("Выгрузка для МЛ№ {0}", routeListId),
 				Identifier = "RouteList.CarLoadDocument",
 				Parameters = new Dictionary<string, object> {
@@ -149,11 +153,96 @@ namespace Vodovoz.Additions.Logistic
 					{ "nomenclature_category", "water" }
 				}
 			};
-
-			myTab.TabParent.OpenTab(
-				TdiTabBase.GenerateHashName<ReportViewDlg>(),
-				() => new QSReport.ReportViewDlg(document, true));
 		}
+
+	}
+
+	public enum RouteListPrintableDocuments
+	{
+		[Display (Name = "Все")]
+		All,
+		[Display (Name = "Маршрутный лист")]
+		RouteList,
+		[Display (Name = "Лист времени")]
+		TimeList,
+		[Display (Name = "Документ погрузки")]
+		LoadDocument
+	}
+
+	public class RouteListPrintableDocs : IPrintableDocument
+	{
+		public RouteListPrintableDocs(IUnitOfWork uow, int routeListId, RouteListPrintableDocuments type)
+		{
+			this.UoW 		 = uow;
+			this.routeListId = routeListId;
+			this.type 		 = type;
+		}
+
+		#region IPrintableDocument implementation
+
+		public ReportInfo GetReportInfo()
+		{
+			ReportInfo document = null;
+			switch (type)
+			{
+				case RouteListPrintableDocuments.LoadDocument:
+					document = PrintRouteListHelper.GetRDLLoadDocument(routeListId);
+					break;
+				case RouteListPrintableDocuments.RouteList:
+					document = PrintRouteListHelper.GetRDLRouteList(UoW, routeListId);
+					break;
+				case RouteListPrintableDocuments.TimeList:
+					document = PrintRouteListHelper.GetRDLTimeList(routeListId);
+					break;
+				default:
+					throw new NotImplementedException("Неизвестный тип документа");
+					break;
+			}
+			return document;
+		}
+
+		public ReportInfo GetReportInfoForPreview()
+		{
+			return GetReportInfo();
+		}
+
+		public PrinterType PrintType {
+			get	{ return PrinterType.RDL; }
+		}
+
+		public DocumentOrientation Orientation {
+			get	{ return DocumentOrientation.Portrait; }
+		}
+
+		public string Name {
+			get
+			{
+				string name = string.Empty;
+				switch (type)
+				{
+					case RouteListPrintableDocuments.LoadDocument:
+						name = "Документ погрузки";
+						break;
+					case RouteListPrintableDocuments.RouteList:
+						name = "Маршрутный лист";
+						break;
+					case RouteListPrintableDocuments.TimeList:
+						name = "Лист времени";
+						break;
+					default:
+						throw new NotImplementedException("Неизвестный тип документа");
+						break;
+				}
+				return name;
+			}
+		}
+
+		#endregion
+
+		private IUnitOfWork UoW;
+		private int routeListId;
+		private RouteListPrintableDocuments type;
+
 	}
 }
 
