@@ -52,8 +52,8 @@
         <Width>235.61pt</Width>
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>18.3pt</Left>
-        <Top>136.9pt</Top>
+        <Left>15.9pt</Left>
+        <Top>106.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -66,8 +66,8 @@
         <Width>221.33pt</Width>
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>275.3pt</Left>
-        <Top>137.0pt</Top>
+        <Left>272.9pt</Left>
+        <Top>106.7pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -102,8 +102,8 @@
         <Width>68.50pt</Width>
         <Value>Экземпляр водителя</Value>
         <ZIndex>1</ZIndex>
-        <Left>545.2pt</Left>
-        <Top>178.6pt</Top>
+        <Left>540.5pt</Left>
+        <Top>137.5pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -131,8 +131,8 @@
             <Default>2pt</Default>
           </BorderWidth>
         </Style>
-        <Left>0.0pt</Left>
-        <Top>178.0pt</Top>
+        <Left>0.8pt</Left>
+        <Top>136.9pt</Top>
       </Line>
       <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.97pt</Height>
@@ -316,16 +316,16 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>38.39pt</Left>
-        <Top>87.37pt</Top>
+        <Left>36.0pt</Left>
+        <Top>57.1pt</Top>
       </Table>
       <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.97pt</Height>
         <Width>453.25pt</Width>
-        <Value>='Выгрузка тары по маршрутному листу №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
+        <Value>='Выгрузка ' + Iif(Parameters!nomenclature_category = 'water', 'тары', 'оборудования')+ ' по маршрутному листу №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>48.5pt</Left>
-        <Top>201.3pt</Top>
+        <Left>43.8pt</Left>
+        <Top>160.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -339,8 +339,8 @@
         <Width>227.38pt</Width>
         <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
         <ZIndex>1</ZIndex>
-        <Left>21.9pt</Left>
-        <Top>232.9pt</Top>
+        <Left>17.2pt</Left>
+        <Top>191.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -353,8 +353,8 @@
         <Width>255.99pt</Width>
         <Value>="Дата выгрузки:" + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>282.3pt</Left>
-        <Top>232.4pt</Top>
+        <Left>277.6pt</Left>
+        <Top>191.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -527,16 +527,16 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>40.65pt</Left>
-        <Top>282.35pt</Top>
+        <Left>36.0pt</Left>
+        <Top>206.9pt</Top>
       </Table>
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>22.55pt</Height>
         <Width>235.61pt</Width>
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>22.3pt</Left>
-        <Top>344.7pt</Top>
+        <Left>17.6pt</Left>
+        <Top>269.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -549,26 +549,13 @@
         <Width>221.33pt</Width>
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>277.8pt</Left>
-        <Top>344.8pt</Top>
+        <Left>273.1pt</Left>
+        <Top>269.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>16pt</FontSize>
-        </Style>
-      </Textbox>
-      <Textbox Name="Textbox29" >
-        <Height>12pt</Height>
-        <Width>1in</Width>
-        <Value>=Parameters!nomenclature_category</Value>
-        <ZIndex>1</ZIndex>
-        <Left>38.39pt</Left>
-        <Top>70.81pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
