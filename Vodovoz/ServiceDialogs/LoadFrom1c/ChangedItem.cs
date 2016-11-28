@@ -125,10 +125,8 @@ namespace ServiceDialogs.LoadFrom1c
 				oldOrder.Address1c = newOrder.Address1c;
 			}
 
-			List<OrderItem> oldOrderItems = new List<OrderItem>();
-			oldOrderItems.AddRange(oldOrder.OrderItems);
-			List<OrderItem> newOrderItems = new List<OrderItem>();
-			newOrderItems.AddRange(newOrder.OrderItems);
+			List<OrderItem> oldOrderItems = oldOrder.OrderItems.ToList();
+			List<OrderItem> newOrderItems = newOrder.OrderItems.ToList();
 
 			//Сравнение строк заказов
 			foreach (var newItem in newOrderItems) {
@@ -139,6 +137,7 @@ namespace ServiceDialogs.LoadFrom1c
 						string.Format("Номенклатура \"{0}\", количество {1}, цена {2}, скидка {3}%",
 							newItem.Nomenclature.Name, newItem.Count, newItem.Price, newItem.Discount)));
 					oldOrder.OrderItems.Add(newItem);
+					newItem.Order = oldOrder;
 					continue;
 				}
 				if(oldItem.Count != newItem.Count)

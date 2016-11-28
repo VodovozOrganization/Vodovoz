@@ -511,6 +511,11 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
+		public override string ToString()
+		{
+			return String.Format("Заказ №{0}({1})", Id, Code1c);
+		}
+
 		public virtual string Title { 
 			get { return String.Format ("Заказ №{0}", Id); }
 		}
