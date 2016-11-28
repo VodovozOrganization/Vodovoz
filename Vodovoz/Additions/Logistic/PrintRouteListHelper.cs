@@ -20,23 +20,17 @@ namespace Vodovoz.Additions.Logistic
 
 		public static void ShowAndPrintTimeList(int routeListId, ITdiTab myTab)
 		{
-			string rdlText = String.Empty;
-			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/Documents/TimeList.rdl"))) {
-				rdlText = rdr.ReadToEnd ();
-			}
+			var document = new QSReport.ReportInfo {
+				Title = String.Format ("Лист времени для МЛ№ {0}", routeListId),
+				Identifier = "Documents.TimeList",
+				Parameters = new Dictionary<string, object> {
+					{ "route_list_id", routeListId }
+				}
+			};
 
-			var tempFile = System.IO.Path.GetTempFileName ();
-			using (StreamWriter sw = new StreamWriter (tempFile)) {
-				sw.Write (rdlText);
-			}
-
-			ReportInfo timeList = new ReportInfo ();
-			timeList.Parameters = new Dictionary<string, object> ();
-			timeList.Parameters.Add ("route_list_id", routeListId);
-			timeList.Title = "Лист времени";
-			timeList.Path = tempFile;
-			var report = new QSReport.ReportViewDlg (timeList);
-			myTab.TabParent.AddSlaveTab (myTab, report);
+			myTab.TabParent.OpenTab(
+				TdiTabBase.GenerateHashName<ReportViewDlg>(),
+				() => new QSReport.ReportViewDlg(document));
 		}
 
 		public static void ShowAndPrintRouteList(IUnitOfWork uow, int routeListId, ITdiTab myTab)
@@ -131,13 +125,34 @@ namespace Vodovoz.Additions.Logistic
 			#if DEBUG
 			Console.WriteLine(RdlText);
 			#endif
-			ReportInfo info = new ReportInfo ();
-			info.Parameters = new Dictionary<string, object> ();
-			info.Parameters.Add ("RouteListId", routeListId);
-			info.Title = "Маршрутный лист";
-			info.Path = TempFile;
-			var report = new QSReport.ReportViewDlg (info);
-			myTab.TabParent.AddSlaveTab (myTab, report);
+
+			var document = new QSReport.ReportInfo {
+				Title = String.Format ("Маршрутный лист № {0}", routeListId),
+				Path = TempFile,
+				Parameters = new Dictionary<string, object> {
+					{ "RouteListId", routeListId }
+				}
+			};
+
+			myTab.TabParent.OpenTab(
+				TdiTabBase.GenerateHashName<ReportViewDlg>(),
+				() => new QSReport.ReportViewDlg(document));
+		}
+
+		public static void ShowAndPrintWater(int routeListId, ITdiTab myTab)
+		{
+			var document = new QSReport.ReportInfo {
+				Title = String.Format ("Выгрузка для МЛ№ {0}", routeListId),
+				Identifier = "RouteList.CarLoadDocument",
+				Parameters = new Dictionary<string, object> {
+					{ "route_list_id", routeListId },
+					{ "nomenclature_category", "water" }
+				}
+			};
+
+			myTab.TabParent.OpenTab(
+				TdiTabBase.GenerateHashName<ReportViewDlg>(),
+				() => new QSReport.ReportViewDlg(document, true));
 		}
 	}
 }
