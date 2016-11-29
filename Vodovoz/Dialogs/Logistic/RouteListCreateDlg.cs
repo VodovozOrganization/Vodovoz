@@ -98,7 +98,7 @@ namespace Vodovoz
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 
 			referenceDriver.Sensitive = false;
-			buttonPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;
+			enumPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;
 
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
@@ -171,7 +171,7 @@ namespace Vodovoz
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
-				buttonPrint.Sensitive = false;
+				enumPrint.Sensitive = false;
 				buttonAccept.Label = "Подтвердить";
 			}
 			if(Entity.Status == RouteListStatus.InLoading)
@@ -180,7 +180,7 @@ namespace Vodovoz
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
-				buttonPrint.Sensitive = true;
+				enumPrint.Sensitive = true;
 				buttonAccept.Label = "Редактировать";
 			}
 		}
@@ -240,11 +240,6 @@ namespace Vodovoz
 				UpdateButtonStatus();
 				return;
 			}
-		}
-
-		protected void OnButtonPrintClicked (object sender, EventArgs e)
-		{
-			//Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.Id, this);
 		}
 	}
 }
