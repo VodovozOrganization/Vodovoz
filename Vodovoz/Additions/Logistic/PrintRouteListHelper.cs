@@ -15,28 +15,28 @@ namespace Vodovoz.Additions.Logistic
 	{
 		public static void Print(IUnitOfWork uow, int routeListId, ITdiTab myTab)
 		{
-//			List<RouteListPrintableDocs> docsList = new List<RouteListPrintableDocs>
-//				{
-//					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.LoadDocument),
-//					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.TimeList),
-//					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.RouteList)
-//				};
-//			
-//			DocumentPrinter.PrintAll(docsList);
+			List<RouteListPrintableDocs> docsList = new List<RouteListPrintableDocs>
+				{
+					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.LoadDocument),
+					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.TimeList),
+					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.RouteList)
+				};
+			
+			DocumentPrinter.PrintAll(docsList);
 
-			List<ReportInfo> docs = new List<ReportInfo>
-			{
-				GetRDLLoadDocument(routeListId),
-				GetRDLRouteList(uow, routeListId),
-				GetRDLTimeList(routeListId)
-			};
-
-			foreach (var doc in docs)
-			{
-				myTab.TabParent.OpenTab(
-					TdiTabBase.GenerateHashName<ReportViewDlg>(),
-					() => new ReportViewDlg(doc, true));
-			}
+//			List<ReportInfo> docs = new List<ReportInfo>
+//			{
+//				GetRDLLoadDocument(routeListId),
+//				GetRDLRouteList(uow, routeListId),
+//				GetRDLTimeList(routeListId)
+//			};
+//
+//			foreach (var doc in docs)
+//			{
+//				myTab.TabParent.OpenTab(
+//					TdiTabBase.GenerateHashName<ReportViewDlg>(),
+//					() => new ReportViewDlg(doc, true));
+//			}
 		}
 
 		public static ReportInfo GetRDLTimeList(int routeListId)
@@ -159,7 +159,8 @@ namespace Vodovoz.Additions.Logistic
 				Identifier = "RouteList.CarLoadDocument",
 				Parameters = new Dictionary<string, object> {
 					{ "route_list_id", routeListId },
-				}
+				},
+				UseUserVariables = true
 			};
 		}
 
