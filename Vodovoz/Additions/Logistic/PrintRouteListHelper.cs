@@ -42,7 +42,7 @@ namespace Vodovoz.Additions.Logistic
 		public static ReportInfo GetRDLTimeList(int routeListId)
 		{
 			return new ReportInfo {
-				Title = String.Format ("Лист времени для МЛ№ {0}", routeListId),
+				Title = String.Format ("Лист времени для МЛ № {0}", routeListId),
 				Identifier = "Documents.TimeList",
 				Parameters = new Dictionary<string, object> {
 					{ "route_list_id", routeListId }
@@ -155,11 +155,10 @@ namespace Vodovoz.Additions.Logistic
 		public static ReportInfo GetRDLLoadDocument(int routeListId)
 		{
 			return new ReportInfo {
-				Title = String.Format ("Выгрузка для МЛ№ {0}", routeListId),
+				Title = String.Format ("Документ погрузки для МЛ № {0}", routeListId),
 				Identifier = "RouteList.CarLoadDocument",
 				Parameters = new Dictionary<string, object> {
 					{ "route_list_id", routeListId },
-					{ "nomenclature_category", "water" }
 				}
 			};
 		}
