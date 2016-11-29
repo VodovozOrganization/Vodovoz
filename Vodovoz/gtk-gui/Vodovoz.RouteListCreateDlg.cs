@@ -56,6 +56,8 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonPrint;
 		
+		private global::QSOrmProject.EnumMenuButton enumPrint;
+		
 		private global::Gtk.Button buttonAccept;
 
 		protected virtual void Build ()
@@ -389,25 +391,38 @@ namespace Vodovoz
 			w27.Expand = false;
 			w27.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
+			this.enumPrint = new global::QSOrmProject.EnumMenuButton ();
+			this.enumPrint.CanFocus = true;
+			this.enumPrint.Name = "enumPrint";
+			this.enumPrint.UseUnderline = true;
+			this.enumPrint.UseMarkup = false;
+			this.enumPrint.Label = global::Mono.Unix.Catalog.GetString ("Распечатать");
+			this.hbox8.Add (this.enumPrint);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.enumPrint]));
+			w28.PackType = ((global::Gtk.PackType)(1));
+			w28.Position = 1;
+			w28.Expand = false;
+			w28.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
 			this.buttonAccept = new global::Gtk.Button ();
 			this.buttonAccept.CanFocus = true;
 			this.buttonAccept.Name = "buttonAccept";
 			this.buttonAccept.UseUnderline = true;
 			this.buttonAccept.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
-			global::Gtk.Image w28 = new global::Gtk.Image ();
-			w28.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
-			this.buttonAccept.Image = w28;
+			global::Gtk.Image w29 = new global::Gtk.Image ();
+			w29.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonAccept.Image = w29;
 			this.hbox8.Add (this.buttonAccept);
-			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonAccept]));
-			w29.PackType = ((global::Gtk.PackType)(1));
-			w29.Position = 1;
-			w29.Expand = false;
-			w29.Fill = false;
-			this.vbox1.Add (this.hbox8);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonAccept]));
+			w30.PackType = ((global::Gtk.PackType)(1));
 			w30.Position = 2;
 			w30.Expand = false;
 			w30.Fill = false;
+			this.vbox1.Add (this.hbox8);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

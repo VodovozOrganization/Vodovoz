@@ -9,6 +9,7 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Additions.Logistic;
 
 namespace Vodovoz
 {
@@ -109,6 +110,37 @@ namespace Vodovoz
 				buttonAccept.Label = "Редактировать";
 			}
 			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New || transfer);
+
+			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
+			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
+		}
+
+		private void PrintSelectedDocument (RouteListPrintableDocuments choise)
+		{
+			QSReport.ReportInfo document = null;
+
+			switch (choise)
+			{
+				case RouteListPrintableDocuments.All:
+					PrintRouteListHelper.Print(UoW, Entity.Id, this);
+					break;
+				case RouteListPrintableDocuments.LoadDocument:
+					document = PrintRouteListHelper.GetRDLLoadDocument(Entity.Id);
+					break;
+				case RouteListPrintableDocuments.RouteList:
+					document = PrintRouteListHelper.GetRDLRouteList(UoW, Entity.Id);
+					break;
+				case RouteListPrintableDocuments.TimeList:
+					document = PrintRouteListHelper.GetRDLTimeList(Entity.Id);
+					break;
+			}
+
+			if (document != null)
+			{
+				this.TabParent.OpenTab(
+					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+					() => new QSReport.ReportViewDlg(document, true));
+			}
 		}
 
 		public override bool Save ()
@@ -212,7 +244,7 @@ namespace Vodovoz
 
 		protected void OnButtonPrintClicked (object sender, EventArgs e)
 		{
-			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.Id, this);
+			//Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.Id, this);
 		}
 	}
 }
