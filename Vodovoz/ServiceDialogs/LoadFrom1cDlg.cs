@@ -659,6 +659,9 @@ namespace Vodovoz
 			if (client == null)
 				return;
 
+			if (addressNode?.InnerText.ToLower() == "cамовывоз")
+				return;
+
 			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
 			if (!LoadedOrderDates.Contains(deliveryDate))
 				LoadedOrderDates.Add(deliveryDate);
