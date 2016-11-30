@@ -4,28 +4,28 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
-  <TopMargin>0mm</TopMargin>
-  <LeftMargin>0mm</LeftMargin>
-  <RightMargin>0mm</RightMargin>
-  <BottomMargin>0mm</BottomMargin>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
   <PageHeader>
     <Height>.0in</Height>
     <PrintOnFirstPage>false</PrintOnFirstPage>
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>611.4pt</Height>
+    <Height>564.9pt</Height>
     <ReportItems>
       <Textbox Name="Textbox2">
         <Height>16.52pt</Height>
         <Width>329.01pt</Width>
         <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
         <ZIndex>1</ZIndex>
-        <Left>18.00pt</Left>
-        <Top>42.20pt</Top>
+        <Left>0.0pt</Left>
+        <Top>42.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -34,12 +34,12 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox3">
-        <Height>16.51pt</Height>
-        <Width>255.99pt</Width>
+        <Height>15.00pt</Height>
+        <Width>176.91pt</Width>
         <Value>="Дата погрузки:" + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>349.7pt</Left>
-        <Top>38.2pt</Top>
+        <Left>320.60pt</Left>
+        <Top>38.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -52,7 +52,7 @@
         <Width>235.61pt</Width>
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>15.9pt</Left>
+        <Left>0.0pt</Left>
         <Top>106.6pt</Top>
         <Style>
           <BorderStyle />
@@ -66,7 +66,7 @@
         <Width>221.33pt</Width>
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>272.9pt</Left>
+        <Left>243.8pt</Left>
         <Top>106.7pt</Top>
         <Style>
           <BorderStyle />
@@ -80,8 +80,8 @@
         <Width>68.50pt</Width>
         <Value>Экземпляр склада</Value>
         <ZIndex>1</ZIndex>
-        <Left>545.37pt</Left>
-        <Top>0.00pt</Top>
+        <Left>500.2pt</Left>
+        <Top>0.8pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -102,8 +102,8 @@
         <Width>68.50pt</Width>
         <Value>Экземпляр водителя</Value>
         <ZIndex>1</ZIndex>
-        <Left>540.5pt</Left>
-        <Top>137.5pt</Top>
+        <Left>500.2pt</Left>
+        <Top>136.80pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -131,16 +131,16 @@
             <Default>2pt</Default>
           </BorderWidth>
         </Style>
-        <Left>0.8pt</Left>
+        <Left>0.0pt</Left>
         <Top>136.9pt</Top>
       </Line>
       <Textbox Name="Textbox8" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>17.97pt</Height>
-        <Width>453.25pt</Width>
-        <Value>='Погрузка тары по маршрутному листу №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
+        <Height>16.47pt</Height>
+        <Width>478.14pt</Width>
+        <Value>='Погрузка тары по МЛ №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>49.60pt</Left>
-        <Top>7.60pt</Top>
+        <Left>20.50pt</Left>
+        <Top>8.35pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -316,16 +316,16 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>36.0pt</Left>
+        <Left>6.9pt</Left>
         <Top>57.1pt</Top>
       </Table>
       <Textbox Name="Textbox16" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>17.97pt</Height>
-        <Width>453.25pt</Width>
-        <Value>='Погрузка тары по маршрутному листу №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
+        <Width>496.94pt</Width>
+        <Value>='Погрузка тары по МЛ №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>43.8pt</Left>
-        <Top>160.2pt</Top>
+        <Left>14.70pt</Left>
+        <Top>160.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -339,8 +339,8 @@
         <Width>330.47pt</Width>
         <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
         <ZIndex>1</ZIndex>
-        <Left>17.20pt</Left>
-        <Top>192.56pt</Top>
+        <Left>0.0pt</Left>
+        <Top>192.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -350,11 +350,11 @@
       </Textbox>
       <Textbox Name="Textbox18" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>16.51pt</Height>
-        <Width>255.99pt</Width>
+        <Width>219.12pt</Width>
         <Value>="Дата погрузки:" + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>347.0pt</Left>
-        <Top>192.1pt</Top>
+        <Left>317.90pt</Left>
+        <Top>192.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -369,8 +369,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -529,7 +529,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>36.0pt</Left>
+        <Left>6.9pt</Left>
         <Top>206.9pt</Top>
       </Table>
       <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -537,7 +537,7 @@
         <Width>235.61pt</Width>
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>17.6pt</Left>
+        <Left>0.0pt</Left>
         <Top>269.2pt</Top>
         <Style>
           <BorderStyle />
@@ -551,7 +551,7 @@
         <Width>221.33pt</Width>
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>273.1pt</Left>
+        <Left>244.0pt</Left>
         <Top>269.3pt</Top>
         <Style>
           <BorderStyle />
@@ -565,8 +565,8 @@
         <Width>68.50pt</Width>
         <Value>Экземпляр склада</Value>
         <ZIndex>1</ZIndex>
-        <Left>545.9pt</Left>
-        <Top>294.9pt</Top>
+        <Left>500.2pt</Left>
+        <Top>294.90pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -594,16 +594,16 @@
             <Default>2pt</Default>
           </BorderWidth>
         </Style>
-        <Left>0.8pt</Left>
+        <Left>0.0pt</Left>
         <Top>294.3pt</Top>
       </Line>
       <Textbox Name="Textbox30" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>17.97pt</Height>
-        <Width>453.25pt</Width>
-        <Value>='Погрузка оборудования по маршрутному листу №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
+        <Height>19.47pt</Height>
+        <Width>510.44pt</Width>
+        <Value>='Погрузка оборудования по МЛ №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>3.8pt</Left>
-        <Top>308.4pt</Top>
+        <Left>0.00pt</Left>
+        <Top>306.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -617,7 +617,7 @@
         <Width>235.61pt</Width>
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>17.0pt</Left>
+        <Left>0.0pt</Left>
         <Top>405.4pt</Top>
         <Style>
           <BorderStyle />
@@ -631,7 +631,7 @@
         <Width>221.33pt</Width>
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>272.5pt</Left>
+        <Left>243.4pt</Left>
         <Top>405.5pt</Top>
         <Style>
           <BorderStyle />
@@ -645,7 +645,7 @@
         <Width>68.50pt</Width>
         <Value>Экземпляр водителя</Value>
         <ZIndex>1</ZIndex>
-        <Left>545.3pt</Left>
+        <Left>500.2pt</Left>
         <Top>431.1pt</Top>
         <Style>
           <BorderStyle>
@@ -674,16 +674,16 @@
             <Default>2pt</Default>
           </BorderWidth>
         </Style>
-        <Left>2.8pt</Left>
+        <Left>0.0pt</Left>
         <Top>430.6pt</Top>
       </Line>
       <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>17.97pt</Height>
-        <Width>453.25pt</Width>
-        <Value>='Погрузка оборудования по маршрутному листу №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
+        <Height>19.47pt</Height>
+        <Width>508.15pt</Width>
+        <Value>='Погрузка оборудования по МЛ №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.3pt</Left>
-        <Top>440.7pt</Top>
+        <Left>0.00pt</Left>
+        <Top>439.20pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -697,7 +697,7 @@
         <Width>235.61pt</Width>
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>10.0pt</Left>
+        <Left>0.0pt</Left>
         <Top>537.1pt</Top>
         <Style>
           <BorderStyle />
@@ -711,7 +711,7 @@
         <Width>221.33pt</Width>
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
-        <Left>265.5pt</Left>
+        <Left>236.4pt</Left>
         <Top>537.2pt</Top>
         <Style>
           <BorderStyle />
@@ -725,8 +725,8 @@
         <Width>341.85pt</Width>
         <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
         <ZIndex>1</ZIndex>
-        <Left>12.30pt</Left>
-        <Top>335.81pt</Top>
+        <Left>0.0pt</Left>
+        <Top>335.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -736,11 +736,11 @@
       </Textbox>
       <Textbox Name="Textbox38" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>16.51pt</Height>
-        <Width>255.99pt</Width>
+        <Width>236.40pt</Width>
         <Value>="Дата погрузки:" + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>355.0pt</Left>
-        <Top>332.1pt</Top>
+        <Left>325.90pt</Left>
+        <Top>332.10pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -753,8 +753,8 @@
         <Width>353.87pt</Width>
         <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>467.79pt</Top>
+        <Left>0.0pt</Left>
+        <Top>467.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -763,12 +763,12 @@
         </Style>
       </Textbox>
       <Textbox Name="Textbox40" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Height>16.51pt</Height>
-        <Width>255.99pt</Width>
+        <Height>15.01pt</Height>
+        <Width>172.44pt</Width>
         <Value>="Дата погрузки:" + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>356.5pt</Left>
-        <Top>466.6pt</Top>
+        <Left>327.40pt</Left>
+        <Top>466.60pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -776,7 +776,7 @@
           <FontSize>12pt</FontSize>
         </Style>
       </Textbox>
-      <Table Name="Table3" >
+      <Table Name="Table3">
         <DataSetName>Nomenclature_additional</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -935,10 +935,10 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>26.3pt</Left>
+        <Left>0.0pt</Left>
         <Top>352.1pt</Top>
       </Table>
-      <Table Name="Table4" >
+      <Table Name="Table4">
         <DataSetName>Nomenclature_additional</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1095,7 +1095,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>19.3pt</Left>
+        <Left>0.0pt</Left>
         <Top>486.0pt</Top>
       </Table>
     </ReportItems>
@@ -1138,7 +1138,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Nomenclature_water">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     realrow,
@@ -1170,7 +1170,7 @@ GROUP BY step2.realrow;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="name1">
           <DataField>name1</DataField>
           <TypeName>System.String</TypeName>
@@ -1189,7 +1189,7 @@ GROUP BY step2.realrow;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Nomenclature_additional" >
+    <DataSet Name="Nomenclature_additional">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -1251,7 +1251,7 @@ GROUP BY step2.realrow;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="route_list_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>

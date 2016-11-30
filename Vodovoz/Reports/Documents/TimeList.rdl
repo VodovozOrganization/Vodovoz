@@ -4,13 +4,13 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <Width>7.5in</Width>
-  <TopMargin>0mm</TopMargin>
-  <LeftMargin>0mm</LeftMargin>
-  <RightMargin>0mm</RightMargin>
-  <BottomMargin>0mm</BottomMargin>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
   <ReportParameters>
     <ReportParameter Name="route_list_id">
       <DataType>Integer</DataType>
@@ -24,7 +24,7 @@
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>160.0pt</Height>
+    <Height>103.2pt</Height>
     <ReportItems>
       <Textbox Name="DocumentName">
         <Height>25.54pt</Height>
@@ -44,12 +44,12 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>300.3pt</Width>
+            <Width>294.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>87.5pt</Width>
@@ -154,9 +154,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -171,9 +171,9 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <TextAlign>Center</TextAlign>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -208,8 +208,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>22.8pt</Left>
-        <Top>62.3pt</Top>
+        <Left>2.0pt</Left>
+        <Top>59.3pt</Top>
       </Table>
     </ReportItems>
   </Body>
