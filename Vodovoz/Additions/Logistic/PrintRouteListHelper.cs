@@ -220,7 +220,12 @@ namespace Vodovoz.Additions.Logistic
 		}
 
 		public DocumentOrientation Orientation {
-			get	{ return DocumentOrientation.Portrait; }
+			get
+			{
+				if (type == RouteListPrintableDocuments.RouteList)
+					return DocumentOrientation.Landscape;
+				return DocumentOrientation.Portrait;
+			}
 		}
 
 		public string Name {
