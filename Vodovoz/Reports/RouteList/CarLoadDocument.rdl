@@ -1138,7 +1138,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Nomenclature_water">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     realrow,
@@ -1148,7 +1148,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
     GROUP_CONCAT( IF(rank % 2 = 1, count, NULL)) as count2
 FROM
     (SELECT 
-        @rownum:=@rownum + 1 AS rank,
+        @rownum := @rownum + 1 AS rank,
             (@rownum - @rownum % 2) AS realrow,
             t.*
     FROM
@@ -1161,7 +1161,9 @@ FROM
     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
     WHERE
                    rla.route_list_id = @route_list_id
-       AND nomenclature.category = 'water'
+       AND (nomenclature.category = 'water'
+       OR   nomenclature.category = 'bottle'
+       OR   nomenclature.category = 'disposableBottleWater')
     GROUP BY nomenclature.id) t) AS step2
 GROUP BY step2.realrow;</CommandText>
         <QueryParameters>
@@ -1170,7 +1172,7 @@ GROUP BY step2.realrow;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name1">
           <DataField>name1</DataField>
           <TypeName>System.String</TypeName>
@@ -1190,7 +1192,7 @@ GROUP BY step2.realrow;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Nomenclature_additional">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     realrow,
@@ -1213,7 +1215,10 @@ FROM
     LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id
     WHERE
                    rla.route_list_id = @route_list_id
-       AND nomenclature.category = 'additional'
+       AND (nomenclature.category = 'additional'
+       OR   nomenclature.category = 'equipment'
+       OR   nomenclature.category = 'material'
+       OR   nomenclature.category = 'spare_parts')
     GROUP BY nomenclature.id) t) AS step2
 GROUP BY step2.realrow;</CommandText>
         <QueryParameters>
@@ -1222,7 +1227,7 @@ GROUP BY step2.realrow;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="name1">
           <DataField>name1</DataField>
           <TypeName>System.String</TypeName>
