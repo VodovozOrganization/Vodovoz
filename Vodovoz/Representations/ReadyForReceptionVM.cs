@@ -84,6 +84,7 @@ namespace Vodovoz.ViewModel
 						.Select (() => employeeAlias.LastName).WithAlias (() => resultAlias.LastName)
 						.Select (() => employeeAlias.Patronymic).WithAlias (() => resultAlias.Patronymic)
 						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.Car)
+						.Select (() => routeListAlias.Date).WithAlias(()=> resultAlias.Date)
 					)
 					.TransformUsing (Transformers.AliasToBean <ReadyForReceptionVMNode> ())
 					.List<ReadyForReceptionVMNode> ());
@@ -95,6 +96,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Маршрутный лист").AddTextRenderer (node => node.Id.ToString())
 			.AddColumn ("Водитель").AddTextRenderer (node => node.Driver)
 			.AddColumn ("Машина").AddTextRenderer (node => node.Car)
+			.AddColumn ("Дата").AddTextRenderer (node => node.Date.ToShortDateString())
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -127,6 +129,8 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public string Car { get; set; }
+
+		public DateTime Date { get; set; }
 	}
 }
 
