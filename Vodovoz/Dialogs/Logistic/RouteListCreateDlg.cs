@@ -248,7 +248,7 @@ namespace Vodovoz
 		protected void OnButtonChangeToEnRouteClicked (object sender, EventArgs e)
 		{
 			bool status = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading;
-
+			#if SHORT
 			if (status)
 			{
 				if (Entity.Status == RouteListStatus.New)
@@ -256,6 +256,7 @@ namespace Vodovoz
 				if (Entity.Status == RouteListStatus.InLoading)
 					Entity.ChangeStatus(RouteListStatus.EnRoute);
 			}
+			#endif
 		}
 	}
 }
