@@ -88,7 +88,7 @@ namespace Vodovoz
 				.AddColumn("Заказ")
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())					
 				.AddColumn("Адрес")
-					.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint.ShortAddress)					
+				.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)					
 				.AddColumn("Время")
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)					
 				.AddColumn("Статус")
@@ -123,9 +123,25 @@ namespace Vodovoz
 		}
 
 		public void UpdateNodes(){
+			List<string> emptyDP = new List<string>();
 			items = new List<RouteListKeepingItemNode>();
 			foreach (var item in Entity.Addresses)
+			{
 				items.Add(new RouteListKeepingItemNode{ RouteListItem = item });
+				if (item.Order.DeliveryPoint == null)
+				{
+					emptyDP.Add(string.Format(
+						"Для заказа {0} не определена точка доставки.",
+						item.Order.Id));
+				}
+			}
+			if(emptyDP.Count > 0){
+				string message = string.Join(Environment.NewLine, emptyDP);
+				message += Environment.NewLine + "Необходимо добавить точки доставки или сохранить вышеуказанные заказы снова.";
+				MessageDialogWorks.RunErrorDialog(message);
+				FailInitialize = true;
+				return;
+			}
 			ytreeviewAddresses.ItemsDataSource = items;
 		}
 
