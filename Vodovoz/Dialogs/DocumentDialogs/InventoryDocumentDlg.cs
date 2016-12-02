@@ -48,6 +48,22 @@ namespace Vodovoz
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
+			string errorMessage = "Не установлены единицы измерения у следующих номенклатур :" + Environment.NewLine;
+			int wrongNomenclatures = 0;
+			foreach (var item in UoWGeneric.Root.Items)
+			{
+				if(item.Nomenclature.Unit == null) {
+					errorMessage += string.Format("Номер: {0}. Название: {1}{2}",
+						item.Nomenclature.Id, item.Nomenclature.Name, Environment.NewLine);
+					wrongNomenclatures++;
+				}
+			}
+			if (wrongNomenclatures > 0) {
+				MessageDialogWorks.RunErrorDialog(errorMessage);
+				FailInitialize = true;
+				return;
+			}
+
 			inventoryitemsview.DocumentUoW = UoWGeneric;
 		}
 
