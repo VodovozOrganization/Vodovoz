@@ -97,6 +97,11 @@ namespace Vodovoz.Domain.Documents
 				if(item.Amount > item.AmountInStock)
 					yield return new ValidationResult (String.Format("На складе недостаточное количество <{0}>", item.Nomenclature.Name),
 						new[] { this.GetPropertyName (o => o.Items) });
+				if (item.Amount < 0)
+				{
+					yield return new ValidationResult (String.Format("Введено отрицательное количество <{0}>", item.Nomenclature.Name),
+						new[] { this.GetPropertyName (o => o.Items) });
+				}
 			}
 		}
 
