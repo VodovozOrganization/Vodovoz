@@ -39,7 +39,7 @@ namespace Vodovoz
 		#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
 			"00000969"
-		}
+		};
 		#endif
 
 		#region Свойства
