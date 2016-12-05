@@ -229,7 +229,8 @@ FROM route_list_addresses
 LEFT JOIN orders ON orders.id = route_list_addresses.order_id
 LEFT JOIN delivery_points ON delivery_points.id=orders.delivery_point_id
 LEFT JOIN delivery_schedule ON delivery_schedule.id=orders.delivery_schedule_id
-WHERE route_list_id = @route_list_id;</CommandText>
+WHERE route_list_id = @route_list_id
+ORDER BY order_in_route</CommandText>
         <QueryParameters>
           <QueryParameter Name="route_list_id">
             <Value>=Parameters!route_list_id</Value>

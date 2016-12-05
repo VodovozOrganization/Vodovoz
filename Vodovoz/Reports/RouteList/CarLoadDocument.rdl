@@ -17,7 +17,7 @@
     <PrintOnLastPage>false</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>564.9pt</Height>
+    <Height>524.3pt</Height>
     <ReportItems>
       <Textbox Name="Textbox2">
         <Height>16.52pt</Height>
@@ -618,7 +618,7 @@
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>405.4pt</Top>
+        <Top>386.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -632,7 +632,7 @@
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
         <Left>243.4pt</Left>
-        <Top>405.5pt</Top>
+        <Top>386.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -646,7 +646,7 @@
         <Value>Экземпляр водителя</Value>
         <ZIndex>1</ZIndex>
         <Left>500.2pt</Left>
-        <Top>431.1pt</Top>
+        <Top>411.7pt</Top>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -675,15 +675,15 @@
           </BorderWidth>
         </Style>
         <Left>0.0pt</Left>
-        <Top>430.6pt</Top>
+        <Top>411.2pt</Top>
       </Line>
       <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>19.47pt</Height>
         <Width>508.15pt</Width>
         <Value>='Погрузка оборудования по МЛ №' + First(Fields!id, "RouteList") + ' от ' + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>439.20pt</Top>
+        <Left>0.0pt</Left>
+        <Top>419.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -698,7 +698,7 @@
         <Value>Кладовщик ______________</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>537.1pt</Top>
+        <Top>499.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -712,7 +712,7 @@
         <Value>Водитель ______________</Value>
         <ZIndex>1</ZIndex>
         <Left>236.4pt</Left>
-        <Top>537.2pt</Top>
+        <Top>499.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -754,7 +754,7 @@
         <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>467.8pt</Top>
+        <Top>448.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -767,8 +767,8 @@
         <Width>172.44pt</Width>
         <Value>="Дата погрузки:" + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>327.40pt</Left>
-        <Top>466.60pt</Top>
+        <Left>327.4pt</Left>
+        <Top>447.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -776,105 +776,29 @@
           <FontSize>12pt</FontSize>
         </Style>
       </Textbox>
-      <Table Name="Table3">
-        <DataSetName>Nomenclature_additional</DataSetName>
+      <Table Name="Table3" >
+        <DataSetName>to_client</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor />
-          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>249.3pt</Width>
+            <Width>248.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.4pt</Width>
+            <Width>41.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>220.4pt</Width>
+            <Width>220.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.0pt</Width>
+            <Width>43.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox41">
-                      <Value>Номенклатура</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox42">
-                      <Value>Кол-во</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox43">
-                      <Value>Номенклатура</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox44">
-                      <Value>Кол-во</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-          <RepeatOnNewPage>true</RepeatOnNewPage>
-        </Header>
-        <Details>
           <TableRows>
             <TableRow>
               <Height>12 pt</Height>
@@ -882,12 +806,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
-                      <Value>=Fields!name1.Value</Value>
-                      <CanGrow>true</CanGrow>
+                      <Value>Номенклатура</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -895,12 +822,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
-                      <Value>=Fields!count1.Value</Value>
-                      <CanGrow>true</CanGrow>
+                      <Value>Заказ</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -908,12 +838,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>=Fields!name2.Value</Value>
-                      <CanGrow>true</CanGrow>
+                      <Value>Номенклатура</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -921,102 +854,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
-                      <Value>=Fields!count2.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Details>
-        <Left>0.0pt</Left>
-        <Top>352.1pt</Top>
-      </Table>
-      <Table Name="Table4">
-        <DataSetName>Nomenclature_additional</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
-        <Style>
-          <BorderStyle>
-            <Default>Solid</Default>
-          </BorderStyle>
-        </Style>
-        <TableColumns>
-          <TableColumn>
-            <Width>249.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>40.2pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>221.9pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>43.4pt</Width>
-          </TableColumn>
-        </TableColumns>
-        <Header>
-          <TableRows>
-            <TableRow>
-              <Height>12 pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox49">
-                      <Value>Номенклатура</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox50">
-                      <Value>Кол-во</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox51">
-                      <Value>Номенклатура</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox52">
-                      <Value>Кол-во</Value>
+                      <Value>Заказ</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1055,12 +893,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox54">
-                      <Value>=Fields!count1.Value</Value>
+                      <Value>=Fields!order_id1.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1081,12 +922,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>=Fields!count2.Value</Value>
+                      <Value>=Fields!order_id2.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1096,7 +940,173 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>486.0pt</Top>
+        <Top>353.2pt</Top>
+      </Table>
+      <Table Name="Table4" >
+        <DataSetName>to_client</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>248.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>40.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>222.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.3pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>Заказ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>Номенклатура</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>Заказ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>=Fields!name1.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>=Fields!order_id1.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>=Fields!name2.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>=Fields!order_id2.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.1pt</Left>
+        <Top>463.5pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -1153,7 +1163,7 @@ FROM
             t.*
     FROM
         (SELECT @rownum:=- 1) r, (SELECT 
-        SUM(DISTINCT order_items.count) AS count,
+        SUM(order_items.count) AS count,
             nomenclature.official_name AS nomenclature_name
     FROM
         route_list_addresses rla
@@ -1207,7 +1217,7 @@ FROM
             t.*
     FROM
         (SELECT @rownum:=- 1) r, (SELECT 
-        SUM(DISTINCT order_items.count) AS count,
+        SUM(order_items.count) AS count,
             nomenclature.official_name AS nomenclature_name
     FROM
         route_list_addresses rla
@@ -1242,6 +1252,56 @@ GROUP BY step2.realrow;</CommandText>
         </Field>
         <Field Name="count2">
           <DataField>count2</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="to_client" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    realrow,
+    GROUP_CONCAT( IF(rank % 2 = 0, nomenclature_name, NULL)) as name1,
+    GROUP_CONCAT( IF(rank % 2 = 0, order_id, NULL)) as order_id1,
+    GROUP_CONCAT( IF(rank % 2 = 1, nomenclature_name, NULL)) as name2,
+    GROUP_CONCAT( IF(rank % 2 = 1, order_id, NULL)) as order_id2
+FROM
+    (SELECT 
+        @rownum:=@rownum + 1 AS rank,
+            (@rownum - @rownum % 2) AS realrow,
+            t.*
+    FROM
+        (SELECT @rownum:=- 1) r, (SELECT
+        orders.id AS order_id,
+        orders.to_client_text AS nomenclature_name
+    FROM
+        route_list_addresses rla
+    LEFT JOIN orders ON orders.id = rla.order_id
+    WHERE
+        rla.route_list_id = @route_list_id
+        AND orders.to_client_text IS NOT NULL) t) AS step2
+GROUP BY step2.realrow;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="route_list_id">
+            <Value>=Parameters!route_list_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="name1">
+          <DataField>name1</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_id1">
+          <DataField>order_id1</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="name2">
+          <DataField>name2</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="order_id2">
+          <DataField>order_id2</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
