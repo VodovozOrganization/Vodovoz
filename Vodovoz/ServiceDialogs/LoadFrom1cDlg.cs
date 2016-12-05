@@ -36,6 +36,12 @@ namespace Vodovoz
 			"03281439",
 		};
 
+		#if SHORT
+		List<string> ExcludeNomenclatures = new List<string> {
+			"00000969"
+		}
+		#endif
+
 		#region Свойства
 		private IList<Bank> banks;
 
@@ -610,6 +616,11 @@ namespace Vodovoz
 			var officialNameNode = node.SelectSingleNode("Свойство[@Имя='НаименованиеПолное']/Значение");
 			var servicelNode 	 = node.SelectSingleNode("Свойство[@Имя='Услуга']/Значение");
 
+			#if SHORT
+			if (ExcludeNomenclatures.Contains(code1cNode.InnerText))
+				return;
+			#endif
+
 			logger.Debug("Создаем номенклатуру");
 			var nomenclature = new Nomenclature
 			{
@@ -658,10 +669,12 @@ namespace Vodovoz
 
 			if (client == null)
 				return;
-
+			
+			#if SHORT
 			if (addressNode?.InnerText != null)
 				if (addressNode.InnerText.ToLower().Contains("самовывоз"))
 					return;
+			#endif
 
 			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
 			if (!LoadedOrderDates.Contains(deliveryDate))
