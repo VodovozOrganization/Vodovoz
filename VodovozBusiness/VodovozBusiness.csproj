@@ -320,6 +320,7 @@
     <Compile Include="Repositories\Logistics\GasTicketRepository.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelDocumentMap.cs" />
+    <Compile Include="Domain\Subdivision.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
