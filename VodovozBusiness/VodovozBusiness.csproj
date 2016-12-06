@@ -321,6 +321,7 @@
     <Compile Include="HibernateMapping\Logistic\FuelDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelDocumentMap.cs" />
     <Compile Include="Domain\Subdivision.cs" />
+    <Compile Include="HibernateMapping\Organization\SubdivisionMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
