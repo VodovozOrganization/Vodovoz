@@ -180,6 +180,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField (ref dateOfCreate, value, () => DateOfCreate); }
 		}
 
+		private Subdivision subdivision;
+
+		[Display (Name = "Подразделение")]
+		public virtual Subdivision Subdivision {
+		get { return subdivision; }
+		set { SetField (ref subdivision, value, () => Subdivision); }
+		}
+
 		#endregion
 
 		public Employee ()

@@ -10,6 +10,7 @@ namespace Vodovoz
 			Table ("employees");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
+
 			Map (x => x.Name).Column ("name");
 			Map (x => x.LastName).Column ("last_name");
 			Map (x => x.Patronymic).Column ("patronymic");
@@ -27,9 +28,12 @@ namespace Vodovoz
 			Map (x => x.AndroidSessionKey).Column("android_session_key");
 			Map (x => x.AndroidToken).Column ("android_token");
 			Map (x => x.DateOfCreate).Column ("date_of_create");
+
+			References (x => x.Subdivision).Column("subdivision_id");
 			References (x => x.Nationality).Column ("nationality_id");
 			References (x => x.User).Column ("user_id");
 			References (x => x.DefaultAccount).Column ("default_account_id");
+
 			HasMany (x => x.Accounts).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");
 			HasMany (x => x.Phones).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");
 		}

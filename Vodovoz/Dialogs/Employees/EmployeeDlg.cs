@@ -47,6 +47,8 @@ namespace Vodovoz
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			referenceNationality.SubjectType = typeof(Nationality);
+			yentrySubdivision.SubjectType = typeof(Subdivision);
+			yentrySubdivision.Binding.AddBinding(Entity, e => e.Subdivision, w => w.Subject).InitializeFromSource();
 			referenceUser.SubjectType = typeof(User);
 			referenceUser.CanEditReference = false;
 
