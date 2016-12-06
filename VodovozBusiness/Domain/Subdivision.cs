@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
+	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
+		NominativePlural = "подразделения",
+		Nominative = "подразделение")]
 	public class Subdivision : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства

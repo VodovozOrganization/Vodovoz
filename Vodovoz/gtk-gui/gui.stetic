@@ -600,6 +600,12 @@
         <property name="ShortLabel" translatable="yes">Виды талонов на топливо</property>
         <signal name="Activated" handler="OnGazTicketActionActivated" />
       </action>
+      <action id="Subdivisions">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Подразделения</property>
+        <property name="ShortLabel" translatable="yes">Подразделения</property>
+        <signal name="Activated" handler="OnSubdivisionsActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -641,6 +647,7 @@
                   <node type="Menu" action="Action">
                     <node type="Menu" action="ActionOrgMenu">
                       <node type="Menuitem" action="ActionOrg" />
+                      <node type="Menuitem" action="Subdivisions" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionEmploey" />
                       <node type="Menuitem" action="ActionNationality" />
@@ -27034,7 +27041,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="850 359">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="852 359">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
