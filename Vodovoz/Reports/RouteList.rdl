@@ -34,7 +34,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>151.9pt</Height>
+    <Height>143.3pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox3">
@@ -1144,8 +1144,22 @@
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>20.0pt</Top>
+        <Top>37.6pt</Top>
       </Table>
+      <Textbox Name="Textbox5" >
+        <Height>25.53pt</Height>
+        <Width>663.95pt</Width>
+        <Value>При возникновении проблем звонить в офис по тел. 8-981-701-57-32. СВЕРЬ НАКЛАДНЫЕ С МАРШРУТНЫМ ЛИСТОМ ОБЯЗАТЕЛЬНО!
+По окончанию доставки отзвон в офис 8-981-701-57-32 ОБЯЗАТЕЛЬНО!"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.70pt</Left>
+        <Top>12.80pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
