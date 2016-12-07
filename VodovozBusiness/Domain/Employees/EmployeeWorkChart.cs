@@ -50,14 +50,14 @@ namespace Vodovoz
 			set { SetField(ref endTime, value, () => EndTime); }
 		}
 
-		public int Month
+		public virtual int Month
 		{
 			get {
 				return Date.Month;
 			}
 		}
 
-		public int Day
+		public virtual int Day
 		{
 			get {
 				return Date.Day;

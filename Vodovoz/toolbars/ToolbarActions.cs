@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSTDI;
 using Vodovoz;
 using Vodovoz.ViewModel;
+using Dialogs.Employees;
 
 public partial class MainWindow : Window
 {
@@ -32,6 +33,7 @@ public partial class MainWindow : Window
 	Action ActionAccountFlow;
 	Action ActionExportTo1c;
 	Action ActionResidue;
+	Action ActionEmployeeWorkChart;
 
 	public void BuildToolbarActions ()
 	{
@@ -60,6 +62,7 @@ public partial class MainWindow : Window
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
 		ActionUnclosedAdvances = new Action ("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
 		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
+		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionExportTo1c = new Action ("ActionExportTo1c", "Выгрузка в 1с", null, "table");
@@ -98,6 +101,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionAccountFlow, null);
 		w1.Add (ActionExportTo1c, null);
 		w1.Add(ActionResidue, null);
+		w1.Add(ActionEmployeeWorkChart, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -127,7 +131,16 @@ public partial class MainWindow : Window
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionResidue.Activated += ActionResidueActivated;
+		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		#endregion
+	}
+
+	void ActionEmployeeWorkChart_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<EmployeeWorkChartDlg>(),
+			() => new EmployeeWorkChartDlg ()
+		);
 	}
 
 	void ActionLoadOrders_Activated (object sender, System.EventArgs e)

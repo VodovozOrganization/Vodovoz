@@ -510,6 +510,8 @@
     <Compile Include="Additions\Logistic\PointMarker.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\ChangedItem.cs" />
     <Compile Include="ServiceDialogs\LoadFrom1c\FieldChange.cs" />
+    <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
+    <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -323,6 +323,7 @@
     <Compile Include="Domain\Subdivision.cs" />
     <Compile Include="HibernateMapping\Organization\SubdivisionMap.cs" />
     <Compile Include="Domain\Employees\EmployeeWorkChart.cs" />
+    <Compile Include="HibernateMapping\Employees\EmployeeWorkChartMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
