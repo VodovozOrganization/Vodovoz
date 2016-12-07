@@ -211,6 +211,34 @@
         <Left>2.0pt</Left>
         <Top>59.3pt</Top>
       </Table>
+      <Textbox Name="Textbox9">
+        <Height>18.79pt</Height>
+        <Width>329.65pt</Width>
+        <Value>="Водитель: " + First(Fields!driver_name, "RouteList")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>2.3pt</Left>
+        <Top>38.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox10">
+        <Height>19.53pt</Height>
+        <Width>201.00pt</Width>
+        <Value>="Дата: " + Format(First(Fields!date, "RouteList"), "dd/MM/yyyy")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>366.8pt</Left>
+        <Top>37.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>12pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -245,6 +273,33 @@ ORDER BY order_in_route</CommandText>
         <Field Name="schedule">
           <DataField>schedule</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="RouteList">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+    route_lists.id as id,
+    date as date,
+    CONCAT_WS(" ", employees.last_name, employees.name, employees.patronymic) as driver_name
+FROM route_lists
+LEFT JOIN employees ON route_lists.driver_id = employees.id
+WHERE route_lists.id = @route_list_id;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="route_list_id">
+            <Value>=Parameters!route_list_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
       </Fields>
     </DataSet>
