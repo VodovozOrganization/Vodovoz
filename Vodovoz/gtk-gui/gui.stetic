@@ -35470,13 +35470,13 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.HBox" id="hbox3">
+                  <widget class="Gtk.HBox" id="hbox7">
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.Label" id="label2">
+                      <widget class="Gamma.GtkWidgets.yLabel" id="ylabel1">
                         <property name="MemberName" />
-                        <property name="LabelProp" translatable="yes">Дата:</property>
+                        <property name="LabelProp" translatable="yes">Месяц:</property>
                       </widget>
                       <packing>
                         <property name="Position">0</property>
@@ -35486,23 +35486,65 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gamma.Widgets.yDatePicker" id="ydatepicker">
+                      <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboMonth">
                         <property name="MemberName" />
-                        <property name="Events">ButtonPressMask</property>
-                        <property name="WithTime">False</property>
-                        <property name="Date">0</property>
-                        <property name="IsEditable">True</property>
-                        <property name="AutoSeparation">False</property>
-                        <signal name="DateChanged" handler="OnYdatepickerDateChanged" />
+                        <property name="IsTextCombo">False</property>
+                        <property name="Items" translatable="yes" />
+                        <property name="ShowSpecialStateAll">False</property>
+                        <property name="ShowSpecialStateNot">False</property>
+                        <property name="UseShortTitle">False</property>
+                        <property name="DefaultFirst">False</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                       </packing>
                     </child>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.HBox" id="hbox3">
+                    <property name="MemberName" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Label" id="label2">
+                        <property name="MemberName" />
+                        <property name="LabelProp" translatable="yes">Год:</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinYear">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Lower">1</property>
+                        <property name="Upper">5000</property>
+                        <property name="PageIncrement">10</property>
+                        <property name="StepIncrement">1</property>
+                        <property name="ClimbRate">1</property>
+                        <property name="Numeric">True</property>
+                        <property name="ValueAsDecimal">0</property>
+                        <property name="ValueAsInt">0</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -35536,7 +35578,7 @@ RegistrationNumber</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">1</property>
+                    <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -35548,7 +35590,7 @@ RegistrationNumber</property>
                     <property name="LabelProp" translatable="yes">Всего за месяц 0 часов</property>
                   </widget>
                   <packing>
-                    <property name="Position">2</property>
+                    <property name="Position">3</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>

@@ -25,13 +25,26 @@ namespace Dialogs.Employees
 
 		private void ConfigureDlg ()
 		{
+			DateTime now = DateTime.Now;
+
 			yentryEmployee.SubjectType = typeof(Employee);
-			workcharttable.Date = DateTime.Now;
+			yenumcomboMonth.ItemsEnum = typeof(Months);
+			yenumcomboMonth.EnumItemSelected += YenumcomboMonth_EnumItemSelected;
+			yenumcomboMonth.SelectedItem = (Months)now.Month;
+			yspinYear.Value = (double)now.Year;
+			yspinYear.ValueChanged += YspinYear_ValueChanged;
+			workcharttable.Date = now;
+		}
+
+		void YspinYear_ValueChanged (object sender, EventArgs e)
+		{
+			workcharttable.Date = new DateTime(yspinYear.ValueAsInt, (int)yenumcomboMonth.SelectedItem, 1);
+			workcharttable.QueueDraw();
 		}
 
 		void YenumcomboMonth_EnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			workcharttable.Month = (int)e.SelectedItem;
+			workcharttable.Date = new DateTime(yspinYear.ValueAsInt, (int)e.SelectedItem, 1);
 			workcharttable.QueueDraw();
 		}
 
@@ -47,7 +60,7 @@ namespace Dialogs.Employees
 
 		protected void OnYdatepickerDateChanged (object sender, EventArgs e)
 		{
-			workcharttable.Date = ydatepicker.DateOrNull ?? default(DateTime);
+//			workcharttable.Date = ydatepicker.DateOrNull ?? default(DateTime);
 			workcharttable.QueueDraw();
 		}
 
