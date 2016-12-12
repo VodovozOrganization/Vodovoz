@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using Vodovoz;
 using QSTDI;
 using Vodovoz.Domain.Employees;
+using System.Collections.Generic;
 
 namespace Dialogs.Employees
 {
@@ -24,8 +25,14 @@ namespace Dialogs.Employees
 
 		private void ConfigureDlg ()
 		{
-			yenumcomboMonth.ItemsEnum = typeof(Months);
 			yentryEmployee.SubjectType = typeof(Employee);
+			workcharttable.Date = DateTime.Now;
+		}
+
+		void YenumcomboMonth_EnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			workcharttable.Month = (int)e.SelectedItem;
+			workcharttable.QueueDraw();
 		}
 
 		public bool Save()
@@ -36,6 +43,12 @@ namespace Dialogs.Employees
 		public void SaveAndClose()
 		{
 			
+		}
+
+		protected void OnYdatepickerDateChanged (object sender, EventArgs e)
+		{
+			workcharttable.Date = ydatepicker.DateOrNull ?? default(DateTime);
+			workcharttable.QueueDraw();
 		}
 
 		public enum Months

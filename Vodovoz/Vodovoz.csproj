@@ -76,6 +76,7 @@
     <Reference Include="DiffPlex">
       <HintPath>..\..\QSProjects\packages\DiffPlex.1.2.1\lib\portable-net40+sl50+win+wpa81+wp80\DiffPlex.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cairo" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -512,6 +513,7 @@
     <Compile Include="ServiceDialogs\LoadFrom1c\FieldChange.cs" />
     <Compile Include="Dialogs\Employees\EmployeeWorkChartDlg.cs" />
     <Compile Include="gtk-gui\Dialogs.Employees.EmployeeWorkChartDlg.cs" />
+    <Compile Include="ViewWidgets\WorkChartTable.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
