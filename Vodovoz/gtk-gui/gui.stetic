@@ -35418,50 +35418,6 @@ RegistrationNumber</property>
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.HBox" id="hbox5">
-            <property name="MemberName" />
-            <property name="Spacing">6</property>
-            <child>
-              <widget class="Gtk.Button" id="buttonSave">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-save Menu</property>
-                <property name="Label" translatable="yes">Сохранить</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">0</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.Button" id="buttonCancel">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-revert-to-saved Menu</property>
-                <property name="Label" translatable="yes">Отменить</property>
-                <property name="UseUnderline">True</property>
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="Position">0</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
-          </packing>
-        </child>
-        <child>
           <widget class="Gtk.HBox" id="hbox1">
             <property name="MemberName" />
             <property name="Spacing">6</property>
@@ -35469,6 +35425,50 @@ RegistrationNumber</property>
               <widget class="Gtk.VBox" id="vbox2">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.HBox" id="hbox5">
+                    <property name="MemberName" />
+                    <property name="Spacing">6</property>
+                    <child>
+                      <widget class="Gtk.Button" id="buttonSave">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-save Menu</property>
+                        <property name="Label" translatable="yes">Сохранить</property>
+                        <property name="UseUnderline">True</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">0</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gtk.Button" id="buttonCancel">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-revert-to-saved Menu</property>
+                        <property name="Label" translatable="yes">Отменить</property>
+                        <property name="UseUnderline">True</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">1</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
                 <child>
                   <widget class="Gtk.HBox" id="hbox7">
                     <property name="MemberName" />
@@ -35502,7 +35502,7 @@ RegistrationNumber</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">0</property>
+                    <property name="Position">1</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -35544,7 +35544,7 @@ RegistrationNumber</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">1</property>
+                    <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -35578,7 +35578,7 @@ RegistrationNumber</property>
                     </child>
                   </widget>
                   <packing>
-                    <property name="Position">2</property>
+                    <property name="Position">3</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -35590,7 +35590,7 @@ RegistrationNumber</property>
                     <property name="LabelProp" translatable="yes">Всего за месяц 0 часов</property>
                   </widget>
                   <packing>
-                    <property name="Position">3</property>
+                    <property name="Position">4</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -35607,8 +35607,6 @@ RegistrationNumber</property>
             <child>
               <widget class="ViewWidgets.WorkChartTable" id="workcharttable">
                 <property name="MemberName" />
-                <property name="Month">0</property>
-                <property name="Year">0</property>
                 <property name="Date">0</property>
               </widget>
               <packing>
@@ -35618,7 +35616,7 @@ RegistrationNumber</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">1</property>
+            <property name="Position">0</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>

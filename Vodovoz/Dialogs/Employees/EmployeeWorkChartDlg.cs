@@ -30,8 +30,8 @@ namespace Dialogs.Employees
 			yentryEmployee.SubjectType = typeof(Employee);
 
 			yenumcomboMonth.ItemsEnum = typeof(Months);
-			yenumcomboMonth.EnumItemSelected += YenumcomboMonth_EnumItemSelected;
 			yenumcomboMonth.SelectedItem = (Months)now.Month;
+			yenumcomboMonth.EnumItemSelected += YenumcomboMonth_EnumItemSelected;
 
 			yspinYear.Value = (double)now.Year;
 			yspinYear.ValueChanged += YspinYear_ValueChanged;
@@ -41,13 +41,17 @@ namespace Dialogs.Employees
 
 		void YspinYear_ValueChanged (object sender, EventArgs e)
 		{
-			workcharttable.Date = new DateTime(yspinYear.ValueAsInt, (int)yenumcomboMonth.SelectedItem, 1);
-			workcharttable.QueueDraw();
+			SetTableDate();
 		}
 
 		void YenumcomboMonth_EnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			workcharttable.Date = new DateTime(yspinYear.ValueAsInt, (int)e.SelectedItem, 1);
+			SetTableDate();
+		}
+
+		private void SetTableDate()
+		{
+			workcharttable.Date = new DateTime(yspinYear.ValueAsInt, (int)yenumcomboMonth.SelectedItem, 1);
 			workcharttable.QueueDraw();
 		}
 

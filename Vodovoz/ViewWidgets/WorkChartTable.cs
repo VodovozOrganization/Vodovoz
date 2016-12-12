@@ -39,10 +39,13 @@ namespace ViewWidgets
 		private int[] weekends;
 
 		private DateTime date;
-		private CellNumber mouseOnCell = new CellNumber {X = -1, Y = -1};
+		private HalfCell mouseOnCell = new HalfCell { 
+			CellNumber = new CellNumber { X = -1, Y = -1 }, 
+			half = Half.Top };
+		private DrawState isDraw = DrawState.Nothing;
 
 		IEnumerable<string> headerData;
-		List<CellStatus> activeCells = new List<CellStatus>();
+		List<HalfCell> activeHalfCells = new List<HalfCell>();
 
 		#endregion
 
@@ -59,24 +62,28 @@ namespace ViewWidgets
 			}
 		}
 
-		private enum Statuses 
-		{
-			NotActive = 0,
-			HalfActive,
-			Active
-		}
-
 		private enum Half 
 		{
 			Top,
 			Bottom
 		}
 
-		private class CellStatus
+		enum DrawState
+		{
+			Draw,
+			Erase,
+			Nothing
+		}
+
+		private class HalfCell
 		{
 			public CellNumber 	CellNumber 	{ get; set;}
-			public Statuses 	Status 		{ get; set;}
 			public Half 		half 		{ get; set;}
+
+			public bool Equals(HalfCell cell)
+			{
+				return (this.CellNumber.Equals(cell.CellNumber) && this.half == cell.half);
+			}
 		}
 
 		#endregion
@@ -84,10 +91,9 @@ namespace ViewWidgets
 		public WorkChartTable()
 		{
 			AddEvents((int) EventMask.ButtonPressMask);
+			AddEvents((int) EventMask.ButtonReleaseMask);
 			AddEvents((int) EventMask.PointerMotionMask);
 			AddEvents((int) EventMask.LeaveNotifyMask);
-
-//			CalculateSize();
 		}
 
 		#region События
@@ -117,22 +123,32 @@ namespace ViewWidgets
 		protected override bool OnButtonPressEvent(Gdk.EventButton ev)
 		{
 			// Insert button press handling code here.
-			CellNumber cn = new CellNumber { X = GetCellColumnNumber((int)ev.X),
-				Y = GetCellRowNumber((int)ev.Y) };
-			ChangeCellStatus(cn);
-			this.QueueDraw();
+			HalfCell cell = activeHalfCells.FirstOrDefault(ahc => ahc.Equals(GetHalfCell((int)ev.X, (int)ev.Y)));
+			if (cell == null)
+			{
+				isDraw = DrawState.Draw;
+			} else {
+				isDraw = DrawState.Erase;
+			}
+			ActivateOrDeactivateHalfCell(GetHalfCell((int)ev.X, (int)ev.Y), isDraw);
 
 			return base.OnButtonPressEvent(ev);
 		}
 
+		protected override bool OnButtonReleaseEvent(EventButton evnt)
+		{
+			isDraw = DrawState.Nothing;
+			return base.OnButtonReleaseEvent(evnt);
+		}
+
 		protected override bool OnMotionNotifyEvent(Gdk.EventMotion evnt)
 		{
-			CellNumber moc = new CellNumber { X = GetCellColumnNumber((int)evnt.X),
-				Y = GetCellRowNumber((int)evnt.Y) };
+			HalfCell hc = GetHalfCell((int)evnt.X, (int)evnt.Y);
 
-			if (!mouseOnCell.Equals(moc))
+			if (!mouseOnCell.Equals(hc))
 			{
-				mouseOnCell = moc;
+				mouseOnCell = hc;
+				ActivateOrDeactivateHalfCell(GetHalfCell((int)evnt.X, (int)evnt.Y), isDraw);
 				this.QueueDraw();
 			}
 
@@ -141,8 +157,8 @@ namespace ViewWidgets
 
 		protected override bool OnLeaveNotifyEvent(EventCrossing evnt)
 		{
-			mouseOnCell.X = -1;
-			mouseOnCell.Y = -1;
+			CellNumber cn = new CellNumber{ X = -1, Y = -1 };
+			mouseOnCell.CellNumber = cn;
 			this.QueueDraw();
 			return true;
 		}
@@ -196,13 +212,13 @@ namespace ViewWidgets
 
 		private void FillBackLight ()
 		{
-			if (mouseOnCell.X < 0 || mouseOnCell.Y < 0)
+			if (mouseOnCell.CellNumber.X < 0 || mouseOnCell.CellNumber.Y < 0)
 				return;
-			if (mouseOnCell.X >= totalColums || mouseOnCell.Y >= totalRows)
+			if (mouseOnCell.CellNumber.X >= totalColums || mouseOnCell.CellNumber.Y >= totalRows)
 				return;
 
-			FillRow(mouseOnCell.Y, new Cairo.Color(1, 0.5, 0.5));
-			FillColumn(mouseOnCell.X, new Cairo.Color(1, 0.5, 0.5));
+			FillRow(mouseOnCell.CellNumber.Y, new Cairo.Color(1, 0.5, 0.5));
+			FillColumn(mouseOnCell.CellNumber.X, new Cairo.Color(1, 0.5, 0.5));
 		}
 
 		private void FillCell(PointD coord, Cairo.Color color)
@@ -229,41 +245,10 @@ namespace ViewWidgets
 			}
 		}
 
-		private void FillCellWithStatus(CellStatus cell, Cairo.Color color)
-		{
-			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
-			{
-				g.SetSourceColor(color);
-				g.MoveTo(GetCellCoordinates(cell.CellNumber.Y, cell.CellNumber.X));
-				switch (cell.Status)
-				{
-					case Statuses.Active:
-						g.Rectangle(GetCellCoordinates(cell.CellNumber.Y, cell.CellNumber.X), cellWidth, cellHeight);
-						break;
-					case Statuses.HalfActive:
-						PointD p = GetCellCoordinates(cell.CellNumber.Y, cell.CellNumber.X);
-						g.MoveTo(p);
-						p.X += cellWidth;
-						g.LineTo(p);
-						p.X -= cellWidth;
-						p.Y += cellHeight;
-						g.LineTo(p);
-						p.Y -= cellHeight;
-						g.LineTo(p);
-						g.Fill();
-						break;
-					default:
-						break;
-				}
-				g.Fill();
-				g.GetTarget().Dispose();
-			}
-		}
-
 		private void FillActiveCells () {
-			foreach (var cell in activeCells)
+			foreach (var cell in activeHalfCells)
 			{
-				FillCellWithStatus(cell, new Cairo.Color(0.5, 1, 0.5));
+				FillHalf(cell, new Cairo.Color(0.2, 1, 0.2));
 			}
 		}
 
@@ -291,6 +276,22 @@ namespace ViewWidgets
 			if (half == Half.Bottom)
 				coord.Y += cellHeight / 2;
 			
+			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
+			{
+				g.SetSourceColor(color);
+				g.MoveTo(coord);
+				g.Rectangle(coord, cellWidth, cellHeight / 2);
+				g.Fill();
+				g.GetTarget().Dispose();
+			}
+		}
+
+		private void FillHalf (HalfCell cell,Cairo.Color color)
+		{
+			PointD coord = GetCellCoordinates(cell.CellNumber.Y, cell.CellNumber.X);
+			if (cell.half == Half.Bottom)
+				coord.Y += cellHeight / 2;
+
 			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
 			{
 				g.SetSourceColor(color);
@@ -434,14 +435,27 @@ namespace ViewWidgets
 			return new PointD(left, top);
 		}
 
-		private int GetCellColumnNumber(int coordX)
+		private HalfCell GetHalfCell(int x, int y)
 		{
-			return coordX / cellWidth;
+			return new HalfCell
+			{
+				CellNumber = new CellNumber
+				{ 
+					X = GetCellColumnNumber(x),
+					Y = GetCellRowNumber(y)
+				},
+				half = y % cellHeight > cellHeight / 2 ? Half.Bottom : Half.Top
+			};
 		}
 
-		private int GetCellRowNumber(int coordY)
+		private int GetCellColumnNumber(int pointX)
 		{
-			return coordY / cellHeight;
+			return pointX / cellWidth;
+		}
+
+		private int GetCellRowNumber(int pointY)
+		{
+			return pointY / cellHeight;
 		}
 
 		public void SetTopHeaderData(IEnumerable<string> data, int headerIndex)
@@ -449,24 +463,40 @@ namespace ViewWidgets
 			headerData = data;
 		}
 
-		private void ChangeCellStatus (CellNumber cn)
+		private void ActivateOrDeactivateHalfCell(HalfCell cell, DrawState action)
 		{
-			CellStatus cell = activeCells.FirstOrDefault(c => c.CellNumber.Equals(cn));
-			if (cell == null)
-			{
-				activeCells.Add(new CellStatus{ CellNumber = cn, Status = Statuses.Active });
+			if (action == DrawState.Nothing)
 				return;
-			}
-			if (cell.Status == Statuses.Active)
-			{
-				cell.Status = Statuses.HalfActive;
+			if (CellIsHeader(cell))
 				return;
-			}
-			if (cell.Status == Statuses.HalfActive)
+			
+			HalfCell ahc = activeHalfCells.FirstOrDefault(ac => ac.Equals(cell));
+			
+			if (action == DrawState.Draw)
 			{
-				activeCells.Remove(cell);
-				return;
+				if (ahc == null)
+					activeHalfCells.Add(cell);
 			}
+			if(action == DrawState.Erase)
+			{
+				if (ahc != null)
+					activeHalfCells.Remove(ahc);
+			}
+
+			this.QueueDraw();
+		}
+
+		private bool CellIsHeader(HalfCell cell)
+		{
+			if (cell.CellNumber.X >= 0 && cell.CellNumber.X < leftHeadersCount)
+				return true;
+			if (cell.CellNumber.Y >= 0 && cell.CellNumber.Y < topHeadersCount)
+				return true;
+			if (cell.CellNumber.X >= totalColums)
+				return true;
+			if (cell.CellNumber.Y >= totalRows)
+				return true;
+			return false;
 		}
 
 		#endregion

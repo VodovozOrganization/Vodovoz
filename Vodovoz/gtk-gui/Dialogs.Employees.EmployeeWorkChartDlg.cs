@@ -6,15 +6,15 @@ namespace Dialogs.Employees
 	{
 		private global::Gtk.VBox vbox1;
 		
+		private global::Gtk.HBox hbox1;
+		
+		private global::Gtk.VBox vbox2;
+		
 		private global::Gtk.HBox hbox5;
 		
 		private global::Gtk.Button buttonSave;
 		
 		private global::Gtk.Button buttonCancel;
-		
-		private global::Gtk.HBox hbox1;
-		
-		private global::Gtk.VBox vbox2;
 		
 		private global::Gtk.HBox hbox7;
 		
@@ -49,6 +49,14 @@ namespace Dialogs.Employees
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1.Name = "hbox1";
+			this.hbox1.Spacing = 6;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.vbox2 = new global::Gtk.VBox ();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 6;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox5 = new global::Gtk.HBox ();
 			this.hbox5.Name = "hbox5";
 			this.hbox5.Spacing = 6;
@@ -80,19 +88,11 @@ namespace Dialogs.Employees
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.vbox1.Add (this.hbox5);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox5]));
+			this.vbox2.Add (this.hbox5);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox5]));
 			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
-			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
-			this.vbox2 = new global::Gtk.VBox ();
-			this.vbox2.Name = "vbox2";
-			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.hbox7 = new global::Gtk.HBox ();
 			this.hbox7.Name = "hbox7";
@@ -118,7 +118,7 @@ namespace Dialogs.Employees
 			w7.Position = 1;
 			this.vbox2.Add (this.hbox7);
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox7]));
-			w8.Position = 0;
+			w8.Position = 1;
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
@@ -148,7 +148,7 @@ namespace Dialogs.Employees
 			w10.Position = 1;
 			this.vbox2.Add (this.hbox3);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox3]));
-			w11.Position = 1;
+			w11.Position = 2;
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
@@ -173,7 +173,7 @@ namespace Dialogs.Employees
 			w13.Position = 1;
 			this.vbox2.Add (this.hbox6);
 			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox6]));
-			w14.Position = 2;
+			w14.Position = 3;
 			w14.Expand = false;
 			w14.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
@@ -182,7 +182,7 @@ namespace Dialogs.Employees
 			this.labelTotalHours.LabelProp = global::Mono.Unix.Catalog.GetString ("Всего за месяц 0 часов");
 			this.vbox2.Add (this.labelTotalHours);
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.labelTotalHours]));
-			w15.Position = 3;
+			w15.Position = 4;
 			w15.Expand = false;
 			w15.Fill = false;
 			this.hbox1.Add (this.vbox2);
@@ -199,7 +199,7 @@ namespace Dialogs.Employees
 			w17.Position = 1;
 			this.vbox1.Add (this.hbox1);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w18.Position = 1;
+			w18.Position = 0;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
