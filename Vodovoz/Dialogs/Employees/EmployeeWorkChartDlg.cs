@@ -28,11 +28,14 @@ namespace Dialogs.Employees
 			DateTime now = DateTime.Now;
 
 			yentryEmployee.SubjectType = typeof(Employee);
+
 			yenumcomboMonth.ItemsEnum = typeof(Months);
 			yenumcomboMonth.EnumItemSelected += YenumcomboMonth_EnumItemSelected;
 			yenumcomboMonth.SelectedItem = (Months)now.Month;
+
 			yspinYear.Value = (double)now.Year;
 			yspinYear.ValueChanged += YspinYear_ValueChanged;
+
 			workcharttable.Date = now;
 		}
 
@@ -56,12 +59,6 @@ namespace Dialogs.Employees
 		public void SaveAndClose()
 		{
 			
-		}
-
-		protected void OnYdatepickerDateChanged (object sender, EventArgs e)
-		{
-//			workcharttable.Date = ydatepicker.DateOrNull ?? default(DateTime);
-			workcharttable.QueueDraw();
 		}
 
 		public enum Months

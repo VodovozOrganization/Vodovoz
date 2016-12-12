@@ -193,8 +193,6 @@ namespace Dialogs.Employees
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.workcharttable = new global::ViewWidgets.WorkChartTable ();
 			this.workcharttable.Name = "workcharttable";
-			this.workcharttable.Month = 0;
-			this.workcharttable.Year = 0;
 			this.workcharttable.Date = new global::System.DateTime (0);
 			this.hbox1.Add (this.workcharttable);
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.workcharttable]));

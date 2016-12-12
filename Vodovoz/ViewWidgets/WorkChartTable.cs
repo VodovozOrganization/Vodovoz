@@ -11,21 +11,21 @@ namespace ViewWidgets
 	{
 		#region Свойства
 
-		public int Month			{ get; set;} = 1;
-		public int Year				{ get; set;} = 1;
 		public DateTime Date
 		{
 			get {return date;}
 			set {
 				date = value;
-				Month = value.Month;
-				Year = value.Year;
+				month = value.Month;
+				year = value.Year;
 			}
 		}
 		#endregion
 
 		#region Поля
 
+		private int month			 = 1;
+		private int year			 = 1;
 		private int daysInMonth 	 = 1;
 		private int topHeadersCount  = 2;
 		private int leftHeadersCount = 1;
@@ -96,7 +96,7 @@ namespace ViewWidgets
 		{
 			base.OnExposeEvent(ev);
 			CalculateSize();
-			weekends = CalculateWeekends(Month, Year);
+			weekends = CalculateWeekends(month, year);
 
 			using (Cairo.Context g = Gdk.CairoHelper.Create(this.GdkWindow))
 			{
@@ -392,7 +392,7 @@ namespace ViewWidgets
 		#region Вычисления
 
 		private void CalculateSize() {
-			daysInMonth = DateTime.DaysInMonth(Year, Month);
+			daysInMonth = DateTime.DaysInMonth(year, month);
 			totalColums = daysInMonth + leftHeadersCount;
 			totalRows	= 24 + topHeadersCount;
 			cellWidth	= this.Allocation.Size.Width / totalColums;
@@ -401,7 +401,7 @@ namespace ViewWidgets
 			tableHeight = cellHeight * totalRows;
 
 
-			DateTime t = new DateTime(Year, Month, 1);
+			DateTime t = new DateTime(year, month, 1);
 			List<string> daysName = new List<string>();
 			for (int i = 0; i < daysInMonth; i++)
 			{
