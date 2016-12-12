@@ -727,8 +727,15 @@ namespace Vodovoz
 			//Проверяем на наличие скидки и вычисляем ее
 			if (summ != price * count)
 			{
-				decimal tempDiscount = summ / (price * count);
-				discount = (int)(1 - tempDiscount * 100);
+				if(price * count == 0)
+				{
+					logger.Warn("Странные данные в строке заказа {0}: цена: {1} кол: {2} сумма: {3}", order.Code1c, price, count, summ);
+				}
+				else
+				{
+					decimal tempDiscount = summ / (price * count);
+					discount = (int)(1 - tempDiscount * 100);
+				}
 			}
 
 			return new OrderItem
