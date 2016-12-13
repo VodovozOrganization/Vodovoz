@@ -35328,6 +35328,26 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gtk.Button" id="buttonMapHelp">
+                        <property name="MemberName" />
+                        <property name="Tooltip" translatable="yes">Справка по работе с картой.</property>
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">stock:gtk-help Menu</property>
+                        <property name="Label" translatable="yes" />
+                        <property name="UseUnderline">True</property>
+                        <property name="Relief">Half</property>
+                        <signal name="Clicked" handler="OnButtonMapHelpClicked" />
+                      </widget>
+                      <packing>
+                        <property name="PackType">End</property>
+                        <property name="Position">2</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboMapType">
                         <property name="MemberName" />
                         <property name="IsTextCombo">False</property>
@@ -35340,7 +35360,7 @@ RegistrationNumber</property>
                       </widget>
                       <packing>
                         <property name="PackType">End</property>
-                        <property name="Position">2</property>
+                        <property name="Position">3</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>

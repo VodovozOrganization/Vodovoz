@@ -48,6 +48,8 @@ namespace Vodovoz
 		
 		private global::QSWidgetLib.MenuButton menuAddToRL;
 		
+		private global::Gtk.Button buttonMapHelp;
+		
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboMapType;
 		
 		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
@@ -266,6 +268,22 @@ namespace Vodovoz
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
+			this.buttonMapHelp = new global::Gtk.Button ();
+			this.buttonMapHelp.TooltipMarkup = "Справка по работе с картой.";
+			this.buttonMapHelp.CanFocus = true;
+			this.buttonMapHelp.Name = "buttonMapHelp";
+			this.buttonMapHelp.UseUnderline = true;
+			this.buttonMapHelp.Relief = ((global::Gtk.ReliefStyle)(1));
+			global::Gtk.Image w23 = new global::Gtk.Image ();
+			w23.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.buttonMapHelp.Image = w23;
+			this.hbox3.Add (this.buttonMapHelp);
+			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonMapHelp]));
+			w24.PackType = ((global::Gtk.PackType)(1));
+			w24.Position = 2;
+			w24.Expand = false;
+			w24.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox ();
 			this.yenumcomboMapType.Name = "yenumcomboMapType";
 			this.yenumcomboMapType.ShowSpecialStateAll = false;
@@ -273,16 +291,16 @@ namespace Vodovoz
 			this.yenumcomboMapType.UseShortTitle = false;
 			this.yenumcomboMapType.DefaultFirst = true;
 			this.hbox3.Add (this.yenumcomboMapType);
-			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.yenumcomboMapType]));
-			w23.PackType = ((global::Gtk.PackType)(1));
-			w23.Position = 2;
-			w23.Expand = false;
-			w23.Fill = false;
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.yenumcomboMapType]));
+			w25.PackType = ((global::Gtk.PackType)(1));
+			w25.Position = 3;
+			w25.Expand = false;
+			w25.Fill = false;
 			this.vbox2.Add (this.hbox3);
-			global::Gtk.Box.BoxChild w24 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox3]));
-			w24.Position = 0;
-			w24.Expand = false;
-			w24.Fill = false;
+			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox3]));
+			w26.Position = 0;
+			w26.Expand = false;
+			w26.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl ();
 			this.gmapWidget.Name = "gmapWidget";
@@ -300,14 +318,14 @@ namespace Vodovoz
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox2.Add (this.gmapWidget);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.gmapWidget]));
-			w25.Position = 1;
-			this.hbox2.Add (this.vbox2);
-			global::Gtk.Box.BoxChild w26 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
-			w26.Position = 1;
-			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.gmapWidget]));
 			w27.Position = 1;
+			this.hbox2.Add (this.vbox2);
+			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.vbox2]));
+			w28.Position = 1;
+			this.vbox1.Add (this.hbox2);
+			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			w29.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -320,6 +338,7 @@ namespace Vodovoz
 			this.buttonOpen.Clicked += new global::System.EventHandler (this.OnButtonOpenClicked);
 			this.buttonRemoveAddress.Clicked += new global::System.EventHandler (this.OnButtonRemoveAddressClicked);
 			this.yenumcomboMapType.ChangedByUser += new global::System.EventHandler (this.OnYenumcomboMapTypeChangedByUser);
+			this.buttonMapHelp.Clicked += new global::System.EventHandler (this.OnButtonMapHelpClicked);
 		}
 	}
 }
