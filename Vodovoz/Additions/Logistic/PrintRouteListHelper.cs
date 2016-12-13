@@ -65,12 +65,12 @@ namespace Vodovoz.Additions.Logistic
 			int TextBoxNumber = 100;
 
 			//Шаблон стандартной ячейки
-			const string CellTemplate = "<TableCell><ReportItems>" +
+			const string numericCellTemplate = "<TableCell><ReportItems>" +
 				"<Textbox Name=\"Textbox{0}\">" +
 				"<Value>{1}</Value>" +
 				"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
 				"<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth />" +
-				"<TextAlign>Center</TextAlign></Style></Textbox></ReportItems></TableCell>";
+				"<TextAlign>Center</TextAlign><Format>0</Format></Style></Textbox></ReportItems></TableCell>";
 
 			//Расширяем требуемые колонки на нужную ширину
 			RdlText = RdlText.Replace ("<!--colspan-->", String.Format ("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
@@ -104,13 +104,13 @@ namespace Vodovoz.Additions.Logistic
 					"<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>", 
 					TextBoxNumber++, column.Name);
 				//Формула для колонки с водой для информации из запроса
-				CellColumnValue += String.Format (CellTemplate,
+				CellColumnValue += String.Format (numericCellTemplate,
 					TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id ));
 				//Ячейка с запасом. Пока там пусто
-				CellColumnStock += String.Format (CellTemplate,
+				CellColumnStock += String.Format (numericCellTemplate,
 					TextBoxNumber++, "");
 				//Ячейка с суммой по бутылям + запасы.
-				CellColumnTotal += String.Format (CellTemplate,
+				CellColumnTotal += String.Format (numericCellTemplate,
 					TextBoxNumber++, String.Format("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id ));
 				//Запрос..
 				SqlSelect += String.Format (", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString ());
