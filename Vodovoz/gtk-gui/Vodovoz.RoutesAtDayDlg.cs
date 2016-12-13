@@ -296,7 +296,7 @@ namespace Vodovoz
 			this.gmapWidget.Bearing = 0F;
 			this.gmapWidget.Zoom = 9;
 			this.gmapWidget.RoutesEnabled = false;
-			this.gmapWidget.PolygonsEnabled = false;
+			this.gmapWidget.PolygonsEnabled = true;
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox2.Add (this.gmapWidget);

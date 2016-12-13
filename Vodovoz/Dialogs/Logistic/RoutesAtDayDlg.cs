@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
 using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
-using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
+using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using QSWidgetLib;
 
 namespace Vodovoz
 {
@@ -26,6 +22,8 @@ namespace Vodovoz
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
+		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
+		private GMapPolygon brokenSelection;
 		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
 		int addressesWithoutCoordinats, addressesWithoutRoutes;
@@ -72,8 +70,10 @@ namespace Vodovoz
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
 			gmapWidget.Overlays.Add(addressesOverlay);
+			gmapWidget.Overlays.Add(selectionOverlay);
 			gmapWidget.DisableAltForSelection = true;
 			gmapWidget.OnSelectionChange += GmapWidget_OnSelectionChange;
+			gmapWidget.ButtonPressEvent += GmapWidget_ButtonPressEvent;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 
@@ -89,6 +89,48 @@ namespace Vodovoz
 			ydateForRoutes.Date = DateTime.Today;
 
 			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
+		}
+
+		bool poligonSelection;
+
+		void GmapWidget_ButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
+		{
+			if(args.Event.Button == 1)
+			{
+				if(args.Event.State.HasFlag(ModifierType.ControlMask))
+				{
+					if(!poligonSelection)
+					{
+						poligonSelection = true;
+						logger.Debug("Старт выделения через полигон.");
+						var startPoint = gmapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
+						brokenSelection = new GMapPolygon(new List<PointLatLng>{startPoint}, "Выделение" );
+						gmapWidget.UpdatePolygonLocalPosition(brokenSelection);
+						selectionOverlay.Polygons.Add(brokenSelection);
+					}
+					else
+					{
+						logger.Debug("Продолжили.");
+						var newPoint = gmapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
+						brokenSelection.Points.Add(newPoint);
+						gmapWidget.UpdatePolygonLocalPosition(brokenSelection);
+					}
+					OnPoligonSelectionUpdated();
+				}
+				else
+				{
+					logger.Debug("Закончили.");
+					poligonSelection = false;
+					UpdateSelectedInfo(new List<GMapMarker>());
+					selectionOverlay.Clear();
+				}
+			}
+		}
+
+		void OnPoligonSelectionUpdated()
+		{
+			var selected = addressesOverlay.Markers.Where(m => brokenSelection.IsInside(m.Position)).ToList();
+			UpdateSelectedInfo(selected);
 		}
 
 		void RouteListExternalUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<RouteList> e)
@@ -124,7 +166,14 @@ namespace Vodovoz
 
 		void GmapWidget_OnSelectionChange (RectLatLng Selection, bool ZoomToFit)
 		{
+			if (poligonSelection)
+				return;
 			var selected = addressesOverlay.Markers.Where(m => Selection.Contains(m.Position)).ToList();
+			UpdateSelectedInfo(selected);
+		}
+
+		void UpdateSelectedInfo(List<GMapMarker> selected)
+		{
 			var selectedBottle = selected.Select(x => x.Tag).Cast<Order>().Sum(o => o.TotalDeliveredBottles);
 			labelSelected.LabelProp = String.Format("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
 			menuAddToRL.Sensitive = selected.Count > 0 && routesAtDay.Count > 0 && !checkShowCompleted.Active;
