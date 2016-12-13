@@ -74,6 +74,8 @@ namespace Vodovoz
 			gmapWidget.DisableAltForSelection = true;
 			gmapWidget.OnSelectionChange += GmapWidget_OnSelectionChange;
 			gmapWidget.ButtonPressEvent += GmapWidget_ButtonPressEvent;
+			gmapWidget.ButtonReleaseEvent += GmapWidget_ButtonReleaseEvent;
+			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
 
 			yenumcomboMapType.ItemsEnum = typeof(MapProviders);
 
@@ -91,12 +93,43 @@ namespace Vodovoz
 			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
 
+		void GmapWidget_ButtonReleaseEvent (object o, Gtk.ButtonReleaseEventArgs args)
+		{
+			if (dragSelectionPointId != -1)
+				gmapWidget.DisableAltForSelection = true;
+			dragSelectionPointId = -1;
+		}
+
+		void GmapWidget_MotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
+		{
+			if(dragSelectionPointId > -1)
+			{
+				brokenSelection.Points[dragSelectionPointId] = gmapWidget.FromLocalToLatLng((int)args.Event.X, (int)args.Event.Y);
+				gmapWidget.UpdatePolygonLocalPosition(brokenSelection);
+				gmapWidget.Refresh();
+			}
+		}
+
 		bool poligonSelection;
+		int dragSelectionPointId = -1;
 
 		void GmapWidget_ButtonPressEvent (object o, Gtk.ButtonPressEventArgs args)
 		{
 			if(args.Event.Button == 1)
 			{
+				if(poligonSelection)
+				{
+					GRect rect = new GRect((long)args.Event.X - 5, (long)args.Event.Y - 5, 10, 10);
+					rect.OffsetNegative(gmapWidget.RenderOffset);
+
+					dragSelectionPointId = brokenSelection.LocalPoints.FindIndex(rect.Contains);
+					if(dragSelectionPointId != -1)
+					{
+						gmapWidget.DisableAltForSelection = false;
+						return;
+					}
+				}
+
 				if(args.Event.State.HasFlag(ModifierType.ControlMask))
 				{
 					if(!poligonSelection)
