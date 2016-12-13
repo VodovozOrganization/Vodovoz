@@ -62,6 +62,14 @@ namespace ViewWidgets
 			}
 		}
 
+		private struct Colors {
+			public static readonly Cairo.Color ActiveCell = new Cairo.Color(0.4, 0.7, 0.3);
+			public static readonly Cairo.Color BackLight  = new Cairo.Color(1, 0.5, 0.5);
+			public static readonly Cairo.Color Header 	  = new Cairo.Color(0.5, 0.5, 1);
+			public static readonly Cairo.Color Now 		  = new Cairo.Color(1, 0.5, 1);
+			public static readonly Cairo.Color Weekend 	  = new Cairo.Color(0.7, 0.7, 0.7);
+		}
+
 		private enum Half 
 		{
 			Top,
@@ -180,7 +188,7 @@ namespace ViewWidgets
 			{
 				if (weekends[i] == 0)
 					return;
-				FillColumn(weekends[i], new Cairo.Color(0.7, 0.7, 0.7));
+				FillColumn(weekends[i], Colors.Weekend);
 			}
 		}
 
@@ -204,7 +212,7 @@ namespace ViewWidgets
 
 		private void FillHeaders ()
 		{
-			Cairo.Color color = new Cairo.Color(0.5, 0.5, 1);
+			Cairo.Color color = Colors.Header;
 			FillRow(0, color);
 			FillRow(1, color);
 			FillColumn(0, color);
@@ -217,8 +225,8 @@ namespace ViewWidgets
 			if (mouseOnCell.CellNumber.X >= totalColums || mouseOnCell.CellNumber.Y >= totalRows)
 				return;
 
-			FillRow(mouseOnCell.CellNumber.Y, new Cairo.Color(1, 0.5, 0.5));
-			FillColumn(mouseOnCell.CellNumber.X, new Cairo.Color(1, 0.5, 0.5));
+			FillRow(mouseOnCell.CellNumber.Y, Colors.BackLight);
+			FillColumn(mouseOnCell.CellNumber.X, Colors.BackLight);
 		}
 
 		private void FillCell(PointD coord, Cairo.Color color)
@@ -248,13 +256,13 @@ namespace ViewWidgets
 		private void FillActiveCells () {
 			foreach (var cell in activeHalfCells)
 			{
-				FillHalf(cell, new Cairo.Color(0.2, 1, 0.2));
+				FillHalf(cell, Colors.ActiveCell);
 			}
 		}
 
 		private void FillNow ()
 		{
-			Cairo.Color color = new Cairo.Color(1, 0.5, 1);
+			Cairo.Color color = Colors.Now;
 
 			DateTime d = DateTime.Now;
 			if (d.Month != Date.Month || d.Year != Date.Year)
