@@ -96,8 +96,11 @@ namespace Vodovoz
 		void GmapWidget_ButtonReleaseEvent (object o, Gtk.ButtonReleaseEventArgs args)
 		{
 			if (dragSelectionPointId != -1)
+			{
 				gmapWidget.DisableAltForSelection = true;
-			dragSelectionPointId = -1;
+				OnPoligonSelectionUpdated();
+				dragSelectionPointId = -1;
+			}
 		}
 
 		void GmapWidget_MotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
