@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using QSReport;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz.Reports
 {
@@ -10,7 +11,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			yentryNomenclature.ItemsQuery = Repository.NomenclatureRepository.NomenclatureForSaleQuery();
+			yenumcomboNomenclature.ItemsEnum = typeof(NomenclatureCategory);
 		}
 
 		#region IOrmDialog implementation
@@ -36,6 +37,8 @@ namespace Vodovoz.Reports
 		}
 
 		#endregion
+
+		
 	}
 }
 

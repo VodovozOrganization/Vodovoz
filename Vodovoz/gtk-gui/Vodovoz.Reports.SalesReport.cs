@@ -12,11 +12,11 @@ namespace Vodovoz.Reports
 		
 		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker;
 		
-		private global::Gtk.HBox hbox2;
+		private global::Gtk.HBox hbox3;
 		
 		private global::Gtk.Label label2;
 		
-		private global::Gamma.Widgets.yEntryReference yentryNomenclature;
+		private global::Gamma.Widgets.yEnumComboBox yenumcomboNomenclature;
 		
 		private global::Gtk.Button buttonCreateReport;
 
@@ -59,28 +59,31 @@ namespace Vodovoz.Reports
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox ();
-			this.hbox2.Name = "hbox2";
-			this.hbox2.Spacing = 6;
-			// Container child hbox2.Gtk.Box+BoxChild
+			this.hbox3 = new global::Gtk.HBox ();
+			this.hbox3.Name = "hbox3";
+			this.hbox3.Spacing = 6;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.label2 = new global::Gtk.Label ();
 			this.label2.Name = "label2";
 			this.label2.Xalign = 0F;
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Номенклатура:");
-			this.hbox2.Add (this.label2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.label2]));
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип номенклатуры:");
+			this.hbox3.Add (this.label2);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.label2]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
-			// Container child hbox2.Gtk.Box+BoxChild
-			this.yentryNomenclature = new global::Gamma.Widgets.yEntryReference ();
-			this.yentryNomenclature.Events = ((global::Gdk.EventMask)(256));
-			this.yentryNomenclature.Name = "yentryNomenclature";
-			this.hbox2.Add (this.yentryNomenclature);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.yentryNomenclature]));
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.yenumcomboNomenclature = new global::Gamma.Widgets.yEnumComboBox ();
+			this.yenumcomboNomenclature.Name = "yenumcomboNomenclature";
+			this.yenumcomboNomenclature.ShowSpecialStateAll = true;
+			this.yenumcomboNomenclature.ShowSpecialStateNot = false;
+			this.yenumcomboNomenclature.UseShortTitle = false;
+			this.yenumcomboNomenclature.DefaultFirst = false;
+			this.hbox3.Add (this.yenumcomboNomenclature);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.yenumcomboNomenclature]));
 			w5.Position = 1;
-			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			this.vbox1.Add (this.hbox3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;

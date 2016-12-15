@@ -35640,7 +35640,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.SalesReport" design-size="345 300">
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.SalesReport" design-size="372 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -35685,14 +35685,14 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.HBox" id="hbox2">
+          <widget class="Gtk.HBox" id="hbox3">
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
               <widget class="Gtk.Label" id="label2">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes">Номенклатура:</property>
+                <property name="LabelProp" translatable="yes">Тип номенклатуры:</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -35702,13 +35702,18 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryNomenclature">
+              <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboNomenclature">
                 <property name="MemberName" />
-                <property name="Events">ButtonPressMask</property>
+                <property name="IsTextCombo">False</property>
+                <property name="Items" translatable="yes" />
+                <property name="ShowSpecialStateAll">True</property>
+                <property name="ShowSpecialStateNot">False</property>
+                <property name="UseShortTitle">False</property>
+                <property name="DefaultFirst">False</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
               </packing>
             </child>
           </widget>
