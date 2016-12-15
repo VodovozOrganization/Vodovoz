@@ -100,6 +100,8 @@ namespace Dialogs.Employees
 
 			int month = (int)yenumcomboMonth.SelectedItem;
 			int year = yspinYear.ValueAsInt;
+
+			logger.Debug(string.Format("Изменена дата на {0}.{1}", month, year));
 			IList<EmployeeWorkChart> charts = null;
 
 			var exist = newCharts.FirstOrDefault(e => e.Date.Month == month && e.Date.Year == year
@@ -110,7 +112,9 @@ namespace Dialogs.Employees
 				exist = loadedCharts.FirstOrDefault(e => e.Date.Month == month && e.Date.Year == year
 					&& e.Employee.Id == emp.Id);
 				if (exist == null) {
-					
+
+					logger.Debug("Загрузка данных из БД");
+
 					charts = EmployeeRepository.GetWorkChartForEmployeeByDate(
 						uow, emp, new DateTime(year, month, 1));
 					
@@ -119,14 +123,20 @@ namespace Dialogs.Employees
 							loadedCharts.Add(item);
 				}
 				else {
-					var a = cleared.FirstOrDefault(c => c.Item2.Month == month && c.Item2.Year == year
+					var tuple = cleared.FirstOrDefault(c => c.Item2.Month == month && c.Item2.Year == year
 						        && c.Item1 == emp.Id);
-					if(a == null)
+					if (tuple == null)
+					{
+						logger.Debug("Получение данных из кеша");
+
 						charts = loadedCharts.Where(e => e.Date.Month == month && e.Date.Year == year
 							&& e.Employee == emp).ToList();
+					}
 				}
 			}
 			else {
+				logger.Debug("Получение измененных пользователем данных");
+
 				charts = newCharts.Where(e => e.Date.Month == month && e.Date.Year == year
 					&& e.Employee.Id == emp.Id).ToList();
 			}
@@ -134,16 +144,21 @@ namespace Dialogs.Employees
 			var chartsFromTable = workcharttable.GetWorkChart();
 
 			if (chartsFromTable.Count == 0)
+			{
 				if (loadedCharts.FirstOrDefault(c => c.Date.Month == workcharttable.Date.Month
 					   && c.Date.Year == workcharttable.Date.Year
 					   && c.Employee.Id == previousEmployee.Id) != null)
+				{
 					cleared.Add(new Tuple<int, DateTime>(previousEmployee.Id,
-						new DateTime(workcharttable.Date.Year, workcharttable.Date.Month, 1)));
+							new DateTime(workcharttable.Date.Year, workcharttable.Date.Month, 1)));
+				}
+			}
 			
 			SetEmployeeForCharts(chartsFromTable, previousEmployee);
 			DeleteItemsByDate(newCharts, workcharttable.Date.Month, workcharttable.Date.Year, emp);
 			newCharts.AddRange(chartsFromTable);
 
+			logger.Debug("Передача данных в таблицу");
 			workcharttable.SetWorkChart(charts);	
 			SetTableDate();
 			previousEmployee = emp;
@@ -151,6 +166,7 @@ namespace Dialogs.Employees
 
 		public bool Save()
 		{
+			logger.Debug("Сохранение...");
 			var toSave = GetItemsForSave(loadedCharts, newCharts);
 			foreach (var item in toSave)
 			{
@@ -162,6 +178,7 @@ namespace Dialogs.Employees
 			}
 			uow.Commit();
 			ClearData();
+			logger.Debug("Сохранение завершено");
 			return true;
 		}
 
@@ -186,6 +203,7 @@ namespace Dialogs.Employees
 		protected void OnButtonCancelClicked (object sender, EventArgs e)
 		{
 			uow.Session.Clear();
+			ClearData();
 		}
 
 		private void DeleteItemsByDate(List<EmployeeWorkChart> list, int month, int year, Employee employee)
@@ -236,11 +254,14 @@ namespace Dialogs.Employees
 
 		private void ClearData()
 		{
+			logger.Debug("Сброс данных");
+
 			loadedCharts.Clear();
 			newCharts.Clear();
 			chartsToDelete.Clear();
 			cleared.Clear();
 			previousEmployee = new Employee();
+			workcharttable.Reset();
 		}
 
 		public enum Months
