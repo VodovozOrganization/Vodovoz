@@ -2,14 +2,15 @@
 using QSOrmProject;
 using QSReport;
 
-namespace ReportsParameters
+namespace Vodovoz.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class SalesReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
 		public SalesReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			yentryNomenclature.ItemsQuery = Repository.NomenclatureRepository.NomenclatureForSaleQuery();
 		}
 
 		#region IOrmDialog implementation

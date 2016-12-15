@@ -649,4 +649,13 @@ public partial class MainWindow: Gtk.Window
 			() => new OrmReference(typeof(GazTicket))
 		);
 	}
+
+	protected void OnActionSalesReportActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.SalesReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
 }
