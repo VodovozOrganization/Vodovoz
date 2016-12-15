@@ -3,6 +3,7 @@ using Cairo;
 using System.Collections.Generic;
 using System.Linq;
 using Gdk;
+using Vodovoz;
 
 namespace ViewWidgets
 {
@@ -72,8 +73,8 @@ namespace ViewWidgets
 
 		private enum Half 
 		{
-			Top,
-			Bottom
+			Top = 1,
+			Bottom,
 		}
 
 		enum DrawState
@@ -83,7 +84,7 @@ namespace ViewWidgets
 			Nothing
 		}
 
-		private class HalfCell
+		private class HalfCell : IComparable
 		{
 			public CellNumber 	CellNumber 	{ get; set;}
 			public Half 		half 		{ get; set;}
@@ -92,6 +93,32 @@ namespace ViewWidgets
 			{
 				return (this.CellNumber.Equals(cell.CellNumber) && this.half == cell.half);
 			}
+				
+			#region IComparable implementation
+			public int CompareTo(object obj)
+			{
+				HalfCell cell = obj as HalfCell;
+				if (this.CellNumber.X > cell.CellNumber.X)
+					return 1;
+				if (this.CellNumber.X < cell.CellNumber.X)
+					return -1;
+				if (this.CellNumber.X == cell.CellNumber.X)
+				{
+					if (this.CellNumber.Y > cell.CellNumber.Y)
+						return 1;
+					if (this.CellNumber.Y < cell.CellNumber.Y)
+						return -1;
+					if (this.CellNumber.Y == cell.CellNumber.Y)
+					{
+						if (this.half > cell.half)
+							return 1;
+						if (this.half < cell.half)
+							return -1;
+					}
+				}
+				return 0;
+			}
+			#endregion
 		}
 
 		#endregion
@@ -466,11 +493,6 @@ namespace ViewWidgets
 			return pointY / cellHeight;
 		}
 
-		public void SetTopHeaderData(IEnumerable<string> data, int headerIndex)
-		{
-			headerData = data;
-		}
-
 		private void ActivateOrDeactivateHalfCell(HalfCell cell, DrawState action)
 		{
 			if (action == DrawState.Nothing)
@@ -507,6 +529,111 @@ namespace ViewWidgets
 			return false;
 		}
 
+		private bool IsOneSection(HalfCell thisCell, HalfCell nextCell)
+		{
+			if (thisCell == null || nextCell == null)
+				return false;
+
+			if (thisCell.CellNumber.X == nextCell.CellNumber.X)
+			{
+				if (thisCell.CellNumber.Y == nextCell.CellNumber.Y)
+					if (thisCell.half != nextCell.half)
+						return true;
+				if (thisCell.CellNumber.Y + 1 == nextCell.CellNumber.Y)
+					if (thisCell.half == Half.Bottom && nextCell.half == Half.Top)
+						return true;
+			}
+			return false;
+		}
+
+		#endregion
+
+		#region Конвертирование
+
+		public void SetWorkChart(IList<EmployeeWorkChart> data)
+		{
+			activeHalfCells.Clear();
+
+			if (data == null)
+				return;
+			
+			foreach (var item in data)
+			{
+				TimeSpan tempTime = item.StartTime;
+				TimeSpan endTime = item.EndTime.Add(TimeSpan.FromHours(-0.5));
+
+				while (tempTime <= endTime)
+				{
+					HalfCell hc = new HalfCell {
+						CellNumber = new CellNumber	{
+							X = item.Date.Day,
+							Y = tempTime.Hours + topHeadersCount
+						}
+					};
+					
+					if (tempTime.Minutes >= 0  && tempTime.Minutes < 30)
+						hc.half = Half.Top;
+					if (tempTime.Minutes >= 30 && tempTime.Minutes < 60)
+						hc.half = Half.Bottom;
+					
+					activeHalfCells.Add(hc);
+
+					tempTime = tempTime.Add(TimeSpan.FromMinutes(30));
+				}
+			}
+		}
+
+		public IList<EmployeeWorkChart> GetWorkChart()
+		{
+			activeHalfCells.Sort();
+			IList<EmployeeWorkChart> ewcList = new List<EmployeeWorkChart>();
+			EmployeeWorkChart tempEWC = new EmployeeWorkChart();
+
+			HalfCell prevCell = null;
+			HalfCell thisCell = null;
+			HalfCell nextCell = null;
+
+			for (int i = 0; i < activeHalfCells.Count; i++)
+			{
+				thisCell = activeHalfCells[i];
+
+				if (i + 1 < activeHalfCells.Count)
+					nextCell = activeHalfCells[i + 1];
+
+				tempEWC.Date = new DateTime(this.Date.Year, this.Date.Month, thisCell.CellNumber.X);
+
+				if (prevCell == null)
+				{
+					double timeToAdd = 0;
+					timeToAdd = activeHalfCells[i].CellNumber.Y - topHeadersCount;
+					if (activeHalfCells[i].half == Half.Bottom)
+						timeToAdd += 0.5;
+					
+					tempEWC.StartTime = TimeSpan.FromHours(timeToAdd);
+				}
+
+				prevCell = thisCell;
+
+				if (!IsOneSection(thisCell, nextCell))
+				{
+					double timeToAdd = 0;
+					//Плюсуем половину, для того, чтобы в базу записывался весь промежуток
+					timeToAdd = activeHalfCells[i].CellNumber.Y - topHeadersCount + 0.5;
+					if (activeHalfCells[i].half == Half.Bottom)
+						timeToAdd += 0.5;
+
+					tempEWC.EndTime = TimeSpan.FromHours(timeToAdd);
+					ewcList.Add(tempEWC);
+					prevCell = null;
+					tempEWC = new EmployeeWorkChart();
+				}
+			}
+			return ewcList;
+		}
+
+		public void Reset(){
+			activeHalfCells.Clear();
+		}
 		#endregion
   	}
 }

@@ -4,6 +4,7 @@ using NHibernate.Criterion;
 using QSBanks;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
+using System;
 
 namespace Vodovoz.Repository
 {
@@ -57,6 +58,17 @@ namespace Vodovoz.Repository
 				.Where (e => e.INN == inn)
 				.List ();
 			return employees.FirstOrDefault (e => e.Accounts.Any (acc => acc.Number == account));
+		}
+
+		public static IList<EmployeeWorkChart> GetWorkChartForEmployeeByDate(IUnitOfWork uow, Employee employee, DateTime date)
+		{
+			EmployeeWorkChart ewcAlias = null;
+
+			return uow.Session.QueryOver<EmployeeWorkChart>(() => ewcAlias)
+				.Where(() => ewcAlias.Employee.Id == employee.Id)
+				.Where(() => ewcAlias.Date.Month == date.Month)
+				.Where(() => ewcAlias.Date.Year == date.Year)
+				.List();
 		}
 
 		public static QueryOver<Employee> DriversQuery ()

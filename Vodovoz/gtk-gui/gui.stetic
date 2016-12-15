@@ -35437,6 +35437,7 @@ RegistrationNumber</property>
                         <property name="Icon">stock:gtk-save Menu</property>
                         <property name="Label" translatable="yes">Сохранить</property>
                         <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnButtonSaveClicked" />
                       </widget>
                       <packing>
                         <property name="Position">0</property>
@@ -35453,6 +35454,7 @@ RegistrationNumber</property>
                         <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                         <property name="Label" translatable="yes">Отменить</property>
                         <property name="UseUnderline">True</property>
+                        <signal name="Clicked" handler="OnButtonCancelClicked" />
                       </widget>
                       <packing>
                         <property name="Position">1</property>
