@@ -616,11 +616,6 @@ namespace Vodovoz
 			var officialNameNode = node.SelectSingleNode("Свойство[@Имя='НаименованиеПолное']/Значение");
 			var servicelNode 	 = node.SelectSingleNode("Свойство[@Имя='Услуга']/Значение");
 
-			#if SHORT
-			if (ExcludeNomenclatures.Contains(code1cNode.InnerText))
-				return;
-			#endif
-
 			logger.Debug("Создаем номенклатуру");
 			var nomenclature = new Nomenclature
 			{
@@ -866,6 +861,13 @@ namespace Vodovoz
 			{
 				progressbar.Adjustment.Value++;
 				QSMain.WaitRedraw ();
+
+				#if SHORT
+				foreach (var item in loaded.OrderItems) {
+					if(ExcludeNomenclatures.Contains(item.Nomenclature.Code1c))
+						continue;
+				}
+				#endif
 
 				var existCounterparty = ExistCouterpaties.FirstOrDefault(n => n.Code1c == loaded.Client.Code1c);
 				if (existCounterparty != null)
