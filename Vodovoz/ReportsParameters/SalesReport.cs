@@ -2,6 +2,7 @@
 using QSOrmProject;
 using QSReport;
 using Vodovoz.Domain.Goods;
+using System.Collections.Generic;
 
 namespace Vodovoz.Reports
 {
@@ -12,6 +13,7 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			yenumcomboNomenclature.ItemsEnum = typeof(NomenclatureCategory);
+			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Now;
 		}
 
 		#region IOrmDialog implementation
@@ -38,7 +40,33 @@ namespace Vodovoz.Reports
 
 		#endregion
 
+		private ReportInfo GetReportInfo()
+		{			
+			return new ReportInfo
+			{
+				Identifier = "Sales.SalesReport",
+				Parameters = new Dictionary<string, object>
+				{ 
+					{ "start_date", dateperiodpicker.StartDateOrNull },
+					{ "end_date", dateperiodpicker.EndDateOrNull },
+					{ "nom_category", yenumcomboNomenclature.SelectedItem.ToString().ToLower() == "all"
+							? " " : yenumcomboNomenclature.SelectedItem.ToString()},
+				}
+			};
+		}	
 		
+		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
+		{
+			OnUpdate(true);
+		}
+
+		void OnUpdate(bool hide = false)
+		{
+			if (LoadReport != null)
+			{
+				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
+			}
+		}
 	}
 }
 

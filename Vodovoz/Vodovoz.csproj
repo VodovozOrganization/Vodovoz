@@ -657,6 +657,7 @@
     <Folder Include="Additions\Logistic\" />
     <Folder Include="icons\map\" />
     <Folder Include="Reports\RouteList\" />
+    <Folder Include="Reports\Sales\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -789,6 +790,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\RouteList\CarLoadDocument.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Sales\SalesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

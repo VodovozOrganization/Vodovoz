@@ -35730,11 +35730,11 @@ RegistrationNumber</property>
         <child>
           <widget class="Gtk.Button" id="buttonCreateReport">
             <property name="MemberName" />
-            <property name="Sensitive">False</property>
             <property name="CanFocus">True</property>
             <property name="Type">TextOnly</property>
             <property name="Label" translatable="yes">Сформировать отчет</property>
             <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateReportClicked" />
           </widget>
           <packing>
             <property name="Position">3</property>
