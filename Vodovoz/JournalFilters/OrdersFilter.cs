@@ -112,6 +112,22 @@ namespace Vodovoz
 			}
 		}
 
+		bool? restrictWithoutSelfDelivery;
+
+		public bool? RestrictWithoutSelfDelivery
+		{
+			get
+			{
+				return checkWithoutSelfDelivery.Active ? true : restrictWithoutSelfDelivery;
+			}
+			set
+			{
+				restrictWithoutSelfDelivery = value;
+				checkWithoutSelfDelivery.Active = value == true;
+				checkWithoutSelfDelivery.Sensitive = false;
+			}
+		}
+
 		public int[] ExceptIds{ get; set; }
 
 		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
@@ -149,6 +165,13 @@ namespace Vodovoz
 		protected void OnCheckOnlySelfDeliveryToggled(object sender, EventArgs e)
 		{
 			OnRefiltered ();
+			checkWithoutSelfDelivery.Sensitive = !checkOnlySelfDelivery.Active;
+		}
+
+		protected void OnCheckWithoutSelfDeliveryToggled (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+			checkOnlySelfDelivery.Sensitive = !checkWithoutSelfDelivery.Active;
 		}
 	}
 }
