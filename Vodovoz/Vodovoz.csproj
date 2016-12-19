@@ -516,6 +516,8 @@
     <Compile Include="ViewWidgets\WorkChartTable.cs" />
     <Compile Include="ReportsParameters\SalesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.SalesReport.cs" />
+    <Compile Include="Dialogs\SubdivisionDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

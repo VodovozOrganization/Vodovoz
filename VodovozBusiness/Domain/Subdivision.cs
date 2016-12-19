@@ -1,13 +1,15 @@
 ﻿using System;
 using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Employees;
+using System.Collections.Generic;
 
 namespace Vodovoz
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
 		NominativePlural = "подразделения",
 		Nominative = "подразделение")]
-	public class Subdivision : PropertyChangedBase, IDomainObject
+	public class Subdivision : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -23,11 +25,29 @@ namespace Vodovoz
 			set { SetField(ref name, value, () => Name); }
 		}
 
+		private Employee chief;
+
+		[Display (Name = "Начальник подразделения")]
+		public virtual Employee Chief {
+		get { return chief; }
+		set { SetField (ref chief, value, () => Chief); }
+		}
 		#endregion
 
 		public Subdivision()
 		{
 		}
+
+		#region IValidatableObject implementation
+
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if(string.IsNullOrWhiteSpace(Name))
+				yield return new ValidationResult ("Название подразделения должно быть заполнено.",
+					new[] {"Name"});
+		}
+
+		#endregion
 	}
 }
 

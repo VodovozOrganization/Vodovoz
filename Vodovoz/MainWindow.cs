@@ -289,8 +289,10 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnSubdivisionsActivated (object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof(Subdivision));
-		tdiMain.AddTab (refWin);
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<Subdivision>(),
+			() => new OrmReference(typeof(Subdivision))
+		);
 	}
 
 	protected void OnActionBanksRFActivated (object sender, EventArgs e)
