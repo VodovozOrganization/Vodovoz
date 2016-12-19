@@ -126,16 +126,16 @@ namespace Vodovoz
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=ToClientString(node)
 					#if SHORT
-							+ string.IsNullOrEmpty(node.Order.ToClientText)
-							? "" : string.Format("\n({0})", node.Order.ToClientText)
+							+ (string.IsNullOrEmpty(node.Order.ToClientText)
+							? "" : string.Format(" ({0})", node.Order.ToClientText))
 					#endif
 				)
 				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node)
 					#if SHORT
-							+ string.IsNullOrEmpty(node.Order.FromClientText)
-							? "" :  string.Format("\n({0})", node.Order.FromClientText)
+							+ (string.IsNullOrEmpty(node.Order.FromClientText)
+							? "" :  string.Format(" ({0})", node.Order.FromClientText))
 					#endif
 				)
 				.AddColumn("Предпол.\n пустых").HeaderAlignment(0.5f)
