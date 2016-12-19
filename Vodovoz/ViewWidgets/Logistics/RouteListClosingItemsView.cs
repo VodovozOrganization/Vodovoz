@@ -124,10 +124,20 @@ namespace Vodovoz
 			config
 				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
 					.AddTextRenderer()
-						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
+						.AddSetter((cell,node)=>cell.Markup=ToClientString(node)
+					#if SHORT
+							+ string.IsNullOrEmpty(node.Order.ToClientText)
+							? "" : string.Format("\n({0})", node.Order.ToClientText)
+					#endif
+				)
 				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
-						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
+						.AddSetter((cell,node)=>cell.Markup=FromClientString(node)
+					#if SHORT
+							+ string.IsNullOrEmpty(node.Order.FromClientText)
+							? "" :  string.Format("\n({0})", node.Order.FromClientText)
+					#endif
+				)
 				.AddColumn("Предпол.\n пустых").HeaderAlignment(0.5f)
 					.AddTextRenderer(x => x.Order.BottlesReturn.ToString()).Sensitive(false)
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
