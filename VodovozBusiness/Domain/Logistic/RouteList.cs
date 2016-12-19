@@ -228,6 +228,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				}
 			}
+			#if !SHORT
 			if(closed == true)
 			{
 				var equipmentsInRoute = Repository.Logistics.RouteListRepository.GetEquipmentsInRL(uow, this);
@@ -241,6 +242,7 @@ namespace Vodovoz.Domain.Logistic
 					}
 				}
 			}
+			#endif
 
 			if (closed)
 				ChangeStatus(RouteListStatus.EnRoute);
