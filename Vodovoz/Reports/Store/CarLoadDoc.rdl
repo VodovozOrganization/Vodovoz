@@ -181,7 +181,7 @@ WHERE
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Data</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет отгрузки</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -329,11 +329,14 @@ WHERE
       </Table>
       <Table Name="Table2">
         <DataSetName>Doc</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>
+        </NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
