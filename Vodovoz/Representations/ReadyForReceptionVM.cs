@@ -9,6 +9,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Documents;
 
 namespace Vodovoz.ViewModel
 {
@@ -39,6 +40,7 @@ namespace Vodovoz.ViewModel
 			OrderItem orderItemsAlias = null;
 			OrderEquipment orderEquipmentAlias = null;
 			Equipment equipmentAlias = null;
+			CarUnloadDocument carUnloadDocAlias = null;
 			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null, OrderNewEquipmentNomenclatureAlias = null;
 
 			RouteList routeListAlias = null;
@@ -75,6 +77,15 @@ namespace Vodovoz.ViewModel
 							.Add (Subqueries.WhereExists (orderitemsSubqury))
 							.Add (Subqueries.WhereExists (orderEquipmentSubquery))
 						);
+				}
+
+				if (Filter.RestrictWithoutUnload == true)
+				{
+				var HasUnload = QueryOver.Of<CarUnloadDocument> (() => carUnloadDocAlias)
+					.Where (() => carUnloadDocAlias.RouteList.Id == routeListAlias.Id)
+					.Select (i => i.RouteList);
+				
+				queryRoutes.Where(new Disjunction().Add(Subqueries.WhereNotExists(HasUnload)));
 				}
 
 				items.AddRange (

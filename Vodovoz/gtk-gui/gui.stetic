@@ -936,6 +936,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -26252,7 +26253,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReadyForReceptionFilter" design-size="84 30">
+  <widget class="Gtk.Bin" id="Vodovoz.ReadyForReceptionFilter" design-size="256 34">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -26287,6 +26288,21 @@ RegistrationNumber</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.CheckButton" id="checkWithoutUnload">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Label" translatable="yes">Только без разгрузок</property>
+            <property name="DrawIndicator">True</property>
+            <property name="HasLabel">True</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Toggled" handler="OnCheckWithoutUnloadToggled" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
           </packing>
         </child>
       </widget>

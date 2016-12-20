@@ -55,8 +55,21 @@ namespace Vodovoz
 				yspeccomboWarehouse.Sensitive = false;
 			}
 		}
+
+		public bool RestrictWithoutUnload {
+			get { return checkWithoutUnload.Active; }
+			set {
+				checkWithoutUnload.Active = value;
+				checkWithoutUnload.Sensitive = false;
+			}
+		}
 			
 		protected void OnYspeccomboWarehouseItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			UpdateCreteria ();
+		}
+
+		protected void OnCheckWithoutUnloadToggled (object sender, EventArgs e)
 		{
 			UpdateCreteria ();
 		}

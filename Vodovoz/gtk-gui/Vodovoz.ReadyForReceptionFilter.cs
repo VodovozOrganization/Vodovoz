@@ -8,6 +8,8 @@ namespace Vodovoz {
 		
 		private global::Gamma.Widgets.ySpecComboBox yspeccomboWarehouse;
 		
+		private global::Gtk.CheckButton checkWithoutUnload;
+		
 		protected virtual void Build() {
 			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.ReadyForReceptionFilter
@@ -38,12 +40,23 @@ namespace Vodovoz {
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
+			this.checkWithoutUnload = new global::Gtk.CheckButton();
+			this.checkWithoutUnload.CanFocus = true;
+			this.checkWithoutUnload.Name = "checkWithoutUnload";
+			this.checkWithoutUnload.Label = global::Mono.Unix.Catalog.GetString("Только без разгрузок");
+			this.checkWithoutUnload.DrawIndicator = true;
+			this.checkWithoutUnload.UseUnderline = true;
+			this.hbox3.Add(this.checkWithoutUnload);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.checkWithoutUnload]));
+			w3.Position = 2;
 			this.Add(this.hbox3);
 			if ((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.yspeccomboWarehouse.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnYspeccomboWarehouseItemSelected);
+			this.checkWithoutUnload.Toggled += new global::System.EventHandler(this.OnCheckWithoutUnloadToggled);
 		}
 	}
 }
