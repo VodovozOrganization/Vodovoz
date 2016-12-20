@@ -85,7 +85,7 @@ namespace Vodovoz.ViewModel
 					.Where (() => carUnloadDocAlias.RouteList.Id == routeListAlias.Id)
 					.Select (i => i.RouteList);
 				
-				queryRoutes.Where(new Disjunction().Add(Subqueries.WhereNotExists(HasUnload)));
+				queryRoutes.WithSubquery.WhereNotExists(HasUnload);
 				}
 
 				items.AddRange (
