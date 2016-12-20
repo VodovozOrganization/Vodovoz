@@ -666,9 +666,9 @@ namespace Vodovoz
 				return;
 			
 			#if SHORT
-			if (addressNode?.InnerText != null)
-				if (addressNode.InnerText.ToLower().Contains("самовывоз"))
-					return;
+//			if (addressNode?.InnerText != null)
+//				if (addressNode.InnerText.ToLower().Contains("самовывоз"))
+//					return;
 			#endif
 
 			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
@@ -882,8 +882,8 @@ namespace Vodovoz
 				{
 					if(loaded.DeliveryPoint == null)
 					{
-						if (loaded.Address1c.ToLower().Contains("самовывоз"))
-							continue;
+//						if (loaded.Address1c.ToLower().Contains("самовывоз"))
+//							continue;
 						var newPoint = DeliveryPoint.Create(loaded.Client);
 						newPoint.Address1c = loaded.Address1c;
 						UoW.Save(newPoint);
