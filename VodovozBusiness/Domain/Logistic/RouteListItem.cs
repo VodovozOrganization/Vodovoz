@@ -286,7 +286,7 @@ namespace Vodovoz.Domain.Logistic
 			#if SHORT
 
 			var payForEquipmentShort = fullBottleCount == 0
-					&& (!(Order.ToClientText?.ToLower().Contains("раст") == true
+					&& ((Order.ToClientText?.ToLower().Contains("раст") != true
 					&& string.IsNullOrWhiteSpace(Order.ToClientText))
 					|| bottleCollectionOrder);
 			var equpmentPaymentShort = payForEquipmentShort ? rates.CoolerRate : 0;
