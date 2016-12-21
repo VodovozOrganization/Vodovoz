@@ -917,6 +917,7 @@ namespace Vodovoz
 				}
 				else
 				{
+					loaded.PaymentType = loaded.Client.PaymentMethod;
 					NewOrders++;
 					if (loaded.DeliveryPoint == null)
 						NewAddresses++;
