@@ -13,7 +13,7 @@ namespace Vodovoz.Reports
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			yenumcomboNomenclature.ItemsEnum = typeof(NomenclatureCategory);
-			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Now;
+			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
 		}
 
 		#region IOrmDialog implementation
