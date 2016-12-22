@@ -36,6 +36,8 @@ namespace Vodovoz
 			"03281439",
 		};
 
+		private string cahsString = "00002", cashlessString = "00003", barterString = "00093";
+
 		#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
 			"00000969"
@@ -657,6 +659,7 @@ namespace Vodovoz
 			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
 			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 
 			//TODO Предусмотреть самовывоз в адресе
 			DeliveryPoint deliveryPoint = DeliveryPointsList.FirstOrDefault(d => d.Address1c == addressNode?.InnerText);
@@ -677,6 +680,15 @@ namespace Vodovoz
 
 			var deliverySchedule = DeliverySchedules.FirstOrDefault(x => x.Name == deliverySchedulesNode?.InnerText);
 
+			PaymentType paymentType = PaymentType.cashless;
+			if (nPayment != null)
+			{
+				if(nPayment.InnerText.Contains(cahsString))
+					paymentType = PaymentType.cash;
+				if (nPayment.InnerText.Contains(cashlessString) || nPayment.InnerText.Contains(barterString))
+					paymentType = PaymentType.cashless;
+			}
+
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
 			Order order = new Order
 				{
@@ -687,7 +699,8 @@ namespace Vodovoz
 					DeliverySchedule 	= deliverySchedule,
 					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
 					DeliveryPoint 	 	= deliveryPoint,
-					Address1c 	  	 	= addressNode?.InnerText
+					Address1c 	  	 	= addressNode?.InnerText,
+					PaymentType 		= paymentType
 				};
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
@@ -917,7 +930,6 @@ namespace Vodovoz
 				}
 				else
 				{
-					loaded.PaymentType = loaded.Client.PaymentMethod;
 					NewOrders++;
 					if (loaded.DeliveryPoint == null)
 						NewAddresses++;
