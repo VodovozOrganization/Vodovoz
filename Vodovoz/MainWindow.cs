@@ -660,4 +660,8 @@ public partial class MainWindow: Gtk.Window
 			() => new QSReport.ReportViewDlg (widget)
 		);
 	}
+	protected void OnActionDriverWagesActivated (object sender, EventArgs e)
+	{
+		throw new NotImplementedException ();
+	}
 }

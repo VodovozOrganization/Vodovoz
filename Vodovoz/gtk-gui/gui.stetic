@@ -617,6 +617,17 @@
         <property name="ShortLabel" translatable="yes">Отчет по продажам</property>
         <signal name="Activated" handler="OnActionSalesReportActivated" />
       </action>
+      <action id="Action25">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Зарплаты</property>
+        <property name="ShortLabel" translatable="yes">Зарплаты</property>
+      </action>
+      <action id="ActionDriverWages">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Зарплаты водителей</property>
+        <property name="ShortLabel" translatable="yes">Зарплаты водителей</property>
+        <signal name="Activated" handler="OnActionDriverWagesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -729,6 +740,9 @@
                     </node>
                     <node type="Menu" action="Action24">
                       <node type="Menuitem" action="ActionSalesReport" />
+                    </node>
+                    <node type="Menu" action="Action25">
+                      <node type="Menuitem" action="ActionDriverWages" />
                     </node>
                   </node>
                   <node type="Menu" action="ActionAbout">
@@ -26173,6 +26187,7 @@ RegistrationNumber</property>
               <widget class="Vodovoz.ReadyForReceptionFilter" id="readyforreceptionfilter1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="RestrictWithoutUnload">False</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -35930,11 +35945,84 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Dialogs.SubdivisionDlg" design-size="300 300">
+  <widget class="Gtk.Bin" id="ReportsParameters.DriverWagesReport" design-size="320 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <placeholder />
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label1">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Дата:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSWidgetLib.DatePeriodPicker" id="dateperiodpicker">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="StartDate">0</property>
+                <property name="EndDate">0</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.HBox" id="hbox2">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label2">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Водитель:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceDriver">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
     </child>
   </widget>
 </stetic-interface>
