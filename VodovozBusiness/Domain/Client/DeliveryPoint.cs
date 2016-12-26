@@ -131,6 +131,7 @@ namespace Vodovoz.Domain.Client
 
 		[Display (Name = "Город")]
 		[Required (ErrorMessage = "Город должен быть заполнен.")]
+		[StringLength(45)]
 		public virtual string City {
 			get { return city; }
 			set { SetField (ref city, value, () => City); }
