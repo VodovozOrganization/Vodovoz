@@ -36,7 +36,7 @@
       </Textbox>
       <Table Name="Table1">
         <DataSetName>DriverInfo</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Данных нет</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -651,7 +651,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.date AS date,
@@ -672,8 +672,8 @@ FROM
     nomenclature ON nomenclature.id = order_items.nomenclature_id
 WHERE
     route_lists.driver_id = @driver_id
-        AND date &gt; @start_date
-        AND date &lt; @end_date
+        AND date &gt;= @start_date
+        AND date &lt;= @end_date
         AND (route_lists.status = 'OnClosing'
         OR route_lists.status = 'NotDelivered'
         OR route_lists.status = 'MileageCheck'
@@ -694,7 +694,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -743,7 +743,7 @@ GROUP BY route_lists.id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DriverFines">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     fines.date,
@@ -759,8 +759,8 @@ FROM
     nomenclature ON nomenclature.id = fines_nomenclatures.nomenclature_id
 WHERE
     fines_items.employee_id = @driver_id
-    AND fines.date &gt; @start_date
-    AND fines.date &lt; @end_date
+    AND fines.date &gt;= @start_date
+    AND fines.date &lt;= @end_date
 GROUP BY fines.date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
@@ -774,7 +774,7 @@ GROUP BY fines.date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
