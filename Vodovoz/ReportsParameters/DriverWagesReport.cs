@@ -2,8 +2,10 @@
 using QSOrmProject;
 using QSReport;
 using System.Collections.Generic;
+using Vodovoz.Domain.Employees;
+using QSProjectsLib;
 
-namespace ReportsParameters
+namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DriverWagesReport : Gtk.Bin, IOrmDialog, IParametersWidget
@@ -12,6 +14,7 @@ namespace ReportsParameters
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+			yentryreferenceDriver.ItemsQuery = Vodovoz.Repository.EmployeeRepository.DriversQuery();
 		}
 
 		#region IOrmDialog implementation
@@ -53,10 +56,27 @@ namespace ReportsParameters
 				Identifier = "Wages.DriverWage",
 				Parameters = new Dictionary<string, object>
 				{ 
-					{ "driver_id", dateperiodpicker.StartDateOrNull }
+					{ "driver_id", (yentryreferenceDriver.Subject as Employee).Id},
+					{ "start_date", dateperiodpicker.StartDateOrNull },
+					{ "end_date", dateperiodpicker.EndDateOrNull }
 				}
 			};
 		}	
+
+		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
+		{
+			if ((yentryreferenceDriver.Subject as Employee) == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать водителя");
+				return;
+			}
+			if(dateperiodpicker.StartDateOrNull == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать дату");
+				return;
+			}
+			OnUpdate(true);
+		}
 	}
 }
 

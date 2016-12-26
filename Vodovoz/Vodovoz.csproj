@@ -519,7 +519,7 @@
     <Compile Include="Dialogs\SubdivisionDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />
     <Compile Include="ReportsParameters\DriverWagesReport.cs" />
-    <Compile Include="gtk-gui\ReportsParameters.DriverWagesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.DriverWagesReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

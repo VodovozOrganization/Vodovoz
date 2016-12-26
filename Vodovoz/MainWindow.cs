@@ -662,6 +662,10 @@ public partial class MainWindow: Gtk.Window
 	}
 	protected void OnActionDriverWagesActivated (object sender, EventArgs e)
 	{
-		throw new NotImplementedException ();
+		var widget = new Vodovoz.Reports.DriverWagesReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
 	}
 }
