@@ -64,6 +64,15 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref isArchive, value, () => IsArchive); }
 		}
 
+		private bool isCompanyHavings;
+
+		[Display(Name = "Имущество компании")]
+		public virtual bool IsCompanyHavings
+		{
+			get { return isCompanyHavings; }
+			set { SetField(ref isCompanyHavings, value, () => IsCompanyHavings); }
+		}
+
 		byte[] photo;
 
 		[Display (Name = "Фотография")]

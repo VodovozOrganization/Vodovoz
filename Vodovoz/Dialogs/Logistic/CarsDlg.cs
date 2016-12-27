@@ -46,6 +46,8 @@ namespace Vodovoz
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
 
+			checkIsCompanyHavings.Binding.AddBinding(Entity, e => e.IsCompanyHavings, w => w.Active).InitializeFromSource();
+
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));
 			if (!UoWGeneric.IsNew) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
@@ -95,6 +97,15 @@ namespace Vodovoz
 			if (UoWGeneric.Root.Driver != null)
 				textDriverInfo.Text = "\tПаспорт: " + UoWGeneric.Root.Driver.PassportSeria + " № " + UoWGeneric.Root.Driver.PassportNumber +
 					"\n\tАдрес регистрации: " + UoWGeneric.Root.Driver.AddressRegistration;
+		}
+
+		protected void OnCheckIsCompanyHavingsToggled (object sender, EventArgs e)
+		{
+			Entity.IsCompanyHavings = checkIsCompanyHavings.Active;
+			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyHavings;
+
+			if (Entity.IsCompanyHavings)
+				Entity.Driver = null;
 		}
 	}
 }
