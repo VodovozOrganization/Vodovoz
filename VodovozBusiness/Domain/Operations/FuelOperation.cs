@@ -28,6 +28,15 @@ namespace Vodovoz
 			set { SetField(ref driver, value, () => Driver); }
 		}
 
+		private Car car;
+
+		[Display(Name = "Транспортное средство")]
+		public virtual Car Car
+		{
+			get { return car; }
+			set { SetField(ref car, value, () => Car); }
+		}
+
 		private decimal litersGived;
 
 		[Display (Name = "Выдано литров топлива")]

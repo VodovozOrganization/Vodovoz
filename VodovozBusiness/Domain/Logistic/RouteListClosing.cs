@@ -390,8 +390,17 @@ namespace Vodovoz.Domain.Logistic
 				}
 				decimal litresOutlayed = (decimal) RouteList.Car.FuelConsumption
 					/ 100 * RouteList.ActualDistance;
+
+				Car car = RouteList.Car;
+				Employee driver = RouteList.Driver;
+
+				if (car.IsCompanyHavings)
+					driver = null;
+				else
+					car = null;
 				
-				FuelOutlayedOperation.Driver 		 = RouteList.Driver;
+				FuelOutlayedOperation.Driver 		 = driver;
+				FuelOutlayedOperation.Car 			 = car;
 				FuelOutlayedOperation.Fuel 			 = RouteList.Car.FuelType;
 				FuelOutlayedOperation.OperationTime  = DateTime.Now;
 				FuelOutlayedOperation.LitersOutlayed = litresOutlayed;

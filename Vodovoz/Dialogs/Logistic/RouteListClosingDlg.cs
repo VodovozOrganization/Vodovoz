@@ -130,6 +130,8 @@ namespace Vodovoz
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 
+			buttonAddTicket.Sensitive = Entity.RouteList.Car?.FuelType?.Cost != null && Entity.RouteList.Driver != null;
+
 			LoadDataFromFine();
 			OnItemsUpdated();
 			GetFuelInfo();
@@ -495,8 +497,16 @@ namespace Vodovoz
 
 			if (Entity.RouteList.Car.FuelType != null)
 			{
+				Car car = Entity.RouteList.Car;
+				Employee driver = Entity.RouteList.Driver;
+
+				if (car.IsCompanyHavings)
+					driver = null;
+				else
+					car = null;
+
 				balanceBeforeOp = Repository.Operations.FuelRepository.GetFuelBalance(
-					UoW, Entity.RouteList.Driver, Entity.RouteList.Car.FuelType,
+					UoW, driver, car, Entity.RouteList.Car.FuelType,
 					null, exclude?.ToArray());
 			}
 		}

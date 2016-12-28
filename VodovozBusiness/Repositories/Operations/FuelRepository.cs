@@ -13,13 +13,16 @@ namespace Vodovoz.Repository.Operations
 {
 	public static class FuelRepository
 	{
-		public static decimal GetFuelBalance(IUnitOfWork UoW, Employee driver, FuelType fuel, DateTime? before = null, params int[] excludeOperationsIds)
+		public static decimal GetFuelBalance(IUnitOfWork UoW, Employee driver, Car car, FuelType fuel, DateTime? before = null, params int[] excludeOperationsIds)
 		{
 			FuelOperation operationAlias = null;
 			FuelQueryResult result = null;
 			var queryResult = UoW.Session.QueryOver<FuelOperation>(() => operationAlias)
-				.Where(() => operationAlias.Driver.Id == driver.Id)
 				.Where(() => operationAlias.Fuel.Id == fuel.Id);
+			if(driver != null)
+				queryResult.Where(() => operationAlias.Driver.Id == driver.Id);
+			if(car != null)
+				queryResult.Where(() => operationAlias.Car.Id == car.Id);
 			if (before.HasValue)
 				queryResult.Where(() => operationAlias.OperationTime < before);
 			if (excludeOperationsIds != null)

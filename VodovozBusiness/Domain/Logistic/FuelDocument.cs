@@ -32,6 +32,15 @@ namespace Vodovoz.Domain.Logistic
 			set {SetField(ref driver, value, () => Driver);}
 		}
 
+		private Car car;
+
+		[Display(Name = "Транспортное средство")]
+		public virtual Car Car
+		{
+			get { return car; }
+			set { SetField(ref car, value, () => Car); }
+		}
+
 		private FuelOperation operation;
 
 		[Display (Name = "Операции выдачи")]
@@ -98,7 +107,15 @@ namespace Vodovoz.Domain.Logistic
 			if (Operation == null)
 				Operation = new FuelOperation();
 
-			Operation.Driver 		 = Driver;
+			Car car = Car;
+			Employee driver = Driver;
+			if (car.IsCompanyHavings)
+				driver = null;
+			else
+				car = null;
+			
+			Operation.Driver 		 = driver;
+			Operation.Car			 = car;
 			Operation.Fuel 			 = Fuel;
 			Operation.LitersGived 	 = litersByTickets + litersByMoney;
 			Operation.LitersOutlayed = 0;

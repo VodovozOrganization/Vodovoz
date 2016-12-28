@@ -16,6 +16,7 @@ namespace Vodovoz
 			Map (x => x.PayedForFuel).Column ("payed_for_fuel");
 			Map (x => x.LiterCost)	 .Column ("liter_cost");
 
+			References (x => x.Car)				.Column ("car_id");
 			References (x => x.Fuel)			.Column ("fuel_type_id");
 			References (x => x.Driver)			.Column ("driver_id");
 			References (x => x.Operation)		.Column ("fuel_operation_id").Cascade.All();

@@ -42,11 +42,13 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument> ();
 
 			RouteListClosing = routeListClosing;
+			var rl = routeListClosing.RouteList;
 
 			UoWGeneric.Root.Date 	  = DateTime.Now;
-			UoWGeneric.Root.Driver 	  = routeListClosing.RouteList.Car.Driver;
-			UoWGeneric.Root.Fuel 	  = routeListClosing.RouteList.Car.FuelType;
-			UoWGeneric.Root.LiterCost = routeListClosing.RouteList.Car.FuelType.Cost;
+			UoWGeneric.Root.Car 	  = rl.Car;
+			UoWGeneric.Root.Driver 	  = rl.Driver;
+			UoWGeneric.Root.Fuel 	  = rl.Car.FuelType;
+			UoWGeneric.Root.LiterCost = rl.Car.FuelType.Cost;
 
 			ConfigureDlg();
 		}
@@ -57,6 +59,9 @@ namespace Vodovoz
 
 			yentrydriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
 			yentrydriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+
+			yentryCar.SubjectType = typeof(Car);
+			yentryCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 
 			yentryfuel.SubjectType = typeof(FuelType);
 			yentryfuel.Binding.AddBinding(Entity, e => e.Fuel, w => w.Subject).InitializeFromSource();
@@ -120,8 +125,15 @@ namespace Vodovoz
 				if (exclude.Count == 0)
 					exclude = null;
 
+				Car car = routeList.Car;
+				Employee driver = routeList.Driver;
+				if (car.IsCompanyHavings)
+					driver = null;
+				else
+					car = null;
+				
 				FuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-						UoW, routeList.Driver, routeList.Car.FuelType, null, exclude?.ToArray());
+					UoW, driver, car, routeList.Car.FuelType, null, exclude?.ToArray());
 
 				text.Add(string.Format("Остаток без документа {0:F2} л.", FuelBalance));
 			} else {
