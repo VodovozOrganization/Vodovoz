@@ -62,7 +62,7 @@
       <HintPath>..\..\QSProjects\packages\Iesi.Collections.4.0.1.4000\lib\net40\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.2.3\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\..\QSProjects\packages\NLog.4.4.1\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="FluentNHibernate">
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>

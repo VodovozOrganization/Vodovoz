@@ -46,14 +46,14 @@
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>..\..\QSProjects\packages\NLog.4.2.3\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\..\QSProjects\packages\NLog.4.4.1\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="gtk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="glib-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="System.Data" />
     <Reference Include="atk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="DataAnnotationsExtensions">
-      <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.3.0.0.0\lib\net40\DataAnnotationsExtensions.dll</HintPath>
+      <HintPath>..\..\QSProjects\packages\DataAnnotationsExtensions.5.0.1.16\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
     <Reference Include="gdk-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
     <Reference Include="Mono.Posix" />
