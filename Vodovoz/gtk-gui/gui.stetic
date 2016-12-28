@@ -950,6 +950,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2681,7 +2682,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -16993,16 +16993,12 @@ Patronymic</property>
         <property name="Spacing">6</property>
         <property name="BorderWidth">6</property>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="dataRouteList">
+          <widget class="Gtk.Table" id="dataRouteList">
             <property name="MemberName" />
             <property name="NRows">7</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <placeholder />
             </child>
@@ -17010,16 +17006,13 @@ Patronymic</property>
               <placeholder />
             </child>
             <child>
-              <widget class="QSOrmProject.DataDatePicker" id="datepickerDate">
+              <widget class="Gamma.Widgets.yDatePicker" id="datepickerDate">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">True</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Date</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -17313,16 +17306,12 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceCar">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceCar">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFields">Model
 RegistrationNumber</property>
                 <property name="DisplayFormatString">{0} {1}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Car</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -17340,14 +17329,10 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDriver">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceDriver">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFormatString" />
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Driver</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -17365,12 +17350,9 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceForwarder">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceForwarder">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -17388,12 +17370,9 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceLogistican">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceLogistican">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="LeftAttach">3</property>
@@ -17409,12 +17388,12 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataSpecComboBox" id="speccomboShift">
+              <widget class="Gamma.Widgets.ySpecComboBox" id="speccomboShift">
                 <property name="MemberName" />
                 <property name="IsTextCombo">False</property>
                 <property name="Items" translatable="yes" />
-                <property name="InheritedDataSource">True</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="AddIfNotExist">False</property>
+                <property name="DefaultFirst">False</property>
                 <property name="ShowSpecialStateAll">False</property>
                 <property name="ShowSpecialStateNot">True</property>
               </widget>
@@ -17434,7 +17413,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataSpinButton" id="spinPlannedDistance">
+              <widget class="Gamma.GtkWidgets.ySpinButton" id="spinPlannedDistance">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">10000</property>
@@ -17443,12 +17422,8 @@ RegistrationNumber</property>
                 <property name="ClimbRate">1</property>
                 <property name="Digits">3</property>
                 <property name="Numeric">True</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">PlannedDistance</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">PlannedDistance</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="ValueAsDecimal">0</property>
+                <property name="ValueAsInt">0</property>
               </widget>
               <packing>
                 <property name="TopAttach">6</property>

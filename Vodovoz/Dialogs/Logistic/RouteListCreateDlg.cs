@@ -71,16 +71,19 @@ namespace Vodovoz
 		{
 			subjectAdaptor.Target = UoWGeneric.Root;
 
-			dataRouteList.DataSource = subjectAdaptor;
-
 			referenceCar.SubjectType = typeof(Car);
+			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
+			referenceCar.ChangedByUser += (sender, e) => {
+				Entity.Driver = Entity.Car.Driver;
+				referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings ? true : false;
+			};
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
-			referenceDriver.PropertyMapping<RouteList> (r => r.Driver);
+			referenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
-			referenceForwarder.PropertyMapping<RouteList> (r => r.Forwarder);
+			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject);
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Changed += (sender, args) =>
 			{
@@ -88,12 +91,11 @@ namespace Vodovoz
 			};
 
 			referenceLogistican.Sensitive = false;
-			referenceLogistican.PropertyMapping<RouteList> (r => r.Logistican);
+			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject);
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
-			speccomboShift.Mappings = Entity.GetPropertyName (r => r.Shift);
-			speccomboShift.ColumnMappings = PropertyUtil.GetName<DeliveryShift> (s => s.Name);
-			speccomboShift.ItemsDataSource = DeliveryShiftRepository.ActiveShifts (UoW);
+			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts (UoW);
+			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem);
 
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 

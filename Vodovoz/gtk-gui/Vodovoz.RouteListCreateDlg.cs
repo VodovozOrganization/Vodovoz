@@ -6,9 +6,9 @@ namespace Vodovoz
 	{
 		private global::Gtk.VBox vbox1;
 		
-		private global::Gtk.DataBindings.DataTable dataRouteList;
+		private global::Gtk.Table dataRouteList;
 		
-		private global::QSOrmProject.DataDatePicker datepickerDate;
+		private global::Gamma.Widgets.yDatePicker datepickerDate;
 		
 		private global::Gtk.HBox hbox7;
 		
@@ -38,17 +38,17 @@ namespace Vodovoz
 		
 		private global::Gamma.GtkWidgets.yLabel labelStatus;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceCar;
+		private global::Gamma.Widgets.yEntryReference referenceCar;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceDriver;
+		private global::Gamma.Widgets.yEntryReference referenceDriver;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceForwarder;
+		private global::Gamma.Widgets.yEntryReference referenceForwarder;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceLogistican;
+		private global::Gamma.Widgets.yEntryReference referenceLogistican;
 		
-		private global::Gtk.DataBindings.DataSpecComboBox speccomboShift;
+		private global::Gamma.Widgets.ySpecComboBox speccomboShift;
 		
-		private global::Gtk.DataBindings.DataSpinButton spinPlannedDistance;
+		private global::Gamma.GtkWidgets.ySpinButton spinPlannedDistance;
 		
 		private global::Vodovoz.RouteListCreateItemsView createroutelistitemsview1;
 		
@@ -72,25 +72,18 @@ namespace Vodovoz
 			this.vbox1.Spacing = 6;
 			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.dataRouteList = new global::Gtk.DataBindings.DataTable (((uint)(7)), ((uint)(4)), false);
+			this.dataRouteList = new global::Gtk.Table (((uint)(7)), ((uint)(4)), false);
 			this.dataRouteList.Name = "dataRouteList";
 			this.dataRouteList.RowSpacing = ((uint)(6));
 			this.dataRouteList.ColumnSpacing = ((uint)(6));
-			this.dataRouteList.InheritedDataSource = false;
-			this.dataRouteList.InheritedBoundaryDataSource = false;
-			this.dataRouteList.InheritedDataSource = false;
-			this.dataRouteList.InheritedBoundaryDataSource = false;
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.datepickerDate = new global::QSOrmProject.DataDatePicker ();
+			this.datepickerDate = new global::Gamma.Widgets.yDatePicker ();
 			this.datepickerDate.Events = ((global::Gdk.EventMask)(256));
 			this.datepickerDate.Name = "datepickerDate";
 			this.datepickerDate.WithTime = false;
 			this.datepickerDate.Date = new global::System.DateTime (0);
 			this.datepickerDate.IsEditable = true;
 			this.datepickerDate.AutoSeparation = true;
-			this.datepickerDate.InheritedDataSource = true;
-			this.datepickerDate.Mappings = "Date";
-			this.datepickerDate.InheritedBoundaryDataSource = false;
 			this.dataRouteList.Add (this.datepickerDate);
 			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.datepickerDate]));
 			w1.TopAttach = ((uint)(3));
@@ -261,7 +254,7 @@ namespace Vodovoz
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.referenceCar = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceCar = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceCar.Events = ((global::Gdk.EventMask)(256));
 			this.referenceCar.Name = "referenceCar";
 			this.referenceCar.DisplayFields = new string[] {
@@ -269,10 +262,6 @@ namespace Vodovoz
 				"RegistrationNumber"
 			};
 			this.referenceCar.DisplayFormatString = "{0} {1}";
-			this.referenceCar.InheritedDataSource = true;
-			this.referenceCar.Mappings = "Car";
-			this.referenceCar.InheritedBoundaryDataSource = false;
-			this.referenceCar.CursorPointsEveryType = false;
 			this.dataRouteList.Add (this.referenceCar);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.referenceCar]));
 			w18.TopAttach = ((uint)(2));
@@ -281,14 +270,10 @@ namespace Vodovoz
 			w18.RightAttach = ((uint)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.referenceDriver = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceDriver = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceDriver.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDriver.Name = "referenceDriver";
 			this.referenceDriver.DisplayFormatString = "";
-			this.referenceDriver.InheritedDataSource = true;
-			this.referenceDriver.Mappings = "Driver";
-			this.referenceDriver.InheritedBoundaryDataSource = false;
-			this.referenceDriver.CursorPointsEveryType = false;
 			this.dataRouteList.Add (this.referenceDriver);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.referenceDriver]));
 			w19.TopAttach = ((uint)(3));
@@ -297,12 +282,9 @@ namespace Vodovoz
 			w19.RightAttach = ((uint)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.referenceForwarder = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceForwarder = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceForwarder.Events = ((global::Gdk.EventMask)(256));
 			this.referenceForwarder.Name = "referenceForwarder";
-			this.referenceForwarder.InheritedDataSource = true;
-			this.referenceForwarder.InheritedBoundaryDataSource = false;
-			this.referenceForwarder.CursorPointsEveryType = false;
 			this.dataRouteList.Add (this.referenceForwarder);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.referenceForwarder]));
 			w20.TopAttach = ((uint)(4));
@@ -311,22 +293,19 @@ namespace Vodovoz
 			w20.RightAttach = ((uint)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.referenceLogistican = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceLogistican = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceLogistican.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLogistican.Name = "referenceLogistican";
-			this.referenceLogistican.InheritedDataSource = true;
-			this.referenceLogistican.InheritedBoundaryDataSource = false;
-			this.referenceLogistican.CursorPointsEveryType = false;
 			this.dataRouteList.Add (this.referenceLogistican);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.referenceLogistican]));
 			w21.LeftAttach = ((uint)(3));
 			w21.RightAttach = ((uint)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.speccomboShift = new global::Gtk.DataBindings.DataSpecComboBox ();
+			this.speccomboShift = new global::Gamma.Widgets.ySpecComboBox ();
 			this.speccomboShift.Name = "speccomboShift";
-			this.speccomboShift.InheritedDataSource = true;
-			this.speccomboShift.InheritedBoundaryDataSource = false;
+			this.speccomboShift.AddIfNotExist = false;
+			this.speccomboShift.DefaultFirst = false;
 			this.speccomboShift.ShowSpecialStateAll = false;
 			this.speccomboShift.ShowSpecialStateNot = true;
 			this.dataRouteList.Add (this.speccomboShift);
@@ -337,19 +316,15 @@ namespace Vodovoz
 			w22.RightAttach = ((uint)(2));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child dataRouteList.Gtk.Table+TableChild
-			this.spinPlannedDistance = new global::Gtk.DataBindings.DataSpinButton (0, 10000, 1);
+			this.spinPlannedDistance = new global::Gamma.GtkWidgets.ySpinButton (0, 10000, 1);
 			this.spinPlannedDistance.CanFocus = true;
 			this.spinPlannedDistance.Name = "spinPlannedDistance";
 			this.spinPlannedDistance.Adjustment.PageIncrement = 10;
 			this.spinPlannedDistance.ClimbRate = 1;
 			this.spinPlannedDistance.Digits = ((uint)(3));
 			this.spinPlannedDistance.Numeric = true;
-			this.spinPlannedDistance.InheritedDataSource = true;
-			this.spinPlannedDistance.Mappings = "PlannedDistance";
-			this.spinPlannedDistance.InheritedBoundaryDataSource = false;
-			this.spinPlannedDistance.InheritedDataSource = true;
-			this.spinPlannedDistance.Mappings = "PlannedDistance";
-			this.spinPlannedDistance.InheritedBoundaryDataSource = false;
+			this.spinPlannedDistance.ValueAsDecimal = 0m;
+			this.spinPlannedDistance.ValueAsInt = 0;
 			this.dataRouteList.Add (this.spinPlannedDistance);
 			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.dataRouteList [this.spinPlannedDistance]));
 			w23.TopAttach = ((uint)(6));
