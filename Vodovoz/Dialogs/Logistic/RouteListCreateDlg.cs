@@ -76,6 +76,9 @@ namespace Vodovoz
 			referenceCar.ChangedByUser += (sender, e) => {
 				Entity.Driver = Entity.Car.Driver;
 				referenceDriver.Sensitive = Entity.Driver == null || Entity.Car.IsCompanyHavings ? true : false;
+				//Водители на Авто компании катаются без экспедитора
+				Entity.Forwarder = Entity.Car.IsCompanyHavings ? null : Entity.Forwarder;
+				referenceForwarder.Sensitive = !Entity.Car.IsCompanyHavings;
 			};
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
