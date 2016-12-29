@@ -244,7 +244,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal CalculateDriverWage(){
 			bool withForwarder = RouteList.Forwarder!=null;
-			var rates = Wages.GetDriverRates(withForwarder);
+			bool ich = RouteList.Car.IsCompanyHavings;
+			var rates = ich ? Wages.GetDriverRatesWithOurCar() : Wages.GetDriverRates(withForwarder);
 
 			if (!IsDelivered())
 				return 0;

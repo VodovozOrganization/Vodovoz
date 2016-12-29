@@ -19,6 +19,22 @@ namespace Vodovoz.Domain
 			};
 		}
 
+		public static Rates GetDriverRatesWithOurCar(){
+			return new Rates
+			{
+				PhoneServiceCompensationRate = 2,
+				FullBottleRate = 7,
+				EmptyBottleRate = 5,
+				CoolerRate = 10,
+				PaymentPerAddress = 30,
+				LargeOrderFullBottleRate = 4,
+				LargeOrderEmptyBottleRate = 1,
+				LargeOrderMinimumBottles = 100,
+				SmallFullBottleRate = (decimal)7 / 5,
+				ContractCancelationRate = 30,
+			};
+		}
+
 		public static Rates GetForwarderRates(){
 			return new Rates
 			{
