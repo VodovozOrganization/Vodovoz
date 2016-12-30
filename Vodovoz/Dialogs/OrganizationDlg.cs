@@ -40,9 +40,13 @@ namespace Vodovoz
 			subjectAdaptor.Target = UoWGeneric.Root;
 			datatableMain.DataSource = subjectAdaptor;
 			dataentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
+			dataentryEmail.Binding.AddBinding(Entity, e => e.Email, w => w.Text).InitializeFromSource();
 			dataentryINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			dataentryINN.Binding.AddBinding(Entity, e => e.INN, w => w.Text).InitializeFromSource();
 			dataentryKPP.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			dataentryKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
 			dataentryOGRN.ValidationMode = QSWidgetLib.ValidationType.numeric;
+			dataentryOGRN.Binding.AddBinding(Entity, e => e.OGRN, w => w.Text).InitializeFromSource();
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.ParentReference = new ParentReferenceGeneric<Organization, Account> (UoWGeneric, o => o.Accounts);

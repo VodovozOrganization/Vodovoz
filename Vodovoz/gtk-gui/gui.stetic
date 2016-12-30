@@ -990,7 +990,7 @@
           <widget class="Gtk.Notebook" id="notebookMain">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="scrolledwindow1">
                 <property name="MemberName" />
@@ -1014,15 +1014,12 @@
                         <property name="InheritedDataSource">False</property>
                         <property name="InheritedBoundaryDataSource">False</property>
                         <child>
-                          <widget class="QSOrmProject.DataValidatedEntry" id="dataentryEmail">
+                          <widget class="Gamma.Widgets.yValidatedEntry" id="dataentryEmail">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
                             <property name="MaxLength">45</property>
                             <property name="InvisibleChar">●</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">Email</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">3</property>
@@ -1071,15 +1068,12 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.DataValidatedEntry" id="dataentryINN">
+                          <widget class="Gamma.Widgets.yValidatedEntry" id="dataentryINN">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
                             <property name="MaxLength">12</property>
                             <property name="InvisibleChar">●</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">INN</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">6</property>
@@ -1098,15 +1092,12 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.DataValidatedEntry" id="dataentryKPP">
+                          <widget class="Gamma.Widgets.yValidatedEntry" id="dataentryKPP">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
                             <property name="MaxLength">9</property>
                             <property name="InvisibleChar">●</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">KPP</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">7</property>
@@ -1152,15 +1143,12 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="QSOrmProject.DataValidatedEntry" id="dataentryOGRN">
+                          <widget class="Gamma.Widgets.yValidatedEntry" id="dataentryOGRN">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="IsEditable">True</property>
                             <property name="MaxLength">13</property>
                             <property name="InvisibleChar">●</property>
-                            <property name="InheritedDataSource">True</property>
-                            <property name="Mappings">OGRN</property>
-                            <property name="InheritedBoundaryDataSource">False</property>
                           </widget>
                           <packing>
                             <property name="TopAttach">8</property>

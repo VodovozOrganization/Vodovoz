@@ -26,17 +26,17 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatableMain;
 		
-		private global::QSOrmProject.DataValidatedEntry dataentryEmail;
+		private global::Gamma.Widgets.yValidatedEntry dataentryEmail;
 		
 		private global::Gtk.DataBindings.DataEntry dataentryFullName;
 		
-		private global::QSOrmProject.DataValidatedEntry dataentryINN;
+		private global::Gamma.Widgets.yValidatedEntry dataentryINN;
 		
-		private global::QSOrmProject.DataValidatedEntry dataentryKPP;
+		private global::Gamma.Widgets.yValidatedEntry dataentryKPP;
 		
 		private global::Gtk.DataBindings.DataEntry dataentryName;
 		
-		private global::QSOrmProject.DataValidatedEntry dataentryOGRN;
+		private global::Gamma.Widgets.yValidatedEntry dataentryOGRN;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
@@ -137,7 +137,6 @@ namespace Vodovoz
 			this.radioTabInfo = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Основное"));
 			this.radioTabInfo.CanFocus = true;
 			this.radioTabInfo.Name = "radioTabInfo";
-			this.radioTabInfo.Active = true;
 			this.radioTabInfo.DrawIndicator = false;
 			this.radioTabInfo.UseUnderline = true;
 			this.radioTabInfo.Group = new global::GLib.SList (global::System.IntPtr.Zero);
@@ -163,7 +162,7 @@ namespace Vodovoz
 			this.notebookMain = new global::Gtk.Notebook ();
 			this.notebookMain.CanFocus = true;
 			this.notebookMain.Name = "notebookMain";
-			this.notebookMain.CurrentPage = 1;
+			this.notebookMain.CurrentPage = 0;
 			// Container child notebookMain.Gtk.Notebook+NotebookChild
 			this.scrolledwindow1 = new global::Gtk.ScrolledWindow ();
 			this.scrolledwindow1.CanFocus = true;
@@ -184,15 +183,12 @@ namespace Vodovoz
 			this.datatableMain.InheritedDataSource = false;
 			this.datatableMain.InheritedBoundaryDataSource = false;
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryEmail = new global::QSOrmProject.DataValidatedEntry ();
+			this.dataentryEmail = new global::Gamma.Widgets.yValidatedEntry ();
 			this.dataentryEmail.CanFocus = true;
 			this.dataentryEmail.Name = "dataentryEmail";
 			this.dataentryEmail.IsEditable = true;
 			this.dataentryEmail.MaxLength = 45;
 			this.dataentryEmail.InvisibleChar = '●';
-			this.dataentryEmail.InheritedDataSource = true;
-			this.dataentryEmail.Mappings = "Email";
-			this.dataentryEmail.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryEmail);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryEmail]));
 			w12.TopAttach = ((uint)(3));
@@ -223,15 +219,12 @@ namespace Vodovoz
 			w13.XOptions = ((global::Gtk.AttachOptions)(4));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryINN = new global::QSOrmProject.DataValidatedEntry ();
+			this.dataentryINN = new global::Gamma.Widgets.yValidatedEntry ();
 			this.dataentryINN.CanFocus = true;
 			this.dataentryINN.Name = "dataentryINN";
 			this.dataentryINN.IsEditable = true;
 			this.dataentryINN.MaxLength = 12;
 			this.dataentryINN.InvisibleChar = '●';
-			this.dataentryINN.InheritedDataSource = true;
-			this.dataentryINN.Mappings = "INN";
-			this.dataentryINN.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryINN);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryINN]));
 			w14.TopAttach = ((uint)(6));
@@ -241,15 +234,12 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryKPP = new global::QSOrmProject.DataValidatedEntry ();
+			this.dataentryKPP = new global::Gamma.Widgets.yValidatedEntry ();
 			this.dataentryKPP.CanFocus = true;
 			this.dataentryKPP.Name = "dataentryKPP";
 			this.dataentryKPP.IsEditable = true;
 			this.dataentryKPP.MaxLength = 9;
 			this.dataentryKPP.InvisibleChar = '●';
-			this.dataentryKPP.InheritedDataSource = true;
-			this.dataentryKPP.Mappings = "KPP";
-			this.dataentryKPP.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryKPP);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryKPP]));
 			w15.TopAttach = ((uint)(7));
@@ -277,15 +267,12 @@ namespace Vodovoz
 			w16.RightAttach = ((uint)(2));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryOGRN = new global::QSOrmProject.DataValidatedEntry ();
+			this.dataentryOGRN = new global::Gamma.Widgets.yValidatedEntry ();
 			this.dataentryOGRN.CanFocus = true;
 			this.dataentryOGRN.Name = "dataentryOGRN";
 			this.dataentryOGRN.IsEditable = true;
 			this.dataentryOGRN.MaxLength = 13;
 			this.dataentryOGRN.InvisibleChar = '●';
-			this.dataentryOGRN.InheritedDataSource = true;
-			this.dataentryOGRN.Mappings = "OGRN";
-			this.dataentryOGRN.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryOGRN);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryOGRN]));
 			w17.TopAttach = ((uint)(8));
