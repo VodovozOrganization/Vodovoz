@@ -31,7 +31,9 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
+			entryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			entryFrom.Binding.AddBinding(Entity, e => e.From, w => w.Time).InitializeFromSource();
+			entryTo.Binding.AddBinding(Entity, e => e.To, w => w.Time).InitializeFromSource();
 
 			var parallel = new ParallelEditing (entryName);
 			parallel.SubscribeOnChanges (entryFrom);

@@ -12,17 +12,17 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonCancel;
 		
-		private global::Gtk.DataBindings.DataTable datatable1;
+		private global::Gtk.Table datatable1;
 		
-		private global::Gtk.DataBindings.DataEntry entryName;
+		private global::Gamma.GtkWidgets.yEntry entryName;
 		
 		private global::Gtk.HBox hbox1;
 		
-		private global::QSOrmProject.DataTimeEntry entryFrom;
+		private global::Gamma.Widgets.yTimeEntry entryFrom;
 		
 		private global::Gtk.Label label1;
 		
-		private global::QSOrmProject.DataTimeEntry entryTo;
+		private global::Gamma.Widgets.yTimeEntry entryTo;
 		
 		private global::Gtk.Label label10;
 		
@@ -76,26 +76,16 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(2)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.Table (((uint)(2)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entryName = new global::Gtk.DataBindings.DataEntry ();
+			this.entryName = new global::Gamma.GtkWidgets.yEntry ();
 			this.entryName.CanFocus = true;
 			this.entryName.Name = "entryName";
 			this.entryName.IsEditable = true;
 			this.entryName.InvisibleChar = '●';
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
 			this.datatable1.Add (this.entryName);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
 			w6.LeftAttach = ((uint)(1));
@@ -106,7 +96,7 @@ namespace Vodovoz
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entryFrom = new global::QSOrmProject.DataTimeEntry ();
+			this.entryFrom = new global::Gamma.Widgets.yTimeEntry ();
 			this.entryFrom.CanFocus = true;
 			this.entryFrom.Name = "entryFrom";
 			this.entryFrom.IsEditable = true;
@@ -115,9 +105,6 @@ namespace Vodovoz
 			this.entryFrom.AutocompleteStep = 15;
 			this.entryFrom.DateTime = new global::System.DateTime (0);
 			this.entryFrom.Time = new global::System.TimeSpan (0);
-			this.entryFrom.InheritedDataSource = true;
-			this.entryFrom.Mappings = "From";
-			this.entryFrom.InheritedBoundaryDataSource = false;
 			this.hbox1.Add (this.entryFrom);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.entryFrom]));
 			w7.Position = 0;
@@ -133,7 +120,7 @@ namespace Vodovoz
 			w8.Expand = false;
 			w8.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.entryTo = new global::QSOrmProject.DataTimeEntry ();
+			this.entryTo = new global::Gamma.Widgets.yTimeEntry ();
 			this.entryTo.CanFocus = true;
 			this.entryTo.Name = "entryTo";
 			this.entryTo.IsEditable = true;
@@ -142,9 +129,6 @@ namespace Vodovoz
 			this.entryTo.AutocompleteStep = 15;
 			this.entryTo.DateTime = new global::System.DateTime (0);
 			this.entryTo.Time = new global::System.TimeSpan (0);
-			this.entryTo.InheritedDataSource = true;
-			this.entryTo.Mappings = "To";
-			this.entryTo.InheritedBoundaryDataSource = false;
 			this.hbox1.Add (this.entryTo);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.entryTo]));
 			w9.Position = 2;

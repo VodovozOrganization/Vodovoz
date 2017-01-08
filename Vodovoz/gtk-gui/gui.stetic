@@ -10461,7 +10461,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryScheduleDlg" design-size="451 122">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryScheduleDlg" design-size="424 104">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10518,28 +10518,18 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+          <widget class="Gtk.Table" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">2</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="entryName">
+              <widget class="Gamma.GtkWidgets.yEntry" id="entryName">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Name</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Name</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -10559,7 +10549,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="QSOrmProject.DataTimeEntry" id="entryFrom">
+                  <widget class="Gamma.Widgets.yTimeEntry" id="entryFrom">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>
@@ -10568,9 +10558,6 @@ Patronymic</property>
                     <property name="AutocompleteStep">15</property>
                     <property name="DateTime">0</property>
                     <property name="Time">0</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">From</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -10592,7 +10579,7 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="QSOrmProject.DataTimeEntry" id="entryTo">
+                  <widget class="Gamma.Widgets.yTimeEntry" id="entryTo">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="IsEditable">True</property>
@@ -10601,9 +10588,6 @@ Patronymic</property>
                     <property name="AutocompleteStep">15</property>
                     <property name="DateTime">0</property>
                     <property name="Time">0</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">To</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
                   </widget>
                   <packing>
                     <property name="Position">2</property>
