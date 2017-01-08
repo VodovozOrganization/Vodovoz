@@ -42,9 +42,9 @@ namespace Vodovoz.ViewModel
 					.Select(() => proxyAlias.IssueDate).WithAlias(() => resultAlias.IssueDate)
 					.Select(() => proxyAlias.StartDate).WithAlias(() => resultAlias.StartDate)
 					.Select(() => proxyAlias.ExpirationDate).WithAlias(() => resultAlias.EndDate)
-					.SelectCount(() => personAlias.Id ).WithAlias(() => resultAlias.PeopleCount)
+					.SelectCountDistinct(() => personAlias.Id ).WithAlias(() => resultAlias.PeopleCount)
 					.Select(Projections.SqlFunction (
-						new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+						new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT(DISTINCT ?1 SEPARATOR ?2)"),
 						NHibernateUtil.String,
 						Projections.Property (() => deliveryPointAlias.ShortAddress),
 						Projections.Constant ("\n"))).WithAlias(() => resultAlias.DeliveryPoints)
