@@ -66,7 +66,7 @@ namespace Vodovoz
 			notebook1.CurrentPage = 0;
 			notebook1.ShowTabs = false;
 			//Initializing null fields
-			emailsView.Session = UoWGeneric.Session;
+			emailsView.UoW = UoWGeneric;
 			phonesView.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Emails == null)
 				UoWGeneric.Root.Emails = new List<Email> ();

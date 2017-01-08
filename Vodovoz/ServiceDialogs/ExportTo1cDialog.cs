@@ -1,14 +1,13 @@
 ﻿using System;
-using QSTDI;
-using System.Xml;
-using Vodovoz.ExportTo1c;
-using System.Linq;
-using QSProjectsLib;
-using QSOrmProject;
-using Vodovoz.Repository;
 using System.Collections.Generic;
-using Vodovoz.Domain.Orders;
+using System.Linq;
+using System.Xml;
 using Gtk;
+using QSOrmProject;
+using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Orders;
+using Vodovoz.ExportTo1c;
 
 namespace Vodovoz
 {

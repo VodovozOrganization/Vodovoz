@@ -61,7 +61,7 @@ namespace Vodovoz.ExportTo1c.Catalogs
 			properties.Add(
 				new PropertyNode("Адрес",
 					Common1cTypes.String,
-					bank.GetRegionString
+					bank.RegionText
 				)
 			);
 			properties.Add(
