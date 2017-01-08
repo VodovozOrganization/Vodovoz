@@ -177,10 +177,7 @@ namespace Vodovoz
 					uint Left = ((Table.TableChild)(this.datatablePrices [w])).LeftAttach;
 					uint Right = ((Table.TableChild)(this.datatablePrices [w])).RightAttach;
 					datatablePrices.Remove (w);
-					if (w.GetType() == typeof(DataComboBox))
-						datatablePrices.Attach (w, Left, Right, Row - 1, Row, AttachOptions.Fill | AttachOptions.Expand, (AttachOptions)0, (uint)0, (uint)0);
-					else
-						datatablePrices.Attach (w, Left, Right, Row - 1, Row, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
+					datatablePrices.Attach (w, Left, Right, Row - 1, Row, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 				}
 		}
 
