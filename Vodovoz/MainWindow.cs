@@ -61,6 +61,9 @@ public partial class MainWindow: Gtk.Window
 			return;
 		}
 
+		//Настраиваем модули
+		MainClass.SetupAppFromBase();
+
 		UsersAction.Sensitive = QSMain.User.Admin;
 		ActionParameters.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;

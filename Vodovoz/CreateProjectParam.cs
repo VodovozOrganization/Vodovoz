@@ -19,6 +19,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
+using QSSupportLib;
 
 namespace Vodovoz
 {
@@ -136,6 +137,13 @@ namespace Vodovoz
 			ParentReferenceConfig.AddActions (new ParentReferenceActions<Employee, QSBanks.Account> {
 				AddNewChild = (c, a) => c.AddAccount (a)
 			});
+		}
+
+		public static void SetupAppFromBase()
+		{
+			//Устанавливаем код города по умолчанию.
+			if (MainSupport.BaseParameters.All.ContainsKey ("default_city_code"))
+				QSContactsMain.DefaultCityCode = MainSupport.BaseParameters.All ["default_city_code"];
 		}
 	}
 }
