@@ -1,19 +1,19 @@
 ﻿using System;
 using QSOrmProject;
 using QSReport;
-using Vodovoz.Domain.Goods;
 using System.Collections.Generic;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Reports
 {
-	public partial class SalesReport : Gtk.Bin, IOrmDialog, IParametersWidget
+	[System.ComponentModel.ToolboxItem(true)]
+	public partial class FuelReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
-		public SalesReport()
+		public FuelReport()
 		{
 			this.Build();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
-			yenumcomboNomenclature.ItemsEnum = typeof(NomenclatureCategory);
-			dateperiodpicker.StartDate = dateperiodpicker.EndDate = DateTime.Today;
+			yentryreferenceCar.SubjectType = typeof(Car);
 		}
 
 		#region IOrmDialog implementation
@@ -34,7 +34,7 @@ namespace Vodovoz.Reports
 
 		public string Title	{ 
 			get {
-				return "Отчет по продажам";
+				return "Отчет по бензину";
 			}
 		}
 
@@ -44,17 +44,18 @@ namespace Vodovoz.Reports
 		{			
 			return new ReportInfo
 			{
-				Identifier = "Sales.SalesReport",
+				Identifier = "FuelReport",
 				Parameters = new Dictionary<string, object>
 				{ 
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", dateperiodpicker.EndDateOrNull },
-					{ "nom_category", yenumcomboNomenclature.SelectedItem.ToString().ToLower() == "all"
-							? " " : yenumcomboNomenclature.SelectedItem.ToString()}
+					{ "car_id", (yentryreferenceCar.Subject as Car)?.Id },
+					{ "driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
+						  ? null : (yentryreferenceCar.Subject as Car).Driver?.Id}
 				}
 			};
 		}	
-		
+
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
 			OnUpdate(true);

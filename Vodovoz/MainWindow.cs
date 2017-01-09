@@ -588,4 +588,12 @@ public partial class MainWindow: Gtk.Window
 			() => new QSReport.ReportViewDlg (widget)
 		);
 	}
+	protected void OnActionFuelReportActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.FuelReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget, true)
+		);
+	}
 }
