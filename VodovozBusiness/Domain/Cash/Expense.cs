@@ -100,9 +100,9 @@ namespace Vodovoz.Domain.Cash
 			set { SetField (ref advanceCloseItems, value, () => AdvanceCloseItems); }
 		}
 
-		RouteListClosing routeListClosing;
+		RouteList routeListClosing;
 
-		public virtual RouteListClosing RouteListClosing
+		public virtual RouteList RouteListClosing
 		{
 			get{ return routeListClosing; }
 			set

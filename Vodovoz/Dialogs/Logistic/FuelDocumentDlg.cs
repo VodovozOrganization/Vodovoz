@@ -15,7 +15,7 @@ namespace Vodovoz
 
 		GenericObservableList<TicketsRow> rows;
 
-		public RouteListClosing RouteListClosing { get; set; }
+		public RouteList RouteListClosing { get; set; }
 
 		public decimal FuelBalance { get; set; }
 
@@ -26,7 +26,7 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public FuelDocumentDlg (RouteListClosing routeListClosing, int id)
+		public FuelDocumentDlg (RouteList routeListClosing, int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<FuelDocument> (id);
@@ -36,13 +36,13 @@ namespace Vodovoz
 
 		//public FuelDocumentDlg (FuelDocument sub) : this (sub.Id) {}
 
-		public FuelDocumentDlg(RouteListClosing routeListClosing)
+		public FuelDocumentDlg(RouteList routeListClosing)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument> ();
 
 			RouteListClosing = routeListClosing;
-			var rl = routeListClosing.RouteList;
+			var rl = routeListClosing;
 
 			UoWGeneric.Root.Date 	  = DateTime.Now;
 			UoWGeneric.Root.Car 	  = rl.Car;
@@ -94,7 +94,7 @@ namespace Vodovoz
 
 		private void UpdateFuelInfo() {
 			var text = new List<string>();
-			RouteList routeList = RouteListClosing.RouteList;
+			RouteList routeList = RouteListClosing;
 			decimal fc = (decimal)routeList.Car.FuelConsumption;
 
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, RouteListClosing.Id);
@@ -149,8 +149,8 @@ namespace Vodovoz
 		private void UpdateResutlInfo () 
 		{
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
-			decimal spentFuel = (decimal)RouteListClosing.RouteList.Car.FuelConsumption
-								 / 100 * RouteListClosing.RouteList.ActualDistance;
+			decimal spentFuel = (decimal)RouteListClosing.Car.FuelConsumption
+								 / 100 * RouteListClosing.ActualDistance;
 			
 			var text = new List<string>();
 			text.Add(string.Format("Итого выдано {0:N2} литров", litersGived));
@@ -174,7 +174,7 @@ namespace Vodovoz
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
 		{
 			Entity.UpdateOperation(rows.ToDictionary(k => k.GasTicket, v => v.Count));
-			Entity.UpdateFuelCashExpense(UoW, RouteListClosing.Cashier, RouteListClosing.RouteList.Id);
+			Entity.UpdateFuelCashExpense(UoW, RouteListClosing.Cashier, RouteListClosing.Id);
 			UpdateResutlInfo();
 			UpdateFuelCashExpenseInfo();
 		}
@@ -217,8 +217,8 @@ namespace Vodovoz
 		{
 			decimal litersBalance = 0;
 			decimal litersGived = Entity.Operation?.LitersGived ?? default(decimal);
-			decimal spentFuel = (decimal)RouteListClosing.RouteList.Car.FuelConsumption
-				/ 100 * RouteListClosing.RouteList.ActualDistance;
+			decimal spentFuel = (decimal)RouteListClosing.Car.FuelConsumption
+				/ 100 * RouteListClosing.ActualDistance;
 			litersBalance = FuelBalance + litersGived - spentFuel;
 
 			decimal moneyToPay = -litersBalance * Entity.Fuel.Cost;

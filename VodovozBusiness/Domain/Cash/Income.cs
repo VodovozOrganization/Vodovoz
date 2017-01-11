@@ -115,9 +115,9 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
-		RouteListClosing routeListClosing;
+		RouteList routeListClosing;
 
-		public virtual RouteListClosing RouteListClosing
+		public virtual RouteList RouteListClosing
 		{
 			get{ return routeListClosing; }
 			set

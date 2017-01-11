@@ -434,13 +434,11 @@ FROM (SELECT
         (SELECT @fuel_balance:=0) t
 	WHERE
 		internal.date &lt; @start_date AND (IF(@driver_id is null, internal.car_id = @car_id, internal.driver_id = @driver_id))) t1,
-    routelist_closing
+    route_lists
         LEFT JOIN
-    route_lists ON routelist_closing.route_list_id = route_lists.id
+    fuel_operations AS outlayed ON route_lists.fuel_outlayed_operation_id = outlayed.id
         LEFT JOIN
-    fuel_operations AS outlayed ON routelist_closing.fuel_outlayed_operation_id = outlayed.id
-        LEFT JOIN
-    fuel_documents ON routelist_closing.fuel_gived_document_id = fuel_documents.id
+    fuel_documents ON route_lists.fuel_gived_document_id = fuel_documents.id
         LEFT JOIN
     fuel_operations AS gived ON fuel_documents.fuel_operation_id = gived.id
         LEFT JOIN

@@ -9,7 +9,7 @@
     <widget-library name="../../../QSProjects/QSProjectsLib/bin/Debug/QSProjectsLib.dll" />
     <widget-library name="../../../QSProjects/QSSupportLib/bin/Debug/QSSupportLib.dll" />
     <widget-library name="../../../QSProjects/QSTDI/bin/Debug/QSTDI.dll" />
-    <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
+    <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug-WithOldBinding/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSWidgetLib/bin/Debug/QSWidgetLib.dll" />
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
     <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
@@ -25,8 +25,8 @@
     <widget-library name="../../VodovozBusiness/bin/Debug/VodovozBusiness.dll" />
     <widget-library name="../../../VodovozService/Chat/bin/Debug/Chat.dll" />
     <widget-library name="../../../GMap.NET/GMap.NET.GtkSharp/bin/v4.0-Debug/GMap.NET.GtkSharp.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">

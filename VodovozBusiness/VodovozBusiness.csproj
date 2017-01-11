@@ -126,7 +126,6 @@
     <Compile Include="Domain\Logistic\LogisticsArea.cs" />
     <Compile Include="Domain\Logistic\RouteColumn.cs" />
     <Compile Include="Domain\Logistic\RouteList.cs" />
-    <Compile Include="Domain\Logistic\RouteListClosing.cs" />
     <Compile Include="Domain\Logistic\RouteListItem.cs" />
     <Compile Include="Domain\Operations\BottlesMovementOperation.cs" />
     <Compile Include="Domain\Operations\CounterpartyMovementOperation.cs" />
@@ -220,7 +219,6 @@
     <Compile Include="HibernateMapping\Logistic\FuelTypeMap.cs" />
     <Compile Include="HibernateMapping\Logistic\LogisticsAreaMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteColumnMap.cs" />
-    <Compile Include="HibernateMapping\Logistic\RouteListClosingMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\RouteListMap.cs" />
     <Compile Include="HibernateMapping\Operations\BottlesMovementOperationMap.cs" />

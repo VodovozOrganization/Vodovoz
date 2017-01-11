@@ -192,7 +192,7 @@ namespace Vodovoz
 				.AddClearDependence<RegradingOfGoodsDocument>(x => x.LastEditor)
 				.AddClearDependence<SelfDeliveryDocument>(x => x.Author)
 				.AddClearDependence<SelfDeliveryDocument>(x => x.LastEditor)
-				.AddClearDependence<RouteListClosing>(x => x.Cashier);
+				.AddClearDependence<RouteList>(x => x.Cashier);
 
 			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Employee> (item => item.DefaultAccount));
 
@@ -357,10 +357,9 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<RouteList>()
 				.AddDeleteDependence<RouteListItem>(x => x.RouteList)
 				.AddDeleteDependence<CarLoadDocument>(x => x.RouteList)
-				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList)
-				.AddDeleteDependence<RouteListClosing>(x => x.RouteList);
+				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList);
 
-			DeleteConfig.AddHibernateDeleteInfo<RouteListClosing>()
+			DeleteConfig.AddHibernateDeleteInfo<RouteList>()
 				.AddClearDependence<Expense>(x => x.RouteListClosing)
 				.AddClearDependence<Income>(x => x.RouteListClosing);
 

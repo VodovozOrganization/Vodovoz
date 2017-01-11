@@ -51,10 +51,10 @@
             CONCAT('Пересортица №',
                     store_regrading_of_goods_items.store_regrading_of_goods_id)
         WHEN
-            routelist_closing.id IS NOT NULL
+            route_lists.id IS NOT NULL
         THEN
             CONCAT('Закрытие МЛ №',
-                    routelist_closing.route_list_id)
+                    route_lists.id)
     END AS document,
     GROUP_CONCAT(CONCAT(nomenclature.name,
                 ' - ',
@@ -83,7 +83,7 @@ FROM
         LEFT JOIN
     store_regrading_of_goods_items ON store_regrading_of_goods_items.fine_id = fines.id
         LEFT JOIN
-    routelist_closing ON routelist_closing.bottles_fine_id = fines.id
+    route_lists ON route_lists.bottles_fine_id = fines.id
         LEFT JOIN
     fines_nomenclatures ON fines_nomenclatures.fine_id = fines.id
         LEFT JOIN

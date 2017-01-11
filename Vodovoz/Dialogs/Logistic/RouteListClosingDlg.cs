@@ -23,7 +23,7 @@ using System.Text;
 
 namespace Vodovoz
 {
-	public partial class RouteListClosingDlg : OrmGtkDialogBase<RouteListClosing>
+	public partial class RouteListClosingDlg : OrmGtkDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -35,11 +35,19 @@ namespace Vodovoz
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 
-		public RouteListClosingDlg(RouteListClosing closing)
+		public RouteListClosingDlg(RouteList closing)
 		{
 			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteListClosing>(closing.Id);
-			routelist = UoW.GetById<RouteList>(closing.RouteList.Id);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(closing.Id);
+			routelist = UoW.GetById<RouteList>(closing.Id);
+
+			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if (Entity.Cashier == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
+				FailInitialize = true;
+				return;
+			}
 			TabName = String.Format("Закрытие маршрутного листа №{0}", routelist.Id);
 			ConfigureDlg();
 		}
@@ -48,10 +56,9 @@ namespace Vodovoz
 		{
 			this.Build();
 
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteListClosing>();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
 			routelist = UoW.GetById<RouteList>(routeListId);
 
-			Entity.RouteList = routelist;
 			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if (Entity.Cashier == null)
 			{
@@ -130,7 +137,7 @@ namespace Vodovoz
 			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 
-			buttonAddTicket.Sensitive = Entity.RouteList.Car?.FuelType?.Cost != null && Entity.RouteList.Driver != null;
+			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null;
 
 			LoadDataFromFine();
 			OnItemsUpdated();
@@ -322,7 +329,7 @@ namespace Vodovoz
 		{
 			Entity.UpdateFuelOperation(UoW);
 
-			var valid = new QSValidator<RouteListClosing>(Entity);
+			var valid = new QSValidator<RouteList>(Entity);
 			if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
@@ -335,7 +342,7 @@ namespace Vodovoz
 			if (!isConsistentWithUnloadDocument())
 				return;
 
-			var valid = new QSValidator<RouteList>(UoWGeneric.Root.RouteList, 
+			var valid = new QSValidator<RouteList>(UoWGeneric.Root, 
 				            new Dictionary<object, object>
 				{
 					{ "NewStatus", RouteListStatus.MileageCheck }
@@ -361,7 +368,7 @@ namespace Vodovoz
 
 			Entity.Confirm();
 
-			UoW.Save(UoWGeneric.Root.RouteList);
+			UoW.Save(UoWGeneric.Root);
 			UoW.Save();
 
 			buttonAccept.Sensitive = false;
@@ -419,7 +426,7 @@ namespace Vodovoz
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.RouteList.Id, this);
+			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.Id, this);
 		}
 
 		protected void OnButtonBottleAddEditFineClicked(object sender, EventArgs e)
@@ -443,7 +450,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				fineDlg = new FineDlg(summ, Entity.RouteList.Driver);
+				fineDlg = new FineDlg(summ, Entity.Driver);
 				fineDlg.Entity.AddNomenclature(nomenclatures);
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}
@@ -478,7 +485,7 @@ namespace Vodovoz
 
 		private void GetFuelInfo()
 		{
-			track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
+			track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
 
 			var fuelOtlayedOp = UoWGeneric.Root.FuelOutlayedOperation;
 			var givedOp = Entity.FuelGivedDocument?.Operation;
@@ -495,10 +502,10 @@ namespace Vodovoz
 			if (exclude.Count == 0)
 				exclude = null;
 
-			if (Entity.RouteList.Car.FuelType != null)
+			if (Entity.Car.FuelType != null)
 			{
-				Car car = Entity.RouteList.Car;
-				Employee driver = Entity.RouteList.Driver;
+				Car car = Entity.Car;
+				Employee driver = Entity.Driver;
 
 				if (car.IsCompanyHavings)
 					driver = null;
@@ -506,7 +513,7 @@ namespace Vodovoz
 					car = null;
 
 				balanceBeforeOp = Repository.Operations.FuelRepository.GetFuelBalance(
-					UoW, driver, car, Entity.RouteList.Car.FuelType,
+					UoW, driver, car, Entity.Car.FuelType,
 					null, exclude?.ToArray());
 			}
 		}
@@ -514,7 +521,7 @@ namespace Vodovoz
 		private void UpdateFuelInfo()
 		{
 			var text = new List<string>();
-			decimal spentFuel = (decimal)Entity.RouteList.Car.FuelConsumption
+			decimal spentFuel = (decimal)Entity.Car.FuelConsumption
 			                    		/ 100 * routelist.ActualDistance;
 			
 			//Проверка существования трека и заполнения дистанции
@@ -524,16 +531,16 @@ namespace Vodovoz
 			if (hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.Distance));
 			
-			if (Entity.RouteList.Car.FuelType != null)
-				text.Add(string.Format("Вид топлива: {0}", Entity.RouteList.Car.FuelType.Name));
+			if (Entity.Car.FuelType != null)
+				text.Add(string.Format("Вид топлива: {0}", Entity.Car.FuelType.Name));
 			else
 				text.Add("Не указан вид топлива");
 			
-			if (Entity.FuelGivedDocument?.Operation != null || Entity.RouteList.ActualDistance > 0)
+			if (Entity.FuelGivedDocument?.Operation != null || Entity.ActualDistance > 0)
 				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
 
 			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)",
-				spentFuel, (decimal)Entity.RouteList.Car.FuelConsumption));
+				spentFuel, (decimal)Entity.Car.FuelConsumption));
 
 			if (Entity.FuelGivedDocument?.Operation != null)
 			{
@@ -541,7 +548,7 @@ namespace Vodovoz
 						Entity.FuelGivedDocument.Operation.LitersGived));
 			}
 
-			if (Entity.RouteList.Car.FuelType != null)
+			if (Entity.Car.FuelType != null)
 			{
 				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
 					+ (Entity.FuelGivedDocument?.Operation.LitersGived ?? 0) - spentFuel));
@@ -581,8 +588,8 @@ namespace Vodovoz
 
 		protected void OnButtonGetDistFromTrackClicked(object sender, EventArgs e)
 		{
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.RouteList.Id);
-			Entity.RouteList.ActualDistance = (decimal)track.Distance.Value;
+			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
+			Entity.ActualDistance = (decimal)track.Distance.Value;
 		}
 
 		protected void OnButtonAddTicketClicked(object sender, EventArgs e)
