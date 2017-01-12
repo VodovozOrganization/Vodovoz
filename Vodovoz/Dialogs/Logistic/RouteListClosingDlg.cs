@@ -100,6 +100,8 @@ namespace Vodovoz
 			datePickerDate.Binding.AddBinding(routelist, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = false;
 
+			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
+
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = routelist;
 			foreach (RouteListItem item in routeListAddressesView.Items)
@@ -322,7 +324,7 @@ namespace Vodovoz
 			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
 			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
-			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies);
+			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || Entity.DifferencesConfirmed;
 		}
 
 		public override bool Save()
@@ -632,6 +634,11 @@ namespace Vodovoz
 				this.HasChanges = true;
 			}
 			UpdateFuelInfo();
+		}
+
+		protected void OnYcheckConfirmDifferencesToggled (object sender, EventArgs e)
+		{
+			UpdateButtonState();
 		}
 	}
 

@@ -56,7 +56,7 @@ namespace Vodovoz
 		
 		private global::Gamma.GtkWidgets.yTextView ytextviewFuelInfo;
 		
-		private global::Gtk.Label GtkLabel14;
+		private global::Gtk.Label GtkLabel15;
 		
 		private global::Gtk.HBox hbox6;
 		
@@ -121,6 +121,8 @@ namespace Vodovoz
 		private global::Gtk.Label labelTotal;
 		
 		private global::Gtk.Button buttonAccept;
+		
+		private global::Gamma.GtkWidgets.yCheckButton ycheckConfirmDifferences;
 
 		protected virtual void Build ()
 		{
@@ -422,11 +424,11 @@ namespace Vodovoz
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.expander1.Add (this.table1);
-			this.GtkLabel14 = new global::Gtk.Label ();
-			this.GtkLabel14.Name = "GtkLabel14";
-			this.GtkLabel14.LabelProp = global::Mono.Unix.Catalog.GetString ("Информация о маршрутном листе");
-			this.GtkLabel14.UseUnderline = true;
-			this.expander1.LabelWidget = this.GtkLabel14;
+			this.GtkLabel15 = new global::Gtk.Label ();
+			this.GtkLabel15.Name = "GtkLabel15";
+			this.GtkLabel15.LabelProp = global::Mono.Unix.Catalog.GetString ("Информация о маршрутном листе");
+			this.GtkLabel15.UseUnderline = true;
+			this.expander1.LabelWidget = this.GtkLabel15;
 			this.vbox1.Add (this.expander1);
 			global::Gtk.Box.BoxChild w28 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.expander1]));
 			w28.Position = 1;
@@ -729,11 +731,24 @@ namespace Vodovoz
 			w62.Position = 8;
 			w62.Expand = false;
 			w62.Fill = false;
-			this.vbox1.Add (this.hbox9);
-			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox9]));
-			w63.Position = 4;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.ycheckConfirmDifferences = new global::Gamma.GtkWidgets.yCheckButton ();
+			this.ycheckConfirmDifferences.CanFocus = true;
+			this.ycheckConfirmDifferences.Name = "ycheckConfirmDifferences";
+			this.ycheckConfirmDifferences.Label = global::Mono.Unix.Catalog.GetString ("Расхождения подтверждаю");
+			this.ycheckConfirmDifferences.DrawIndicator = true;
+			this.ycheckConfirmDifferences.UseUnderline = true;
+			this.hbox9.Add (this.ycheckConfirmDifferences);
+			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.ycheckConfirmDifferences]));
+			w63.PackType = ((global::Gtk.PackType)(1));
+			w63.Position = 9;
 			w63.Expand = false;
 			w63.Fill = false;
+			this.vbox1.Add (this.hbox9);
+			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox9]));
+			w64.Position = 4;
+			w64.Expand = false;
+			w64.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -749,6 +764,7 @@ namespace Vodovoz
 			this.checkUseBottleFine.Toggled += new global::System.EventHandler (this.OnCheckUseBottleFineToggled);
 			this.buttonBottleAddEditFine.Clicked += new global::System.EventHandler (this.OnButtonBottleAddEditFineClicked);
 			this.buttonBottleDelFine.Clicked += new global::System.EventHandler (this.OnButtonBottleDelFineClicked);
+			this.ycheckConfirmDifferences.Toggled += new global::System.EventHandler (this.OnYcheckConfirmDifferencesToggled);
 			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
 		}
 	}

@@ -162,6 +162,15 @@ namespace Vodovoz.Domain.Logistic
 			set {SetField(ref fuelGivedDocument, value, () => FuelGivedDocument);}
 		}
 
+		private bool differencesConfirmed;
+
+		[Display(Name = "Расхождения подтверждены")]
+		public virtual bool DifferencesConfirmed
+		{
+			get { return differencesConfirmed; }
+			set { SetField(ref differencesConfirmed, value, () => DifferencesConfirmed); }
+		}
+
 		IList<RouteListItem> addresses = new List<RouteListItem> ();
 
 		[Display (Name = "Адреса в маршрутном листе")]

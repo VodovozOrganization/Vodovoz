@@ -17997,7 +17997,7 @@ RegistrationNumber</property>
               </widget>
             </child>
             <child>
-              <widget class="Gtk.Label" id="GtkLabel14">
+              <widget class="Gtk.Label" id="GtkLabel15">
                 <property name="MemberName" />
                 <property name="LabelProp" translatable="yes">Информация о маршрутном листе</property>
                 <property name="UseUnderline">True</property>
@@ -18407,6 +18407,24 @@ RegistrationNumber</property>
                 <property name="PackType">End</property>
                 <property name="Position">8</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckConfirmDifferences">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Расхождения подтверждаю</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnYcheckConfirmDifferencesToggled" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">9</property>
+                <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
