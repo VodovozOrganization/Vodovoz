@@ -255,7 +255,7 @@ namespace Vodovoz
 
 			treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem> ()
 				.AddColumn ("Тип").SetDataProperty (node => node.DepositTypeString)
-				.AddColumn ("Количество").AddNumericRenderer (node => node.Count)
+				.AddColumn ("Количество").AddNumericRenderer (node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
 				.AddColumn ("Цена").AddNumericRenderer (node => node.Deposit)
 				.AddColumn ("Сумма").AddNumericRenderer (node => node.Total)
 				.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Visible = n.PaymentDirection == PaymentDirection.ToClient)

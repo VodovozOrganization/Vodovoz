@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
-using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
+using Gamma.GtkWidgets;
 
 namespace Vodovoz
 {
@@ -29,7 +29,7 @@ namespace Vodovoz
 					DocumentUoW.Root.Materials = new List<IncomingWaterMaterial> ();
 				items = DocumentUoW.Root.ObservableMaterials;
 				items.ElementChanged += Items_ElementChanged;
-				treeMaterialsList.ColumnMappingConfig = FluentMappingConfig<IncomingWaterMaterial>.Create ()
+				treeMaterialsList.ColumnsConfig = ColumnsConfigFactory.Create<IncomingWaterMaterial> ()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("На продукт")
 					.AddNumericRenderer (i => i.OneProductAmountEdited).Editing ().WidthChars (10)
@@ -52,12 +52,12 @@ namespace Vodovoz
 
 		void OnOneProductColumnEdited (object o, EditedArgs args)
 		{
-			var node = (((treeMaterialsList.Model as TreeModelAdapter).Implementor as MappingsImplementor).GetNodeAtPath(new TreePath(args.Path)) as IncomingWaterMaterial);
-			int amount;
-			if (int.TryParse (args.NewText, out amount)) {
-				node.OneProductAmount = amount;
-			} else
-				node.OneProductAmount = null;
+//			var node = (((treeMaterialsList.Model as TreeModelAdapter).Implementor as MappingsImplementor).GetNodeAtPath(new TreePath(args.Path)) as IncomingWaterMaterial);
+//			int amount;
+//			if (int.TryParse (args.NewText, out amount)) {
+//				node.OneProductAmount = amount;
+//			} else
+//				node.OneProductAmount = null;
 		}
 
 		void Items_ElementChanged (object aList, int[] aIdx)

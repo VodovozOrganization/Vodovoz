@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
-using Gtk.DataBindings;
 using QSOrmProject;
 using QSTDI;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
+using Gamma.GtkWidgets;
 
 namespace Vodovoz
 {
@@ -32,7 +32,7 @@ namespace Vodovoz
 				items.ElementChanged += Items_ElementChanged;
 				items.ElementAdded += Items_ElementAdded;
 
-				treeMaterialsList.ColumnMappingConfig = FluentMappingConfig<ProductSpecificationMaterial>.Create()
+				treeMaterialsList.ColumnsConfig = ColumnsConfigFactory.Create<ProductSpecificationMaterial>()
 					.AddColumn ("Наименование").AddTextRenderer(p => p.NomenclatureName)
 					.AddColumn ("Количество").AddNumericRenderer (p => p.Amount).Editing ()
 					.AddSetter((c, p) => c.Digits = (uint)p.Material.Unit.Digits)

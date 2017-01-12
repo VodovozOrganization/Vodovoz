@@ -10,7 +10,7 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 		
-		private global::Gtk.DataBindings.DataTreeView treeMaterialsList;
+		private global::Gamma.GtkWidgets.yTreeView treeMaterialsList;
 		
 		private global::Gtk.HBox hbox1;
 		
@@ -45,15 +45,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.treeMaterialsList = new global::Gtk.DataBindings.DataTreeView ();
+			this.treeMaterialsList = new global::Gamma.GtkWidgets.yTreeView ();
 			this.treeMaterialsList.CanFocus = true;
 			this.treeMaterialsList.Name = "treeMaterialsList";
-			this.treeMaterialsList.CursorPointsEveryType = false;
-			this.treeMaterialsList.InheritedDataSource = false;
-			this.treeMaterialsList.InheritedBoundaryDataSource = false;
-			this.treeMaterialsList.InheritedDataSource = false;
-			this.treeMaterialsList.InheritedBoundaryDataSource = false;
-			this.treeMaterialsList.ColumnMappings = "";
 			this.GtkScrolledWindow.Add (this.treeMaterialsList);
 			this.vbox1.Add (this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));

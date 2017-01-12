@@ -14,7 +14,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable datatable5;
 		
-		private global::Gtk.DataBindings.DataEntry entryName;
+		private global::Gamma.GtkWidgets.yEntry entryName;
 		
 		private global::Gtk.Label label32;
 		
@@ -22,7 +22,7 @@ namespace Vodovoz
 		
 		private global::Vodovoz.ProductSpecificationMaterialsView productspecificationmaterialsview1;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceProduct;
+		private global::Gamma.Widgets.yEntryReference referenceProduct;
 
 		protected virtual void Build ()
 		{
@@ -82,17 +82,11 @@ namespace Vodovoz
 			this.datatable5.InheritedDataSource = false;
 			this.datatable5.InheritedBoundaryDataSource = false;
 			// Container child datatable5.Gtk.Table+TableChild
-			this.entryName = new global::Gtk.DataBindings.DataEntry ();
+			this.entryName = new global::Gamma.GtkWidgets.yEntry ();
 			this.entryName.CanFocus = true;
 			this.entryName.Name = "entryName";
 			this.entryName.IsEditable = true;
 			this.entryName.InvisibleChar = '●';
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
-			this.entryName.InheritedDataSource = true;
-			this.entryName.Mappings = "Name";
-			this.entryName.InheritedBoundaryDataSource = false;
 			this.datatable5.Add (this.entryName);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable5 [this.entryName]));
 			w6.LeftAttach = ((uint)(1));
@@ -129,16 +123,9 @@ namespace Vodovoz
 			w9.RightAttach = ((uint)(2));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.referenceProduct = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceProduct = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceProduct.Events = ((global::Gdk.EventMask)(256));
 			this.referenceProduct.Name = "referenceProduct";
-			this.referenceProduct.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceProduct.InheritedDataSource = true;
-			this.referenceProduct.Mappings = "Product";
-			this.referenceProduct.InheritedBoundaryDataSource = false;
-			this.referenceProduct.CursorPointsEveryType = false;
 			this.datatable5.Add (this.referenceProduct);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.datatable5 [this.referenceProduct]));
 			w10.TopAttach = ((uint)(1));

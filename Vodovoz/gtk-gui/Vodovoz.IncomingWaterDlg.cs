@@ -30,13 +30,13 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataLabel labelTimeStamp;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceDstWarehouse;
+		private global::Gamma.Widgets.yEntryReference referenceDstWarehouse;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceProduct;
+		private global::Gamma.Widgets.yEntryReference referenceProduct;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceSrcWarehouse;
+		private global::Gamma.Widgets.yEntryReference referenceSrcWarehouse;
 		
-		private global::Gtk.DataBindings.DataSpinButton spinAmount;
+		private global::Gamma.GtkWidgets.ySpinButton spinAmount;
 
 		protected virtual void Build ()
 		{
@@ -186,17 +186,9 @@ namespace Vodovoz
 			w13.RightAttach = ((uint)(2));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceDstWarehouse = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceDstWarehouse = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceDstWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.referenceDstWarehouse.Name = "referenceDstWarehouse";
-			this.referenceDstWarehouse.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceDstWarehouse.DisplayFormatString = "{0}";
-			this.referenceDstWarehouse.InheritedDataSource = true;
-			this.referenceDstWarehouse.Mappings = "IncomingWarehouse";
-			this.referenceDstWarehouse.InheritedBoundaryDataSource = false;
-			this.referenceDstWarehouse.CursorPointsEveryType = false;
 			this.tableWater.Add (this.referenceDstWarehouse);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWater [this.referenceDstWarehouse]));
 			w14.TopAttach = ((uint)(3));
@@ -206,17 +198,9 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceProduct = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceProduct = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceProduct.Events = ((global::Gdk.EventMask)(256));
 			this.referenceProduct.Name = "referenceProduct";
-			this.referenceProduct.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceProduct.DisplayFormatString = "{0}";
-			this.referenceProduct.InheritedDataSource = true;
-			this.referenceProduct.Mappings = "Product";
-			this.referenceProduct.InheritedBoundaryDataSource = false;
-			this.referenceProduct.CursorPointsEveryType = false;
 			this.tableWater.Add (this.referenceProduct);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableWater [this.referenceProduct]));
 			w15.TopAttach = ((uint)(1));
@@ -226,17 +210,9 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceSrcWarehouse = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceSrcWarehouse = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceSrcWarehouse.Events = ((global::Gdk.EventMask)(256));
 			this.referenceSrcWarehouse.Name = "referenceSrcWarehouse";
-			this.referenceSrcWarehouse.DisplayFields = new string[] {
-				"Name"
-			};
-			this.referenceSrcWarehouse.DisplayFormatString = "{0}";
-			this.referenceSrcWarehouse.InheritedDataSource = true;
-			this.referenceSrcWarehouse.Mappings = "WriteOffWarehouse";
-			this.referenceSrcWarehouse.InheritedBoundaryDataSource = false;
-			this.referenceSrcWarehouse.CursorPointsEveryType = false;
 			this.tableWater.Add (this.referenceSrcWarehouse);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableWater [this.referenceSrcWarehouse]));
 			w16.TopAttach = ((uint)(4));
@@ -246,19 +222,15 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.spinAmount = new global::Gtk.DataBindings.DataSpinButton (1, 100, 1);
+			this.spinAmount = new global::Gamma.GtkWidgets.ySpinButton (0, 100, 1);
 			this.spinAmount.CanFocus = true;
 			this.spinAmount.Name = "spinAmount";
 			this.spinAmount.Adjustment.PageIncrement = 10;
 			this.spinAmount.ClimbRate = 1;
 			this.spinAmount.Numeric = true;
 			this.spinAmount.Value = 1;
-			this.spinAmount.InheritedDataSource = true;
-			this.spinAmount.Mappings = "Amount";
-			this.spinAmount.InheritedBoundaryDataSource = false;
-			this.spinAmount.InheritedDataSource = true;
-			this.spinAmount.Mappings = "Amount";
-			this.spinAmount.InheritedBoundaryDataSource = false;
+			this.spinAmount.ValueAsDecimal = 0m;
+			this.spinAmount.ValueAsInt = 0;
 			this.tableWater.Add (this.spinAmount);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableWater [this.spinAmount]));
 			w17.TopAttach = ((uint)(2));
