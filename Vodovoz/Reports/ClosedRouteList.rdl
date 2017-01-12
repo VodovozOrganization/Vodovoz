@@ -1149,8 +1149,7 @@
       <Textbox Name="Textbox5">
         <Height>25.53pt</Height>
         <Width>663.95pt</Width>
-        <Value>При возникновении проблем звонить в офис по тел. 8-981-701-57-32. СВЕРЬ НАКЛАДНЫЕ С МАРШРУТНЫМ ЛИСТОМ ОБЯЗАТЕЛЬНО!
-По окончанию доставки отзвон в офис 8-981-701-57-32 ОБЯЗАТЕЛЬНО!"</Value>
+        <Value></Value>
         <ZIndex>1</ZIndex>
         <Left>0.70pt</Left>
         <Top>12.80pt</Top>
@@ -1160,7 +1159,7 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <List Name="List1" >
+      <List Name="List1">
         <Height>36.12pt</Height>
         <Width>660.98pt</Width>
         <Left>0.00pt</Left>
@@ -1218,6 +1217,19 @@
             <ZIndex>1</ZIndex>
             <Left>313.40pt</Left>
             <Top>0.00pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox23" >
+            <Height>14.23pt</Height>
+            <Width>154.29pt</Width>
+            <Value>="Пустых бутылей:" + {empty_bottles_count}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>312.95pt</Left>
+            <Top>13.50pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1426,14 +1438,15 @@ ORDER BY route_list_addresses.order_in_route;
         <!--fields-->
       </Fields>
     </DataSet>
-    <DataSet Name="TotalInfo" >
-      <Query>
+    <DataSet Name="TotalInfo">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(t1.driver_wage) AS total_driver_wage,
     SUM(t1.forwarder_wage) AS total_forwarder_wage,
     SUM(t1.cash) - t2.phone_compensation AS total_cash,
-    SUM(t1.count) AS total_count
+    SUM(t1.count) AS total_count,
+    t3.empty_bottles_count
 FROM
     (SELECT 
         route_list_addresses.driver_wage AS driver_wage,
@@ -1449,19 +1462,28 @@ FROM
             AND nomenclature.category = 'water'
     GROUP BY route_list_addresses.order_id) t1,
     (SELECT 
-        COUNT(order_items.id) * 2 AS phone_compensation
+        COUNT(route_list_addresses.id) * 2 AS phone_compensation
+    FROM
+        route_list_addresses
+    WHERE
+        route_list_addresses.route_list_id = @route_list_id) AS t2,
+    (SELECT 
+        SUM(order_items.actual_count) AS empty_bottles_count
     FROM
         route_list_addresses, order_items
+    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
     WHERE
         route_list_addresses.route_list_id = @route_list_id
-            AND route_list_addresses.order_id = order_items.order_id) t2</CommandText>
+            AND route_list_addresses.order_id = order_items.order_id
+            AND nomenclature.category = 'bottle'
+    GROUP BY route_list_addresses.order_id) t3</CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">
             <Value>={?RouteListId}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="total_driver_wage">
           <DataField>total_driver_wage</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1476,7 +1498,11 @@ FROM
         </Field>
         <Field Name="total_count">
           <DataField>total_count</DataField>
-          <TypeName>System.Decimal</TypeName>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="empty_bottles_count">
+          <DataField>empty_bottles_count</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
