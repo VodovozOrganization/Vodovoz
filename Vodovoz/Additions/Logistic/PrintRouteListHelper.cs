@@ -8,18 +8,19 @@ using QSTDI;
 using Vodovoz.Repository.Logistics;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Additions.Logistic
 {
 	public static class PrintRouteListHelper
 	{
-		public static void Print(IUnitOfWork uow, int routeListId, ITdiTab myTab)
+		public static void Print(IUnitOfWork uow, RouteList routeList, ITdiTab myTab)
 		{
 			List<RouteListPrintableDocs> docsList = new List<RouteListPrintableDocs>
 				{
-					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.LoadDocument),
-					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.TimeList),
-					new RouteListPrintableDocs(uow, routeListId, RouteListPrintableDocuments.RouteList)
+					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.LoadDocument),
+					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.TimeList),
+					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.RouteList)
 				};
 			
 			DocumentPrinter.PrintAll(docsList);
@@ -50,15 +51,26 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
-		public static ReportInfo GetRDLRouteList(IUnitOfWork uow, int routeListId)
+		public static ReportInfo GetRDLRouteList(IUnitOfWork uow, RouteList routeList)
 		{
 			var RouteColumns = RouteColumnRepository.ActiveColumns (uow);
 
 			if (RouteColumns.Count < 1)
 				MessageDialogWorks.RunErrorDialog ("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
 
+			string documentName = "RouteList";
+
+			switch (routeList.Status)
+			{
+				case RouteListStatus.OnClosing:
+				case RouteListStatus.MileageCheck:
+				case RouteListStatus.Closed:
+					documentName = "ClosedRouteList";
+					break;
+			}
+
 			string RdlText = String.Empty;
-			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/RouteList.rdl"))) {
+			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/" + documentName + ".rdl"))) {
 				RdlText = rdr.ReadToEnd ();
 			}
 			//Для уникальности номеров Textbox.
@@ -144,10 +156,10 @@ namespace Vodovoz.Additions.Logistic
 			#endif
 
 			return new ReportInfo {
-				Title = String.Format ("Маршрутный лист № {0}", routeListId),
+				Title = String.Format ("Маршрутный лист № {0}", routeList.Id),
 				Path = TempFile,
 				Parameters = new Dictionary<string, object> {
-					{ "RouteListId", routeListId }
+					{ "RouteListId", routeList.Id }
 				}
 			};
 		}
@@ -180,10 +192,10 @@ namespace Vodovoz.Additions.Logistic
 
 	public class RouteListPrintableDocs : IPrintableDocument
 	{
-		public RouteListPrintableDocs(IUnitOfWork uow, int routeListId, RouteListPrintableDocuments type)
+		public RouteListPrintableDocs(IUnitOfWork uow, RouteList routeList, RouteListPrintableDocuments type)
 		{
 			this.UoW 		 = uow;
-			this.routeListId = routeListId;
+			this.routeList 	 = routeList;
 			this.type 		 = type;
 		}
 
@@ -195,13 +207,13 @@ namespace Vodovoz.Additions.Logistic
 			switch (type)
 			{
 				case RouteListPrintableDocuments.LoadDocument:
-					document = PrintRouteListHelper.GetRDLLoadDocument(routeListId);
+					document = PrintRouteListHelper.GetRDLLoadDocument(routeList.Id);
 					break;
 				case RouteListPrintableDocuments.RouteList:
-					document = PrintRouteListHelper.GetRDLRouteList(UoW, routeListId);
+					document = PrintRouteListHelper.GetRDLRouteList(UoW, routeList);
 					break;
 				case RouteListPrintableDocuments.TimeList:
-					document = PrintRouteListHelper.GetRDLTimeList(routeListId);
+					document = PrintRouteListHelper.GetRDLTimeList(routeList.Id);
 					break;
 				default:
 					throw new NotImplementedException("Неизвестный тип документа");
@@ -254,7 +266,7 @@ namespace Vodovoz.Additions.Logistic
 		#endregion
 
 		private IUnitOfWork UoW;
-		private int routeListId;
+		private RouteList routeList;
 		private RouteListPrintableDocuments type;
 
 	}

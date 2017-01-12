@@ -130,13 +130,13 @@ namespace Vodovoz
 			switch (choise)
 			{
 				case RouteListPrintableDocuments.All:
-					PrintRouteListHelper.Print(UoW, Entity.Id, this);
+					PrintRouteListHelper.Print(UoW, Entity, this);
 					break;
 				case RouteListPrintableDocuments.LoadDocument:
 					document = PrintRouteListHelper.GetRDLLoadDocument(Entity.Id);
 					break;
 				case RouteListPrintableDocuments.RouteList:
-					document = PrintRouteListHelper.GetRDLRouteList(UoW, Entity.Id);
+					document = PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
 					break;
 				case RouteListPrintableDocuments.TimeList:
 					document = PrintRouteListHelper.GetRDLTimeList(Entity.Id);

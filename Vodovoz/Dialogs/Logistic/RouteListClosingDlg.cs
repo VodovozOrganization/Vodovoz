@@ -426,7 +426,7 @@ namespace Vodovoz
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity.Id, this);
+			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity, this);
 		}
 
 		protected void OnButtonBottleAddEditFineClicked(object sender, EventArgs e)
