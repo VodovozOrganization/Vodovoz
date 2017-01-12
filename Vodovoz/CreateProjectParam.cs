@@ -51,7 +51,6 @@ namespace Vodovoz
 				OrmObjectMapping<Subdivision>.Create().Dialog<SubdivisionDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<Manufacturer>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<EquipmentColors>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
-				OrmObjectMapping<Post>.Create().DefaultTableView().SearchColumn("Должность", x => x.Name).End(),
 				OrmObjectMapping<CounterpartyStatus>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<Significance>.Create().DefaultTableView().SearchColumn("Значимость клиента", x => x.Name).End(),
 				OrmObjectMapping<User>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
