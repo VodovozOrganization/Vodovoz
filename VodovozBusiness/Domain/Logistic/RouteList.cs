@@ -731,6 +731,15 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual void RecalculateFuelOutlay() {
+			if (this.ConfirmedDistance == 0)
+				return;
+			
+			decimal litresOutlayed = (decimal) Car.FuelConsumption
+				/ 100 * this.ConfirmedDistance;
+			FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
+		}
+
 		public RouteList ()
 		{
 			Date = DateTime.Today;
