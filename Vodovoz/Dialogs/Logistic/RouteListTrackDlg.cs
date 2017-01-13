@@ -214,6 +214,7 @@ namespace Vodovoz
 		private void LoadTracksForDriver(int driverId)
 		{
 			tracksOverlay.Clear();
+			tracksDistance.Clear();
 			//Load tracks
 			var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>).FirstOrDefault(x => x.Id == driverId);
 				int colorIter = 0;

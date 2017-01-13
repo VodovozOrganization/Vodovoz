@@ -14,7 +14,7 @@ namespace Vodovoz.HMap
 
 			Map (x => x.PlannedDistance).Column ("planned_distance");
 			Map (x => x.ActualDistance).Column ("actual_distance");
-			Map(x => x.ConfirmedDistance).Column("confirmed_distance");
+			Map (x => x.ConfirmedDistance).Column("confirmed_distance");
 			Map (x => x.Date).Column ("date");
 			Map (x => x.Status).Column ("status").CustomType<RouteListStatusStringType> ();
 			Map (x => x.ClosingDate).Column("closing_date");
