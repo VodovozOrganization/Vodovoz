@@ -118,8 +118,8 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref status, value, () => Status); }
 		}
 			
-		DateTime closingDate;
-		public virtual DateTime ClosingDate{
+		DateTime? closingDate;
+		public virtual DateTime? ClosingDate{
 			get{
 				return closingDate;
 			}
