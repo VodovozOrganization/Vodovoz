@@ -147,7 +147,7 @@ namespace Vodovoz
 			{
 				this.TabParent.OpenTab(
 					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-					() => new QSReport.ReportViewDlg(document, true));
+					() => new QSReport.ReportViewDlg(document));
 			}
 		}
 

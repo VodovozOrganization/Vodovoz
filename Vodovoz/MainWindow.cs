@@ -593,7 +593,7 @@ public partial class MainWindow: Gtk.Window
 		var widget = new Vodovoz.Reports.FuelReport();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
-			() => new QSReport.ReportViewDlg (widget, true)
+			() => new QSReport.ReportViewDlg (widget)
 		);
 	}
 }

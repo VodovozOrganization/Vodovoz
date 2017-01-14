@@ -85,6 +85,7 @@ namespace Vodovoz.Reports
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateReport = new global::Gtk.Button ();
+			this.buttonCreateReport.Sensitive = false;
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
@@ -99,6 +100,8 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler (this.OnDateperiodpickerPeriodChanged);
+			this.yentryreferenceCar.Changed += new global::System.EventHandler (this.OnYentryreferenceCarChanged);
 			this.buttonCreateReport.Clicked += new global::System.EventHandler (this.OnButtonCreateReportClicked);
 		}
 	}

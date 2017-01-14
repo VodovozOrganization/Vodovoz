@@ -27776,8 +27776,9 @@ RegistrationNumber</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -27981,8 +27982,9 @@ RegistrationNumber</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -28001,8 +28003,9 @@ RegistrationNumber</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -28021,8 +28024,9 @@ RegistrationNumber</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -28039,8 +28043,9 @@ RegistrationNumber</property>
                 <property name="LeftAttach">3</property>
                 <property name="RightAttach">4</property>
                 <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
-                <property name="XExpand">True</property>
+                <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
                 <property name="YExpand">False</property>
@@ -36039,6 +36044,7 @@ RegistrationNumber</property>
                 <property name="Events">ButtonPressMask</property>
                 <property name="StartDate">0</property>
                 <property name="EndDate">0</property>
+                <signal name="PeriodChanged" handler="OnDateperiodpickerPeriodChanged" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -36073,6 +36079,7 @@ RegistrationNumber</property>
               <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceCar">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <signal name="Changed" handler="OnYentryreferenceCarChanged" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -36093,6 +36100,7 @@ RegistrationNumber</property>
         <child>
           <widget class="Gtk.Button" id="buttonCreateReport">
             <property name="MemberName" />
+            <property name="Sensitive">False</property>
             <property name="CanFocus">True</property>
             <property name="Type">TextOnly</property>
             <property name="Label" translatable="yes">Сформировать отчет</property>
