@@ -30,80 +30,63 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 
-		RouteList routelist;
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 
-		public RouteListClosingDlg(RouteList closing)
-		{
-			this.Build();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(closing.Id);
-			routelist = UoW.GetById<RouteList>(closing.Id);
-
-			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if (Entity.Cashier == null)
-			{
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
-				FailInitialize = true;
-				return;
-			}
-			TabName = String.Format("Закрытие маршрутного листа №{0}", routelist.Id);
-			ConfigureDlg();
-		}
+		public RouteListClosingDlg(RouteList routeList) : this(routeList.Id){}
 
 		public RouteListClosingDlg(int routeListId)
 		{
 			this.Build();
 
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
-			routelist = UoW.GetById<RouteList>(routeListId);
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
-			Entity.Cashier = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			Entity.Cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			if (Entity.Cashier == null)
 			{
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
 				FailInitialize = true;
 				return;
 			}
-			TabName = String.Format("Закрытие маршрутного листа №{0}", routelist.Id);
+			TabName = String.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			ConfigureDlg();
 		}
 
 		private void ConfigureDlg()
 		{			
-			referenceCar.Binding.AddBinding(routelist, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
+			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = false;
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
-			referenceDriver.Binding.AddBinding(routelist, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
+			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceDriver.Sensitive = false;
 
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
-			referenceForwarder.Binding.AddBinding(routelist, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
+			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Sensitive = false;
 
 			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
-			referenceLogistican.Binding.AddBinding(routelist, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
+			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceLogistican.Sensitive = false;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
-			speccomboShift.Binding.AddBinding(routelist, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
+			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 			speccomboShift.Sensitive = false;
 
-			yspinActualDistance.Binding.AddBinding(routelist, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
+			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
 			yspinActualDistance.IsEditable = true;
 
-			datePickerDate.Binding.AddBinding(routelist, rl => rl.Date, widget => widget.Date).InitializeFromSource();
+			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = false;
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 
 			routeListAddressesView.UoW = UoW;
-			routeListAddressesView.RouteList = routelist;
+			routeListAddressesView.RouteList = Entity;
 			foreach (RouteListItem item in routeListAddressesView.Items)
 			{
 				item.Order.ObservableOrderItems.ElementChanged += OnOrderReturnsChanged;
@@ -111,8 +94,8 @@ namespace Vodovoz
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
-			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(routelist.Id, Nomenclature.GetCategoriesForShipment());
-			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(routelist.Id, new []{ NomenclatureCategory.bottle })
+			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(Entity.Id, Nomenclature.GetCategoriesForShipment());
+			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(Entity.Id, new []{ NomenclatureCategory.bottle })
 				.Sum(item => item.Amount);
 			var returnableOrderItems = routeListAddressesView.Items
 				.Where(address => address.IsDelivered())
@@ -136,7 +119,7 @@ namespace Vodovoz
 			hbox6.Remove(vboxHidenPanel);
 			rightsidepanel1.Panel = vboxHidenPanel;
 
-			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
 
 			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null;
@@ -199,7 +182,7 @@ namespace Vodovoz
 				foreach (var itm in item.Order.OrderItems) {
 					itm.ActualCount = 0;
 				}
-			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
 		}
 
@@ -211,7 +194,7 @@ namespace Vodovoz
 				rli.RecalculateWages();
 				rli.RecalculateTotalCash();
 			}
-			routelistdiscrepancyview.FindDiscrepancies(routelist.Addresses, allReturnsToWarehouse);
+			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			OnItemsUpdated();
 		}
 
@@ -370,7 +353,6 @@ namespace Vodovoz
 
 			Entity.Confirm();
 
-			UoW.Save(UoWGeneric.Root);
 			UoW.Save();
 
 			buttonAccept.Sensitive = false;
@@ -524,7 +506,7 @@ namespace Vodovoz
 		{
 			var text = new List<string>();
 			decimal spentFuel = (decimal)Entity.Car.FuelConsumption
-			                    		/ 100 * routelist.ActualDistance;
+			                    		/ 100 * Entity.ActualDistance;
 			
 			//Проверка существования трека и заполнения дистанции
 			bool hasTrack = track?.Distance.HasValue ?? false;

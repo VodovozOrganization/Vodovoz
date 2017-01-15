@@ -42,13 +42,12 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<FuelDocument> ();
 
 			RouteListClosing = routeListClosing;
-			var rl = routeListClosing;
 
 			UoWGeneric.Root.Date 	  = DateTime.Now;
-			UoWGeneric.Root.Car 	  = rl.Car;
-			UoWGeneric.Root.Driver 	  = rl.Driver;
-			UoWGeneric.Root.Fuel 	  = rl.Car.FuelType;
-			UoWGeneric.Root.LiterCost = rl.Car.FuelType.Cost;
+			UoWGeneric.Root.Car 	  = RouteListClosing.Car;
+			UoWGeneric.Root.Driver 	  = RouteListClosing.Driver;
+			UoWGeneric.Root.Fuel 	  = RouteListClosing.Car.FuelType;
+			UoWGeneric.Root.LiterCost = RouteListClosing.Car.FuelType.Cost;
 
 			ConfigureDlg();
 		}
@@ -94,8 +93,7 @@ namespace Vodovoz
 
 		private void UpdateFuelInfo() {
 			var text = new List<string>();
-			RouteList routeList = RouteListClosing;
-			decimal fc = (decimal)routeList.Car.FuelConsumption;
+			decimal fc = (decimal)RouteListClosing.Car.FuelConsumption;
 
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, RouteListClosing.Id);
 			bool hasTrack = track != null && track.Distance.HasValue;
@@ -103,15 +101,15 @@ namespace Vodovoz
 			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:f1} км.", track.Distance));
 			
-			if(routeList.ActualDistance > 0)
-				text.Add(string.Format("Оплачиваемое расстояние {0}", routeList.ActualDistance));
+			if(RouteListClosing.ActualDistance > 0)
+				text.Add(string.Format("Оплачиваемое расстояние {0}", RouteListClosing.ActualDistance));
 
-			if (routeList.Car.FuelType != null)
+			if (RouteListClosing.Car.FuelType != null)
 			{
 				var fuelOtlayedOp = RouteListClosing.FuelOutlayedOperation;
 				var entityOp = Entity.Operation;
 
-				text.Add(string.Format("Вид топлива: {0}", routeList.Car.FuelType.Name));
+				text.Add(string.Format("Вид топлива: {0}", RouteListClosing.Car.FuelType.Name));
 
 				var exclude = new List<int>();
 				if (entityOp != null && entityOp.Id != 0)
@@ -125,15 +123,15 @@ namespace Vodovoz
 				if (exclude.Count == 0)
 					exclude = null;
 
-				Car car = routeList.Car;
-				Employee driver = routeList.Driver;
+				Car car = RouteListClosing.Car;
+				Employee driver = RouteListClosing.Driver;
 				if (car.IsCompanyHavings)
 					driver = null;
 				else
 					car = null;
 				
 				FuelBalance = Repository.Operations.FuelRepository.GetFuelBalance(
-					UoW, driver, car, routeList.Car.FuelType, null, exclude?.ToArray());
+					UoW, driver, car, RouteListClosing.Car.FuelType, null, exclude?.ToArray());
 
 				text.Add(string.Format("Остаток без документа {0:F2} л.", FuelBalance));
 			} else {
@@ -141,7 +139,7 @@ namespace Vodovoz
 			}
 
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
-				fc / 100 * routeList.ActualDistance, fc));
+				fc / 100 * RouteListClosing.ActualDistance, fc));
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
