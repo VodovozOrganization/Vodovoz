@@ -42,13 +42,6 @@ namespace Vodovoz
 
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
-			Entity.Cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if (Entity.Cashier == null)
-			{
-				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать кассовые документы, так как некого указывать в качестве кассира.");
-				FailInitialize = true;
-				return;
-			}
 			TabName = String.Format("Закрытие маршрутного листа №{0}", Entity.Id);
 			ConfigureDlg();
 		}
@@ -324,6 +317,13 @@ namespace Vodovoz
 
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
+			var casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if (casher == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				return;
+			}
+
 			if (!isConsistentWithUnloadDocument())
 				return;
 
@@ -334,6 +334,8 @@ namespace Vodovoz
 				});
 			if (valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
+
+			Entity.Cashier = casher;
 
 			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
 			var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations();
