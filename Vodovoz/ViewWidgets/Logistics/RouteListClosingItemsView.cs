@@ -289,7 +289,6 @@ namespace Vodovoz
 
 		public void ConfigureMenu()
 		{
-			MenuItem openReserved;
 			menu = new Menu();
 
 			var openReturns = new MenuItem("Открыть недовозы");
