@@ -171,6 +171,17 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref differencesConfirmed, value, () => DifferencesConfirmed); }
 		}
 
+		private bool closingFilled;
+
+		/// <summary>
+		/// Внутренее поле говорящее о том что первоначалная подготовка маршрутного листа к закрытию выполнена.
+		/// Эта операция выполняется 1 раз при первом открытии диалога закрытия МЛ, тут оставляется пометка о том что операция выполнена.
+		/// </summary>
+		public virtual bool ClosingFilled {
+		    get { return closingFilled; }
+		    set { SetField (ref closingFilled, value, () => ClosingFilled); }
+		}
+
 		IList<RouteListItem> addresses = new List<RouteListItem> ();
 
 		[Display (Name = "Адреса в маршрутном листе")]
@@ -417,8 +428,6 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			#endregion
-
 			if (Shift == null)
 				yield return new ValidationResult ("Смена маршрутного листа должна быть заполнена.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName (this, o => o.Shift) });
@@ -430,6 +439,10 @@ namespace Vodovoz.Domain.Logistic
 				yield return new ValidationResult ("На заполнен автомобиль.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName (this, o => o.Car) });
 		}
+
+		#endregion
+
+		#region Функции относящиеся к закрытию МЛ
 
 		public virtual List<BottlesMovementOperation> CreateBottlesMovementOperation(){
 			var result = new List<BottlesMovementOperation>();
@@ -739,6 +752,8 @@ namespace Vodovoz.Domain.Logistic
 				/ 100 * this.ConfirmedDistance;
 			FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
 		}
+
+		#endregion
 
 		public RouteList ()
 		{

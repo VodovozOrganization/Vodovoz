@@ -106,8 +106,8 @@ namespace Vodovoz
 							Amount = 0
 						});
 			}
-			if (UoW.IsNew)
-				Initialize(routeListAddressesView.Items);
+			if(!Entity.ClosingFilled)
+				FirstFillClosing();
 
 			hbox6.Remove(vboxHidenPanel);
 			rightsidepanel1.Panel = vboxHidenPanel;
@@ -123,9 +123,9 @@ namespace Vodovoz
 			UpdateFuelInfo();
 		}
 
-		protected void Initialize(IList<RouteListItem> items)
+		protected void FirstFillClosing()
 		{
-			foreach (var routeListItem in items)
+			foreach (var routeListItem in Entity.Addresses)
 			{
 				var nomenclatures = routeListItem.Order.OrderItems
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
@@ -139,19 +139,21 @@ namespace Vodovoz
 				{
 					var returnedToWarehouse = allReturnsToWarehouse.Any(ret => ret.Id == item.Equipment.Id && ret.Amount > 0);
 					item.Confirmed = routeListItem.IsDelivered()
-					&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
-					|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
+						&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
+							|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
 				}
 				routeListItem.BottlesReturned = routeListItem.IsDelivered()
 					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
 				routeListItem.TotalCash = routeListItem.IsDelivered() &&
-				routeListItem.Order.PaymentType == PaymentType.cash
+					routeListItem.Order.PaymentType == PaymentType.cash
 					? routeListItem.Order.SumToReceive : 0;
 				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(routeListItem.Order.BottlesReturn);
 				routeListItem.DepositsCollected = routeListItem.IsDelivered()
 					? routeListItem.Order.GetExpectedBottlesDepositsCount() * bottleDepositPrice : 0;
 				routeListItem.RecalculateWages();
 			}
+
+			Entity.ClosingFilled = true;
 		}
 
 		void Routelistdiscrepancyview_FineChanged(object sender, EventArgs e)
