@@ -27769,6 +27769,7 @@ RegistrationNumber</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Открыть карту</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonOpenMapClicked" />
               </widget>
               <packing>
                 <property name="TopAttach">4</property>

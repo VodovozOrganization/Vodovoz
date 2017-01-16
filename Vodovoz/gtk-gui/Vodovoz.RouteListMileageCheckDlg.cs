@@ -396,6 +396,7 @@ namespace Vodovoz
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
+			this.buttonOpenMap.Clicked += new global::System.EventHandler (this.OnButtonOpenMapClicked);
 			this.buttonConfirm.Clicked += new global::System.EventHandler (this.OnButtonConfirmClicked);
 			this.buttonCloseRouteList.Clicked += new global::System.EventHandler (this.OnButtonCloseRouteListClicked);
 		}
