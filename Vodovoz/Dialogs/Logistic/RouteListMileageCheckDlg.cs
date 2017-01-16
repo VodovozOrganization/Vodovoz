@@ -255,8 +255,8 @@ namespace Vodovoz
 		#region Методы событий
 		void GmapWidget_ExposeEvent (object o, Gtk.ExposeEventArgs args)
 		{
-//			if (tracksDistance.Count == 0)
-//				return;
+			if (tracksDistance.Count == 0)
+				return;
 			var g = args.Event.Window;
 			var area = args.Event.Area;
 			int layoutWidth, layoutHeight, voffset = 0;
