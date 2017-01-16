@@ -17,6 +17,15 @@ namespace Vodovoz
 
 		IList<Equipment> alreadyUnloadedEquipment;
 
+		public override bool HasChanges {
+			get {
+				if (returnsreceptionview1.Items.Sum(i => i.Amount) > 0)
+					return true;
+				return base.HasChanges;
+			}
+		}
+
+		#region Конструкторы
 		public CarUnloadDocumentDlg()
 		{
 			this.Build();
@@ -52,7 +61,9 @@ namespace Vodovoz
 		public CarUnloadDocumentDlg (CarUnloadDocument sub) : this (sub.Id)
 		{
 		}
+		#endregion
 
+		#region Методы
 		void ConfigureDlg ()
 		{
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
@@ -132,27 +143,6 @@ namespace Vodovoz
 			}
 			equipmentreceptionview1.RouteList = Entity.RouteList;
 			returnsreceptionview1.RouteList = Entity.RouteList;
-		}
-
-		protected void OnButtonPrintClicked(object sender, EventArgs e)
-		{
-			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(CarUnloadDocument), "талона"))
-				Save ();
-
-			var reportInfo = new QSReport.ReportInfo
-				{
-					Title = Entity.Title,
-					Identifier = "Store.CarUnloadDoc",
-					Parameters = new System.Collections.Generic.Dictionary<string, object>
-					{
-						{ "id",  Entity.Id }
-					}
-				};
-
-			TabParent.OpenTab(
-				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
-				() => new QSReport.ReportViewDlg(reportInfo),
-				this);
 		}
 
 		private void UpdateWidgetsVisible()
@@ -329,6 +319,29 @@ namespace Vodovoz
 				}
 			}
 		}
+		#endregion
+
+		#region События
+		protected void OnButtonPrintClicked(object sender, EventArgs e)
+		{
+			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforePrint (typeof(CarUnloadDocument), "талона"))
+				Save ();
+
+			var reportInfo = new QSReport.ReportInfo
+				{
+					Title = Entity.Title,
+					Identifier = "Store.CarUnloadDoc",
+					Parameters = new System.Collections.Generic.Dictionary<string, object>
+					{
+						{ "id",  Entity.Id }
+					}
+				};
+
+			TabParent.OpenTab(
+				QSReport.ReportViewDlg.GenerateHashName(reportInfo),
+				() => new QSReport.ReportViewDlg(reportInfo),
+				this);
+		}
 
 		protected void OnYentryrefWarehouseChanged(object sender, EventArgs e)
 		{
@@ -340,6 +353,7 @@ namespace Vodovoz
 		{
 			SetupForNewRouteList();
 		}
+		#endregion
 
 		class InternalItem{
 			
