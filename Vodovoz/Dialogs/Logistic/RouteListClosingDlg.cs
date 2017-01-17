@@ -414,7 +414,10 @@ namespace Vodovoz
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			Vodovoz.Additions.Logistic.PrintRouteListHelper.Print(UoW, Entity, this);
+			var document = Vodovoz.Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
+			this.TabParent.OpenTab(
+				QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+				() => new QSReport.ReportViewDlg(document));
 		}
 
 		protected void OnButtonBottleAddEditFineClicked(object sender, EventArgs e)
