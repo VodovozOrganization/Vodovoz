@@ -19,15 +19,18 @@ namespace Vodovoz
 {
 	public partial class RoutesAtDayDlg : TdiTabBase, ITdiDialog
 	{
+		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private GMapPolygon brokenSelection;
+		private IList<Order> selectedOrders = new List<Order>();
 		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
 		int addressesWithoutCoordinats, addressesWithoutRoutes;
 		Pixbuf[] pixbufMarkers;
+		#endregion
 
 		#region Свойства
 		private bool hasNoChanges;
@@ -120,6 +123,21 @@ namespace Vodovoz
 		{
 			if(args.Event.Button == 1)
 			{
+				bool markerIsSelect = false;
+				foreach (var marker in addressesOverlay.Markers)
+				{
+					if (marker.IsMouseOver) {
+						selectedOrders.Add(marker.Tag as Order);
+						logger.Debug("Заказ добавлен в список выбранных");
+						markerIsSelect = true;
+					}
+				}
+
+				if (!markerIsSelect) {
+					selectedOrders.Clear();
+					logger.Debug("Выбранные заказы очищены");
+				}
+
 				if(poligonSelection)
 				{
 					GRect rect = new GRect((long)args.Event.X - 5, (long)args.Event.Y - 5, 10, 10);
@@ -406,7 +424,6 @@ namespace Vodovoz
 			PointMarkerType.purple,
 			PointMarkerType.red,
 			PointMarkerType.gray,
-			PointMarkerType.white,
 			PointMarkerType.color2,
 			PointMarkerType.color3,
 			PointMarkerType.color4,
@@ -433,7 +450,7 @@ namespace Vodovoz
 
 		PointMarkerType GetAddressMarker(int routeNum)
 		{
-			var markerNum = routeNum % 29;
+			var markerNum = routeNum % pointMarkers.Length;
 			return pointMarkers[markerNum];
 		}
 
