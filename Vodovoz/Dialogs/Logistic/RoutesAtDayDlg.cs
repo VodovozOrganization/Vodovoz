@@ -124,15 +124,21 @@ namespace Vodovoz
 			if(args.Event.Button == 1)
 			{
 				bool markerIsSelect = false;
-				foreach (var marker in addressesOverlay.Markers)
+				if (args.Event.State.HasFlag(ModifierType.Mod1Mask))
 				{
-					if (marker.IsMouseOver) {
-						selectedOrders.Add(marker.Tag as Order);
-						logger.Debug("Заказ добавлен в список выбранных");
-						markerIsSelect = true;
+					foreach (var marker in addressesOverlay.Markers)
+					{
+						if (marker.IsMouseOver) {
+							var order = marker.Tag as Order;
+							if (selectedOrders.FirstOrDefault(x => x.Id == order.Id) == null){
+								selectedOrders.Add(order);
+								logger.Debug("Заказ {0} добавлен в список выбранных", order.Id);
+							}
+							markerIsSelect = true;
+						}
 					}
+					
 				}
-
 				if (!markerIsSelect) {
 					selectedOrders.Clear();
 					logger.Debug("Выбранные заказы очищены");
@@ -179,6 +185,7 @@ namespace Vodovoz
 					selectionOverlay.Clear();
 				}
 			}
+			UpdateAddressesOnMap();
 		}
 
 		void OnPoligonSelectionUpdated()
@@ -362,6 +369,10 @@ namespace Vodovoz
 					}
 					else
 						type = GetAddressMarker(routesAtDay.IndexOf(route));
+					
+					if (selectedOrders.FirstOrDefault(o => o.Id == order.Id) != null)
+						type = PointMarkerType.white;
+					
 					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
 					addressMarker.Tag = order;
 					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}, Время доставки: {2}",
