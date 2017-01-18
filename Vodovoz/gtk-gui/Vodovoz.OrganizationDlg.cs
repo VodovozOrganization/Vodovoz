@@ -24,27 +24,27 @@ namespace Vodovoz
 		
 		private global::Gtk.ScrolledWindow scrolledwindow1;
 		
-		private global::Gtk.DataBindings.DataTable datatableMain;
+		private global::Gtk.Table datatableMain;
 		
 		private global::Gamma.Widgets.yValidatedEntry dataentryEmail;
 		
-		private global::Gtk.DataBindings.DataEntry dataentryFullName;
+		private global::Gamma.GtkWidgets.yEntry dataentryFullName;
 		
 		private global::Gamma.Widgets.yValidatedEntry dataentryINN;
 		
 		private global::Gamma.Widgets.yValidatedEntry dataentryKPP;
 		
-		private global::Gtk.DataBindings.DataEntry dataentryName;
+		private global::Gamma.GtkWidgets.yEntry dataentryName;
 		
 		private global::Gamma.Widgets.yValidatedEntry dataentryOGRN;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
-		private global::Gtk.DataBindings.DataTextView datatextviewJurAddress;
+		private global::Gamma.GtkWidgets.yTextView datatextviewJurAddress;
 		
 		private global::Gtk.ScrolledWindow GtkScrolledWindow2;
 		
-		private global::Gtk.DataBindings.DataTextView datatextviewAddress;
+		private global::Gamma.GtkWidgets.yTextView datatextviewAddress;
 		
 		private global::Gtk.Label label10;
 		
@@ -70,9 +70,9 @@ namespace Vodovoz
 		
 		private global::QSContacts.PhonesView phonesview1;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceBuhgalter;
+		private global::Gamma.Widgets.yEntryReference referenceBuhgalter;
 		
-		private global::Gtk.DataBindings.DataEntryReference referenceLeader;
+		private global::Gamma.Widgets.yEntryReference referenceLeader;
 		
 		private global::Gtk.Label label1;
 		
@@ -173,15 +173,11 @@ namespace Vodovoz
 			global::Gtk.Viewport w11 = new global::Gtk.Viewport ();
 			w11.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.datatableMain = new global::Gtk.DataBindings.DataTable (((uint)(11)), ((uint)(2)), false);
+			this.datatableMain = new global::Gtk.Table (((uint)(11)), ((uint)(2)), false);
 			this.datatableMain.Name = "datatableMain";
 			this.datatableMain.RowSpacing = ((uint)(6));
 			this.datatableMain.ColumnSpacing = ((uint)(6));
 			this.datatableMain.BorderWidth = ((uint)(2));
-			this.datatableMain.InheritedDataSource = false;
-			this.datatableMain.InheritedBoundaryDataSource = false;
-			this.datatableMain.InheritedDataSource = false;
-			this.datatableMain.InheritedBoundaryDataSource = false;
 			// Container child datatableMain.Gtk.Table+TableChild
 			this.dataentryEmail = new global::Gamma.Widgets.yValidatedEntry ();
 			this.dataentryEmail.CanFocus = true;
@@ -198,18 +194,12 @@ namespace Vodovoz
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryFullName = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryFullName = new global::Gamma.GtkWidgets.yEntry ();
 			this.dataentryFullName.CanFocus = true;
 			this.dataentryFullName.Name = "dataentryFullName";
 			this.dataentryFullName.IsEditable = true;
 			this.dataentryFullName.MaxLength = 200;
 			this.dataentryFullName.InvisibleChar = '●';
-			this.dataentryFullName.InheritedDataSource = true;
-			this.dataentryFullName.Mappings = "FullName";
-			this.dataentryFullName.InheritedBoundaryDataSource = false;
-			this.dataentryFullName.InheritedDataSource = true;
-			this.dataentryFullName.Mappings = "FullName";
-			this.dataentryFullName.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryFullName);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryFullName]));
 			w13.TopAttach = ((uint)(1));
@@ -249,18 +239,12 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.dataentryName = new global::Gtk.DataBindings.DataEntry ();
+			this.dataentryName = new global::Gamma.GtkWidgets.yEntry ();
 			this.dataentryName.CanFocus = true;
 			this.dataentryName.Name = "dataentryName";
 			this.dataentryName.IsEditable = true;
 			this.dataentryName.MaxLength = 100;
 			this.dataentryName.InvisibleChar = '●';
-			this.dataentryName.InheritedDataSource = true;
-			this.dataentryName.Mappings = "Name";
-			this.dataentryName.InheritedBoundaryDataSource = false;
-			this.dataentryName.InheritedDataSource = true;
-			this.dataentryName.Mappings = "Name";
-			this.dataentryName.InheritedBoundaryDataSource = false;
 			this.datatableMain.Add (this.dataentryName);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.dataentryName]));
 			w16.LeftAttach = ((uint)(1));
@@ -286,16 +270,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.datatextviewJurAddress = new global::Gtk.DataBindings.DataTextView ();
+			this.datatextviewJurAddress = new global::Gamma.GtkWidgets.yTextView ();
 			this.datatextviewJurAddress.CanFocus = true;
 			this.datatextviewJurAddress.Name = "datatextviewJurAddress";
 			this.datatextviewJurAddress.WrapMode = ((global::Gtk.WrapMode)(2));
-			this.datatextviewJurAddress.InheritedDataSource = true;
-			this.datatextviewJurAddress.Mappings = "JurAddress";
-			this.datatextviewJurAddress.InheritedBoundaryDataSource = false;
-			this.datatextviewJurAddress.InheritedDataSource = true;
-			this.datatextviewJurAddress.Mappings = "JurAddress";
-			this.datatextviewJurAddress.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow1.Add (this.datatextviewJurAddress);
 			this.datatableMain.Add (this.GtkScrolledWindow1);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.GtkScrolledWindow1]));
@@ -310,16 +288,10 @@ namespace Vodovoz
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.datatextviewAddress = new global::Gtk.DataBindings.DataTextView ();
+			this.datatextviewAddress = new global::Gamma.GtkWidgets.yTextView ();
 			this.datatextviewAddress.CanFocus = true;
 			this.datatextviewAddress.Name = "datatextviewAddress";
 			this.datatextviewAddress.WrapMode = ((global::Gtk.WrapMode)(2));
-			this.datatextviewAddress.InheritedDataSource = true;
-			this.datatextviewAddress.Mappings = "Address";
-			this.datatextviewAddress.InheritedBoundaryDataSource = false;
-			this.datatextviewAddress.InheritedDataSource = true;
-			this.datatextviewAddress.Mappings = "Address";
-			this.datatextviewAddress.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow2.Add (this.datatextviewAddress);
 			this.datatableMain.Add (this.GtkScrolledWindow2);
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.GtkScrolledWindow2]));
@@ -465,17 +437,13 @@ namespace Vodovoz
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.referenceBuhgalter = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceBuhgalter = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceBuhgalter.Events = ((global::Gdk.EventMask)(256));
 			this.referenceBuhgalter.Name = "referenceBuhgalter";
 			this.referenceBuhgalter.DisplayFields = new string[] {
 				"FullName"
 			};
 			this.referenceBuhgalter.DisplayFormatString = "{0}";
-			this.referenceBuhgalter.InheritedDataSource = true;
-			this.referenceBuhgalter.Mappings = "Buhgalter";
-			this.referenceBuhgalter.InheritedBoundaryDataSource = false;
-			this.referenceBuhgalter.CursorPointsEveryType = false;
 			this.datatableMain.Add (this.referenceBuhgalter);
 			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.referenceBuhgalter]));
 			w34.TopAttach = ((uint)(5));
@@ -485,17 +453,13 @@ namespace Vodovoz
 			w34.XOptions = ((global::Gtk.AttachOptions)(4));
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatableMain.Gtk.Table+TableChild
-			this.referenceLeader = new global::Gtk.DataBindings.DataEntryReference ();
+			this.referenceLeader = new global::Gamma.Widgets.yEntryReference ();
 			this.referenceLeader.Events = ((global::Gdk.EventMask)(256));
 			this.referenceLeader.Name = "referenceLeader";
 			this.referenceLeader.DisplayFields = new string[] {
 				"FullName"
 			};
 			this.referenceLeader.DisplayFormatString = "{0}";
-			this.referenceLeader.InheritedDataSource = true;
-			this.referenceLeader.Mappings = "Leader";
-			this.referenceLeader.InheritedBoundaryDataSource = false;
-			this.referenceLeader.CursorPointsEveryType = false;
 			this.datatableMain.Add (this.referenceLeader);
 			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatableMain [this.referenceLeader]));
 			w35.TopAttach = ((uint)(4));

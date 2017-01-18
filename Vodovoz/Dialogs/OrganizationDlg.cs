@@ -26,7 +26,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Organization> (id);
-			TabName = UoWGeneric.Root.Name;
 			ConfigureDlg ();
 		}
 
@@ -37,8 +36,9 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			subjectAdaptor.Target = UoWGeneric.Root;
-			datatableMain.DataSource = subjectAdaptor;
+			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
+			dataentryFullName.Binding.AddBinding(Entity, e => e.FullName, w => w.Text).InitializeFromSource();
+
 			dataentryEmail.ValidationMode = QSWidgetLib.ValidationType.email;
 			dataentryEmail.Binding.AddBinding(Entity, e => e.Email, w => w.Text).InitializeFromSource();
 			dataentryINN.ValidationMode = QSWidgetLib.ValidationType.numeric;
@@ -47,11 +47,19 @@ namespace Vodovoz
 			dataentryKPP.Binding.AddBinding(Entity, e => e.KPP, w => w.Text).InitializeFromSource();
 			dataentryOGRN.ValidationMode = QSWidgetLib.ValidationType.numeric;
 			dataentryOGRN.Binding.AddBinding(Entity, e => e.OGRN, w => w.Text).InitializeFromSource();
+
+			datatextviewAddress.Binding.AddBinding(Entity, e => e.Address, w => w.Buffer.Text).InitializeFromSource();
+			datatextviewJurAddress.Binding.AddBinding(Entity, e => e.JurAddress, w => w.Buffer.Text).InitializeFromSource();
+
 			notebookMain.Page = 0;
 			notebookMain.ShowTabs = false;
 			accountsview1.ParentReference = new ParentReferenceGeneric<Organization, Account> (UoWGeneric, o => o.Accounts);
+
 			referenceBuhgalter.SubjectType = typeof(Employee);
+			referenceBuhgalter.Binding.AddBinding(Entity, e => e.Buhgalter, w => w.Subject).InitializeFromSource();
 			referenceLeader.SubjectType = typeof(Employee);
+			referenceLeader.Binding.AddBinding(Entity, e => e.Leader, w => w.Subject).InitializeFromSource();
+
 			phonesview1.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Phones == null)
 				UoWGeneric.Root.Phones = new List<Phone> ();
