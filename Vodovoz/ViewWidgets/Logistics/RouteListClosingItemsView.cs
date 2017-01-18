@@ -249,6 +249,14 @@ namespace Vodovoz
 				stringParts.Add(coolerString);
 			}
 
+			foreach (var orderItem in item.Order.OrderItems) {
+				if(orderItem.Nomenclature.Category == NomenclatureCategory.additional)
+				{
+					stringParts.Add(
+						string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.Count));
+				}
+			}
+
 			return String.Join(",", stringParts);
 		}	
 
