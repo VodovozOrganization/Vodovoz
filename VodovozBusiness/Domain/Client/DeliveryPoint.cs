@@ -29,14 +29,6 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref minutesToUnload, value, () => MinutesToUnload); }
 		}
 
-		string housing;
-
-		[Display (Name = "Корпус")]
-		public virtual string Housing {
-			get { return housing; }
-			set { SetField (ref housing, value, () => Housing); }
-		}
-
 		string letter;
 
 		[Display (Name = "Литера")]
@@ -85,8 +77,6 @@ namespace Vodovoz.Domain.Client
 					address += String.Format ("{0}, ", Street);
 				if (!String.IsNullOrWhiteSpace (Building))
 					address += String.Format ("д.{0}, ", Building);
-				if (!String.IsNullOrWhiteSpace (Housing))
-					address += String.Format ("корп.{0}, ", Housing);
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
 				if (default(int) != Floor)
@@ -113,8 +103,6 @@ namespace Vodovoz.Domain.Client
 					address += String.Format ("{0}, ", AddressHelper.ShortenStreet(Street));
 				if (!String.IsNullOrWhiteSpace (Building))
 					address += String.Format ("д.{0}, ", Building);
-				if (!String.IsNullOrWhiteSpace (Housing))
-					address += String.Format ("корп.{0}, ", Housing);
 				if (!String.IsNullOrWhiteSpace (Letter))
 					address += String.Format ("лит.{0}, ", Letter);
 				if (default(int) != Floor)

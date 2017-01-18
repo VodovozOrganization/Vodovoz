@@ -24,7 +24,6 @@ namespace Vodovoz.HMap
 			Map (x => x.Building)		  .Column ("building");
 			Map (x => x.RoomType)		  .Column ("room_type").CustomType<RoomTypeStringType> ();
 			Map (x => x.Room)			  .Column ("room");
-			Map (x => x.Housing)		  .Column ("housing");
 			Map (x => x.Letter)			  .Column ("letter");
 			Map (x => x.Placement)		  .Column ("placement");
 			Map (x => x.АddressAddition)  .Column ("address_addition");
