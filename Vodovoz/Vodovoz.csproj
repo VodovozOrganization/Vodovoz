@@ -522,6 +522,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.DriverWagesReport.cs" />
     <Compile Include="ReportsParameters\FuelReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.FuelReport.cs" />
+    <Compile Include="ReportsParameters\ShortfallBattlesReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.ShortfallBattlesReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

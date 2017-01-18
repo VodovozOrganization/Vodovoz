@@ -634,6 +634,17 @@
         <property name="ShortLabel" translatable="yes">Отчет по выдаче бензина</property>
         <signal name="Activated" handler="OnActionFuelReportActivated" />
       </action>
+      <action id="Action26">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Заказы</property>
+        <property name="ShortLabel" translatable="yes">Заказы</property>
+      </action>
+      <action id="ActionShortfallBattles">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет о несданных бутылях</property>
+        <property name="ShortLabel" translatable="yes">Отчет о несданных бутылях</property>
+        <signal name="Activated" handler="OnActionShortfallBattlesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -750,6 +761,9 @@
                     <node type="Menu" action="Action25">
                       <node type="Menuitem" action="ActionDriverWages" />
                       <node type="Menuitem" action="ActionFuelReport" />
+                    </node>
+                    <node type="Menu" action="Action26">
+                      <node type="Menuitem" action="ActionShortfallBattles" />
                     </node>
                   </node>
                   <node type="Menu" action="ActionAbout">
@@ -35979,6 +35993,73 @@ RegistrationNumber</property>
           <packing>
             <property name="Position">3</property>
             <property name="AutoSize">False</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.ShortfallBattlesReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox3">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label2">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Дата:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.Widgets.yDatePicker" id="ydatepicker2">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
+                <property name="Date">0</property>
+                <property name="IsEditable">False</property>
+                <property name="AutoSeparation">False</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateRepot">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+          </widget>
+          <packing>
+            <property name="PackType">End</property>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
