@@ -25,7 +25,7 @@ namespace Vodovoz
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay("selection");
 		private GMapPolygon brokenSelection;
-		private IList<Order> selectedOrders = new List<Order>();
+		private List<GMapMarker> selectedMarkers = new List<GMapMarker>();
 		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
 		int addressesWithoutCoordinats, addressesWithoutRoutes;
@@ -129,20 +129,27 @@ namespace Vodovoz
 					foreach (var marker in addressesOverlay.Markers)
 					{
 						if (marker.IsMouseOver) {
-							var order = marker.Tag as Order;
-							if (selectedOrders.FirstOrDefault(x => x.Id == order.Id) == null){
-								selectedOrders.Add(order);
-								logger.Debug("Заказ {0} добавлен в список выбранных", order.Id);
+							var markerUnderMouse = selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id == ((Order)marker.Tag).Id);
+							if( markerUnderMouse == null) {
+								selectedMarkers.Add(marker);
+								logger.Debug("Маркер с заказом №{0} добавлен в список выделенных", ((Order)marker.Tag).Id);
+							} else {
+								selectedMarkers.Remove(markerUnderMouse);
+								logger.Debug("Маркер с заказом №{0} исключен из списка выделенных", ((Order)marker.Tag).Id);
 							}
 							markerIsSelect = true;
 						}
 					}
-					
+					//Требуется просмотреть код, для возможного улучшения
+					UpdateSelectedInfo(selectedMarkers);
+					UpdateAddressesOnMap();
+					return;
 				}
 				if (!markerIsSelect) {
-					selectedOrders.Clear();
-					logger.Debug("Выбранные заказы очищены");
+					selectedMarkers.Clear();
+					logger.Debug("Список выделенных маркеров очищен");
 				}
+				UpdateAddressesOnMap();
 
 				if(poligonSelection)
 				{
@@ -185,7 +192,7 @@ namespace Vodovoz
 					selectionOverlay.Clear();
 				}
 			}
-			UpdateAddressesOnMap();
+
 		}
 
 		void OnPoligonSelectionUpdated()
@@ -370,7 +377,7 @@ namespace Vodovoz
 					else
 						type = GetAddressMarker(routesAtDay.IndexOf(route));
 					
-					if (selectedOrders.FirstOrDefault(o => o.Id == order.Id) != null)
+					if (selectedMarkers.FirstOrDefault(m => ((Order)m.Tag).Id  == order.Id) != null)
 						type = PointMarkerType.white;
 					
 					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude),	type);
@@ -499,9 +506,7 @@ namespace Vodovoz
 
 		void AddToRLItem_Activated (object sender, EventArgs e)
 		{
-			var selectedOrders = addressesOverlay.Markers
-				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
-				.Select(x => x.Tag).Cast<Order>().ToList();
+			var selectedOrders = GetSelectedOrders();
 
 			var route = ((MenuItemId<RouteList>)sender).ID;
 
@@ -525,6 +530,27 @@ namespace Vodovoz
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
+		}
+
+		private IList<Order> GetSelectedOrders(){
+			List<Order> orders = new List<Order>();
+			//Добавление заказов из кликов по маркеру
+			orders.AddRange(selectedMarkers.Select(m => m.Tag).Cast<Order>().ToList());
+			//Добавление заказов из квадратного выделения
+			orders.AddRange(addressesOverlay.Markers
+				.Where(m => gmapWidget.SelectedArea.Contains(m.Position))
+				.Select(x => x.Tag).Cast<Order>().ToList());
+			//Добавление закзаво через непрямоугольную область
+			GMapOverlay overlay = gmapWidget.Overlays.FirstOrDefault(o => o.Id.Contains(selectionOverlay.Id));
+			GMapPolygon polygons = overlay?.Polygons.FirstOrDefault(p => p.Name.ToLower().Contains("выделение"));
+			if(polygons != null) {
+				var temp = addressesOverlay.Markers
+					.Where(m => polygons.IsInside(m.Position))
+					.Select(x => x.Tag).Cast<Order>().ToList();
+				orders.AddRange(temp);
+			}
+
+			return orders;
 		}
 
 		protected void OnButtonSaveChangesClicked(object sender, EventArgs e)
