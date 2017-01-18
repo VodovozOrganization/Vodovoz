@@ -12899,13 +12899,9 @@ Patronymic</property>
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <widget class="Gtk.DataBindings.DataVBox" id="datavbox1">
+      <widget class="Gtk.VBox" id="datavbox1">
         <property name="MemberName" />
         <property name="Spacing">6</property>
-        <property name="InheritedDataSource">False</property>
-        <property name="InheritedBoundaryDataSource">False</property>
-        <property name="InheritedDataSource">False</property>
-        <property name="InheritedBoundaryDataSource">False</property>
         <child>
           <widget class="Gtk.HBox" id="hbox2">
             <property name="MemberName" />
@@ -12956,16 +12952,12 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+          <widget class="Gtk.Table" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">8</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gamma.GtkWidgets.yCheckButton" id="checkbuttonFired">
                 <property name="MemberName" />
@@ -13068,7 +13060,7 @@ Patronymic</property>
               <packing>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="XOptions">Fill</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>

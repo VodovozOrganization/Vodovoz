@@ -4,7 +4,7 @@ namespace Vodovoz
 {
 	public partial class ContactDlg
 	{
-		private global::Gtk.DataBindings.DataVBox datavbox1;
+		private global::Gtk.VBox datavbox1;
 		
 		private global::Gtk.HBox hbox2;
 		
@@ -12,7 +12,7 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonCancel;
 		
-		private global::Gtk.DataBindings.DataTable datatable1;
+		private global::Gtk.Table datatable1;
 		
 		private global::Gamma.GtkWidgets.yCheckButton checkbuttonFired;
 		
@@ -55,13 +55,9 @@ namespace Vodovoz
 			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.ContactDlg";
 			// Container child Vodovoz.ContactDlg.Gtk.Container+ContainerChild
-			this.datavbox1 = new global::Gtk.DataBindings.DataVBox ();
+			this.datavbox1 = new global::Gtk.VBox ();
 			this.datavbox1.Name = "datavbox1";
 			this.datavbox1.Spacing = 6;
-			this.datavbox1.InheritedDataSource = false;
-			this.datavbox1.InheritedBoundaryDataSource = false;
-			this.datavbox1.InheritedDataSource = false;
-			this.datavbox1.InheritedBoundaryDataSource = false;
 			// Container child datavbox1.Gtk.Box+BoxChild
 			this.hbox2 = new global::Gtk.HBox ();
 			this.hbox2.Name = "hbox2";
@@ -100,14 +96,10 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child datavbox1.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(8)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.Table (((uint)(8)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
 			this.checkbuttonFired = new global::Gamma.GtkWidgets.yCheckButton ();
 			this.checkbuttonFired.CanFocus = true;
