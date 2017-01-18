@@ -40,9 +40,12 @@ namespace Vodovoz
 		{
 			this.Build();
 
+			PerformanceHelper.StartMeasurement();
+
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
 			TabName = String.Format("Закрытие маршрутного листа №{0}", Entity.Id);
+			PerformanceHelper.AddTimePoint("Создан UoW");
 			ConfigureDlg();
 		}
 
@@ -78,6 +81,20 @@ namespace Vodovoz
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 
+			PerformanceHelper.AddTimePoint("Создан диалог");
+
+			//Предварительная загрузка объектов для ускорения.
+/*			Vodovoz.Domain.Orders.Order orderAlias = null;
+			var clients = UoW.Session.QueryOver<RouteListItem>()
+				.Where(rli => rli.RouteList.Id == Entity.Id)
+				.JoinAlias(rli => rli.Order, () => orderAlias)
+				.Fetch(rli => rli.Order.Client).Eager
+				.List();
+				//.Select(Projections. a => orderAlias.Client).Future();
+				//.List<Counterparty>();
+*/
+			PerformanceHelper.AddTimePoint("Предварительная загрузка");
+
 			routeListAddressesView.UoW = UoW;
 			routeListAddressesView.RouteList = Entity;
 			foreach (RouteListItem item in routeListAddressesView.Items)
@@ -87,6 +104,7 @@ namespace Vodovoz
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
+			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(Entity.Id, Nomenclature.GetCategoriesForShipment());
 			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(Entity.Id, new []{ NomenclatureCategory.bottle })
 				.Sum(item => item.Amount);
@@ -106,27 +124,39 @@ namespace Vodovoz
 							Amount = 0
 						});
 			}
+			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			if(!Entity.ClosingFilled)
 				FirstFillClosing();
+
+			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
 			hbox6.Remove(vboxHidenPanel);
 			rightsidepanel1.Panel = vboxHidenPanel;
 
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
+			PerformanceHelper.AddTimePoint("Заполнили расхождения");
 
 			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null;
 
 			LoadDataFromFine();
 			OnItemsUpdated();
+			PerformanceHelper.AddTimePoint("Загрузка штрафов");
 			GetFuelInfo();
 			UpdateFuelInfo();
+			PerformanceHelper.AddTimePoint("Загрузка бензина");
+
+			PerformanceHelper.Main.PrintAllPoints(logger);
 		}
 
 		protected void FirstFillClosing()
 		{
+			//PerformanceHelper.StartPointsGroup("Первоначальное заполнение");
+			//var all = UoW.GetAll<Nomenclature>();
+
 			foreach (var routeListItem in Entity.Addresses)
 			{
+				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
 				var nomenclatures = routeListItem.Order.OrderItems
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 					.Where(item => !item.Nomenclature.Serial).ToList();
@@ -134,6 +164,7 @@ namespace Vodovoz
 				{
 					item.ActualCount = routeListItem.IsDelivered() ? item.Count : 0;
 				}
+				PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
 				var equipments = routeListItem.Order.OrderEquipments.Where(orderEq => orderEq.Equipment != null);
 				foreach (var item in equipments)
 				{
@@ -142,6 +173,7 @@ namespace Vodovoz
 						&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
 							|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
 				}
+				PerformanceHelper.AddTimePoint("Обработали оборудование");
 				routeListItem.BottlesReturned = routeListItem.IsDelivered()
 					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
 				routeListItem.TotalCash = routeListItem.IsDelivered() &&
@@ -150,9 +182,13 @@ namespace Vodovoz
 				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(routeListItem.Order.BottlesReturn);
 				routeListItem.DepositsCollected = routeListItem.IsDelivered()
 					? routeListItem.Order.GetExpectedBottlesDepositsCount() * bottleDepositPrice : 0;
+				PerformanceHelper.AddTimePoint("Получили прайс");
 				routeListItem.RecalculateWages();
+				PerformanceHelper.AddTimePoint("Пересчет");
+				PerformanceHelper.EndPointsGroup();
 			}
 
+			PerformanceHelper.EndPointsGroup();
 			Entity.ClosingFilled = true;
 		}
 
