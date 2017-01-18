@@ -11,7 +11,6 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class EmployeeDlg : OrmGtkDialogBase<Employee>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
