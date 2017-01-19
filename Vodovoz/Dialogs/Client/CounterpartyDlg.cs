@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NLog;
 using QSBanks;
 using QSContacts;
@@ -10,11 +11,9 @@ using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Panel;
-using System.Linq;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class CounterpartyDlg : OrmGtkDialogBase<Counterparty>, ICounterpartyInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
@@ -44,9 +43,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Counterparty> ();
-			TabName = "Новый контрагент";
-			//Покупатель - значение по умолчанию.
-			UoWGeneric.Root.CooperationCustomer = true;
 			ConfigureDlg ();
 		}
 
@@ -196,7 +192,7 @@ namespace Vodovoz
 			IList<Counterparty> counterarties = Repository.CounterpartyRepository.GetCounterpartiesByINN(UoW, INN);
 			if (counterarties == null)
 				return false;
-			if (counterarties.Where(x => x.Id != UoWGeneric.Root.Id).Count() > 0)
+			if (counterarties.Count(x => x.Id != UoWGeneric.Root.Id) > 0)
 				return true;
 			return false;
 		}

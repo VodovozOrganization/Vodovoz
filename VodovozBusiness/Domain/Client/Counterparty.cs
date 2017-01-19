@@ -214,7 +214,7 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref previousCounterparty, value, () => PreviousCounterparty); }
 		}
 
-		bool cooperationCustomer;
+		bool cooperationCustomer = true;
 
 		[Display (Name = "Это покупатель")]
 		public virtual bool CooperationCustomer {

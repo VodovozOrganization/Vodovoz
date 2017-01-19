@@ -11,8 +11,6 @@ namespace Vodovoz
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class DeliveryPointView : WidgetOnDialogBase
 	{
-		GenericObservableList<DeliveryPoint> deliveryPoints;
-
 		IUnitOfWorkGeneric<Counterparty> deliveryPointUoW;
 
 		public IUnitOfWorkGeneric<Counterparty> DeliveryPointUoW {
@@ -23,7 +21,6 @@ namespace Vodovoz
 				deliveryPointUoW = value;
 				if (DeliveryPointUoW.Root.DeliveryPoints == null)
 					DeliveryPointUoW.Root.DeliveryPoints = new List<DeliveryPoint> ();
-				deliveryPoints = DeliveryPointUoW.Root.ObservableDeliveryPoints;
 				treeDeliveryPoints.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (value);
 				treeDeliveryPoints.RepresentationModel.UpdateNodes ();
 			}
