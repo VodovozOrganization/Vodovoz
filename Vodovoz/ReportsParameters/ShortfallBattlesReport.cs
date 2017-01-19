@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject;
 using QSReport;
+using System.Collections.Generic;
 
 namespace Vodovoz.Reports
 {
@@ -10,6 +11,7 @@ namespace Vodovoz.Reports
 		public ShortfallBattlesReport()
 		{
 			this.Build();
+			ydatepicker.Date = DateTime.Now.Date;
 		}
 
 		#region IOrmDialog implementation
@@ -35,6 +37,30 @@ namespace Vodovoz.Reports
 		}
 
 		#endregion
+
+		private ReportInfo GetReportInfo()
+		{			
+			return new ReportInfo
+			{
+				Identifier = "Orders.ShortfallBattlesReport",
+				Parameters = new Dictionary<string, object>
+				{ 
+					{ "date", ydatepicker.Date },
+				}
+			};
+		}
+
+		void OnUpdate(bool hide = false)
+		{
+			if (LoadReport != null) {
+				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
+			}
+		}
+
+		protected void OnButtonCreateRepotClicked (object sender, EventArgs e)
+		{
+			OnUpdate(true);
+		}
 	}
 }
 

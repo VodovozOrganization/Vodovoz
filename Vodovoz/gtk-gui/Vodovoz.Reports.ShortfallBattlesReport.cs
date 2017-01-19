@@ -10,7 +10,7 @@ namespace Vodovoz.Reports
 		
 		private global::Gtk.Label label2;
 		
-		private global::Gamma.Widgets.yDatePicker ydatepicker2;
+		private global::Gamma.Widgets.yDatePicker ydatepicker;
 		
 		private global::Gtk.Button buttonCreateRepot;
 
@@ -38,15 +38,15 @@ namespace Vodovoz.Reports
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ydatepicker2 = new global::Gamma.Widgets.yDatePicker ();
-			this.ydatepicker2.Events = ((global::Gdk.EventMask)(256));
-			this.ydatepicker2.Name = "ydatepicker2";
-			this.ydatepicker2.WithTime = false;
-			this.ydatepicker2.Date = new global::System.DateTime (0);
-			this.ydatepicker2.IsEditable = false;
-			this.ydatepicker2.AutoSeparation = false;
-			this.hbox3.Add (this.ydatepicker2);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.ydatepicker2]));
+			this.ydatepicker = new global::Gamma.Widgets.yDatePicker ();
+			this.ydatepicker.Events = ((global::Gdk.EventMask)(256));
+			this.ydatepicker.Name = "ydatepicker";
+			this.ydatepicker.WithTime = false;
+			this.ydatepicker.Date = new global::System.DateTime (0);
+			this.ydatepicker.IsEditable = false;
+			this.ydatepicker.AutoSeparation = false;
+			this.hbox3.Add (this.ydatepicker);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.ydatepicker]));
 			w2.Position = 1;
 			this.vbox1.Add (this.hbox3);
 			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
@@ -56,7 +56,7 @@ namespace Vodovoz.Reports
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button ();
 			this.buttonCreateRepot.CanFocus = true;
-			this.buttonCreateRepot.Name = "buttonLoadRepot";
+			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString ("Сформировать отчет");
 			this.vbox1.Add (this.buttonCreateRepot);
@@ -70,6 +70,7 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.buttonCreateRepot.Clicked += new global::System.EventHandler (this.OnButtonCreateRepotClicked);
 		}
 	}
 }
