@@ -188,7 +188,7 @@ namespace Vodovoz
 				PerformanceHelper.EndPointsGroup();
 			}
 
-			PerformanceHelper.EndPointsGroup();
+//			PerformanceHelper.EndPointsGroup();
 			Entity.ClosingFilled = true;
 		}
 
