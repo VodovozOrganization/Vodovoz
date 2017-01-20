@@ -43,7 +43,7 @@ namespace Vodovoz.Reports
 			this.ydatepicker.Name = "ydatepicker";
 			this.ydatepicker.WithTime = false;
 			this.ydatepicker.Date = new global::System.DateTime (0);
-			this.ydatepicker.IsEditable = false;
+			this.ydatepicker.IsEditable = true;
 			this.ydatepicker.AutoSeparation = false;
 			this.hbox3.Add (this.ydatepicker);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.ydatepicker]));
