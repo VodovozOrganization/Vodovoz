@@ -1149,7 +1149,8 @@
       <Textbox Name="Textbox5">
         <Height>25.53pt</Height>
         <Width>663.95pt</Width>
-        <Value></Value>
+        <Value>
+        </Value>
         <ZIndex>1</ZIndex>
         <Left>0.70pt</Left>
         <Top>12.80pt</Top>
@@ -1174,7 +1175,7 @@
           <Textbox Name="Textbox6">
             <Height>14.26pt</Height>
             <Width>185.18pt</Width>
-            <Value>="Зарплата водителя: " + {total_driver_wage}</Value>
+            <Value>="Зарплата водителя: " + {driver_wage}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>0.00pt</Top>
@@ -1187,7 +1188,7 @@
           <Textbox Name="Textbox7">
             <Height>14.27pt</Height>
             <Width>183.63pt</Width>
-            <Value>="Зарплата экспедитора :" + {total_forwarder_wage}</Value>
+            <Value>="Зарплата экспедитора :" + {forwarder_wage}</Value>
             <ZIndex>1</ZIndex>
             <Left>0.00pt</Left>
             <Top>13.50pt</Top>
@@ -1200,7 +1201,7 @@
           <Textbox Name="Textbox12">
             <Height>17.25pt</Height>
             <Width>154.32pt</Width>
-            <Value>="Итог:" + {total_cash}</Value>
+            <Value>="Итог:" + {cash}</Value>
             <ZIndex>1</ZIndex>
             <Left>505.00pt</Left>
             <Top>0.00pt</Top>
@@ -1213,7 +1214,7 @@
           <Textbox Name="Textbox22">
             <Height>15.02pt</Height>
             <Width>164.85pt</Width>
-            <Value>="Всего бутылей:" + {total_count}</Value>
+            <Value>="Всего бутылей:" + {full_bottles}</Value>
             <ZIndex>1</ZIndex>
             <Left>313.40pt</Left>
             <Top>0.00pt</Top>
@@ -1223,10 +1224,10 @@
               <BorderWidth />
             </Style>
           </Textbox>
-          <Textbox Name="Textbox23" >
+          <Textbox Name="Textbox23">
             <Height>14.23pt</Height>
             <Width>154.29pt</Width>
-            <Value>="Пустых бутылей:" + {empty_bottles_count}</Value>
+            <Value>="Пустых бутылей:" + {empty_bottles}</Value>
             <ZIndex>1</ZIndex>
             <Left>312.95pt</Left>
             <Top>13.50pt</Top>
@@ -1439,69 +1440,63 @@ ORDER BY route_list_addresses.order_in_route;
       </Fields>
     </DataSet>
     <DataSet Name="TotalInfo">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
-    SUM(t1.driver_wage) AS total_driver_wage,
-    SUM(t1.forwarder_wage) AS total_forwarder_wage,
-    SUM(t1.cash) - t2.phone_compensation AS total_cash,
-    SUM(t1.count) AS total_count,
-    t3.empty_bottles_count
+        <CommandText>SELECT
+ SUM(t.driver_wage) AS driver_wage,
+ SUM(t.forwarder_wage) AS forwarder_wage,
+ SUM(t.cash) AS cash,
+ SUM(t.full_bottle) AS full_bottles,
+ SUM(t.empty_bottle) AS empty_bottles
+ FROM(
+SELECT 
+	route_list_addresses.route_list_id AS rl_id,
+    route_list_addresses.driver_wage AS driver_wage,
+    route_list_addresses.forwarder_wage AS forwarder_wage,
+    route_list_addresses.total_cash - 2 AS cash,
+    (SELECT 
+            SUM(delivered)
+        FROM
+            bottles_movement_operations
+        WHERE
+            bottles_movement_operations.order_id = route_list_addresses.order_id) AS full_bottle,
+    (SELECT 
+            SUM(returned)
+        FROM
+            bottles_movement_operations
+        WHERE
+            bottles_movement_operations.order_id = route_list_addresses.order_id) AS empty_bottle
 FROM
-    (SELECT 
-        route_list_addresses.driver_wage AS driver_wage,
-            route_list_addresses.forwarder_wage AS forwarder_wage,
-            route_list_addresses.total_cash AS cash,
-            SUM(order_items.actual_count) AS count
-    FROM
-        route_list_addresses, order_items
-    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-    WHERE
-        route_list_addresses.route_list_id = @route_list_id
-            AND route_list_addresses.order_id = order_items.order_id
-            AND nomenclature.category = 'water'
-    GROUP BY route_list_addresses.order_id) t1,
-    (SELECT 
-        COUNT(route_list_addresses.id) * 2 AS phone_compensation
-    FROM
-        route_list_addresses
-    WHERE
-        route_list_addresses.route_list_id = @route_list_id) AS t2,
-    (SELECT 
-        SUM(order_items.actual_count) AS empty_bottles_count
-    FROM
-        route_list_addresses, order_items
-    LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
-    WHERE
-        route_list_addresses.route_list_id = @route_list_id
-            AND route_list_addresses.order_id = order_items.order_id
-            AND nomenclature.category = 'bottle'
-    GROUP BY route_list_addresses.order_id) t3</CommandText>
+    route_list_addresses
+WHERE
+    route_list_addresses.route_list_id = @route_list_id
+GROUP BY route_list_addresses.order_id) t
+GROUP BY t.rl_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">
             <Value>={?RouteListId}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
-        <Field Name="total_driver_wage">
-          <DataField>total_driver_wage</DataField>
+      <Fields>
+        <Field Name="driver_wage">
+          <DataField>driver_wage</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="total_forwarder_wage">
-          <DataField>total_forwarder_wage</DataField>
+        <Field Name="forwarder_wage">
+          <DataField>forwarder_wage</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="total_cash">
-          <DataField>total_cash</DataField>
+        <Field Name="cash">
+          <DataField>cash</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="total_count">
-          <DataField>total_count</DataField>
+        <Field Name="full_bottles">
+          <DataField>full_bottles</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="empty_bottles_count">
-          <DataField>empty_bottles_count</DataField>
+        <Field Name="empty_bottles">
+          <DataField>empty_bottles</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>

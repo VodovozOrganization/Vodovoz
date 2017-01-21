@@ -62,7 +62,6 @@ namespace Vodovoz.Additions.Logistic
 
 			switch (routeList.Status)
 			{
-				case RouteListStatus.OnClosing:
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.Closed:
 					documentName = "ClosedRouteList";
