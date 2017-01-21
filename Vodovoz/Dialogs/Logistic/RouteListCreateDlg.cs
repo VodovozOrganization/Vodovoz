@@ -88,7 +88,7 @@ namespace Vodovoz
 			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
-			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject);
+			referenceForwarder.Binding.AddBinding(Entity, e => e.Forwarder, w => w.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Changed += (sender, args) =>
 			{
@@ -102,7 +102,7 @@ namespace Vodovoz
 			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts (UoW);
-			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem);
+			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem).InitializeFromSource();
 
 			labelStatus.Binding.AddFuncBinding(Entity, e => e.Status.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
 
