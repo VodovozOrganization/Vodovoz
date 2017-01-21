@@ -45,31 +45,33 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>35.4pt</Height>
+    <Height>84.5pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>Нет расхождений</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
             <Width>53.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.4pt</Width>
+            <Width>136.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>95.7pt</Width>
+            <Width>96.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>104.4pt</Width>
+            <Width>98.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.5pt</Width>
+            <Width>30.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>146.5pt</Width>
@@ -147,7 +149,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>Бутыли</Value>
+                      <Value>Бут.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -289,6 +291,156 @@
         <Left>0.0pt</Left>
         <Top>3.5pt</Top>
       </Table>
+      <Textbox Name="Textbox15">
+        <Height>19.51pt</Height>
+        <Width>561.61pt</Width>
+        <Value>Маршрутные листы</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>33.95pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>14pt</FontSize>
+        </Style>
+      </Textbox>
+      <Table Name="Table2">
+        <DataSetName>RouteLists</DataSetName>
+        <NoRows>Нет незакрытых маршрутных листов</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>54.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>220.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>131.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>№ МЛ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Водитель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Статус</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=Fields!route_list_id.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
+                        <TextAlign >Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=Fields!driver_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>=Switch( Fields!status.Value = 'New', "Новый", Fields!status.Value = 'InLoading', "На погрузке", Fields!status.Value = 'EnRoute', "В пути", Fields!status.Value = 'OnClosing', "На закрытии", Fields!status.Value = 'NotDelivered', "Не доставлен")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>54.5pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -334,7 +486,7 @@
             bottles_movement_operations
         WHERE
             bottles_movement_operations.order_id = orders.id
-            AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) != 0) AS bottles
+                AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) AS bottles
 FROM
     orders
         LEFT JOIN
@@ -348,7 +500,9 @@ FROM
         LEFT JOIN
     employees ON employees.id = route_lists.driver_id
 WHERE
-    orders.delivery_date = @date</CommandText>
+    orders.delivery_date = @date
+        AND (route_lists.status = 'closed'
+        OR route_lists.status = 'MileageCheck')</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -379,6 +533,43 @@ WHERE
         <Field Name="bottles">
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="RouteLists">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    route_lists.id AS route_list_id,
+    CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
+    route_lists.status AS status
+FROM
+    route_lists
+        LEFT JOIN
+    employees ON employees.id = route_lists.driver_id
+WHERE
+    route_lists.date = @date
+    AND (route_lists.status &lt;&gt; 'closed'
+        AND route_lists.status &lt;&gt; 'MileageCheck')
+    ORDER BY route_lists.status;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="date">
+            <Value>=Parameters!date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="route_list_id">
+          <DataField>route_list_id</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
