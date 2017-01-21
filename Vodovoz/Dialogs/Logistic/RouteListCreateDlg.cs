@@ -71,6 +71,8 @@ namespace Vodovoz
 		{
 			subjectAdaptor.Target = UoWGeneric.Root;
 
+			datepickerDate.Date = DateTime.Now.Date;
+
 			referenceCar.SubjectType = typeof(Car);
 			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
 			referenceCar.ChangedByUser += (sender, e) => {
@@ -94,8 +96,10 @@ namespace Vodovoz
 			};
 
 			referenceLogistican.Sensitive = false;
-			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject);
-			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
+			//SubjectType не подхватывается автоматически
+			referenceLogistican.SubjectType = typeof(Employee);
+			referenceLogistican.Binding.AddBinding(Entity, e => e.Logistican, w => w.Subject).InitializeFromSource();
+			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts (UoW);
 			speccomboShift.Binding.AddBinding(Entity, e => e.Shift, w => w.SelectedItem);
