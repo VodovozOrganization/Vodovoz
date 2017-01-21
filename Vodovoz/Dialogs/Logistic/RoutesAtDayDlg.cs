@@ -636,6 +636,12 @@ namespace Vodovoz
 				);
 			}
 		}
+		protected override void OnDestroyed()
+		{
+			logger.Debug ("RoutesAtDayDlg Destroyed() called.");
+			//Отписываемся от событий.
+			OrmMain.GetObjectDescription<RouteList>().ObjectUpdatedGeneric -= RouteListExternalUpdated;
+		}
 
 		#endregion
 
