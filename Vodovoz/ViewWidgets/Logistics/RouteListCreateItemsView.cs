@@ -103,11 +103,28 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.WithForwarder);
 			}
 			config
+				.AddColumn("Товары").AddTextRenderer(x => ShowAdditional(x.Order.OrderItems))
 				.AddColumn("К клиенту").AddTextRenderer(x => x.ToClientText).Editable()
 				.AddColumn("От клиента").AddTextRenderer(x => x.FromClientText).Editable();
 			ytreeviewItems.ColumnsConfig = 
 				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish ();
+		}
+
+		private string ShowAdditional(IList<OrderItem> items)
+		{
+			List<string> stringParts = new List<string>();
+
+			foreach (var item in items)
+			{
+				if(item.Nomenclature.Category == NomenclatureCategory.additional)
+				{
+					stringParts.Add(
+						string.Format("{0}: {1}", item.Nomenclature.Name, item.Count));
+				}
+			}
+
+			return string.Join("\n", stringParts);
 		}
 
 		public void IsEditable (bool val = false)
