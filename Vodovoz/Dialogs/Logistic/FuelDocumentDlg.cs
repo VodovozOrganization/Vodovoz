@@ -165,7 +165,7 @@ namespace Vodovoz
 			if (cashier == null)
 			{
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
-				return;
+				return false;
 			}
 			Entity.FuelCashExpense.Casher = cashier;
 
