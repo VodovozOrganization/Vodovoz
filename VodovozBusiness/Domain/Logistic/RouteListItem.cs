@@ -353,7 +353,9 @@ namespace Vodovoz.Domain.Logistic
 			if (!IsDelivered())
 				return 0;
 
-			return Order.OrderItems.Sum(item => item.ActualCount * item.Price * (1 - item.Discount/100));
+			return Order.OrderItems
+				.Where(item => item.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash)
+				.Sum(item => item.ActualCount * item.Price * (1 - item.Discount/100));
 		}
 
 		public virtual int CoolersToClient{
