@@ -294,6 +294,9 @@ namespace Vodovoz.Domain.Logistic
 			var equpmentPaymentShort = payForEquipmentShort ? rates.CoolerRate : 0;
 
 			wage += equpmentPaymentShort;
+
+			if(Order.ToClientText?.ToLower().Contains("раст") == true)
+				wage = withForwarder ? 70 : 80;
 			#endif
 			
 			return wage;
@@ -343,6 +346,9 @@ namespace Vodovoz.Domain.Logistic
 			var equpmentPaymentShort = payForEquipmentShort ? rates.CoolerRate : 0;
 
 			wage += equpmentPaymentShort;
+
+			if(Order.ToClientText?.ToLower().Contains("раст") == true)
+				wage = 10;
 			#endif
 
 			return wage;
