@@ -45,7 +45,16 @@ namespace Vodovoz
 				itemsToClient.Add(new OrderItemReturnsNode(item));
 				item.PropertyChanged += OnOrderChanged;
 			}
+			//Добавление в список услуг
+			var services = routeListItem.Order.OrderItems
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.service).ToList();
+			foreach (var item in services)
+			{
+				itemsToClient.Add(new OrderItemReturnsNode(item));
+				item.PropertyChanged += OnOrderChanged;
+			}
 
+			//От клиента
 			equipmentFromClient = new List<OrderItemReturnsNode>();
 			var fromClient = routeListItem.Order.OrderEquipments
 				.Where(equipment => equipment.Direction == Vodovoz.Domain.Orders.Direction.PickUp).ToList();

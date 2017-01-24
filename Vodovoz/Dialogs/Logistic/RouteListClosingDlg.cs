@@ -157,10 +157,10 @@ namespace Vodovoz
 			foreach (var routeListItem in Entity.Addresses)
 			{
 				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
-				var nomenclatures = routeListItem.Order.OrderItems
-					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-					.Where(item => !item.Nomenclature.Serial).ToList();
-				foreach (var item in nomenclatures)
+//				var nomenclatures = routeListItem.Order.OrderItems
+//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+//					.Where(item => !item.Nomenclature.Serial).ToList();
+				foreach (var item in routeListItem.Order.OrderItems)
 				{
 					item.ActualCount = routeListItem.IsDelivered() ? item.Count : 0;
 				}
