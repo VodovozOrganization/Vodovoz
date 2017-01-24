@@ -6,6 +6,8 @@ using Vodovoz.Domain.Logistic;
 using System.Linq;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
+using QSProjectsLib;
+using Vodovoz.Repository;
 
 namespace Vodovoz
 {
@@ -159,6 +161,14 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if (cashier == null)
+			{
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, Вы не можете выдавать денежные средства, так как некого указывать в качестве кассира.");
+				return;
+			}
+			Entity.FuelCashExpense.Casher = cashier;
+
 			Entity.UpdateRowList(rows.ToDictionary(k => k.GasTicket, v => v.Count));
 			var valid = new QSValidator<FuelDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
