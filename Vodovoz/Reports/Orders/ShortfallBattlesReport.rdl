@@ -54,8 +54,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -313,8 +313,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -399,9 +399,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
-                        <TextAlign >Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -480,13 +480,7 @@
     delivery_points.compiled_address_short AS address,
     CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
     orders.comment AS comment,
-    (SELECT 
-            CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)
-        FROM
-            bottles_movement_operations
-        WHERE
-            bottles_movement_operations.order_id = orders.id
-                AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) AS bottles
+    (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) AS bottles
 FROM
     orders
         LEFT JOIN
@@ -499,10 +493,13 @@ FROM
     route_lists ON route_lists.id = route_list_addresses.route_list_id
         LEFT JOIN
     employees ON employees.id = route_lists.driver_id
+    LEFT JOIN
+    bottles_movement_operations ON bottles_movement_operations.order_id = orders.id
 WHERE
     orders.delivery_date = @date
         AND (route_lists.status = 'closed'
-        OR route_lists.status = 'MileageCheck')</CommandText>
+        OR route_lists.status = 'MileageCheck')
+        AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
