@@ -73,7 +73,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -90,7 +90,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -107,7 +107,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -124,7 +124,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -141,7 +141,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -159,7 +159,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextDecoration>None</TextDecoration>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                       <CanShrink>false</CanShrink>
@@ -178,7 +178,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -196,7 +196,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -213,7 +213,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -425,10 +425,14 @@
     route_lists.actual_distance AS distance,
     outlayed.liters_outlayed AS liters_outlayed,
     gived.liters_gived AS liters_gived,
-    @fuel_balance := @fuel_balance - outlayed.liters_outlayed + gived.liters_gived AS balance,
+    @fuel_balance := @fuel_balance
+    - IF(outlayed.liters_outlayed IS NULL, 0, outlayed.liters_outlayed)
+    + IF(gived.liters_gived IS NULL, 0, gived.liters_gived) AS balance,
     fuel_documents.payed_for_fuel AS payed_for_fuel
 FROM (SELECT 
-		SUM(@fuel_balance:=@fuel_balance + internal.liters_gived - internal.liters_outlayed) as rows_first
+		SUM(@fuel_balance:=@fuel_balance
+        + IF(internal.liters_gived IS NULL, 0, internal.liters_gived)
+        - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) as rows_first
 	FROM
 		fuel_operations as internal,
         (SELECT @fuel_balance:=0) t
@@ -513,7 +517,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="driver_id">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
