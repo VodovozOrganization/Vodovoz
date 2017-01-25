@@ -656,30 +656,21 @@
         <CommandText>SELECT 
     route_lists.date AS date,
     route_lists.id AS route_list_number,
-    SUM(route_list_addresses.bottles_returned) AS empty_bottles,
+    SUM(bottles_movement_operations.returned) AS empty_bottles,
+    SUM(bottles_movement_operations.delivered) AS full_bottles,
     SUM(route_list_addresses.driver_wage) AS wage,
-    COUNT(route_list_addresses.id) AS addresses_count,
-    SUM((SELECT 
-            SUM(order_items.actual_count)
-        FROM
-            order_items
-                LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-        WHERE
-            order_items.order_id = route_list_addresses.order_id
-                AND (nomenclature.category = 'bottle'
-                OR nomenclature.category = 'water'
-                OR nomenclature.category = 'disposableBottleWater'))) AS full_bottles
+    COUNT(route_list_addresses.id) AS addresses_count
 FROM
     route_lists
         LEFT JOIN
     route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+        LEFT JOIN
+    bottles_movement_operations ON bottles_movement_operations.order_id = route_list_addresses.order_id
 WHERE
     route_lists.driver_id = @driver_id
         AND date &gt;= @start_date
         AND date &lt;= @end_date
-        AND (route_lists.status = 'OnClosing'
-        OR route_lists.status = 'NotDelivered'
+        AND (route_lists.status = 'NotDelivered'
         OR route_lists.status = 'MileageCheck'
         OR route_lists.status = 'Closed')
 GROUP BY route_lists.id;</CommandText>
