@@ -244,7 +244,7 @@ namespace Vodovoz
 			var layout = new Pango.Layout(mapWindow.PangoContext);
 			layout.Alignment = Pango.Alignment.Right;
 			var colTXT = System.Drawing.ColorTranslator.ToHtml(route.Stroke.Color);
-			layout.SetMarkup(String.Format("<span foreground=\"{1}\">⛽ {0:N1} км.</span>", route.Distance, colTXT));
+			layout.SetMarkup(String.Format("<span foreground=\"{1}\"><span font=\"Segoe UI Symbol\">⛽</span> {0:N1} км.</span>", route.Distance, colTXT));
 
 			return new DistanceTextInfo{
 				PangoLayout = layout
