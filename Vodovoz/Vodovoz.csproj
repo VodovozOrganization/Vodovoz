@@ -524,6 +524,9 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.FuelReport.cs" />
     <Compile Include="ReportsParameters\ShortfallBattlesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.ShortfallBattlesReport.cs" />
+    <Compile Include="Representations\FinesVM.cs" />
+    <Compile Include="JournalFilters\FineFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FineFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

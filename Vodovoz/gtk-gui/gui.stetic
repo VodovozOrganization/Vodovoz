@@ -36068,4 +36068,11 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.FineFilter" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
+    </child>
+  </widget>
 </stetic-interface>
