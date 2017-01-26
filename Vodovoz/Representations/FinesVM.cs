@@ -3,6 +3,7 @@ using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 using Gamma.ColumnConfig;
 using QSOrmProject;
+using NHibernate.Transform;
 
 namespace Vodovoz.ViewModel
 {
@@ -46,12 +47,29 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes()
 		{
-			
+			FinesVMNode resultAlias = null;
+			Fine fineAlias = null;
+			Employee employeeAlias = null;
+
+			var query = UoW.Session.QueryOver<Fine> (() => fineAlias);
+
+//			var subquery = ;
+
+			var result = query
+				.SelectList(list => list
+					.Select(() => fineAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => fineAlias.Date).WithAlias(() => resultAlias.Date))
+				.OrderBy(o => o.Id).Asc
+				.TransformUsing(Transformers.AliasToBean<FinesVMNode>())
+				.List<FinesVMNode>();
+
+			SetItemsSource(result);
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <FinesVMNode>.Create()
 			.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+			.AddColumn("Сотудник").AddTextRenderer(node => string.Format("{0} {1}", node.SecondName, node.FirstName))
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -82,6 +100,12 @@ namespace Vodovoz.ViewModel
 		public int Id { get; set; }
 
 		public DateTime Date { get; set; }
+
+		public string FirstName { get; set; }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string SecondName { get; set; }
 	}
 }
 

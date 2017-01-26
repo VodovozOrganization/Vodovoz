@@ -43,6 +43,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.yentryreferenceSubdivisions.Changed += new global::System.EventHandler (this.OnYentryreferenceSubdivisionsChanged);
 		}
 	}
 }

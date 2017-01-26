@@ -116,6 +116,7 @@ namespace Vodovoz
 				OrmObjectMapping<Income>.Create ().Dialog<CashIncomeDlg> (),
 				OrmObjectMapping<Expense>.Create ().Dialog<CashExpenseDlg> (),
 				OrmObjectMapping<AdvanceReport>.Create ().Dialog<AdvanceReportDlg> (),
+				OrmObjectMapping<Fine>.Create ().Dialog<FineDlg> (),
 				//Банкинг
 				OrmObjectMapping<AccountIncome>.Create (),
 				OrmObjectMapping<AccountExpense>.Create (),

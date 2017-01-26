@@ -22,6 +22,12 @@ namespace Vodovoz
 
 		public event EventHandler Refiltered;
 
+		void OnRefiltered ()
+		{
+			if (Refiltered != null)
+				Refiltered (this, new EventArgs ());
+		}
+
 		private IUnitOfWork uow;
 
 		public IUnitOfWork UoW {
@@ -34,6 +40,23 @@ namespace Vodovoz
 		}
 
 		#endregion
+
+		#region Свойства
+
+		public  Subdivision RestrictionSubdivision {
+			get {return yentryreferenceSubdivisions.Subject as Subdivision;}
+			set {
+				yentryreferenceSubdivisions.Subject = value;
+				yentryreferenceSubdivisions.Sensitive = false;
+			}
+		}
+
+		#endregion
+		protected void OnYentryreferenceSubdivisionsChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
 
 	}
 }
