@@ -26,6 +26,7 @@ public partial class MainWindow : Window
 	Action ActionAccountableDebt;
 	Action ActionUnclosedAdvances;
 	Action ActionCashFlow;
+	Action ActionFinesJournal;
 	Action ActionRevision;
 	Action ActionRevisionBottlesAndDeposits;
 	Action ActionTransferBankDocs;
@@ -63,6 +64,7 @@ public partial class MainWindow : Window
 		ActionUnclosedAdvances = new Action ("ActionUnclosedAdvances", "Незакрытые авансы", null, "table");
 		ActionCashFlow = new Action ("ActionCashFlow", "Доходы и расходы", null, "table");
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
+		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
 		//Бухгалтерия
 		ActionTransferBankDocs = new Action ("ActionTransferBankDocs", "Загрузка из банк-клиента", null, "table");
 		ActionExportTo1c = new Action ("ActionExportTo1c", "Выгрузка в 1с", null, "table");
@@ -94,6 +96,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionUnclosedAdvances, null);
 		w1.Add (ActionCashFlow, null);
+		w1.Add (ActionFinesJournal, null);
 		w1.Add (ActionRevision, null);
 		w1.Add (ActionRevisionBottlesAndDeposits, null);
 		w1.Add (ActionTransferBankDocs, null);
@@ -124,6 +127,7 @@ public partial class MainWindow : Window
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
 		ActionCashFlow.Activated += ActionCashFlow_Activated;
+		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
@@ -142,7 +146,7 @@ public partial class MainWindow : Window
 			() => new EmployeeWorkChartDlg ()
 		);
 	}
-
+		
 	void ActionLoadOrders_Activated (object sender, System.EventArgs e)
 	{
 		tdiMain.OpenTab(
@@ -198,6 +202,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
+
+	void ActionFinesJournal_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<FinesVM>(),
+			() => new ReferenceRepresentation (new FinesVM ()).CustomTabName("Журнал штрафов")
 		);
 	}
 

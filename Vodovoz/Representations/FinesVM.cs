@@ -1,6 +1,7 @@
 ﻿using System;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
+using Gamma.ColumnConfig;
 
 namespace Vodovoz.ViewModel
 {
@@ -16,6 +17,15 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		#region Свойства
+
+		public FineFilter Filter {
+			get {
+				return RepresentationFilter as FineFilter;
+			}
+			set { RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
 		#endregion
 
 		#region implemented abstract members of RepresentationModelBase
@@ -24,9 +34,12 @@ namespace Vodovoz.ViewModel
 		{
 		}
 
-		Gamma.ColumnConfig.IColumnsConfig columnsConfig;
+		IColumnsConfig columnsConfig = FluentColumnsConfig <FinesVMNode>.Create()
+			.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
+			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
+			.Finish();
 
-		public override Gamma.ColumnConfig.IColumnsConfig ColumnsConfig {
+		public override IColumnsConfig ColumnsConfig {
 			get {
 				return columnsConfig;
 			}
@@ -45,11 +58,15 @@ namespace Vodovoz.ViewModel
 
 		#region Методы
 		#endregion
+	}
 
-		public class FinesVMNode
-		{
-			
-		}
+	public class FinesVMNode
+	{
+		[UseForSearch]
+		[SearchHighlight]
+		public int Id { get; set; }
+
+		public DateTime Date { get; set; }
 	}
 }
 
