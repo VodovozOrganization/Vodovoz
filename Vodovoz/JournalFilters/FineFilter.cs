@@ -4,12 +4,18 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
+	[OrmDefaultIsFiltered (true)]
 	public partial class FineFilter : Gtk.Bin, IRepresentationFilter
 	{
 		public FineFilter()
 		{
 			this.Build();
+		}
+
+		public FineFilter(IUnitOfWork uow) : this()
+		{
+			UoW = uow;
+			yentryreferenceSubdivisions.SubjectType = typeof(Subdivision);
 		}
 	
 		#region IRepresentationFilter implementation

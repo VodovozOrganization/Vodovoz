@@ -2,6 +2,7 @@
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Employees;
 using Gamma.ColumnConfig;
+using QSOrmProject;
 
 namespace Vodovoz.ViewModel
 {
@@ -11,9 +12,22 @@ namespace Vodovoz.ViewModel
 		#endregion
 
 		#region Конструкторы
-		public FinesVM()
+
+		public FinesVM() : this(UnitOfWorkFactory.CreateWithoutRoot ())
 		{
+			CreateRepresentationFilter = () => new FineFilter(UoW);
 		}
+
+		public FinesVM(FineFilter filter) : this(filter.UoW)
+		{
+			Filter = filter;
+		}
+
+		public FinesVM(IUnitOfWork uow) : base()
+		{
+			this.UoW = uow;
+		}
+
 		#endregion
 
 		#region Свойства
@@ -32,6 +46,7 @@ namespace Vodovoz.ViewModel
 
 		public override void UpdateNodes()
 		{
+			
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig <FinesVMNode>.Create()
