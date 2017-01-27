@@ -502,9 +502,11 @@ namespace Vodovoz.Domain.Orders
 			if (Client == null)
 				yield return new ValidationResult ("Необходимо заполнить поле \"клиент\".",
 					new[] { this.GetPropertyName (o => o.Client) });
+			#if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
 				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 
 					new[] { this.GetPropertyName (o => o.OrderItems) });
+			#endif
 		}
 
 		#endregion
