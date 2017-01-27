@@ -77,14 +77,24 @@ namespace Vodovoz.Additions.Logistic
 			int TextBoxNumber = 100;
 
 			//Шаблон стандартной ячейки
-			const string numericCellTemplate = "<TableCell><ReportItems>" +
-				"<Textbox Name=\"Textbox{0}\">" +
-				"<Value>{1}</Value>" +
-				"<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-				"<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth />" +
-				"<TextAlign>Center</TextAlign><Format>0</Format>" +
-				"<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>" +
-				"</Style></Textbox></ReportItems></TableCell>";
+			string numericCellTemplate =
+				"<TableCell><ReportItems>" +
+			    "<Textbox Name=\"Textbox{0}\">" +
+			    "<Value>{1}</Value>" +
+			    "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
+			    "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth />" +
+			    "<TextAlign>Center</TextAlign><Format>0</Format>";
+			
+			switch (routeList.Status)
+			{
+				case RouteListStatus.OnClosing:
+				case RouteListStatus.MileageCheck:
+				case RouteListStatus.Closed:
+					numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
+					break;
+			}
+				
+			numericCellTemplate += "</Style></Textbox></ReportItems></TableCell>";
 
 			//Расширяем требуемые колонки на нужную ширину
 			RdlText = RdlText.Replace ("<!--colspan-->", String.Format ("<ColSpan>{0}</ColSpan>", RouteColumns.Count));
