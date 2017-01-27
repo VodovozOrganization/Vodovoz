@@ -1,4 +1,5 @@
 ﻿using FluentNHibernate.Mapping;
+using QSOsm.DTO;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HMap
