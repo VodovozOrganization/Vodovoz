@@ -4,6 +4,9 @@ using Vodovoz.Domain.Employees;
 using Gamma.ColumnConfig;
 using QSOrmProject;
 using NHibernate.Transform;
+using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
+using NHibernate;
 
 namespace Vodovoz.ViewModel
 {
@@ -49,17 +52,26 @@ namespace Vodovoz.ViewModel
 		{
 			FinesVMNode resultAlias = null;
 			Fine fineAlias = null;
+			FineItem fineItemAlias = null;
 			Employee employeeAlias = null;
 
 			var query = UoW.Session.QueryOver<Fine> (() => fineAlias);
 
-//			var subquery = ;
+			var subquery = NHibernate.Criterion.QueryOver.Of<FineItem>(() => fineItemAlias)
+				.Where(() => fineAlias.Id == fineItemAlias.Fine.Id)
+				.JoinAlias(fi => fi.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.Select(Projections.SqlFunction (
+					new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					NHibernateUtil.String,
+					Projections.Property (() => employeeAlias.LastName),
+					Projections.Constant ("\n")));
 
 			var result = query
 				.SelectList(list => list
 					.Select(() => fineAlias.Id).WithAlias(() => resultAlias.Id)
-					.Select(() => fineAlias.Date).WithAlias(() => resultAlias.Date))
-				.OrderBy(o => o.Id).Asc
+					.Select(() => fineAlias.Date).WithAlias(() => resultAlias.Date)
+					.SelectSubQuery(subquery).WithAlias(() => resultAlias.EmployeesName)
+				).OrderBy(o => o.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<FinesVMNode>())
 				.List<FinesVMNode>();
 
@@ -69,7 +81,7 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig columnsConfig = FluentColumnsConfig <FinesVMNode>.Create()
 			.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
-			.AddColumn("Сотудник").AddTextRenderer(node => string.Format("{0} {1}", node.SecondName, node.FirstName))
+			.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -101,11 +113,9 @@ namespace Vodovoz.ViewModel
 
 		public DateTime Date { get; set; }
 
-		public string FirstName { get; set; }
-
 		[UseForSearch]
 		[SearchHighlight]
-		public string SecondName { get; set; }
+		public string EmployeesName { get; set; }
 	}
 }
 
