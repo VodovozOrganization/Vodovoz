@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Gamma.Utilities;
 using QSOrmProject;
+using QSOsm;
 using QSOsm.DTO;
 using Vodovoz.Domain.Logistic;
-using QSOsm;
-using System.Data.Bindings.Collections.Generic;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Vodovoz.Domain.Client
 {
@@ -72,7 +73,7 @@ namespace Vodovoz.Domain.Client
 			get {
 				string address = String.Empty;
 				if (!String.IsNullOrWhiteSpace (City))
-					address += String.Format ("{0} {1}, ", AddressHelper.GetShortNameOfLocalityType (LocalityType), City);
+					address += String.Format ("{0} {1}, ", LocalityType.GetEnumShortTitle(), City);
 				if (!String.IsNullOrWhiteSpace (Street))
 					address += String.Format ("{0}, ", Street);
 				if (!String.IsNullOrWhiteSpace (Building))
@@ -82,7 +83,7 @@ namespace Vodovoz.Domain.Client
 				if (default(int) != Floor)
 					address += String.Format ("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
-					address += String.Format ("{0} {1}, ", AddressHelper.GetShortNameOfRoomType (RoomType), Room);
+					address += String.Format ("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
 				if (!String.IsNullOrWhiteSpace (АddressAddition))
 					address += String.Format ("{0}, ", АddressAddition);
 
@@ -98,7 +99,7 @@ namespace Vodovoz.Domain.Client
 			get {
 				string address = String.Empty;
 				if (!String.IsNullOrWhiteSpace (City) && City != "Санкт-Петербург")
-					address += String.Format ("{0} {1}, ", AddressHelper.GetShortNameOfLocalityType (LocalityType), AddressHelper.ShortenCity(City));
+					address += String.Format ("{0} {1}, ", LocalityType.GetEnumShortTitle(), AddressHelper.ShortenCity(City));
 				if (!String.IsNullOrWhiteSpace (Street))
 					address += String.Format ("{0}, ", AddressHelper.ShortenStreet(Street));
 				if (!String.IsNullOrWhiteSpace (Building))
@@ -108,7 +109,7 @@ namespace Vodovoz.Domain.Client
 				if (default(int) != Floor)
 					address += String.Format ("эт.{0}, ", Floor);
 				if (!String.IsNullOrWhiteSpace (Room))
-					address += String.Format ("{0} {1}, ", AddressHelper.GetShortNameOfRoomType (RoomType), Room);
+					address += String.Format ("{0} {1}, ", RoomType.GetEnumShortTitle(), Room);
 
 				return address.TrimEnd (',', ' ');
 			}
