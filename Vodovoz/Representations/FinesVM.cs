@@ -80,6 +80,7 @@ namespace Vodovoz.ViewModel
 							Projections.Property (() => employeeAlias.Patronymic)
 						),
 						Projections.Constant ("\n"))).WithAlias(() => resultAlias.EmployeesName)
+					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
 				).OrderBy(o => o.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<FinesVMNode>())
 				.List<FinesVMNode>();
@@ -91,6 +92,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Номер").AddTextRenderer(node => node.Id.ToString())
 			.AddColumn("Дата").AddTextRenderer(node => node.Date.ToString("d"))
 			.AddColumn("Сотудники").AddTextRenderer(node => node.EmployeesName)
+			.AddColumn("Причина штрафа").AddTextRenderer(node => node.FineReason)
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -125,6 +127,8 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public string EmployeesName { get; set; }
+
+		public string FineReason { get; set; }
 	}
 }
 
