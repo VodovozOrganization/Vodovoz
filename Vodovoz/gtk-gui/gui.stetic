@@ -18226,9 +18226,6 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <placeholder />
-            </child>
-            <child>
               <widget class="Gtk.Button" id="buttonAccept">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -18240,7 +18237,7 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">8</property>
+                <property name="Position">7</property>
                 <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -18255,6 +18252,23 @@ RegistrationNumber</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Toggled" handler="OnYcheckConfirmDifferencesToggled" />
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">8</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonNewFine">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Новый штраф</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonNewFineClicked" />
               </widget>
               <packing>
                 <property name="PackType">End</property>

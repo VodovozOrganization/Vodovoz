@@ -123,6 +123,8 @@ namespace Vodovoz
 		private global::Gtk.Button buttonAccept;
 		
 		private global::Gamma.GtkWidgets.yCheckButton ycheckConfirmDifferences;
+		
+		private global::Gtk.Button buttonNewFine;
 
 		protected virtual void Build ()
 		{
@@ -728,7 +730,7 @@ namespace Vodovoz
 			this.hbox9.Add (this.buttonAccept);
 			global::Gtk.Box.BoxChild w62 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.buttonAccept]));
 			w62.PackType = ((global::Gtk.PackType)(1));
-			w62.Position = 8;
+			w62.Position = 7;
 			w62.Expand = false;
 			w62.Fill = false;
 			// Container child hbox9.Gtk.Box+BoxChild
@@ -741,14 +743,26 @@ namespace Vodovoz
 			this.hbox9.Add (this.ycheckConfirmDifferences);
 			global::Gtk.Box.BoxChild w63 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.ycheckConfirmDifferences]));
 			w63.PackType = ((global::Gtk.PackType)(1));
-			w63.Position = 9;
+			w63.Position = 8;
 			w63.Expand = false;
 			w63.Fill = false;
-			this.vbox1.Add (this.hbox9);
-			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox9]));
-			w64.Position = 4;
+			// Container child hbox9.Gtk.Box+BoxChild
+			this.buttonNewFine = new global::Gtk.Button ();
+			this.buttonNewFine.CanFocus = true;
+			this.buttonNewFine.Name = "buttonNewFine";
+			this.buttonNewFine.UseUnderline = true;
+			this.buttonNewFine.Label = global::Mono.Unix.Catalog.GetString ("Новый штраф");
+			this.hbox9.Add (this.buttonNewFine);
+			global::Gtk.Box.BoxChild w64 = ((global::Gtk.Box.BoxChild)(this.hbox9 [this.buttonNewFine]));
+			w64.PackType = ((global::Gtk.PackType)(1));
+			w64.Position = 9;
 			w64.Expand = false;
 			w64.Fill = false;
+			this.vbox1.Add (this.hbox9);
+			global::Gtk.Box.BoxChild w65 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox9]));
+			w65.Position = 4;
+			w65.Expand = false;
+			w65.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -764,6 +778,7 @@ namespace Vodovoz
 			this.checkUseBottleFine.Toggled += new global::System.EventHandler (this.OnCheckUseBottleFineToggled);
 			this.buttonBottleAddEditFine.Clicked += new global::System.EventHandler (this.OnButtonBottleAddEditFineClicked);
 			this.buttonBottleDelFine.Clicked += new global::System.EventHandler (this.OnButtonBottleDelFineClicked);
+			this.buttonNewFine.Clicked += new global::System.EventHandler (this.OnButtonNewFineClicked);
 			this.ycheckConfirmDifferences.Toggled += new global::System.EventHandler (this.OnYcheckConfirmDifferencesToggled);
 			this.buttonAccept.Clicked += new global::System.EventHandler (this.OnButtonAcceptClicked);
 		}

@@ -665,6 +665,13 @@ namespace Vodovoz
 		{
 			UpdateButtonState();
 		}
+
+		protected void OnButtonNewFineClicked (object sender, EventArgs e)
+		{
+			this.TabParent.AddSlaveTab(
+				this, new FineDlg (default(decimal), Entity.Id, Entity.Driver)
+			);
+		}
 	}
 
 	public class ReturnsNode{
