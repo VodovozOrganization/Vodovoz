@@ -26,6 +26,11 @@ namespace Vodovoz
 			Entity.DivideAtAll();
 		}
 
+		public FineDlg(decimal money, int routeListId, params Employee[] employees) : this(money, employees)
+		{
+			Entity.RouteListId = routeListId;
+		}
+
 		public FineDlg (int id)
 		{
 			this.Build ();
@@ -41,6 +46,8 @@ namespace Vodovoz
 		{
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
+			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
+			yspinbuttonRouteListId.Binding.AddBinding(Entity, e => e.RouteListId, w => w.ValueAsInt).InitializeFromSource();
 			fineitemsview.FineUoW = UoWGeneric;
 		}
 

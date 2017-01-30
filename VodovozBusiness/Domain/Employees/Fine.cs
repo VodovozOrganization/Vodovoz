@@ -35,6 +35,24 @@ namespace Vodovoz.Domain.Employees
 			set { SetField (ref totalMoney, value, () => TotalMoney); }
 		}
 
+		private string fineReasonString;
+
+		[Display(Name = "Причина штрафа")]
+		public virtual string FineReasonString
+		{
+			get { return fineReasonString; }
+			set { SetField(ref fineReasonString, value, () => FineReasonString); }
+		}
+
+		private int routeListID;
+
+		[Display(Name = "Номер маршрутного листа")]
+		public virtual int RouteListId
+		{
+			get { return routeListID; }
+			set { SetField(ref routeListID, value, () => RouteListId); }
+		}
+
 		IList<FineItem> items = new List<FineItem> ();
 
 		[Display (Name = "Строки")]

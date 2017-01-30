@@ -63,7 +63,13 @@ namespace Vodovoz.ViewModel
 				.Select(Projections.SqlFunction (
 					new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
-					Projections.Property (() => employeeAlias.LastName),
+						Projections.SqlFunction (new StandardSQLFunction("CONCAT_WS"),
+						NHibernateUtil.String,
+						Projections.Constant (" "),
+						Projections.Property (() => employeeAlias.LastName),
+						Projections.Property (() => employeeAlias.Name),
+						Projections.Property (() => employeeAlias.Patronymic)
+					),
 					Projections.Constant ("\n")));
 
 			var result = query
