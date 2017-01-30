@@ -14,7 +14,8 @@ namespace Vodovoz.HMap
 			Map (x => x.Date).Column ("date");
 			Map (x => x.TotalMoney).Column ("total_money");
 			Map (x => x.FineReasonString).Column("fine_reason_string");
-			Map(x => x.RouteListId).Column("route_list_id");
+
+			References (x => x.RouteList).Column("route_list_id");
 
 			HasMany (x => x.Items).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("fine_id");
 			HasMany (x => x.Nomenclatures).Cascade.AllDeleteOrphan ().Inverse ().KeyColumn ("fine_id");

@@ -7,6 +7,7 @@ using QSProjectsLib;
 using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -44,13 +45,13 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref fineReasonString, value, () => FineReasonString); }
 		}
 
-		private int routeListID;
+		private RouteList routeList;
 
-		[Display(Name = "Номер маршрутного листа")]
-		public virtual int RouteListId
+		[Display(Name = "Маршрутный лист")]
+		public virtual RouteList RouteList
 		{
-			get { return routeListID; }
-			set { SetField(ref routeListID, value, () => RouteListId); }
+			get { return routeList; }
+			set { SetField(ref routeList, value, () => RouteList); }
 		}
 
 		IList<FineItem> items = new List<FineItem> ();

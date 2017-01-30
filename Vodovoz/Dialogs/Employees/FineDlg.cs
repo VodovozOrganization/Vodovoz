@@ -2,6 +2,8 @@
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using System.Linq;
+using Vodovoz.Domain.Logistic;
+using NHibernate.Criterion;
 
 namespace Vodovoz
 {
@@ -26,9 +28,9 @@ namespace Vodovoz
 			Entity.DivideAtAll();
 		}
 
-		public FineDlg(decimal money, int routeListId, params Employee[] employees) : this(money, employees)
+		public FineDlg(decimal money, RouteList routeList) : this(money, routeList.Driver)
 		{
-			Entity.RouteListId = routeListId;
+			Entity.RouteList = routeList;
 		}
 
 		public FineDlg (int id)
@@ -47,8 +49,11 @@ namespace Vodovoz
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.Date.ToString("D"), w => w.LabelProp).InitializeFromSource();
 			yspinMoney.Binding.AddBinding(Entity, e => e.TotalMoney, w => w.ValueAsDecimal).InitializeFromSource();
 			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
-			yspinbuttonRouteListId.Binding.AddBinding(Entity, e => e.RouteListId, w => w.ValueAsInt).InitializeFromSource();
 			fineitemsview.FineUoW = UoWGeneric;
+
+			yentryreferenceRouteList.ItemsQuery = QueryOver.Of<RouteList>();
+			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
+			yentryreferenceRouteList.SetObjectDisplayFunc<RouteList>(r => r?.Id.ToString() ?? "Маршрутный лист не назначен");
 		}
 
 		public override bool Save ()

@@ -300,7 +300,7 @@ namespace Vodovoz
 		protected void OnButtonNewFineClicked (object sender, EventArgs e)
 		{
 			this.TabParent.AddSlaveTab(
-				this, new FineDlg (default(decimal), Entity.Id, Entity.Driver)
+				this, new FineDlg (default(decimal), Entity)
 			);
 		}
 	}	

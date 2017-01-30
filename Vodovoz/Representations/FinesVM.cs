@@ -59,7 +59,6 @@ namespace Vodovoz.ViewModel
 			var query = UoW.Session.QueryOver<Fine> (() => fineAlias)
 				.JoinAlias(f => f.Items, () => fineItemAlias)
 				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias);
-				//.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionAlias);
 
 			if (Filter.RestrictionSubdivision != null)
 			{
