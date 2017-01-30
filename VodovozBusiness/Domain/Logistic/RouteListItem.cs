@@ -525,6 +525,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			set{
 				Order.ToClientText = value;
+				OnPropertyChanged(() => ToClientText);
 			}
 		}
 
