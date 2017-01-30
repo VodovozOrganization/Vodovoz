@@ -54,29 +54,33 @@ namespace Vodovoz.ViewModel
 			Fine fineAlias = null;
 			FineItem fineItemAlias = null;
 			Employee employeeAlias = null;
+			Subdivision subdivisionAlias = null;
 
-			var query = UoW.Session.QueryOver<Fine> (() => fineAlias);
+			var query = UoW.Session.QueryOver<Fine> (() => fineAlias)
+				.JoinAlias(f => f.Items, () => fineItemAlias)
+				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias);
+				//.JoinAlias(() => employeeAlias.Subdivision, () => subdivisionAlias);
 
-			var subquery = NHibernate.Criterion.QueryOver.Of<FineItem>(() => fineItemAlias)
-				.Where(() => fineAlias.Id == fineItemAlias.Fine.Id)
-				.JoinAlias(fi => fi.Employee, () => employeeAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.Select(Projections.SqlFunction (
-					new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-					NHibernateUtil.String,
-						Projections.SqlFunction (new StandardSQLFunction("CONCAT_WS"),
-						NHibernateUtil.String,
-						Projections.Constant (" "),
-						Projections.Property (() => employeeAlias.LastName),
-						Projections.Property (() => employeeAlias.Name),
-						Projections.Property (() => employeeAlias.Patronymic)
-					),
-					Projections.Constant ("\n")));
+			if (Filter.RestrictionSubdivision != null)
+			{
+				query.Where(() => employeeAlias.Subdivision.Id == Filter.RestrictionSubdivision.Id);
+			}
 
 			var result = query
 				.SelectList(list => list
-					.Select(() => fineAlias.Id).WithAlias(() => resultAlias.Id)
+					.SelectGroup(() => fineAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => fineAlias.Date).WithAlias(() => resultAlias.Date)
-					.SelectSubQuery(subquery).WithAlias(() => resultAlias.EmployeesName)
+					.Select(Projections.SqlFunction (
+						new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+						NHibernateUtil.String,
+						Projections.SqlFunction (new StandardSQLFunction("CONCAT_WS"),
+							NHibernateUtil.String,
+							Projections.Constant (" "),
+							Projections.Property (() => employeeAlias.LastName),
+							Projections.Property (() => employeeAlias.Name),
+							Projections.Property (() => employeeAlias.Patronymic)
+						),
+						Projections.Constant ("\n"))).WithAlias(() => resultAlias.EmployeesName)
 				).OrderBy(o => o.Id).Asc
 				.TransformUsing(Transformers.AliasToBean<FinesVMNode>())
 				.List<FinesVMNode>();
