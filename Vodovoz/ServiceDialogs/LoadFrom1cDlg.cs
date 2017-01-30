@@ -657,6 +657,8 @@ namespace Vodovoz
 			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
 			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
+			var toClient 	 		  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
+			var fromClient 	 	  	  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
 			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
 			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
@@ -700,7 +702,9 @@ namespace Vodovoz
 					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
 					DeliveryPoint 	 	= deliveryPoint,
 					Address1c 	  	 	= addressNode?.InnerText,
-					PaymentType 		= paymentType
+					PaymentType 		= paymentType,
+					ToClientText 		= toClient?.InnerText,
+					FromClientText 		= fromClient?.InnerText
 				};
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
