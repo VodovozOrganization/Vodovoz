@@ -188,6 +188,10 @@ namespace Vodovoz.Domain.Employees
 				yield return new ValidationResult (String.Format("Общая сумма штрафа {0:C}, отличается от суммы штрафов всех сотрудников {1:C}.",
 					TotalMoney, totalSum),
 					new[] { this.GetPropertyName (o => o.Items) });
+
+			if(string.IsNullOrWhiteSpace(FineReasonString))
+				yield return new ValidationResult (String.Format("Отсутствует причина выдачи штрафа."),
+					new[] { this.GetPropertyName (o => o.FineReasonString) });
 		}
 		
 
