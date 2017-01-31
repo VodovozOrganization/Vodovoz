@@ -41,7 +41,7 @@ namespace Vodovoz
 			dataentryPassportSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
 			dataentryPassportNumber.MaxLength = 6;
 			dataentryPassportNumber.Binding.AddBinding(Entity, e => e.PassportNumber, w => w.Text).InitializeFromSource();
-			dataentryDrivingNumber.MaxLength = 10;
+			dataentryDrivingNumber.MaxLength = 11;
 			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
 			UoWGeneric.Root.PropertyChanged += OnPropertyChanged;
 			notebookMain.Page = 0;
