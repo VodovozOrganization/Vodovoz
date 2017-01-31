@@ -923,7 +923,8 @@ namespace Vodovoz
 
 				loaded.SumToReceive = loaded.TotalSum;
 
-				var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c);
+				var exist = ExistOrders.FirstOrDefault(o => o.Code1c == loaded.Code1c
+					&& o.DeliveryDate.Value.Year == loaded.DeliveryDate.Value.Year);
 
 				if (exist != null)
 				{
