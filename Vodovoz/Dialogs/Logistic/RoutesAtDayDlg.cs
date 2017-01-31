@@ -28,7 +28,7 @@ namespace Vodovoz
 		private List<GMapMarker> selectedMarkers = new List<GMapMarker>();
 		IList<Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
-		int addressesWithoutCoordinats, addressesWithoutRoutes;
+		int addressesWithoutCoordinats, addressesWithoutRoutes, totalBottlesCountAtDay, bottlesWithoutRL;
 		Pixbuf[] pixbufMarkers;
 		#endregion
 
@@ -353,14 +353,19 @@ namespace Vodovoz
 			logger.Info("Обновляем адреса на карте...");
 			addressesWithoutCoordinats = 0;
 			addressesWithoutRoutes = 0;
+			totalBottlesCountAtDay = 0;
+			bottlesWithoutRL = 0;
 			addressesOverlay.Clear();
 
 			foreach(var order in ordersAtDay)
 			{
+				totalBottlesCountAtDay += order.TotalDeliveredBottles;
 				var route = routesAtDay.FirstOrDefault(rl => rl.Addresses.Any(a => a.Order.Id == order.Id));
 
-				if (route == null)
+				if (route == null) {
 					addressesWithoutRoutes++;
+					bottlesWithoutRL += order.TotalDeliveredBottles;
+				}
 
 				if (order.DeliveryPoint.Latitude.HasValue && order.DeliveryPoint.Longitude.HasValue)
 				{
@@ -417,6 +422,10 @@ namespace Vodovoz
 				text.Add(String.Format("Из них {0} без координат.", addressesWithoutCoordinats));
 			if (addressesWithoutRoutes > 0)
 				text.Add(String.Format("Из них {0} без маршрутных листов.", addressesWithoutRoutes));
+			if (totalBottlesCountAtDay > 0)
+				text.Add(RusNumber.FormatCase(totalBottlesCountAtDay, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
+			if (bottlesWithoutRL > 0)
+				text.Add(RusNumber.FormatCase(bottlesWithoutRL, "Осталась {0} бутыль", "Осталось {0} бутыли", "Осталось {0} бутылей"));
 			
 			text.Add(RusNumber.FormatCase(routesAtDay.Count, "Всего {0} маршрутный лист.", "Всего {0} маршрутных листа.", "Всего {0} маршрутных листов.") );
 
