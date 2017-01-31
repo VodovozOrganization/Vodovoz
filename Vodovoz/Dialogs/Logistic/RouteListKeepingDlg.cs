@@ -68,9 +68,6 @@ namespace Vodovoz
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
 			speccomboShift.Sensitive = false;
 
-			yspinPlannedDistance.Binding.AddBinding(Entity, rl => rl.PlannedDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinPlannedDistance.Sensitive = false;
-
 			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
 			yspinActualDistance.Sensitive = false;
 

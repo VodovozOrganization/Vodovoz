@@ -12,7 +12,6 @@ namespace Vodovoz.HMap
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
-			Map (x => x.PlannedDistance).Column ("planned_distance");
 			Map (x => x.ActualDistance).Column ("actual_distance");
 			Map (x => x.ConfirmedDistance).Column("confirmed_distance");
 			Map (x => x.Date).Column ("date");

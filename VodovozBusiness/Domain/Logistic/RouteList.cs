@@ -84,14 +84,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref date, value, () => Date); }
 		}
 
-		Decimal plannedDistance;
-
-		[Display (Name = "Планируемое расстояние")]
-		public virtual Decimal PlannedDistance {
-			get { return plannedDistance; }
-			set { SetField (ref plannedDistance, value, () => PlannedDistance); }
-		}
-
 		Decimal actualDistance;
 
 		[Display (Name = "Фактическое расстояние")]
