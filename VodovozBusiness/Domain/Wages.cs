@@ -25,13 +25,13 @@ namespace Vodovoz.Domain
 				PhoneServiceCompensationRate = 2,
 				FullBottleRate = 7,
 				EmptyBottleRate = 5,
-				CoolerRate = 10,
+				CoolerRate = 14,
 				PaymentPerAddress = 30,
 				LargeOrderFullBottleRate = 4,
 				LargeOrderEmptyBottleRate = 1,
 				LargeOrderMinimumBottles = 100,
 				SmallFullBottleRate = (decimal)7 / 5,
-				ContractCancelationRate = 30,
+				ContractCancelationRate = 14,
 			};
 		}
 
