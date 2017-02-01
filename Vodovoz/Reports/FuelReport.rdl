@@ -29,13 +29,13 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>59.5pt</Width>
+            <Width>69.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>47.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>142.0pt</Width>
+            <Width>140.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.9pt</Width>
@@ -47,13 +47,13 @@
             <Width>41.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.8pt</Width>
+            <Width>42.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.2pt</Width>
+            <Width>41.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.6pt</Width>
+            <Width>50.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -64,7 +64,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Дата</Value>
+                      <Value>Дата выдачи</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -418,29 +418,30 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    route_lists.date AS date,
+    outlayed.date AS date,
     route_lists.id AS route_list_id,
-    CONCAT_WS(" ", employees.last_name, employees.name) AS driver,
+    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
     delivery_shift.name AS shift,
     route_lists.actual_distance AS distance,
     outlayed.liters_outlayed AS liters_outlayed,
     gived.liters_gived AS liters_gived,
-    @fuel_balance := @fuel_balance
-    - IF(outlayed.liters_outlayed IS NULL, 0, outlayed.liters_outlayed)
-    + IF(gived.liters_gived IS NULL, 0, gived.liters_gived) AS balance,
+    @fuel_balance:=@fuel_balance - IF(outlayed.liters_outlayed IS NULL,
+        0,
+        outlayed.liters_outlayed) + IF(gived.liters_gived IS NULL,
+        0,
+        gived.liters_gived) AS balance,
     fuel_documents.payed_for_fuel AS payed_for_fuel
-FROM (SELECT 
-		SUM(@fuel_balance:=@fuel_balance
-        + IF(internal.liters_gived IS NULL, 0, internal.liters_gived)
-        - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) as rows_first
-	FROM
-		fuel_operations as internal,
-        (SELECT @fuel_balance:=0) t
-	WHERE
-		internal.date &lt; @start_date AND (IF(@driver_id is null, internal.car_id = @car_id, internal.driver_id = @driver_id))) t1,
-    route_lists
+FROM
+    (SELECT 
+        SUM(@fuel_balance:=@fuel_balance + IF(internal.liters_gived IS NULL, 0, internal.liters_gived) - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) AS rows_first
+    FROM
+        fuel_operations AS internal, (SELECT @fuel_balance:=0) t
+    WHERE
+        internal.date &lt; @start_date
+            AND (IF(@driver_id IS NULL, internal.car_id = @car_id, internal.driver_id = @driver_id))) t1,
+    fuel_operations outlayed
         LEFT JOIN
-    fuel_operations AS outlayed ON route_lists.fuel_outlayed_operation_id = outlayed.id
+    route_lists ON route_lists.fuel_outlayed_operation_id = outlayed.id
         LEFT JOIN
     fuel_documents ON route_lists.fuel_gived_document_id = fuel_documents.id
         LEFT JOIN
@@ -450,9 +451,12 @@ FROM (SELECT
         LEFT JOIN
     employees ON route_lists.driver_id = employees.id
 WHERE
-    route_lists.date &gt;= @start_date
-        AND route_lists.date &lt;= @end_date
-        AND route_lists.car_id = @car_id</CommandText>
+    outlayed.date &gt;= @start_date
+        AND outlayed.date &lt;= @end_date
+        AND (IF(@driver_id IS NULL,
+	outlayed.car_id = @car_id,
+	outlayed.driver_id = @driver_id))
+        AND outlayed.liters_outlayed &gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
