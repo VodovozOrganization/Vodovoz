@@ -705,7 +705,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.date AS date,
@@ -713,7 +713,8 @@
     SUM(bottles_movement_operations.returned) AS empty_bottles,
     SUM(bottles_movement_operations.delivered) AS full_bottles,
     SUM(route_list_addresses.driver_wage) AS wage,
-    COUNT(route_list_addresses.id) AS addresses_count
+    COUNT(IF(route_list_addresses.status = 'Overdue'
+	OR route_list_addresses.status = 'Canceled', NULL, route_list_addresses.id)) AS addresses_count
 FROM
     route_lists
         LEFT JOIN
@@ -740,7 +741,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
