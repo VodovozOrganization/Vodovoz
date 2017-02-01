@@ -746,7 +746,7 @@ namespace Vodovoz
 				else
 				{
 					decimal tempDiscount = summ / (price * count);
-					discount = (int)(1 - tempDiscount * 100);
+					discount = (int)((1 - tempDiscount) * 100);
 				}
 			}
 
