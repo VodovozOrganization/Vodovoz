@@ -391,6 +391,12 @@ namespace Vodovoz
 			if (cashExpense != null)
 				UoW.Save(cashExpense);
 
+			if (Entity.WageOperation == null) {
+				var wage = routeListAddressesView.Items
+					.Where(item => item.IsDelivered()).Sum(item => item.DriverWage);
+				Entity.CreateWageOperation(UoW, wage);
+			}
+
 			Entity.Confirm();
 
 			UoW.Save();

@@ -198,6 +198,15 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private WagesMovementOperations wageOperation;
+
+		[Display(Name = "Операция начисления зарплаты")]
+		public virtual WagesMovementOperations WageOperation
+		{
+			get { return wageOperation; }
+			set { SetField(ref wageOperation, value, () => WageOperation); }
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -743,6 +752,18 @@ namespace Vodovoz.Domain.Logistic
 			decimal litresOutlayed = (decimal) Car.FuelConsumption
 				/ 100 * this.ConfirmedDistance;
 			FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
+		}
+
+		public virtual void CreateWageOperation (IUnitOfWork uow, decimal driverWage)
+		{
+			this.WageOperation = new WagesMovementOperations
+			{
+				OperationTime = DateTime.Now,
+				Employee 	  = Driver,
+				Money 		  = driverWage,
+				OperationType = WagesType.AccrualWage
+			};
+			uow.Save(WageOperation);
 		}
 
 		#endregion
