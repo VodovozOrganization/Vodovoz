@@ -72,6 +72,8 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
+			Entity.UpdateGivedAdvanceOperation(UoW);
+
 			logger.Info ("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
 			logger.Info ("Ok");

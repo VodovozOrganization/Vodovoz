@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Cash
 {
@@ -111,6 +112,15 @@ namespace Vodovoz.Domain.Cash
 			}
 		}
 
+		private WagesMovementOperations wagesOperation;
+
+		[Display(Name = "Операция с зарплатой")]
+		public virtual WagesMovementOperations WagesOperation
+		{
+			get { return wagesOperation; }
+			set { SetField(ref wagesOperation, value, () => WagesOperation); }
+		}
+
 		#endregion
 
 		#region Вычисляемые
@@ -176,6 +186,32 @@ namespace Vodovoz.Domain.Cash
 			AdvanceCloseItems.Add(closing);
 			CalculateCloseState();
 			return closing;
+		}
+
+		public void UpdateGivedAdvanceOperation (IUnitOfWork uow)
+		{
+			if (TypeOperation == ExpenseType.EmployeeAdvance)
+			{
+				if (WagesOperation == null)
+				{
+					WagesOperation = new WagesMovementOperations
+					{
+						OperationType = WagesType.GivedAdvance,
+						Employee 	  = this.Employee,
+						Money 		  = this.Money,
+						OperationTime = DateTime.Now
+					};
+				} else {
+					WagesOperation.OperationType = WagesType.GivedAdvance;
+					WagesOperation.Employee 	 = this.Employee;
+					WagesOperation.Money 		 = this.Money;
+				}
+			} else {
+				if (WagesOperation != null)
+				{
+					uow.Delete(WagesOperation);
+				}
+			}
 		}
 
 		#endregion
