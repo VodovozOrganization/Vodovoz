@@ -12,7 +12,7 @@ namespace Vodovoz.HMap
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
 			Map (x => x.OperationTime)	.Column ("operation_time");
-			Map (x => x.Money)			.Column("money");
+			Map (x => x.Money)			.Column ("money");
 			Map (x => x.OperationType)	.Column ("operation_type").CustomType<WagesTypeStringType> ();
 
 			References (x => x.Employee).Column ("employee_id");

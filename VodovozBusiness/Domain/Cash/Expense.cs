@@ -188,24 +188,26 @@ namespace Vodovoz.Domain.Cash
 			return closing;
 		}
 
-		public void UpdateGivedAdvanceOperation (IUnitOfWork uow)
+		public virtual void UpdateGivedAdvanceOperation (IUnitOfWork uow)
 		{
 			if (TypeOperation == ExpenseType.EmployeeAdvance)
 			{
 				if (WagesOperation == null)
 				{
+					//Умножаем на -1, так как операция выдачи
 					WagesOperation = new WagesMovementOperations
 					{
 						OperationType = WagesType.GivedAdvance,
 						Employee 	  = this.Employee,
-						Money 		  = this.Money,
+						Money 		  = this.Money * (-1),
 						OperationTime = DateTime.Now
 					};
 				} else {
 					WagesOperation.OperationType = WagesType.GivedAdvance;
 					WagesOperation.Employee 	 = this.Employee;
-					WagesOperation.Money 		 = this.Money;
+					WagesOperation.Money 		 = this.Money * (-1);
 				}
+				uow.Save(WagesOperation);
 			} else {
 				if (WagesOperation != null)
 				{

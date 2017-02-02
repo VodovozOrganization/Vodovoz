@@ -12,6 +12,7 @@ namespace Vodovoz
 	public partial class CashExpenseDlg : OrmGtkDialogBase<Expense>
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private decimal currentEmployeeWage = default(decimal);
 
 		public CashExpenseDlg ()
 		{
@@ -49,6 +50,7 @@ namespace Vodovoz
 			yentryEmploeey.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeOrderedQuery ();
 			yentryEmploeey.SetObjectDisplayFunc<Employee> (e => e.ShortName);
 			yentryEmploeey.Binding.AddBinding (Entity, s => s.Employee, w => w.Subject).InitializeFromSource ();
+			yentryEmploeey.ChangedByUser += (sender, e) => UpdateEmployeeBalaceInfo();
 
 			ydateDocument.Binding.AddBinding (Entity, s => s.Date, w => w.Date).InitializeFromSource ();
 
@@ -59,6 +61,9 @@ namespace Vodovoz
 			yspinMoney.Binding.AddBinding (Entity, s => s.Money, w => w.ValueAsDecimal).InitializeFromSource ();
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
+
+			ylabelEmployeeWageBalance.Visible = (ExpenseType)enumcomboOperation.SelectedItem == ExpenseType.EmployeeAdvance;
+			UpdateEmployeeBalaceInfo();
 		}
 
 		void OnExpenseCategoryUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedEventArgs e)
@@ -83,18 +88,38 @@ namespace Vodovoz
 
 		protected void OnEnumcomboOperationEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
+			UpdateEmployeeBalaceInfo();
+
 			switch((ExpenseType)e.SelectedItem)
 			{
-			case ExpenseType.Advance: 
-				labelEmploeey.LabelProp = "Подотчетное лицо:";
-				break;
-			case ExpenseType.Expense : 
-				labelEmploeey.LabelProp = "Сотрудник:";
-				break;
-			case ExpenseType.EmployeeAdvance:
-				labelEmploeey.LabelProp = "Сотрудник:";
-				break;
+				case ExpenseType.Advance: 
+					labelEmploeey.LabelProp = "Подотчетное лицо:";
+					ylabelEmployeeWageBalance.Visible = false;
+					break;
+				case ExpenseType.Expense : 
+					labelEmploeey.LabelProp = "Сотрудник:";
+					ylabelEmployeeWageBalance.Visible = false;
+					break;
+				case ExpenseType.EmployeeAdvance:
+					labelEmploeey.LabelProp = "Сотрудник:";
+					ylabelEmployeeWageBalance.Visible = true;
+					break;
 			}
+		}
+
+		private void UpdateEmployeeBalaceInfo()
+		{
+			currentEmployeeWage = 0;
+			string labelTemplate = "Текущий баланс сотрудника: {0}";
+			Employee employee = yentryEmploeey.Subject as Employee;
+
+			if (employee != null)
+			{
+				currentEmployeeWage =
+					Repository.Operations.WagesMovementRepository.GetCurrentEmployeeWageBalance(UoW, employee.Id);
+			}
+
+			ylabelEmployeeWageBalance.LabelProp = string.Format(labelTemplate, currentEmployeeWage);
 		}
 
 		protected void OnButtonPrintClicked (object sender, EventArgs e)
