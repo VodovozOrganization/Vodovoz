@@ -235,6 +235,8 @@ namespace Vodovoz.Domain.Cash
 		Expense,
 		[Display (Name = "Аванс подотчетному лицу")]
 		Advance,
+		[Display (Name = "Аванс сотруднику")]
+		EmployeeAdvance
 	}
 
 	public class ExpenseTypeStringType : NHibernate.Type.EnumStringType

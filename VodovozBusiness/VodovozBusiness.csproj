@@ -322,6 +322,8 @@
     <Compile Include="HibernateMapping\Organization\SubdivisionMap.cs" />
     <Compile Include="Domain\Employees\EmployeeWorkChart.cs" />
     <Compile Include="HibernateMapping\Employees\EmployeeWorkChartMap.cs" />
+    <Compile Include="Domain\Operations\WagesMovementOperations.cs" />
+    <Compile Include="HibernateMapping\Operations\WagesMovementOperationsMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -89,6 +89,9 @@ namespace Vodovoz
 			case ExpenseType.Expense : 
 				labelEmploeey.LabelProp = "Сотрудник:";
 				break;
+			case ExpenseType.EmployeeAdvance:
+				labelEmploeey.LabelProp = "Сотрудник:";
+				break;
 			}
 		}
 
