@@ -62,7 +62,9 @@ namespace Vodovoz
 
 			ytextviewDescription.Binding.AddBinding (Entity, s => s.Description, w => w.Buffer.Text).InitializeFromSource ();
 
-			ylabelEmployeeWageBalance.Visible = (ExpenseType)enumcomboOperation.SelectedItem == ExpenseType.EmployeeAdvance;
+			ExpenseType type = (ExpenseType)enumcomboOperation.SelectedItem;
+			ylabelEmployeeWageBalance.Visible = type == ExpenseType.EmployeeAdvance
+											 || type == ExpenseType.Salary;
 			UpdateEmployeeBalaceInfo();
 		}
 
@@ -77,7 +79,7 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
-			Entity.UpdateGivedAdvanceOperation(UoW);
+			Entity.UpdateWagesOperations(UoW);
 
 			logger.Info ("Сохраняем расходный ордер...");
 			UoWGeneric.Save();
@@ -101,6 +103,10 @@ namespace Vodovoz
 					ylabelEmployeeWageBalance.Visible = false;
 					break;
 				case ExpenseType.EmployeeAdvance:
+					labelEmploeey.LabelProp = "Сотрудник:";
+					ylabelEmployeeWageBalance.Visible = true;
+					break;
+				case ExpenseType.Salary:
 					labelEmploeey.LabelProp = "Сотрудник:";
 					ylabelEmployeeWageBalance.Visible = true;
 					break;

@@ -188,22 +188,32 @@ namespace Vodovoz.Domain.Cash
 			return closing;
 		}
 
-		public virtual void UpdateGivedAdvanceOperation (IUnitOfWork uow)
+		public virtual void UpdateWagesOperations (IUnitOfWork uow)
 		{
-			if (TypeOperation == ExpenseType.EmployeeAdvance)
+			if (TypeOperation == ExpenseType.EmployeeAdvance || TypeOperation == ExpenseType.Salary)
 			{
+				WagesType operationType = WagesType.GivedAdvance;
+				switch (TypeOperation)
+				{
+					case ExpenseType.EmployeeAdvance:
+						operationType = WagesType.GivedAdvance;
+						break;
+					case ExpenseType.Salary:
+						operationType = WagesType.GivedWage;
+						break;
+				}
 				if (WagesOperation == null)
 				{
 					//Умножаем на -1, так как операция выдачи
 					WagesOperation = new WagesMovementOperations
 					{
-						OperationType = WagesType.GivedAdvance,
+						OperationType = operationType,
 						Employee 	  = this.Employee,
 						Money 		  = this.Money * (-1),
 						OperationTime = DateTime.Now
 					};
 				} else {
-					WagesOperation.OperationType = WagesType.GivedAdvance;
+					WagesOperation.OperationType = operationType;
 					WagesOperation.Employee 	 = this.Employee;
 					WagesOperation.Money 		 = this.Money * (-1);
 				}
@@ -274,7 +284,9 @@ namespace Vodovoz.Domain.Cash
 		[Display (Name = "Аванс подотчетному лицу")]
 		Advance,
 		[Display (Name = "Аванс сотруднику")]
-		EmployeeAdvance
+		EmployeeAdvance,
+		[Display (Name = "Выдача зарплаты")]
+		Salary
 	}
 
 	public class ExpenseTypeStringType : NHibernate.Type.EnumStringType
