@@ -16809,22 +16809,10 @@ Patronymic</property>
         <child>
           <widget class="Gtk.Table" id="dataRouteList">
             <property name="MemberName" />
-            <property name="NRows">7</property>
+            <property name="NRows">6</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
-            <child>
-              <placeholder />
-            </child>
             <child>
               <widget class="Gamma.Widgets.yDatePicker" id="datepickerDate">
                 <property name="MemberName" />
@@ -17216,6 +17204,8 @@ RegistrationNumber</property>
           <packing>
             <property name="Position">0</property>
             <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
           </packing>
         </child>
         <child>

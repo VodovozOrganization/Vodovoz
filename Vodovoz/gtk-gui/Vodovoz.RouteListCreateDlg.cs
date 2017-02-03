@@ -68,7 +68,7 @@ namespace Vodovoz
 			this.vbox1.Spacing = 6;
 			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.dataRouteList = new global::Gtk.Table (((uint)(7)), ((uint)(4)), false);
+			this.dataRouteList = new global::Gtk.Table (((uint)(6)), ((uint)(4)), false);
 			this.dataRouteList.Name = "dataRouteList";
 			this.dataRouteList.RowSpacing = ((uint)(6));
 			this.dataRouteList.ColumnSpacing = ((uint)(6));
@@ -303,6 +303,8 @@ namespace Vodovoz
 			this.vbox1.Add (this.dataRouteList);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.dataRouteList]));
 			w22.Position = 0;
+			w22.Expand = false;
+			w22.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.createroutelistitemsview1 = new global::Vodovoz.RouteListCreateItemsView ();
 			this.createroutelistitemsview1.HeightRequest = 150;
