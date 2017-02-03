@@ -71,7 +71,7 @@ namespace Vodovoz
 		{
 			subjectAdaptor.Target = UoWGeneric.Root;
 
-			datepickerDate.Date = DateTime.Now.Date;
+			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			referenceCar.SubjectType = typeof(Car);
 			referenceCar.Binding.AddBinding(Entity, e => e.Car, w => w.Subject).InitializeFromSource();
