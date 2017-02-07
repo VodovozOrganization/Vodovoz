@@ -45,7 +45,7 @@ namespace Vodovoz.Reports
 				Identifier = "Orders.ShortfallBattlesReport",
 				Parameters = new Dictionary<string, object>
 				{ 
-					{ "date", ydatepicker.Date },
+					{ "date", ydatepicker.Date }
 				}
 			};
 		}
