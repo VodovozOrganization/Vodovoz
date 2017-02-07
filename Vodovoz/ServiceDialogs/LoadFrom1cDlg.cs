@@ -718,6 +718,15 @@ namespace Vodovoz
 			}
 
 			order.OrderItems = orderItems;
+
+			if(order.OrderItems.Count == 1
+				&& string.IsNullOrWhiteSpace(order.ToClientText)
+				&& string.IsNullOrWhiteSpace(order.FromClientText))
+			{
+				Nomenclature nomenclature = order.OrderItems[0].Nomenclature;
+				if(nomenclature.Name.ToLower().Contains("забор") && nomenclature.Name.ToLower().Contains("доставка"))
+					order.ToClientText += " раст";
+			}
 			OrdersList.Add(order);
 			ReadedOrders++;
 		}
