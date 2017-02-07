@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>5mm</TopMargin>
+  <LeftMargin>5mm</LeftMargin>
+  <RightMargin>5mm</RightMargin>
+  <BottomMargin>5mm</BottomMargin>
+  <ReportParameters>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="employee_id">
+      <DataType>Integer</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+  </ReportParameters>
+  <PageHeader>
+    <Height>31.4pt</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox2">
+        <Height>22.55pt</Height>
+        <Width>568.36pt</Width>
+        <Value>="Отчет по изменению зарплатного баланса с " + {?start_date} + " по " + {?end_date}</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>8.60pt</Top>
+        <Style>
+          <FontSize>16pt</FontSize>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </PageHeader>
+  <Body>
+    <Height>56.1pt</Height>
+    <ReportItems>
+      <List Name="List1">
+        <Height>26.36pt</Height>
+        <Width>569.21pt</Width>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox3">
+            <Height>13.48pt</Height>
+            <Width>551.15pt</Width>
+            <Value>="Сотрудник: " + {employee_name}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>0.0pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox4">
+            <Height>12.04pt</Height>
+            <Width>568.44pt</Width>
+            <Value>="Баланс до " + {?start_date} + ": " + {balance}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.0pt</Left>
+            <Top>13.2pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>Employee_info</DataSetName>
+      </List>
+      <Table Name="Table1">
+        <DataSetName>WageBalance</DataSetName>
+        <NoRows>Операций за заданный промежуток не производилось</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>173.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>74.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>80.1pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Тип операции</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Деньги</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Баланс</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>=Fields!date.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Switch(Fields!type.Value = 'GivedWage', 'Выдача зарплаты', Fields!type.Value = 'GivedAdvance', 'Выдача аванса', Fields!type.Value = 'HoldedFine', 'Удержание штрафа',Fields!type.Value = 'AccrualWage', 'Начисление зарплаты')</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>=Fields!money.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!balance.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>29.4pt</Top>
+      </Table>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="Employee_info">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(wages_movement_operations.money) AS balance,
+    CONCAT_WS(" ", employees.last_name, employees.name, employees.patronymic) as employee_name
+FROM
+    wages_movement_operations
+    LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+WHERE
+    employee_id = @employee_id
+        AND wages_movement_operations.operation_time &lt; @start_date;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="employee_id">
+            <Value>=Parameters!employee_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="employee_name">
+          <DataField>employee_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="WageBalance">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    @wage_balance:=@wage_balance + IF(wages_movement_operations.money IS NULL,
+        0, wages_movement_operations.money) AS balance,
+    wages_movement_operations.operation_time AS date,
+    wages_movement_operations.operation_type AS type,
+    wages_movement_operations.money AS money
+FROM
+    (SELECT 
+        SUM(@wage_balance:=@wage_balance + IF(internal.money IS NULL, 0, internal.money)) AS rows_first
+    FROM
+        wages_movement_operations AS internal, (SELECT @wage_balance:=0) t
+    WHERE
+        internal.operation_time &lt; @start_date
+            AND internal.employee_id = @employee_id) t1,
+    wages_movement_operations
+WHERE
+    employee_id = @employee_id
+        AND wages_movement_operations.operation_time &gt;= @start_date
+        AND wages_movement_operations.operation_time &lt;= @end_date</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="employee_id">
+            <Value>=Parameters!employee_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="type">
+          <DataField>type</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="money">
+          <DataField>money</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+</Report>
