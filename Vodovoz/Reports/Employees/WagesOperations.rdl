@@ -36,7 +36,7 @@
       <Textbox Name="Textbox2">
         <Height>22.55pt</Height>
         <Width>568.36pt</Width>
-        <Value>="Отчет по изменению зарплатного баланса с " + {?start_date} + " по " + {?end_date}</Value>
+        <Value>="Отчет по изменению зарплатного баланса с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>8.60pt</Top>
@@ -75,7 +75,7 @@
           <Textbox Name="Textbox4">
             <Height>12.04pt</Height>
             <Width>568.44pt</Width>
-            <Value>="Баланс до " + {?start_date} + ": " + {balance}</Value>
+            <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + Iif(Fields!balance.IsMissing, 0, {balance})</Value>
             <ZIndex>1</ZIndex>
             <Left>0.0pt</Left>
             <Top>13.2pt</Top>
@@ -95,8 +95,8 @@
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -194,12 +194,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>=Fields!date.Value</Value>
+                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -228,6 +231,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -241,6 +247,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -283,14 +292,14 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Employee_info">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(wages_movement_operations.money) AS balance,
     CONCAT_WS(" ", employees.last_name, employees.name, employees.patronymic) as employee_name
 FROM
     wages_movement_operations
-    LEFT JOIN employees ON employees.id = wages_movement_operations.employee_id
+    RIGHT JOIN employees ON employees.id = @employee_id
 WHERE
     employee_id = @employee_id
         AND wages_movement_operations.operation_time &lt; @start_date;</CommandText>
@@ -303,7 +312,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>

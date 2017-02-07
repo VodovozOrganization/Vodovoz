@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSReport;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
+using QSProjectsLib;
 
 namespace Vodovoz.Reports
 {
@@ -50,7 +51,7 @@ namespace Vodovoz.Reports
 				Parameters = new Dictionary<string, object>
 				{ 
 					{ "start_date", dateperiodpicker.StartDate },
-					{ "end_date", dateperiodpicker.EndDate },
+					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
 					{ "employee_id", ((Employee)yentryreferenceEmployee.Subject).Id }
 				}
 			};
@@ -65,6 +66,15 @@ namespace Vodovoz.Reports
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
+			string errorString = string.Empty;
+			if (yentryreferenceEmployee.Subject == null)
+				errorString += "Не заполено поле сотрудника\n";
+			if (dateperiodpicker.StartDateOrNull == null)
+				errorString += "Не заполена дата\n";
+			if (!string.IsNullOrWhiteSpace(errorString)) {
+				MessageDialogWorks.RunErrorDialog(errorString);
+				return;
+			}
 			OnUpdate(true);
 		}
 		#endregion
