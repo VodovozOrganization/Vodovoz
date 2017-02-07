@@ -68,9 +68,9 @@ namespace Vodovoz.Reports
 		{
 			string errorString = string.Empty;
 			if (yentryreferenceEmployee.Subject == null)
-				errorString += "Не заполено поле сотрудника\n";
+				errorString += "Не заполнено поле сотрудника\n";
 			if (dateperiodpicker.StartDateOrNull == null)
-				errorString += "Не заполена дата\n";
+				errorString += "Не заполнена дата\n";
 			if (!string.IsNullOrWhiteSpace(errorString)) {
 				MessageDialogWorks.RunErrorDialog(errorString);
 				return;
