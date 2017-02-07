@@ -612,4 +612,13 @@ public partial class MainWindow: Gtk.Window
 			() => new QSReport.ReportViewDlg (widget)
 		);
 	}
+
+	protected void OnActionEquipmentReportActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.EquipmentReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
 }
