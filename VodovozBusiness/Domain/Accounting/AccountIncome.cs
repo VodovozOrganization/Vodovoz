@@ -9,8 +9,8 @@ using Vodovoz.Domain.Operations;
 namespace Vodovoz.Domain.Accounting
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
-		NominativePlural = "операции прихода",
-		Nominative = "операция прихода")]
+		NominativePlural = "поступления на р/с",
+		Nominative = "поступление на р/с")]
 	public class AccountIncome: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
@@ -99,6 +99,13 @@ namespace Vodovoz.Domain.Accounting
 		{
 			get { return moneyOperation; }
 			set { SetField(ref moneyOperation, value, () => MoneyOperation); }
+		}
+
+		public string Title
+		{
+			get {
+				return string.Format("Поступление денег на р/с №{1} от {2:d} на сумму {3}₽", Id, Date, Total);
+			}
 		}
 
 		#endregion

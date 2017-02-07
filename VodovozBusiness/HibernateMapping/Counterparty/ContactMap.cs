@@ -26,7 +26,7 @@ namespace Vodovoz.HMap
 			HasMany (x => x.Emails).Cascade.AllDeleteOrphan ().LazyLoad ()
 				.KeyColumn ("counterparty_contact_id");
 
-			HasManyToMany(x => x.DeliveryPoints).Table("counterparty_delivery_point_contacts")
+			HasManyToMany(x => x.DeliveryPoints).Table("counterparty_delivery_point_contacts").Inverse()
 				.ParentKeyColumn("contact_person_id")
 				.ChildKeyColumn("delivery_point_id")
 				.LazyLoad();
