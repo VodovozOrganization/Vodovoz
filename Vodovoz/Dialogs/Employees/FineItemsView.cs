@@ -77,8 +77,11 @@ namespace Vodovoz
 		protected void OnButtonRemoveClicked(object sender, EventArgs e)
 		{
 			var row = ytreeviewItems.GetSelectedObject<FineItem>();
-			if (row.Id > 0)
+			if (row.Id > 0) {
 				FineUoW.Delete(row);
+				if (row.WageOperation != null)
+					FineUoW.Delete(row.WageOperation);
+			}
 			FineUoW.Root.ObservableItems.Remove(row);
 		}
 	}

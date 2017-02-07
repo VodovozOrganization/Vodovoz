@@ -8,6 +8,7 @@ using System.Linq;
 using Gamma.Utilities;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -170,6 +171,28 @@ namespace Vodovoz.Domain.Employees
 			foreach(var item in Items)
 			{
 				item.Money = part;
+			}
+		}
+
+		public virtual void UpdateWageOperations(IUnitOfWork uow, decimal money)
+		{
+			foreach (var item in Items)
+			{
+				if(item.WageOperation == null)
+				{
+					item.WageOperation = new WagesMovementOperations
+						{
+							OperationType = WagesType.HoldedFine,
+							Employee 	  = item.Employee,
+							Money 		  = item.Money * (-1),
+							OperationTime = this.Date
+						};
+				} else {
+					item.WageOperation.OperationType = WagesType.HoldedFine;
+					item.WageOperation.Employee 	 = item.Employee;
+					item.WageOperation.Money 		 = item.Money * (-1);
+				}
+				uow.Save(item.WageOperation);
 			}
 		}
 

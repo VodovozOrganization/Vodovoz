@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -32,6 +33,15 @@ namespace Vodovoz.Domain.Employees
 			set {
 				SetField (ref money, value, () => Money);
 			}
+		}
+
+		private WagesMovementOperations wageOperation;
+
+		[Display(Name = "Операция по удержанию штрафа")]
+		public virtual WagesMovementOperations WageOperation
+		{
+			get { return wageOperation; }
+			set { SetField(ref wageOperation, value, () => WageOperation); }
 		}
 
 		public virtual string Title {

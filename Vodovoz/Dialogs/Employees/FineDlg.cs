@@ -62,6 +62,11 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
 
+			foreach (var item in Entity.Items)
+			{
+				Entity.UpdateWageOperations(UoW, item.Money);
+			}
+
 			logger.Info ("Сохраняем штраф...");
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
