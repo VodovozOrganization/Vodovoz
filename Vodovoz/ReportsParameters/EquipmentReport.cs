@@ -42,7 +42,7 @@ namespace Vodovoz.Reports
 		{			
 			return new ReportInfo
 			{
-				Identifier = "Employees.WagesOperations",
+				Identifier = "Orders.EquipmentReport",
 				Parameters = new Dictionary<string, object>
 				{ 
 					{ "start_date", dateperiodpicker.StartDate },
