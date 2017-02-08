@@ -206,7 +206,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				fineDlg = new FineDlg();
+				fineDlg = new FineDlg("Недостача");
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}
 			fineDlg.Entity.TotalMoney = selected.SumOfDamage;

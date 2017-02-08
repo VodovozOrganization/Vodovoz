@@ -28,6 +28,11 @@ namespace Vodovoz
 			Entity.DivideAtAll();
 		}
 
+		public FineDlg(string reasonString) : this()
+		{
+			Entity.FineReasonString = reasonString;
+		}
+
 		public FineDlg(decimal money, RouteList routeList, string reasonString, DateTime date, params Employee[] employees) : this()
 		{
 			employees.ToList().ForEach(Entity.AddItem);

@@ -127,7 +127,7 @@ namespace Vodovoz
 			}
 			else
 			{
-				fineDlg = new FineDlg();
+				fineDlg = new FineDlg("Недостача");
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}
 			fineDlg.Entity.TotalMoney = selected.SumOfDamage;
@@ -143,7 +143,7 @@ namespace Vodovoz
 
 		void FineDlgExist_EntitySaved (object sender, EntitySavedEventArgs e)
 		{
-			//Мы здесь не можем выпольнить просто рефреш, так как если удалить сотрудника из штрафа, получаем эксепшен.
+			//Мы здесь не можем выполнить просто рефреш, так как если удалить сотрудника из штрафа, получаем эксепшен.
 			int id = FineEditItem.Fine.Id;
 			DocumentUoW.Session.Evict(FineEditItem.Fine);
 			FineEditItem.Fine = DocumentUoW.GetById<Fine>(id);
