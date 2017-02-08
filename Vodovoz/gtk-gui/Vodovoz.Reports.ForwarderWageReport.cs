@@ -37,7 +37,7 @@ namespace Vodovoz.Reports
 			// Container child hbox1.Gtk.Box+BoxChild
 			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel ();
 			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("ylabel1");
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
 			this.hbox1.Add (this.ylabel1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.ylabel1]));
 			w1.Position = 0;
@@ -64,7 +64,7 @@ namespace Vodovoz.Reports
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel ();
 			this.ylabel2.Name = "ylabel2";
-			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString ("ylabel2");
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString ("Экспедитор:");
 			this.hbox3.Add (this.ylabel2);
 			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.ylabel2]));
 			w4.Position = 0;
