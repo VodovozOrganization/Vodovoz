@@ -45,7 +45,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>84.5pt</Height>
+    <Height>113.4pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
@@ -71,7 +71,7 @@
             <Width>98.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>30.3pt</Width>
+            <Width>32.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>146.5pt</Width>
@@ -290,14 +290,129 @@
         </Details>
         <Left>0.0pt</Left>
         <Top>3.5pt</Top>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Всего:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!bottles.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
       <Textbox Name="Textbox15">
         <Height>19.51pt</Height>
         <Width>561.61pt</Width>
         <Value>Маршрутные листы</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>33.95pt</Top>
+        <Left>0.0pt</Left>
+        <Top>41.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -439,7 +554,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>54.5pt</Top>
+        <Top>62.5pt</Top>
       </Table>
     </ReportItems>
   </Body>
