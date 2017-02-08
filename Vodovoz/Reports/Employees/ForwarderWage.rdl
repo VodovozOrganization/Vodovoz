@@ -11,47 +11,13 @@
   <LeftMargin>5mm</LeftMargin>
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
-  <ReportParameters>
-    <ReportParameter Name="forwarder_id">
-      <DataType>Integer</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="start_date">
-      <DataType>DateTime</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="end_date">
-      <DataType>DateTime</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-  </ReportParameters>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>0.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
-      <Textbox Name="Textbox2">
-        <Height>24.05pt</Height>
-        <Width>569.21pt</Width>
-        <Value>=First(Fields!name, "ForwarderName") + " " + First(Fields!last_name, "ForwarderName")</Value>
-        <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>5.50pt</Top>
-        <Style>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
-          <FontSize>16pt</FontSize>
-        </Style>
-      </Textbox>
-    </ReportItems>
   </PageHeader>
   <Body>
-    <Height>48.9pt</Height>
+    <Height>65.4pt</Height>
     <ReportItems >
       <Table Name="Table1">
         <DataSetName>ForwarderWage</DataSetName>
@@ -279,7 +245,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>3.8pt</Top>
+        <Top>22.1pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -381,6 +347,21 @@
           </TableRows>
         </Footer>
       </Table>
+      <Textbox Name="Textbox2">
+        <Height>24.05pt</Height>
+        <Width>569.21pt</Width>
+        <Value>=First(Fields!name, "ForwarderName") + " " + First(Fields!last_name, "ForwarderName")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>0.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <FontSize>16pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -497,4 +478,30 @@ GROUP BY route_lists.id;</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
+  <ReportParameters >
+    <ReportParameter Name="forwarder_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>

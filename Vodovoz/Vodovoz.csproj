@@ -531,6 +531,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.WagesOperationsReport.cs" />
     <Compile Include="ReportsParameters\EquipmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.EquipmentReport.cs" />
+    <Compile Include="ReportsParameters\ForwarderWageReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.ForwarderWageReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -826,6 +828,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Orders\EquipmentReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Employees\ForwarderWage.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

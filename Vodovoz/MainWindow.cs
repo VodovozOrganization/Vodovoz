@@ -621,4 +621,13 @@ public partial class MainWindow: Gtk.Window
 			() => new QSReport.ReportViewDlg (widget)
 		);
 	}
+
+	protected void OnActionForwarderWageReportActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.ForwarderWageReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
 }
