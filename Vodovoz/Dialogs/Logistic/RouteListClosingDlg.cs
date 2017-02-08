@@ -464,6 +464,7 @@ namespace Vodovoz
 
 		protected void OnButtonBottleAddEditFineClicked(object sender, EventArgs e)
 		{
+			string fineReason = "Недосдача";
 			var bottleDifference = bottlesReturnedTotal - bottlesReturnedToWarehouse;
 			var summ = defaultBottle.SumOfDamage * bottleDifference;
 			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
@@ -483,11 +484,17 @@ namespace Vodovoz
 			}
 			else
 			{
-				fineDlg = new FineDlg(summ, Entity.Driver);
+				fineDlg = new FineDlg(summ, Entity, fineReason, Entity.Date, Entity.Driver);
 				fineDlg.Entity.AddNomenclature(nomenclatures);
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}
+			fineDlg.EntitySaved += FineDlg_EntitySaved;
 			TabParent.AddSlaveTab(this, fineDlg);
+		}
+
+		void FineDlg_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
+		{
+			this.UoW.Save();
 		}
 
 		void FineDlgNew_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
@@ -505,7 +512,7 @@ namespace Vodovoz
 
 		protected void OnButtonBottleDelFineClicked(object sender, EventArgs e)
 		{
-			UoW.Delete(Entity.BottleFine);
+			OrmMain.DeleteObject<Fine>(Entity.BottleFine.Id, UoW);
 			Entity.BottleFine = null;
 			CalculateTotal();
 			UpdateButtonState();
