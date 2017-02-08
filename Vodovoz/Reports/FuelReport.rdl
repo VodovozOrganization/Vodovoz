@@ -377,7 +377,7 @@
           </TableRows>
         </Details>
         <Left>0.0pt</Left>
-        <Top>43.0pt</Top>
+        <Top>52.6pt</Top>
       </Table>
       <Textbox Name="Textbox20">
         <Height>21.02pt</Height>
@@ -391,6 +391,19 @@
           <BorderColor />
           <BorderWidth />
           <FontSize>16pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox21" >
+        <Height>12.76pt</Height>
+        <Width>560.97pt</Width>
+        <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + First({balance}, "StartBalance")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.80pt</Left>
+        <Top>37.20pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
@@ -415,7 +428,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Fuel">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     outlayed.date AS date,
@@ -472,7 +485,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -507,6 +520,39 @@ WHERE
         </Field>
         <Field Name="payed_for_fuel">
           <DataField>payed_for_fuel</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="StartBalance" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(IF(internal.liters_gived IS NULL, 0, internal.liters_gived)
+      - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)
+      ) AS balance
+FROM
+    fuel_operations AS internal
+WHERE
+    internal.date &lt; @start_date
+        AND (IF(@driver_id IS NULL,
+        internal.car_id = @car_id,
+        internal.driver_id = @driver_id))</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="car_id">
+            <Value>=Parameters!car_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_id">
+            <Value>=Parameters!driver_id</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="balance">
+          <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
