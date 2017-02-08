@@ -102,7 +102,7 @@ namespace Vodovoz.Domain.Documents
 			get{
 				return String.Format("{0} - {1}", 
 					MovementOperation.Nomenclature.Name, 
-					MovementOperation.Nomenclature.Unit.MakeAmountShortStr(MovementOperation.Amount));
+					MovementOperation.Nomenclature.Unit?.MakeAmountShortStr(MovementOperation.Amount) ?? MovementOperation.Amount.ToString());
 			}
 		}
 
