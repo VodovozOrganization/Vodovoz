@@ -34998,7 +34998,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="700 324">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="750 324">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -35009,7 +35009,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
             <property name="NRows">2</property>
-            <property name="NColumns">6</property>
+            <property name="NColumns">7</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <child>
@@ -35178,6 +35178,26 @@ RegistrationNumber</property>
               <packing>
                 <property name="LeftAttach">1</property>
                 <property name="RightAttach">2</property>
+                <property name="AutoSize">True</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">True</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.GtkWidgets.yTextView" id="ytextFullOrdersInfo">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Text" translatable="yes" />
+              </widget>
+              <packing>
+                <property name="BottomAttach">2</property>
+                <property name="LeftAttach">6</property>
+                <property name="RightAttach">7</property>
                 <property name="AutoSize">True</property>
                 <property name="YOptions">Fill</property>
                 <property name="XExpand">True</property>

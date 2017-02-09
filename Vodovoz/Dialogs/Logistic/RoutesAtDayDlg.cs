@@ -14,6 +14,7 @@ using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -301,6 +302,29 @@ namespace Vodovoz
 				return null;
 		}
 
+		private void FillFullOrdersInfo()
+		{
+			OrderItem orderItemAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
+			int totalOrders = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
+				.GetExecutableQueryOver(uow.Session)
+				.Select(NHibernate.Criterion.Projections.Count<Order>(x => x.Id)).SingleOrDefault<int>();
+
+			int totalBottles = Repository.OrderRepository.GetOrdersForRLEditingQuery(ydateForRoutes.Date, true)
+				.GetExecutableQueryOver(uow.Session)
+				.JoinAlias(o => o.OrderItems, () => orderItemAlias)
+				.JoinAlias(() => orderItemAlias.Nomenclature, () => nomenclatureAlias)
+				.Where(() => nomenclatureAlias.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water)
+				.Select(NHibernate.Criterion.Projections.Sum(() => orderItemAlias.Count)).SingleOrDefault<int>();
+
+			var text = new List<string>();
+			text.Add(RusNumber.FormatCase(totalOrders, "На день {0} заказ.", "На день {0} заказа.", "На день {0} заказов."));
+			text.Add(RusNumber.FormatCase(totalBottles, "Всего {0} бутыль", "Всего {0} бутыли", "Всего {0} бутылей"));
+
+			ytextFullOrdersInfo.Buffer.Text = String.Join("\n", text);
+		}
+
 		void FillDialogAtDay()
 		{
 			logger.Info("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
@@ -406,6 +430,7 @@ namespace Vodovoz
 		protected void OnYdateForRoutesDateChanged(object sender, EventArgs e)
 		{
 			FillDialogAtDay();
+			FillFullOrdersInfo();
 			OnTabNameChanged();
 		}
 
