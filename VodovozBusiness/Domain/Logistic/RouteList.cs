@@ -452,9 +452,11 @@ namespace Vodovoz.Domain.Logistic
 				int amountDelivered= address.Order.OrderItems
 					.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 					.Sum(item => item.ActualCount);
-				if (amountDelivered != 0 || address.BottlesReturned != 0)
+				if (address.Order.BottlesMovementOperation == null)
 				{
-					var bottlesMovementOperation = new BottlesMovementOperation
+					if (amountDelivered != 0 || address.BottlesReturned != 0)
+					{
+						var bottlesMovementOperation = new BottlesMovementOperation
 						{
 							OperationTime = address.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
 							Order = address.Order,
@@ -463,7 +465,13 @@ namespace Vodovoz.Domain.Logistic
 							Counterparty = address.Order.Client,
 							DeliveryPoint = address.Order.DeliveryPoint
 						};
-					address.Order.BottlesMovementOperation = bottlesMovementOperation;
+						address.Order.BottlesMovementOperation = bottlesMovementOperation;
+						result.Add(bottlesMovementOperation);
+					}
+				} else {
+					var bottlesMovementOperation = address.Order.BottlesMovementOperation;
+					bottlesMovementOperation.Delivered = amountDelivered;
+					bottlesMovementOperation.Returned  = address.BottlesReturned;
 					result.Add(bottlesMovementOperation);
 				}
 			}
