@@ -776,7 +776,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>={ToClient}</Value>
+                      <Value>=Iif(Len({ToClient}) &gt; 20, "См. накладную", {ToClient})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -792,7 +792,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>={FromClient}</Value>
+                      <Value>=Iif(Len({FromClient}) &gt; 12, "См. накладную", {FromClient})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1146,7 +1146,7 @@
         <Left>0.0pt</Left>
         <Top>37.6pt</Top>
       </Table>
-      <Textbox Name="Textbox5" >
+      <Textbox Name="Textbox5">
         <Height>25.53pt</Height>
         <Width>663.95pt</Width>
         <Value>При возникновении проблем звонить в офис по тел. 8-981-701-57-32. СВЕРЬ НАКЛАДНЫЕ С МАРШРУТНЫМ ЛИСТОМ ОБЯЗАТЕЛЬНО!
@@ -1267,17 +1267,17 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 orders.comment AS Comment, orders.bottles_return AS EmptyBottles, orders.sum_to_receive AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
-IFNULL(GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), orders.to_client_text) AS ToClient,
-IFNULL(GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')), orders.from_client_text) AS FromClient,
+IFNULL(GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), orders.to_client_text) AS ToClient,
+IFNULL(GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
 IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
-<!--sql_select-->
+
 FROM route_list_addresses
 LEFT JOIN orders ON orders.id = route_list_addresses.order_id
 LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
@@ -1313,7 +1313,7 @@ GROUP BY order_id, nomenclature_id) AS pickup_eq_qry ON pickup_eq_qry.order_id =
 LEFT JOIN (
 SELECT
 order_items.order_id AS order_id
-<!--sql_select_subquery-->
+
 FROM order_items
 LEFT JOIN nomenclature ON order_items.nomenclature_id = nomenclature.id
 LEFT JOIN nomenclature_route_column ON nomenclature_route_column.id = nomenclature.route_column_id
@@ -1330,7 +1330,7 @@ ORDER BY route_list_addresses.order_in_route;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
           <TypeName>System.String</TypeName>
@@ -1363,7 +1363,6 @@ ORDER BY route_list_addresses.order_in_route;
           <DataField>Total</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <!--fields-->
       </Fields>
     </DataSet>
   </DataSets>
