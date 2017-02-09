@@ -97,6 +97,7 @@ namespace Vodovoz.ViewModel
 						.Select (() => carAlias.RegistrationNumber).WithAlias (() => resultAlias.Car)
 						.Select (() => routeListAlias.Date).WithAlias(()=> resultAlias.Date)
 					)
+					.OrderBy(x => x.Date).Desc
 					.TransformUsing (Transformers.AliasToBean <ReadyForReceptionVMNode> ())
 					.List<ReadyForReceptionVMNode> ());
 

@@ -53,6 +53,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => counterpartyAlias.FullName).WithAlias (() => resultAlias.Counterparty)
 					.Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Nomenclature)
 			             )
+				.OrderBy(x => x.ServiceStartDate).Desc
 				.TransformUsing (Transformers.AliasToBean<ServiceClaimVMNode> ())
 				.List<ServiceClaimVMNode> ();
 

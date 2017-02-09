@@ -81,7 +81,7 @@ namespace Vodovoz.ViewModel
 						),
 						Projections.Constant ("\n"))).WithAlias(() => resultAlias.EmployeesName)
 					.Select(() => fineAlias.FineReasonString).WithAlias(() => resultAlias.FineReason)
-				).OrderBy(o => o.Id).Asc
+				).OrderBy(o => o.Date).Desc
 				.TransformUsing(Transformers.AliasToBean<FinesVMNode>())
 				.List<FinesVMNode>();
 

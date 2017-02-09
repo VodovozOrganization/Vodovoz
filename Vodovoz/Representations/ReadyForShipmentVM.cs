@@ -130,10 +130,10 @@ namespace Vodovoz.ViewModel
 						resultList.Add(dirty);
 				}
 
-				SetItemsSource (resultList);
+				SetItemsSource (resultList.OrderByDescending(x => x.Date).ToList());
 			}
 			else
-				SetItemsSource (dirtyList);
+				SetItemsSource (dirtyList.OrderByDescending(x => x.Date).ToList());
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<ReadyForShipmentVMNode>.Create ()

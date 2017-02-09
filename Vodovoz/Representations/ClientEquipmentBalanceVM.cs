@@ -75,6 +75,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => operationAlias.ForRent).WithAlias (() => resultAlias.IsOur)
 					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.SerialNumberInt)
 			                )
+				.OrderBy(x => x.OperationTime).Desc
 				.TransformUsing (Transformers.AliasToBean<ClientEquipmentBalanceVMNode> ())
 				.List<ClientEquipmentBalanceVMNode> ();
 
