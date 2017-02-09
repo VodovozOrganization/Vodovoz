@@ -294,8 +294,8 @@ namespace Vodovoz.Domain.Logistic
 					&& ((Order.ToClientText?.ToLower().Contains("раст") != true
 					&& !string.IsNullOrWhiteSpace(Order.ToClientText))
 					|| bottleCollectionOrder
-					|| Order.OrderItems.FirstOrDefault
-						(o => o.Nomenclature.Category == NomenclatureCategory.additional) != null);
+					|| Order.OrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.additional)
+					.FirstOrDefault(i => i.ActualCount > 0) != null);
 			var equpmentPaymentShort = payForEquipmentShort ? rates.CoolerRate : 0;
 
 			wage += equpmentPaymentShort;
