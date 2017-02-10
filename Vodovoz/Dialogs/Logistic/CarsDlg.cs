@@ -36,17 +36,24 @@ namespace Vodovoz
 		{
 			notebook1.Page = 0;
 			notebook1.ShowTabs = false;
-			tableCarData.DataSource = subjectAdaptor;
-			dataentryModel.IsEditable = true;
-			dataentryRegNumber.IsEditable = true;
+
+			dataentryModel.Binding.AddBinding(Entity, e => e.Model, w => w.Text).InitializeFromSource();
+			dataentryRegNumber.Binding.AddBinding(Entity, e => e.RegistrationNumber, w => w.Text).InitializeFromSource();
+
 			dataentryreferenceDriver.SubjectType = typeof(Employee);
-			dataentryFuelType.PropertyMapping<Car> (c => c.FuelType);
+			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+
+			dataentryFuelType.SubjectType = typeof(FuelType);
+			dataentryFuelType.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 			radiobuttonMain.Active = true;
+
+			dataspinbutton1.Binding.AddBinding(Entity, e => e.FuelConsumption, w => w.Value).InitializeFromSource();
 
 			photoviewCar.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewCar.GetSaveFileName = () => String.Format("{0}({1})", Entity.Model, Entity.RegistrationNumber);
 
 			checkIsCompanyHavings.Binding.AddBinding(Entity, e => e.IsCompanyHavings, w => w.Active).InitializeFromSource();
+			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
 
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));
 			if (!UoWGeneric.IsNew) {
