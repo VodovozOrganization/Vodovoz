@@ -38,8 +38,8 @@ namespace Vodovoz.HMap
 			Map (x => x.Phone)			  .Column ("phone");
 			Map (x => x.Address1c)		  .Column ("address_1c");
 
-			References (x => x.Counterparty).Column ("counterparty_id");
-			References (x => x.LogisticsArea).Column ("logistic_area_id");
+			References (x => x.Counterparty)	.Column ("counterparty_id");
+			References (x => x.LogisticsArea)	.Column ("logistic_area_id");
 			References (x => x.DeliverySchedule).Column ("delivery_schedule_id");
 
 			HasManyToMany(x => x.Contacts).Table("counterparty_delivery_point_contacts")

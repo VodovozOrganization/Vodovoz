@@ -526,15 +526,22 @@ namespace Vodovoz.Domain.Logistic
 
 				foreach (var deposit in paidRentDepositsFromClient.Union(freeRentDepositsFromClient))
 				{
-					var operation = new DepositOperation
-						{
-							Order = item.Order,
-							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-							DepositType = DepositType.Equipment,
-							Counterparty = item.Order.Client,
-							DeliveryPoint = item.Order.DeliveryPoint,
-							ReceivedDeposit = deposit.Total			
-						};
+					DepositOperation operation = deposit.DepositOperation;
+					if (operation == null)
+					{
+						operation = new DepositOperation
+							{
+								Order = item.Order,
+								OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+								DepositType = DepositType.Equipment,
+								Counterparty = item.Order.Client,
+								DeliveryPoint = item.Order.DeliveryPoint,
+								ReceivedDeposit = deposit.Total			
+							};
+						
+					} else {
+						operation.ReceivedDeposit = deposit.Total;
+					}
 					deposit.DepositOperation = operation;
 					result.Add(operation);
 				}
@@ -555,19 +562,26 @@ namespace Vodovoz.Domain.Logistic
 
 				foreach (var deposit in paidRentDepositsToClient.Union(freeRentDepositsToClient))
 				{
-					var operation = new DepositOperation
-						{
-							Order = item.Order,
-							OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-							DepositType = DepositType.Equipment,
-							Counterparty = item.Order.Client,
-							DeliveryPoint = item.Order.DeliveryPoint,
-							RefundDeposit = deposit.Total			
-						};
+					DepositOperation operation = deposit.DepositOperation;
+					if (operation == null)
+					{
+						operation = new DepositOperation
+							{
+								Order = item.Order,
+								OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+								DepositType = DepositType.Equipment,
+								Counterparty = item.Order.Client,
+								DeliveryPoint = item.Order.DeliveryPoint,
+								RefundDeposit = deposit.Total			
+							};
+					} else {
+						operation.RefundDeposit = deposit.Total;
+					}
 					deposit.DepositOperation = operation;
 					result.Add(operation);
 				}					
-
+				//TODO Добавить далее обновление операций,если потребуется раскоментировать код ниже!
+				//
 				//				var bottleDepositsOperation = new DepositOperation()
 				//				{
 				//					Order = item.Order,
@@ -659,45 +673,68 @@ namespace Vodovoz.Domain.Logistic
 				Decimal? money = null;
 				if (order.PaymentType == PaymentType.cash)
 					money = address.TotalCash;
-				var moneyMovementOperation = new MoneyMovementOperation()
+				MoneyMovementOperation moneyMovementOperation = order.MoneyMovementOperation;
+				if (moneyMovementOperation == null)
+				{
+					moneyMovementOperation = new MoneyMovementOperation()
 					{
-						OperationTime = order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
-						Order = order,
-						Counterparty = order.Client,
-						PaymentType = order.PaymentType,
-						Debt = order.ActualGoodsTotalSum,
-						Money = money,
-						Deposit = depositsTotal
+						OperationTime 	= order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						Order 			= order,
+						Counterparty 	= order.Client,
+						PaymentType 	= order.PaymentType,
+						Debt 			= order.ActualGoodsTotalSum,
+						Money 			= money,
+						Deposit 		= depositsTotal
 					};				
+				} else {
+					moneyMovementOperation.PaymentType 	= order.PaymentType;
+					moneyMovementOperation.Debt 		= order.ActualGoodsTotalSum;
+					moneyMovementOperation.Money 		= money;
+					moneyMovementOperation.Deposit 		= depositsTotal;
+				}
 				order.MoneyMovementOperation = moneyMovementOperation;
 				result.Add(moneyMovementOperation);
 			}
 			if (Total > 0)
 			{
-				cashIncome = new Income
-					{
-						IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(uow),
-						TypeOperation = IncomeType.DriverReport,
-						Date = DateTime.Now,
-						Casher = cashier,
-						Employee = Driver,
-						Description =$"Закрытие МЛ #{Id}",
-						Money = Total,
-					};
+				cashIncome = Repository.Cash.CashRepository.GetIncomeByRouteList(uow, this.Id);
+				if (cashIncome == null)
+				{
+					cashIncome = new Income
+						{
+							IncomeCategory 	= Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(uow),
+							TypeOperation 	= IncomeType.DriverReport,
+							Date 			= DateTime.Now,
+							Casher 			= cashier,
+							Employee 		= Driver,
+							Description 	=$"Закрытие МЛ #{Id}",
+							Money 			= Total,
+						};
+				} else {
+					cashIncome.Casher = cashier;
+					cashIncome.Money  = Total;
+				}
 				cashIncome.RouteListClosing = this;
 			}
 			else
 			{
-				cashExpense = new Expense
-					{
-						ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(uow),
-						TypeOperation = ExpenseType.Expense,
-						Date = DateTime.Now,
-						Casher = cashier,
-						Employee = Driver,
-						Description =$"Закрытие МЛ #{Id}",
-						Money = -Total,
-					};
+				cashExpense = Repository.Cash.CashRepository.GetExpenseByRouteListId(uow, this.Id);
+				if (cashExpense == null)
+				{
+					cashExpense = new Expense
+						{
+							ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(uow),
+							TypeOperation 	= ExpenseType.Expense,
+							Date 			= DateTime.Now,
+							Casher 			= cashier,
+							Employee 		= Driver,
+							Description 	=$"Закрытие МЛ #{Id}",
+							Money 			= -Total,
+						};
+				} else {
+					cashExpense.Casher = cashier;
+					cashExpense.Money  = -Total;
+				}
 				cashExpense.RouteListClosing = this;
 			}
 			return result;

@@ -19,6 +19,20 @@ namespace Vodovoz.Repository.Cash
 			return income - expense;
 		}
 
+		public static Income GetIncomeByRouteList(IUnitOfWork uow, int routeListId)
+		{
+			return uow.Session.QueryOver<Income>()
+				.Where(inc => inc.RouteListClosing.Id == routeListId)
+				.Take(1).SingleOrDefault();
+		}
+
+		public static Expense GetExpenseByRouteListId(IUnitOfWork uow, int routeListId)
+		{
+			return uow.Session.QueryOver<Expense>()
+				.Where(exp => exp.RouteListClosing.Id == routeListId)
+				.Take(1).SingleOrDefault();
+		}
+
 	}
 }
 

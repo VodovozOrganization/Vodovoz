@@ -375,21 +375,21 @@ namespace Vodovoz
 
 			Entity.Cashier = casher;
 
-			var bottleMovementOperations = Entity.CreateBottlesMovementOperation();
-			var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations();
-			var depositsOperations = Entity.CreateDepositOperations(UoW);
-
 			Income cashIncome = null;
 			Expense cashExpense = null;
-			var moneyMovementOperations = Entity.CreateMoneyMovementOperations(UoW, ref cashIncome, ref cashExpense);
-			bottleMovementOperations.ForEach(op => UoW.Save(op));
+
+			var counterpartyMovementOperations 	= Entity.UpdateCounterpartyMovementOperations();
+			var moneyMovementOperations 		= Entity.CreateMoneyMovementOperations(UoW, ref cashIncome, ref cashExpense);
+			var bottleMovementOperations 		= Entity.CreateBottlesMovementOperation();
+			var depositsOperations 				= Entity.CreateDepositOperations(UoW);
+
 			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			depositsOperations.ForEach(op => UoW.Save(op));
-			moneyMovementOperations.ForEach(op => UoW.Save(op));
-			if (cashIncome != null)
-				UoW.Save(cashIncome);
-			if (cashExpense != null)
-				UoW.Save(cashExpense);
+			bottleMovementOperations	  .ForEach(op => UoW.Save(op));
+			depositsOperations			  .ForEach(op => UoW.Save(op));
+			moneyMovementOperations		  .ForEach(op => UoW.Save(op));
+
+			if (cashIncome  != null) UoW.Save(cashIncome);
+			if (cashExpense != null) UoW.Save(cashExpense);
 
 			if (Entity.WageOperation == null) {
 				var wage = routeListAddressesView.Items
