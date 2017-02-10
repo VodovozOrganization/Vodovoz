@@ -277,7 +277,7 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = String.Format(
-				"Итого сдано: <b>{0}</b> {1}",
+				"Итого сдано: <b>{0:F2}</b> {1}",
 				Entity.Total,
 				CurrencyWorks.CurrencyShortName
 			);
@@ -661,6 +661,7 @@ namespace Vodovoz
 			}
 			Save();
 			UpdateFuelInfo();
+			CalculateTotal();
 		}
 
 		protected void OnButtonDeleteTicketClicked(object sender, EventArgs e)
@@ -671,7 +672,9 @@ namespace Vodovoz
 				Entity.FuelGivedDocument = null;
 				this.HasChanges = true;
 			}
+			Save();
 			UpdateFuelInfo();
+			CalculateTotal();
 		}
 
 		protected void OnYcheckConfirmDifferencesToggled (object sender, EventArgs e)
