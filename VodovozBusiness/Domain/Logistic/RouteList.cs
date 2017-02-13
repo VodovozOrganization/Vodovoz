@@ -230,8 +230,12 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal Total
 		{
 			get{
+				decimal payedForFuel = 0;
+				if (FuelGivedDocument != null && FuelGivedDocument.PayedForFuel.HasValue)
+						payedForFuel = FuelGivedDocument.PayedForFuel.Value;
+				
 				return Addresses.Sum(address => address.TotalCash + address.DepositsCollected)
-					- PhoneSum - (FuelGivedDocument?.PayedForFuel.Value ?? 0);
+					- PhoneSum - payedForFuel;
 			}
 		}
 
