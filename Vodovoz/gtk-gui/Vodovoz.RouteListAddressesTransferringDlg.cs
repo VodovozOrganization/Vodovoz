@@ -220,6 +220,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
 			this.buttonTransfer.Clicked += new global::System.EventHandler (this.OnButtonTransferClicked);
 		}
 	}

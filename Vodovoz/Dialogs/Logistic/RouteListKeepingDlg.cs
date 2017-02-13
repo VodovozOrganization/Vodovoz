@@ -80,6 +80,7 @@ namespace Vodovoz
 			statusIcons.Add(RouteListItemStatus.Completed, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-smile-grin.png"));
 			statusIcons.Add(RouteListItemStatus.Overdue, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-angry.png"));
 			statusIcons.Add(RouteListItemStatus.Canceled, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-crying.png"));
+			statusIcons.Add(RouteListItemStatus.Transfered, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-uncertain.png"));
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
 				.AddColumn("Заказ")
@@ -154,6 +155,12 @@ namespace Vodovoz
 		{
 			foreach (var address in items.Where(item=>item.HasChanged).Select(item=>item.RouteListItem))
 			{
+				if (address.TransferedTo != null)
+				{
+					address.Status = RouteListItemStatus.Transfered;
+					continue;
+				}
+
 				switch (address.Status)
 				{
 					case RouteListItemStatus.Canceled:

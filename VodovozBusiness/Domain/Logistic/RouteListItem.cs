@@ -53,10 +53,10 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private RouteList transferedTo;
+		private RouteListItem transferedTo;
 
-		[Display(Name = "Маршрутный лист, в который перенесен адрес")]
-		public virtual RouteList TransferedTo
+		[Display(Name = "Перенесен в другой маршрутный лист")]
+		public virtual RouteListItem TransferedTo
 		{
 			get { return transferedTo; }
 			set {
@@ -515,13 +515,9 @@ namespace Vodovoz.Domain.Logistic
 			this.routeList = routeList;
 			if(order.OrderStatus == OrderStatus.Accepted)
 			{
-				this.order = order;
 				order.OrderStatus = OrderStatus.InTravelList;
 			}
-			if (routeList.Status == RouteListStatus.EnRoute)
-			{
-				this.Order = order;
-			}
+			this.Order = order;
 		}
 
 		public virtual void RemovedFromRoute()
@@ -561,7 +557,7 @@ namespace Vodovoz.Domain.Logistic
 		Canceled,
 		[Display(Name="Опоздали")]
 		Overdue,
-		[Display(Name="Перенесен в другой маршрутный лист")]
+		[Display(Name="Перенесен")]
 		Transfered
 	}
 

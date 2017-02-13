@@ -11,12 +11,34 @@ using System.Linq;
 
 namespace Vodovoz
 {
-	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ITdiDialog
+	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ITdiDialog, IOrmDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
-		public bool HasChanges { get; set;}
+		public bool HasChanges { 
+			get {
+				return uow.HasChanges;
+			}
+		}
+
+		#region IOrmDialog implementation
+
+		public IUnitOfWork UoW
+		{
+			get
+			{
+				return uow;
+			}
+		}
+
+		public object EntityObject {
+			get {
+				throw new NotImplementedException();
+			}
+		}
+
+		#endregion
 
 		#region Конструкторы
 
@@ -73,11 +95,12 @@ namespace Vodovoz
 		private IColumnsConfig GetColumnsConfig ()
 		{
 			return ColumnsConfigFactory.Create<RouteListItemNode>()
-				.AddColumn("Заказ")		 .AddTextRenderer(node => node.Id)
-				.AddColumn("Время")		 .AddTextRenderer(node => node.Date)
-				.AddColumn("Адрес")		 .AddTextRenderer(node => node.Address)
-				.AddColumn("Статус")	 .AddEnumRenderer(node => node.Status)
-				.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+				.AddColumn("Заказ")		 .AddTextRenderer	(node => node.Id)
+				.AddColumn("Время")		 .AddTextRenderer	(node => node.Date)
+				.AddColumn("Адрес")		 .AddTextRenderer	(node => node.Address)
+				.AddColumn("Бутыли")	 .AddTextRenderer	(node => node.BottlesCount)
+				.AddColumn("Статус")	 .AddEnumRenderer	(node => node.Status)
+				.AddColumn("Комментарий").AddTextRenderer	(node => node.Comment)
 				.Finish();
 		}
 
@@ -108,12 +131,19 @@ namespace Vodovoz
 				items.Add(new RouteListItemNode{RouteListItem = item});
 			ytreeviewRLTo.ItemsDataSource = items;
 		}
+
+		private void UpdateNodes()
+		{
+			YentryreferenceRLFrom_Changed(null, null);
+			YentryreferenceRLTo_Changed(null, null);
+		}
 		
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		public bool Save()
 		{
-			return false;
+			uow.Commit();
+			return true;
 		}
 
 		public void SaveAndClose()
@@ -123,25 +153,28 @@ namespace Vodovoz
 		protected void OnButtonTransferClicked (object sender, EventArgs e)
 		{
 			//Дополнительные проверки
-			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
-			if (routeListTo == null)
+			RouteList routeListTo 	= yentryreferenceRLTo.Subject as RouteList;
+			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+
+			if (routeListTo == null || routeListFrom == null || routeListTo.Id == routeListFrom.Id)
 				return;
 			
-			HasChanges = true;
-
 			foreach (var row in ytreeviewRLFrom.GetSelectedObjects())
 			{
 				RouteListItem item = (row as RouteListItemNode)?.RouteListItem;
 				logger.Debug("Проверка адреса с номером {0}", item?.Id.ToString() ?? "Неправильный адрес");
 
-				if (item == null || item.Status != RouteListItemStatus.EnRoute)
+				if (item == null || item.Status == RouteListItemStatus.Transfered)
 					continue;
 
 				RouteListItem newItem = new RouteListItem(routeListTo, item.Order);
 				routeListTo.Addresses.Add(newItem);
+				uow.Save(newItem);
 
-				item.TransferedTo = routeListTo;
+				item.TransferedTo = newItem;
+				uow.Save(item);
 			}
+			UpdateNodes();
 		}
 
 		private void CheckButtonSensetive ()
@@ -150,7 +183,11 @@ namespace Vodovoz
 			bool routeListToIsSelected = yentryreferenceRLTo.Subject != null;
 
 			buttonTransfer.Sensitive = selectionFromCount > 0 && routeListToIsSelected;
+		}
 
+		protected void OnButtonSaveClicked (object sender, EventArgs e)
+		{
+			Save();
 		}
 
 		#endregion
@@ -177,6 +214,13 @@ namespace Vodovoz
 			get {return RouteListItem.Comment ?? "";}
 		}
 
+		public string BottlesCount {
+			get {return RouteListItem.Order.OrderItems
+					.Where(bot => bot.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water
+						|| bot.Nomenclature.Category == Vodovoz.Domain.Goods.NomenclatureCategory.disposableBottleWater)
+					.Sum(bot => bot.Count).ToString();}
+		}
+			
 		public RouteListItem RouteListItem { get; set; }
 	}
 }
