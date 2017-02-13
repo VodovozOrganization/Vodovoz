@@ -248,7 +248,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>=Switch(Fields!status.Value = 'NewOrder', 'Новый', Fields!status.Value = 'Accepted', 'Выдача аванса', Fields!status.Value = 'HoldedFine', 'Принят', Fields!status.Value = 'InTravelList', 'В маршрутном листе', Fields!status.Value = 'OnLoading', 'На погрузке', Fields!status.Value = 'OnTheWay', 'В пути', Fields!status.Value = 'Shipped', 'Доставлен', Fields!status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!status.Value = 'Closed', 'Закрыт', Fields!status.Value = 'Canceled', 'Отменен', Fields!status.Value = 'NotDelivered', 'Недовоз', Fields!status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
+                      <Value>=Switch(Fields!status.Value = 'NewOrder', 'Новый', Fields!status.Value = 'Accepted', 'Принят', Fields!status.Value = 'HoldedFine', 'Принят', Fields!status.Value = 'InTravelList', 'В маршрутном листе', Fields!status.Value = 'OnLoading', 'На погрузке', Fields!status.Value = 'OnTheWay', 'В пути', Fields!status.Value = 'Shipped', 'Доставлен', Fields!status.Value = 'UnloadingOnStock', 'Выгрузка на складе', Fields!status.Value = 'ReportNotClosed', 'Отчет не закрыт', Fields!status.Value = 'Closed', 'Закрыт', Fields!status.Value = 'Canceled', 'Отменен', Fields!status.Value = 'NotDelivered', 'Недовоз', Fields!status.Value = 'DeliveryCanceled', 'Доставка отменена', Fields!status.Value = 'WaitForPayment', 'Ожидание оплаты')</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
