@@ -36427,7 +36427,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListAddressesTransferring" design-size="596 300">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListAddressesTransferringDlg" design-size="596 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -36450,7 +36450,6 @@ RegistrationNumber</property>
                     <property name="Icon">stock:gtk-save Menu</property>
                     <property name="Label" translatable="yes">Сохранить</property>
                     <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnButtonSaveClicked" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -36467,7 +36466,6 @@ RegistrationNumber</property>
                     <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                     <property name="Label" translatable="yes">Отменить</property>
                     <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnButtonCancelClicked" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
@@ -36479,9 +36477,8 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="Position">0</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
                 <property name="Expand">False</property>
-                <property name="Fill">False</property>
               </packing>
             </child>
             <child>
@@ -36535,6 +36532,7 @@ RegistrationNumber</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
+                            <property name="EnableSearch">False</property>
                           </widget>
                         </child>
                       </widget>
@@ -36596,6 +36594,7 @@ RegistrationNumber</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
+                            <property name="EnableSearch">False</property>
                           </widget>
                         </child>
                       </widget>
@@ -36613,7 +36612,7 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="Position">1</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
               </packing>
             </child>
             <child>
@@ -36652,9 +36651,7 @@ RegistrationNumber</property>
           </widget>
           <packing>
             <property name="Position">0</property>
-            <property name="AutoSize">True</property>
-            <property name="Expand">False</property>
-            <property name="Fill">False</property>
+            <property name="AutoSize">False</property>
           </packing>
         </child>
       </widget>

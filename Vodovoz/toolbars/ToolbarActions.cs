@@ -35,6 +35,7 @@ public partial class MainWindow : Window
 	Action ActionExportTo1c;
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
+	Action ActionRouteListAddressesTransferring;
 
 	public void BuildToolbarActions ()
 	{
@@ -58,6 +59,7 @@ public partial class MainWindow : Window
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин",null,"table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");
 		ActionRouteListMileageCheck = new Action("ActionRouteListMileageCheck", "Контроль за километражом",null,"table");
+		ActionRouteListAddressesTransferring = new Action("ActionRouteListAddressesTransferring", "Перенос адресов", null, "table");
 		//Касса
 		ActionCashDocuments = new Action ("ActionCashDocuments", "Кассовые документы", null, "table");
 		ActionAccountableDebt = new Action ("ActionAccountableDebt", "Долги сотрудников", null, "table");
@@ -105,6 +107,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionExportTo1c, null);
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
+		w1.Add(ActionRouteListAddressesTransferring, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -136,7 +139,16 @@ public partial class MainWindow : Window
 		ActionExportTo1c.Activated += ActionExportTo1c_Activated;
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
+		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
 		#endregion
+	}
+
+	void ActionRouteListAddressesTransferring_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<RouteListAddressesTransferringDlg>(),
+			() => new RouteListAddressesTransferringDlg ()
+		);
 	}
 
 	void ActionEmployeeWorkChart_Activated (object sender, System.EventArgs e)

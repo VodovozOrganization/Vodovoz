@@ -533,8 +533,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.EquipmentReport.cs" />
     <Compile Include="ReportsParameters\ForwarderWageReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.ForwarderWageReport.cs" />
-    <Compile Include="Dialogs\Logistic\RouteListAddressesTransferring.cs" />
-    <Compile Include="gtk-gui\Vodovoz.RouteListAddressesTransferring.cs" />
+    <Compile Include="Dialogs\Logistic\RouteListAddressesTransferringDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.RouteListAddressesTransferringDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

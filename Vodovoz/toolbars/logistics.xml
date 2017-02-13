@@ -5,5 +5,6 @@
 		<toolitem name='ActionRouteListKeeping' action='ActionRouteListKeeping'/>
 		<toolitem name='ActionRouteListTracking' action='ActionRouteListTracking'/>
 		<toolitem name='ActionRouteListMileageCheck' action='ActionRouteListMileageCheck'/>
+		<toolitem name='ActionRouteListAddressesTransferring' action='ActionRouteListAddressesTransferring'/>
 	</toolbar>
 </ui>
