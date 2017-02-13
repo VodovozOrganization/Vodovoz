@@ -15,7 +15,7 @@
     <Height>29.9pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox2" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
         <Height>22.55pt</Height>
         <Width>568.36pt</Width>
@@ -35,7 +35,7 @@
   </PageHeader>
   <Body>
     <Height>35.3pt</Height>
-    <ReportItems >
+    <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
@@ -286,7 +286,7 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -302,7 +302,7 @@
       <Prompt />
     </ReportParameter>
   </ReportParameters>
-  <DataSets >
+  <DataSets>
     <DataSet Name="Orders">
       <Query>
         <DataSourceName>DS1</DataSourceName>
@@ -310,7 +310,9 @@
     orders.id AS order_id,
     counterparty.full_name AS client_name,
     delivery_points.compiled_address_short AS address,
-    orders.to_client_text AS to_client,
+	CONCAT_WS(' ', orders.to_client_text,
+		GROUP_CONCAT(IF(nomenclature.category = 'additional', nomenclature.official_name, '') SEPARATOR ' ')
+        ) AS to_client,
     orders.from_client_text AS from_client,
     orders.order_status AS status
 FROM
@@ -319,13 +321,21 @@ FROM
     counterparty ON counterparty.id = orders.client_id
         LEFT JOIN
     delivery_points ON delivery_points.id = orders.delivery_point_id
+        LEFT JOIN
+    order_items ON order_items.order_id = orders.id
+        LEFT JOIN
+    nomenclature ON nomenclature.id = order_items.nomenclature_id
 WHERE
     orders.delivery_date &gt;= @start_date
         AND orders.delivery_date &lt;= @end_date
-        AND ((orders.to_client_text IS NOT NULL
-	    AND TRIM(orders.to_client_text) &lt;&gt; '')
-	OR (orders.from_client_text IS NOT NULL
-	    AND TRIM(orders.from_client_text) &lt;&gt; ''))</CommandText>
+        AND (((orders.to_client_text IS NOT NULL AND TRIM(orders.to_client_text) &lt;&gt; '')
+		   OR (orders.from_client_text IS NOT NULL AND TRIM(orders.from_client_text) &lt;&gt; ''))
+        OR ((nomenclature.code_1c = '00001358')
+        OR (nomenclature.code_1c = '00001357')
+        OR (nomenclature.code_1c = '00001355')
+        OR (nomenclature.code_1c = '00001726')
+        AND nomenclature.category = 'additional'))
+GROUP BY orders.id</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -363,7 +373,7 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
