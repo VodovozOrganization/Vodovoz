@@ -53,6 +53,19 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private RouteList transferedTo;
+
+		[Display(Name = "Маршрутный лист, в который перенесен адрес")]
+		public virtual RouteList TransferedTo
+		{
+			get { return transferedTo; }
+			set {
+				SetField(ref transferedTo, value, () => TransferedTo);
+				if(value != null)
+					this.Status = RouteListItemStatus.Transfered;
+			}
+		}
+
 		string comment;
 		public virtual string Comment
 		{
@@ -547,7 +560,9 @@ namespace Vodovoz.Domain.Logistic
 		[Display(Name="Отмена клиентом")]
 		Canceled,
 		[Display(Name="Опоздали")]
-		Overdue
+		Overdue,
+		[Display(Name="Перенесен в другой маршрутный лист")]
+		Transfered
 	}
 
 	public class RouteListItemStatusStringType : NHibernate.Type.EnumStringType

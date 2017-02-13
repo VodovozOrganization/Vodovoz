@@ -36620,12 +36620,14 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.Button" id="buttonPass">
+                  <widget class="Gtk.Button" id="buttonTransfer">
                     <property name="MemberName" />
+                    <property name="Sensitive">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Type">TextOnly</property>
                     <property name="Label" translatable="yes">Перенести</property>
                     <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonTransferClicked" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>

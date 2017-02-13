@@ -42,7 +42,7 @@ namespace Vodovoz
 		
 		private global::Gtk.HBox hbox8;
 		
-		private global::Gtk.Button buttonPass;
+		private global::Gtk.Button buttonTransfer;
 
 		protected virtual void Build ()
 		{
@@ -196,13 +196,14 @@ namespace Vodovoz
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.buttonPass = new global::Gtk.Button ();
-			this.buttonPass.CanFocus = true;
-			this.buttonPass.Name = "buttonPass";
-			this.buttonPass.UseUnderline = true;
-			this.buttonPass.Label = global::Mono.Unix.Catalog.GetString ("Перенести");
-			this.hbox8.Add (this.buttonPass);
-			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonPass]));
+			this.buttonTransfer = new global::Gtk.Button ();
+			this.buttonTransfer.Sensitive = false;
+			this.buttonTransfer.CanFocus = true;
+			this.buttonTransfer.Name = "buttonTransfer";
+			this.buttonTransfer.UseUnderline = true;
+			this.buttonTransfer.Label = global::Mono.Unix.Catalog.GetString ("Перенести");
+			this.hbox8.Add (this.buttonTransfer);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonTransfer]));
 			w19.Position = 0;
 			w19.Expand = false;
 			w19.Fill = false;
@@ -219,6 +220,7 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.buttonTransfer.Clicked += new global::System.EventHandler (this.OnButtonTransferClicked);
 		}
 	}
 }

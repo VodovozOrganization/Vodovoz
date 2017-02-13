@@ -11,19 +11,22 @@ namespace Vodovoz.HMap
 			Table("route_list_addresses");
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native();
-			Map (x => x.IndexInRoute).Column("order_in_route");
-			References (x => x.RouteList).Column ("route_list_id").Not.Nullable ();
-			References (x => x.Order).Column ("order_id").Cascade.SaveUpdate();
-			Map (x => x.BottlesReturned).Column("bottles_returned");
-			Map (x => x.DriverBottlesReturned).Column("driver_bottles_returned");
-			Map (x => x.DepositsCollected).Column("deposits_collected");
-			Map (x => x.TotalCash).Column("total_cash");
-			Map (x => x.DriverWage).Column("driver_wage");
-			Map (x => x.ForwarderWage).Column("forwarder_wage");
-			Map (x => x.WithForwarder).Column("with_forwarder");
-			Map (x => x.StatusLastUpdate).Column("status_last_update");
-			Map (x => x.Comment).Column("comment").Length(150);
-			Map(x => x.Status).Column("status").CustomType<RouteListItemStatusStringType>();
+
+			Map (x => x.IndexInRoute)			.Column("order_in_route");
+			Map (x => x.BottlesReturned)		.Column("bottles_returned");
+			Map (x => x.DriverBottlesReturned)	.Column("driver_bottles_returned");
+			Map (x => x.DepositsCollected)		.Column("deposits_collected");
+			Map (x => x.TotalCash)				.Column("total_cash");
+			Map (x => x.DriverWage)				.Column("driver_wage");
+			Map (x => x.ForwarderWage)			.Column("forwarder_wage");
+			Map (x => x.WithForwarder)			.Column("with_forwarder");
+			Map (x => x.StatusLastUpdate)		.Column("status_last_update");
+			Map (x => x.Comment)				.Column("comment").Length(150);
+			Map(x => x.Status)					.Column("status").CustomType<RouteListItemStatusStringType>();
+
+			References (x => x.RouteList)	.Column ("route_list_id").Not.Nullable ();
+			References (x => x.Order)		.Column ("order_id").Cascade.SaveUpdate();
+			References (x => x.TransferedTo).Column ("transfered_to_id");
 		}
 	}
 }
