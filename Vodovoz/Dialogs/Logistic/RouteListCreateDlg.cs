@@ -16,38 +16,11 @@ namespace Vodovoz
 	public partial class RouteListCreateDlg : OrmGtkDialogBase<RouteList>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
-		public bool transfer;
 
 		public RouteListCreateDlg ()
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList> ();
-			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if (Entity.Logistican == null) {
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
-				FailInitialize = true;
-				return;
-			}
-			UoWGeneric.Root.Date = DateTime.Now;
-			ConfigureDlg ();
-		}
-
-		public RouteListCreateDlg (RouteList routeList, IEnumerable<RouteListItem> addresses)
-		{
-			this.Build();
-			transfer = true;
-			buttonAccept.Sensitive = false;
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<RouteList>();
-
-			Entity.Forwarder = routeList.Forwarder;
-			Entity.Shift = routeList.Shift;
-			Entity.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			Entity.Status = routeList.Status;
-			for (var address = addresses.GetEnumerator(); address.MoveNext();)
-			{
-				var newAddress = Entity.AddAddressFromOrder(address.Current.Order);
-				newAddress.Comment = address.Current.Comment;
-			}
 			UoWGeneric.Root.Logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if (Entity.Logistican == null) {
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
@@ -118,7 +91,7 @@ namespace Vodovoz
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 			}
-			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New || transfer);
+			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New);
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
@@ -187,7 +160,7 @@ namespace Vodovoz
 			}
 			if(Entity.Status == RouteListStatus.InLoading)
 			{
-				IsEditable (transfer);
+				IsEditable (false);
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;

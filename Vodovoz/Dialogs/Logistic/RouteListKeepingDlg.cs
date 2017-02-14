@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.ServiceModel;
+using Chat;
 using Gamma.GtkWidgets;
 using Gtk;
+using NHibernate;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
 using Vodovoz.Domain.Employees;
-using System.Reflection;
-using Chat;
-using System.ServiceModel;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
-using NHibernate;
-using QSContacts;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListKeepingDlg : OrmGtkDialogBase<RouteList>
 	{		
 		public RouteListKeepingDlg(int id)
@@ -232,9 +230,11 @@ namespace Vodovoz
 				.Select(item=>item.RouteListItem)
 				.Where(item=>item.Status==RouteListItemStatus.EnRoute);
 
-			var dlg = new RouteListCreateDlg(Entity, selectedAddreses);
-			dlg.EntitySaved += OnNewRouteListCreated;
-			TabParent.AddSlaveTab(this,dlg);
+			//FIXME добавить открытие нового диалога.
+
+			//var dlg = new RouteListCreateDlg(Entity, selectedAddreses);
+			//dlg.EntitySaved += OnNewRouteListCreated;
+			//TabParent.AddSlaveTab(this,dlg);
 		}
 
 		public void OnNewRouteListCreated(object sender, EntitySavedEventArgs args){
