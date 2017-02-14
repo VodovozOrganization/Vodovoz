@@ -63,7 +63,10 @@ namespace Vodovoz
 			yentryreferenceRLTo	 .SubjectType = typeof(RouteList);
 
 			yentryreferenceRLFrom.ItemsQuery = QueryOver.Of<RouteList>()
-				.Where(rl => rl.Status == RouteListStatus.EnRoute)
+				.Where(rl => rl.Status == RouteListStatus.EnRoute
+						  || rl.Status == RouteListStatus.NotDelivered
+						  || rl.Status == RouteListStatus.MileageCheck
+						  || rl.Status == RouteListStatus.Closed)
 				.OrderBy(rl => rl.Date).Desc;
 			
 			yentryreferenceRLTo.ItemsQuery = QueryOver.Of<RouteList>()

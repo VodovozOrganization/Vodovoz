@@ -76,6 +76,7 @@ namespace Vodovoz.ViewModel
 
 				queryRoutes.JoinAlias (rl => rl.Addresses, () => routeListAddressAlias)
 					.JoinAlias (() => routeListAddressAlias.Order, () => orderAlias)
+					.Where(() => !routeListAddressAlias.WasTransfered || (routeListAddressAlias.WasTransfered && routeListAddressAlias.NeedToReload))
 					.Where (new Disjunction ()
 						.Add (Subqueries.WhereExists (orderitemsSubqury))
 						.Add (Subqueries.WhereExists (orderEquipmentSubquery))
