@@ -104,8 +104,7 @@ namespace Vodovoz
 			{
 				var itemToWarehouse = 
 					goodsToWarehouse.FirstOrDefault(item => item.NomenclatureId == itemFromClient.NomenclatureId);
-				if (itemToWarehouse == null)
-					continue;
+
 				var failedDeliveryGoodsCount = items.Where(item => !item.IsDelivered())
 					.SelectMany(item => item.Order.OrderItems)
 					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
@@ -117,7 +116,7 @@ namespace Vodovoz
 						NomenclatureId = itemFromClient.NomenclatureId,
 						FromCancelledOrders = failedDeliveryGoodsCount,
 						ClientRejected = itemFromClient.Amount-failedDeliveryGoodsCount,
-						ToWarehouse = itemToWarehouse.Amount,
+						ToWarehouse = itemToWarehouse?.Amount ?? 1,
 						Trackable = false,
 					});
 			}
