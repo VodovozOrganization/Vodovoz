@@ -24346,6 +24346,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24433,7 +24434,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -24611,6 +24612,7 @@ RegistrationNumber</property>
                     <child>
                       <widget class="Gamma.Widgets.yEnumComboBox" id="enumStatus">
                         <property name="MemberName" />
+                        <property name="Sensitive">False</property>
                         <property name="IsTextCombo">False</property>
                         <property name="Items" translatable="yes" />
                         <property name="ShowSpecialStateAll">False</property>
@@ -36467,6 +36469,7 @@ RegistrationNumber</property>
                     <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                     <property name="Label" translatable="yes">Отменить</property>
                     <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonCancelClicked" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
