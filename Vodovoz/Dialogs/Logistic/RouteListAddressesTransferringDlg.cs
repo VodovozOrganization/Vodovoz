@@ -66,6 +66,7 @@ namespace Vodovoz
 				.Where(rl => rl.Status == RouteListStatus.EnRoute
 						  || rl.Status == RouteListStatus.NotDelivered
 						  || rl.Status == RouteListStatus.MileageCheck
+						  || rl.Status == RouteListStatus.OnClosing
 						  || rl.Status == RouteListStatus.Closed)
 				.OrderBy(rl => rl.Date).Desc;
 			
