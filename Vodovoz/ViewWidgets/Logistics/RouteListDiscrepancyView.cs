@@ -84,6 +84,7 @@ namespace Vodovoz
 		{
 			var discrepancies = new List<Discrepancy>();
 			var orderClosingItems = items
+				.Where(item => item.TransferedTo == null || !item.TransferedTo.NeedToReload)
 				.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.ToList();
@@ -116,7 +117,7 @@ namespace Vodovoz
 						NomenclatureId = itemFromClient.NomenclatureId,
 						FromCancelledOrders = failedDeliveryGoodsCount,
 						ClientRejected = itemFromClient.Amount-failedDeliveryGoodsCount,
-						ToWarehouse = itemToWarehouse?.Amount ?? 1,
+						ToWarehouse = itemToWarehouse?.Amount ?? 0,
 						Trackable = false,
 					});
 			}
