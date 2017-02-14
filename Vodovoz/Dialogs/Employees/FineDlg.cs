@@ -46,6 +46,7 @@ namespace Vodovoz
 		public FineDlg(decimal money, RouteList routeList) : this(money, routeList.Driver)
 		{
 			Entity.RouteList = routeList;
+			Entity.Date = routeList.Date;
 		}
 
 		public FineDlg (int id)
