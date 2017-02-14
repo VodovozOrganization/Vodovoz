@@ -221,6 +221,7 @@ namespace Vodovoz
 			}
 			this.Hide ();
 			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonTransfer.Clicked += new global::System.EventHandler (this.OnButtonTransferClicked);
 		}
 	}

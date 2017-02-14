@@ -66,6 +66,24 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private bool needToReload;
+
+		[Display(Name = "Необходима повторная загрузка")]
+		public virtual bool NeedToReload
+		{
+			get { return needToReload; }
+			set { SetField(ref needToReload, value, () => NeedToReload); }
+		}
+
+		private bool wasTransfered;
+
+		[Display(Name = "Был перенесен")]
+		public virtual bool WasTransfered
+		{
+			get { return wasTransfered; }
+			set { SetField(ref wasTransfered, value, () => WasTransfered); }
+		}
+
 		string comment;
 		public virtual string Comment
 		{

@@ -8,6 +8,7 @@ using Gamma.ColumnConfig;
 using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using System.Linq;
+using Gtk;
 
 namespace Vodovoz
 {
@@ -16,9 +17,11 @@ namespace Vodovoz
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
+		private bool hasChanges = false;
+
 		public bool HasChanges { 
 			get {
-				return uow.HasChanges;
+				return uow.HasChanges || hasChanges;
 			}
 		}
 
@@ -72,8 +75,8 @@ namespace Vodovoz
 			yentryreferenceRLTo	 .Changed += YentryreferenceRLTo_Changed;
 
 			//Для каждой TreeView нужен свой экземпляр ColumnsConfig
-			ytreeviewRLFrom	.ColumnsConfig = GetColumnsConfig();
-			ytreeviewRLTo	.ColumnsConfig = GetColumnsConfig();
+			ytreeviewRLFrom	.ColumnsConfig = GetColumnsConfig(false);
+			ytreeviewRLTo	.ColumnsConfig = GetColumnsConfig(true);
 
 			ytreeviewRLFrom .Selection.Mode = Gtk.SelectionMode.Multiple;
 			ytreeviewRLTo	.Selection.Mode = Gtk.SelectionMode.Multiple;
@@ -84,23 +87,29 @@ namespace Vodovoz
 		
 		void YtreeviewRLFrom_OnSelectionChanged (object sender, EventArgs e)
 		{
-			CheckButtonSensetive();
+			CheckSensitivities();
 		}
 
 		void YtreeviewRLTo_OnSelectionChanged (object sender, EventArgs e)
 		{
-			CheckButtonSensetive();
+			CheckSensitivities();
 		}
 
-		private IColumnsConfig GetColumnsConfig ()
+		private IColumnsConfig GetColumnsConfig (bool canEdit)
 		{
+			var colorGreen = new Gdk.Color(0x44, 0xcc, 0x49);
+			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
+			
 			return ColumnsConfigFactory.Create<RouteListItemNode>()
-				.AddColumn("Заказ")		 .AddTextRenderer	(node => node.Id)
-				.AddColumn("Время")		 .AddTextRenderer	(node => node.Date)
-				.AddColumn("Адрес")		 .AddTextRenderer	(node => node.Address)
-				.AddColumn("Бутыли")	 .AddTextRenderer	(node => node.BottlesCount)
-				.AddColumn("Статус")	 .AddEnumRenderer	(node => node.Status)
-				.AddColumn("Комментарий").AddTextRenderer	(node => node.Comment)
+				.AddColumn("Заказ")			.AddTextRenderer	(node => node.Id)
+				.AddColumn("Дата")			.AddTextRenderer	(node => node.Date)
+				.AddColumn("Адрес")			.AddTextRenderer	(node => node.Address)
+				.AddColumn("Бутыли")		.AddTextRenderer	(node => node.BottlesCount)
+				.AddColumn("Статус")		.AddEnumRenderer	(node => node.Status)
+				.AddColumn("Нужна загрузка").AddToggleRenderer	(node => node.NeedToReload)
+					.Editing(canEdit)
+				.AddColumn("Комментарий")	.AddTextRenderer	(node => node.Comment)
+				.RowCells().AddSetter<CellRenderer>((cell,node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen: colorWhite)
 				.Finish();
 		}
 
@@ -109,7 +118,7 @@ namespace Vodovoz
 			if (yentryreferenceRLFrom.Subject == null)
 				return;
 
-			CheckButtonSensetive();
+			CheckSensitivities();
 
 			RouteList routeList = yentryreferenceRLFrom.Subject as RouteList;
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
@@ -123,7 +132,7 @@ namespace Vodovoz
 			if (yentryreferenceRLTo.Subject == null)
 				return;
 
-			CheckButtonSensetive();
+			CheckSensitivities();
 
 			RouteList routeList = yentryreferenceRLTo.Subject as RouteList;
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
@@ -142,13 +151,22 @@ namespace Vodovoz
 
 		public bool Save()
 		{
+			RouteList routeListTo 	= yentryreferenceRLTo.Subject as RouteList;
+			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+
+			if (routeListTo == null || routeListFrom == null)
+				return false;
+			
+			uow.Save(routeListTo);
+			uow.Save(routeListFrom);
+
 			uow.Commit();
+			hasChanges = false;
+			CheckSensitivities();
 			return true;
 		}
 
-		public void SaveAndClose()
-		{
-		}
+		public void SaveAndClose() {}
 		
 		protected void OnButtonTransferClicked (object sender, EventArgs e)
 		{
@@ -168,21 +186,25 @@ namespace Vodovoz
 					continue;
 
 				RouteListItem newItem = new RouteListItem(routeListTo, item.Order);
-				routeListTo.Addresses.Add(newItem);
-				uow.Save(newItem);
+				newItem.WasTransfered = true;
+				routeListTo.ObservableAddresses.Add(newItem);
+//				uow.Save(newItem);
 
 				item.TransferedTo = newItem;
-				uow.Save(item);
+//				uow.Save(item);
+				hasChanges = true;
 			}
 			UpdateNodes();
 		}
 
-		private void CheckButtonSensetive ()
+		private void CheckSensitivities ()
 		{
 			int selectionFromCount = ytreeviewRLFrom.GetSelectedObjects().Count();
 			bool routeListToIsSelected = yentryreferenceRLTo.Subject != null;
 
 			buttonTransfer.Sensitive = selectionFromCount > 0 && routeListToIsSelected;
+
+			yentryreferenceRLTo.Sensitive = yentryreferenceRLFrom.Sensitive = !HasChanges;
 		}
 
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
@@ -190,6 +212,11 @@ namespace Vodovoz
 			Save();
 		}
 
+
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
+		{
+			OnCloseTab(false);
+		}
 		#endregion
 	}
 
@@ -208,6 +235,18 @@ namespace Vodovoz
 
 		public RouteListItemStatus Status {
 			get {return RouteListItem.Status;}
+		}
+
+		public bool NeedToReload {
+			get {return RouteListItem.NeedToReload;}
+			set {
+				if(RouteListItem.WasTransfered)
+					RouteListItem.NeedToReload = value;
+			}
+		}
+
+		public bool WasTransfered {
+			get {return RouteListItem.WasTransfered;}
 		}
 
 		public string Comment {
