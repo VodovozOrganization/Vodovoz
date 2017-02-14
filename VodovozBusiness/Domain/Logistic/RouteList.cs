@@ -808,7 +808,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			this.WageOperation = new WagesMovementOperations
 			{
-				OperationTime = DateTime.Now,
+				OperationTime = this.Date,
 				Employee 	  = Driver,
 				Money 		  = driverWage,
 				OperationType = WagesType.AccrualWage
