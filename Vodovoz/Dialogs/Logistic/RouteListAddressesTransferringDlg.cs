@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Vodovoz.Domain.Client;
 using System.Linq;
 using Gtk;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -117,10 +118,19 @@ namespace Vodovoz
 		{
 			if (yentryreferenceRLFrom.Subject == null)
 				return;
+			
+			RouteList routeList = yentryreferenceRLFrom.Subject as RouteList;
 
+			var tab = TabParent.FindTab(OrmMain.GenerateDialogHashName<RouteList>(routeList.Id));
+			if(tab != null) {
+				MessageDialogWorks.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
+				yentryreferenceRLFrom.Subject = null;
+				return;
+			}
+
+			
 			CheckSensitivities();
 
-			RouteList routeList = yentryreferenceRLFrom.Subject as RouteList;
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach (var item in routeList.Addresses)
 				items.Add(new RouteListItemNode{RouteListItem = item});
@@ -131,10 +141,18 @@ namespace Vodovoz
 		{
 			if (yentryreferenceRLTo.Subject == null)
 				return;
+			
+			RouteList routeList = yentryreferenceRLTo.Subject as RouteList;
+
+			var tab = TabParent.FindTab(OrmMain.GenerateDialogHashName<RouteList>(routeList.Id));
+			if(tab != null) {
+				MessageDialogWorks.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
+				yentryreferenceRLTo.Subject = null;
+				return;
+			}
 
 			CheckSensitivities();
 
-			RouteList routeList = yentryreferenceRLTo.Subject as RouteList;
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach (var item in routeList.Addresses)
 				items.Add(new RouteListItemNode{RouteListItem = item});
