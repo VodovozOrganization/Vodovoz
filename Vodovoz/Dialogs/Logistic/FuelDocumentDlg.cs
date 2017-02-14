@@ -45,7 +45,7 @@ namespace Vodovoz
 
 			RouteListClosing = routeListClosing;
 
-			UoWGeneric.Root.Date 	  = DateTime.Now;
+			UoWGeneric.Root.Date 	  = RouteListClosing.Date;
 			UoWGeneric.Root.Car 	  = RouteListClosing.Car;
 			UoWGeneric.Root.Driver 	  = RouteListClosing.Driver;
 			UoWGeneric.Root.Fuel 	  = RouteListClosing.Car.FuelType;
