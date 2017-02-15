@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>158.1pt</Height>
+    <Height>247.8pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>21.10pt</Height>
@@ -59,9 +59,6 @@
           </TableColumn>
           <TableColumn>
             <Width>90.4pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>91.7pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>73.8pt</Width>
@@ -140,22 +137,6 @@
                   <ReportItems>
                     <Textbox Name="Textbox6">
                       <Value>Пустых бутылей</Value>
-                      <Style>
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Value>Аванс</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -276,22 +257,6 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>=Fields!wage.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -392,22 +357,6 @@
                         <TextAlign>Center</TextAlign>
                       </Style>
                       <Value>=Sum(Fields!empty_bottles.Value)</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox27">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                      <Value>
-                      </Value>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -685,10 +634,10 @@
       <Textbox Name="Textbox32">
         <Height>18.03pt</Height>
         <Width>292.84pt</Width>
-        <Value>="Итого:" + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") - Sum(Fields!money.Value, "DriverFines"))</Value>
+        <Value>="Итого:" + Convert.ToString( Sum(Fields!wage.Value, "DriverInfo") - Sum(Fields!money.Value, "DriverFines") - Sum(Fields!advance.Value, "Advances"))</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>131.20pt</Top>
+        <Left>0.0pt</Left>
+        <Top>172.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -696,6 +645,150 @@
           <FontSize>14pt</FontSize>
         </Style>
       </Textbox>
+      <Table Name="Table3" >
+        <DataSetName>Advances</DataSetName>
+        <NoRows>Выданных авансов нет</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>85.6pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>Сумма аванса</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>=Format(Fields!date.Value, "dd/MM/yyyy")</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>=Fields!advance.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>132.4pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Всего:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum(Fields!advance.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -705,7 +798,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.date AS date,
@@ -741,7 +834,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -845,6 +938,42 @@ GROUP BY fines.date;</CommandText>
         <Field Name="reason">
           <DataField>reason</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Advances" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    wages_movement_operations.operation_time AS date,
+    wages_movement_operations.money * (-1) AS advance
+FROM
+    wages_movement_operations
+WHERE
+    wages_movement_operations.operation_type = 'GivedAdvance'
+        AND wages_movement_operations.employee_id = @driver_id
+        AND wages_movement_operations.operation_time &gt;= @start_date
+        AND wages_movement_operations.operation_time &lt;= @end_date;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="driver_id">
+            <Value>=Parameters!driver_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="advance">
+          <DataField>advance</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
