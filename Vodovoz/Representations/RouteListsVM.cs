@@ -189,7 +189,7 @@ namespace Vodovoz.ViewModel
 			{
 				MainClass.MainWin.TdiMain.OpenTab(
 					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListMileageCheckDlg (rl.Id)
+					() => new RouteListMileageCheckDlg (rl.Id, QSMain.User.Permissions ["logistican"])
 				);
 			}
 		}
@@ -206,7 +206,7 @@ namespace Vodovoz.ViewModel
 			{
 				MainClass.MainWin.TdiMain.OpenTab(
 					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListClosingDlg (rl.Id)
+					() => new RouteListClosingDlg (rl.Id, QSMain.User.Permissions ["money_manage"])
 				);
 			}
 		}
@@ -223,7 +223,7 @@ namespace Vodovoz.ViewModel
 			{
 				MainClass.MainWin.TdiMain.OpenTab(
 					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListKeepingDlg (rl.Id)
+					() => new RouteListKeepingDlg (rl.Id, QSMain.User.Permissions ["logistican"])
 				);
 			}
 		}

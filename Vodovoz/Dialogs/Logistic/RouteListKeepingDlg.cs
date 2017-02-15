@@ -18,10 +18,13 @@ using Vodovoz.Repository.Logistics;
 namespace Vodovoz
 {
 	public partial class RouteListKeepingDlg : OrmGtkDialogBase<RouteList>
-	{		
-		public RouteListKeepingDlg(int id)
+	{
+		private bool editing = true;
+
+		public RouteListKeepingDlg(int id, bool canEdit = true)
 		{
 			this.Build ();
+			editing = canEdit;
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Ведение маршрутного листа №{0}",Entity.Id);
 			ConfigureDlg ();
@@ -45,32 +48,32 @@ namespace Vodovoz
 
 		public void ConfigureDlg(){
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
-			referenceCar.Sensitive = false;
+			referenceCar.Sensitive = editing;
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
-			referenceDriver.Sensitive = false;
+			referenceDriver.Sensitive = editing;
 
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
-			referenceForwarder.Sensitive = false;
+			referenceForwarder.Sensitive = editing;
 
 			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
-			referenceLogistican.Sensitive = false;
+			referenceLogistican.Sensitive = editing;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
-			speccomboShift.Sensitive = false;
+			speccomboShift.Sensitive = editing;
 
 			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinActualDistance.Sensitive = false;
+			yspinActualDistance.Sensitive = editing;
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
-			datePickerDate.Sensitive = false;
+			datePickerDate.Sensitive = editing;
 
 			//Заполняем иконки
 			var ass = Assembly.GetAssembly(typeof(MainClass));
@@ -110,6 +113,7 @@ namespace Vodovoz
 				.Finish();
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
+			ytreeviewAddresses.Sensitive = editing;
 
 			string phones = string.Join("\n", Entity.Driver.Phones);
 			if (string.IsNullOrWhiteSpace(phones))

@@ -29,6 +29,7 @@ namespace Vodovoz
 
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
+		private bool editing = true;
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
@@ -36,12 +37,13 @@ namespace Vodovoz
 
 		public RouteListClosingDlg(RouteList routeList) : this(routeList.Id){}
 
-		public RouteListClosingDlg(int routeListId)
+		public RouteListClosingDlg(int routeListId, bool canEdit = true)
 		{
 			this.Build();
 
 			PerformanceHelper.StartMeasurement();
 
+			editing = canEdit;
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
 			TabName = String.Format("Закрытие маршрутного листа №{0}", Entity.Id);
@@ -52,34 +54,35 @@ namespace Vodovoz
 		private void ConfigureDlg()
 		{			
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
-			referenceCar.Sensitive = false;
+			referenceCar.Sensitive = editing;
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
-			referenceDriver.Sensitive = false;
+			referenceDriver.Sensitive = editing;
 
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
-			referenceForwarder.Sensitive = false;
+			referenceForwarder.Sensitive = editing;
 
 			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
-			referenceLogistican.Sensitive = false;
+			referenceLogistican.Sensitive = editing;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
-			speccomboShift.Sensitive = false;
+			speccomboShift.Sensitive = editing;
 
 			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinActualDistance.IsEditable = true;
+			yspinActualDistance.IsEditable = editing;
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
-			datePickerDate.Sensitive = false;
+			datePickerDate.Sensitive = editing;
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
+			ycheckConfirmDifferences.Sensitive = editing;
 
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
@@ -104,6 +107,7 @@ namespace Vodovoz
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
+			routeListAddressesView.Sensitive = editing;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(Entity.Id, Nomenclature.GetCategoriesForShipment());
 			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(Entity.Id, new []{ NomenclatureCategory.bottle })
@@ -135,6 +139,7 @@ namespace Vodovoz
 
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
+			routelistdiscrepancyview.Sensitive = editing;
 			PerformanceHelper.AddTimePoint("Заполнили расхождения");
 
 			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null;
