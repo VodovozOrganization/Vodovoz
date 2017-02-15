@@ -213,10 +213,12 @@ namespace Vodovoz.Domain.Goods
 
 		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
+			#if !SHORT
 			if(GetCategoriesForShipment ().Contains (Category) && Warehouse == null)
 				yield return new ValidationResult (
 					String.Format ("Для номенклатур вида «{0}», необходимо указывать склад отгрузки.", Category.GetEnumTitle ()),
 					new[] { this.GetPropertyName (o => o.Warehouse) });
+			#endif
 			if(Category == NomenclatureCategory.equipment && Type == null)
 				yield return new ValidationResult (
 					String.Format ("Не указан тип оборудования."),
