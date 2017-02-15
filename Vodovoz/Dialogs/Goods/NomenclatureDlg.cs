@@ -68,7 +68,7 @@ namespace Vodovoz
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceManufacturer.Binding.AddBinding(Entity, e => e.Manufacturer, w => w.Subject).InitializeFromSource();
 
-			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter());
+			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter()).InitializeFromSource();
 			yentryShortName.MaxLength = 20;
 
 			ConfigureInputs (Entity.Category);
