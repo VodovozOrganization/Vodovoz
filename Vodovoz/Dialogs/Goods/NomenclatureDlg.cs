@@ -68,13 +68,15 @@ namespace Vodovoz
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceManufacturer.Binding.AddBinding(Entity, e => e.Manufacturer, w => w.Subject).InitializeFromSource();
 
+			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter());
+			yentryShortName.MaxLength = 20;
+
 			ConfigureInputs (Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
 			if (UoWGeneric.Root.NomenclaturePrice == null)
 				UoWGeneric.Root.NomenclaturePrice = new List<NomenclaturePrice> ();
 			pricesView.Prices = UoWGeneric.Root.NomenclaturePrice;
-
 		}
 
 		string GenerateOfficialName (object arg)

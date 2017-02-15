@@ -173,6 +173,14 @@ namespace Vodovoz.Domain.Goods
 			get { return nomenclaturePrice; }
 			set { SetField (ref nomenclaturePrice, value, () => NomenclaturePrice); }
 		}
+
+		private string shortName;
+
+		[Display (Name = "Сокращенное название")]
+		public virtual string ShortName {
+		get { return shortName; }
+		set { SetField (ref shortName, value, () => ShortName); }
+		}
 			
 		#endregion
 
