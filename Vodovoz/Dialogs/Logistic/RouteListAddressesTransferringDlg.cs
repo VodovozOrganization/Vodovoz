@@ -71,9 +71,10 @@ namespace Vodovoz
 				.OrderBy(rl => rl.Date).Desc;
 			
 			yentryreferenceRLTo.ItemsQuery = QueryOver.Of<RouteList>()
-				.Where(rl => rl.Status == RouteListStatus.EnRoute 
+				.Where(rl => rl.Status == RouteListStatus.New
 						  || rl.Status == RouteListStatus.InLoading
-						  || rl.Status == RouteListStatus.New)
+						  || rl.Status == RouteListStatus.EnRoute
+						  || rl.Status == RouteListStatus.OnClosing)
 				.OrderBy(rl => rl.Date).Desc;
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
