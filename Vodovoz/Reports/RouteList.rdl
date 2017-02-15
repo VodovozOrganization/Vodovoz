@@ -1296,14 +1296,16 @@ LEFT JOIN (
 #WHERE order_equipment.direction = 'Deliver'
 #GROUP BY order_id, nomenclature_id
 #Для SHORT версии.
-SELECT order_items.order_id as order_id, nomenclature.id AS nomenclature_id, nomenclature.name as name, SUM(order_items.count) AS cnt FROM order_items 
+SELECT order_items.order_id as order_id, nomenclature.id AS nomenclature_id,
+IFNULL(nomenclature.short_name, nomenclature.name) as name, SUM(order_items.count) AS cnt FROM order_items 
 LEFT JOIN nomenclature ON nomenclature.id = order_items.nomenclature_id 
 WHERE nomenclature.category = 'equipment' OR nomenclature.category = 'additional'
 GROUP BY order_id, nomenclature_id
 ) AS eq_qry ON eq_qry.order_id = orders.id
 
 LEFT JOIN (
-SELECT order_equipment.order_id as order_id, nomenclature.id AS nomenclature_id, nomenclature.name as name, COUNT(nomenclature.id) AS cnt FROM order_equipment 
+SELECT order_equipment.order_id as order_id, nomenclature.id AS nomenclature_id,
+IFNULL(nomenclature.short_name, nomenclature.name) as name, COUNT(nomenclature.id) AS cnt FROM order_equipment 
 LEFT JOIN equipment ON order_equipment.equipment_id = equipment.id
 LEFT JOIN nomenclature ON nomenclature.id = equipment.nomenclature_id 
 WHERE order_equipment.direction = 'PickUp'
