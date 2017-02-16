@@ -35159,6 +35159,7 @@ RegistrationNumber</property>
               <widget class="Gtk.TextView" id="textOrdersInfo">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
+                <property name="Editable">False</property>
                 <property name="Text" translatable="yes" />
               </widget>
               <packing>
@@ -35202,6 +35203,7 @@ RegistrationNumber</property>
               <widget class="Gamma.GtkWidgets.yTextView" id="ytextFullOrdersInfo">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
+                <property name="Editable">False</property>
                 <property name="Text" translatable="yes" />
               </widget>
               <packing>

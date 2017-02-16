@@ -155,6 +155,7 @@ namespace Vodovoz
 			this.textOrdersInfo = new global::Gtk.TextView ();
 			this.textOrdersInfo.CanFocus = true;
 			this.textOrdersInfo.Name = "textOrdersInfo";
+			this.textOrdersInfo.Editable = false;
 			this.table1.Add (this.textOrdersInfo);
 			global::Gtk.Table.TableChild w10 = ((global::Gtk.Table.TableChild)(this.table1 [this.textOrdersInfo]));
 			w10.BottomAttach = ((uint)(2));
@@ -178,6 +179,7 @@ namespace Vodovoz
 			this.ytextFullOrdersInfo = new global::Gamma.GtkWidgets.yTextView ();
 			this.ytextFullOrdersInfo.CanFocus = true;
 			this.ytextFullOrdersInfo.Name = "ytextFullOrdersInfo";
+			this.ytextFullOrdersInfo.Editable = false;
 			this.table1.Add (this.ytextFullOrdersInfo);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1 [this.ytextFullOrdersInfo]));
 			w12.BottomAttach = ((uint)(2));
