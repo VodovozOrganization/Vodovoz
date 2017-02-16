@@ -304,7 +304,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -328,7 +328,7 @@ FROM
 WHERE
     orders.delivery_date &gt;= @start_date
         AND orders.delivery_date &lt;= @end_date
-        AND (((orders.to_client_text IS NOT NULL AND TRIM(orders.to_client_text) &lt;&gt; '')
+        AND (((orders.to_client_text IS NOT NULL AND TRIM(orders.to_client_text) &lt;&gt; '' AND TRIM(orders.to_client_text) &lt;&gt; 'раст')
 		   OR (orders.from_client_text IS NOT NULL AND TRIM(orders.from_client_text) &lt;&gt; ''))
         OR ((nomenclature.code_1c = '00001358')
         OR (nomenclature.code_1c = '00001357')
@@ -345,7 +345,7 @@ GROUP BY orders.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
