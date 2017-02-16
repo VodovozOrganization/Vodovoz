@@ -84,6 +84,15 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref wasTransfered, value, () => WasTransfered); }
 		}
 
+		private string cashierComment;
+
+		[Display(Name = "Комментарий кассира")]
+		public virtual string CashierComment
+		{
+			get { return cashierComment; }
+			set { SetField(ref cashierComment, value, () => CashierComment); }
+		}
+
 		string comment;
 		public virtual string Comment
 		{

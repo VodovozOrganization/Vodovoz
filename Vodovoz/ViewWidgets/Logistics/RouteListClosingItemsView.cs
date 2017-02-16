@@ -190,6 +190,8 @@ namespace Vodovoz
 						#if SHORT
 						.AddTextRenderer(node => node.FromClientText).Editable()
 						#endif
+				.AddColumn("Комментарий\nкассира")
+					.AddTextRenderer(node => node.CashierComment).Editable()
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
