@@ -103,7 +103,7 @@ namespace Vodovoz
 
 		private void ChangeVisibility ()
 		{
-			string[] columsToChange = {"  З/П\nводителя", "    З/П\nэкспедитора",};
+			string[] columsToChange = {"Залоги за\n бутыли", "  З/П\nводителя", "    З/П\nэкспедитора",};
 			
 			foreach (var columnName in columsToChange) {
 				var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == columnName);
