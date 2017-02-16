@@ -283,10 +283,9 @@ namespace Vodovoz
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = String.Format(
-				"Итого сдано: <b>{0:F2}</b> {1} Сумма к сдаче: <b>{2}</b> {1}",
-				Entity.Total,
-				CurrencyWorks.CurrencyShortName,
-				Entity.MoneyToReturn
+				"Итого сдано: <b>{0:F2}</b> {1}",
+				Entity.MoneyToReturn,
+				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = String.Format(
 				"Зарплата водителя: <b>{0}</b> {2}" + "  " + "Зарплата экспедитора: <b>{1}</b> {2}", 

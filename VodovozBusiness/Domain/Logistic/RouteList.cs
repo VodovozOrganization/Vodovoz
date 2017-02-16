@@ -241,8 +241,7 @@ namespace Vodovoz.Domain.Logistic
 				if (FuelGivedDocument != null && FuelGivedDocument.PayedForFuel.HasValue)
 					payedForFuel = FuelGivedDocument.PayedForFuel.Value;
 
-				return Addresses.Sum(address => address.TotalCash + address.DepositsCollected)
-					- PhoneSum - payedForFuel;
+				return Total - payedForFuel;
 			}
 		}
 
