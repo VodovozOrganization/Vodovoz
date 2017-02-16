@@ -1365,8 +1365,8 @@ orders.comment AS Comment, route_list_addresses.status AS Status,
  #orders.bottles_return AS EmptyBottles,
  SUM(route_list_addresses.bottles_returned) AS EmptyBottles,
  orders.sum_to_receive AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
-IFNULL(GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), orders.to_client_text) AS ToClient,
-IFNULL(GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')), orders.from_client_text) AS FromClient,
+CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), orders.to_client_text) AS ToClient,
+CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')), orders.from_client_text) AS FromClient,
 IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
 <!--sql_select-->
 FROM route_list_addresses

@@ -1274,8 +1274,8 @@ SELECT
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 orders.comment AS Comment, orders.bottles_return AS EmptyBottles, orders.sum_to_receive AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
-IFNULL(GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), orders.to_client_text) AS ToClient,
-IFNULL(GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
+CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), orders.to_client_text) AS ToClient,
+CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
 IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
 <!--sql_select-->
 FROM route_list_addresses
