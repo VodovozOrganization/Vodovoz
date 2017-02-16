@@ -630,4 +630,13 @@ public partial class MainWindow: Gtk.Window
 			() => new QSReport.ReportViewDlg (widget)
 		);
 	}
+
+	protected void OnActionCashierCommentsActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.CashierCommentsReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
 }

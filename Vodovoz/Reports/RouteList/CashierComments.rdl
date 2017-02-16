@@ -31,7 +31,7 @@
       <Textbox Name="Textbox2">
         <Height>20.27pt</Height>
         <Width>566.88pt</Width>
-        <Value>="Отчет по комментариям кассиров с " + {?start_date} + " по " + {?end_date}</Value>
+        <Value>="Отчет по комментариям кассиров с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
         <Top>5.6pt</Top>
@@ -158,6 +158,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -171,6 +174,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -184,6 +190,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -197,6 +206,9 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -240,8 +252,7 @@
   <DataSets >
     <DataSet Name="CashierComments">
       <Query>
-        <DataSourceName>
-        </DataSourceName>
+        <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     counterparty.full_name AS client,
     delivery_points.compiled_address AS address,
