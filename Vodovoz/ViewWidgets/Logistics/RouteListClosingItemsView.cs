@@ -38,6 +38,16 @@ namespace Vodovoz
 			}
 		}
 
+		private bool columsVisibility = true;
+
+		public bool ColumsVisibility {
+			get {return columsVisibility;}
+			set {
+				columsVisibility = value;
+				ChangeVisibility();
+			}
+		}
+
 		private decimal bottleDepositPrice;
 
 		IUnitOfWork uow;
@@ -91,6 +101,20 @@ namespace Vodovoz
 			}
 		}
 
+		private void ChangeVisibility ()
+		{
+			string[] columsToChange = {"  З/П\nводителя", "    З/П\nэкспедитора",
+				"Доп. оборудование\n     клиенту", "Доп. оборуд.\n от клиента"
+			};
+			
+			foreach (var columnName in columsToChange) {
+				var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == columnName);
+				if (column == null)
+					continue;
+				column.Visible = ColumsVisibility;
+			}
+		}
+
 		private void UpdateColumns ()
 		{
 			var goodsColumns = Items.SelectMany (i => i.GoodsByRouteColumns.Keys).Distinct ().ToArray ();
@@ -122,20 +146,8 @@ namespace Vodovoz
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
 			config
-				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
-					.AddTextRenderer()
-					.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
-					#if SHORT
-				.AddTextRenderer(node => node.ToClientText).Editable()
-					#endif
-					.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
-					.AddTextRenderer()
-					.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
-					#if SHORT
-					.AddTextRenderer(node => node.FromClientText).Editable()
-					#endif
-				.AddColumn("Предпол.\n пустых").HeaderAlignment(0.5f)
-					.AddTextRenderer(x => x.Order.BottlesReturn.ToString()).Sensitive(false)
+//				.AddColumn("Предпол.\n пустых").HeaderAlignment(0.5f)
+//					.AddTextRenderer(x => x.Order.BottlesReturn.ToString()).Sensitive(false)
 				.AddColumn("Пустых\nбутылей").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.BottlesReturned)
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
@@ -168,6 +180,18 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedForwarderWage() ? colorBlue : colorBlack)
 						.AddSetter((c, node) => c.Alignment = Pango.Alignment.Right)
+				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
+					.AddTextRenderer()
+						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
+						#if SHORT
+						.AddTextRenderer(node => node.ToClientText).Editable()
+						#endif
+				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
+					.AddTextRenderer()
+						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
+						#if SHORT
+						.AddTextRenderer(node => node.FromClientText).Editable()
+						#endif
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>

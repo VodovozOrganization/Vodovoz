@@ -17317,7 +17317,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListClosingDlg" design-size="942 467">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListClosingDlg" design-size="972 467">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -17401,12 +17401,6 @@ RegistrationNumber</property>
                 <property name="NColumns">6</property>
                 <property name="RowSpacing">6</property>
                 <property name="ColumnSpacing">6</property>
-                <child>
-                  <placeholder />
-                </child>
-                <child>
-                  <placeholder />
-                </child>
                 <child>
                   <placeholder />
                 </child>
@@ -17754,6 +17748,32 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gamma.GtkWidgets.yCheckButton" id="ycheckHideCells">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Label" translatable="yes">Скрыть столбцы</property>
+                    <property name="Active">True</property>
+                    <property name="DrawIndicator">True</property>
+                    <property name="HasLabel">True</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Toggled" handler="OnYcheckHideCellsToggled" />
+                  </widget>
+                  <packing>
+                    <property name="TopAttach">3</property>
+                    <property name="BottomAttach">4</property>
+                    <property name="RightAttach">2</property>
+                    <property name="AutoSize">False</property>
+                    <property name="XOptions">Fill</property>
+                    <property name="YOptions">Fill</property>
+                    <property name="XExpand">False</property>
+                    <property name="XFill">True</property>
+                    <property name="XShrink">False</property>
+                    <property name="YExpand">False</property>
+                    <property name="YFill">True</property>
+                    <property name="YShrink">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinActualDistance">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -17832,6 +17852,7 @@ RegistrationNumber</property>
               <widget class="Vodovoz.RouteListClosingItemsView" id="routeListAddressesView">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
+                <property name="ColumsVisibility">False</property>
               </widget>
               <packing>
                 <property name="Position">0</property>

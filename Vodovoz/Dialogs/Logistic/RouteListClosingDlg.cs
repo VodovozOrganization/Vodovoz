@@ -108,6 +108,7 @@ namespace Vodovoz
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
 			routeListAddressesView.Sensitive = editing;
+			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(Entity.Id, Nomenclature.GetCategoriesForShipment());
 			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(Entity.Id, new []{ NomenclatureCategory.bottle })
@@ -693,6 +694,11 @@ namespace Vodovoz
 			this.TabParent.AddSlaveTab(
 				this, new FineDlg (default(decimal), Entity)
 			);
+		}
+
+		protected void OnYcheckHideCellsToggled (object sender, EventArgs e)
+		{
+			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 		}
 	}
 
