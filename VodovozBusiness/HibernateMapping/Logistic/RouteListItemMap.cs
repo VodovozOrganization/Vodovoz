@@ -25,7 +25,9 @@ namespace Vodovoz.HMap
 			Map (x => x.Status)					.Column("status").CustomType<RouteListItemStatusStringType>();
 			Map (x => x.NeedToReload)			.Column("need_to_reload");
 			Map (x => x.WasTransfered)			.Column("was_transfered");
-			Map (x => x.CashierComment)			.Column("cashier_comment").Length(150); 
+			Map (x => x.CashierComment)			.Column("cashier_comment").Length(150);
+			Map(x => x.CashierCommentCreateDate).Column("cashier_comment_create_date");
+			Map(x => x.CashierCommentLastUpdate).Column("cashier_comment_last_update");
 
 			References (x => x.RouteList)	.Column ("route_list_id").Not.Nullable ();
 			References (x => x.Order)		.Column ("order_id").Cascade.SaveUpdate();

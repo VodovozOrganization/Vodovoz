@@ -90,7 +90,27 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string CashierComment
 		{
 			get { return cashierComment; }
-			set { SetField(ref cashierComment, value, () => CashierComment); }
+			set {
+				SetField(ref cashierComment, value, () => CashierComment);
+			}
+		}
+
+		private DateTime? cashierCommentCreateDate;
+
+		[Display(Name = "Дата создания комментария кассира")]
+		public virtual DateTime? CashierCommentCreateDate
+		{
+			get { return cashierCommentCreateDate; }
+			set { SetField(ref cashierCommentCreateDate, value, () => CashierCommentCreateDate); }
+		}
+
+		private DateTime? cashierCommentLastUpdate;
+
+		[Display(Name = "Дата обновления комментария кассира")]
+		public virtual DateTime? CashierCommentLastUpdate
+		{
+			get { return cashierCommentLastUpdate; }
+			set { SetField(ref cashierCommentLastUpdate, value, () => CashierCommentLastUpdate); }
 		}
 
 		string comment;

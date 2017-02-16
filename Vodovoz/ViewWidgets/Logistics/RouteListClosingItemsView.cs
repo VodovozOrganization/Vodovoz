@@ -191,7 +191,13 @@ namespace Vodovoz
 						.AddTextRenderer(node => node.FromClientText).Editable()
 						#endif
 				.AddColumn("Комментарий\nкассира")
-					.AddTextRenderer(node => node.CashierComment).Editable()
+				.AddTextRenderer(node => node.CashierComment).AddSetter((cell, node) => cell.Edited += (o, args) =>
+					{
+						if (node.CashierCommentCreateDate.HasValue)
+							node.CashierCommentLastUpdate = DateTime.Now.Date;
+						else
+							node.CashierCommentCreateDate = DateTime.Now.Date;
+					}).Editable()
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
