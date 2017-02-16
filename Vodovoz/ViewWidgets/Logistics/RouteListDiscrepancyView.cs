@@ -84,7 +84,7 @@ namespace Vodovoz
 		{
 			var discrepancies = new List<Discrepancy>();
 			var orderClosingItems = items
-				.Where(item => item.TransferedTo == null || !item.TransferedTo.NeedToReload)
+				.Where(item => item.TransferedTo == null || item.TransferedTo.NeedToReload)
 				.SelectMany(item => item.Order.OrderItems)
 				.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.ToList();
