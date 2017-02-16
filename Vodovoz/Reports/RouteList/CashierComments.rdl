@@ -50,24 +50,32 @@
     <ReportItems >
       <Table Name="Table1">
         <DataSetName>CashierComments</DataSetName>
-        <NoRows>Query returned no rows!</NoRows>
+        <NoRows>За заданный промежуток комментариев нет</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>133.5pt</Width>
+            <Width>118.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>169.4pt</Width>
+            <Width>133.2pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>185.7pt</Width>
+            <Width>58.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>131.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -111,6 +119,38 @@
                   <ReportItems>
                     <Textbox Name="Textbox5">
                       <Value>№ МЛ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Водитель</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -199,6 +239,36 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>=Format({route_list_date}, "dd/MM/yyyy")</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>={driver_name}</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>=Fields!cashier_comment.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -257,11 +327,17 @@
     counterparty.full_name AS client,
     delivery_points.compiled_address AS address,
     route_list_addresses.route_list_id AS route_list,
+    route_lists.date AS route_list_date,
+    CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
     route_list_addresses.cashier_comment AS cashier_comment
 FROM
-    Vodovoz.route_list_addresses
+    route_list_addresses
     LEFT JOIN
     orders ON orders.id = route_list_addresses.order_id
+    LEFT JOIN
+    route_lists ON route_lists.id = route_list_addresses.route_list_id
+    LEFT JOIN
+    employees ON employees.id = route_lists.driver_id
     LEFT JOIN
     counterparty ON counterparty.id = orders.client_id
     LEFT JOIN
@@ -298,6 +374,14 @@ WHERE
         <Field Name="cashier_comment">
           <DataField>cashier_comment</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="route_list_date">
+          <DataField>route_list_date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
       </Fields>
     </DataSet>
