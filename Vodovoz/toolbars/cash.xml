@@ -5,7 +5,5 @@
 		<toolitem name='ActionUnclosedAdvances' action='ActionUnclosedAdvances'/>
 		<toolitem name='ActionCashFlow' action='ActionCashFlow'/>
 		<toolitem name='ActionRouteListClosingTable' action='ActionRouteListClosingTable'/>
-		<toolitem name='ActionEmployeeWorkChart' action='ActionEmployeeWorkChart'/>
-		<toolitem name='ActionFinesJournal' action='ActionFinesJournal'/>
 	</toolbar>
 </ui>

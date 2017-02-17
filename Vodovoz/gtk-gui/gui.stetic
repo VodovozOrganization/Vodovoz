@@ -669,6 +669,17 @@
         <property name="ShortLabel" translatable="yes">Отчет по комментариям кассиров</property>
         <signal name="Activated" handler="OnActionCashierCommentsActivated" />
       </action>
+      <action id="ActionStaff">
+        <property name="Type">Radio</property>
+        <property name="Label" translatable="yes">Кадры</property>
+        <property name="ShortLabel" translatable="yes">Кадры</property>
+        <property name="StockId">users</property>
+        <property name="DrawAsRadio">False</property>
+        <property name="Active">False</property>
+        <property name="Value">0</property>
+        <property name="Group">group1</property>
+        <signal name="Toggled" handler="OnActionStaffToggled" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -825,6 +836,7 @@
                       <node type="Toolitem" action="ActionAccounting" />
                       <node type="Toolitem" action="ActionReports" />
                       <node type="Toolitem" action="ActionArchive" />
+                      <node type="Toolitem" action="ActionStaff" />
                     </node>
                   </widget>
                   <packing>
@@ -999,6 +1011,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24417,7 +24430,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

@@ -563,6 +563,12 @@ public partial class MainWindow: Gtk.Window
 		if (ActionArchive.Active)
 			SwitchToUI ("archive.xml");
 	}
+	
+	protected void OnActionStaffToggled (object sender, EventArgs e)
+	{
+		if (ActionStaff.Active)
+			SwitchToUI ("Vodovoz.toolbars.staff.xml");
+	}
 
 	protected void OnGazTicketActionActivated (object sender, EventArgs e)
 	{

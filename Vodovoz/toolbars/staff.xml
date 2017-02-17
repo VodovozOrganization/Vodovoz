@@ -1,0 +1,6 @@
+﻿<ui>
+	<toolbar name='toolbarSub'>
+		<toolitem name='ActionFinesJournal' action='ActionFinesJournal'/>
+		<toolitem name='ActionEmployeeWorkChart' action='ActionEmployeeWorkChart'/>
+	</toolbar>
+</ui>
