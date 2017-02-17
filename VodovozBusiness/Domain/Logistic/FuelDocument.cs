@@ -136,7 +136,7 @@ namespace Vodovoz.Domain.Logistic
 						Description 	=$"Оплата топлива по МЛ №{routeListId}",
 					};
 				}
-				FuelCashExpense.Money = PayedForFuel.Value;
+				FuelCashExpense.Money = Math.Round(PayedForFuel.Value, 0, MidpointRounding.AwayFromZero);
 			}
 			else
 				FuelCashExpense = null;

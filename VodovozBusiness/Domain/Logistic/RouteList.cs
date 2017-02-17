@@ -719,11 +719,11 @@ namespace Vodovoz.Domain.Logistic
 							Casher 			= cashier,
 							Employee 		= Driver,
 							Description 	=$"Закрытие МЛ #{Id}",
-							Money 			= Total,
+							Money 			= Math.Round(Total, 0, MidpointRounding.AwayFromZero)
 						};
 				} else {
 					cashIncome.Casher = cashier;
-					cashIncome.Money  = Total;
+					cashIncome.Money  = Math.Round(Total, 0, MidpointRounding.AwayFromZero);
 				}
 				cashIncome.RouteListClosing = this;
 			}
@@ -740,11 +740,11 @@ namespace Vodovoz.Domain.Logistic
 							Casher 			= cashier,
 							Employee 		= Driver,
 							Description 	=$"Закрытие МЛ #{Id}",
-							Money 			= -Total,
+							Money 			= Math.Round(-Total, 0, MidpointRounding.AwayFromZero)
 						};
 				} else {
 					cashExpense.Casher = cashier;
-					cashExpense.Money  = -Total;
+					cashExpense.Money  = Math.Round(-Total, 0, MidpointRounding.AwayFromZero);
 				}
 				cashExpense.RouteListClosing = this;
 			}
