@@ -112,8 +112,9 @@ namespace Vodovoz
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
 
-			enumStatus.ItemsEnum = typeof(OrderStatus);
-			enumStatus.Binding.AddBinding (Entity, s => s.OrderStatus, w => w.SelectedItem).InitializeFromSource ();
+			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
+//			enumStatus.ItemsEnum = typeof(OrderStatus);
+//			enumStatus.Binding.AddBinding (Entity, s => s.OrderStatus, w => w.SelectedItem).InitializeFromSource ();
 
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
 			enumDocumentType.Binding.AddBinding (Entity, s => s.DocumentType, w => w.SelectedItem).InitializeFromSource ();
@@ -157,7 +158,7 @@ namespace Vodovoz
 
 			buttonViewDocument.Sensitive = false;
 			buttonDelete.Sensitive = false;
-			enumStatus.Sensitive = false;
+//			enumStatus.Sensitive = false;
 			notebook1.ShowTabs = false;
 			notebook1.Page = 0;
 
@@ -388,7 +389,7 @@ namespace Vodovoz
 		{
 			referenceDeliverySchedule.Sensitive = referenceDeliveryPoint.IsEditable = 
 				referenceClient.IsEditable = val;
-			enumAddRentButton.Sensitive = enumSignatureType.Sensitive = enumStatus.Sensitive = 
+			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =// enumStatus.Sensitive = 
 				enumPaymentType.Sensitive = enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive = 
 				buttonAddForSale.Sensitive = buttonFillComment.Sensitive = val;
