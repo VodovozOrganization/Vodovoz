@@ -11,6 +11,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
 using System.Linq;
 using NHibernate.Criterion;
+using Gtk;
 
 namespace Vodovoz.ViewModel
 {
@@ -152,6 +153,12 @@ namespace Vodovoz.ViewModel
 			lastMenuSelected = selected;
 			Gtk.Menu popupMenu = new Gtk.Menu();
 
+			Gtk.MenuItem menuItemRouteListOpenTrack = new Gtk.MenuItem("Открыть трек");
+			menuItemRouteListOpenTrack.Activated += MenuItemRouteListOpenTrack_Activated;
+			popupMenu.Add(menuItemRouteListOpenTrack);
+
+			popupMenu.Add(new SeparatorMenuItem());
+
 			Gtk.MenuItem menuItemRouteListCreateDlg = new Gtk.MenuItem("Открыть диалог создания");
 			menuItemRouteListCreateDlg.Activated += MenuItemRouteListCreateDlg_Activated;
 			popupMenu.Add(menuItemRouteListCreateDlg);
@@ -175,6 +182,16 @@ namespace Vodovoz.ViewModel
 			popupMenu.Add(menuItemRouteListMileageCheckDlg);
 
 			return popupMenu;
+		}
+
+		void MenuItemRouteListOpenTrack_Activated (object sender, EventArgs e)
+		{
+			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+			foreach (var id in routeListIds)
+			{
+				TrackMapWnd track = new TrackMapWnd(id);
+				track.Show();
+			}
 		}
 
 		void MenuItemRouteListMileageCheckDlg_Activated (object sender, EventArgs e)

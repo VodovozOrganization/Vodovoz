@@ -537,6 +537,7 @@
     <Compile Include="gtk-gui\Vodovoz.RouteListAddressesTransferringDlg.cs" />
     <Compile Include="ReportsParameters\CashierCommentsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.CashierCommentsReport.cs" />
+    <Compile Include="Dialogs\Logistic\TrackMapWnd.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
