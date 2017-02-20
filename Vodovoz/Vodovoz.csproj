@@ -539,6 +539,8 @@
     <Compile Include="ReportsParameters\CashierCommentsReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.CashierCommentsReport.cs" />
     <Compile Include="Dialogs\Logistic\TrackMapWnd.cs" />
+    <Compile Include="ReportsParameters\DriversWageBalanceReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.DriversWageBalanceReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
