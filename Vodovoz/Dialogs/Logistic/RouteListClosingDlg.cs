@@ -30,6 +30,7 @@ namespace Vodovoz
 		private Track track = null;
 		private decimal balanceBeforeOp = default(decimal);
 		private bool editing = true;
+		private Employee previousForwarder = null;
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
@@ -61,10 +62,12 @@ namespace Vodovoz
 			referenceDriver.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceDriver.Sensitive = editing;
 
+			previousForwarder = Entity.Forwarder;
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee>(r => StringWorks.PersonNameWithInitials(r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Sensitive = editing;
+			referenceForwarder.Changed += ReferenceForwarder_Changed;
 
 			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
@@ -153,6 +156,17 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Загрузка бензина");
 
 			PerformanceHelper.Main.PrintAllPoints(logger);
+		}
+
+		void ReferenceForwarder_Changed (object sender, EventArgs e)
+		{
+			var newForwarder = Entity.Forwarder;
+
+			if ((previousForwarder == null && newForwarder != null)
+			 || (previousForwarder != null && newForwarder == null))
+				FirstFillClosing();
+
+			previousForwarder = Entity.Forwarder;
 		}
 
 		protected void FirstFillClosing()
