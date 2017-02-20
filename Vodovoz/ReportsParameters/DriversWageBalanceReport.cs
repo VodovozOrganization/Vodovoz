@@ -2,15 +2,39 @@
 using QSOrmProject;
 using QSReport;
 using System.Collections.Generic;
+using Gamma.GtkWidgets;
+using Vodovoz.Domain.Employees;
+using Gamma.ColumnConfig;
+using System.Linq;
+using NHibernate.Transform;
+using QSProjectsLib;
 
 namespace Vodovoz.Reports
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DriversWageBalanceReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
+		private class DriverNode
+		{
+			public int 	  Id 		 { get; set; }
+			public string Name 		 { get; set; }
+			public string LastName 	 { get; set; }
+			public string FullName 	 { get {return LastName + " " + Name;} }
+			public bool   IsSelected { get; set; } = false;
+		}
+
+		IColumnsConfig columnsConfig = ColumnsConfigFactory.Create<DriverNode> ()
+			.AddColumn("Имя").AddTextRenderer(d => d.FullName)
+			.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
+			.Finish();
+
+		IList<DriverNode> driversList = new List<DriverNode>();
+
 		public DriversWageBalanceReport()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			ConfigureWgt();
 		}
 
 		#region IOrmDialog implementation
@@ -33,6 +57,16 @@ namespace Vodovoz.Reports
 
 		#endregion
 
+		private void ConfigureWgt()
+		{
+			FillDrivers();
+
+			ytreeviewDrivers.ColumnsConfig = columnsConfig;
+			ytreeviewDrivers.SetItemsSource(driversList);
+
+			ydateBalanceBefore.Date = DateTime.Today;
+		}
+
 		void OnUpdate(bool hide = false)
 		{
 			if (LoadReport != null)
@@ -45,19 +79,56 @@ namespace Vodovoz.Reports
 		{			
 			return new ReportInfo
 			{
-				Identifier = "Wages.DriverWage",
+				Identifier = "Employees.DriversWageBalance",
 				Parameters = new Dictionary<string, object>
 				{ 
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDateOrNull }
+					{ "date", ydateBalanceBefore.Date.Date.AddDays(1).AddTicks(-1) },
+					{ "drivers", driversList.Where(d => d.IsSelected).Select(d => d.Id) }
 				}
 			};
-		}	
+		}
+
+		private void FillDrivers()
+		{
+			DriverNode resultAlias = null;
+			Employee employeeAlias = null;
+
+			driversList = UoW.Session.QueryOver<Employee>(() => employeeAlias)
+				.Where(() => employeeAlias.Category == EmployeeCategory.driver)
+				.SelectList(list => list
+					.Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
+					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.Name)
+					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.LastName))
+				.OrderBy(e => e.LastName).Asc
+				.TransformUsing(Transformers.AliasToBean<DriverNode>())
+				.List<DriverNode>();
+		}
 
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
+			if (driversList.Where(d => d.IsSelected).Select(d => d.Id).Count() <= 0)
+			{
+				MessageDialogWorks.RunErrorDialog("Необходимо выбрать хотя бы одного водителя");
+				return;
+			}
+
 			OnUpdate(true);
 		}
+
+		protected void OnButtonSelectAllClicked (object sender, EventArgs e)
+		{
+			foreach (var item in driversList)
+				item.IsSelected = true;
+			ytreeviewDrivers.SetItemsSource(driversList);
+		}
+
+		protected void OnButtonUnselectAllClicked (object sender, EventArgs e)
+		{
+			foreach (var item in driversList)
+				item.IsSelected = false;
+			ytreeviewDrivers.SetItemsSource(driversList);
+		}
+
 	}
 }
 
