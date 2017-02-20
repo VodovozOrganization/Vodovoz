@@ -91,6 +91,12 @@ namespace Vodovoz
 		{
 			OnRefiltered ();
 		}
+
+		public void SetFilterDates(DateTime? startDate, DateTime? endDate)
+		{
+			dateperiodOrders.StartDateOrNull = startDate;
+			dateperiodOrders.EndDateOrNull = endDate;
+		}
 	}
 }
 

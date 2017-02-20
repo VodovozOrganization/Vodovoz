@@ -30786,7 +30786,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.FineDlg" design-size="628 300">
+  <widget class="Gtk.Bin" id="Vodovoz.FineDlg" design-size="628 325">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -30852,7 +30852,7 @@ RegistrationNumber</property>
             <property name="InheritedDataSource">False</property>
             <property name="InheritedBoundaryDataSource">False</property>
             <child>
-              <widget class="Gtk.HBox" id="hbox1">
+              <widget class="Gtk.HBox" id="hbox2">
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
@@ -31019,7 +31019,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceRouteList">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRouteList">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
               </widget>

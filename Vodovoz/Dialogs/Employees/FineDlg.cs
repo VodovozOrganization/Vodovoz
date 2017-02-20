@@ -67,9 +67,10 @@ namespace Vodovoz
 			yentryFineReasonString.Binding.AddBinding(Entity, e => e.FineReasonString, w => w.Text).InitializeFromSource();
 			fineitemsview.FineUoW = UoWGeneric;
 
-			yentryreferenceRouteList.ItemsQuery = QueryOver.Of<RouteList>().OrderBy(x => x.Date).Desc;
+			var filter = new RouteListsFilter(UoW);
+			filter.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
+			yentryreferenceRouteList.RepresentationModel = new ViewModel.RouteListsVM(filter);
 			yentryreferenceRouteList.Binding.AddBinding(Entity, e => e.RouteList, w => w.Subject).InitializeFromSource();
-			yentryreferenceRouteList.SetObjectDisplayFunc<RouteList>(r => r?.Id.ToString() ?? "Маршрутный лист не назначен");
 		}
 
 		public override bool Save ()

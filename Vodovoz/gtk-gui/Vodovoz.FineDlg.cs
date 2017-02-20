@@ -14,7 +14,7 @@ namespace Vodovoz
 		
 		private global::Gtk.DataBindings.DataTable tableWriteoff;
 		
-		private global::Gtk.HBox hbox1;
+		private global::Gtk.HBox hbox2;
 		
 		private global::Gamma.GtkWidgets.ySpinButton yspinMoney;
 		
@@ -32,7 +32,7 @@ namespace Vodovoz
 		
 		private global::Gamma.GtkWidgets.yEntry yentryFineReasonString;
 		
-		private global::Gamma.Widgets.yEntryReference yentryreferenceRouteList;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceRouteList;
 		
 		private global::Gamma.GtkWidgets.yLabel ylabelDate;
 		
@@ -96,10 +96,10 @@ namespace Vodovoz
 			this.tableWriteoff.InheritedDataSource = false;
 			this.tableWriteoff.InheritedBoundaryDataSource = false;
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.hbox1 = new global::Gtk.HBox ();
-			this.hbox1.Name = "hbox1";
-			this.hbox1.Spacing = 6;
-			// Container child hbox1.Gtk.Box+BoxChild
+			this.hbox2 = new global::Gtk.HBox ();
+			this.hbox2.Name = "hbox2";
+			this.hbox2.Spacing = 6;
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.yspinMoney = new global::Gamma.GtkWidgets.ySpinButton (0, 100000, 1);
 			this.yspinMoney.CanFocus = true;
 			this.yspinMoney.Name = "yspinMoney";
@@ -109,33 +109,33 @@ namespace Vodovoz
 			this.yspinMoney.Numeric = true;
 			this.yspinMoney.ValueAsDecimal = 0m;
 			this.yspinMoney.ValueAsInt = 0;
-			this.hbox1.Add (this.yspinMoney);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.yspinMoney]));
+			this.hbox2.Add (this.yspinMoney);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.yspinMoney]));
 			w6.Position = 0;
 			w6.Expand = false;
 			w6.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.currencylabel1 = new global::QSProjectsLib.CurrencyLabel ();
 			this.currencylabel1.Name = "currencylabel1";
 			this.currencylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("currencylabel1");
-			this.hbox1.Add (this.currencylabel1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.currencylabel1]));
+			this.hbox2.Add (this.currencylabel1);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.currencylabel1]));
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
-			// Container child hbox1.Gtk.Box+BoxChild
+			// Container child hbox2.Gtk.Box+BoxChild
 			this.buttonDivideAtAll = new global::Gtk.Button ();
 			this.buttonDivideAtAll.CanFocus = true;
 			this.buttonDivideAtAll.Name = "buttonDivideAtAll";
 			this.buttonDivideAtAll.UseUnderline = true;
 			this.buttonDivideAtAll.Label = global::Mono.Unix.Catalog.GetString ("Разбить на всех");
-			this.hbox1.Add (this.buttonDivideAtAll);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDivideAtAll]));
+			this.hbox2.Add (this.buttonDivideAtAll);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonDivideAtAll]));
 			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
-			this.tableWriteoff.Add (this.hbox1);
-			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.hbox1]));
+			this.tableWriteoff.Add (this.hbox2);
+			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.tableWriteoff [this.hbox2]));
 			w9.LeftAttach = ((uint)(3));
 			w9.RightAttach = ((uint)(4));
 			w9.XOptions = ((global::Gtk.AttachOptions)(4));
@@ -196,7 +196,7 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWriteoff.Gtk.Table+TableChild
-			this.yentryreferenceRouteList = new global::Gamma.Widgets.yEntryReference ();
+			this.yentryreferenceRouteList = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.yentryreferenceRouteList.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceRouteList.Name = "yentryreferenceRouteList";
 			this.tableWriteoff.Add (this.yentryreferenceRouteList);
