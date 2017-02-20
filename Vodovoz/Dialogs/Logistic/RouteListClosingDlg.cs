@@ -164,8 +164,9 @@ namespace Vodovoz
 
 			if ((previousForwarder == null && newForwarder != null)
 			 || (previousForwarder != null && newForwarder == null))
-				FirstFillClosing();
-
+				foreach (var item in Entity.Addresses)
+					item.RecalculateWages();
+			
 			previousForwarder = Entity.Forwarder;
 		}
 
