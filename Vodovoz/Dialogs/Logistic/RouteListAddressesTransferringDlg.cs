@@ -68,6 +68,7 @@ namespace Vodovoz
 						  || rl.Status == RouteListStatus.MileageCheck
 						  || rl.Status == RouteListStatus.OnClosing
 						  || rl.Status == RouteListStatus.Closed)
+				.Where(rl => rl.Date > DateTime.Today.AddDays(-7))
 				.OrderBy(rl => rl.Date).Desc;
 			
 			yentryreferenceRLTo.ItemsQuery = QueryOver.Of<RouteList>()
@@ -75,6 +76,7 @@ namespace Vodovoz
 						  || rl.Status == RouteListStatus.InLoading
 						  || rl.Status == RouteListStatus.EnRoute
 						  || rl.Status == RouteListStatus.OnClosing)
+				.Where(rl => rl.Date > DateTime.Today.AddDays(-7))
 				.OrderBy(rl => rl.Date).Desc;
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
