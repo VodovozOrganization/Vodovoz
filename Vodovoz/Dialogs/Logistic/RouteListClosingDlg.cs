@@ -20,21 +20,37 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
 	public partial class RouteListClosingDlg : OrmGtkDialogBase<RouteList>
 	{
+		#region поля
+
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private Track track = null;
-		private decimal balanceBeforeOp = default(decimal);
-		private bool editing = true;
-		private Employee previousForwarder = null;
+		private Track 	 track 				= null;
+		private decimal  balanceBeforeOp 	= default(decimal);
+		private bool 	 editing 			= true;
+		private Employee previousForwarder  = null;
 
 		List<ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
+
+		enum RouteListActions {
+			[Display (Name = "Новый штраф")]
+			CreateNewFine,
+			[Display (Name = "Перенести разгрузку в другой МЛ")]
+			TransferReceptionToAnotherRL,
+			[Display (Name = "Перенести разгрузку в этот МЛ")]
+			TransferReceptionToThisRL
+		}
+
+		#endregion
+
+		#region Конструкторы и конфигурирование диалога
 
 		public RouteListClosingDlg(RouteList routeList) : this(routeList.Id){}
 
@@ -148,6 +164,9 @@ namespace Vodovoz
 
 			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null;
 
+			enummenuRLActions.ItemsEnum = typeof(RouteListActions);
+			enummenuRLActions.EnumItemClicked += EnummenuRLActions_EnumItemClicked;
+
 			LoadDataFromFine();
 			OnItemsUpdated();
 			PerformanceHelper.AddTimePoint("Загрузка штрафов");
@@ -157,6 +176,10 @@ namespace Vodovoz
 
 			PerformanceHelper.Main.PrintAllPoints(logger);
 		}
+
+		#endregion
+
+		#region Методы
 
 		void ReferenceForwarder_Changed (object sender, EventArgs e)
 		{
@@ -168,6 +191,20 @@ namespace Vodovoz
 					item.RecalculateWages();
 			
 			previousForwarder = Entity.Forwarder;
+		}
+
+		void EnummenuRLActions_EnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		{
+			switch ((RouteListActions)e.ItemEnum)
+			{
+				case RouteListActions.CreateNewFine:
+					this.TabParent.AddSlaveTab(
+						this, new FineDlg(default(decimal), Entity)
+					);
+					break;
+				default:
+					break;
+			}
 		}
 
 		protected void FirstFillClosing()
@@ -226,7 +263,7 @@ namespace Vodovoz
 		}
 
 		void OnRouteListItemChanged(object aList, int[] aIdx)
-		{			
+		{
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
 			item.RecalculateTotalCash();
@@ -703,41 +740,38 @@ namespace Vodovoz
 			UpdateButtonState();
 		}
 
-		protected void OnButtonNewFineClicked (object sender, EventArgs e)
-		{
-			this.TabParent.AddSlaveTab(
-				this, new FineDlg (default(decimal), Entity)
-			);
-		}
-
 		protected void OnYcheckHideCellsToggled (object sender, EventArgs e)
 		{
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 		}
+
+		#endregion
 	}
 
 	public class ReturnsNode{
-		public int Id{get;set;}
+		public int 					Id{get;set;}
 		public NomenclatureCategory NomenclatureCategory{ get; set; }
-		public int NomenclatureId{ get; set; }
-		public string Name{get;set;}
-		public decimal Amount{ get; set;}
-		public bool Trackable{ get; set; }
-		public EquipmentType EquipmentType{get;set;}
-		public string Serial{ get { 
-				if (Trackable) {
-					return Id > 0 ? Id.ToString () : "(не определен)";
-				} else
-					return String.Empty;
-			}
-		}
-		public bool Returned {
-			get {
-				return Amount > 0;
-			}
-			set {
-				Amount = value ? 1 : 0;
-			}
-		}
+		public int 					NomenclatureId{ get; set; }
+		public string 				Name{get;set;}
+		public decimal 				Amount{ get; set;}
+		public bool 				Trackable{ get; set; }
+		public EquipmentType 		EquipmentType{get;set;}
+		public string 				Serial{
+					get
+					{ 
+						if (Trackable) {
+							return Id > 0 ? Id.ToString () : "(не определен)";
+						} else
+							return String.Empty;
+					}
+				}
+		public bool 				Returned {
+					get {
+						return Amount > 0;
+					}
+					set {
+						Amount = value ? 1 : 0;
+					}
+				}
 	}
 }
