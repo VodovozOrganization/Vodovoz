@@ -27,6 +27,11 @@ namespace Vodovoz
 
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
+		List<OrderStatus> StatusesAcceptedToChange = new List<OrderStatus>{
+			OrderStatus.NewOrder,
+			OrderStatus.Accepted
+		};
+
 		List<string> IncludeParents = new List<string>{
 			"00000002",
 			"00000001",
@@ -938,6 +943,10 @@ namespace Vodovoz
 
 				if (exist != null)
 				{
+					if(!StatusesAcceptedToChange.Contains(exist.OrderStatus)) {
+						Changes.Add(CreateItemForNotChandedOrder(exist));
+						continue;
+					}
 					var change = ChangedItem.CompareAndChange(exist, loaded);
 					if (change != null) {
 						ChangedOrders++;
@@ -1001,6 +1010,18 @@ namespace Vodovoz
 				};
 			else
 				return null;
+		}
+
+		private ChangedItem CreateItemForNotChandedOrder (Order order)
+		{
+			string title = $"Заказ с кодом {order.Code1c} не будет загружен";
+			var fields = new List<FieldChange>
+			{
+				new FieldChange(
+					$"Заказ с кодом {order.Code1c} уже загружен и имеет статус выше подтвержденного",
+					string.Empty, string.Empty)
+			};
+			return new ChangedItem { Title = title, Fields = fields };
 		}
 	}
 }
