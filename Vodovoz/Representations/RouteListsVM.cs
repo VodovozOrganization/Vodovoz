@@ -115,6 +115,8 @@ namespace Vodovoz.ViewModel
 		public RouteListsVM (IUnitOfWork uow) : base ()
 		{
 			this.UoW = uow;
+			if(Filter == null)
+				Filter = new RouteListsFilter(UoW);
 		}
 
 		public override bool PopupMenuExist {
