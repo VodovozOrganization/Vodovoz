@@ -36921,6 +36921,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
+                <property name="HscrollbarPolicy">Never</property>
                 <property name="ShadowType">In</property>
                 <child>
                   <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewDrivers">
@@ -36985,6 +36986,13 @@ RegistrationNumber</property>
           </packing>
         </child>
       </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Dialogs.Goods.TransferGoodsBetweenRLDlg" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
     </child>
   </widget>
 </stetic-interface>
