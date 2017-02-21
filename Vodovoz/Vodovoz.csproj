@@ -541,6 +541,8 @@
     <Compile Include="Dialogs\Logistic\TrackMapWnd.cs" />
     <Compile Include="ReportsParameters\DriversWageBalanceReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.DriversWageBalanceReport.cs" />
+    <Compile Include="Dialogs\Goods\TransferGoodsBetweenRLDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.TransferGoodsBetweenRLDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

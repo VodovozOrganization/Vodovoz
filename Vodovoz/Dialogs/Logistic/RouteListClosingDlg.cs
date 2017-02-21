@@ -202,6 +202,11 @@ namespace Vodovoz
 						this, new FineDlg(default(decimal), Entity)
 					);
 					break;
+				case RouteListActions.TransferReceptionToAnotherRL:
+					this.TabParent.AddSlaveTab(
+						this, new TransferGoodsBetweenRLDlg()
+					);
+					break;
 				default:
 					break;
 			}
@@ -514,6 +519,10 @@ namespace Vodovoz
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
+			if (!MessageDialogWorks.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
+				return;
+			UoW.Save();
+
 			var document = Vodovoz.Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
 			this.TabParent.OpenTab(
 				QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
