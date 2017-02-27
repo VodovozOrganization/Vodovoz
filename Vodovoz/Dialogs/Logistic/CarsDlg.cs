@@ -44,7 +44,7 @@ namespace Vodovoz
 			dataentryreferenceDriver.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
 
 			dataentryFuelType.SubjectType = typeof(FuelType);
-			dataentryFuelType.Binding.AddBinding(Entity, e => e.Driver, w => w.Subject).InitializeFromSource();
+			dataentryFuelType.Binding.AddBinding(Entity, e => e.FuelType, w => w.Subject).InitializeFromSource();
 			radiobuttonMain.Active = true;
 
 			dataspinbutton1.Binding.AddBinding(Entity, e => e.FuelConsumption, w => w.Value).InitializeFromSource();

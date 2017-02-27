@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Logistic
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
 		Nominative = "автомобиль")]
-	public class Car : PropertyChangedBase, IDomainObject
+	public class Car : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -16,7 +16,7 @@ namespace Vodovoz.Domain.Logistic
 
 		string model;
 
-		[Required (ErrorMessage = "Модель автомобиля должна быть заполнена.")]
+//		[Required (ErrorMessage = "Модель автомобиля должна быть заполнена.")]
 		[Display (Name = "Модель")]
 		public virtual string Model {
 			get { return model; }
@@ -26,7 +26,7 @@ namespace Vodovoz.Domain.Logistic
 		string registrationNumber;
 
 		[Display (Name = "Гос. номер")]
-		[Required (ErrorMessage = "Гос. номер автомобиля должен быть заполнен.")]
+//		[Required (ErrorMessage = "Гос. номер автомобиля должен быть заполнен.")]
 		public virtual string RegistrationNumber {
 			get { return registrationNumber; }
 			set { SetField (ref registrationNumber, value, () => RegistrationNumber); }
@@ -92,6 +92,25 @@ namespace Vodovoz.Domain.Logistic
 			Model = String.Empty;
 			RegistrationNumber = String.Empty;
 		}
+
+		#region IValidatableObject implementation
+
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		{
+			if (string.IsNullOrWhiteSpace(Model))
+				yield return new ValidationResult ("Модель автомобиля должна быть заполнена", new[] { "Model" });
+			
+			if (string.IsNullOrWhiteSpace(RegistrationNumber))
+				yield return new ValidationResult ("Гос. номер автомобиля должен быть заполнен", new[] { "RegistrationNumber" });
+			
+			if (FuelType == null)
+				yield return new ValidationResult ("Тип топлива должен быть заполнен", new[] { "FuelType" });
+			
+			if (FuelConsumption <= 0)
+				yield return new ValidationResult ("Расход топлива должен быть больше 0", new[] { "FuelConsumption" });
+		}
+
+		#endregion
 	}
 }
 

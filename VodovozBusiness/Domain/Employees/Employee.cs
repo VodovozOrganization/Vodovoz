@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
@@ -222,9 +223,32 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (String.IsNullOrEmpty (Name) && String.IsNullOrEmpty (LastName) && String.IsNullOrEmpty (Patronymic))
-				yield return new ValidationResult ("Должно быть заполнено хотя бы одно из следующих полей: " +
-				"Фамилия, Имя, Отчество)", new[] { "Name", "LastName", "Patronymic" });
+			if (String.IsNullOrEmpty (Name))
+				yield return new ValidationResult ("Имя дожно быть заполнено", new[] { "Name" });
+
+			if (String.IsNullOrEmpty (LastName))
+				yield return new ValidationResult ("Фамилия должна быть заполнена", new[] { "LastName" });
+
+			if (String.IsNullOrEmpty (Patronymic))
+				yield return new ValidationResult ("Отчество должно быть заполнено", new[] { "Patronymic" });
+
+			if(Subdivision == null)
+				yield return new ValidationResult ("Подразделение должно быть заполнено", new[] { "Subdivision" });
+
+			if(Phones.Count <= 0 || Phones.FirstOrDefault(p => p.DigitsNumber != string.Empty) == null)
+				yield return new ValidationResult ("Должен быть заполнен хотя бы один телефон", new[] { "Phones" });
+
+			if(string.IsNullOrWhiteSpace(PassportNumber))
+				yield return new ValidationResult ("Номер паспорта должен быть заполнен", new[] { "PassportNumber" });
+
+			if(string.IsNullOrWhiteSpace(PassportSeria))
+				yield return new ValidationResult ("Серия паспорта должна быть заполнена", new[] { "PassportSeria" });
+
+			if(string.IsNullOrWhiteSpace(AddressRegistration))
+				yield return new ValidationResult ("Адрес регистрации должен быть заполнен", new[] { "AddressRegistration" });
+
+			if(string.IsNullOrWhiteSpace(AddressCurrent))
+				yield return new ValidationResult ("Фактический адрес должен быть заполнен", new[] { "AddressCurrent" });
 
 			if(!String.IsNullOrEmpty(AndroidLogin))
 			{
