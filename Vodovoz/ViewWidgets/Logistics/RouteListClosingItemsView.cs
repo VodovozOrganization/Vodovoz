@@ -143,6 +143,7 @@ namespace Vodovoz
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 			var colorRed = new Gdk.Color(0xee, 0x66, 0x66);
 			var colorLightBlue = new Gdk.Color(0xbb, 0xbb, 0xff);
+			var colorYellow = new Gdk.Color(0xb3, 0xb3, 0x00);
 			config
 //				.AddColumn("Предпол.\n пустых").HeaderAlignment(0.5f)
 //					.AddTextRenderer(x => x.Order.BottlesReturn.ToString()).Sensitive(false)
@@ -216,6 +217,8 @@ namespace Vodovoz
 						if (itemChanged || equipmentChanged)
 							color = colorLightBlue;
 					}
+						if(node.Status == RouteListItemStatus.Transfered)
+							color = colorYellow;
 					cell.CellBackgroundGdk = color;
 				});
 
