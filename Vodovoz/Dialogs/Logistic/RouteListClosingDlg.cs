@@ -406,8 +406,6 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			Entity.UpdateFuelOperation(UoW);
-
 			var valid = new QSValidator<RouteList>(Entity);
 			if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
@@ -440,6 +438,8 @@ namespace Vodovoz
 
 			Income cashIncome = null;
 			Expense cashExpense = null;
+
+			Entity.UpdateFuelOperation(UoW);
 
 			var counterpartyMovementOperations 	= Entity.UpdateCounterpartyMovementOperations();
 			var moneyMovementOperations 		= Entity.CreateMoneyMovementOperations(UoW, ref cashIncome, ref cashExpense);
