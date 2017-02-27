@@ -250,6 +250,14 @@ namespace Vodovoz.Domain.Employees
 			if(string.IsNullOrWhiteSpace(AddressCurrent))
 				yield return new ValidationResult ("Фактический адрес должен быть заполнен", new[] { "AddressCurrent" });
 
+			var employees = UoW.Session.QueryOver<Employee>()
+				.Where(e => e.Name == this.Name && e.LastName == this.LastName && e.Patronymic == this.Patronymic)
+				.WhereNot(e => e.Id == this.Id)
+				.List();
+
+			if (employees.Count > 0)
+				yield return new ValidationResult ("Сотрудник уже существует", new[] { "Duplication" });
+
 			if(!String.IsNullOrEmpty(AndroidLogin))
 			{
 				Employee exist = Repository.EmployeeRepository.GetDriverByAndroidLogin(UoW, AndroidLogin);

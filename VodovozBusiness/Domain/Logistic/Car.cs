@@ -8,7 +8,7 @@ namespace Vodovoz.Domain.Logistic
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "автомобили",
 		Nominative = "автомобиль")]
-	public class Car : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class Car : BusinessObjectBase<Car>, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
@@ -108,6 +108,16 @@ namespace Vodovoz.Domain.Logistic
 			
 			if (FuelConsumption <= 0)
 				yield return new ValidationResult ("Расход топлива должен быть больше 0", new[] { "FuelConsumption" });
+
+			var cars = UoW.Session.QueryOver<Car>()
+				.Where(c => c.RegistrationNumber == this.RegistrationNumber)
+				.WhereNot(c => c.Id == this.Id)
+				.List();
+
+			if (cars.Count > 0)
+			{
+				yield return new ValidationResult ("Автомобиль уже существует", new[] { "Duplication" });
+			}
 		}
 
 		#endregion
