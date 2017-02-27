@@ -4,6 +4,7 @@ using Vodovoz.Domain.Employees;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using NHibernate.Criterion;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -93,6 +94,19 @@ namespace Vodovoz
 		protected void OnButtonDivideAtAllClicked(object sender, EventArgs e)
 		{
 			Entity.DivideAtAll();
+		}
+
+		protected void OnButtonGetReasonFromTemplateClicked (object sender, EventArgs e)
+		{
+			OrmReference SelectDialog = new OrmReference (typeof(FineCommentTemplate), UoWGeneric);
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
+			SelectDialog.ObjectSelected += (s, ea) => {
+				if (ea.Subject != null) {
+					UoWGeneric.Root.FineReasonString = (ea.Subject as FineCommentTemplate).Comment;
+				}
+			};
+			TabParent.AddSlaveTab (this, SelectDialog);
 		}
 	}
 }
