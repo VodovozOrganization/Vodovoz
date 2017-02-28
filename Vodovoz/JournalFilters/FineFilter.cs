@@ -51,6 +51,38 @@ namespace Vodovoz
 			}
 		}
 
+		public  DateTime? RestrictionFineDateStart {
+			get {return dateperiodpickerFineDate.StartDateOrNull;}
+			set {
+				dateperiodpickerFineDate.StartDateOrNull = value;
+				dateperiodpickerFineDate.Sensitive = false;
+			}
+		}
+
+		public  DateTime? RestrictionFineDateEnd {
+			get {return dateperiodpickerFineDate.EndDateOrNull;}
+			set {
+				dateperiodpickerFineDate.EndDateOrNull = value;
+				dateperiodpickerFineDate.Sensitive = false;
+			}
+		}
+
+		public  DateTime? RestrictionRLDateStart {
+			get {return dateperiodpickerRL.StartDateOrNull;}
+			set {
+				dateperiodpickerRL.StartDateOrNull = value;
+				dateperiodpickerRL.Sensitive = false;
+			}
+		}
+
+		public  DateTime? RestrictionRLDateEnd {
+			get {return dateperiodpickerRL.EndDateOrNull;}
+			set {
+				dateperiodpickerRL.EndDateOrNull = value;
+				dateperiodpickerRL.Sensitive = false;
+			}
+		}
+
 		#endregion
 		protected void OnYentryreferenceSubdivisionsChanged (object sender, EventArgs e)
 		{
@@ -58,6 +90,15 @@ namespace Vodovoz
 		}
 
 
+		protected void OnDateperiodpickerFineDatePeriodChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
+
+		protected void OnDateperiodpickerRLPeriodChanged (object sender, EventArgs e)
+		{
+			OnRefiltered ();
+		}
 	}
 }
 

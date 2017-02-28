@@ -7,6 +7,7 @@ using NHibernate.Transform;
 using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModel
 {
@@ -36,7 +37,7 @@ namespace Vodovoz.ViewModel
 
 		#region Свойства
 
-		public FineFilter Filter {
+		public virtual FineFilter Filter {
 			get {
 				return RepresentationFilter as FineFilter;
 			}
@@ -55,14 +56,36 @@ namespace Vodovoz.ViewModel
 			FineItem fineItemAlias = null;
 			Employee employeeAlias = null;
 			Subdivision subdivisionAlias = null;
+			RouteList routeListAlias = null;
 
 			var query = UoW.Session.QueryOver<Fine> (() => fineAlias)
 				.JoinAlias(f => f.Items, () => fineItemAlias)
-				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias);
+				.JoinAlias(() => fineItemAlias.Employee, () => employeeAlias)
+				.JoinAlias(f => f.RouteList, () => routeListAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin);
 
 			if (Filter.RestrictionSubdivision != null)
 			{
 				query.Where(() => employeeAlias.Subdivision.Id == Filter.RestrictionSubdivision.Id);
+			}
+
+			if (Filter.RestrictionFineDateStart.HasValue)
+			{
+				query.Where(() => fineAlias.Date >= Filter.RestrictionFineDateStart.Value);
+			}
+
+			if (Filter.RestrictionFineDateEnd.HasValue)
+			{
+				query.Where(() => fineAlias.Date <= Filter.RestrictionFineDateEnd.Value);
+			}
+
+			if (Filter.RestrictionRLDateStart.HasValue)
+			{
+				query.Where(() => routeListAlias.Date >= Filter.RestrictionRLDateStart.Value);
+			}
+
+			if (Filter.RestrictionRLDateEnd.HasValue)
+			{
+				query.Where(() => routeListAlias.Date <= Filter.RestrictionRLDateEnd.Value);
 			}
 
 			var result = query
