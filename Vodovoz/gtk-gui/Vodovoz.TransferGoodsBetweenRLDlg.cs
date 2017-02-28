@@ -134,7 +134,7 @@ namespace Vodovoz
 			this.buttonCreateNewReceptionTicket.CanFocus = true;
 			this.buttonCreateNewReceptionTicket.Name = "buttonCreateNewReceptionTicket";
 			this.buttonCreateNewReceptionTicket.UseUnderline = true;
-			this.buttonCreateNewReceptionTicket.Label = global::Mono.Unix.Catalog.GetString ("Создать талон разгрузки");
+			this.buttonCreateNewReceptionTicket.Label = global::Mono.Unix.Catalog.GetString ("Создать талон разгрузки для принимающего МЛ");
 			this.hbox4.Add (this.buttonCreateNewReceptionTicket);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox4 [this.buttonCreateNewReceptionTicket]));
 			w9.PackType = ((global::Gtk.PackType)(1));
