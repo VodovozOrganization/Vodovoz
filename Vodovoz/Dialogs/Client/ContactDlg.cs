@@ -41,6 +41,8 @@ namespace Vodovoz
 
 			checkbuttonFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
 
+			dataComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+
 			emailsView.UoW = UoWGeneric;
 			if (UoWGeneric.Root.Emails == null)
 				UoWGeneric.Root.Emails = new List<Email> ();
