@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -32,10 +32,13 @@
             <Width>69.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>47.3pt</Width>
+            <Width>76.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>140.4pt</Width>
+            <Width>60.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>192.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.9pt</Width>
@@ -44,16 +47,16 @@
             <Width>64.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.2pt</Width>
+            <Width>48.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.6pt</Width>
+            <Width>50.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>41.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.9pt</Width>
+            <Width>57.9pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -66,6 +69,23 @@
                     <Textbox Name="Textbox2">
                       <Value>Дата выдачи</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Value>Дата МЛ</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -246,6 +266,21 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Value>=Format(Fields!route_list_date.Value, "dd/MM/yyyy")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>=Fields!route_list_id.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -380,20 +415,21 @@
         <Top>52.6pt</Top>
       </Table>
       <Textbox Name="Textbox20">
-        <Height>21.02pt</Height>
-        <Width>145.99pt</Width>
+        <Height>22.59pt</Height>
+        <Width>815.89pt</Width>
         <Value>Отчет по бензину</Value>
         <ZIndex>1</ZIndex>
-        <Left>201.3pt</Left>
-        <Top>12.0pt</Top>
+        <Left>0.00pt</Left>
+        <Top>12.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
           <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
-      <Textbox Name="Textbox21" >
+      <Textbox Name="Textbox21">
         <Height>12.76pt</Height>
         <Width>560.97pt</Width>
         <Value>="Баланс до " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + ": " + First({balance}, "StartBalance")</Value>
@@ -433,6 +469,7 @@
         <CommandText>SELECT 
     outlayed.date AS date,
     route_lists.id AS route_list_id,
+    route_lists.date AS route_list_date,
     CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
     delivery_shift.name AS shift,
     route_lists.actual_distance AS distance,
@@ -522,9 +559,13 @@ WHERE
           <DataField>payed_for_fuel</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="route_list_date">
+          <DataField>route_list_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="StartBalance" >
+    <DataSet Name="StartBalance">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
