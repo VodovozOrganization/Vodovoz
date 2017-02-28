@@ -7,6 +7,7 @@ using Vodovoz.Domain.Documents;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -28,7 +29,10 @@ namespace Vodovoz
 			.AddColumn("Номенклатура").AddTextRenderer(d => d.Nomenclature)
 			.AddColumn("Кол-во").AddNumericRenderer(d => d.ItemsCount)
 			.Finish();
+		
 		#endregion
+
+		#region Конструкторы
 
 		public TransferGoodsBetweenRLDlg()
 		{
@@ -37,13 +41,31 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public TransferGoodsBetweenRLDlg(RouteList routeList, OpenParameter param) : this()
+		{
+			switch (param)
+			{
+				case OpenParameter.Sender:
+					yentryreferenceRouteListFrom.Subject = routeList;
+					break;
+				case OpenParameter.Receiver:
+					yentryreferenceRouteListTo.Subject = routeList;
+					break;
+			}
+		}
+
+		#endregion
+
 		#region ITdiDialog implementation
 
 		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
 		public bool Save()
 		{
-			return false;
+			UoW.Commit();
+
+			CheckSensitivities();
+			return true;
 		}
 
 		public void SaveAndClose()
@@ -53,7 +75,7 @@ namespace Vodovoz
 
 		public bool HasChanges {
 			get {
-				return false;
+				return UoW.HasChanges;
 			}
 		}
 
@@ -73,11 +95,11 @@ namespace Vodovoz
 		{
 			//Настройка элементов откуда переносим
 			RouteListsFilter filterFrom = new RouteListsFilter(UoW);
-			//filterFrom.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
+			filterFrom.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteListFrom.RepresentationModel = new ViewModel.RouteListsVM(filterFrom);
 			yentryreferenceRouteListFrom.Changed += YentryreferenceRouteListFrom_Changed;
 
-			ylistcomboReceptionTicketFrom.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. Склад {d.Warehouse.Name}");
+			ylistcomboReceptionTicketFrom.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
 			ylistcomboReceptionTicketFrom.ItemSelected += YlistcomboReceptionTicketFrom_ItemSelected;
 
 			ytreeviewFrom.ColumnsConfig = colConfigFrom;
@@ -86,6 +108,31 @@ namespace Vodovoz
 			RouteListsFilter filterTo = new RouteListsFilter(UoW);
 			filterTo.SetFilterDates(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(1));
 			yentryreferenceRouteListTo.RepresentationModel = new ViewModel.RouteListsVM(filterTo);
+			yentryreferenceRouteListTo.Changed += YentryreferenceRouteListTo_Changed;
+
+			ylistcomboReceptionTicketTo.SetRenderTextFunc<CarUnloadDocument>(d => $"Талон разгрузки №{d.Id}. {d.Warehouse.Name}");
+			ylistcomboReceptionTicketTo.ItemSelected += YlistcomboReceptionTicketTo_ItemSelected;
+
+			ytreeviewTo.ColumnsConfig = colConfigTo;
+
+			CheckSensitivities();
+		}
+
+		private void CheckSensitivities()
+		{
+			buttonTransfer.Sensitive =
+				ylistcomboReceptionTicketFrom.SelectedItem != null && ylistcomboReceptionTicketTo.SelectedItem != null;
+
+			buttonCreateNewReceptionTicket.Sensitive = yentryreferenceRouteListTo.Subject != null;
+
+			yentryreferenceRouteListFrom .Sensitive = !HasChanges;
+			yentryreferenceRouteListTo	 .Sensitive = !HasChanges;
+
+			ylistcomboReceptionTicketFrom.Sensitive = !HasChanges;
+			ylistcomboReceptionTicketTo	 .Sensitive = !HasChanges;
+
+			ytreeviewFrom.YTreeModel?.EmitModelChanged();
+			ytreeviewTo	 .YTreeModel?.EmitModelChanged();
 		}
 		
 		#endregion
@@ -103,6 +150,23 @@ namespace Vodovoz
 				.Where(cud => cud.RouteList.Id == routeList.Id).List();
 			
 			ylistcomboReceptionTicketFrom.ItemsList = unloadDocs;
+
+			CheckSensitivities();
+		}
+		
+		void YentryreferenceRouteListTo_Changed (object sender, EventArgs e)
+		{
+			if (yentryreferenceRouteListTo.Subject == null)
+				return;
+
+			RouteList routeList = (RouteList)yentryreferenceRouteListTo.Subject;
+
+			var unloadDocs = UoW.Session.QueryOver<CarUnloadDocument>()
+				.Where(cud => cud.RouteList.Id == routeList.Id).List();
+
+			ylistcomboReceptionTicketTo.ItemsList = unloadDocs;
+
+			CheckSensitivities();
 		}
 
 		void YlistcomboReceptionTicketFrom_ItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
@@ -110,23 +174,105 @@ namespace Vodovoz
 			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
 
 			var result = new List<CarUnloadDocumentNode>();
-			foreach (var item in selectedItem.Items)
-			{
+
+			foreach (var item in selectedItem.Items) {
 				result.Add(new CarUnloadDocumentNode{DocumentItem = item});
 			}
 
 			ytreeviewFrom.SetItemsSource(result);
+
+			CheckSensitivities();
+		}
+		
+		void YlistcomboReceptionTicketTo_ItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		{
+			CarUnloadDocument selectedItem = (CarUnloadDocument)e.SelectedItem;
+
+			var result = new List<CarUnloadDocumentNode>();
+
+			foreach (var item in selectedItem.Items) {
+				result.Add(new CarUnloadDocumentNode{DocumentItem = item});
+			}
+
+			ytreeviewTo.SetItemsSource(result);
+
+			CheckSensitivities();
 		}
 
 		protected void OnButtonTransferClicked (object sender, EventArgs e)
 		{
-			
+			var itemsFrom 	= ytreeviewFrom.ItemsDataSource as IList<CarUnloadDocumentNode>;
+			var itemsTo 	= ytreeviewTo.ItemsDataSource as IList<CarUnloadDocumentNode>;
+
+			foreach (var from in itemsFrom.Where(i => i.TransferCount > 0))
+			{
+				int transfer = from.TransferCount;
+				//Заполняем для краткости
+				var nomenclature = from.DocumentItem.MovementOperation.Nomenclature;
+				var receiveType  = from.DocumentItem.ReciveType;
+
+				var to = itemsTo
+					.FirstOrDefault(i => i.DocumentItem.MovementOperation.Nomenclature.Id == nomenclature.Id);
+
+				if(to == null)
+				{
+					var document = ylistcomboReceptionTicketTo.SelectedItem as CarUnloadDocument;
+					document.AddItem(receiveType, nomenclature, null, transfer, null);
+
+					foreach (var item in document.Items)
+					{
+						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);
+						if (exist == null)
+							itemsTo.Add(new CarUnloadDocumentNode{ DocumentItem = item });
+					}
+
+					UoW.Save(document);
+				} else {
+					to.DocumentItem.MovementOperation.Amount += transfer;
+
+					UoW.Save(to.DocumentItem.MovementOperation);
+				}
+
+				from.DocumentItem.MovementOperation.Amount -= transfer;
+				if (from.DocumentItem.MovementOperation.Amount == 0)
+				{
+					var document = ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument;
+					var item = document.Items.First(i => i.Id == from.DocumentItem.Id);
+					document.Items.Remove(item);
+
+					UoW.Save(document);
+					UoW.Delete(from.DocumentItem.MovementOperation);
+				} else {
+					UoW.Save(from.DocumentItem.MovementOperation);
+				}
+
+				from.TransferCount = 0;
+			}
+			CheckSensitivities();
+		}
+
+		protected void OnButtonSaveClicked (object sender, EventArgs e)
+		{
+			Save();
+		}
+
+		protected void OnButtonCreateNewReceptionTicketClicked (object sender, EventArgs e)
+		{
+			var dlg = new CarUnloadDocumentDlg((yentryreferenceRouteListTo.Subject as RouteList).Id, null);
+			this.TabParent.AddSlaveTab(this, dlg);
+		}
+
+		protected void OnButtonCancelClicked (object sender, EventArgs e)
+		{
+			OnCloseTab(false);
 		}
 
 		#endregion
 
 		#region Внутренние классы
 
+		public enum OpenParameter { Sender, Receiver }
+		
 		private class CarUnloadDocumentNode {
 			public string Id 			{ get {return DocumentItem.Id.ToString();} }
 			public string Nomenclature 	{ get {return DocumentItem.MovementOperation.Nomenclature.OfficialName;} }
@@ -146,6 +292,7 @@ namespace Vodovoz
 
 			public CarUnloadDocumentItem DocumentItem { get; set; }
 		}
+
 		#endregion
 	}
 }

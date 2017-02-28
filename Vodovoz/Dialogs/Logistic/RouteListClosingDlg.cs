@@ -204,7 +204,12 @@ namespace Vodovoz
 					break;
 				case RouteListActions.TransferReceptionToAnotherRL:
 					this.TabParent.AddSlaveTab(
-						this, new TransferGoodsBetweenRLDlg()
+						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Sender)
+					);
+					break;
+				case RouteListActions.TransferReceptionToThisRL:
+					this.TabParent.AddSlaveTab(
+						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Receiver)
 					);
 					break;
 				default:

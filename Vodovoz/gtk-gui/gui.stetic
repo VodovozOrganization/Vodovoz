@@ -37105,7 +37105,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.TransferGoodsBetweenRLDlg" design-size="585 300">
+  <widget class="Gtk.Bin" id="Vodovoz.TransferGoodsBetweenRLDlg" design-size="671 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -37204,6 +37204,7 @@ RegistrationNumber</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -37219,6 +37220,7 @@ RegistrationNumber</property>
                 <property name="Type">TextOnly</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -37258,8 +37260,9 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Создать талон разгрузки</property>
+                <property name="Label" translatable="yes">Создать талон разгрузки для принимающего МЛ</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonCreateNewReceptionTicketClicked" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
