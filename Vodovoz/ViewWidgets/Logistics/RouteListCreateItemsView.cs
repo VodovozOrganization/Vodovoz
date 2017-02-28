@@ -78,7 +78,7 @@ namespace Vodovoz
 		
 				var config = ColumnsConfigFactory.Create<RouteListItem>()
 				.AddColumn("Заказ").SetDataProperty(node => node.Order.Id)
-				.AddColumn("Адрес").AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+				.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 				.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
 			if (goodsColumnsCount != goodsColumns.Length)
 			{
