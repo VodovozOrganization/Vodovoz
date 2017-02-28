@@ -128,6 +128,8 @@ namespace Vodovoz.ViewModel
 		[SearchHighlight]
 		public string EmployeesName { get; set; }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string FineReason { get; set; }
 	}
 }

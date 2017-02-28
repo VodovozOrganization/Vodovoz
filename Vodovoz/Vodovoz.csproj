@@ -543,8 +543,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.DriversWageBalanceReport.cs" />
     <Compile Include="Dialogs\Goods\TransferGoodsBetweenRLDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.TransferGoodsBetweenRLDlg.cs" />
-    <Compile Include="Dialogs\FineCommentTemplateDlg.cs" />
-    <Compile Include="gtk-gui\Vodovoz.FineCommentTemplateDlg.cs" />
+    <Compile Include="Dialogs\FineTemplateDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.FineTemplateDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

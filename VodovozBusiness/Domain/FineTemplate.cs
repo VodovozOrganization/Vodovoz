@@ -7,31 +7,42 @@ namespace Vodovoz.Domain
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "шаблоны комментариев для штрафов",
 		Nominative = "шаблон комментария для штрафа")]
-	public class FineCommentTemplate : PropertyChangedBase, IDomainObject, IValidatableObject
+	public class FineTemplate : PropertyChangedBase, IDomainObject, IValidatableObject
 	{
 		#region Свойства
 
 		public virtual int Id { get; set; }
 
-		string comment;
+		string reason;
 
-		public virtual string Comment { 
-			get { return comment; } 
-			set { SetField (ref comment, value, () => Comment); }
+		[Display(Name = "Причина")]
+		public virtual string Reason { 
+			get { return reason; } 
+			set { SetField (ref reason, value, () => Reason); }
 		}
+
+		private decimal fineMoney;
+
+		[Display(Name = "Сумма штрафа")]
+		public virtual decimal FineMoney
+		{
+			get { return fineMoney; }
+			set { SetField(ref fineMoney, value, () => FineMoney); }
+		}
+
 
 		#endregion
 
-		public FineCommentTemplate ()
+		public FineTemplate ()
 		{
-			Comment = String.Empty;
+			Reason = String.Empty;
 		}
 
 		#region IValidatableObject implementation
 
 		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (String.IsNullOrEmpty (Comment))
+			if (String.IsNullOrEmpty (Reason))
 				yield return new ValidationResult ("Текст комментария должен быть заполнен.", new [] { "Comment" });
 		}
 

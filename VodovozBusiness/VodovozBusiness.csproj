@@ -325,8 +325,8 @@
     <Compile Include="Domain\Operations\WagesMovementOperations.cs" />
     <Compile Include="HibernateMapping\Operations\WagesMovementOperationsMap.cs" />
     <Compile Include="Repositories\Operations\WagesMovementRepository.cs" />
-    <Compile Include="Domain\FineCommentTemplate.cs" />
-    <Compile Include="HibernateMapping\Employees\FineCommentTemplateMap.cs" />
+    <Compile Include="HibernateMapping\Employees\FineTemplateMap.cs" />
+    <Compile Include="Domain\FineTemplate.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

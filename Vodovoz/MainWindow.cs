@@ -657,7 +657,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnActionFineCommentTemplatesActivated (object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof(FineCommentTemplate));
+		OrmReference refWin = new OrmReference (typeof(FineTemplate));
 		tdiMain.AddTab (refWin);
 	}
 }

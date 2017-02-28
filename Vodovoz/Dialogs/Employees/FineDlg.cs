@@ -98,12 +98,13 @@ namespace Vodovoz
 
 		protected void OnButtonGetReasonFromTemplateClicked (object sender, EventArgs e)
 		{
-			OrmReference SelectDialog = new OrmReference (typeof(FineCommentTemplate), UoWGeneric);
+			OrmReference SelectDialog = new OrmReference (typeof(FineTemplate), UoWGeneric);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanAdd;
 			SelectDialog.ObjectSelected += (s, ea) => {
 				if (ea.Subject != null) {
-					UoWGeneric.Root.FineReasonString = (ea.Subject as FineCommentTemplate).Comment;
+					UoWGeneric.Root.FineReasonString = (ea.Subject as FineTemplate).Reason;
+					UoWGeneric.Root.TotalMoney = (ea.Subject as FineTemplate).FineMoney;
 				}
 			};
 			TabParent.AddSlaveTab (this, SelectDialog);
