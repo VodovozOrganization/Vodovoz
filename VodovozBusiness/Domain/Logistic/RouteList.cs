@@ -805,9 +805,19 @@ namespace Vodovoz.Domain.Logistic
 			if (this.ConfirmedDistance == 0)
 				return;
 			
-			decimal litresOutlayed = (decimal) Car.FuelConsumption
+			FuelOutlayedOperation.LitersOutlayed = GetLitersOutlayed();
+		}
+
+		public virtual decimal GetLitersOutlayed()
+		{
+			return (decimal) Car.FuelConsumption
 				/ 100 * this.ConfirmedDistance;
-			FuelOutlayedOperation.LitersOutlayed = litresOutlayed;
+		}
+
+		public virtual decimal GetLitersOutlayed(decimal km)
+		{
+			return (decimal) Car.FuelConsumption
+				/ 100 * km;
 		}
 
 		public virtual void CreateWageOperation (IUnitOfWork uow, decimal driverWage)

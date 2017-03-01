@@ -17,6 +17,8 @@ namespace Vodovoz.Domain.Employees
 		Nominative = "штраф сотрудникам")]
 	public class Fine: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		#region Свойства
+
 		public virtual int Id { get; set; }
 
 		private DateTime date = DateTime.Today;
@@ -86,6 +88,8 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
+		#endregion
+
 		#region Расчетные
 
 		public virtual string Title { 
@@ -114,7 +118,7 @@ namespace Vodovoz.Domain.Employees
 		{
 		}
 
-		#region Функции
+		#region Методы
 
 		public virtual void AddItem (Employee employee)
 		{
@@ -194,6 +198,16 @@ namespace Vodovoz.Domain.Employees
 				}
 				uow.Save(item.WageOperation);
 			}
+		}
+
+		public virtual void Fill (decimal money, RouteList routeList, string reasonString, DateTime date, params Employee[] employees)
+		{
+			employees.ToList().ForEach(this.AddItem);
+			this.TotalMoney = money;
+			this.DivideAtAll();
+			this.FineReasonString = reasonString;
+			this.Date = date;
+			this.RouteList = routeList;
 		}
 
 		#endregion

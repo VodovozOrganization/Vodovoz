@@ -127,9 +127,15 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
-			if(Entity.ConfirmedDistance != Entity.ActualDistance)
+			if(Entity.ConfirmedDistance < Entity.ActualDistance)
 			{
-				Entity.RecalculateFuelOutlay();
+				decimal excessKM = Entity.ActualDistance - Entity.ConfirmedDistance;
+				decimal redundantPayForFuel = Entity.GetLitersOutlayed(excessKM) * Entity.Car.FuelType.Cost;
+				string fineReason = "Перевыплата топлива";
+				var fine = new Fine();
+				fine.Fill(redundantPayForFuel, Entity, fineReason, DateTime.Today, Entity.Driver);
+				UoW.Save(fine);
+//				Entity.RecalculateFuelOutlay();
 			}
 
 			yspinConfirmedDistance.Sensitive = false;

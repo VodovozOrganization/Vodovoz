@@ -36,12 +36,7 @@ namespace Vodovoz
 
 		public FineDlg(decimal money, RouteList routeList, string reasonString, DateTime date, params Employee[] employees) : this()
 		{
-			employees.ToList().ForEach(Entity.AddItem);
-			Entity.TotalMoney = money;
-			Entity.DivideAtAll();
-			Entity.FineReasonString = reasonString;
-			Entity.Date = date;
-			Entity.RouteList = routeList;
+			Entity.Fill(money, routeList, reasonString, date, employees);
 		}
 
 		public FineDlg(decimal money, RouteList routeList) : this(money, routeList.Driver)
