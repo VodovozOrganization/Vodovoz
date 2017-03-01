@@ -5,6 +5,7 @@ using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -112,6 +113,16 @@ namespace Vodovoz.Domain.Logistic
 			get { return cashierCommentLastUpdate; }
 			set { SetField(ref cashierCommentLastUpdate, value, () => CashierCommentLastUpdate); }
 		}
+
+		private Employee cashierCommentAuthor;
+
+		[Display(Name = "Автор комментария")]
+		public virtual Employee CashierCommentAuthor
+		{
+			get { return cashierCommentAuthor; }
+			set { SetField(ref cashierCommentAuthor, value, () => CashierCommentAuthor); }
+		}
+
 
 		string comment;
 		public virtual string Comment

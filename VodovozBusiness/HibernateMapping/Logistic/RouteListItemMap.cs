@@ -29,9 +29,10 @@ namespace Vodovoz.HMap
 			Map(x => x.CashierCommentCreateDate).Column("cashier_comment_create_date");
 			Map(x => x.CashierCommentLastUpdate).Column("cashier_comment_last_update");
 
-			References (x => x.RouteList)	.Column ("route_list_id").Not.Nullable ();
-			References (x => x.Order)		.Column ("order_id").Cascade.SaveUpdate();
-			References (x => x.TransferedTo).Column ("transfered_to_id");
+			References (x => x.RouteList)			.Column ("route_list_id").Not.Nullable ();
+			References (x => x.Order)				.Column ("order_id").Cascade.SaveUpdate();
+			References (x => x.TransferedTo)		.Column ("transfered_to_id");
+			References (x => x.CashierCommentAuthor).Column ("cashier_comment_author");
 		}
 	}
 }

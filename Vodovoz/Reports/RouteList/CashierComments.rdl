@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
@@ -27,10 +27,10 @@
     <Height>25.9pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox2">
-        <Height>20.27pt</Height>
-        <Width>566.88pt</Width>
+        <Height>18.02pt</Height>
+        <Width>816.08pt</Width>
         <Value>="Отчет по комментариям кассиров с " + Format(Convert.ToDateTime({?start_date}), "dd/MM/yyyy") + " по " + Format(Convert.ToDateTime({?end_date}), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
@@ -47,7 +47,7 @@
   </PageHeader>
   <Body>
     <Height>35.3pt</Height>
-    <ReportItems >
+    <ReportItems>
       <Table Name="Table1">
         <DataSetName>CashierComments</DataSetName>
         <NoRows>За заданный промежуток комментариев нет</NoRows>
@@ -63,7 +63,7 @@
             <Width>118.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>133.2pt</Width>
+            <Width>172.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>58.3pt</Width>
@@ -75,7 +75,10 @@
             <Width>58.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>131.6pt</Width>
+            <Width>195.4pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>155.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -168,6 +171,22 @@
                     <Textbox Name="Textbox6">
                       <Value>Комментарий</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Автор</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -283,6 +302,21 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Fields!author_name.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -310,7 +344,7 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
@@ -319,17 +353,18 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <DataSets >
+  <DataSets>
     <DataSet Name="CashierComments">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
     counterparty.full_name AS client,
     delivery_points.compiled_address AS address,
     route_list_addresses.route_list_id AS route_list,
     route_lists.date AS route_list_date,
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
-    route_list_addresses.cashier_comment AS cashier_comment
+    CONCAT_WS(' ', driver_q.last_name, driver_q.name) AS driver_name,
+    route_list_addresses.cashier_comment AS cashier_comment,
+    CONCAT_WS(' ', comment_author_q.last_name, comment_author_q.name) AS author_name
 FROM
     route_list_addresses
     LEFT JOIN
@@ -337,7 +372,9 @@ FROM
     LEFT JOIN
     route_lists ON route_lists.id = route_list_addresses.route_list_id
     LEFT JOIN
-    employees ON employees.id = route_lists.driver_id
+    employees AS driver_q ON driver_q.id = route_lists.driver_id
+    LEFT JOIN
+    employees AS comment_author_q ON comment_author_q.id = route_list_addresses.cashier_comment_author
     LEFT JOIN
     counterparty ON counterparty.id = orders.client_id
     LEFT JOIN
@@ -358,7 +395,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="client">
           <DataField>client</DataField>
           <TypeName>System.String</TypeName>
@@ -382,6 +419,10 @@ WHERE
         <Field Name="route_list_date">
           <DataField>route_list_date</DataField>
           <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="author_name">
+          <DataField>author_name</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>

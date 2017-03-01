@@ -194,6 +194,8 @@ namespace Vodovoz
 				.AddColumn("Комментарий\nкассира")
 				.AddTextRenderer(node => node.CashierComment).AddSetter((cell, node) => cell.Edited += (o, args) =>
 					{
+						node.CashierCommentAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+
 						if (node.CashierCommentCreateDate.HasValue)
 							node.CashierCommentLastUpdate = DateTime.Now.Date;
 						else
