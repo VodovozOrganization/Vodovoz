@@ -944,6 +944,10 @@ namespace Vodovoz
 				if (exist != null)
 				{
 					if(!StatusesAcceptedToChange.Contains(exist.OrderStatus)) {
+						MessageDialogWorks.RunErrorDialog(
+							$"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше \"Подтвержден\".\n" +
+								"Данный заказ НЕ будет загружен или изменен");
+
 						Changes.Add(CreateItemForNotChandedOrder(exist));
 						continue;
 					}
