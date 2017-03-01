@@ -26664,7 +26664,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderReturnsView" design-size="662 300">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderReturnsView" design-size="719 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -26741,6 +26741,24 @@ RegistrationNumber</property>
                   <packing>
                     <property name="PackType">End</property>
                     <property name="Position">3</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.Widgets.yEnumComboBox" id="yenumcomboOrderPayment">
+                    <property name="MemberName" />
+                    <property name="IsTextCombo">False</property>
+                    <property name="Items" translatable="yes" />
+                    <property name="ShowSpecialStateAll">False</property>
+                    <property name="ShowSpecialStateNot">False</property>
+                    <property name="UseShortTitle">False</property>
+                    <property name="DefaultFirst">False</property>
+                  </widget>
+                  <packing>
+                    <property name="PackType">End</property>
+                    <property name="Position">4</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -26896,7 +26914,7 @@ RegistrationNumber</property>
                   </widget>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="GtkLabel6">
+                  <widget class="Gtk.Label" id="GtkLabel7">
                     <property name="MemberName" />
                     <property name="LabelProp" translatable="yes">&lt;b&gt;Клиенту&lt;/b&gt;</property>
                     <property name="UseMarkup">True</property>
@@ -26937,7 +26955,7 @@ RegistrationNumber</property>
                   </widget>
                 </child>
                 <child>
-                  <widget class="Gtk.Label" id="GtkLabel7">
+                  <widget class="Gtk.Label" id="GtkLabel8">
                     <property name="MemberName" />
                     <property name="LabelProp" translatable="yes">&lt;b&gt;От клиента&lt;/b&gt;</property>
                     <property name="UseMarkup">True</property>

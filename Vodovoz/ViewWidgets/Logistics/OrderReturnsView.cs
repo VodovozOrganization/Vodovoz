@@ -118,6 +118,22 @@ namespace Vodovoz
 					.AddToggleRenderer(node => node.IsDelivered)
 				.AddColumn("Причина незабора").AddTextRenderer(x => x.ConfirmedComments).Editable()
 				.Finish();
+
+			var order = routeListItem.Order;
+			yenumcomboOrderPayment.ItemsEnum = typeof(PaymentType);
+			yenumcomboOrderPayment.Binding.AddBinding(order, o => o.PaymentType, w => w.SelectedItem).InitializeFromSource();
+			yenumcomboOrderPayment.Changed += YenumcomboOrderPayment_Changed;
+		}
+
+		void YenumcomboOrderPayment_Changed (object sender, EventArgs e)
+		{
+			routeListItem.RecalculateTotalCash();
+
+			if(routeListItem.Order.PaymentType == PaymentType.cashless && routeListItem.TotalCash != 0)
+			{
+				routeListItem.TotalCash = routeListItem.CalculateTotalCash();
+				routeListItem.DefaultTotalCash = routeListItem.TotalCash;
+			}
 		}
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
