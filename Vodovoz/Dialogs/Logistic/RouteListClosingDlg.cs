@@ -560,13 +560,7 @@ namespace Vodovoz
 				fineDlg.Entity.AddNomenclature(nomenclatures);
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
 			}
-			fineDlg.EntitySaved += FineDlg_EntitySaved;
 			TabParent.AddSlaveTab(this, fineDlg);
-		}
-
-		void FineDlg_EntitySaved (object sender, QSTDI.EntitySavedEventArgs e)
-		{
-			this.UoW.Save();
 		}
 
 		void FineDlgNew_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
