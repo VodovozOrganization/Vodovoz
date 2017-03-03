@@ -943,16 +943,18 @@ namespace Vodovoz
 
 				if (exist != null)
 				{
-					if(!StatusesAcceptedToChange.Contains(exist.OrderStatus)) {
-						MessageDialogWorks.RunErrorDialog(
-							$"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше \"Подтвержден\".\n" +
-								"Данный заказ НЕ будет повторно загружен или изменен");
-
-						Changes.Add(CreateItemForNotChandedOrder(exist));
-						continue;
-					}
 					var change = ChangedItem.CompareAndChange(exist, loaded);
 					if (change != null) {
+						if(!StatusesAcceptedToChange.Contains(exist.OrderStatus)) {
+							MessageDialogWorks.RunErrorDialog(
+								$"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше \"Подтвержден\".\n" +
+								"Данный заказ НЕ будет повторно загружен или изменен");
+
+							change.Title = $"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше подтвержденного";
+							Changes.Add(change);
+							continue;
+						}
+
 						ChangedOrders++;
 						Changes.Add(change);
 						UoW.Save(exist);
@@ -1014,18 +1016,6 @@ namespace Vodovoz
 				};
 			else
 				return null;
-		}
-
-		private ChangedItem CreateItemForNotChandedOrder (Order order)
-		{
-			string title = $"Заказ с кодом {order.Code1c} не будет загружен";
-			var fields = new List<FieldChange>
-			{
-				new FieldChange(
-					$"Заказ с кодом {order.Code1c} уже загружен и имеет статус выше подтвержденного",
-					string.Empty, string.Empty)
-			};
-			return new ChangedItem { Title = title, Fields = fields };
 		}
 	}
 }
