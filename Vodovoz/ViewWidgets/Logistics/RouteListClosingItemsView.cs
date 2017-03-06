@@ -156,7 +156,7 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.DepositsCollected)
 						.Adjustment(new Adjustment(0, -100000, 100000, (double)bottleDepositPrice, (double)bottleDepositPrice, 1))
 						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
-						.AddSetter((cell,node) => {
+						.AddSetter((cell, node) => {
 					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
 					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
 					})
@@ -192,20 +192,12 @@ namespace Vodovoz
 						.AddTextRenderer(node => node.FromClientText).Editable()
 						#endif
 				.AddColumn("Комментарий\nкассира")
-				.AddTextRenderer(node => node.CashierComment).AddSetter((cell, node) => cell.Edited += (o, args) =>
-					{
-						node.CashierCommentAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-
-						if (node.CashierCommentCreateDate.HasValue)
-							node.CashierCommentLastUpdate = DateTime.Now.Date;
-						else
-							node.CashierCommentCreateDate = DateTime.Now.Date;
-					}).Editable()
+				.AddTextRenderer(node => node.CashierComment).EditedEvent(CommentCellEdited).Editable()
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					var color = colorWhite;
+						var color = colorWhite;
 						if (!node.IsDelivered())
 							color = colorRed;
 					else
@@ -225,6 +217,18 @@ namespace Vodovoz
 				});
 
 			ytreeviewItems.ColumnsConfig = config.Finish();
+		}
+
+		void CommentCellEdited (object o, EditedArgs args)
+		{
+			var node = ytreeviewItems.YTreeModel.NodeAtPath(new TreePath(args.Path)) as RouteListItem;
+
+			node.CashierCommentAuthor = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+
+			if (node.CashierCommentCreateDate.HasValue)
+				node.CashierCommentLastUpdate = DateTime.Now.Date;
+			else
+				node.CashierCommentCreateDate = DateTime.Now.Date;
 		}
 
 		private void EmptyBottleCellSetter(Gamma.GtkWidgets.Cells.NodeCellRendererSpin<RouteListItem> cell, RouteListItem node)
