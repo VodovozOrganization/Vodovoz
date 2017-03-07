@@ -27611,7 +27611,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckDlg" design-size="680 341">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListMileageCheckDlg" design-size="1034 341">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -27683,7 +27683,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextOnly</property>
-                <property name="Label" translatable="yes">Подтвердить</property>
+                <property name="Label" translatable="yes">Скопировать из кассы</property>
                 <property name="UseUnderline">True</property>
                 <signal name="Clicked" handler="OnButtonConfirmClicked" />
               </widget>

@@ -128,9 +128,11 @@ namespace Vodovoz
 				string fineReason = "Перевыплата топлива";
 				var fine = new Fine();
 				fine.Fill(redundantPayForFuel, Entity, fineReason, DateTime.Today, Entity.Driver);
+				fine.UpdateWageOperations(UoW );
 				UoW.Save(fine);
-//				Entity.RecalculateFuelOutlay();
 			}
+			else if (Entity.ConfirmedDistance > Entity.ActualDistance)
+				Entity.RecalculateFuelOutlay();
 
 			yspinConfirmedDistance.Sensitive = false;
 			buttonConfirm.Sensitive = false;

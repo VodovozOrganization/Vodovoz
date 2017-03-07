@@ -118,7 +118,7 @@ namespace Vodovoz
 			this.buttonConfirm.CanFocus = true;
 			this.buttonConfirm.Name = "buttonConfirm";
 			this.buttonConfirm.UseUnderline = true;
-			this.buttonConfirm.Label = global::Mono.Unix.Catalog.GetString ("Подтвердить");
+			this.buttonConfirm.Label = global::Mono.Unix.Catalog.GetString ("Скопировать из кассы");
 			this.table1.Add (this.buttonConfirm);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1 [this.buttonConfirm]));
 			w6.TopAttach = ((uint)(4));
