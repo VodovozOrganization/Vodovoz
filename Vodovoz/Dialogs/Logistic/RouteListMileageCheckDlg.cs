@@ -8,15 +8,9 @@ using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
-using GMap.NET.GtkSharp;
-using GMap.NET.MapProviders;
-using GMap.NET;
-using System.Linq;
-using GMap.NET.GtkSharp.Markers;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListMileageCheckDlg : OrmGtkDialogBase<RouteList>
 	{
 		#region Поля
