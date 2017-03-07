@@ -178,7 +178,7 @@ namespace Vodovoz.Domain.Employees
 			}
 		}
 
-		public virtual void UpdateWageOperations(IUnitOfWork uow, decimal money)
+		public virtual void UpdateWageOperations(IUnitOfWork uow)
 		{
 			foreach (var item in Items)
 			{
