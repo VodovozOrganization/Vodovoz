@@ -320,11 +320,11 @@ namespace Vodovoz.Domain.Logistic
 
 			if (!IsDelivered())
 				return 0;
-			
+
 			var firstOrderForAddress = RouteList.Addresses
 				.Where(address=>address.IsDelivered())
 				.Select(item => item.Order)
-				.First(ord => ord.DeliveryPoint.Id == Order.DeliveryPoint.Id).Id == Order.Id;
+				.First(ord => ord.DeliveryPoint?.Id == Order.DeliveryPoint?.Id).Id == Order.Id;
 
 			var paymentForAddress = firstOrderForAddress ? rates.PaymentPerAddress : 0;
 

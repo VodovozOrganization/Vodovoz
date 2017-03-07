@@ -123,7 +123,7 @@ namespace Vodovoz
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
 				.AddColumn("Заказ").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.Id.ToString())
-				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node => String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.DeliveryPoint == null ? String.Empty : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle());
 			
 			if (columnsInfo != null)
