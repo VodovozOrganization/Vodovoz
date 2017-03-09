@@ -27,14 +27,18 @@
     <Height>103.2pt</Height>
     <ReportItems>
       <Textbox Name="DocumentName">
-        <Height>25.54pt</Height>
-        <Width>140.78pt</Width>
-        <Value>Лист времени</Value>
+        <Height>26.70pt</Height>
+        <Width>563.18pt</Width>
+        <Value>="Лист времени для МЛ №" + {?route_list_id}</Value>
         <ZIndex>1</ZIndex>
-        <Left>250.9pt</Left>
-        <Top>13.2pt</Top>
+        <Left>3.00pt</Left>
+        <Top>7.00pt</Top>
         <Style>
           <FontSize>20pt</FontSize>
+          <BorderStyle  />
+          <BorderColor  />
+          <BorderWidth  />
+          <TextAlign >Center</TextAlign>
         </Style>
       </Textbox>
       <Table Name="Table1">
