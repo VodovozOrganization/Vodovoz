@@ -229,6 +229,8 @@ namespace Vodovoz.Domain.Employees
 			if (String.IsNullOrEmpty (LastName))
 				yield return new ValidationResult ("Фамилия должна быть заполнена", new[] { "LastName" });
 
+			#if !SHORT
+
 			if (String.IsNullOrEmpty (Patronymic))
 				yield return new ValidationResult ("Отчество должно быть заполнено", new[] { "Patronymic" });
 
@@ -249,6 +251,8 @@ namespace Vodovoz.Domain.Employees
 
 			if(string.IsNullOrWhiteSpace(AddressCurrent))
 				yield return new ValidationResult ("Фактический адрес должен быть заполнен", new[] { "AddressCurrent" });
+
+			#endif
 
 			var employees = UoW.Session.QueryOver<Employee>()
 				.Where(e => e.Name == this.Name && e.LastName == this.LastName && e.Patronymic == this.Patronymic)
