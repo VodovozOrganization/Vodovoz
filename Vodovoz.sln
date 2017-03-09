@@ -792,8 +792,8 @@ Global
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
-		$1.DirectoryNamespaceAssociation = None
-		$1.ResourceNamePolicy = FileName
+		$1.DirectoryNamespaceAssociation = Hierarchical
+		$1.ResourceNamePolicy = MSBuild
 		$0.StandardHeader = $2
 		$2.Text = 
 		$2.IncludeInNewFiles = True
