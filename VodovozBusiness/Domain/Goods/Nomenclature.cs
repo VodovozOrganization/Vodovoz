@@ -211,7 +211,7 @@ namespace Vodovoz.Domain.Goods
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			#if !SHORT
 			if(GetCategoriesForShipment ().Contains (Category) && Warehouse == null)

@@ -165,7 +165,7 @@ namespace Vodovoz.Domain.Orders
 			return price != DefaultPrice;
 		}
 
-		public decimal Sum{
+		public virtual decimal Sum{
 			get{
 				return Price * Count * (1 - (decimal)Discount/100) ;
 			}
@@ -215,7 +215,7 @@ namespace Vodovoz.Domain.Orders
 	
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			return null;
 		}

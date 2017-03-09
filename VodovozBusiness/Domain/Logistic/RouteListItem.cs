@@ -525,7 +525,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var routeListUnloaded = (RouteList.Status == RouteListStatus.OnClosing) || 
 				(RouteList.Status == RouteListStatus.MileageCheck) ||
-				(RouteList.Status==RouteListStatus.Closed);
+				(RouteList.Status == RouteListStatus.Closed);
 			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded; 
 		}
 
