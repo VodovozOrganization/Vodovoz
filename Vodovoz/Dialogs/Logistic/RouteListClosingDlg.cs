@@ -339,12 +339,12 @@ namespace Vodovoz
 			);
 			labelCash.Text = String.Format(
 				"Сдано по накладным: {0} {1}", 
-				totalCollected,
+				totalCollected + depositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotalCollected.Text = String.Format(
 				"Итоговая сумма: {0} {1}", 
-				totalCollected + depositsCollectedTotal,
+				totalCollected + depositsCollectedTotal - Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = String.Format(
