@@ -103,6 +103,8 @@ namespace Vodovoz
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
 			ycheckConfirmDifferences.Sensitive = editing;
 
+			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
+
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
 			//Предварительная загрузка объектов для ускорения.
@@ -219,7 +221,7 @@ namespace Vodovoz
 
 		protected void FirstFillClosing()
 		{
-			//PerformanceHelper.StartPointsGroup("Первоначальное заполнение");
+			PerformanceHelper.StartPointsGroup("Первоначальное заполнение");
 			//var all = UoW.GetAll<Nomenclature>();
 
 			foreach (var routeListItem in Entity.Addresses)
@@ -228,6 +230,7 @@ namespace Vodovoz
 //				var nomenclatures = routeListItem.Order.OrderItems
 //					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 //					.Where(item => !item.Nomenclature.Serial).ToList();
+				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
 				foreach (var item in routeListItem.Order.OrderItems)
 				{
 					item.ActualCount = routeListItem.IsDelivered() ? item.Count : 0;
@@ -256,7 +259,7 @@ namespace Vodovoz
 				PerformanceHelper.EndPointsGroup();
 			}
 
-//			PerformanceHelper.EndPointsGroup();
+			PerformanceHelper.EndPointsGroup();
 			Entity.ClosingFilled = true;
 		}
 

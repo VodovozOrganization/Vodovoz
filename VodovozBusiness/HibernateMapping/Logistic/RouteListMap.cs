@@ -17,6 +17,7 @@ namespace Vodovoz.HMap
 			Map (x => x.Date).Column ("date");
 			Map (x => x.Status).Column ("status").CustomType<RouteListStatusStringType> ();
 			Map (x => x.ClosingDate).Column("closing_date");
+			Map (x => x.ClosingComment).Column("closing_comment");
 			Map (x => x.ClosingFilled).Column("closing_filled");
 
 			References (x => x.Car).Column ("car_id");

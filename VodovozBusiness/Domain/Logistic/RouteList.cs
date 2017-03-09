@@ -120,6 +120,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		string closingComment;
+
+		[Display (Name = "Комментарий")]
+		public virtual string ClosingComment {
+			get { return closingComment; }
+			set { SetField (ref closingComment, value, () => ClosingComment); }
+		}
+
 		Employee cashier;
 		public virtual Employee Cashier{
 			get{
