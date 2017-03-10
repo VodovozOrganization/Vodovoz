@@ -170,6 +170,11 @@ namespace Vodovoz
 					Repository.Cash.CashRepository.CurrentCash (uow)
 				));
 		}
+
+		protected void OnButtonRefreshClicked(object sender, EventArgs e)
+		{
+			tableDocuments.RepresentationModel.UpdateNodes ();
+		}
 	}
 }
 

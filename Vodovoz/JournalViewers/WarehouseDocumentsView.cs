@@ -137,6 +137,11 @@ namespace Vodovoz
 			tableDocuments.SearchHighlightText = searchentity1.Text;
 			tableDocuments.RepresentationModel.SearchString = searchentity1.Text;
 		}
+
+		protected void OnButtonRefreshClicked(object sender, EventArgs e)
+		{
+			tableDocuments.RepresentationModel.UpdateNodes ();
+		}
 	}
 }
 

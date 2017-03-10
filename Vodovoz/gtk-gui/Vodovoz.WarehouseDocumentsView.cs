@@ -14,6 +14,8 @@ namespace Vodovoz {
 		
 		private global::Gtk.CheckButton buttonFilter;
 		
+		private global::Gtk.Button buttonRefresh;
+		
 		private global::Gtk.HBox hboxFilter;
 		
 		private global::QSWidgetLib.SearchEntity searchentity1;
@@ -89,30 +91,45 @@ namespace Vodovoz {
 			this.hbox1.Add(this.buttonFilter);
 			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonFilter]));
 			w7.PackType = ((global::Gtk.PackType)(1));
-			w7.Position = 4;
+			w7.Position = 3;
 			w7.Expand = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.buttonRefresh = new global::Gtk.Button();
+			this.buttonRefresh.CanFocus = true;
+			this.buttonRefresh.Name = "buttonRefresh";
+			this.buttonRefresh.UseUnderline = true;
+			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString("Обновить");
+			global::Gtk.Image w8 = new global::Gtk.Image();
+			w8.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w8;
+			this.hbox1.Add(this.buttonRefresh);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonRefresh]));
+			w9.PackType = ((global::Gtk.PackType)(1));
+			w9.Position = 4;
+			w9.Expand = false;
+			w9.Fill = false;
 			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w8.Position = 0;
-			w8.Expand = false;
-			w8.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.hboxFilter = new global::Gtk.HBox();
 			this.hboxFilter.Name = "hboxFilter";
 			this.hboxFilter.Spacing = 6;
 			this.vbox1.Add(this.hboxFilter);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxFilter]));
-			w9.Position = 1;
-			w9.Expand = false;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxFilter]));
+			w11.Position = 1;
+			w11.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.searchentity1 = new global::QSWidgetLib.SearchEntity();
 			this.searchentity1.Events = ((global::Gdk.EventMask)(256));
 			this.searchentity1.Name = "searchentity1";
 			this.vbox1.Add(this.searchentity1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity1]));
-			w10.Position = 2;
-			w10.Expand = false;
-			w10.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity1]));
+			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -123,8 +140,8 @@ namespace Vodovoz {
 			this.tableDocuments.Name = "tableDocuments";
 			this.GtkScrolledWindow1.Add(this.tableDocuments);
 			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w12.Position = 3;
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
+			w14.Position = 3;
 			this.Add(this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll();
@@ -134,6 +151,7 @@ namespace Vodovoz {
 			this.buttonAdd.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs>(this.OnButtonAddEnumItemClicked);
 			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
 			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
+			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
 			this.buttonFilter.Toggled += new global::System.EventHandler(this.OnButtonFilterToggled);
 			this.searchentity1.TextChanged += new global::System.EventHandler(this.OnSearchentity1TextChanged);
 			this.tableDocuments.RowActivated += new global::Gtk.RowActivatedHandler(this.OnTableDocumentsRowActivated);
