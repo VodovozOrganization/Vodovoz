@@ -847,6 +847,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format>0.00</Format>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1100,6 +1101,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>

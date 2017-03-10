@@ -855,6 +855,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Format>0.00</Format>
                         <BackgroundColor>=Iif(({Status} = "EnRoute") or ({Status} = "Completed"), White, Lightgrey)</BackgroundColor>
                       </Style>
                       <CanGrow>true</CanGrow>
@@ -1109,6 +1110,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                  	<Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
