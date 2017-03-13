@@ -131,9 +131,7 @@ namespace Vodovoz
 			routeListAddressesView.Sensitive = editing;
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
-			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(Entity.Id, Nomenclature.GetCategoriesForShipment());
-			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(Entity.Id, new []{ NomenclatureCategory.bottle })
-				.Sum(item => item.Amount);
+			ReloadReturnedToWarehouse();
 			var returnableOrderItems = routeListAddressesView.Items
 				.Where(address => address.IsDelivered())
 				.SelectMany(address => address.Order.OrderItems)
@@ -177,6 +175,15 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Загрузка бензина");
 
 			PerformanceHelper.Main.PrintAllPoints(logger);
+
+			//Подписки на обновления
+			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric += OnCalUnloadUpdated;
+		}
+
+		void OnCalUnloadUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<CarUnloadDocument> e)
+		{
+			if (e.UpdatedSubjects.Any(x => x.RouteList.Id == Entity.Id))
+				ReloadDiscrepancies();
 		}
 
 		#endregion
@@ -754,6 +761,31 @@ namespace Vodovoz
 		protected void OnYcheckHideCellsToggled (object sender, EventArgs e)
 		{
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
+		}
+
+		protected void OnButtonReturnedRefreshClicked(object sender, EventArgs e)
+		{
+			ReloadDiscrepancies();
+		}
+
+		private void ReloadDiscrepancies()
+		{
+			ReloadReturnedToWarehouse();
+			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
+			CalculateTotal();
+		}
+
+		private void ReloadReturnedToWarehouse()
+		{
+			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(Entity.Id, Nomenclature.GetCategoriesForShipment());
+			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(Entity.Id, new []{ NomenclatureCategory.bottle })
+				.Sum(item => item.Amount);
+		}
+
+		public override void Destroy()
+		{
+			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric -= OnCalUnloadUpdated;
+			base.Destroy();
 		}
 
 		#endregion

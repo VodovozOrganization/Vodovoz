@@ -203,6 +203,8 @@ namespace Vodovoz
 		{
 			var itemsFrom 	= ytreeviewFrom.ItemsDataSource as IList<CarUnloadDocumentNode>;
 			var itemsTo 	= ytreeviewTo.ItemsDataSource as IList<CarUnloadDocumentNode>;
+			var fromDoc = ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument;
+			var toDoc = ylistcomboReceptionTicketTo.SelectedItem as CarUnloadDocument;
 
 			foreach (var from in itemsFrom.Where(i => i.TransferCount > 0))
 			{
@@ -216,17 +218,14 @@ namespace Vodovoz
 
 				if(to == null)
 				{
-					var document = ylistcomboReceptionTicketTo.SelectedItem as CarUnloadDocument;
-					document.AddItem(receiveType, nomenclature, null, transfer, null);
+					toDoc.AddItem(receiveType, nomenclature, null, transfer, null);
 
-					foreach (var item in document.Items)
+					foreach (var item in toDoc.Items)
 					{
 						var exist = itemsTo.FirstOrDefault(i => i.DocumentItem.Id == item.Id);
 						if (exist == null)
 							itemsTo.Add(new CarUnloadDocumentNode{ DocumentItem = item });
 					}
-
-					UoW.Save(document);
 				} else {
 					to.DocumentItem.MovementOperation.Amount += transfer;
 
@@ -236,11 +235,9 @@ namespace Vodovoz
 				from.DocumentItem.MovementOperation.Amount -= transfer;
 				if (from.DocumentItem.MovementOperation.Amount == 0)
 				{
-					var document = ylistcomboReceptionTicketFrom.SelectedItem as CarUnloadDocument;
-					var item = document.Items.First(i => i.Id == from.DocumentItem.Id);
-					document.Items.Remove(item);
+					var item = fromDoc.Items.First(i => i.Id == from.DocumentItem.Id);
+					fromDoc.Items.Remove(item);
 
-					UoW.Save(document);
 					UoW.Delete(from.DocumentItem.MovementOperation);
 				} else {
 					UoW.Save(from.DocumentItem.MovementOperation);
@@ -248,6 +245,8 @@ namespace Vodovoz
 
 				from.TransferCount = 0;
 			}
+			UoW.Save(fromDoc);
+			UoW.Save(toDoc);
 			CheckSensitivities();
 		}
 
