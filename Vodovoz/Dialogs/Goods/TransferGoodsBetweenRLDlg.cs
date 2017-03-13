@@ -150,6 +150,8 @@ namespace Vodovoz
 				.Where(cud => cud.RouteList.Id == routeList.Id).List();
 			
 			ylistcomboReceptionTicketFrom.ItemsList = unloadDocs;
+			if (unloadDocs.Count == 1)
+				ylistcomboReceptionTicketFrom.Active = 0;
 
 			CheckSensitivities();
 		}
@@ -165,6 +167,8 @@ namespace Vodovoz
 				.Where(cud => cud.RouteList.Id == routeList.Id).List();
 
 			ylistcomboReceptionTicketTo.ItemsList = unloadDocs;
+			if (unloadDocs.Count == 1)
+				ylistcomboReceptionTicketTo.Active = 0;
 
 			CheckSensitivities();
 		}
