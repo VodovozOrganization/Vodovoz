@@ -328,7 +328,8 @@ namespace Vodovoz.Domain.Client
 		public DeliveryPoint ()
 		{
 			CompiledAddress = String.Empty;
-			City = String.Empty;
+			City = "Санкт-Петербург";
+			LocalityType = LocalityType.city;
 			Street = String.Empty;
 			Building = String.Empty;
 			Room = String.Empty;
