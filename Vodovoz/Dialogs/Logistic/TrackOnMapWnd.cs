@@ -144,7 +144,10 @@ namespace Dialogs.Logistic
 					else
 						addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Latitude, (double)point.Longitude),	type);
 					
-					addressMarker.ToolTipText = point.ShortAddress;
+					var text = point.ShortAddress;
+					if (orderItem.StatusLastUpdate.HasValue)
+						text += String.Format("\nСтатус изменялся в {0:t}", orderItem.StatusLastUpdate.Value);
+					addressMarker.ToolTipText = text;
 					addressesOverlay.Markers.Add(addressMarker);
 				}
 			}
