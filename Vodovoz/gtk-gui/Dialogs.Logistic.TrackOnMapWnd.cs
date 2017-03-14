@@ -8,6 +8,12 @@ namespace Dialogs.Logistic
 		
 		private global::Gtk.HBox hbox1;
 		
+		private global::Gtk.Label label1;
+		
+		private global::Gtk.RadioButton radioSmall;
+		
+		private global::Gtk.RadioButton radioNumbers;
+		
 		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
 
 		protected virtual void Build ()
@@ -25,9 +31,44 @@ namespace Dialogs.Logistic
 			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label ();
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Вид маркеров:");
+			this.hbox1.Add (this.label1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label1]));
 			w1.Position = 0;
+			w1.Expand = false;
+			w1.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.radioSmall = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Маленькие"));
+			this.radioSmall.CanFocus = true;
+			this.radioSmall.Name = "radioSmall";
+			this.radioSmall.DrawIndicator = true;
+			this.radioSmall.UseUnderline = true;
+			this.radioSmall.Group = new global::GLib.SList (global::System.IntPtr.Zero);
+			this.hbox1.Add (this.radioSmall);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.radioSmall]));
+			w2.Position = 1;
+			w2.Expand = false;
+			w2.Fill = false;
+			// Container child hbox1.Gtk.Box+BoxChild
+			this.radioNumbers = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Пронумерованные"));
+			this.radioNumbers.CanFocus = true;
+			this.radioNumbers.Name = "radioNumbers";
+			this.radioNumbers.DrawIndicator = true;
+			this.radioNumbers.UseUnderline = true;
+			this.radioNumbers.Group = this.radioSmall.Group;
+			this.hbox1.Add (this.radioNumbers);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.radioNumbers]));
+			w3.Position = 2;
+			w3.Expand = false;
+			w3.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w4.Position = 0;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl ();
 			this.gmapWidget.Name = "gmapWidget";
@@ -45,8 +86,8 @@ namespace Dialogs.Logistic
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox1.Add (this.gmapWidget);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.gmapWidget]));
-			w2.Position = 1;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.gmapWidget]));
+			w5.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -54,6 +95,8 @@ namespace Dialogs.Logistic
 			this.DefaultWidth = 400;
 			this.DefaultHeight = 300;
 			this.Show ();
+			this.radioSmall.Clicked += new global::System.EventHandler (this.OnRadioSmallClicked);
+			this.radioNumbers.Clicked += new global::System.EventHandler (this.OnRadioNumbersClicked);
 		}
 	}
 }

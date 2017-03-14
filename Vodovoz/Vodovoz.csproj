@@ -175,6 +175,8 @@
     <EmbeddedResource Include="icons\map\points\color24.png" />
     <EmbeddedResource Include="icons\map\points\marker_shadow.png" />
     <EmbeddedResource Include="toolbars\staff.xml" />
+    <EmbeddedResource Include="icons\map\points\green_large.png" />
+    <EmbeddedResource Include="icons\map\points\large_marker_shadow.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
@@ -546,6 +548,7 @@
     <Compile Include="gtk-gui\Vodovoz.FineTemplateDlg.cs" />
     <Compile Include="Dialogs\Logistic\TrackOnMapWnd.cs" />
     <Compile Include="gtk-gui\Dialogs.Logistic.TrackOnMapWnd.cs" />
+    <Compile Include="Additions\Logistic\NumericPointMarker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

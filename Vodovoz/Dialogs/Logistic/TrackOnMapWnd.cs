@@ -7,6 +7,7 @@ using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
 
 namespace Dialogs.Logistic
@@ -15,8 +16,8 @@ namespace Dialogs.Logistic
 	{
 		#region Поля
 
-		//private GMapControl gmapWidget = new GMap.NET.GtkSharp.GMapControl();
 		private readonly GMapOverlay tracksOverlay = new GMapOverlay("tracks");
+		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
 		RouteList routeList = null;
@@ -47,6 +48,7 @@ namespace Dialogs.Logistic
 			gmapWidget.Zoom = 9;
 			gmapWidget.MouseWheelZoomEnabled = true;
 			gmapWidget.Overlays.Add(tracksOverlay);
+			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
 		}
 
@@ -57,7 +59,6 @@ namespace Dialogs.Logistic
 			this.Title = $"Трек маршрутного листа №{routeList.Id}";
 			this.SetDefaultSize(700, 600);
 			this.DeleteEvent += MapWindow_DeleteEvent;
-			//this.Add(gmapWidget);
 
 			int pointsCount = LoadTracks();
 			if (pointsCount <= 0)
@@ -100,6 +101,9 @@ namespace Dialogs.Logistic
 
 		private void LoadAddresses()
 		{
+			Console.WriteLine("Загружаем адреса");
+			addressesOverlay.Clear();
+
 			foreach(var orderItem in routeList.Addresses)
 			{
 				var point = orderItem.Order.DeliveryPoint;
@@ -126,9 +130,22 @@ namespace Dialogs.Logistic
 						default:
 							continue;
 					}
-					var addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Latitude, (double)point.Longitude),	type);
+					GMapMarker addressMarker;
+					if(radioNumbers.Active && type == GMarkerGoogleType.green_small)
+					{
+						int index = routeList.Addresses
+							.Where(x => x.Status == RouteListItemStatus.Completed)
+							.OrderBy(x => x.StatusLastUpdate)
+							.ToList().IndexOf(orderItem);
+
+						addressMarker = new NumericPointMarker(new PointLatLng((double)point.Latitude, (double)point.Longitude),
+							NumericPointMarkerType.green_large, index + 1);
+					}
+					else
+						addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Latitude, (double)point.Longitude),	type);
+					
 					addressMarker.ToolTipText = point.ShortAddress;
-					tracksOverlay.Markers.Add(addressMarker);
+					addressesOverlay.Markers.Add(addressMarker);
 				}
 			}
 		}
@@ -160,6 +177,18 @@ namespace Dialogs.Logistic
 				g.DrawLayout(gc, area.Right - 6 - layoutWidth, area.Top + 6 + voffset, distance.PangoLayout);
 				voffset += 3 + layoutHeight;
 			}
+		}
+
+		protected void OnRadioSmallClicked(object sender, EventArgs e)
+		{
+			if(radioSmall.Active)
+				LoadAddresses();
+		}
+
+		protected void OnRadioNumbersClicked(object sender, EventArgs e)
+		{
+			if(radioNumbers.Active)
+				LoadAddresses();
 		}
 	}
 
