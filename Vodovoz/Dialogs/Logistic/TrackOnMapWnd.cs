@@ -107,6 +107,8 @@ namespace Dialogs.Logistic
 			foreach(var orderItem in routeList.Addresses)
 			{
 				var point = orderItem.Order.DeliveryPoint;
+				if (point == null)
+					continue;
 				if(point.Latitude.HasValue && point.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;
