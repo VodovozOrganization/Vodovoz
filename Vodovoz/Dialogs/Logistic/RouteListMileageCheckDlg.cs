@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Dialogs.Logistic;
 using Gamma.GtkWidgets;
 using Gtk;
 using QSOrmProject;
@@ -143,7 +144,7 @@ namespace Vodovoz
 
 		protected void OnButtonOpenMapClicked (object sender, EventArgs e)
 		{
-			var trackWnd = new TrackMapWnd(Entity.Id);
+			var trackWnd = new TrackOnMapWnd(Entity.Id);
 			trackWnd.Show();
 		}
 

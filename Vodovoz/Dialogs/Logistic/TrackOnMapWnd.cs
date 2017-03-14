@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using QSProjectsLib;
-using QSOrmProject;
 using GMap.NET;
 using GMap.NET.GtkSharp;
-using GMap.NET.MapProviders;
 using GMap.NET.GtkSharp.Markers;
+using GMap.NET.MapProviders;
+using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz
+namespace Dialogs.Logistic
 {
-	public partial class TrackMapWnd : Gtk.Window
+	public partial class TrackOnMapWnd : Gtk.Window
 	{
 		#region Поля
 
-		private GMapControl gmapWidget = new GMap.NET.GtkSharp.GMapControl();
+		//private GMapControl gmapWidget = new GMap.NET.GtkSharp.GMapControl();
 		private readonly GMapOverlay tracksOverlay = new GMapOverlay("tracks");
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
@@ -24,8 +24,10 @@ namespace Vodovoz
 
 		#endregion
 
-		public TrackMapWnd(int routeListId) : base("")
+		public TrackOnMapWnd(int routeListId) : base(Gtk.WindowType.Toplevel)
 		{
+			this.Build();
+
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			this.routeList = UoW.Session.QueryOver<RouteList>()
 				.Where(rl => rl.Id == routeListId).SingleOrDefault();
@@ -55,7 +57,7 @@ namespace Vodovoz
 			this.Title = $"Трек маршрутного листа №{routeList.Id}";
 			this.SetDefaultSize(700, 600);
 			this.DeleteEvent += MapWindow_DeleteEvent;
-			this.Add(gmapWidget);
+			//this.Add(gmapWidget);
 
 			int pointsCount = LoadTracks();
 			if (pointsCount <= 0)
@@ -78,7 +80,7 @@ namespace Vodovoz
 
 		private int LoadTracks()
 		{
-			var pointList = Repository.Logistics.TrackRepository.GetPointsForRouteList(UoW, routeList.Id);
+			var pointList = Vodovoz.Repository.Logistics.TrackRepository.GetPointsForRouteList(UoW, routeList.Id);
 			if (pointList.Count == 0)
 				return 0;
 

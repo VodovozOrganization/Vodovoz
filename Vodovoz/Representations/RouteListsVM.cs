@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Dialogs.Logistic;
 using Gamma.ColumnConfig;
 using Gamma.Utilities;
+using Gtk;
 using NHibernate;
+using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
-using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Employees;
-using System.Linq;
-using NHibernate.Criterion;
-using Gtk;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.ViewModel
 {
@@ -191,7 +192,7 @@ namespace Vodovoz.ViewModel
 			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
 			foreach (var id in routeListIds)
 			{
-				TrackMapWnd track = new TrackMapWnd(id);
+				TrackOnMapWnd track = new TrackOnMapWnd(id);
 				track.Show();
 			}
 		}
