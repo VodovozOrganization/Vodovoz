@@ -152,10 +152,11 @@ namespace Vodovoz
 						String.Format("\n{0:D}", message.DateTime.Date), 
 						"date");
 				}
+				var userName = message.IsServerNotification ? ChatService.UserNameOfServer : message.Sender.ShortName;
 				tempBuffer.InsertWithTagsByName(
 					ref iter, 
-					string.Format("\n({0:t}) {1}: ", message.DateTime, message.Sender.ShortName), 
-					getUserTag(message.Sender.ShortName));
+					string.Format("\n({0:t}) {1}: ", message.DateTime, userName), 
+					getUserTag(userName));
 				tempBuffer.Insert(ref iter, message.Message);
 				if (message.DateTime > maxDate)
 					maxDate = message.DateTime;
