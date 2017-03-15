@@ -28,6 +28,13 @@ namespace Vodovoz.Domain.Chat
 			set { SetField (ref sender, value, () => Sender); }
 		}
 
+		private bool isServerNotification;
+
+		public virtual bool IsServerNotification {
+		    get { return isServerNotification; }
+		    set { SetField (ref isServerNotification, value, () => IsServerNotification); }
+		}
+
 		string message;
 
 		[Display (Name = "Сообщение")]

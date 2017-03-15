@@ -259,6 +259,9 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual bool Notified30Minutes {get; set;}
+		public virtual bool NotifiedTimeout {get; set;}
+
 		#endregion
 
 		#region Расчетные
