@@ -21,6 +21,7 @@ namespace Dialogs.Logistic
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
 		RouteList routeList = null;
+		Track track;
 		IUnitOfWork UoW;
 
 		#endregion
@@ -34,8 +35,14 @@ namespace Dialogs.Logistic
 				.Where(rl => rl.Id == routeListId).SingleOrDefault();
 			if (routeList == null)
 				return;
+
+			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
+			if(track == null)
+				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
+
 			ConfigureMap();
 			OpenMap();
+			UpdateDistanceLabel();
 		}
 
 		private void ConfigureMap()
@@ -60,9 +67,7 @@ namespace Dialogs.Logistic
 			this.SetDefaultSize(700, 600);
 			this.DeleteEvent += MapWindow_DeleteEvent;
 
-			int pointsCount = LoadTracks();
-			if (pointsCount <= 0)
-				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
+			LoadTrack();
 			LoadAddresses();
 
 			gmapWidget.Show();
@@ -79,13 +84,12 @@ namespace Dialogs.Logistic
 			args.RetVal = false;
 		}
 
-		private int LoadTracks()
+		private void LoadTrack()
 		{
-			var pointList = Vodovoz.Repository.Logistics.TrackRepository.GetPointsForRouteList(UoW, routeList.Id);
-			if (pointList.Count == 0)
-				return 0;
+			if (track == null)
+				return;
 
-			var points = pointList.Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var points = track.TrackPoints.Select(p => new PointLatLng(p.Latitude, p.Longitude));
 
 			var route = new GMapRoute(points, routeList.Id.ToString());
 
@@ -95,8 +99,25 @@ namespace Dialogs.Logistic
 
 			tracksDistance.Add(MakeDistanceLayout(route));
 			tracksOverlay.Routes.Add(route);
+		}
 
-			return pointList.Count;
+		void UpdateDistanceLabel()
+		{
+			if(track == null)
+			{
+				labelDistance.LabelProp = String.Empty;
+				return;
+			}
+
+			var text = new List<string>();
+			if (track.Distance.HasValue)
+				text.Add(String.Format("Дистанция трека: {0:N1} км.", track.Distance));
+			if(track.DistanceToBase.HasValue)
+				text.Add(String.Format("Дистанция до базы: {0:N1} км.", track.DistanceToBase));
+			if (track.DistanceToBase.HasValue && track.Distance.HasValue)
+				text.Add(String.Format("Общее расстояние: {0:N1} км.", track.TotalDistance));
+
+			labelDistance.LabelProp = String.Join("\n", text);
 		}
 
 		private void LoadAddresses()
@@ -194,6 +215,20 @@ namespace Dialogs.Logistic
 		{
 			if(radioNumbers.Active)
 				LoadAddresses();
+		}
+
+		protected void OnButtonRecalculateToBaseClicked(object sender, EventArgs e)
+		{
+			var track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
+			var response = track.CalculateDistanceToBase();
+			UoW.Save(track);
+			UoW.Commit();
+			UpdateDistanceLabel();
+			MessageDialogWorks.RunInfoDialog(String.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
+				response.RouteSummary.StartPoint,
+				response.RouteSummary.TotalDistanceKm,
+				response.RouteSummary.TotalTime
+			));
 		}
 	}
 

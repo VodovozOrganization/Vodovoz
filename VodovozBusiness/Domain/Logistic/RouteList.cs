@@ -328,6 +328,7 @@ namespace Vodovoz.Domain.Logistic
 			if (track != null)
 			{
 				track.CalculateDistance();
+				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
 		}

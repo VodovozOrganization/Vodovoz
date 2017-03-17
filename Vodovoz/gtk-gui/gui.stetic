@@ -37752,7 +37752,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Window" id="Dialogs.Logistic.TrackOnMapWnd" design-size="400 300">
+  <widget class="Gtk.Window" id="Dialogs.Logistic.TrackOnMapWnd" design-size="588 300">
     <property name="MemberName" />
     <property name="Title" translatable="yes">TrackOnMapWnd</property>
     <property name="WindowPosition">CenterOnParent</property>
@@ -37809,6 +37809,34 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">2</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Label" id="labelDistance">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Расстояние</property>
+              </widget>
+              <packing>
+                <property name="Position">3</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonRecalculateToBase">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Пересчитать км до базы</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonRecalculateToBaseClicked" />
+              </widget>
+              <packing>
+                <property name="Position">4</property>
+                <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
