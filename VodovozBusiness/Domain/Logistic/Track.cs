@@ -75,7 +75,9 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual double? TotalDistance{
 			get{
-				return Distance + DistanceToBase;
+				if (Distance == null && DistanceToBase == null)
+					return null;
+				return (Distance ?? 0) + (DistanceToBase ?? 0);
 			}
 		}
 

@@ -645,7 +645,7 @@ namespace Vodovoz
 			buttonGetDistFromTrack.Sensitive = hasTrack;
 
 			if (hasTrack)
-				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.Distance));
+				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.TotalDistance));
 			
 			if (Entity.Car.FuelType != null)
 				text.Add(string.Format("Вид топлива: {0}", Entity.Car.FuelType.Name));
@@ -705,7 +705,7 @@ namespace Vodovoz
 		protected void OnButtonGetDistFromTrackClicked(object sender, EventArgs e)
 		{
 			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
-			Entity.ActualDistance = (decimal)track.Distance.Value;
+			Entity.ActualDistance = (decimal)track.TotalDistance.Value;
 		}
 
 		protected void OnButtonAddTicketClicked(object sender, EventArgs e)

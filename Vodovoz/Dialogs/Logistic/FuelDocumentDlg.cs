@@ -101,7 +101,7 @@ namespace Vodovoz
 			bool hasTrack = track != null && track.Distance.HasValue;
 
 			if(hasTrack)
-				text.Add(string.Format("Расстояние по треку: {0:f1} км.", track.Distance));
+				text.Add(string.Format("Расстояние по треку: {0:f1}({1:N1}+{2:N1}) км.", track.TotalDistance, track.Distance, track.DistanceToBase));
 			
 			if(RouteListClosing.ActualDistance > 0)
 				text.Add(string.Format("Оплачиваемое расстояние {0}", RouteListClosing.ActualDistance));
