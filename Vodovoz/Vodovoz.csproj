@@ -77,6 +77,9 @@
       <HintPath>..\..\QSProjects\packages\DiffPlex.1.2.1\lib\portable-net40+sl50+win+wpa81+wp80\DiffPlex.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cairo" />
+    <Reference Include="Polylines">
+      <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -858,6 +861,7 @@
     <None Include="Vodovoz.exe.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

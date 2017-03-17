@@ -9,6 +9,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Logistic;
+using Polylines;
 
 namespace Dialogs.Logistic
 {
@@ -17,6 +18,7 @@ namespace Dialogs.Logistic
 		#region Поля
 
 		private readonly GMapOverlay tracksOverlay = new GMapOverlay("tracks");
+		private readonly GMapOverlay trackToBaseOverlay = new GMapOverlay("track_to_base");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay("addresses");
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
@@ -38,7 +40,10 @@ namespace Dialogs.Logistic
 
 			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
 			if(track == null)
+			{
+				buttonRecalculateToBase.Sensitive = false;
 				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
+			}
 
 			ConfigureMap();
 			OpenMap();
@@ -55,6 +60,7 @@ namespace Dialogs.Logistic
 			gmapWidget.Zoom = 9;
 			gmapWidget.MouseWheelZoomEnabled = true;
 			gmapWidget.Overlays.Add(tracksOverlay);
+			gmapWidget.Overlays.Add(trackToBaseOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
 		}
@@ -224,6 +230,21 @@ namespace Dialogs.Logistic
 			UoW.Save(track);
 			UoW.Commit();
 			UpdateDistanceLabel();
+
+			trackToBaseOverlay.Clear();
+			var decodedPoints = Polyline.DecodePolyline(response.RouteGeometry);
+			var points = decodedPoints.Select(p => new PointLatLng(p.Latitude * 0.1, p.Longitude * 0.1)).ToList();
+
+			var route = new GMapRoute(points, "RouteToBase");
+			route.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
+			route.Stroke.Width = 4;
+			route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+			tracksDistance.Add(MakeDistanceLayout(route));
+			trackToBaseOverlay.Routes.Add(route);
+
+			buttonRecalculateToBase.Sensitive = false;
+
 			MessageDialogWorks.RunInfoDialog(String.Format("Расстояние от {0} до склада {1} км. Время в пути {2}.",
 				response.RouteSummary.StartPoint,
 				response.RouteSummary.TotalDistanceKm,
