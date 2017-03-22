@@ -745,11 +745,18 @@ namespace Vodovoz
 			var nSumm 	= node.SelectSingleNode("Свойство[@Имя='Сумма']/Значение");
 			var nNDS 	= node.SelectSingleNode("Свойство[@Имя='СуммаНДС']/Значение");
 			//NumberFormatInfo нужен для корректного перевода строки в число
-			var nfi = new NumberFormatInfo();
+			var style = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
+			var culture = CultureInfo.InvariantCulture;
 
-			int count 	  = Convert.ToInt32(nCount?.InnerText ?? "0");
-			decimal price = Convert.ToDecimal(nPrice?.InnerText ?? "0", nfi);
-			decimal summ  = Convert.ToDecimal(nSumm?.InnerText ?? "0", nfi);
+			int count = 0;
+			Int32.TryParse(nCount?.InnerText, out count);
+			decimal price = 0;
+			Decimal.TryParse(nPrice?.InnerText, style, culture, out price);
+			decimal summ = 0;
+			Decimal.TryParse(nSumm?.InnerText, style, culture, out summ);
+			decimal nds = 0;
+			Decimal.TryParse(nNDS?.InnerText, style, culture, out nds);
+
 			int discount  = 0;
 			//Проверяем на наличие скидки и вычисляем ее
 			if (summ != price * count)
@@ -768,7 +775,7 @@ namespace Vodovoz
 			return new OrderItem
 			{
 				Nomenclature = NomenclaturesList.FirstOrDefault(n => n.Code1c == nCode1c?.InnerText),
-				IncludeNDS 	 = nNDS?.InnerText == null ? 0 : Convert.ToDecimal(nNDS.InnerText, nfi),
+				IncludeNDS 	 = nds,
 				Count 		 = count,
 				Price 		 = price,
 				Discount 	 = discount,
