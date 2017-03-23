@@ -330,6 +330,8 @@
     <Compile Include="Repositories\Operations\WagesMovementRepository.cs" />
     <Compile Include="HibernateMapping\Employees\FineTemplateMap.cs" />
     <Compile Include="Domain\FineTemplate.cs" />
+    <Compile Include="Domain\BaseParameter.cs" />
+    <Compile Include="HibernateMapping\BaseParameterMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
