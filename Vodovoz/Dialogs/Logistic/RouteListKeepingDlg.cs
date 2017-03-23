@@ -146,7 +146,6 @@ namespace Vodovoz
 		}
 
 		public void OnSelectionChanged(object sender, EventArgs args){
-			buttonNewRouteList		.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
 			buttonSetStatusComplete	.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
 			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
 		}
@@ -192,28 +191,6 @@ namespace Vodovoz
 			return true;
 		}
 		#endregion
-
-		protected void OnButtonNewRouteListClicked (object sender, EventArgs e)
-		{
-			if (TabParent.CheckClosingSlaveTabs(this))
-				return;
-			if (UoWGeneric.HasChanges && CommonDialogs.SaveBeforeCreateSlaveEntity(EntityObject.GetType(), typeof(RouteList)))
-			{
-				if (!Save())
-					return;
-			}
-			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
-			var selectedAddreses = selectedObjects
-				.Cast<RouteListKeepingItemNode>()
-				.Select(item=>item.RouteListItem)
-				.Where(item=>item.Status==RouteListItemStatus.EnRoute);
-
-			//FIXME добавить открытие нового диалога.
-
-			//var dlg = new RouteListCreateDlg(Entity, selectedAddreses);
-			//dlg.EntitySaved += OnNewRouteListCreated;
-			//TabParent.AddSlaveTab(this,dlg);
-		}
 
 		public void OnNewRouteListCreated(object sender, EntitySavedEventArgs args){
 			var newRouteList = args.Entity as RouteList;

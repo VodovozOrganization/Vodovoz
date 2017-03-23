@@ -1025,6 +1025,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -17405,7 +17406,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListClosingDlg" design-size="972 467">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListClosingDlg" design-size="1257 467">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -27191,7 +27192,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="852 359">
+  <widget class="Gtk.Bin" id="Vodovoz.RouteListKeepingDlg" design-size="1070 359">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -27689,23 +27690,6 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Button" id="buttonNewRouteList">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Type">TextAndIcon</property>
-                <property name="Icon">stock:gtk-go-forward Menu</property>
-                <property name="Label" translatable="yes">Перенести в новый маршрутный лист</property>
-                <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonNewRouteListClicked" />
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">True</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
               <widget class="Gtk.Button" id="buttonSetStatusComplete">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
@@ -27715,7 +27699,7 @@ RegistrationNumber</property>
                 <signal name="Clicked" handler="OnButtonSetStatusCompleteClicked" />
               </widget>
               <packing>
-                <property name="Position">2</property>
+                <property name="Position">1</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -27733,7 +27717,7 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
-                <property name="Position">3</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
@@ -37781,7 +37765,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Маленькие</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

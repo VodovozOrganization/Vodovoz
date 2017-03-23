@@ -60,8 +60,6 @@ namespace Vodovoz
 		
 		private global::Gtk.Button buttonChangeDeliveryTime;
 		
-		private global::Gtk.Button buttonNewRouteList;
-		
 		private global::Gtk.Button buttonSetStatusComplete;
 		
 		private global::Gtk.Button buttonRefresh;
@@ -264,6 +262,7 @@ namespace Vodovoz
 			w18.BottomAttach = ((uint)(2));
 			w18.LeftAttach = ((uint)(3));
 			w18.RightAttach = ((uint)(4));
+			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceDriver = new global::Gamma.Widgets.yEntryReference ();
@@ -275,6 +274,7 @@ namespace Vodovoz
 			w19.BottomAttach = ((uint)(3));
 			w19.LeftAttach = ((uint)(3));
 			w19.RightAttach = ((uint)(4));
+			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceForwarder = new global::Gamma.Widgets.yEntryReference ();
@@ -286,6 +286,7 @@ namespace Vodovoz
 			w20.BottomAttach = ((uint)(4));
 			w20.LeftAttach = ((uint)(3));
 			w20.RightAttach = ((uint)(4));
+			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.referenceLogistican = new global::Gamma.Widgets.yEntryReference ();
@@ -295,6 +296,7 @@ namespace Vodovoz
 			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.table1 [this.referenceLogistican]));
 			w21.LeftAttach = ((uint)(3));
 			w21.RightAttach = ((uint)(4));
+			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.speccomboShift = new global::Gamma.Widgets.ySpecComboBox ();
@@ -370,50 +372,36 @@ namespace Vodovoz
 			w29.Position = 0;
 			w29.Expand = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.buttonNewRouteList = new global::Gtk.Button ();
-			this.buttonNewRouteList.CanFocus = true;
-			this.buttonNewRouteList.Name = "buttonNewRouteList";
-			this.buttonNewRouteList.UseUnderline = true;
-			this.buttonNewRouteList.Label = global::Mono.Unix.Catalog.GetString ("Перенести в новый маршрутный лист");
-			global::Gtk.Image w30 = new global::Gtk.Image ();
-			w30.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-go-forward", global::Gtk.IconSize.Menu);
-			this.buttonNewRouteList.Image = w30;
-			this.hbox8.Add (this.buttonNewRouteList);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonNewRouteList]));
-			w31.Position = 1;
-			w31.Expand = false;
-			w31.Fill = false;
-			// Container child hbox8.Gtk.Box+BoxChild
 			this.buttonSetStatusComplete = new global::Gtk.Button ();
 			this.buttonSetStatusComplete.CanFocus = true;
 			this.buttonSetStatusComplete.Name = "buttonSetStatusComplete";
 			this.buttonSetStatusComplete.UseUnderline = true;
 			this.buttonSetStatusComplete.Label = global::Mono.Unix.Catalog.GetString ("Установить в статус \"Выпонено\"");
 			this.hbox8.Add (this.buttonSetStatusComplete);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonSetStatusComplete]));
-			w32.Position = 2;
-			w32.Expand = false;
-			w32.Fill = false;
+			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonSetStatusComplete]));
+			w30.Position = 1;
+			w30.Expand = false;
+			w30.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
 			this.buttonRefresh = new global::Gtk.Button ();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
 			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString ("Обновить");
-			global::Gtk.Image w33 = new global::Gtk.Image ();
-			w33.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.buttonRefresh.Image = w33;
+			global::Gtk.Image w31 = new global::Gtk.Image ();
+			w31.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w31;
 			this.hbox8.Add (this.buttonRefresh);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
-			w34.PackType = ((global::Gtk.PackType)(1));
-			w34.Position = 3;
-			w34.Expand = false;
-			w34.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
+			w32.PackType = ((global::Gtk.PackType)(1));
+			w32.Position = 2;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.vbox1.Add (this.hbox8);
-			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
-			w35.Position = 3;
-			w35.Expand = false;
-			w35.Fill = false;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			w33.Position = 3;
+			w33.Expand = false;
+			w33.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
@@ -423,7 +411,6 @@ namespace Vodovoz
 			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonNewFine.Clicked += new global::System.EventHandler (this.OnButtonNewFineClicked);
 			this.buttonChangeDeliveryTime.Clicked += new global::System.EventHandler (this.OnButtonChangeDeliveryTimeClicked);
-			this.buttonNewRouteList.Clicked += new global::System.EventHandler (this.OnButtonNewRouteListClicked);
 			this.buttonSetStatusComplete.Clicked += new global::System.EventHandler (this.OnButtonSetStatusCompleteClicked);
 			this.buttonRefresh.Clicked += new global::System.EventHandler (this.OnButtonRefreshClicked);
 		}
