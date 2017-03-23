@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using QSOrmProject;
 
 namespace Vodovoz
 {
@@ -17,6 +18,8 @@ namespace Vodovoz
 	{
 		List<OrderItemReturnsNode> equipmentFromClient;
 		List<OrderItemReturnsNode> itemsToClient;
+
+		public IUnitOfWork UoW { get; set;}
 
 		RouteListItem routeListItem;
 
@@ -138,19 +141,19 @@ namespace Vodovoz
 
 		protected void OnButtonNotDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(RouteListItemStatus.Overdue);
+			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue);
 			UpdateButtonsState();
 		}
 
 		protected void OnButtonDeliveryCanseledClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(RouteListItemStatus.Canceled);
+			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled);
 			UpdateButtonsState();
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
-			routeListItem.UpdateStatus(RouteListItemStatus.Completed);
+			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
 			UpdateButtonsState();
 		}
 

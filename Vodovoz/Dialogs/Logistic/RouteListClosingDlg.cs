@@ -279,6 +279,7 @@ namespace Vodovoz
 		{
 			var node = routeListAddressesView.GetSelectedRouteListItem();
 			var dlg = new OrderReturnsView(node);
+			dlg.UoW = UoW;
 			TabParent.AddSlaveTab(this, dlg);
 		}
 

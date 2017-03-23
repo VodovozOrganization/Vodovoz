@@ -41,7 +41,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual RouteListItemStatus Status {
 			get{ return status; }
-			set{
+			protected set{
 				SetField(ref status, value, () => Status);
 			}
 		}
@@ -286,11 +286,30 @@ namespace Vodovoz.Domain.Logistic
 
 		#endregion
 
-		public virtual void UpdateStatus(RouteListItemStatus status)
+		public virtual void UpdateStatus(IUnitOfWork uow, RouteListItemStatus status)
 		{
-			if(Status != status)
-				StatusLastUpdate = DateTime.Now;
+			if (Status == status)
+				return;
+			
 			Status = status;
+			StatusLastUpdate = DateTime.Now;
+
+			switch (Status)
+			{
+				case RouteListItemStatus.Canceled:
+					Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.DeliveryCanceled);
+					break;
+				case RouteListItemStatus.Completed:
+					Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.Shipped);
+					break;
+				case RouteListItemStatus.EnRoute:
+					Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.OnTheWay);
+					break;
+				case RouteListItemStatus.Overdue:
+					Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.NotDelivered);
+					break;
+			}
+			uow.Save(Order);
 		}
 
 		public virtual void RecalculateWages()

@@ -771,7 +771,7 @@ namespace Vodovoz.Domain.Logistic
 				if(address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute)
 				{
 					address.Order.ChangeStatus(OrderStatus.Closed);
-					address.UpdateStatus(RouteListItemStatus.Completed);
+					address.UpdateStatus(UoW, RouteListItemStatus.Completed);
 				}
 				if (address.Status == RouteListItemStatus.Canceled)
 					address.Order.ChangeStatus(OrderStatus.DeliveryCanceled);

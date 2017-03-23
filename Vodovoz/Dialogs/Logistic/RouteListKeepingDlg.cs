@@ -155,32 +155,6 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-			foreach (var address in items.Where(item=>item.HasChanged).Select(item=>item.RouteListItem))
-			{
-				if (address.TransferedTo != null)
-				{
-					address.Status = RouteListItemStatus.Transfered;
-					continue;
-				}
-
-				switch (address.Status)
-				{
-					case RouteListItemStatus.Canceled:
-						address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.DeliveryCanceled);
-						break;
-					case RouteListItemStatus.Completed:
-						address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.Shipped);
-						break;
-					case RouteListItemStatus.EnRoute:
-						address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.OnTheWay);
-						break;
-					case RouteListItemStatus.Overdue:
-						address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.NotDelivered);
-						break;
-				}
-				UoWGeneric.Save(address.Order);
-			}
-
 			if (items.All(x => x.Status != RouteListItemStatus.EnRoute))
 			{
 				if(MessageDialogWorks.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
@@ -301,7 +275,7 @@ namespace Vodovoz
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
 			foreach (RouteListKeepingItemNode item in selectedObjects)
 			{
-				item.RouteListItem.Status = RouteListItemStatus.Completed;
+				item.RouteListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
 			}
 		}
 
@@ -338,7 +312,8 @@ namespace Vodovoz
 				return RouteListItem.Status;
 			}
 			set{
-				RouteListItem.UpdateStatus(value);
+				var uow = RouteListItem.RouteList.UoW;
+				RouteListItem.UpdateStatus(uow, value);
 				HasChanged = true;
 				OnPropertyChanged<RouteListItemStatus>(() => Status);
 			}
