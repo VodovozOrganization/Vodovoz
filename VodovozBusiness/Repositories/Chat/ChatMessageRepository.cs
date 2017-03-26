@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
+using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain.Chat;
 using Vodovoz.Domain.Employees;
@@ -21,25 +22,32 @@ namespace Vodovoz.Repository.Chat
 				.List();
 		}
 
-		public static Dictionary<int, int> GetUnreadedChatMessages(IUnitOfWork uow, Employee forEmployee, bool accessLogisticChat) {
+		public static IList<UnreadedChatDTO> GetUnreadedChatMessages(IUnitOfWork uow, Employee forEmployee, bool accessLogisticChat) {
 			ChatMessage chatMessageAlias = null;
 			ChatClass chatAlias = null;
 			LastReadedMessage lastReadedAlias = null;
+			Employee driverAlias = null;
+			UnreadedChatDTO resultAlias = null;
 
 			var chatQuery = uow.Session.QueryOver<ChatClass>(() => chatAlias);
 			if (!accessLogisticChat)
 				chatQuery.Where(x => x.ChatType != ChatType.DriverAndLogists);
 
 			var resultList = chatQuery.JoinAlias(() => chatAlias.LastReaded, () => lastReadedAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin, Restrictions.Where(() => lastReadedAlias.Employee.Id == forEmployee.Id))
-				.JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
+									  .JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
+			                          .JoinAlias(() => chatAlias.Driver, () => driverAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where (() => (lastReadedAlias.LastDateTime == null && chatMessageAlias.DateTime > forEmployee.DateOfCreate) || 
 							  (lastReadedAlias.LastDateTime != null && chatMessageAlias.DateTime > lastReadedAlias.LastDateTime))
 				.SelectList(list => list
-					.SelectGroup(() => chatAlias.Id)
-					.SelectCount(() => chatMessageAlias.Id)
-				)
-				.List<object[]>();
-			return resultList.ToDictionary(x => (int)x[0], y => (int)y[1]);
+			                .SelectGroup(() => chatAlias.Id).WithAlias(() => resultAlias.ChatId)
+			                .Select (() => chatAlias.ChatType).WithAlias (() => resultAlias.ChatType)
+			                .Select (() => driverAlias.LastName).WithAlias (() => resultAlias.EmployeeLastName)
+			                .Select (() => driverAlias.Name).WithAlias (() => resultAlias.EmployeeName)
+			                .Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
+			                .SelectCount(() => chatMessageAlias.Id).WithAlias (() => resultAlias.UnreadedMessages)
+				).TransformUsing (Transformers.AliasToBean<UnreadedChatDTO> ())
+				.List<UnreadedChatDTO>();
+			return resultList;
 		}
 
 		public static Dictionary<int, int> GetLastChatMessages(IUnitOfWork uow, Employee forEmployee) {
@@ -55,6 +63,18 @@ namespace Vodovoz.Repository.Chat
 				)
 				.List<object[]>();
 			return resultList.ToDictionary(x => (int) x[0], y => (int)y[1]);
+		}
+
+
+		public class UnreadedChatDTO{
+
+			public int ChatId { get; set;}
+			public int UnreadedMessages { get; set;}
+			public ChatType ChatType { get; set; }
+
+			public string EmployeeLastName { get; set; }
+			public string EmployeeName { get; set; }
+			public string EmployeePatronymic { get; set; }
 		}
 	}
 }

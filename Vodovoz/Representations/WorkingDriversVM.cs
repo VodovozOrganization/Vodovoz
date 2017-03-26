@@ -1,18 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Gamma.ColumnConfig;
+using NHibernate.Criterion;
+using NHibernate.Transform;
+using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using QSOrmProject;
-using NHibernate.Transform;
-using Gamma.ColumnConfig;
-using System.Linq;
-using QSProjectsLib;
-using Vodovoz.Domain.Chat;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
-using Vodovoz.Repository.Chat;
 using Vodovoz.Repository;
-using NHibernate.Criterion;
-using System.Collections.Generic;
+using Vodovoz.Repository.Chat;
 
 namespace Vodovoz.ViewModel
 {
@@ -83,9 +81,13 @@ namespace Vodovoz.ViewModel
 				foreach (var item in summaryResult)
 				{
 					var chat = chats.FirstOrDefault(x => x.Driver.Id == item.Id);
-					if (chat != null && unreaded.ContainsKey(chat.Id))
+					if (chat != null)
 					{
-						item.Unreaded = unreaded[chat.Id];
+						var messages = unreaded.FirstOrDefault (x => x.ChatId == chat.Id);
+						if(messages != null)
+						{
+							item.Unreaded = messages.UnreadedMessages;
+						}
 					}
 				}
 			}

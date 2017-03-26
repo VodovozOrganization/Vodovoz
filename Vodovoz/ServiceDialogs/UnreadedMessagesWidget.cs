@@ -106,8 +106,8 @@ namespace Vodovoz
 		public void HandleChatUpdate()
 		{
 			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(uow, currentEmployee, accessToLogisticChat);
-			unreadedMessagesCount = unreadedMessages.Sum(x => x.Value);
-			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Получили общее количество сообщений.");
+			unreadedMessagesCount = unreadedMessages.Sum(x => x.UnreadedMessages);
+			PerformanceHelper.AddTimePoint (logger, "Получили общее количество сообщений.");
 			if (unreadedMessagesCount > 0)
 			{
 				MainClass.TrayIcon.Blinking = true;
@@ -135,13 +135,12 @@ namespace Vodovoz
 			MenuItem item;
 
 			foreach (var chat in unreadedMessages) {
-				var chatUoW = UnitOfWorkFactory.CreateForRoot<ChatClass>(chat.Key);
-				string chatType = chatUoW.Root.ChatType.GetEnumTitle();;
 				string chatName;
-				switch (chatUoW.Root.ChatType)
+				string chatType = chat.ChatType.GetEnumTitle ();
+				switch (chat.ChatType)
 				{
 					case (ChatType.DriverAndLogists):
-						chatName = chatUoW.Root.Driver.ShortName;
+					chatName = StringWorks.PersonNameWithInitials (chat.EmployeeLastName, chat.EmployeeName, chat.EmployeePatronymic);
 						break;
 					default:
 						chatType = "Неизвестный тип чата";
@@ -149,10 +148,10 @@ namespace Vodovoz
 						break;	
 				}
 				item = new MenuItem(String.Format("{0} {1}: + {2} {3}",
-					chatType, chatName, chat.Value, 
-					RusNumber.Case(chat.Value, "сообщение", "сообщения", "сообщений")));
+				                                  chatType, chatName, chat.UnreadedMessages, 
+				                                  RusNumber.Case(chat.UnreadedMessages, "сообщение", "сообщения", "сообщений")));
 				item.Activated += MenuItemActivated;;
-				MenuItems.Add (item, chat.Key);
+				MenuItems.Add (item, chat.ChatId);
 				menu.Add (item);
 			}
 			menu.ShowAll ();
