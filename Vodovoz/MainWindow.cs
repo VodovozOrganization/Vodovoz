@@ -33,6 +33,7 @@ public partial class MainWindow: Gtk.Window
 	public MainWindow () : base (Gtk.WindowType.Toplevel)
 	{
 		Build ();
+		PerformanceHelper.AddTimePoint ("Закончена стандартная сборка окна.");
 		this.BuildToolbarActions ();
 		this.KeyReleaseEvent += ClipboardWorkaround.HandleKeyReleaseEvent;
 		TDIMain.MainNotebook = tdiMain;
@@ -46,6 +47,8 @@ public partial class MainWindow: Gtk.Window
 
 		MainSupport.TestVersion (this); //Проверяем версию базы
 		QSMain.CheckServer (this); // Проверяем настройки сервера
+
+		PerformanceHelper.AddTimePoint ("Закончена загрузка параметров базы и проверка версии.");
 
 		if (QSMain.User.Login == "root") {
 			string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";

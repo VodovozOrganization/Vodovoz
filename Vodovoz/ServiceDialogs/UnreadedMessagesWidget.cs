@@ -2,22 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using Chat;
+using Gamma.Utilities;
 using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Chat;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
 using ChatClass = Vodovoz.Domain.Chat.Chat;
-using Vodovoz.Domain.Chat;
-using Gamma.Utilities;
-using QSTDI;
 
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
 	public partial class UnreadedMessagesWidget : Gtk.Bin, IChatCallbackObserver
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private Employee currentEmployee;
 		private bool accessToLogisticChat;
@@ -29,6 +31,9 @@ namespace Vodovoz
 		public UnreadedMessagesWidget()
 		{
 			this.Build();
+
+			QSProjectsLib.PerformanceHelper.StartPointsGroup ("Обработки старта виджета сообщений.");
+
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 			if (currentEmployee == null)
 			{
@@ -37,10 +42,18 @@ namespace Vodovoz
 			}
 			accessToLogisticChat = QSMain.User.Permissions["logistican"];
 
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Получили сотрудника.");
+
 			if (!ChatCallbackObservable.IsInitiated)
 				ChatCallbackObservable.CreateInstance(currentEmployee.Id);
 			ChatCallbackObservable.GetInstance().AddObserver(this);
+
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Создали сервис чата.");
+
 			HandleChatUpdate();
+
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Обработка чата.");
+
 			MainClass.TrayIcon.PopupMenu += (o, args) => {
 				if (menu == null || menu.Children.Count() == 0)
 					return;
@@ -50,6 +63,7 @@ namespace Vodovoz
 					menu.Cancel();
 				}
 			};
+			QSProjectsLib.PerformanceHelper.EndPointsGroup ();
 		}
 
 		public TdiNotebook MainTab { set { mainTab = value; } }
@@ -93,6 +107,7 @@ namespace Vodovoz
 		{
 			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(uow, currentEmployee, accessToLogisticChat);
 			unreadedMessagesCount = unreadedMessages.Sum(x => x.Value);
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Получили общее количество сообщений.");
 			if (unreadedMessagesCount > 0)
 			{
 				MainClass.TrayIcon.Blinking = true;

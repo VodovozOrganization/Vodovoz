@@ -48,11 +48,15 @@ namespace Vodovoz
 
 			LoginDialog.Destroy ();
 
+			QSProjectsLib.PerformanceHelper.StartMeasurement ("Замер запуска приложения");
+
 			//Настройка базы
 			CreateBaseConfig ();
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка базы");
 
 			//Настрока удаления
 			ConfigureDeletion ();
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка удаления");
 
 			//Настройка карты
 			GMap.NET.MapProviders.GMapProvider.UserAgent = String.Format("{0}/{1} used GMap.Net/{2} ({3})",
@@ -63,13 +67,24 @@ namespace Vodovoz
 			);
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
 
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
+			PerformanceHelper.StartPointsGroup ("Главное окно");		
+
 			//Запускаем программу
 			MainWin = new MainWindow ();
 			QSMain.ErrorDlgParrent = MainWin;
 			if (QSMain.User.Login == "root")
 				return;
 			MainWin.Show ();
+			PerformanceHelper.EndPointsGroup ();
+
+			PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
+
 			QSSaaS.Session.StartSessionRefresh ();
+
+			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончен старт SAAS. Конец загрузки.");
+			QSProjectsLib.PerformanceHelper.Main.PrintAllPoints (logger);
+
 			Application.Run ();
 			QSSaaS.Session.StopSessionRefresh ();
 		}
