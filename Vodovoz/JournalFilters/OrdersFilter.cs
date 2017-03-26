@@ -34,6 +34,10 @@ namespace Vodovoz
 		public OrdersFilter ()
 		{
 			this.Build ();
+
+			//Последние месяц назад и месяц вперед.
+			dateperiodOrders.StartDateOrNull = DateTime.Today.AddMonths (-1);
+			dateperiodOrders.EndDateOrNull = DateTime.Today.AddMonths (1);
 		}
 
 		#region IReferenceFilter implementation
