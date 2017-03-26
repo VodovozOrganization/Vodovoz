@@ -1,9 +1,10 @@
 ﻿using System;
-using QSOrmProject;
-using System.ComponentModel.DataAnnotations;
-using Vodovoz.Domain.Employees;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using QSOrmProject;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Chat
 {
@@ -35,8 +36,8 @@ namespace Vodovoz.Domain.Chat
 		[Display (Name = "Сообщения чата")]
 		public virtual IList<ChatMessage> Messages {
 			get { return messages; }
-			set { 
-				SetField (ref messages, value, () => Messages); 
+			set {
+				SetField (ref messages, value, () => Messages);
 			}
 		}
 
@@ -56,8 +57,8 @@ namespace Vodovoz.Domain.Chat
 		[Display (Name = "Последние прочитанные сообщения чата")]
 		public virtual IList<LastReadedMessage> LastReaded {
 			get { return lastReaded; }
-			set { 
-				SetField (ref lastReaded, value, () => LastReaded); 
+			set {
+				SetField (ref lastReaded, value, () => LastReaded);
 			}
 		}
 
@@ -71,6 +72,22 @@ namespace Vodovoz.Domain.Chat
 				return observableLastReaded;
 			}
 		}
+
+		#region Функции
+
+		public virtual void UpdateLastReadedTime(Employee employee)
+		{
+			var lastReadedTime = LastReaded.FirstOrDefault (x => x.Employee.Id == employee.Id);
+			if (lastReadedTime == null) {
+				lastReadedTime = new LastReadedMessage ();
+				lastReadedTime.Chat = this;
+				lastReadedTime.Employee = employee;
+				LastReaded.Add (lastReadedTime);
+			}
+			lastReadedTime.LastDateTime = DateTime.Now;
+		}
+
+		#endregion
 	}
 
 	public enum ChatType

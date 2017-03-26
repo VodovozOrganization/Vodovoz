@@ -154,7 +154,27 @@ namespace Vodovoz
 				MenuItems.Add (item, chat.ChatId);
 				menu.Add (item);
 			}
+
+			menu.Add (new SeparatorMenuItem ());
+			item = new MenuItem ("Прочитать все сообщения");
+			item.Activated += ItemReadAllMessges_Activated;
+			menu.Add (item);
 			menu.ShowAll ();
+		}
+
+		void ItemReadAllMessges_Activated (object sender, EventArgs e)
+		{
+			logger.Info ("Обновляем последние обращения к чатам...");
+			var localUow = UnitOfWorkFactory.CreateWithoutRoot ();
+			var chats = ChatRepository.GetCurrentUserChats (localUow, currentEmployee);
+			foreach(var chat in chats)
+			{
+				chat.UpdateLastReadedTime (currentEmployee);
+				localUow.Save (chat);
+			}
+			localUow.Commit ();
+			HandleChatUpdate ();
+			logger.Info ("Все чаты прочитаны.");
 		}
 
 		void MenuItemActivated (object sender, EventArgs e)

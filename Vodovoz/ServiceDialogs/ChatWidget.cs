@@ -45,16 +45,8 @@ namespace Vodovoz
 		}
 
 		private void updateLastReadedMessage () {
-			var lastReaded = LastReadedRepository.GetLastReadedMessageForEmloyee(chatUoW, chatUoW.Root, currentEmployee);
-			if (lastReaded == null)
-			{
-				lastReaded = new LastReadedMessage();
-				lastReaded.Chat = chatUoW.Root;
-				lastReaded.Employee = currentEmployee;
-			}
-			lastReaded.LastDateTime = DateTime.Now;
-			chatUoW.Save(lastReaded);
-			chatUoW.Commit();
+			chatUoW.Root.UpdateLastReadedTime (currentEmployee);
+			chatUoW.Save();
 		}
 
 		private void configure(int chatId)
