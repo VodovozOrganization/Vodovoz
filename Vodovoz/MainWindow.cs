@@ -663,4 +663,13 @@ public partial class MainWindow: Gtk.Window
 		OrmReference refWin = new OrmReference (typeof(FineTemplate));
 		tdiMain.AddTab (refWin);
 	}
+
+	protected void OnActionDeliveriesLateActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.Logistic.DeliveriesLateReport ();
+		tdiMain.OpenTab (
+			QSReport.ReportViewDlg.GenerateHashName (widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
 }

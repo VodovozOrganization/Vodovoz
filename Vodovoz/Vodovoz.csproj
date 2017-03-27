@@ -552,6 +552,8 @@
     <Compile Include="Dialogs\Logistic\TrackOnMapWnd.cs" />
     <Compile Include="gtk-gui\Dialogs.Logistic.TrackOnMapWnd.cs" />
     <Compile Include="Additions\Logistic\NumericPointMarker.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveriesLateReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.DeliveriesLateReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -694,6 +696,7 @@
     <Folder Include="icons\map\" />
     <Folder Include="Reports\RouteList\" />
     <Folder Include="Reports\Sales\" />
+    <Folder Include="ReportsParameters\Logistic\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -862,6 +865,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="Reports\Logistic\DeliveriesLate.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
