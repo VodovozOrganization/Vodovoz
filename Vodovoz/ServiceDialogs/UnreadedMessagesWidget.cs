@@ -107,7 +107,6 @@ namespace Vodovoz
 		{
 			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(uow, currentEmployee, accessToLogisticChat);
 			unreadedMessagesCount = unreadedMessages.Sum(x => x.UnreadedMessages);
-			PerformanceHelper.AddTimePoint (logger, "Получили общее количество сообщений.");
 			if (unreadedMessagesCount > 0)
 			{
 				MainClass.TrayIcon.Blinking = true;
