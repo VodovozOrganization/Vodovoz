@@ -366,8 +366,7 @@ namespace Vodovoz.Domain.Logistic
 
 			if (closed)
 				ChangeStatus(RouteListStatus.EnRoute);
-			else
-				ChangeStatus(RouteListStatus.InLoading);
+
 			return closed;
 		}
 
