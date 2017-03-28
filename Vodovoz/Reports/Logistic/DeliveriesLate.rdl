@@ -92,7 +92,7 @@ HAVING delay &gt; 0;</CommandText>
         </Field>
         <Field Name="delay">
           <DataField>delay</DataField>
-          <rd:TypeName>System.DateTime</rd:TypeName>
+          <rd:TypeName>System.TimeSpan</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -132,16 +132,16 @@ HAVING delay &gt; 0;</CommandText>
             <Width>180.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>196.5pt</Width>
+            <Width>194.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.7pt</Width>
+            <Width>87.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.0pt</Width>
+            <Width>67.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -336,9 +336,10 @@ HAVING delay &gt; 0;</CommandText>
                               <Default>Solid</Default>
                             </BorderStyle>
                             <PaddingRight>2pt</PaddingRight>
-                            <TextAlign>Right</TextAlign>
+                            <TextAlign>Center</TextAlign>
                             <BorderColor />
                             <BorderWidth />
+                            <Format>%d'д 'hh':'mm':'ss</Format>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -430,7 +431,8 @@ HAVING delay &gt; 0;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>t</Format>
+                        <Format>hh':'mm':'ss</Format>
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -511,10 +513,11 @@ HAVING delay &gt; 0;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
+                        <TextAlign>Center</TextAlign>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>%d'д 'hh':'mm</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -539,9 +542,9 @@ HAVING delay &gt; 0;</CommandText>
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
