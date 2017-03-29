@@ -12,21 +12,21 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.DataBindings.DataTable datatable5;
+		private global::Gtk.Table datatable5;
 
 		private global::Vodovoz.AdditionalAgreementsView additionalagreementsview1;
 
-		private global::Gtk.DataBindings.DataCheckButton checkOnCancellation;
+		private global::Gamma.GtkWidgets.yCheckButton checkOnCancellation;
 
-		private global::QSOrmProject.DataDatePicker dateIssue;
+		private global::Gamma.Widgets.yDatePicker dateIssue;
 
-		private global::Gtk.DataBindings.DataEntry entryNumber;
+		private global::Gamma.GtkWidgets.yEntry entryNumber;
 
 		private global::Gtk.HBox hbox17;
 
 		private global::Gtk.VSeparator vseparator2;
 
-		private global::Gtk.DataBindings.DataCheckButton checkArchive;
+		private global::Gamma.GtkWidgets.yCheckButton checkArchive;
 
 		private global::Gtk.VSeparator vseparator3;
 
@@ -38,9 +38,9 @@ namespace Vodovoz
 
 		private global::Gtk.Label label38;
 
-		private global::Gtk.DataBindings.DataEntryReference referenceOrganization;
+		private global::Gamma.Widgets.yEntryReference referenceOrganization;
 
-		private global::Gtk.DataBindings.DataSpinButton spinDelay;
+		private global::Gamma.GtkWidgets.ySpinButton spinDelay;
 
 		private global::QSDocTemplates.TemplateWidget templatewidget1;
 
@@ -92,17 +92,17 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable5 = new global::Gtk.DataBindings.DataTable(((uint)(6)), ((uint)(3)), false);
+			this.datatable5 = new global::Gtk.Table(((uint)(6)), ((uint)(3)), false);
 			this.datatable5.Name = "datatable5";
 			this.datatable5.RowSpacing = ((uint)(6));
 			this.datatable5.ColumnSpacing = ((uint)(6));
 			this.datatable5.BorderWidth = ((uint)(6));
-			this.datatable5.InheritedDataSource = false;
-			this.datatable5.InheritedBoundaryDataSource = false;
-			this.datatable5.InheritedDataSource = false;
-			this.datatable5.InheritedBoundaryDataSource = false;
 			// Container child datatable5.Gtk.Table+TableChild
-			this.additionalagreementsview1 = null;
+			this.additionalagreementsview1 = new global::Vodovoz.AdditionalAgreementsView();
+			this.additionalagreementsview1.HeightRequest = 150;
+			this.additionalagreementsview1.Events = ((global::Gdk.EventMask)(256));
+			this.additionalagreementsview1.Name = "additionalagreementsview1";
+			this.additionalagreementsview1.IsEditable = true;
 			this.datatable5.Add(this.additionalagreementsview1);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable5[this.additionalagreementsview1]));
 			w6.TopAttach = ((uint)(5));
@@ -110,20 +110,12 @@ namespace Vodovoz
 			w6.RightAttach = ((uint)(3));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.checkOnCancellation = new global::Gtk.DataBindings.DataCheckButton();
+			this.checkOnCancellation = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkOnCancellation.CanFocus = true;
 			this.checkOnCancellation.Name = "checkOnCancellation";
 			this.checkOnCancellation.Label = global::Mono.Unix.Catalog.GetString("На расторжении");
 			this.checkOnCancellation.DrawIndicator = true;
 			this.checkOnCancellation.UseUnderline = true;
-			this.checkOnCancellation.InheritedDataSource = true;
-			this.checkOnCancellation.Mappings = "OnCancellation";
-			this.checkOnCancellation.InheritedBoundaryDataSource = false;
-			this.checkOnCancellation.Editable = true;
-			this.checkOnCancellation.AutomaticTitle = false;
-			this.checkOnCancellation.InheritedBoundaryDataSource = false;
-			this.checkOnCancellation.InheritedDataSource = true;
-			this.checkOnCancellation.Mappings = "OnCancellation";
 			this.datatable5.Add(this.checkOnCancellation);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable5[this.checkOnCancellation]));
 			w7.TopAttach = ((uint)(4));
@@ -131,7 +123,13 @@ namespace Vodovoz
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.dateIssue = null;
+			this.dateIssue = new global::Gamma.Widgets.yDatePicker();
+			this.dateIssue.Events = ((global::Gdk.EventMask)(256));
+			this.dateIssue.Name = "dateIssue";
+			this.dateIssue.WithTime = false;
+			this.dateIssue.Date = new global::System.DateTime(0);
+			this.dateIssue.IsEditable = true;
+			this.dateIssue.AutoSeparation = false;
 			this.datatable5.Add(this.dateIssue);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable5[this.dateIssue]));
 			w8.TopAttach = ((uint)(1));
@@ -140,17 +138,11 @@ namespace Vodovoz
 			w8.RightAttach = ((uint)(2));
 			w8.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.entryNumber = new global::Gtk.DataBindings.DataEntry();
+			this.entryNumber = new global::Gamma.GtkWidgets.yEntry();
 			this.entryNumber.CanFocus = true;
 			this.entryNumber.Name = "entryNumber";
 			this.entryNumber.IsEditable = false;
 			this.entryNumber.InvisibleChar = '●';
-			this.entryNumber.InheritedDataSource = true;
-			this.entryNumber.Mappings = "Number";
-			this.entryNumber.InheritedBoundaryDataSource = false;
-			this.entryNumber.InheritedDataSource = true;
-			this.entryNumber.Mappings = "Number";
-			this.entryNumber.InheritedBoundaryDataSource = false;
 			this.datatable5.Add(this.entryNumber);
 			global::Gtk.Table.TableChild w9 = ((global::Gtk.Table.TableChild)(this.datatable5[this.entryNumber]));
 			w9.LeftAttach = ((uint)(1));
@@ -169,20 +161,12 @@ namespace Vodovoz
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hbox17.Gtk.Box+BoxChild
-			this.checkArchive = new global::Gtk.DataBindings.DataCheckButton();
+			this.checkArchive = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkArchive.CanFocus = true;
 			this.checkArchive.Name = "checkArchive";
 			this.checkArchive.Label = global::Mono.Unix.Catalog.GetString("Архивный");
 			this.checkArchive.DrawIndicator = true;
 			this.checkArchive.UseUnderline = true;
-			this.checkArchive.InheritedDataSource = true;
-			this.checkArchive.Mappings = "IsArchive";
-			this.checkArchive.InheritedBoundaryDataSource = false;
-			this.checkArchive.Editable = true;
-			this.checkArchive.AutomaticTitle = false;
-			this.checkArchive.InheritedBoundaryDataSource = false;
-			this.checkArchive.InheritedDataSource = true;
-			this.checkArchive.Mappings = "IsArchive";
 			this.hbox17.Add(this.checkArchive);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox17[this.checkArchive]));
 			w11.Position = 1;
@@ -247,7 +231,11 @@ namespace Vodovoz
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.referenceOrganization = null;
+			this.referenceOrganization = new global::Gamma.Widgets.yEntryReference();
+			this.referenceOrganization.Events = ((global::Gdk.EventMask)(256));
+			this.referenceOrganization.Name = "referenceOrganization";
+			this.referenceOrganization.DisplayFields = new string[] {
+					"Name"};
 			this.datatable5.Add(this.referenceOrganization);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable5[this.referenceOrganization]));
 			w18.TopAttach = ((uint)(2));
@@ -257,19 +245,15 @@ namespace Vodovoz
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable5.Gtk.Table+TableChild
-			this.spinDelay = new global::Gtk.DataBindings.DataSpinButton(0, 100, 1);
+			this.spinDelay = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
 			this.spinDelay.CanFocus = true;
 			this.spinDelay.Name = "spinDelay";
 			this.spinDelay.Adjustment.PageIncrement = 10;
 			this.spinDelay.ClimbRate = 1;
 			this.spinDelay.Numeric = true;
 			this.spinDelay.Value = 3;
-			this.spinDelay.InheritedDataSource = true;
-			this.spinDelay.Mappings = "MaxDelay";
-			this.spinDelay.InheritedBoundaryDataSource = false;
-			this.spinDelay.InheritedDataSource = true;
-			this.spinDelay.Mappings = "MaxDelay";
-			this.spinDelay.InheritedBoundaryDataSource = false;
+			this.spinDelay.ValueAsDecimal = 0m;
+			this.spinDelay.ValueAsInt = 0;
 			this.datatable5.Add(this.spinDelay);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable5[this.spinDelay]));
 			w19.TopAttach = ((uint)(3));
@@ -298,8 +282,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 		}
 	}
 }

@@ -59,8 +59,15 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable5.DataSource = subjectAdaptor;
+			checkOnCancellation.Binding.AddBinding (Entity, e => e.OnCancellation, w => w.Active).InitializeFromSource ();
+			checkArchive.Binding.AddBinding (Entity, e => e.IsArchive, w => w.Active).InitializeFromSource ();
+
+			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
+			entryNumber.Binding.AddBinding (Entity, e => e.Number, w => w.Text).InitializeFromSource ();
+			spinDelay.Binding.AddBinding (Entity, e => e.MaxDelay, w => w.ValueAsInt).InitializeFromSource ();
+
 			referenceOrganization.SubjectType = typeof(Organization);
+			referenceOrganization.Binding.AddBinding (Entity, e => e.Organization, w => w.Subject).InitializeFromSource ();
 			additionalagreementsview1.AgreementUoW = UoWGeneric;
 
 			if (Entity.ContractTemplate == null && Entity.Organization != null)

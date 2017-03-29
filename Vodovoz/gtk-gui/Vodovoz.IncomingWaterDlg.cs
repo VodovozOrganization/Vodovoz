@@ -14,7 +14,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonFill;
 
-		private global::Gtk.DataBindings.DataTable tableWater;
+		private global::Gtk.Table tableWater;
 
 		private global::Vodovoz.IncomingWaterMaterialView incomingwatermaterialview1;
 
@@ -28,7 +28,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label6;
 
-		private global::Gtk.DataBindings.DataLabel labelTimeStamp;
+		private global::Gamma.GtkWidgets.yLabel labelTimeStamp;
 
 		private global::Gamma.Widgets.yEntryReference referenceDstWarehouse;
 
@@ -98,23 +98,20 @@ namespace Vodovoz
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.tableWater = new global::Gtk.DataBindings.DataTable(((uint)(6)), ((uint)(2)), false);
+			this.tableWater = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
 			this.tableWater.Name = "tableWater";
 			this.tableWater.RowSpacing = ((uint)(6));
 			this.tableWater.ColumnSpacing = ((uint)(6));
-			this.tableWater.InheritedDataSource = false;
-			this.tableWater.InheritedBoundaryDataSource = false;
-			this.tableWater.InheritedDataSource = false;
-			this.tableWater.InheritedBoundaryDataSource = false;
 			// Container child tableWater.Gtk.Table+TableChild
-			this.incomingwatermaterialview1 = null;
+			this.incomingwatermaterialview1 = new global::Vodovoz.IncomingWaterMaterialView();
+			this.incomingwatermaterialview1.Events = ((global::Gdk.EventMask)(256));
+			this.incomingwatermaterialview1.Name = "incomingwatermaterialview1";
 			this.tableWater.Add(this.incomingwatermaterialview1);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableWater[this.incomingwatermaterialview1]));
 			w7.TopAttach = ((uint)(5));
 			w7.BottomAttach = ((uint)(6));
 			w7.RightAttach = ((uint)(2));
 			w7.XOptions = ((global::Gtk.AttachOptions)(4));
-			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
 			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
@@ -169,23 +166,18 @@ namespace Vodovoz
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.labelTimeStamp = new global::Gtk.DataBindings.DataLabel();
+			this.labelTimeStamp = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTimeStamp.Name = "labelTimeStamp";
 			this.labelTimeStamp.Xalign = 0F;
-			this.labelTimeStamp.InheritedDataSource = true;
-			this.labelTimeStamp.Mappings = "DateString";
-			this.labelTimeStamp.InheritedBoundaryDataSource = false;
-			this.labelTimeStamp.Important = false;
-			this.labelTimeStamp.InheritedDataSource = true;
-			this.labelTimeStamp.Mappings = "DateString";
-			this.labelTimeStamp.InheritedBoundaryDataSource = false;
 			this.tableWater.Add(this.labelTimeStamp);
 			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.tableWater[this.labelTimeStamp]));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceDstWarehouse = null;
+			this.referenceDstWarehouse = new global::Gamma.Widgets.yEntryReference();
+			this.referenceDstWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.referenceDstWarehouse.Name = "referenceDstWarehouse";
 			this.tableWater.Add(this.referenceDstWarehouse);
 			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceDstWarehouse]));
 			w14.TopAttach = ((uint)(3));
@@ -195,7 +187,9 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceProduct = null;
+			this.referenceProduct = new global::Gamma.Widgets.yEntryReference();
+			this.referenceProduct.Events = ((global::Gdk.EventMask)(256));
+			this.referenceProduct.Name = "referenceProduct";
 			this.tableWater.Add(this.referenceProduct);
 			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceProduct]));
 			w15.TopAttach = ((uint)(1));
@@ -205,7 +199,9 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.referenceSrcWarehouse = null;
+			this.referenceSrcWarehouse = new global::Gamma.Widgets.yEntryReference();
+			this.referenceSrcWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.referenceSrcWarehouse.Name = "referenceSrcWarehouse";
 			this.tableWater.Add(this.referenceSrcWarehouse);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableWater[this.referenceSrcWarehouse]));
 			w16.TopAttach = ((uint)(4));
@@ -241,8 +237,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.buttonFill.Clicked += new global::System.EventHandler(this.OnButtonFillClicked);
 		}
 	}

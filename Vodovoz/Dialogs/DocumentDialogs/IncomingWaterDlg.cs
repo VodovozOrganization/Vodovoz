@@ -8,7 +8,6 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class IncomingWaterDlg : OrmGtkDialogBase<IncomingWater>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
@@ -40,10 +39,15 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			tableWater.DataSource = subjectAdaptor;
+			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
+			spinAmount.Binding.AddBinding (Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource ();
+
 			referenceProduct.SubjectType = typeof(Nomenclature);
+			referenceProduct.Binding.AddBinding (Entity, e => e.Product, w => w.Subject).InitializeFromSource ();
 			referenceSrcWarehouse.SubjectType = typeof(Warehouse);
+			referenceSrcWarehouse.Binding.AddBinding (Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource ();
 			referenceDstWarehouse.SubjectType = typeof(Warehouse);
+			referenceDstWarehouse.Binding.AddBinding (Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource ();
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 		}
 

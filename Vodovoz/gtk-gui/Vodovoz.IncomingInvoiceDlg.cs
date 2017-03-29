@@ -12,11 +12,11 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.DataBindings.DataTable tableInvoice;
+		private global::Gtk.Table tableInvoice;
 
-		private global::Gtk.DataBindings.DataEntry entryInvoiceNumber;
+		private global::Gamma.GtkWidgets.yEntry entryInvoiceNumber;
 
-		private global::Gtk.DataBindings.DataEntry entryWaybillNumber;
+		private global::Gamma.GtkWidgets.yEntry entryWaybillNumber;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
@@ -34,11 +34,11 @@ namespace Vodovoz
 
 		private global::Gtk.Label labelCounterparty;
 
-		private global::Gtk.DataBindings.DataLabel labelTimeStamp;
+		private global::Gamma.GtkWidgets.yLabel labelTimeStamp;
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceContractor;
 
-		private global::Gtk.DataBindings.DataEntryReference referenceWarehouse;
+		private global::Gamma.Widgets.yEntryReference referenceWarehouse;
 
 		private global::Vodovoz.IncomingInvoiceItemsView incominginvoiceitemsview1;
 
@@ -90,27 +90,17 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.tableInvoice = new global::Gtk.DataBindings.DataTable(((uint)(5)), ((uint)(3)), false);
+			this.tableInvoice = new global::Gtk.Table(((uint)(5)), ((uint)(3)), false);
 			this.tableInvoice.Name = "tableInvoice";
 			this.tableInvoice.RowSpacing = ((uint)(6));
 			this.tableInvoice.ColumnSpacing = ((uint)(6));
-			this.tableInvoice.InheritedDataSource = false;
-			this.tableInvoice.InheritedBoundaryDataSource = false;
-			this.tableInvoice.InheritedDataSource = false;
-			this.tableInvoice.InheritedBoundaryDataSource = false;
 			// Container child tableInvoice.Gtk.Table+TableChild
-			this.entryInvoiceNumber = new global::Gtk.DataBindings.DataEntry();
+			this.entryInvoiceNumber = new global::Gamma.GtkWidgets.yEntry();
 			this.entryInvoiceNumber.CanFocus = true;
 			this.entryInvoiceNumber.Name = "entryInvoiceNumber";
 			this.entryInvoiceNumber.IsEditable = true;
 			this.entryInvoiceNumber.MaxLength = 45;
 			this.entryInvoiceNumber.InvisibleChar = '●';
-			this.entryInvoiceNumber.InheritedDataSource = true;
-			this.entryInvoiceNumber.Mappings = "InvoiceNumber";
-			this.entryInvoiceNumber.InheritedBoundaryDataSource = false;
-			this.entryInvoiceNumber.InheritedDataSource = true;
-			this.entryInvoiceNumber.Mappings = "InvoiceNumber";
-			this.entryInvoiceNumber.InheritedBoundaryDataSource = false;
 			this.tableInvoice.Add(this.entryInvoiceNumber);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.tableInvoice[this.entryInvoiceNumber]));
 			w6.TopAttach = ((uint)(2));
@@ -120,18 +110,12 @@ namespace Vodovoz
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInvoice.Gtk.Table+TableChild
-			this.entryWaybillNumber = new global::Gtk.DataBindings.DataEntry();
+			this.entryWaybillNumber = new global::Gamma.GtkWidgets.yEntry();
 			this.entryWaybillNumber.CanFocus = true;
 			this.entryWaybillNumber.Name = "entryWaybillNumber";
 			this.entryWaybillNumber.IsEditable = true;
 			this.entryWaybillNumber.MaxLength = 45;
 			this.entryWaybillNumber.InvisibleChar = '●';
-			this.entryWaybillNumber.InheritedDataSource = true;
-			this.entryWaybillNumber.Mappings = "WaybillNumber";
-			this.entryWaybillNumber.InheritedBoundaryDataSource = false;
-			this.entryWaybillNumber.InheritedDataSource = true;
-			this.entryWaybillNumber.Mappings = "WaybillNumber";
-			this.entryWaybillNumber.InheritedBoundaryDataSource = false;
 			this.tableInvoice.Add(this.entryWaybillNumber);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.tableInvoice[this.entryWaybillNumber]));
 			w7.TopAttach = ((uint)(1));
@@ -224,23 +208,18 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInvoice.Gtk.Table+TableChild
-			this.labelTimeStamp = new global::Gtk.DataBindings.DataLabel();
+			this.labelTimeStamp = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTimeStamp.Name = "labelTimeStamp";
 			this.labelTimeStamp.Xalign = 0F;
-			this.labelTimeStamp.InheritedDataSource = true;
-			this.labelTimeStamp.Mappings = "DateString";
-			this.labelTimeStamp.InheritedBoundaryDataSource = false;
-			this.labelTimeStamp.Important = false;
-			this.labelTimeStamp.InheritedDataSource = true;
-			this.labelTimeStamp.Mappings = "DateString";
-			this.labelTimeStamp.InheritedBoundaryDataSource = false;
 			this.tableInvoice.Add(this.labelTimeStamp);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableInvoice[this.labelTimeStamp]));
 			w16.LeftAttach = ((uint)(1));
 			w16.RightAttach = ((uint)(2));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInvoice.Gtk.Table+TableChild
-			this.referenceContractor = null;
+			this.referenceContractor = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.referenceContractor.Events = ((global::Gdk.EventMask)(256));
+			this.referenceContractor.Name = "referenceContractor";
 			this.tableInvoice.Add(this.referenceContractor);
 			global::Gtk.Table.TableChild w17 = ((global::Gtk.Table.TableChild)(this.tableInvoice[this.referenceContractor]));
 			w17.TopAttach = ((uint)(3));
@@ -250,7 +229,12 @@ namespace Vodovoz
 			w17.XOptions = ((global::Gtk.AttachOptions)(4));
 			w17.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableInvoice.Gtk.Table+TableChild
-			this.referenceWarehouse = null;
+			this.referenceWarehouse = new global::Gamma.Widgets.yEntryReference();
+			this.referenceWarehouse.Events = ((global::Gdk.EventMask)(256));
+			this.referenceWarehouse.Name = "referenceWarehouse";
+			this.referenceWarehouse.DisplayFields = new string[] {
+					"Name"};
+			this.referenceWarehouse.DisplayFormatString = "{0}";
 			this.tableInvoice.Add(this.referenceWarehouse);
 			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.tableInvoice[this.referenceWarehouse]));
 			w18.TopAttach = ((uint)(4));
@@ -265,7 +249,9 @@ namespace Vodovoz
 			w19.Expand = false;
 			w19.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.incominginvoiceitemsview1 = null;
+			this.incominginvoiceitemsview1 = new global::Vodovoz.IncomingInvoiceItemsView();
+			this.incominginvoiceitemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.incominginvoiceitemsview1.Name = "incominginvoiceitemsview1";
 			this.vbox1.Add(this.incominginvoiceitemsview1);
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.incominginvoiceitemsview1]));
 			w20.Position = 2;
@@ -275,8 +261,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 		}
 	}
 }
