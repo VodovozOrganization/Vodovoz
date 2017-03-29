@@ -9,7 +9,6 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class EquipmentDlg : OrmGtkDialogBase<Equipment>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
@@ -36,7 +35,12 @@ namespace Vodovoz
 		{
 			notebook1.ShowTabs = false;
 			radiobuttonInfo.Active = true;
-			datatable1.DataSource = subjectAdaptor;
+
+			checkOnDuty.Binding.AddBinding (Entity, e => e.OnDuty, w => w.Active).InitializeFromSource ();
+			dataLastService.Binding.AddBinding (Entity, e => e.LastServiceDate, w => w.Date).InitializeFromSource ();
+			entrySerialNumber.Binding.AddBinding (Entity, e => e.Serial, w => w.Text).InitializeFromSource ();
+			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
+
 			referenceNomenclature.SubjectType = typeof(Nomenclature);
 			referenceNomenclature.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.equipment))

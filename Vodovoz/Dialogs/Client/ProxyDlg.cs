@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Gamma.ColumnConfig;
 using NLog;
 using QSContacts;
 using QSOrmProject;
 using QSValidation;
 using Vodovoz.Domain.Client;
-using Gamma.ColumnConfig;
-using QSTDI;
-using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 
 namespace Vodovoz
 {
@@ -36,12 +34,17 @@ namespace Vodovoz
 		private void ConfigureDlg ()
 		{
 			entryNumber.IsEditable = true;
-			datatable1.DataSource = subjectAdaptor;
-			personsView.Session = Session;
+			entryNumber.Binding.AddBinding (Entity, e => e.Number, w => w.Text).InitializeFromSource ();
+
+			personsView.Session = UoW.Session;
 			if (UoWGeneric.Root.Persons == null)
 				UoWGeneric.Root.Persons = new List<Person> ();
 			personsView.Persons = UoWGeneric.Root.Persons;
+
+			datepickerIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
 			datepickerIssue.DateChanged += OnIssueDateChanged;
+			datepickerStart.Binding.AddBinding (Entity, e => e.StartDate, w => w.Date).InitializeFromSource ();
+			datepickerExpiration.Binding.AddBinding (Entity, e => e.ExpirationDate, w => w.Date).InitializeFromSource ();
 
 			buttonDeleteDeliveryPoint.Sensitive = false;
 
