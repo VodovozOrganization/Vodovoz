@@ -44,8 +44,10 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
+
+			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
+			dateStart.Binding.AddBinding (Entity, e => e.StartDate, w => w.Date).InitializeFromSource ();
 
 			if (Entity.AgreementTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);

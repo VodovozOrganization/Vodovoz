@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Linq;
+using Gamma.GtkWidgets;
 using NLog;
 using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain;
-using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
-using Gamma.GtkWidgets;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
-using System.Linq;
 
 namespace Vodovoz
 {
@@ -56,9 +55,13 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
+			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
+			checkIsFixedPrice.Binding.AddBinding (Entity, e => e.IsFixedPrice, w => w.Active).InitializeFromSource ();
+
+			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
+			dateStart.Binding.AddBinding (Entity, e => e.StartDate, w => w.Date).InitializeFromSource ();
 
 			if (Entity.AgreementTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);

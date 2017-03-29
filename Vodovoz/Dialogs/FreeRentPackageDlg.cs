@@ -32,11 +32,16 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
+			dataentryName.Binding.AddBinding (Entity, e => e.Name, w => w.Text).InitializeFromSource ();
+			spinDeposit.Binding.AddBinding (Entity, e => e.Deposit, w => w.ValueAsDecimal).InitializeFromSource ();
+			spinMinWaterAmount.Binding.AddBinding (Entity, e => e.MinWaterAmount, w => w.ValueAsInt).InitializeFromSource ();
+
 			referenceDepositService.SubjectType = typeof(Nomenclature);
-			referenceEquipmentType.SubjectType = typeof(EquipmentType);
-			referenceDepositService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
+			referenceDepositService.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.deposit));
+			referenceDepositService.Binding.AddBinding (Entity, e => e.DepositService, w => w.Subject).InitializeFromSource ();
+			referenceEquipmentType.SubjectType = typeof(EquipmentType);
+			referenceEquipmentType.Binding.AddBinding (Entity, e => e.EquipmentType, w => w.Subject).InitializeFromSource ();
 		}
 
 		public override bool Save ()

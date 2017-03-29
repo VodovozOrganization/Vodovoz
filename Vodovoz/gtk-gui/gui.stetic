@@ -5878,7 +5878,7 @@ Patronymic</property>
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatablePrices">
+          <widget class="Gtk.Table" id="datatablePrices">
             <property name="MemberName" />
             <property name="NColumns">6</property>
             <property name="RowSpacing">6</property>
@@ -6074,7 +6074,6 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -6091,7 +6090,6 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отмена</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -6109,28 +6107,21 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+          <widget class="Gtk.Table" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">5</property>
             <property name="NColumns">5</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
-              <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
+              <widget class="Gamma.Widgets.yDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">IssueDate</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -6148,16 +6139,13 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.DataDatePicker" id="dateStart">
+              <widget class="Gamma.Widgets.yDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">StartDate</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -6272,14 +6260,9 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">DeliveryPoint</property>
-                <property name="ColumnMappings" />
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -6399,28 +6382,21 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+          <widget class="Gtk.Table" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">3</property>
             <property name="NColumns">5</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
-              <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
+              <widget class="Gamma.Widgets.yDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">IssueDate</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -6438,16 +6414,13 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.DataDatePicker" id="dateStart">
+              <widget class="Gamma.Widgets.yDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">StartDate</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -6627,28 +6600,21 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+          <widget class="Gtk.Table" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">5</property>
             <property name="NColumns">3</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
-              <widget class="QSOrmProject.DataDatePicker" id="dateIssue">
+              <widget class="Gamma.Widgets.yDatePicker" id="dateIssue">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">IssueDate</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -6667,16 +6633,13 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="QSOrmProject.DataDatePicker" id="dateStart">
+              <widget class="Gamma.Widgets.yDatePicker" id="dateStart">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="WithTime">False</property>
                 <property name="Date">0</property>
                 <property name="IsEditable">True</property>
                 <property name="AutoSeparation">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">StartDate</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">3</property>
@@ -6699,7 +6662,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataCheckButton" id="checkIsFixedPrice">
+                  <widget class="Gamma.GtkWidgets.yCheckButton" id="checkIsFixedPrice">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes" />
@@ -6707,14 +6670,6 @@ Patronymic</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">IsFixedPrice</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="Editable">True</property>
-                    <property name="AutomaticTitle">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">IsFixedPrice</property>
                     <signal name="Toggled" handler="OnCheckIsFixedPriceToggled" />
                   </widget>
                   <packing>
@@ -6846,14 +6801,9 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReferenceVM" id="referenceDeliveryPoint">
+              <widget class="Gamma.Widgets.yEntryReferenceVM" id="referenceDeliveryPoint">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">DeliveryPoint</property>
-                <property name="ColumnMappings" />
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -7039,29 +6989,19 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+          <widget class="Gtk.Table" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">5</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="dataentryName">
+              <widget class="Gamma.GtkWidgets.yEntry" id="dataentryName">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Name</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Name</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -7081,7 +7021,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataSpinButton" id="spinDeposit">
+                  <widget class="Gamma.GtkWidgets.ySpinButton" id="spinDeposit">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">99999</property>
@@ -7089,12 +7029,8 @@ Patronymic</property>
                     <property name="StepIncrement">1</property>
                     <property name="ClimbRate">1</property>
                     <property name="Numeric">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Deposit</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Deposit</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="ValueAsDecimal">0</property>
+                    <property name="ValueAsInt">0</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -7231,15 +7167,11 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDepositService">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceDepositService">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">DepositService</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>
@@ -7257,16 +7189,11 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipmentType">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceEquipmentType">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">EquipmentType</property>
-                <property name="ColumnMappings" />
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -7284,7 +7211,7 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataSpinButton" id="spinMinWaterAmount">
+              <widget class="Gamma.GtkWidgets.ySpinButton" id="spinMinWaterAmount">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Upper">100</property>
@@ -7292,12 +7219,8 @@ Patronymic</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
                 <property name="Numeric">True</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">MinWaterAmount</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">MinWaterAmount</property>
-                <property name="InheritedBoundaryDataSource">False</property>
+                <property name="ValueAsDecimal">0</property>
+                <property name="ValueAsInt">0</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>
@@ -7379,29 +7302,19 @@ Patronymic</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="datatable1">
+          <widget class="Gtk.Table" id="datatable1">
             <property name="MemberName" />
             <property name="NRows">8</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
-              <widget class="Gtk.DataBindings.DataEntry" id="dataentryName">
+              <widget class="Gamma.GtkWidgets.yEntry" id="dataentryName">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="IsEditable">True</property>
                 <property name="InvisibleChar">●</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Name</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">Name</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -7421,7 +7334,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataSpinButton" id="spinPriceDaily">
+                  <widget class="Gamma.GtkWidgets.ySpinButton" id="spinPriceDaily">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">9000000</property>
@@ -7430,12 +7343,8 @@ Patronymic</property>
                     <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
                     <property name="Numeric">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">PriceDaily</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">PriceDaily</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="ValueAsDecimal">0</property>
+                    <property name="ValueAsInt">0</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -7476,7 +7385,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataSpinButton" id="spinPriceMonthly">
+                  <widget class="Gamma.GtkWidgets.ySpinButton" id="spinPriceMonthly">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">9000000</property>
@@ -7485,12 +7394,8 @@ Patronymic</property>
                     <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
                     <property name="Numeric">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">PriceMonthly</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">PriceMonthly</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="ValueAsDecimal">0</property>
+                    <property name="ValueAsInt">0</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -7531,7 +7436,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
-                  <widget class="Gtk.DataBindings.DataSpinButton" id="spinDeposit">
+                  <widget class="Gamma.GtkWidgets.ySpinButton" id="spinDeposit">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Upper">99999</property>
@@ -7540,12 +7445,8 @@ Patronymic</property>
                     <property name="ClimbRate">1</property>
                     <property name="Digits">2</property>
                     <property name="Numeric">True</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Deposit</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="InheritedDataSource">True</property>
-                    <property name="Mappings">Deposit</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
+                    <property name="ValueAsDecimal">0</property>
+                    <property name="ValueAsInt">0</property>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -7744,15 +7645,11 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceDepositService">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceDepositService">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">DepositService</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">7</property>
@@ -7771,15 +7668,11 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceEquipmentType">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceEquipmentType">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">EquipmentType</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">5</property>
@@ -7798,15 +7691,11 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceRentServiceDaily">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceRentServiceDaily">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">RentServiceDaily</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">2</property>
@@ -7825,15 +7714,11 @@ Patronymic</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.DataBindings.DataEntryReference" id="referenceRentServiceMonthly">
+              <widget class="Gamma.Widgets.yEntryReference" id="referenceRentServiceMonthly">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
                 <property name="DisplayFields">Name</property>
                 <property name="DisplayFormatString">{0}</property>
-                <property name="InheritedDataSource">True</property>
-                <property name="Mappings">RentServiceMonthly</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="CursorPointsEveryType">False</property>
               </widget>
               <packing>
                 <property name="TopAttach">4</property>

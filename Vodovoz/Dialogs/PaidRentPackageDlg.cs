@@ -33,17 +33,28 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
+			dataentryName.Binding.AddBinding (Entity, e => e.Name, w => w.Text).InitializeFromSource ();
+			spinDeposit.Binding.AddBinding (Entity, e => e.Deposit, w => w.ValueAsDecimal).InitializeFromSource ();
+			spinPriceDaily.Binding.AddBinding (Entity, e => e.PriceDaily, w => w.ValueAsDecimal).InitializeFromSource ();
+			spinPriceMonthly.Binding.AddBinding (Entity, e => e.PriceMonthly, w => w.ValueAsDecimal).InitializeFromSource ();
+
 			referenceDepositService.SubjectType = typeof(Nomenclature);
-			referenceDepositService.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
+			referenceDepositService.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.deposit));
+			referenceDepositService.Binding.AddBinding (Entity, e => e.DepositService, w => w.Subject).InitializeFromSource ();
+
 			referenceRentServiceDaily.SubjectType = typeof(Nomenclature);
-			referenceRentServiceDaily.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
+			referenceRentServiceDaily.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.rent));
+			referenceRentServiceDaily.Binding.AddBinding (Entity, e => e.RentServiceDaily, w => w.Subject).InitializeFromSource ();
+
 			referenceRentServiceMonthly.SubjectType = typeof(Nomenclature);
-			referenceRentServiceMonthly.ItemsCriteria = Session.CreateCriteria<Nomenclature> ()
+			referenceRentServiceMonthly.ItemsCriteria = UoW.Session.CreateCriteria<Nomenclature> ()
 				.Add (Restrictions.Eq ("Category", NomenclatureCategory.rent));
+			referenceRentServiceMonthly.Binding.AddBinding (Entity, e => e.RentServiceMonthly, w => w.Subject).InitializeFromSource ();
+
 			referenceEquipmentType.SubjectType = typeof(EquipmentType);
+			referenceEquipmentType.Binding.AddBinding (Entity, e => e.EquipmentType, w => w.Subject).InitializeFromSource ();
 		}
 
 		public override bool Save ()
