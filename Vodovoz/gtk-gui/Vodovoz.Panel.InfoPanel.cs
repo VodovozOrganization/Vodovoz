@@ -6,23 +6,24 @@ namespace Vodovoz.Panel
 	{
 		private global::QSWidgetLib.RightSidePanel rightsidepanel1;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Panel.InfoPanel
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Panel.InfoPanel";
 			// Container child Vodovoz.Panel.InfoPanel.Gtk.Container+ContainerChild
-			this.rightsidepanel1 = new global::QSWidgetLib.RightSidePanel ();
+			this.rightsidepanel1 = new global::QSWidgetLib.RightSidePanel();
 			this.rightsidepanel1.Events = ((global::Gdk.EventMask)(256));
 			this.rightsidepanel1.Name = "rightsidepanel1";
 			this.rightsidepanel1.Title = "Информация";
 			this.rightsidepanel1.IsHided = true;
-			this.Add (this.rightsidepanel1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.rightsidepanel1);
+			if ((this.Child != null))
+			{
+				this.Child.ShowAll();
 			}
-			this.Hide ();
+			this.Hide();
 		}
 	}
 }

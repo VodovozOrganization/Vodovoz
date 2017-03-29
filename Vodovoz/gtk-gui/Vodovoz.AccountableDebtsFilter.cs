@@ -5,45 +5,44 @@ namespace Vodovoz
 	public partial class AccountableDebtsFilter
 	{
 		private global::Gtk.Table table1;
-		
+
 		private global::QSOrmProject.EntryReference entryreferenceExpense;
-		
+
 		private global::Gtk.Label label1;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.AccountableDebtsFilter
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.AccountableDebtsFilter";
 			// Container child Vodovoz.AccountableDebtsFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table (((uint)(1)), ((uint)(3)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(3)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryreferenceExpense = new global::QSOrmProject.EntryReference ();
-			this.entryreferenceExpense.Events = ((global::Gdk.EventMask)(256));
-			this.entryreferenceExpense.Name = "entryreferenceExpense";
-			this.table1.Add (this.entryreferenceExpense);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryreferenceExpense]));
+			this.entryreferenceExpense = null;
+			this.table1.Add(this.entryreferenceExpense);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.entryreferenceExpense]));
 			w1.LeftAttach = ((uint)(1));
 			w1.RightAttach = ((uint)(2));
+			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label ();
+			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Статья расхода:");
-			this.table1.Add (this.label1);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Статья расхода:");
+			this.table1.Add(this.label1);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add (this.table1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.table1);
+			if ((this.Child != null))
+			{
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.entryreferenceExpense.Changed += new global::System.EventHandler (this.OnEntryreferenceExpenseChanged);
+			this.Hide();
 		}
 	}
 }

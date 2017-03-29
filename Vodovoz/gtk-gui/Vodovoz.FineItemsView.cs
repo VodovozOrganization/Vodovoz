@@ -5,107 +5,107 @@ namespace Vodovoz
 	public partial class FineItemsView
 	{
 		private global::Gtk.VBox vbox1;
-		
+
 		private global::Gtk.Label label1;
-		
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-		
+
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewItems;
-		
+
 		private global::Gtk.HBox hbox1;
-		
+
 		private global::Gtk.Button buttonAdd;
-		
+
 		private global::Gtk.Button buttonRemove;
-		
+
 		private global::Gtk.Label labelTotal;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.FineItemsView
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.FineItemsView";
 			// Container child Vodovoz.FineItemsView.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.label1 = new global::Gtk.Label ();
+			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 0F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Оштрафованные сотрудники:");
-			this.vbox1.Add (this.label1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.label1]));
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Оштрафованные сотрудники:");
+			this.vbox1.Add(this.label1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeviewItems = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeviewItems = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeviewItems.CanFocus = true;
 			this.ytreeviewItems.Name = "ytreeviewItems";
-			this.GtkScrolledWindow.Add (this.ytreeviewItems);
-			this.vbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
+			this.GtkScrolledWindow.Add(this.ytreeviewItems);
+			this.vbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
 			w3.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonAdd = new global::Gtk.Button ();
+			this.buttonAdd = new global::Gtk.Button();
 			this.buttonAdd.CanFocus = true;
 			this.buttonAdd.Name = "buttonAdd";
 			this.buttonAdd.UseUnderline = true;
-			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить");
-			global::Gtk.Image w4 = new global::Gtk.Image ();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString("Добавить");
+			global::Gtk.Image w4 = new global::Gtk.Image();
+			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-add", global::Gtk.IconSize.Menu);
 			this.buttonAdd.Image = w4;
-			this.hbox1.Add (this.buttonAdd);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAdd]));
+			this.hbox1.Add(this.buttonAdd);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonAdd]));
 			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonRemove = new global::Gtk.Button ();
+			this.buttonRemove = new global::Gtk.Button();
 			this.buttonRemove.CanFocus = true;
 			this.buttonRemove.Name = "buttonRemove";
 			this.buttonRemove.UseUnderline = true;
-			this.buttonRemove.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
-			global::Gtk.Image w6 = new global::Gtk.Image ();
-			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonRemove.Label = global::Mono.Unix.Catalog.GetString("Удалить");
+			global::Gtk.Image w6 = new global::Gtk.Image();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
 			this.buttonRemove.Image = w6;
-			this.hbox1.Add (this.buttonRemove);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonRemove]));
+			this.hbox1.Add(this.buttonRemove);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonRemove]));
 			w7.Position = 1;
 			w7.Expand = false;
 			w7.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.labelTotal = new global::Gtk.Label ();
+			this.labelTotal = new global::Gtk.Label();
 			this.labelTotal.Name = "labelTotal";
-			this.labelTotal.LabelProp = global::Mono.Unix.Catalog.GetString ("label1");
-			this.hbox1.Add (this.labelTotal);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.labelTotal]));
+			this.hbox1.Add(this.labelTotal);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.labelTotal]));
 			w8.PackType = ((global::Gtk.PackType)(1));
 			w8.Position = 2;
 			w8.Expand = false;
 			w8.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w9.Position = 2;
 			w9.Expand = false;
 			w9.Fill = false;
-			this.Add (this.vbox1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.vbox1);
+			if ((this.Child != null))
+			{
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.buttonAdd.Clicked += new global::System.EventHandler (this.OnButtonAddClicked);
-			this.buttonRemove.Clicked += new global::System.EventHandler (this.OnButtonRemoveClicked);
+			this.Hide();
+			this.buttonAdd.Clicked += new global::System.EventHandler(this.OnButtonAddClicked);
+			this.buttonRemove.Clicked += new global::System.EventHandler(this.OnButtonRemoveClicked);
 		}
 	}
 }

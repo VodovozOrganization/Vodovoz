@@ -5,217 +5,217 @@ namespace Vodovoz
 	public partial class NomenclatureDlg
 	{
 		private global::Gtk.VBox vbox1;
-		
+
 		private global::Gtk.HBox hbox1;
-		
+
 		private global::Gtk.Button buttonSave;
-		
+
 		private global::Gtk.Button buttonCancel;
-		
+
 		private global::Gtk.RadioButton radioPrice;
-		
+
 		private global::Gtk.RadioButton radioEuqpment;
-		
+
 		private global::Gtk.RadioButton radioInfo;
-		
+
 		private global::Gtk.VSeparator vseparator1;
-		
+
 		private global::Gtk.Notebook notebook1;
-		
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-		
+
 		private global::Gtk.DataBindings.DataTable datatable1;
-		
+
 		private global::Gtk.DataBindings.DataCheckButton checkNotReserve;
-		
+
 		private global::Gtk.DataBindings.DataEntry entryCode1c;
-		
+
 		private global::Gamma.GtkWidgets.yEntry entryName;
-		
+
 		private global::Gamma.Widgets.yEnumComboBox enumType;
-		
+
 		private global::Gamma.Widgets.yEnumComboBox enumVAT;
-		
+
 		private global::Gtk.HBox hbox8;
-		
+
 		private global::Gamma.GtkWidgets.ySpinButton yspinSumOfDamage;
-		
+
 		private global::QSProjectsLib.CurrencyLabel currencylabel2;
-		
+
 		private global::Gtk.Label label3;
-		
+
 		private global::Gtk.Label label4;
-		
+
 		private global::Gtk.Label label5;
-		
+
 		private global::Gtk.Label label7;
-		
+
 		private global::Gtk.Label label8;
-		
+
 		private global::Gtk.Label labelName;
-		
+
 		private global::Gtk.Label labelReserve;
-		
+
 		private global::Gtk.Label labelType;
-		
+
 		private global::Gtk.Label labelUnit;
-		
+
 		private global::Gtk.Label labelVAT;
-		
+
 		private global::Gtk.Label labelWeight;
-		
+
 		private global::Gtk.DataBindings.DataEntryReference referenceRouteColumn;
-		
+
 		private global::Gtk.DataBindings.DataEntryReference referenceUnit;
-		
+
 		private global::Gtk.DataBindings.DataEntryReference referenceWarehouse;
-		
+
 		private global::Gtk.DataBindings.DataSpinButton spinWeight;
-		
+
 		private global::Gamma.GtkWidgets.yEntry yentryOfficialName;
-		
+
 		private global::Gamma.GtkWidgets.yEntry yentryShortName;
-		
+
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
-		
+
 		private global::Gtk.Label label1;
-		
+
 		private global::Gtk.Table table1;
-		
+
 		private global::Gamma.GtkWidgets.yCheckButton checkSerial;
-		
+
 		private global::Gamma.GtkWidgets.yEntry entryModel;
-		
+
 		private global::Gtk.Label labelClass;
-		
+
 		private global::Gtk.Label labelColor;
-		
+
 		private global::Gtk.Label labelManufacturer;
-		
+
 		private global::Gtk.Label labelModel;
-		
+
 		private global::Gtk.Label labelRentPriority;
-		
+
 		private global::Gtk.Label labelSerial;
-		
+
 		private global::Gamma.Widgets.yEntryReference referenceColor;
-		
+
 		private global::Gamma.Widgets.yEntryReference referenceManufacturer;
-		
+
 		private global::Gamma.GtkWidgets.yCheckButton ycheckRentPriority;
-		
+
 		private global::Gamma.Widgets.yEntryReference yentryrefEqupmentType;
-		
+
 		private global::Gtk.Label label2;
-		
+
 		private global::Gtk.DataBindings.DataTable datatable2;
-		
+
 		private global::Vodovoz.PricesView pricesView;
-		
+
 		private global::Gtk.Label label6;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.NomenclatureDlg
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.NomenclatureDlg";
 			// Container child Vodovoz.NomenclatureDlg.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSave = new global::Gtk.Button ();
+			this.buttonSave = new global::Gtk.Button();
 			this.buttonSave.CanFocus = true;
 			this.buttonSave.Name = "buttonSave";
 			this.buttonSave.UseUnderline = true;
-			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString ("Сохранить");
-			global::Gtk.Image w1 = new global::Gtk.Image ();
-			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-floppy", global::Gtk.IconSize.Menu);
+			this.buttonSave.Label = global::Mono.Unix.Catalog.GetString("Сохранить");
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-floppy", global::Gtk.IconSize.Menu);
 			this.buttonSave.Image = w1;
-			this.hbox1.Add (this.buttonSave);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonSave]));
+			this.hbox1.Add(this.buttonSave);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSave]));
 			w2.Position = 0;
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonCancel = new global::Gtk.Button ();
+			this.buttonCancel = new global::Gtk.Button();
 			this.buttonCancel.CanFocus = true;
 			this.buttonCancel.Name = "buttonCancel";
 			this.buttonCancel.UseUnderline = true;
-			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString ("Отменить");
-			global::Gtk.Image w3 = new global::Gtk.Image ();
-			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
+			this.buttonCancel.Label = global::Mono.Unix.Catalog.GetString("Отменить");
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-revert-to-saved", global::Gtk.IconSize.Menu);
 			this.buttonCancel.Image = w3;
-			this.hbox1.Add (this.buttonCancel);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonCancel]));
+			this.hbox1.Add(this.buttonCancel);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonCancel]));
 			w4.Position = 1;
 			w4.Expand = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.radioPrice = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Цены"));
+			this.radioPrice = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Цены"));
 			this.radioPrice.CanFocus = true;
 			this.radioPrice.Name = "radioPrice";
 			this.radioPrice.DrawIndicator = false;
 			this.radioPrice.UseUnderline = true;
-			this.radioPrice.Group = new global::GLib.SList (global::System.IntPtr.Zero);
-			this.hbox1.Add (this.radioPrice);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.radioPrice]));
+			this.radioPrice.Group = new global::GLib.SList(global::System.IntPtr.Zero);
+			this.hbox1.Add(this.radioPrice);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.radioPrice]));
 			w5.PackType = ((global::Gtk.PackType)(1));
 			w5.Position = 2;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.radioEuqpment = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Оборудование"));
+			this.radioEuqpment = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Оборудование"));
 			this.radioEuqpment.CanFocus = true;
 			this.radioEuqpment.Name = "radioEuqpment";
 			this.radioEuqpment.DrawIndicator = false;
 			this.radioEuqpment.UseUnderline = true;
 			this.radioEuqpment.Group = this.radioPrice.Group;
-			this.hbox1.Add (this.radioEuqpment);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.radioEuqpment]));
+			this.hbox1.Add(this.radioEuqpment);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.radioEuqpment]));
 			w6.PackType = ((global::Gtk.PackType)(1));
 			w6.Position = 3;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.radioInfo = new global::Gtk.RadioButton (global::Mono.Unix.Catalog.GetString ("Информация"));
+			this.radioInfo = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Информация"));
 			this.radioInfo.CanFocus = true;
 			this.radioInfo.Name = "radioInfo";
 			this.radioInfo.DrawIndicator = false;
 			this.radioInfo.UseUnderline = true;
 			this.radioInfo.Group = this.radioPrice.Group;
-			this.hbox1.Add (this.radioInfo);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.radioInfo]));
+			this.hbox1.Add(this.radioInfo);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.radioInfo]));
 			w7.PackType = ((global::Gtk.PackType)(1));
 			w7.Position = 4;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.vseparator1 = new global::Gtk.VSeparator ();
+			this.vseparator1 = new global::Gtk.VSeparator();
 			this.vseparator1.Name = "vseparator1";
-			this.hbox1.Add (this.vseparator1);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vseparator1]));
+			this.hbox1.Add(this.vseparator1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vseparator1]));
 			w8.PackType = ((global::Gtk.PackType)(1));
 			w8.Position = 5;
 			w8.Expand = false;
 			w8.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w9.Position = 0;
 			w9.Expand = false;
 			w9.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.notebook1 = new global::Gtk.Notebook ();
+			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
 			this.notebook1.CurrentPage = 0;
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			global::Gtk.Viewport w10 = new global::Gtk.Viewport ();
+			global::Gtk.Viewport w10 = new global::Gtk.Viewport();
 			w10.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child GtkViewport.Gtk.Container+ContainerChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable (((uint)(12)), ((uint)(2)), false);
+			this.datatable1 = new global::Gtk.DataBindings.DataTable(((uint)(12)), ((uint)(2)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
@@ -225,7 +225,7 @@ namespace Vodovoz
 			this.datatable1.InheritedDataSource = false;
 			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.checkNotReserve = new global::Gtk.DataBindings.DataCheckButton ();
+			this.checkNotReserve = new global::Gtk.DataBindings.DataCheckButton();
 			this.checkNotReserve.CanFocus = true;
 			this.checkNotReserve.Name = "checkNotReserve";
 			this.checkNotReserve.Label = "";
@@ -239,8 +239,8 @@ namespace Vodovoz
 			this.checkNotReserve.InheritedBoundaryDataSource = false;
 			this.checkNotReserve.InheritedDataSource = true;
 			this.checkNotReserve.Mappings = "DoNotReserve";
-			this.datatable1.Add (this.checkNotReserve);
-			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.checkNotReserve]));
+			this.datatable1.Add(this.checkNotReserve);
+			global::Gtk.Table.TableChild w11 = ((global::Gtk.Table.TableChild)(this.datatable1[this.checkNotReserve]));
 			w11.TopAttach = ((uint)(11));
 			w11.BottomAttach = ((uint)(12));
 			w11.LeftAttach = ((uint)(1));
@@ -248,7 +248,7 @@ namespace Vodovoz
 			w11.XOptions = ((global::Gtk.AttachOptions)(4));
 			w11.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entryCode1c = new global::Gtk.DataBindings.DataEntry ();
+			this.entryCode1c = new global::Gtk.DataBindings.DataEntry();
 			this.entryCode1c.CanFocus = true;
 			this.entryCode1c.Name = "entryCode1c";
 			this.entryCode1c.IsEditable = true;
@@ -259,8 +259,8 @@ namespace Vodovoz
 			this.entryCode1c.InheritedDataSource = true;
 			this.entryCode1c.Mappings = "Code1c";
 			this.entryCode1c.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.entryCode1c);
-			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryCode1c]));
+			this.datatable1.Add(this.entryCode1c);
+			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryCode1c]));
 			w12.TopAttach = ((uint)(10));
 			w12.BottomAttach = ((uint)(11));
 			w12.LeftAttach = ((uint)(1));
@@ -268,26 +268,26 @@ namespace Vodovoz
 			w12.XOptions = ((global::Gtk.AttachOptions)(4));
 			w12.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.entryName = new global::Gamma.GtkWidgets.yEntry ();
+			this.entryName = new global::Gamma.GtkWidgets.yEntry();
 			this.entryName.CanFocus = true;
 			this.entryName.Name = "entryName";
 			this.entryName.IsEditable = true;
 			this.entryName.MaxLength = 220;
 			this.entryName.InvisibleChar = '●';
-			this.datatable1.Add (this.entryName);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.entryName]));
+			this.datatable1.Add(this.entryName);
+			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.datatable1[this.entryName]));
 			w13.LeftAttach = ((uint)(1));
 			w13.RightAttach = ((uint)(2));
 			w13.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.enumType = new global::Gamma.Widgets.yEnumComboBox ();
+			this.enumType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumType.Name = "enumType";
 			this.enumType.ShowSpecialStateAll = false;
 			this.enumType.ShowSpecialStateNot = false;
 			this.enumType.UseShortTitle = false;
 			this.enumType.DefaultFirst = true;
-			this.datatable1.Add (this.enumType);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.enumType]));
+			this.datatable1.Add(this.enumType);
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.datatable1[this.enumType]));
 			w14.TopAttach = ((uint)(3));
 			w14.BottomAttach = ((uint)(4));
 			w14.LeftAttach = ((uint)(1));
@@ -295,14 +295,14 @@ namespace Vodovoz
 			w14.XOptions = ((global::Gtk.AttachOptions)(4));
 			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.enumVAT = new global::Gamma.Widgets.yEnumComboBox ();
+			this.enumVAT = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumVAT.Name = "enumVAT";
 			this.enumVAT.ShowSpecialStateAll = false;
 			this.enumVAT.ShowSpecialStateNot = false;
 			this.enumVAT.UseShortTitle = false;
 			this.enumVAT.DefaultFirst = true;
-			this.datatable1.Add (this.enumVAT);
-			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.enumVAT]));
+			this.datatable1.Add(this.enumVAT);
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.datatable1[this.enumVAT]));
 			w15.TopAttach = ((uint)(9));
 			w15.BottomAttach = ((uint)(10));
 			w15.LeftAttach = ((uint)(1));
@@ -310,11 +310,11 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.hbox8 = new global::Gtk.HBox ();
+			this.hbox8 = new global::Gtk.HBox();
 			this.hbox8.Name = "hbox8";
 			this.hbox8.Spacing = 6;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.yspinSumOfDamage = new global::Gamma.GtkWidgets.ySpinButton (0, 100000, 1);
+			this.yspinSumOfDamage = new global::Gamma.GtkWidgets.ySpinButton(0, 100000, 1);
 			this.yspinSumOfDamage.CanFocus = true;
 			this.yspinSumOfDamage.Name = "yspinSumOfDamage";
 			this.yspinSumOfDamage.Adjustment.PageIncrement = 10;
@@ -323,20 +323,20 @@ namespace Vodovoz
 			this.yspinSumOfDamage.Numeric = true;
 			this.yspinSumOfDamage.ValueAsDecimal = 0m;
 			this.yspinSumOfDamage.ValueAsInt = 0;
-			this.hbox8.Add (this.yspinSumOfDamage);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.yspinSumOfDamage]));
+			this.hbox8.Add(this.yspinSumOfDamage);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.yspinSumOfDamage]));
 			w16.Position = 0;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.currencylabel2 = new global::QSProjectsLib.CurrencyLabel ();
+			this.currencylabel2 = new global::QSProjectsLib.CurrencyLabel();
 			this.currencylabel2.Name = "currencylabel2";
-			this.currencylabel2.LabelProp = global::Mono.Unix.Catalog.GetString ("currencylabel2");
-			this.hbox8.Add (this.currencylabel2);
-			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.currencylabel2]));
+			this.currencylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("currencylabel2");
+			this.hbox8.Add(this.currencylabel2);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.currencylabel2]));
 			w17.Position = 1;
 			w17.Expand = false;
 			w17.Fill = false;
-			this.datatable1.Add (this.hbox8);
-			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.hbox8]));
+			this.datatable1.Add(this.hbox8);
+			global::Gtk.Table.TableChild w18 = ((global::Gtk.Table.TableChild)(this.datatable1[this.hbox8]));
 			w18.TopAttach = ((uint)(6));
 			w18.BottomAttach = ((uint)(7));
 			w18.LeftAttach = ((uint)(1));
@@ -344,133 +344,128 @@ namespace Vodovoz
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label3 = new global::Gtk.Label ();
+			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
-			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString ("Колонка маршрутного листа:");
-			this.datatable1.Add (this.label3);
-			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label3]));
+			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Колонка маршрутного листа:");
+			this.datatable1.Add(this.label3);
+			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label3]));
 			w19.TopAttach = ((uint)(7));
 			w19.BottomAttach = ((uint)(8));
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label4 = new global::Gtk.Label ();
+			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Склад отгрузки:");
-			this.datatable1.Add (this.label4);
-			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label4]));
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Склад отгрузки:");
+			this.datatable1.Add(this.label4);
+			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label4]));
 			w20.TopAttach = ((uint)(8));
 			w20.BottomAttach = ((uint)(9));
 			w20.XOptions = ((global::Gtk.AttachOptions)(4));
 			w20.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label5 = new global::Gtk.Label ();
+			this.label5 = new global::Gtk.Label();
 			this.label5.Name = "label5";
 			this.label5.Xalign = 1F;
-			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString ("Код 1C:");
-			this.datatable1.Add (this.label5);
-			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label5]));
+			this.label5.LabelProp = global::Mono.Unix.Catalog.GetString("Код 1C:");
+			this.datatable1.Add(this.label5);
+			global::Gtk.Table.TableChild w21 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label5]));
 			w21.TopAttach = ((uint)(10));
 			w21.BottomAttach = ((uint)(11));
 			w21.XOptions = ((global::Gtk.AttachOptions)(4));
 			w21.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label7 = new global::Gtk.Label ();
+			this.label7 = new global::Gtk.Label();
 			this.label7.Name = "label7";
 			this.label7.Xalign = 1F;
-			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString ("Сумма штрафа:");
-			this.datatable1.Add (this.label7);
-			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label7]));
+			this.label7.LabelProp = global::Mono.Unix.Catalog.GetString("Сумма штрафа:");
+			this.datatable1.Add(this.label7);
+			global::Gtk.Table.TableChild w22 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label7]));
 			w22.TopAttach = ((uint)(6));
 			w22.BottomAttach = ((uint)(7));
 			w22.XOptions = ((global::Gtk.AttachOptions)(4));
 			w22.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.label8 = new global::Gtk.Label ();
+			this.label8 = new global::Gtk.Label();
 			this.label8.Name = "label8";
 			this.label8.Xalign = 1F;
-			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString ("Официальное название:");
-			this.datatable1.Add (this.label8);
-			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.label8]));
+			this.label8.LabelProp = global::Mono.Unix.Catalog.GetString("Официальное название:");
+			this.datatable1.Add(this.label8);
+			global::Gtk.Table.TableChild w23 = ((global::Gtk.Table.TableChild)(this.datatable1[this.label8]));
 			w23.TopAttach = ((uint)(1));
 			w23.BottomAttach = ((uint)(2));
 			w23.XOptions = ((global::Gtk.AttachOptions)(4));
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.labelName = new global::Gtk.Label ();
+			this.labelName = new global::Gtk.Label();
 			this.labelName.Name = "labelName";
 			this.labelName.Xalign = 1F;
-			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString ("Наименование:");
-			this.datatable1.Add (this.labelName);
-			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelName]));
+			this.labelName.LabelProp = global::Mono.Unix.Catalog.GetString("Наименование:");
+			this.datatable1.Add(this.labelName);
+			global::Gtk.Table.TableChild w24 = ((global::Gtk.Table.TableChild)(this.datatable1[this.labelName]));
 			w24.XOptions = ((global::Gtk.AttachOptions)(4));
 			w24.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.labelReserve = new global::Gtk.Label ();
+			this.labelReserve = new global::Gtk.Label();
 			this.labelReserve.Name = "labelReserve";
 			this.labelReserve.Xalign = 1F;
-			this.labelReserve.LabelProp = global::Mono.Unix.Catalog.GetString ("Не резервировать:");
-			this.datatable1.Add (this.labelReserve);
-			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelReserve]));
+			this.labelReserve.LabelProp = global::Mono.Unix.Catalog.GetString("Не резервировать:");
+			this.datatable1.Add(this.labelReserve);
+			global::Gtk.Table.TableChild w25 = ((global::Gtk.Table.TableChild)(this.datatable1[this.labelReserve]));
 			w25.TopAttach = ((uint)(11));
 			w25.BottomAttach = ((uint)(12));
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.labelType = new global::Gtk.Label ();
+			this.labelType = new global::Gtk.Label();
 			this.labelType.Name = "labelType";
 			this.labelType.Xalign = 1F;
-			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип:");
-			this.datatable1.Add (this.labelType);
-			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelType]));
+			this.labelType.LabelProp = global::Mono.Unix.Catalog.GetString("Тип:");
+			this.datatable1.Add(this.labelType);
+			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.datatable1[this.labelType]));
 			w26.TopAttach = ((uint)(3));
 			w26.BottomAttach = ((uint)(4));
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.labelUnit = new global::Gtk.Label ();
+			this.labelUnit = new global::Gtk.Label();
 			this.labelUnit.Name = "labelUnit";
 			this.labelUnit.Xalign = 1F;
-			this.labelUnit.LabelProp = global::Mono.Unix.Catalog.GetString ("Единица измерения:");
-			this.datatable1.Add (this.labelUnit);
-			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelUnit]));
+			this.labelUnit.LabelProp = global::Mono.Unix.Catalog.GetString("Единица измерения:");
+			this.datatable1.Add(this.labelUnit);
+			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.datatable1[this.labelUnit]));
 			w27.TopAttach = ((uint)(4));
 			w27.BottomAttach = ((uint)(5));
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.labelVAT = new global::Gtk.Label ();
+			this.labelVAT = new global::Gtk.Label();
 			this.labelVAT.Name = "labelVAT";
 			this.labelVAT.Xalign = 1F;
-			this.labelVAT.LabelProp = global::Mono.Unix.Catalog.GetString ("НДС:");
-			this.datatable1.Add (this.labelVAT);
-			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelVAT]));
+			this.labelVAT.LabelProp = global::Mono.Unix.Catalog.GetString("НДС:");
+			this.datatable1.Add(this.labelVAT);
+			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.datatable1[this.labelVAT]));
 			w28.TopAttach = ((uint)(9));
 			w28.BottomAttach = ((uint)(10));
 			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.labelWeight = new global::Gtk.Label ();
+			this.labelWeight = new global::Gtk.Label();
 			this.labelWeight.Name = "labelWeight";
 			this.labelWeight.Xalign = 1F;
-			this.labelWeight.LabelProp = global::Mono.Unix.Catalog.GetString ("Вес (кг):");
-			this.datatable1.Add (this.labelWeight);
-			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.labelWeight]));
+			this.labelWeight.LabelProp = global::Mono.Unix.Catalog.GetString("Вес (кг):");
+			this.datatable1.Add(this.labelWeight);
+			global::Gtk.Table.TableChild w29 = ((global::Gtk.Table.TableChild)(this.datatable1[this.labelWeight]));
 			w29.TopAttach = ((uint)(5));
 			w29.BottomAttach = ((uint)(6));
 			w29.XOptions = ((global::Gtk.AttachOptions)(4));
 			w29.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceRouteColumn = new global::Gtk.DataBindings.DataEntryReference ();
-			this.referenceRouteColumn.Events = ((global::Gdk.EventMask)(256));
-			this.referenceRouteColumn.Name = "referenceRouteColumn";
-			this.referenceRouteColumn.InheritedDataSource = true;
-			this.referenceRouteColumn.InheritedBoundaryDataSource = false;
-			this.referenceRouteColumn.CursorPointsEveryType = false;
-			this.datatable1.Add (this.referenceRouteColumn);
-			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceRouteColumn]));
+			this.referenceRouteColumn = null;
+			this.datatable1.Add(this.referenceRouteColumn);
+			global::Gtk.Table.TableChild w30 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceRouteColumn]));
 			w30.TopAttach = ((uint)(7));
 			w30.BottomAttach = ((uint)(8));
 			w30.LeftAttach = ((uint)(1));
@@ -478,15 +473,9 @@ namespace Vodovoz
 			w30.XOptions = ((global::Gtk.AttachOptions)(4));
 			w30.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceUnit = new global::Gtk.DataBindings.DataEntryReference ();
-			this.referenceUnit.Events = ((global::Gdk.EventMask)(256));
-			this.referenceUnit.Name = "referenceUnit";
-			this.referenceUnit.InheritedDataSource = true;
-			this.referenceUnit.Mappings = "";
-			this.referenceUnit.InheritedBoundaryDataSource = false;
-			this.referenceUnit.CursorPointsEveryType = false;
-			this.datatable1.Add (this.referenceUnit);
-			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceUnit]));
+			this.referenceUnit = null;
+			this.datatable1.Add(this.referenceUnit);
+			global::Gtk.Table.TableChild w31 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceUnit]));
 			w31.TopAttach = ((uint)(4));
 			w31.BottomAttach = ((uint)(5));
 			w31.LeftAttach = ((uint)(1));
@@ -494,14 +483,9 @@ namespace Vodovoz
 			w31.XOptions = ((global::Gtk.AttachOptions)(4));
 			w31.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceWarehouse = new global::Gtk.DataBindings.DataEntryReference ();
-			this.referenceWarehouse.Events = ((global::Gdk.EventMask)(256));
-			this.referenceWarehouse.Name = "referenceWarehouse";
-			this.referenceWarehouse.InheritedDataSource = true;
-			this.referenceWarehouse.InheritedBoundaryDataSource = false;
-			this.referenceWarehouse.CursorPointsEveryType = false;
-			this.datatable1.Add (this.referenceWarehouse);
-			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.referenceWarehouse]));
+			this.referenceWarehouse = null;
+			this.datatable1.Add(this.referenceWarehouse);
+			global::Gtk.Table.TableChild w32 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceWarehouse]));
 			w32.TopAttach = ((uint)(8));
 			w32.BottomAttach = ((uint)(9));
 			w32.LeftAttach = ((uint)(1));
@@ -509,7 +493,7 @@ namespace Vodovoz
 			w32.XOptions = ((global::Gtk.AttachOptions)(4));
 			w32.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.spinWeight = new global::Gtk.DataBindings.DataSpinButton (0, 999, 1);
+			this.spinWeight = new global::Gtk.DataBindings.DataSpinButton(0, 999, 1);
 			this.spinWeight.CanFocus = true;
 			this.spinWeight.Name = "spinWeight";
 			this.spinWeight.Adjustment.PageIncrement = 10;
@@ -523,8 +507,8 @@ namespace Vodovoz
 			this.spinWeight.InheritedDataSource = true;
 			this.spinWeight.Mappings = "Weight";
 			this.spinWeight.InheritedBoundaryDataSource = false;
-			this.datatable1.Add (this.spinWeight);
-			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.spinWeight]));
+			this.datatable1.Add(this.spinWeight);
+			global::Gtk.Table.TableChild w33 = ((global::Gtk.Table.TableChild)(this.datatable1[this.spinWeight]));
 			w33.TopAttach = ((uint)(5));
 			w33.BottomAttach = ((uint)(6));
 			w33.LeftAttach = ((uint)(1));
@@ -532,13 +516,13 @@ namespace Vodovoz
 			w33.XOptions = ((global::Gtk.AttachOptions)(4));
 			w33.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.yentryOfficialName = new global::Gamma.GtkWidgets.yEntry ();
+			this.yentryOfficialName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryOfficialName.CanFocus = true;
 			this.yentryOfficialName.Name = "yentryOfficialName";
 			this.yentryOfficialName.IsEditable = true;
 			this.yentryOfficialName.InvisibleChar = '●';
-			this.datatable1.Add (this.yentryOfficialName);
-			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.yentryOfficialName]));
+			this.datatable1.Add(this.yentryOfficialName);
+			global::Gtk.Table.TableChild w34 = ((global::Gtk.Table.TableChild)(this.datatable1[this.yentryOfficialName]));
 			w34.TopAttach = ((uint)(1));
 			w34.BottomAttach = ((uint)(2));
 			w34.LeftAttach = ((uint)(1));
@@ -546,13 +530,13 @@ namespace Vodovoz
 			w34.XOptions = ((global::Gtk.AttachOptions)(4));
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.yentryShortName = new global::Gamma.GtkWidgets.yEntry ();
+			this.yentryShortName = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryShortName.CanFocus = true;
 			this.yentryShortName.Name = "yentryShortName";
 			this.yentryShortName.IsEditable = true;
 			this.yentryShortName.InvisibleChar = '●';
-			this.datatable1.Add (this.yentryShortName);
-			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.yentryShortName]));
+			this.datatable1.Add(this.yentryShortName);
+			global::Gtk.Table.TableChild w35 = ((global::Gtk.Table.TableChild)(this.datatable1[this.yentryShortName]));
 			w35.TopAttach = ((uint)(2));
 			w35.BottomAttach = ((uint)(3));
 			w35.LeftAttach = ((uint)(1));
@@ -560,39 +544,39 @@ namespace Vodovoz
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel ();
+			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
 			this.ylabel1.Xalign = 1F;
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("Сокращенное название:");
-			this.datatable1.Add (this.ylabel1);
-			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.datatable1 [this.ylabel1]));
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Сокращенное название:");
+			this.datatable1.Add(this.ylabel1);
+			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.datatable1[this.ylabel1]));
 			w36.TopAttach = ((uint)(2));
 			w36.BottomAttach = ((uint)(3));
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
-			w10.Add (this.datatable1);
-			this.GtkScrolledWindow.Add (w10);
-			this.notebook1.Add (this.GtkScrolledWindow);
+			w10.Add(this.datatable1);
+			this.GtkScrolledWindow.Add(w10);
+			this.notebook1.Add(this.GtkScrolledWindow);
 			// Notebook tab
-			this.label1 = new global::Gtk.Label ();
+			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Информация");
-			this.notebook1.SetTabLabel (this.GtkScrolledWindow, this.label1);
-			this.label1.ShowAll ();
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Информация");
+			this.notebook1.SetTabLabel(this.GtkScrolledWindow, this.label1);
+			this.label1.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.table1 = new global::Gtk.Table (((uint)(6)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(6)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkSerial = new global::Gamma.GtkWidgets.yCheckButton ();
+			this.checkSerial = new global::Gamma.GtkWidgets.yCheckButton();
 			this.checkSerial.CanFocus = true;
 			this.checkSerial.Name = "checkSerial";
 			this.checkSerial.Label = "";
 			this.checkSerial.DrawIndicator = true;
 			this.checkSerial.UseUnderline = true;
-			this.table1.Add (this.checkSerial);
-			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.table1 [this.checkSerial]));
+			this.table1.Add(this.checkSerial);
+			global::Gtk.Table.TableChild w40 = ((global::Gtk.Table.TableChild)(this.table1[this.checkSerial]));
 			w40.TopAttach = ((uint)(4));
 			w40.BottomAttach = ((uint)(5));
 			w40.LeftAttach = ((uint)(1));
@@ -600,13 +584,13 @@ namespace Vodovoz
 			w40.XOptions = ((global::Gtk.AttachOptions)(4));
 			w40.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryModel = new global::Gamma.GtkWidgets.yEntry ();
+			this.entryModel = new global::Gamma.GtkWidgets.yEntry();
 			this.entryModel.CanFocus = true;
 			this.entryModel.Name = "entryModel";
 			this.entryModel.IsEditable = true;
 			this.entryModel.InvisibleChar = '●';
-			this.table1.Add (this.entryModel);
-			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryModel]));
+			this.table1.Add(this.entryModel);
+			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.table1[this.entryModel]));
 			w41.TopAttach = ((uint)(1));
 			w41.BottomAttach = ((uint)(2));
 			w41.LeftAttach = ((uint)(1));
@@ -614,75 +598,73 @@ namespace Vodovoz
 			w41.XOptions = ((global::Gtk.AttachOptions)(4));
 			w41.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelClass = new global::Gtk.Label ();
+			this.labelClass = new global::Gtk.Label();
 			this.labelClass.Name = "labelClass";
 			this.labelClass.Xalign = 1F;
-			this.labelClass.LabelProp = global::Mono.Unix.Catalog.GetString ("Класс оборудования:");
-			this.table1.Add (this.labelClass);
-			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelClass]));
+			this.labelClass.LabelProp = global::Mono.Unix.Catalog.GetString("Класс оборудования:");
+			this.table1.Add(this.labelClass);
+			global::Gtk.Table.TableChild w42 = ((global::Gtk.Table.TableChild)(this.table1[this.labelClass]));
 			w42.XOptions = ((global::Gtk.AttachOptions)(4));
 			w42.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelColor = new global::Gtk.Label ();
+			this.labelColor = new global::Gtk.Label();
 			this.labelColor.Name = "labelColor";
 			this.labelColor.Xalign = 1F;
-			this.labelColor.LabelProp = global::Mono.Unix.Catalog.GetString ("Цвет:");
-			this.table1.Add (this.labelColor);
-			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelColor]));
+			this.labelColor.LabelProp = global::Mono.Unix.Catalog.GetString("Цвет:");
+			this.table1.Add(this.labelColor);
+			global::Gtk.Table.TableChild w43 = ((global::Gtk.Table.TableChild)(this.table1[this.labelColor]));
 			w43.TopAttach = ((uint)(3));
 			w43.BottomAttach = ((uint)(4));
 			w43.XOptions = ((global::Gtk.AttachOptions)(4));
 			w43.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelManufacturer = new global::Gtk.Label ();
+			this.labelManufacturer = new global::Gtk.Label();
 			this.labelManufacturer.Name = "labelManufacturer";
 			this.labelManufacturer.Xalign = 1F;
-			this.labelManufacturer.LabelProp = global::Mono.Unix.Catalog.GetString ("Производитель:");
-			this.table1.Add (this.labelManufacturer);
-			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelManufacturer]));
+			this.labelManufacturer.LabelProp = global::Mono.Unix.Catalog.GetString("Производитель:");
+			this.table1.Add(this.labelManufacturer);
+			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.table1[this.labelManufacturer]));
 			w44.TopAttach = ((uint)(2));
 			w44.BottomAttach = ((uint)(3));
 			w44.XOptions = ((global::Gtk.AttachOptions)(4));
 			w44.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelModel = new global::Gtk.Label ();
+			this.labelModel = new global::Gtk.Label();
 			this.labelModel.Name = "labelModel";
 			this.labelModel.Xalign = 1F;
-			this.labelModel.LabelProp = global::Mono.Unix.Catalog.GetString ("Модель:");
-			this.table1.Add (this.labelModel);
-			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelModel]));
+			this.labelModel.LabelProp = global::Mono.Unix.Catalog.GetString("Модель:");
+			this.table1.Add(this.labelModel);
+			global::Gtk.Table.TableChild w45 = ((global::Gtk.Table.TableChild)(this.table1[this.labelModel]));
 			w45.TopAttach = ((uint)(1));
 			w45.BottomAttach = ((uint)(2));
 			w45.XOptions = ((global::Gtk.AttachOptions)(4));
 			w45.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelRentPriority = new global::Gtk.Label ();
+			this.labelRentPriority = new global::Gtk.Label();
 			this.labelRentPriority.Name = "labelRentPriority";
 			this.labelRentPriority.Xalign = 1F;
-			this.labelRentPriority.LabelProp = global::Mono.Unix.Catalog.GetString ("Приоритет для аренды:");
-			this.table1.Add (this.labelRentPriority);
-			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelRentPriority]));
+			this.labelRentPriority.LabelProp = global::Mono.Unix.Catalog.GetString("Приоритет для аренды:");
+			this.table1.Add(this.labelRentPriority);
+			global::Gtk.Table.TableChild w46 = ((global::Gtk.Table.TableChild)(this.table1[this.labelRentPriority]));
 			w46.TopAttach = ((uint)(5));
 			w46.BottomAttach = ((uint)(6));
 			w46.XOptions = ((global::Gtk.AttachOptions)(4));
 			w46.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.labelSerial = new global::Gtk.Label ();
+			this.labelSerial = new global::Gtk.Label();
 			this.labelSerial.Name = "labelSerial";
 			this.labelSerial.Xalign = 1F;
-			this.labelSerial.LabelProp = global::Mono.Unix.Catalog.GetString ("Посерийный учет:");
-			this.table1.Add (this.labelSerial);
-			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1 [this.labelSerial]));
+			this.labelSerial.LabelProp = global::Mono.Unix.Catalog.GetString("Посерийный учет:");
+			this.table1.Add(this.labelSerial);
+			global::Gtk.Table.TableChild w47 = ((global::Gtk.Table.TableChild)(this.table1[this.labelSerial]));
 			w47.TopAttach = ((uint)(4));
 			w47.BottomAttach = ((uint)(5));
 			w47.XOptions = ((global::Gtk.AttachOptions)(4));
 			w47.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceColor = new global::Gamma.Widgets.yEntryReference ();
-			this.referenceColor.Events = ((global::Gdk.EventMask)(256));
-			this.referenceColor.Name = "referenceColor";
-			this.table1.Add (this.referenceColor);
-			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1 [this.referenceColor]));
+			this.referenceColor = null;
+			this.table1.Add(this.referenceColor);
+			global::Gtk.Table.TableChild w48 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceColor]));
 			w48.TopAttach = ((uint)(3));
 			w48.BottomAttach = ((uint)(4));
 			w48.LeftAttach = ((uint)(1));
@@ -690,11 +672,9 @@ namespace Vodovoz
 			w48.XOptions = ((global::Gtk.AttachOptions)(4));
 			w48.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.referenceManufacturer = new global::Gamma.Widgets.yEntryReference ();
-			this.referenceManufacturer.Events = ((global::Gdk.EventMask)(256));
-			this.referenceManufacturer.Name = "referenceManufacturer";
-			this.table1.Add (this.referenceManufacturer);
-			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.table1 [this.referenceManufacturer]));
+			this.referenceManufacturer = null;
+			this.table1.Add(this.referenceManufacturer);
+			global::Gtk.Table.TableChild w49 = ((global::Gtk.Table.TableChild)(this.table1[this.referenceManufacturer]));
 			w49.TopAttach = ((uint)(2));
 			w49.BottomAttach = ((uint)(3));
 			w49.LeftAttach = ((uint)(1));
@@ -702,14 +682,14 @@ namespace Vodovoz
 			w49.XOptions = ((global::Gtk.AttachOptions)(4));
 			w49.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.ycheckRentPriority = new global::Gamma.GtkWidgets.yCheckButton ();
+			this.ycheckRentPriority = new global::Gamma.GtkWidgets.yCheckButton();
 			this.ycheckRentPriority.CanFocus = true;
 			this.ycheckRentPriority.Name = "ycheckRentPriority";
 			this.ycheckRentPriority.Label = "";
 			this.ycheckRentPriority.DrawIndicator = true;
 			this.ycheckRentPriority.UseUnderline = true;
-			this.table1.Add (this.ycheckRentPriority);
-			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table1 [this.ycheckRentPriority]));
+			this.table1.Add(this.ycheckRentPriority);
+			global::Gtk.Table.TableChild w50 = ((global::Gtk.Table.TableChild)(this.table1[this.ycheckRentPriority]));
 			w50.TopAttach = ((uint)(5));
 			w50.BottomAttach = ((uint)(6));
 			w50.LeftAttach = ((uint)(1));
@@ -717,26 +697,24 @@ namespace Vodovoz
 			w50.XOptions = ((global::Gtk.AttachOptions)(4));
 			w50.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yentryrefEqupmentType = new global::Gamma.Widgets.yEntryReference ();
-			this.yentryrefEqupmentType.Events = ((global::Gdk.EventMask)(256));
-			this.yentryrefEqupmentType.Name = "yentryrefEqupmentType";
-			this.table1.Add (this.yentryrefEqupmentType);
-			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table1 [this.yentryrefEqupmentType]));
+			this.yentryrefEqupmentType = null;
+			this.table1.Add(this.yentryrefEqupmentType);
+			global::Gtk.Table.TableChild w51 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryrefEqupmentType]));
 			w51.LeftAttach = ((uint)(1));
 			w51.RightAttach = ((uint)(2));
 			w51.XOptions = ((global::Gtk.AttachOptions)(4));
 			w51.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.notebook1.Add (this.table1);
-			global::Gtk.Notebook.NotebookChild w52 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.table1]));
+			this.notebook1.Add(this.table1);
+			global::Gtk.Notebook.NotebookChild w52 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.table1]));
 			w52.Position = 1;
 			// Notebook tab
-			this.label2 = new global::Gtk.Label ();
+			this.label2 = new global::Gtk.Label();
 			this.label2.Name = "label2";
-			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString ("Оборудование");
-			this.notebook1.SetTabLabel (this.table1, this.label2);
-			this.label2.ShowAll ();
+			this.label2.LabelProp = global::Mono.Unix.Catalog.GetString("Оборудование");
+			this.notebook1.SetTabLabel(this.table1, this.label2);
+			this.label2.ShowAll();
 			// Container child notebook1.Gtk.Notebook+NotebookChild
-			this.datatable2 = new global::Gtk.DataBindings.DataTable (((uint)(1)), ((uint)(2)), false);
+			this.datatable2 = new global::Gtk.DataBindings.DataTable(((uint)(1)), ((uint)(2)), false);
 			this.datatable2.Name = "datatable2";
 			this.datatable2.RowSpacing = ((uint)(6));
 			this.datatable2.ColumnSpacing = ((uint)(6));
@@ -745,36 +723,35 @@ namespace Vodovoz
 			this.datatable2.InheritedDataSource = false;
 			this.datatable2.InheritedBoundaryDataSource = false;
 			// Container child datatable2.Gtk.Table+TableChild
-			this.pricesView = new global::Vodovoz.PricesView ();
-			this.pricesView.Events = ((global::Gdk.EventMask)(256));
-			this.pricesView.Name = "pricesView";
-			this.datatable2.Add (this.pricesView);
-			global::Gtk.Table.TableChild w53 = ((global::Gtk.Table.TableChild)(this.datatable2 [this.pricesView]));
+			this.pricesView = null;
+			this.datatable2.Add(this.pricesView);
+			global::Gtk.Table.TableChild w53 = ((global::Gtk.Table.TableChild)(this.datatable2[this.pricesView]));
 			w53.LeftAttach = ((uint)(1));
 			w53.RightAttach = ((uint)(2));
-			this.notebook1.Add (this.datatable2);
-			global::Gtk.Notebook.NotebookChild w54 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1 [this.datatable2]));
+			this.notebook1.Add(this.datatable2);
+			global::Gtk.Notebook.NotebookChild w54 = ((global::Gtk.Notebook.NotebookChild)(this.notebook1[this.datatable2]));
 			w54.Position = 2;
 			// Notebook tab
-			this.label6 = new global::Gtk.Label ();
+			this.label6 = new global::Gtk.Label();
 			this.label6.Name = "label6";
-			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString ("Цены");
-			this.notebook1.SetTabLabel (this.datatable2, this.label6);
-			this.label6.ShowAll ();
-			this.vbox1.Add (this.notebook1);
-			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.notebook1]));
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("Цены");
+			this.notebook1.SetTabLabel(this.datatable2, this.label6);
+			this.label6.ShowAll();
+			this.vbox1.Add(this.notebook1);
+			global::Gtk.Box.BoxChild w55 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
 			w55.Position = 1;
-			this.Add (this.vbox1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.vbox1);
+			if ((this.Child != null))
+			{
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
-			this.radioInfo.Toggled += new global::System.EventHandler (this.OnRadioInfoToggled);
-			this.radioEuqpment.Toggled += new global::System.EventHandler (this.OnRadioEuqpmentToggled);
-			this.radioPrice.Toggled += new global::System.EventHandler (this.OnRadioPriceToggled);
-			this.enumType.Changed += new global::System.EventHandler (this.OnEnumTypeChanged);
+			this.Hide();
+			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
+			this.radioInfo.Toggled += new global::System.EventHandler(this.OnRadioInfoToggled);
+			this.radioEuqpment.Toggled += new global::System.EventHandler(this.OnRadioEuqpmentToggled);
+			this.radioPrice.Toggled += new global::System.EventHandler(this.OnRadioPriceToggled);
+			this.enumType.Changed += new global::System.EventHandler(this.OnEnumTypeChanged);
 		}
 	}
 }

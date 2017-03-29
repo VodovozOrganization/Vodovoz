@@ -5,51 +5,52 @@ namespace Vodovoz
 	public partial class RouteListDiscrepancyView
 	{
 		private global::Gtk.Frame frame1;
-		
+
 		private global::Gtk.Alignment GtkAlignment;
-		
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
-		
+
 		private global::Gamma.GtkWidgets.yTreeView ytreeview2;
-		
+
 		private global::Gtk.Label LabelDiscrepancy;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.RouteListDiscrepancyView
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.RouteListDiscrepancyView";
 			// Container child Vodovoz.RouteListDiscrepancyView.Gtk.Container+ContainerChild
-			this.frame1 = new global::Gtk.Frame ();
+			this.frame1 = new global::Gtk.Frame();
 			this.frame1.Name = "frame1";
 			this.frame1.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child frame1.Gtk.Container+ContainerChild
-			this.GtkAlignment = new global::Gtk.Alignment (0F, 0F, 1F, 1F);
+			this.GtkAlignment = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
 			this.GtkAlignment.Name = "GtkAlignment";
 			this.GtkAlignment.LeftPadding = ((uint)(12));
 			// Container child GtkAlignment.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.HscrollbarPolicy = ((global::Gtk.PolicyType)(2));
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.ytreeview2 = new global::Gamma.GtkWidgets.yTreeView ();
+			this.ytreeview2 = new global::Gamma.GtkWidgets.yTreeView();
 			this.ytreeview2.CanFocus = true;
 			this.ytreeview2.Name = "ytreeview2";
-			this.GtkScrolledWindow.Add (this.ytreeview2);
-			this.GtkAlignment.Add (this.GtkScrolledWindow);
-			this.frame1.Add (this.GtkAlignment);
-			this.LabelDiscrepancy = new global::Gtk.Label ();
+			this.GtkScrolledWindow.Add(this.ytreeview2);
+			this.GtkAlignment.Add(this.GtkScrolledWindow);
+			this.frame1.Add(this.GtkAlignment);
+			this.LabelDiscrepancy = new global::Gtk.Label();
 			this.LabelDiscrepancy.Name = "LabelDiscrepancy";
-			this.LabelDiscrepancy.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Возвраты/недовозы</b>");
+			this.LabelDiscrepancy.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возвраты/недовозы</b>");
 			this.LabelDiscrepancy.UseMarkup = true;
 			this.frame1.LabelWidget = this.LabelDiscrepancy;
-			this.Add (this.frame1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.frame1);
+			if ((this.Child != null))
+			{
+				this.Child.ShowAll();
 			}
-			this.Hide ();
+			this.Hide();
 		}
 	}
 }

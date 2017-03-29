@@ -5,51 +5,52 @@ namespace Vodovoz
 	public partial class DeliveryPointFilter
 	{
 		private global::Gtk.Table table1;
-		
+
 		private global::Gtk.CheckButton checkOnlyNotFoundOsm;
-		
+
 		private global::Gtk.CheckButton checkWithoutStreet;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.DeliveryPointFilter
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.DeliveryPointFilter";
 			// Container child Vodovoz.DeliveryPointFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table (((uint)(1)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkOnlyNotFoundOsm = new global::Gtk.CheckButton ();
+			this.checkOnlyNotFoundOsm = new global::Gtk.CheckButton();
 			this.checkOnlyNotFoundOsm.CanFocus = true;
 			this.checkOnlyNotFoundOsm.Name = "checkOnlyNotFoundOsm";
-			this.checkOnlyNotFoundOsm.Label = global::Mono.Unix.Catalog.GetString ("Только не найденные в OSM");
+			this.checkOnlyNotFoundOsm.Label = global::Mono.Unix.Catalog.GetString("Только не найденные в OSM");
 			this.checkOnlyNotFoundOsm.DrawIndicator = true;
 			this.checkOnlyNotFoundOsm.UseUnderline = true;
-			this.table1.Add (this.checkOnlyNotFoundOsm);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1 [this.checkOnlyNotFoundOsm]));
+			this.table1.Add(this.checkOnlyNotFoundOsm);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.checkOnlyNotFoundOsm]));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkWithoutStreet = new global::Gtk.CheckButton ();
+			this.checkWithoutStreet = new global::Gtk.CheckButton();
 			this.checkWithoutStreet.CanFocus = true;
 			this.checkWithoutStreet.Name = "checkWithoutStreet";
-			this.checkWithoutStreet.Label = global::Mono.Unix.Catalog.GetString ("Только без улиц");
+			this.checkWithoutStreet.Label = global::Mono.Unix.Catalog.GetString("Только без улиц");
 			this.checkWithoutStreet.DrawIndicator = true;
 			this.checkWithoutStreet.UseUnderline = true;
-			this.table1.Add (this.checkWithoutStreet);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1 [this.checkWithoutStreet]));
+			this.table1.Add(this.checkWithoutStreet);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.checkWithoutStreet]));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add (this.table1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.table1);
+			if ((this.Child != null))
+			{
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.checkWithoutStreet.Toggled += new global::System.EventHandler (this.OnCheckWithoutStreetToggled);
-			this.checkOnlyNotFoundOsm.Toggled += new global::System.EventHandler (this.OnCheckOnlyNotFoundOsmToggled);
+			this.Hide();
+			this.checkWithoutStreet.Toggled += new global::System.EventHandler(this.OnCheckWithoutStreetToggled);
+			this.checkOnlyNotFoundOsm.Toggled += new global::System.EventHandler(this.OnCheckOnlyNotFoundOsmToggled);
 		}
 	}
 }

@@ -5,104 +5,102 @@ namespace Vodovoz.Reports
 	public partial class ForwarderWageReport
 	{
 		private global::Gtk.VBox vbox1;
-		
+
 		private global::Gtk.HBox hbox1;
-		
+
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
-		
+
 		private global::QSWidgetLib.DatePeriodPicker dateperiodpicker;
-		
+
 		private global::Gtk.HBox hbox3;
-		
+
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
-		
+
 		private global::Gamma.Widgets.yEntryReference yentryreferenceForwarder;
-		
+
 		private global::Gtk.Button buttonCreateReport;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Reports.ForwarderWageReport
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Reports.ForwarderWageReport";
 			// Container child Vodovoz.Reports.ForwarderWageReport.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel ();
+			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
-			this.hbox1.Add (this.ylabel1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.ylabel1]));
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.hbox1.Add(this.ylabel1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabel1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.dateperiodpicker = new global::QSWidgetLib.DatePeriodPicker ();
+			this.dateperiodpicker = new global::QSWidgetLib.DatePeriodPicker();
 			this.dateperiodpicker.Events = ((global::Gdk.EventMask)(256));
 			this.dateperiodpicker.Name = "dateperiodpicker";
-			this.dateperiodpicker.StartDate = new global::System.DateTime (0);
-			this.dateperiodpicker.EndDate = new global::System.DateTime (0);
-			this.hbox1.Add (this.dateperiodpicker);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.dateperiodpicker]));
+			this.dateperiodpicker.StartDate = new global::System.DateTime(0);
+			this.dateperiodpicker.EndDate = new global::System.DateTime(0);
+			this.hbox1.Add(this.dateperiodpicker);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.dateperiodpicker]));
 			w2.Position = 1;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox ();
+			this.hbox3 = new global::Gtk.HBox();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel ();
+			this.ylabel2 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel2.Name = "ylabel2";
-			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString ("Экспедитор:");
-			this.hbox3.Add (this.ylabel2);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.ylabel2]));
+			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Экспедитор:");
+			this.hbox3.Add(this.ylabel2);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.ylabel2]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryreferenceForwarder = new global::Gamma.Widgets.yEntryReference ();
-			this.yentryreferenceForwarder.Events = ((global::Gdk.EventMask)(256));
-			this.yentryreferenceForwarder.Name = "yentryreferenceForwarder";
-			this.hbox3.Add (this.yentryreferenceForwarder);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.yentryreferenceForwarder]));
+			this.yentryreferenceForwarder = null;
+			this.hbox3.Add(this.yentryreferenceForwarder);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryreferenceForwarder]));
 			w5.Position = 1;
-			this.vbox1.Add (this.hbox3);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
+			this.vbox1.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button ();
+			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.Sensitive = false;
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
-			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString ("Сформировать отчет");
-			this.vbox1.Add (this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.buttonCreateReport]));
+			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
+			this.vbox1.Add(this.buttonCreateReport);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
 			w7.PackType = ((global::Gtk.PackType)(1));
 			w7.Position = 2;
 			w7.Expand = false;
 			w7.Fill = false;
-			this.Add (this.vbox1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.vbox1);
+			if ((this.Child != null))
+			{
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler (this.OnDateperiodpickerPeriodChanged);
-			this.yentryreferenceForwarder.Changed += new global::System.EventHandler (this.OnYentryreferenceForwarderChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler (this.OnButtonCreateReportClicked);
+			this.Hide();
+			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpickerPeriodChanged);
+			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }
