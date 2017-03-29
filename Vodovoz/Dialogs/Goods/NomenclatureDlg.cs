@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using NLog;
+using QSBusinessCommon.Domain;
 using QSOrmProject;
 using QSValidation;
+using QSWidgetLib;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
-using QSWidgetLib;
+using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
@@ -40,9 +42,6 @@ namespace Vodovoz
 			entryName.IsEditable = true;
 			radioInfo.Active = true;
 
-			datatable1.DataSource = subjectAdaptor;
-			datatable2.DataSource = subjectAdaptor;
-
 			enumVAT.ItemsEnum = typeof(VAT);
 			enumVAT.Binding.AddBinding(Entity, e => e.VAT, w => w.SelectedItem).InitializeFromSource();
 
@@ -56,15 +55,21 @@ namespace Vodovoz
 			parallel.GetParallelTextFunc = GenerateOfficialName;
 
 			ycheckRentPriority.Binding.AddBinding(Entity, e => e.RentPriority, w => w.Active).InitializeFromSource();
+			checkNotReserve.Binding.AddBinding (Entity, e => e.DoNotReserve, w => w.Active).InitializeFromSource ();
+			entryCode1c.Binding.AddBinding (Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();
+			spinWeight.Binding.AddBinding (Entity, e => e.Weight, w => w.Value).InitializeFromSource ();
 
-			referenceUnit.PropertyMapping<Nomenclature> (n => n.Unit);
+			referenceUnit.SubjectType = typeof (MeasurementUnits);
+			referenceUnit.Binding.AddBinding (Entity, n => n.Unit, w => w.Subject).InitializeFromSource ();
 			yentryrefEqupmentType.SubjectType = typeof(EquipmentType);
 			yentryrefEqupmentType.Binding.AddBinding(Entity, e => e.Type, w => w.Subject).InitializeFromSource();
 			referenceColor.SubjectType = typeof(EquipmentColors);
 			referenceColor.Binding.AddBinding(Entity, e => e.Color, w => w.Subject).InitializeFromSource();
-			referenceWarehouse.PropertyMapping<Nomenclature> (n => n.Warehouse);
-			referenceRouteColumn.PropertyMapping<Nomenclature> (n => n.RouteListColumn);
+			referenceWarehouse.SubjectType = typeof (Warehouse);
+			referenceWarehouse.Binding.AddBinding (Entity, n => n.Warehouse, w => w.Subject).InitializeFromSource ();
+			referenceRouteColumn.SubjectType = typeof (Domain.Logistic.RouteColumn);
+			referenceRouteColumn.Binding.AddBinding (Entity, n => n.RouteListColumn, w => w.Subject).InitializeFromSource ();
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceManufacturer.Binding.AddBinding(Entity, e => e.Manufacturer, w => w.Subject).InitializeFromSource();
 
