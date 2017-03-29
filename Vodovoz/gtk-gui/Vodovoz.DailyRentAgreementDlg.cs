@@ -12,21 +12,21 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.DataBindings.DataTable datatable1;
+		private global::Gtk.Table datatable1;
 
 		private global::Vodovoz.DailyRentPackagesView dailyrentpackagesview1;
 
-		private global::QSOrmProject.DataDatePicker dateEnd;
+		private global::Gamma.Widgets.yDatePicker dateEnd;
 
-		private global::QSOrmProject.DataDatePicker dateStart;
+		private global::Gamma.Widgets.yDatePicker dateStart;
 
 		private global::Gtk.HBox hbox7;
 
-		private global::QSOrmProject.DataDatePicker dateIssue;
+		private global::Gamma.Widgets.yDatePicker dateIssue;
 
 		private global::Gtk.Label label7;
 
-		private global::Gtk.DataBindings.DataSpinButton spinRentDays;
+		private global::Gamma.GtkWidgets.ySpinButton spinRentDays;
 
 		private global::Gtk.Label label8;
 
@@ -40,7 +40,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label9;
 
-		private global::Gtk.DataBindings.DataEntryReferenceVM referenceDeliveryPoint;
+		private global::Gamma.Widgets.yEntryReferenceVM referenceDeliveryPoint;
 
 		private global::QSDocTemplates.TemplateWidget templatewidget3;
 
@@ -94,26 +94,30 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.datatable1 = new global::Gtk.DataBindings.DataTable(((uint)(5)), ((uint)(5)), false);
+			this.datatable1 = new global::Gtk.Table(((uint)(5)), ((uint)(5)), false);
 			this.datatable1.Name = "datatable1";
 			this.datatable1.RowSpacing = ((uint)(6));
 			this.datatable1.ColumnSpacing = ((uint)(6));
 			this.datatable1.BorderWidth = ((uint)(6));
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
-			this.datatable1.InheritedDataSource = false;
-			this.datatable1.InheritedBoundaryDataSource = false;
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dailyrentpackagesview1 = null;
+			this.dailyrentpackagesview1 = new global::Vodovoz.DailyRentPackagesView();
+			this.dailyrentpackagesview1.Events = ((global::Gdk.EventMask)(256));
+			this.dailyrentpackagesview1.Name = "dailyrentpackagesview1";
+			this.dailyrentpackagesview1.IsEditable = true;
 			this.datatable1.Add(this.dailyrentpackagesview1);
 			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.datatable1[this.dailyrentpackagesview1]));
 			w6.TopAttach = ((uint)(4));
 			w6.BottomAttach = ((uint)(5));
 			w6.RightAttach = ((uint)(5));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
-			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dateEnd = null;
+			this.dateEnd = new global::Gamma.Widgets.yDatePicker();
+			this.dateEnd.Events = ((global::Gdk.EventMask)(256));
+			this.dateEnd.Name = "dateEnd";
+			this.dateEnd.WithTime = false;
+			this.dateEnd.Date = new global::System.DateTime(0);
+			this.dateEnd.IsEditable = true;
+			this.dateEnd.AutoSeparation = false;
 			this.datatable1.Add(this.dateEnd);
 			global::Gtk.Table.TableChild w7 = ((global::Gtk.Table.TableChild)(this.datatable1[this.dateEnd]));
 			w7.TopAttach = ((uint)(2));
@@ -122,7 +126,13 @@ namespace Vodovoz
 			w7.RightAttach = ((uint)(4));
 			w7.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.dateStart = null;
+			this.dateStart = new global::Gamma.Widgets.yDatePicker();
+			this.dateStart.Events = ((global::Gdk.EventMask)(256));
+			this.dateStart.Name = "dateStart";
+			this.dateStart.WithTime = false;
+			this.dateStart.Date = new global::System.DateTime(0);
+			this.dateStart.IsEditable = true;
+			this.dateStart.AutoSeparation = false;
 			this.datatable1.Add(this.dateStart);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.datatable1[this.dateStart]));
 			w8.TopAttach = ((uint)(2));
@@ -135,7 +145,13 @@ namespace Vodovoz
 			this.hbox7.Name = "hbox7";
 			this.hbox7.Spacing = 6;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.dateIssue = null;
+			this.dateIssue = new global::Gamma.Widgets.yDatePicker();
+			this.dateIssue.Events = ((global::Gdk.EventMask)(256));
+			this.dateIssue.Name = "dateIssue";
+			this.dateIssue.WithTime = false;
+			this.dateIssue.Date = new global::System.DateTime(0);
+			this.dateIssue.IsEditable = true;
+			this.dateIssue.AutoSeparation = false;
 			this.hbox7.Add(this.dateIssue);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.dateIssue]));
 			w9.Position = 0;
@@ -150,18 +166,14 @@ namespace Vodovoz
 			w10.Expand = false;
 			w10.Fill = false;
 			// Container child hbox7.Gtk.Box+BoxChild
-			this.spinRentDays = new global::Gtk.DataBindings.DataSpinButton(0, 100, 1);
+			this.spinRentDays = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
 			this.spinRentDays.CanFocus = true;
 			this.spinRentDays.Name = "spinRentDays";
 			this.spinRentDays.Adjustment.PageIncrement = 10;
 			this.spinRentDays.ClimbRate = 1;
 			this.spinRentDays.Numeric = true;
-			this.spinRentDays.InheritedDataSource = true;
-			this.spinRentDays.Mappings = "RentDays";
-			this.spinRentDays.InheritedBoundaryDataSource = false;
-			this.spinRentDays.InheritedDataSource = true;
-			this.spinRentDays.Mappings = "RentDays";
-			this.spinRentDays.InheritedBoundaryDataSource = false;
+			this.spinRentDays.ValueAsDecimal = 0m;
+			this.spinRentDays.ValueAsInt = 0;
 			this.hbox7.Add(this.spinRentDays);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox7[this.spinRentDays]));
 			w11.Position = 2;
@@ -238,7 +250,9 @@ namespace Vodovoz
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
-			this.referenceDeliveryPoint = null;
+			this.referenceDeliveryPoint = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.referenceDeliveryPoint.Events = ((global::Gdk.EventMask)(256));
+			this.referenceDeliveryPoint.Name = "referenceDeliveryPoint";
 			this.datatable1.Add(this.referenceDeliveryPoint);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.datatable1[this.referenceDeliveryPoint]));
 			w19.TopAttach = ((uint)(1));
@@ -277,8 +291,8 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
+			this.dateStart.DateChanged += new global::System.EventHandler(this.OnDateStartDateChanged);
+			this.dateEnd.DateChanged += new global::System.EventHandler(this.OnDateEndDateChanged);
 		}
 	}
 }

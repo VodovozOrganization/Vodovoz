@@ -52,11 +52,14 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
+			dateIssue.Sensitive = dateStart.Sensitive = false;
+			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
+			dateStart.Binding.AddBinding (Entity, e => e.StartDate, w => w.Date).InitializeFromSource ();
+
 			paidrentpackagesview1.IsEditable = true;
 			referenceDeliveryPoint.Sensitive = false;
-			dateIssue.Sensitive = dateStart.Sensitive = false;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
+			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 
 			paidrentpackagesview1.AgreementUoW = UoWGeneric;

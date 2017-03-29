@@ -5,7 +5,6 @@ using QSValidation;
 using Vodovoz.Domain.Client;
 using Vodovoz.DocTemplates;
 
-
 namespace Vodovoz
 {
 	public partial class DailyRentAgreementDlg : OrmGtkDialogBase<DailyRentAgreement>, IAgreementSaved, IEditableDialog
@@ -53,14 +52,22 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable1.DataSource = subjectAdaptor;
-			dailyrentpackagesview1.IsEditable = true;
 			spinRentDays.Sensitive = false;
-			referenceDeliveryPoint.Sensitive = false;
 			dateIssue.Sensitive = dateStart.Sensitive = false;
+			dateIssue.Binding.AddBinding (Entity, e => e.IssueDate, w => w.Date).InitializeFromSource ();
+			dateStart.Binding.AddBinding (Entity, e => e.StartDate, w => w.Date).InitializeFromSource ();
+			dateEnd.Binding.AddBinding (Entity, e => e.EndDate, w => w.Date).InitializeFromSource ();
+
+			referenceDeliveryPoint.Sensitive = false;
 			referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM (UoW, Entity.Contract.Counterparty);
+			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
+
+			spinRentDays.Binding.AddBinding (Entity, e => e.RentDays, w => w.ValueAsInt).InitializeFromSource ();
+
+			dailyrentpackagesview1.IsEditable = true;
 			dailyrentpackagesview1.AgreementUoW = UoWGeneric;
+
 			dateEnd.Date = UoWGeneric.Root.StartDate.AddDays (UoWGeneric.Root.RentDays);
 
 			if (Entity.AgreementTemplate == null && Entity.Contract != null)

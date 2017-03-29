@@ -8,7 +8,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label1;
 
-		private global::Gtk.DataBindings.DataSpecComboBox speccomboStock;
+		private global::Gamma.Widgets.ySpecComboBox speccomboStock;
 
 		protected virtual void Build()
 		{
@@ -30,7 +30,12 @@ namespace Vodovoz
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.speccomboStock = null;
+			this.speccomboStock = new global::Gamma.Widgets.ySpecComboBox();
+			this.speccomboStock.Name = "speccomboStock";
+			this.speccomboStock.AddIfNotExist = false;
+			this.speccomboStock.DefaultFirst = false;
+			this.speccomboStock.ShowSpecialStateAll = true;
+			this.speccomboStock.ShowSpecialStateNot = false;
 			this.table1.Add(this.speccomboStock);
 			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.speccomboStock]));
 			w2.LeftAttach = ((uint)(1));
@@ -43,6 +48,7 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.speccomboStock.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnSpeccomboStockItemSelected);
 		}
 	}
 }
