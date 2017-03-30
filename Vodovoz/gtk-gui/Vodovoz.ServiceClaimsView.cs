@@ -22,101 +22,113 @@ namespace Vodovoz
 
 		private global::QSOrmProject.RepresentationTreeView tableServiceClaims;
 
-		protected virtual void Build()
+		protected virtual void Build ()
 		{
-			global::Stetic.Gui.Initialize(this);
+			global::Stetic.Gui.Initialize (this);
 			// Widget Vodovoz.ServiceClaimsView
-			global::Stetic.BinContainer.Attach(this);
+			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.ServiceClaimsView";
 			// Container child Vodovoz.ServiceClaimsView.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1 = new global::Gtk.VBox ();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			this.vbox1.BorderWidth = ((uint)(6));
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonAdd = null;
-			this.hbox1.Add(this.buttonAdd);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonAdd]));
-			w1.Position = 0;
-			w1.Expand = false;
-			w1.Fill = false;
+			this.buttonAdd = new global::QSOrmProject.EnumMenuButton ();
+			this.buttonAdd.CanFocus = true;
+			this.buttonAdd.Name = "buttonAdd";
+			this.buttonAdd.UseUnderline = true;
+			this.buttonAdd.UseMarkup = false;
+			this.buttonAdd.ItemsEnumName = "";
+			this.buttonAdd.Label = global::Mono.Unix.Catalog.GetString ("Добавить");
+			global::Gtk.Image w1 = new global::Gtk.Image ();
+			w1.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-add", global::Gtk.IconSize.Menu);
+			this.buttonAdd.Image = w1;
+			this.hbox1.Add (this.buttonAdd);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAdd]));
+			w2.Position = 0;
+			w2.Expand = false;
+			w2.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonEdit = new global::Gtk.Button();
+			this.buttonEdit = new global::Gtk.Button ();
 			this.buttonEdit.CanFocus = true;
 			this.buttonEdit.Name = "buttonEdit";
 			this.buttonEdit.UseUnderline = true;
-			this.buttonEdit.Label = global::Mono.Unix.Catalog.GetString("Изменить");
-			global::Gtk.Image w2 = new global::Gtk.Image();
-			w2.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-edit", global::Gtk.IconSize.Menu);
-			this.buttonEdit.Image = w2;
-			this.hbox1.Add(this.buttonEdit);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonEdit]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
+			this.buttonEdit.Label = global::Mono.Unix.Catalog.GetString ("Изменить");
+			global::Gtk.Image w3 = new global::Gtk.Image ();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-edit", global::Gtk.IconSize.Menu);
+			this.buttonEdit.Image = w3;
+			this.hbox1.Add (this.buttonEdit);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonEdit]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonDelete = new global::Gtk.Button();
+			this.buttonDelete = new global::Gtk.Button ();
 			this.buttonDelete.CanFocus = true;
 			this.buttonDelete.Name = "buttonDelete";
 			this.buttonDelete.UseUnderline = true;
-			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString("Удалить");
-			global::Gtk.Image w4 = new global::Gtk.Image();
-			w4.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-delete", global::Gtk.IconSize.Menu);
-			this.buttonDelete.Image = w4;
-			this.hbox1.Add(this.buttonDelete);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonDelete]));
-			w5.Position = 2;
-			w5.Expand = false;
-			w5.Fill = false;
+			this.buttonDelete.Label = global::Mono.Unix.Catalog.GetString ("Удалить");
+			global::Gtk.Image w5 = new global::Gtk.Image ();
+			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-delete", global::Gtk.IconSize.Menu);
+			this.buttonDelete.Image = w5;
+			this.hbox1.Add (this.buttonDelete);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonDelete]));
+			w6.Position = 2;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonFilter = new global::Gtk.CheckButton();
+			this.buttonFilter = new global::Gtk.CheckButton ();
 			this.buttonFilter.CanFocus = true;
 			this.buttonFilter.Name = "buttonFilter";
-			this.buttonFilter.Label = global::Mono.Unix.Catalog.GetString("Фильтр");
+			this.buttonFilter.Label = global::Mono.Unix.Catalog.GetString ("Фильтр");
 			this.buttonFilter.DrawIndicator = false;
 			this.buttonFilter.UseUnderline = true;
-			this.hbox1.Add(this.buttonFilter);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonFilter]));
-			w6.PackType = ((global::Gtk.PackType)(1));
-			w6.Position = 4;
-			w6.Expand = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w7.Position = 0;
+			this.hbox1.Add (this.buttonFilter);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonFilter]));
+			w7.PackType = ((global::Gtk.PackType)(1));
+			w7.Position = 4;
 			w7.Expand = false;
-			w7.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hboxFilter = new global::Gtk.HBox();
+			this.hboxFilter = new global::Gtk.HBox ();
 			this.hboxFilter.Name = "hboxFilter";
 			this.hboxFilter.Spacing = 6;
-			this.vbox1.Add(this.hboxFilter);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hboxFilter]));
-			w8.Position = 1;
-			w8.Expand = false;
+			this.vbox1.Add (this.hboxFilter);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hboxFilter]));
+			w9.Position = 1;
+			w9.Expand = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.tableServiceClaims = null;
-			this.GtkScrolledWindow1.Add(this.tableServiceClaims);
-			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w10.Position = 2;
-			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
-				this.Child.ShowAll();
+			this.tableServiceClaims = new global::QSOrmProject.RepresentationTreeView ();
+			this.tableServiceClaims.CanFocus = true;
+			this.tableServiceClaims.Name = "tableServiceClaims";
+			this.GtkScrolledWindow1.Add (this.tableServiceClaims);
+			this.vbox1.Add (this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow1]));
+			w11.Position = 2;
+			this.Add (this.vbox1);
+			if ((this.Child != null)) {
+				this.Child.ShowAll ();
 			}
-			this.hboxFilter.Hide();
-			this.Hide();
-			this.buttonEdit.Clicked += new global::System.EventHandler(this.OnButtonEditClicked);
-			this.buttonDelete.Clicked += new global::System.EventHandler(this.OnButtonDeleteClicked);
-			this.buttonFilter.Toggled += new global::System.EventHandler(this.OnButtonFilterToggled);
+			this.hboxFilter.Hide ();
+			this.Hide ();
+			this.buttonAdd.EnumItemClicked += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnButtonAddEnumItemClicked);
+			this.buttonEdit.Clicked += new global::System.EventHandler (this.OnButtonEditClicked);
+			this.buttonDelete.Clicked += new global::System.EventHandler (this.OnButtonDeleteClicked);
+			this.buttonFilter.Toggled += new global::System.EventHandler (this.OnButtonFilterToggled);
+			this.tableServiceClaims.RowActivated += new global::Gtk.RowActivatedHandler (this.OnTableServiceClaimsRowActivated);
 		}
 	}
 }

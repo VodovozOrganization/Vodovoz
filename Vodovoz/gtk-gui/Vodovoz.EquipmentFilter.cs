@@ -14,59 +14,61 @@ namespace Vodovoz
 
 		private global::Gtk.Label label1;
 
-		protected virtual void Build()
+		protected virtual void Build ()
 		{
-			global::Stetic.Gui.Initialize(this);
+			global::Stetic.Gui.Initialize (this);
 			// Widget Vodovoz.EquipmentFilter
-			global::Stetic.BinContainer.Attach(this);
+			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.EquipmentFilter";
 			// Container child Vodovoz.EquipmentFilter.Gtk.Container+ContainerChild
-			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.table1 = new global::Gtk.Table(((uint)(3)), ((uint)(3)), false);
+			this.table1 = new global::Gtk.Table (((uint)(3)), ((uint)(3)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkSelectOutdated = new global::Gtk.CheckButton();
+			this.checkSelectOutdated = new global::Gtk.CheckButton ();
 			this.checkSelectOutdated.CanFocus = true;
 			this.checkSelectOutdated.Name = "checkSelectOutdated";
-			this.checkSelectOutdated.Label = global::Mono.Unix.Catalog.GetString("Требуется сан. обработка");
+			this.checkSelectOutdated.Label = global::Mono.Unix.Catalog.GetString ("Требуется сан. обработка");
 			this.checkSelectOutdated.DrawIndicator = true;
 			this.checkSelectOutdated.UseUnderline = true;
-			this.table1.Add(this.checkSelectOutdated);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.checkSelectOutdated]));
+			this.table1.Add (this.checkSelectOutdated);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1 [this.checkSelectOutdated]));
 			w1.LeftAttach = ((uint)(2));
 			w1.RightAttach = ((uint)(3));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.entryrefEquipmentType = null;
-			this.table1.Add(this.entryrefEquipmentType);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.entryrefEquipmentType]));
+			this.entryrefEquipmentType = new global::QSOrmProject.EntryReference ();
+			this.entryrefEquipmentType.Events = ((global::Gdk.EventMask)(256));
+			this.entryrefEquipmentType.Name = "entryrefEquipmentType";
+			this.table1.Add (this.entryrefEquipmentType);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1 [this.entryrefEquipmentType]));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label();
+			this.label1 = new global::Gtk.Label ();
 			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Тип:");
-			this.table1.Add(this.label1);
-			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип:");
+			this.table1.Add (this.label1);
+			global::Gtk.Table.TableChild w3 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
 			w3.XOptions = ((global::Gtk.AttachOptions)(4));
 			w3.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.hbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.table1]));
+			this.hbox1.Add (this.table1);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.table1]));
 			w4.Position = 0;
-			this.Add(this.hbox1);
-			if ((this.Child != null))
-			{
-				this.Child.ShowAll();
+			this.Add (this.hbox1);
+			if ((this.Child != null)) {
+				this.Child.ShowAll ();
 			}
-			this.Hide();
-			this.checkSelectOutdated.Toggled += new global::System.EventHandler(this.OnCheckSelectOutdatedToggled);
+			this.Hide ();
+			this.entryrefEquipmentType.ChangedByUser += new global::System.EventHandler (this.OnEntryrefEquipmentTypeChangedByUser);
+			this.checkSelectOutdated.Toggled += new global::System.EventHandler (this.OnCheckSelectOutdatedToggled);
 		}
 	}
 }

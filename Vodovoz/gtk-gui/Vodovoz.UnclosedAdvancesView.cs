@@ -18,74 +18,77 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonClose;
 
-		protected virtual void Build()
+		protected virtual void Build ()
 		{
-			global::Stetic.Gui.Initialize(this);
+			global::Stetic.Gui.Initialize (this);
 			// Widget Vodovoz.UnclosedAdvancesView
-			global::Stetic.BinContainer.Attach(this);
+			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.UnclosedAdvancesView";
 			// Container child Vodovoz.UnclosedAdvancesView.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1 = new global::Gtk.VBox ();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.unclosedadvancesfilter1 = null;
-			this.vbox1.Add(this.unclosedadvancesfilter1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.unclosedadvancesfilter1]));
+			this.unclosedadvancesfilter1 = new global::Vodovoz.UnclosedAdvancesFilter ();
+			this.unclosedadvancesfilter1.Events = ((global::Gdk.EventMask)(256));
+			this.unclosedadvancesfilter1.Name = "unclosedadvancesfilter1";
+			this.vbox1.Add (this.unclosedadvancesfilter1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.unclosedadvancesfilter1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.representationUnclosed = null;
-			this.GtkScrolledWindow.Add(this.representationUnclosed);
-			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			this.representationUnclosed = new global::QSOrmProject.RepresentationTreeView ();
+			this.representationUnclosed.CanFocus = true;
+			this.representationUnclosed.Name = "representationUnclosed";
+			this.GtkScrolledWindow.Add (this.representationUnclosed);
+			this.vbox1.Add (this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow]));
 			w3.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox3 = new global::Gtk.HBox();
+			this.hbox3 = new global::Gtk.HBox ();
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonReturn = new global::Gtk.Button();
+			this.buttonReturn = new global::Gtk.Button ();
 			this.buttonReturn.Sensitive = false;
 			this.buttonReturn.CanFocus = true;
 			this.buttonReturn.Name = "buttonReturn";
 			this.buttonReturn.UseUnderline = true;
-			this.buttonReturn.Label = global::Mono.Unix.Catalog.GetString("Возват в кассу");
-			this.hbox3.Add(this.buttonReturn);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonReturn]));
+			this.buttonReturn.Label = global::Mono.Unix.Catalog.GetString ("Возват в кассу");
+			this.hbox3.Add (this.buttonReturn);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonReturn]));
 			w4.Position = 0;
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.buttonClose = new global::Gtk.Button();
+			this.buttonClose = new global::Gtk.Button ();
 			this.buttonClose.Sensitive = false;
 			this.buttonClose.CanFocus = true;
 			this.buttonClose.Name = "buttonClose";
 			this.buttonClose.UseUnderline = true;
-			this.buttonClose.Label = global::Mono.Unix.Catalog.GetString("Авансовый отчет");
-			this.hbox3.Add(this.buttonClose);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonClose]));
+			this.buttonClose.Label = global::Mono.Unix.Catalog.GetString ("Авансовый отчет");
+			this.hbox3.Add (this.buttonClose);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3 [this.buttonClose]));
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.vbox1.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
+			this.vbox1.Add (this.hbox3);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox3]));
 			w6.Position = 2;
 			w6.Expand = false;
 			w6.Fill = false;
-			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
-				this.Child.ShowAll();
+			this.Add (this.vbox1);
+			if ((this.Child != null)) {
+				this.Child.ShowAll ();
 			}
-			this.Hide();
-			this.buttonReturn.Clicked += new global::System.EventHandler(this.OnButtonReturnClicked);
-			this.buttonClose.Clicked += new global::System.EventHandler(this.OnButtonCloseClicked);
+			this.Hide ();
+			this.buttonReturn.Clicked += new global::System.EventHandler (this.OnButtonReturnClicked);
+			this.buttonClose.Clicked += new global::System.EventHandler (this.OnButtonCloseClicked);
 		}
 	}
 }

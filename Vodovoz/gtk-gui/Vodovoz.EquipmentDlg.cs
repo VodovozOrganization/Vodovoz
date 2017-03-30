@@ -373,6 +373,8 @@ namespace Vodovoz
 			}
 			w1.SetUiManager (UIManager);
 			this.Hide ();
+			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.radiobuttonInfo.Toggled += new global::System.EventHandler (this.OnRadiobuttonInfoToggled);
 			this.radiobuttonSticker.Toggled += new global::System.EventHandler (this.OnRadiobuttonStickerToggled);
 		}

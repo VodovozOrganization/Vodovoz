@@ -14,42 +14,41 @@ namespace Vodovoz
 
 		private global::Gtk.Label GtkLabel2;
 
-		protected virtual void Build()
+		protected virtual void Build ()
 		{
-			global::Stetic.Gui.Initialize(this);
+			global::Stetic.Gui.Initialize (this);
 			// Widget Vodovoz.ReturnsReceptionView
-			global::Stetic.BinContainer.Attach(this);
+			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.ReturnsReceptionView";
 			// Container child Vodovoz.ReturnsReceptionView.Gtk.Container+ContainerChild
-			this.frameReturns = new global::Gtk.Frame();
+			this.frameReturns = new global::Gtk.Frame ();
 			this.frameReturns.Name = "frameReturns";
 			this.frameReturns.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child frameReturns.Gtk.Container+ContainerChild
-			this.GtkAlignment1 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment1 = new global::Gtk.Alignment (0F, 0F, 1F, 1F);
 			this.GtkAlignment1.Name = "GtkAlignment1";
 			this.GtkAlignment1.LeftPadding = ((uint)(12));
 			// Container child GtkAlignment1.Gtk.Container+ContainerChild
-			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow3 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow3.Name = "GtkScrolledWindow3";
 			this.GtkScrolledWindow3.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow3.Gtk.Container+ContainerChild
-			this.ytreeReturns = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeReturns = new global::Gamma.GtkWidgets.yTreeView ();
 			this.ytreeReturns.CanFocus = true;
 			this.ytreeReturns.Name = "ytreeReturns";
-			this.GtkScrolledWindow3.Add(this.ytreeReturns);
-			this.GtkAlignment1.Add(this.GtkScrolledWindow3);
-			this.frameReturns.Add(this.GtkAlignment1);
-			this.GtkLabel2 = new global::Gtk.Label();
+			this.GtkScrolledWindow3.Add (this.ytreeReturns);
+			this.GtkAlignment1.Add (this.GtkScrolledWindow3);
+			this.frameReturns.Add (this.GtkAlignment1);
+			this.GtkLabel2 = new global::Gtk.Label ();
 			this.GtkLabel2.Name = "GtkLabel2";
-			this.GtkLabel2.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Возврат недовоза</b>");
+			this.GtkLabel2.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Возврат недовоза</b>");
 			this.GtkLabel2.UseMarkup = true;
 			this.frameReturns.LabelWidget = this.GtkLabel2;
-			this.Add(this.frameReturns);
-			if ((this.Child != null))
-			{
-				this.Child.ShowAll();
+			this.Add (this.frameReturns);
+			if ((this.Child != null)) {
+				this.Child.ShowAll ();
 			}
-			this.Hide();
+			this.Hide ();
 		}
 	}
 }

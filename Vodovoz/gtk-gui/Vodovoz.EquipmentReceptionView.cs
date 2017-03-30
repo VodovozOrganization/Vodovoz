@@ -24,90 +24,89 @@ namespace Vodovoz
 
 		private global::Gtk.Label GtkLabel4;
 
-		protected virtual void Build()
+		protected virtual void Build ()
 		{
-			global::Stetic.Gui.Initialize(this);
+			global::Stetic.Gui.Initialize (this);
 			// Widget Vodovoz.EquipmentReceptionView
-			global::Stetic.BinContainer.Attach(this);
+			global::Stetic.BinContainer.Attach (this);
 			this.Name = "Vodovoz.EquipmentReceptionView";
 			// Container child Vodovoz.EquipmentReceptionView.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox();
+			this.vbox1 = new global::Gtk.VBox ();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.frameEquipment = new global::Gtk.Frame();
+			this.frameEquipment = new global::Gtk.Frame ();
 			this.frameEquipment.Name = "frameEquipment";
 			this.frameEquipment.ShadowType = ((global::Gtk.ShadowType)(0));
 			// Container child frameEquipment.Gtk.Container+ContainerChild
-			this.GtkAlignment3 = new global::Gtk.Alignment(0F, 0F, 1F, 1F);
+			this.GtkAlignment3 = new global::Gtk.Alignment (0F, 0F, 1F, 1F);
 			this.GtkAlignment3.Name = "GtkAlignment3";
 			this.GtkAlignment3.LeftPadding = ((uint)(12));
 			// Container child GtkAlignment3.Gtk.Container+ContainerChild
-			this.vbox2 = new global::Gtk.VBox();
+			this.vbox2 = new global::Gtk.VBox ();
 			this.vbox2.Name = "vbox2";
 			this.vbox2.Spacing = 6;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow2 = new global::Gtk.ScrolledWindow ();
 			this.GtkScrolledWindow2.Name = "GtkScrolledWindow2";
 			this.GtkScrolledWindow2.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow2.Gtk.Container+ContainerChild
-			this.ytreeEquipment = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeEquipment = new global::Gamma.GtkWidgets.yTreeView ();
 			this.ytreeEquipment.CanFocus = true;
 			this.ytreeEquipment.Name = "ytreeEquipment";
-			this.GtkScrolledWindow2.Add(this.ytreeEquipment);
-			this.vbox2.Add(this.GtkScrolledWindow2);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.GtkScrolledWindow2]));
+			this.GtkScrolledWindow2.Add (this.ytreeEquipment);
+			this.vbox2.Add (this.GtkScrolledWindow2);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.GtkScrolledWindow2]));
 			w2.Position = 0;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox();
+			this.hbox1 = new global::Gtk.HBox ();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonAddEquipment = new global::Gtk.Button();
+			this.buttonAddEquipment = new global::Gtk.Button ();
 			this.buttonAddEquipment.Sensitive = false;
 			this.buttonAddEquipment.CanFocus = true;
 			this.buttonAddEquipment.Name = "buttonAddEquipment";
 			this.buttonAddEquipment.UseUnderline = true;
-			this.buttonAddEquipment.Label = global::Mono.Unix.Catalog.GetString("Добавить отсутствующее оборудование");
-			this.hbox1.Add(this.buttonAddEquipment);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonAddEquipment]));
+			this.buttonAddEquipment.Label = global::Mono.Unix.Catalog.GetString ("Добавить отсутствующее оборудование");
+			this.hbox1.Add (this.buttonAddEquipment);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonAddEquipment]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSelectSerial = new global::QSWidgetLib.MenuButton();
+			this.buttonSelectSerial = new global::QSWidgetLib.MenuButton ();
 			this.buttonSelectSerial.Sensitive = false;
 			this.buttonSelectSerial.CanFocus = true;
 			this.buttonSelectSerial.Name = "buttonSelectSerial";
 			this.buttonSelectSerial.UseUnderline = true;
 			this.buttonSelectSerial.UseMarkup = false;
-			this.buttonSelectSerial.Label = global::Mono.Unix.Catalog.GetString("Вписать серийный номер");
-			this.hbox1.Add(this.buttonSelectSerial);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSelectSerial]));
+			this.buttonSelectSerial.Label = global::Mono.Unix.Catalog.GetString ("Вписать серийный номер");
+			this.hbox1.Add (this.buttonSelectSerial);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonSelectSerial]));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.vbox2.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox1]));
+			this.vbox2.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.hbox1]));
 			w5.Position = 1;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.GtkAlignment3.Add(this.vbox2);
-			this.frameEquipment.Add(this.GtkAlignment3);
-			this.GtkLabel4 = new global::Gtk.Label();
+			this.GtkAlignment3.Add (this.vbox2);
+			this.frameEquipment.Add (this.GtkAlignment3);
+			this.GtkLabel4 = new global::Gtk.Label ();
 			this.GtkLabel4.Name = "GtkLabel4";
-			this.GtkLabel4.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Оборудование</b>");
+			this.GtkLabel4.LabelProp = global::Mono.Unix.Catalog.GetString ("<b>Оборудование</b>");
 			this.GtkLabel4.UseMarkup = true;
 			this.frameEquipment.LabelWidget = this.GtkLabel4;
-			this.vbox1.Add(this.frameEquipment);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.frameEquipment]));
+			this.vbox1.Add (this.frameEquipment);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.frameEquipment]));
 			w8.Position = 0;
-			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
-				this.Child.ShowAll();
+			this.Add (this.vbox1);
+			if ((this.Child != null)) {
+				this.Child.ShowAll ();
 			}
-			this.Hide();
+			this.Hide ();
 		}
 	}
 }
