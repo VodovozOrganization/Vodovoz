@@ -12,13 +12,13 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.DataBindings.DataTable tableCommon;
+		private global::Gtk.Table tableCommon;
 
 		private global::Gamma.Widgets.yEnumComboBox enumMovementType;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
-		private global::Gtk.DataBindings.DataTextView textComment;
+		private global::Gamma.GtkWidgets.yTextView textComment;
 
 		private global::Gtk.HBox hboxTransportation;
 
@@ -34,13 +34,13 @@ namespace Vodovoz
 
 		private global::Gtk.Label label3;
 
-		private global::Gtk.DataBindings.DataLabel labelTimeStamp;
+		private global::Gamma.GtkWidgets.yLabel labelTimeStamp;
 
 		private global::Gtk.Label labelTransportationTitle;
 
 		private global::Gtk.Label labelWagon;
 
-		private global::Gtk.DataBindings.DataEntryReference referenceEmployee;
+		private global::Gamma.Widgets.yEntryReference referenceEmployee;
 
 		private global::Gamma.Widgets.yEntryReference yentryrefWagon;
 
@@ -50,7 +50,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label11;
 
-		private global::Gtk.DataBindings.DataTable tableSender;
+		private global::Gtk.Table tableSender;
 
 		private global::Gtk.Label labelClientFrom;
 
@@ -60,9 +60,9 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceCounterpartyFrom;
 
-		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPointFrom;
+		private global::Gamma.Widgets.yEntryReference referenceDeliveryPointFrom;
 
-		private global::Gtk.DataBindings.DataEntryReference referenceWarehouseFrom;
+		private global::Gamma.Widgets.yEntryReference referenceWarehouseFrom;
 
 		private global::Gtk.VSeparator vseparator1;
 
@@ -70,7 +70,7 @@ namespace Vodovoz
 
 		private global::Gtk.Label label10;
 
-		private global::Gtk.DataBindings.DataTable tableReceiver;
+		private global::Gtk.Table tableReceiver;
 
 		private global::Gtk.Label labelClientTo;
 
@@ -80,9 +80,9 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.yEntryReferenceVM referenceCounterpartyTo;
 
-		private global::Gtk.DataBindings.DataEntryReference referenceDeliveryPointTo;
+		private global::Gamma.Widgets.yEntryReference referenceDeliveryPointTo;
 
-		private global::Gtk.DataBindings.DataEntryReference referenceWarehouseTo;
+		private global::Gamma.Widgets.yEntryReference referenceWarehouseTo;
 
 		private global::Vodovoz.MovementDocumentItemsView movementdocumentitemsview1;
 
@@ -135,14 +135,10 @@ namespace Vodovoz
 			w5.Expand = false;
 			w5.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.tableCommon = new global::Gtk.DataBindings.DataTable(((uint)(4)), ((uint)(4)), false);
+			this.tableCommon = new global::Gtk.Table(((uint)(4)), ((uint)(4)), false);
 			this.tableCommon.Name = "tableCommon";
 			this.tableCommon.RowSpacing = ((uint)(6));
 			this.tableCommon.ColumnSpacing = ((uint)(6));
-			this.tableCommon.InheritedDataSource = false;
-			this.tableCommon.InheritedBoundaryDataSource = false;
-			this.tableCommon.InheritedDataSource = false;
-			this.tableCommon.InheritedBoundaryDataSource = false;
 			// Container child tableCommon.Gtk.Table+TableChild
 			this.enumMovementType = new global::Gamma.Widgets.yEnumComboBox();
 			this.enumMovementType.Name = "enumMovementType";
@@ -163,15 +159,9 @@ namespace Vodovoz
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.textComment = new global::Gtk.DataBindings.DataTextView();
+			this.textComment = new global::Gamma.GtkWidgets.yTextView();
 			this.textComment.CanFocus = true;
 			this.textComment.Name = "textComment";
-			this.textComment.InheritedDataSource = true;
-			this.textComment.Mappings = "Comment";
-			this.textComment.InheritedBoundaryDataSource = false;
-			this.textComment.InheritedDataSource = true;
-			this.textComment.Mappings = "Comment";
-			this.textComment.InheritedBoundaryDataSource = false;
 			this.GtkScrolledWindow1.Add(this.textComment);
 			this.tableCommon.Add(this.GtkScrolledWindow1);
 			global::Gtk.Table.TableChild w8 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.GtkScrolledWindow1]));
@@ -254,16 +244,9 @@ namespace Vodovoz
 			w15.XOptions = ((global::Gtk.AttachOptions)(4));
 			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
-			this.labelTimeStamp = new global::Gtk.DataBindings.DataLabel();
+			this.labelTimeStamp = new global::Gamma.GtkWidgets.yLabel();
 			this.labelTimeStamp.Name = "labelTimeStamp";
 			this.labelTimeStamp.Xalign = 0F;
-			this.labelTimeStamp.InheritedDataSource = true;
-			this.labelTimeStamp.Mappings = "DateString";
-			this.labelTimeStamp.InheritedBoundaryDataSource = false;
-			this.labelTimeStamp.Important = false;
-			this.labelTimeStamp.InheritedDataSource = true;
-			this.labelTimeStamp.Mappings = "DateString";
-			this.labelTimeStamp.InheritedBoundaryDataSource = false;
 			this.tableCommon.Add(this.labelTimeStamp);
 			global::Gtk.Table.TableChild w16 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.labelTimeStamp]));
 			w16.LeftAttach = ((uint)(1));
@@ -295,7 +278,12 @@ namespace Vodovoz
 			w18.XOptions = ((global::Gtk.AttachOptions)(4));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
-			this.referenceEmployee = null;
+			this.referenceEmployee = new global::Gamma.Widgets.yEntryReference();
+			this.referenceEmployee.Events = ((global::Gdk.EventMask)(256));
+			this.referenceEmployee.Name = "referenceEmployee";
+			this.referenceEmployee.DisplayFields = new string[] {
+					"FullName"};
+			this.referenceEmployee.DisplayFormatString = "{0}";
 			this.tableCommon.Add(this.referenceEmployee);
 			global::Gtk.Table.TableChild w19 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.referenceEmployee]));
 			w19.LeftAttach = ((uint)(3));
@@ -303,7 +291,9 @@ namespace Vodovoz
 			w19.XOptions = ((global::Gtk.AttachOptions)(4));
 			w19.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCommon.Gtk.Table+TableChild
-			this.yentryrefWagon = null;
+			this.yentryrefWagon = new global::Gamma.Widgets.yEntryReference();
+			this.yentryrefWagon.Events = ((global::Gdk.EventMask)(256));
+			this.yentryrefWagon.Name = "yentryrefWagon";
 			this.tableCommon.Add(this.yentryrefWagon);
 			global::Gtk.Table.TableChild w20 = ((global::Gtk.Table.TableChild)(this.tableCommon[this.yentryrefWagon]));
 			w20.TopAttach = ((uint)(1));
@@ -335,14 +325,10 @@ namespace Vodovoz
 			w22.Expand = false;
 			w22.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
-			this.tableSender = new global::Gtk.DataBindings.DataTable(((uint)(3)), ((uint)(2)), false);
+			this.tableSender = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
 			this.tableSender.Name = "tableSender";
 			this.tableSender.RowSpacing = ((uint)(6));
 			this.tableSender.ColumnSpacing = ((uint)(6));
-			this.tableSender.InheritedDataSource = false;
-			this.tableSender.InheritedBoundaryDataSource = false;
-			this.tableSender.InheritedDataSource = false;
-			this.tableSender.InheritedBoundaryDataSource = false;
 			// Container child tableSender.Gtk.Table+TableChild
 			this.labelClientFrom = new global::Gtk.Label();
 			this.labelClientFrom.Name = "labelClientFrom";
@@ -375,7 +361,9 @@ namespace Vodovoz
 			w25.XOptions = ((global::Gtk.AttachOptions)(4));
 			w25.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSender.Gtk.Table+TableChild
-			this.referenceCounterpartyFrom = null;
+			this.referenceCounterpartyFrom = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.referenceCounterpartyFrom.Events = ((global::Gdk.EventMask)(256));
+			this.referenceCounterpartyFrom.Name = "referenceCounterpartyFrom";
 			this.tableSender.Add(this.referenceCounterpartyFrom);
 			global::Gtk.Table.TableChild w26 = ((global::Gtk.Table.TableChild)(this.tableSender[this.referenceCounterpartyFrom]));
 			w26.TopAttach = ((uint)(1));
@@ -385,7 +373,12 @@ namespace Vodovoz
 			w26.XOptions = ((global::Gtk.AttachOptions)(4));
 			w26.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSender.Gtk.Table+TableChild
-			this.referenceDeliveryPointFrom = null;
+			this.referenceDeliveryPointFrom = new global::Gamma.Widgets.yEntryReference();
+			this.referenceDeliveryPointFrom.Events = ((global::Gdk.EventMask)(256));
+			this.referenceDeliveryPointFrom.Name = "referenceDeliveryPointFrom";
+			this.referenceDeliveryPointFrom.DisplayFields = new string[] {
+					"CompiledAddress"};
+			this.referenceDeliveryPointFrom.DisplayFormatString = "{0}";
 			this.tableSender.Add(this.referenceDeliveryPointFrom);
 			global::Gtk.Table.TableChild w27 = ((global::Gtk.Table.TableChild)(this.tableSender[this.referenceDeliveryPointFrom]));
 			w27.TopAttach = ((uint)(2));
@@ -395,12 +388,16 @@ namespace Vodovoz
 			w27.XOptions = ((global::Gtk.AttachOptions)(4));
 			w27.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableSender.Gtk.Table+TableChild
-			this.referenceWarehouseFrom = null;
+			this.referenceWarehouseFrom = new global::Gamma.Widgets.yEntryReference();
+			this.referenceWarehouseFrom.Events = ((global::Gdk.EventMask)(256));
+			this.referenceWarehouseFrom.Name = "referenceWarehouseFrom";
+			this.referenceWarehouseFrom.DisplayFields = new string[] {
+					"Name"};
+			this.referenceWarehouseFrom.DisplayFormatString = "{0}";
 			this.tableSender.Add(this.referenceWarehouseFrom);
 			global::Gtk.Table.TableChild w28 = ((global::Gtk.Table.TableChild)(this.tableSender[this.referenceWarehouseFrom]));
 			w28.LeftAttach = ((uint)(1));
 			w28.RightAttach = ((uint)(2));
-			w28.XOptions = ((global::Gtk.AttachOptions)(4));
 			w28.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox2.Add(this.tableSender);
 			global::Gtk.Box.BoxChild w29 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.tableSender]));
@@ -432,14 +429,10 @@ namespace Vodovoz
 			w32.Expand = false;
 			w32.Fill = false;
 			// Container child vbox4.Gtk.Box+BoxChild
-			this.tableReceiver = new global::Gtk.DataBindings.DataTable(((uint)(3)), ((uint)(2)), false);
+			this.tableReceiver = new global::Gtk.Table(((uint)(3)), ((uint)(2)), false);
 			this.tableReceiver.Name = "tableReceiver";
 			this.tableReceiver.RowSpacing = ((uint)(6));
 			this.tableReceiver.ColumnSpacing = ((uint)(6));
-			this.tableReceiver.InheritedDataSource = false;
-			this.tableReceiver.InheritedBoundaryDataSource = false;
-			this.tableReceiver.InheritedDataSource = false;
-			this.tableReceiver.InheritedBoundaryDataSource = false;
 			// Container child tableReceiver.Gtk.Table+TableChild
 			this.labelClientTo = new global::Gtk.Label();
 			this.labelClientTo.Name = "labelClientTo";
@@ -472,7 +465,9 @@ namespace Vodovoz
 			w35.XOptions = ((global::Gtk.AttachOptions)(4));
 			w35.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableReceiver.Gtk.Table+TableChild
-			this.referenceCounterpartyTo = null;
+			this.referenceCounterpartyTo = new global::Gamma.Widgets.yEntryReferenceVM();
+			this.referenceCounterpartyTo.Events = ((global::Gdk.EventMask)(256));
+			this.referenceCounterpartyTo.Name = "referenceCounterpartyTo";
 			this.tableReceiver.Add(this.referenceCounterpartyTo);
 			global::Gtk.Table.TableChild w36 = ((global::Gtk.Table.TableChild)(this.tableReceiver[this.referenceCounterpartyTo]));
 			w36.TopAttach = ((uint)(1));
@@ -482,7 +477,12 @@ namespace Vodovoz
 			w36.XOptions = ((global::Gtk.AttachOptions)(4));
 			w36.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableReceiver.Gtk.Table+TableChild
-			this.referenceDeliveryPointTo = null;
+			this.referenceDeliveryPointTo = new global::Gamma.Widgets.yEntryReference();
+			this.referenceDeliveryPointTo.Events = ((global::Gdk.EventMask)(256));
+			this.referenceDeliveryPointTo.Name = "referenceDeliveryPointTo";
+			this.referenceDeliveryPointTo.DisplayFields = new string[] {
+					"CompiledAddress"};
+			this.referenceDeliveryPointTo.DisplayFormatString = "{0}";
 			this.tableReceiver.Add(this.referenceDeliveryPointTo);
 			global::Gtk.Table.TableChild w37 = ((global::Gtk.Table.TableChild)(this.tableReceiver[this.referenceDeliveryPointTo]));
 			w37.TopAttach = ((uint)(2));
@@ -492,12 +492,16 @@ namespace Vodovoz
 			w37.XOptions = ((global::Gtk.AttachOptions)(4));
 			w37.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableReceiver.Gtk.Table+TableChild
-			this.referenceWarehouseTo = null;
+			this.referenceWarehouseTo = new global::Gamma.Widgets.yEntryReference();
+			this.referenceWarehouseTo.Events = ((global::Gdk.EventMask)(256));
+			this.referenceWarehouseTo.Name = "referenceWarehouseTo";
+			this.referenceWarehouseTo.DisplayFields = new string[] {
+					"Name"};
+			this.referenceWarehouseTo.DisplayFormatString = "{0}";
 			this.tableReceiver.Add(this.referenceWarehouseTo);
 			global::Gtk.Table.TableChild w38 = ((global::Gtk.Table.TableChild)(this.tableReceiver[this.referenceWarehouseTo]));
 			w38.LeftAttach = ((uint)(1));
 			w38.RightAttach = ((uint)(2));
-			w38.XOptions = ((global::Gtk.AttachOptions)(4));
 			w38.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox4.Add(this.tableReceiver);
 			global::Gtk.Box.BoxChild w39 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.tableReceiver]));
@@ -513,7 +517,9 @@ namespace Vodovoz
 			w41.Expand = false;
 			w41.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
-			this.movementdocumentitemsview1 = null;
+			this.movementdocumentitemsview1 = new global::Vodovoz.MovementDocumentItemsView();
+			this.movementdocumentitemsview1.Events = ((global::Gdk.EventMask)(256));
+			this.movementdocumentitemsview1.Name = "movementdocumentitemsview1";
 			this.vbox3.Add(this.movementdocumentitemsview1);
 			global::Gtk.Box.BoxChild w42 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.movementdocumentitemsview1]));
 			w42.Position = 3;
@@ -523,10 +529,10 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.buttonDelivered.Clicked += new global::System.EventHandler(this.OnButtonDeliveredClicked);
 			this.enumMovementType.Changed += new global::System.EventHandler(this.OnEnumMovementTypeChanged);
+			this.referenceCounterpartyFrom.Changed += new global::System.EventHandler(this.OnReferenceCounterpartyFromChanged);
+			this.referenceCounterpartyTo.Changed += new global::System.EventHandler(this.OnReferenceCounterpartyToChanged);
 		}
 	}
 }

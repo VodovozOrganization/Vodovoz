@@ -12,7 +12,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class MovementDocumentDlg : OrmGtkDialogBase<MovementDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
@@ -44,31 +43,35 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			tableSender.DataSource = subjectAdaptor;
-			tableCommon.DataSource = subjectAdaptor;
-			tableReceiver.DataSource = subjectAdaptor;
+			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
+			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeSupplier = false;
 			counterpartyFilter.RestrictIncludeCustomer = true;
 			counterpartyFilter.RestrictIncludePartner = false;
 			referenceCounterpartyFrom.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
-			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject);
+			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
 			counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeSupplier = false;
 			counterpartyFilter.RestrictIncludeCustomer = true;
 			counterpartyFilter.RestrictIncludePartner = false;
 			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
-			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject);
+			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
 			referenceWarehouseTo.SubjectType = typeof(Warehouse);
+			referenceWarehouseTo.Binding.AddBinding (Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource ();
 			referenceWarehouseFrom.SubjectType = typeof(Warehouse);
+			referenceWarehouseFrom.Binding.AddBinding (Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource ();
 			referenceDeliveryPointTo.CanEditReference = false;
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
+			referenceDeliveryPointTo.Binding.AddBinding (Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource ();
 			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
+			referenceDeliveryPointFrom.Binding.AddBinding (Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource ();
 			referenceEmployee.SubjectType = typeof(Employee);
+			referenceEmployee.Binding.AddBinding (Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource ();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);
 			yentryrefWagon.Binding.AddBinding(Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();

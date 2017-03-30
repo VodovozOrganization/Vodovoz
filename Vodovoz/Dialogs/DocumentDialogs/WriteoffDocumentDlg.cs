@@ -46,19 +46,23 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			tableWriteoff.DataSource = subjectAdaptor;
+			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
+			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeSupplier = false;
 			counterpartyFilter.RestrictIncludeCustomer = true;
 			counterpartyFilter.RestrictIncludePartner = false;
 			referenceCounterparty.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
-			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject);
+			referenceCounterparty.Binding.AddBinding(Entity, e => e.Client, w => w.Subject).InitializeFromSource();
 
 			referenceWarehouse.SubjectType = typeof(Warehouse);
+			referenceWarehouse.Binding.AddBinding (Entity, e => e.WriteoffWarehouse, w => w.Subject).InitializeFromSource ();
 			referenceDeliveryPoint.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPoint.CanEditReference = false;
+			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			referenceEmployee.SubjectType = typeof(Employee);
+			referenceEmployee.Binding.AddBinding (Entity, e => e.ResponsibleEmployee, w => w.Subject).InitializeFromSource ();
 			comboType.Sensitive = true;
 			comboType.ItemsEnum = typeof(WriteoffType);
 			referenceWarehouse.Sensitive = (UoWGeneric.Root.WriteoffWarehouse != null);
@@ -99,7 +103,7 @@ namespace Vodovoz
 			referenceDeliveryPoint.Sensitive = referenceCounterparty.Subject != null;
 			if (referenceCounterparty.Subject != null) {
 				var points = ((Counterparty)referenceCounterparty.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
-				referenceDeliveryPoint.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+				referenceDeliveryPoint.ItemsCriteria = UoW.Session.CreateCriteria<DeliveryPoint> ()
 					.Add (Restrictions.In ("Id", points));
 			}
 		}
