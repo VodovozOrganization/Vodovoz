@@ -32,6 +32,18 @@ namespace Vodovoz
 
 		public RouteListKeepingDlg(RouteList sub) : this(sub.Id){ }
 
+		public RouteListKeepingDlg (int routeId, int[] selectOrderId,  bool canEdit = true) : this(routeId, canEdit)
+		{
+			var selectedItems = items.Where (x => selectOrderId.Contains(x.RouteListItem.Order.Id)).ToArray();
+			if (selectedItems.Length > 0)
+			{
+				ytreeviewAddresses.SelectObject (selectedItems);
+				var iter = ytreeviewAddresses.YTreeModel.IterFromNode (selectedItems [0]);
+				var path = ytreeviewAddresses.YTreeModel.GetPath (iter);
+				ytreeviewAddresses.ScrollToCell (path, ytreeviewAddresses.Columns [0], true, 0.5f, 0.5f);
+			}
+		}
+
 		public override bool HasChanges
 		{
 			get

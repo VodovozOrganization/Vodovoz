@@ -185,15 +185,15 @@ namespace Vodovoz.ViewModel
 			var addresses = UoW.Session.QueryOver<RouteListItem>()
 				.Where(x => x.Order.Id.IsIn(ordersIds)).List();
 
-			var routesIds = addresses.Select(x => x.RouteList.Id).Distinct().ToArray();
+			var routes = addresses.GroupBy(x => x.RouteList.Id);
 
 			var tdiMain = MainClass.MainWin.TdiMain;
 
-			foreach(var routeId in routesIds)
+			foreach(var route in routes)
 			{
 				tdiMain.OpenTab(
-					OrmMain.GenerateDialogHashName<RouteList>(routeId),
-					() => new RouteListKeepingDlg (routeId)
+					OrmMain.GenerateDialogHashName<RouteList>(route.Key),
+					() => new RouteListKeepingDlg (route.Key, route.Select(x => x.Order.Id).ToArray())
 				);
 			}
 		}
