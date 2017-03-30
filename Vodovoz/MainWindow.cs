@@ -672,4 +672,13 @@ public partial class MainWindow: Gtk.Window
 			() => new QSReport.ReportViewDlg (widget)
 		);
 	}
+
+	protected void OnActionRoutesListRegisterActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.Logistic.RoutesListRegisterReport ();
+		tdiMain.OpenTab (
+			QSReport.ReportViewDlg.GenerateHashName (widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
 }

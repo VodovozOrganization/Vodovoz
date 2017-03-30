@@ -551,6 +551,8 @@
     <Compile Include="Additions\Logistic\NumericPointMarker.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveriesLateReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.DeliveriesLateReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\RoutesListRegisterReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.RoutesListRegisterReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -859,6 +861,9 @@
     </None>
     <None Include="packages.config" />
     <None Include="Reports\Logistic\DeliveriesLate.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\RoutesListRegister.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
