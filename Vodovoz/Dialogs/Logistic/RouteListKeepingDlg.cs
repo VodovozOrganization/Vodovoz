@@ -84,6 +84,7 @@ namespace Vodovoz
 			statusIcons.Add(RouteListItemStatus.Transfered, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.face-uncertain.png"));
 
 			ytreeviewAddresses.ColumnsConfig = ColumnsConfigFactory.Create<RouteListKeepingItemNode>()
+				.AddColumn("№ п/п").AddNumericRenderer(x => x.RouteListItem.IndexInRoute + 1)
 				.AddColumn("Заказ")
 					.AddTextRenderer(node => node.RouteListItem.Order.Id.ToString())					
 				.AddColumn("Адрес")
