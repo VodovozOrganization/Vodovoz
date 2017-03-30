@@ -1,8 +1,7 @@
-﻿using System;
-using Vodovoz.Domain;
+﻿using NLog;
 using QSOrmProject;
-using NLog;
 using QSValidation;
+using Vodovoz.Domain;
 
 namespace Vodovoz
 {
@@ -30,7 +29,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			textComment.DataSource = UoWGeneric.Root;
+			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
 		}
 
 		public override bool Save ()

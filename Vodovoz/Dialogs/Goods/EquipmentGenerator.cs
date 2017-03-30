@@ -10,7 +10,6 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class EquipmentGenerator : Gtk.Bin, ITdiDialog
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();

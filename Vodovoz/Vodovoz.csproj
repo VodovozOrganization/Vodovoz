@@ -68,9 +68,6 @@
       <HintPath>..\..\QSProjects\packages\FluentNHibernate.2.0.3.0\lib\net40\FluentNHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="gtk-databind-lib">
-      <HintPath>..\..\Gtk.DataBindings\bin\Debug\gtk-databind-lib.dll</HintPath>
-    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Drawing" />
     <Reference Include="DiffPlex">
@@ -589,10 +586,6 @@
       <Project>{A236518F-E4D0-4CFF-B23F-769802B2821F}</Project>
       <Name>QSContacts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Gtk.DataBindings\Gtk.DataBindings.csproj">
-      <Project>{8D85E430-325A-4532-A123-BF28F9644DB4}</Project>
-      <Name>Gtk.DataBindings</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSValidation\QSValidation.csproj">
       <Project>{CE5179E8-3172-4C08-9FE3-9C48C58A3831}</Project>
       <Name>QSValidation</Name>
@@ -649,13 +642,13 @@
       <Project>{D0C39D9D-BED0-418B-9A5E-713176CAF40C}</Project>
       <Name>GMap.NET.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QSProjects\QSHistoryLog\QSHistoryLog.csproj">
-      <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
-      <Name>QSHistoryLog</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QSProjects\QSOrmProject\QSOrmProject.csproj">
       <Project>{00D32969-612C-417E-9565-BEC6A7719F80}</Project>
       <Name>QSOrmProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSHistoryLog\QSHistoryLog.csproj">
+      <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
+      <Name>QSHistoryLog</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,6 @@
     <widget-library name="../../../QSProjects/Modules/QSBanks/bin/Debug/QSBanks.dll" />
     <widget-library name="../../../QSProjects/Modules/QSAttachment/bin/Debug/QSAttachment.dll" />
     <widget-library name="../../../QSProjects/Modules/QSContacts/bin/Debug/QSContacts.dll" />
-    <widget-library name="../../../Gtk.DataBindings/bin/Debug/gtk-databind-lib.dll" />
     <widget-library name="../../../QSProjects/QSValidation/bin/Debug/QSValidation.dll" />
     <widget-library name="../../../My-FyiReporting/RdlGtkViewer/RdlGtkViewer/bin/Debug/RdlGtkViewer.exe" />
     <widget-library name="../../../QSProjects/QSReport/bin/Debug/QSReport.dll" />
@@ -3151,7 +3150,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5883,10 +5881,6 @@ Patronymic</property>
             <property name="NColumns">6</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <placeholder />
             </child>
@@ -9721,7 +9715,6 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Наклейка</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -12508,10 +12501,6 @@ Patronymic</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
             <property name="BorderWidth">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gamma.GtkWidgets.yEntry" id="entryName">
                 <property name="MemberName" />
@@ -15752,13 +15741,9 @@ Patronymic</property>
         <property name="MemberName" />
         <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.DataBindings.DataVBox" id="datavbox1">
+          <widget class="Gtk.VBox" id="datavbox1">
             <property name="MemberName" />
             <property name="Spacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.Label" id="label1">
                 <property name="MemberName" />
@@ -15891,13 +15876,10 @@ Patronymic</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="Gtk.DataBindings.DataEntryReference" id="referenceNomenclature">
+                  <widget class="Gamma.Widgets.yEntryReference" id="referenceNomenclature">
                     <property name="MemberName" />
                     <property name="Events">ButtonPressMask</property>
                     <property name="DisplayFields">Name</property>
-                    <property name="InheritedDataSource">False</property>
-                    <property name="InheritedBoundaryDataSource">False</property>
-                    <property name="CursorPointsEveryType">False</property>
                     <signal name="Changed" handler="OnReferenceNomenclatureChanged" />
                   </widget>
                   <packing>
@@ -16114,16 +16096,10 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTreeView" id="treeItemsList">
+              <widget class="Gamma.GtkWidgets.yTreeView" id="treeItemsList">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
-                <property name="CursorPointsEveryType">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="ColumnMappings" />
               </widget>
             </child>
           </widget>
@@ -16510,17 +16486,11 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="ShadowType">In</property>
             <child>
-              <widget class="Gtk.DataBindings.DataTextView" id="textComment">
+              <widget class="Gamma.GtkWidgets.yTextView" id="textComment">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
                 <property name="Text" translatable="yes" />
-                <property name="InheritedDataSource">False</property>
-                <property name="Mappings">Comment</property>
-                <property name="InheritedBoundaryDataSource">False</property>
-                <property name="InheritedDataSource">False</property>
-                <property name="Mappings">Comment</property>
-                <property name="InheritedBoundaryDataSource">False</property>
               </widget>
             </child>
           </widget>
@@ -25798,13 +25768,9 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataHBox" id="hboxStatusButtons">
+          <widget class="Gtk.HBox" id="hboxStatusButtons">
             <property name="MemberName" />
             <property name="Spacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.Button" id="buttonAccept">
                 <property name="MemberName" />
@@ -29923,16 +29889,12 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NRows">2</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -30258,16 +30220,12 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NRows">2</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -30664,16 +30622,12 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NRows">3</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.HBox" id="hbox2">
                 <property name="MemberName" />
@@ -31084,16 +31038,12 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NRows">2</property>
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <placeholder />
             </child>
@@ -31201,15 +31151,11 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NColumns">2</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.Label" id="label1">
                 <property name="MemberName" />
@@ -31702,16 +31648,12 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NRows">3</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -32121,16 +32063,12 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NRows">3</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />
@@ -32561,16 +32499,12 @@ RegistrationNumber</property>
           </packing>
         </child>
         <child>
-          <widget class="Gtk.DataBindings.DataTable" id="tableWriteoff">
+          <widget class="Gtk.Table" id="tableWriteoff">
             <property name="MemberName" />
             <property name="NRows">3</property>
             <property name="NColumns">4</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
-            <property name="InheritedDataSource">False</property>
-            <property name="InheritedBoundaryDataSource">False</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
                 <property name="MemberName" />

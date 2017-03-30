@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using Gtk;
-using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
+using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
-using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -38,7 +36,7 @@ namespace Vodovoz
 					DocumentUoW.Root.Items = new List<MovementDocumentItem> ();
 				items = DocumentUoW.Root.ObservableItems;
 
-				treeItemsList.ColumnMappingConfig = FluentMappingConfig<MovementDocumentItem>.Create ()
+				treeItemsList.ColumnsConfig = Gamma.ColumnConfig.FluentColumnsConfig<MovementDocumentItem>.Create ()
 					.AddColumn ("Наименование").AddTextRenderer (i => i.Name)
 					.AddColumn ("С/Н оборудования").AddTextRenderer (i => i.EquipmentString)
 					.AddColumn ("Количество")

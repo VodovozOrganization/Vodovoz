@@ -1,4 +1,5 @@
 ﻿using System;
+using Gamma.Widgets;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Store;
@@ -63,7 +64,7 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnSpeccomboStockItemSelected (object sender, EnumItemClickedEventArgs e)
+		protected void OnSpeccomboStockItemSelected (object sender, ItemSelectedEventArgs e)
 		{
 			OnRefiltered ();
 		}

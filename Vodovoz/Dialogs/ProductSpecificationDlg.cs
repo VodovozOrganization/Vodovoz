@@ -31,8 +31,8 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			datatable5.DataSource = subjectAdaptor;
-			referenceProduct.SubjectType = typeof(Organization);
+			referenceProduct.SubjectType = typeof (Organization);
+			referenceProduct.Binding.AddBinding (Entity, e => e.Product, w => w.Subject).InitializeFromSource ();
 			productspecificationmaterialsview1.SpecificationUoW = UoWGeneric;
 		}
 

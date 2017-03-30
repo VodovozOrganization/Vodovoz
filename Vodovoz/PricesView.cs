@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data.Bindings;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
+using Gamma.GtkWidgets;
 using Gtk;
-using Gtk.DataBindings;
 using NLog;
 using QSOrmProject;
 using Vodovoz.Domain.Goods;
@@ -103,23 +103,20 @@ namespace Vodovoz
 		private void AddPriceRow(NomenclaturePrice newPrice) 
 		{
 			datatablePrices.NRows = RowNum + 1;
-			Adaptor rowAdaptor = new Adaptor(newPrice);
 
 			Gtk.Label textFromLabel = new Gtk.Label ("от (шт.)");
 			datatablePrices.Attach (textFromLabel, (uint)0, (uint)1, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
-			DataSpinButton countDataEntry = new DataSpinButton(0, 9999, 1);
-			countDataEntry.DataSource = rowAdaptor;
-			countDataEntry.Mappings = "MinCount";
+			var countDataEntry = new ySpinButton(0, 9999, 1);
+			countDataEntry.Binding.AddBinding (newPrice, e => e.MinCount, w => w.ValueAsInt).InitializeFromSource ();
 			datatablePrices.Attach (countDataEntry, (uint)1, (uint)2, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Label textCplLabel = new Gtk.Label (" - ");
 			datatablePrices.Attach (textCplLabel, (uint)2, (uint)3, RowNum, RowNum + 1, (AttachOptions)0, (AttachOptions)0, (uint)0, (uint)0);
 
-			DataSpinButton priceDataEntry = new DataSpinButton (0, 999999, 1);
+			var priceDataEntry = new ySpinButton (0, 999999, 1);
 			priceDataEntry.Digits = 2;
-			priceDataEntry.DataSource = rowAdaptor;
-			priceDataEntry.Mappings = "Price";
+			priceDataEntry.Binding.AddBinding (newPrice, e => e.Price, w => w.ValueAsDecimal).InitializeFromSource ();
 			datatablePrices.Attach (priceDataEntry, (uint)3, (uint)4, RowNum, RowNum + 1, AttachOptions.Expand | AttachOptions.Fill, (AttachOptions)0, (uint)0, (uint)0);
 
 			Gtk.Label textCurrencyLabel = new Gtk.Label ("руб.");
