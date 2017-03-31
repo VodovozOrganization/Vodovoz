@@ -91,6 +91,7 @@ namespace Vodovoz
 		{
 			bool selected = yTreeViewDrivers.Selection.CountSelectedRows() > 0;
 			buttonChat.Sensitive = selected && currentEmployee != null;
+			buttonOpenKeeping.Sensitive = selected;
 			UpdateSelectionOfCar(selected);
 		}
 
@@ -363,6 +364,18 @@ namespace Vodovoz
 			yTreeViewDrivers.RepresentationModel.UpdateNodes ();
 			UpdateCarPosition ();
 			logger.Info ("Ок");
+		}
+
+		protected void OnButtonOpenKeepingClicked (object sender, EventArgs e)
+		{
+			var selectedDriver = yTreeViewDrivers.GetSelectedObject<WorkingDriverVMNode> ();
+			foreach(var routeId in selectedDriver.RouteListsIds.Select(x => x.Key))
+			{
+				MainClass.MainWin.TdiMain.OpenTab (
+					OrmMain.GenerateDialogHashName<RouteList> (routeId),
+					() => new RouteListKeepingDlg (routeId)
+				);
+			}
 		}
 	}
 }
