@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
@@ -116,7 +117,9 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.RouteListItem.Order.BottlesReturn)
 				.AddColumn("Сдали по факту")
 					.AddNumericRenderer(node => node.RouteListItem.DriverBottlesReturned)
-				.AddColumn("Последнее изменение")
+				.AddColumn ("Пос. звонок")
+					.AddTextRenderer (node => String.Format("{0:t}", node.RouteListItem.LastCallTime))
+				.AddColumn("Статус изменен")
 					.AddTextRenderer(node => node.LastUpdate)
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
@@ -155,12 +158,13 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			ytreeviewAddresses.ItemsDataSource = items;
+			ytreeviewAddresses.ItemsDataSource = new GenericObservableList<RouteListKeepingItemNode> (items);
 		}
 
 		public void OnSelectionChanged(object sender, EventArgs args){
 			buttonSetStatusComplete	.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
-			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
+			buttonChangeDeliveryTime.Sensitive = buttonMadeCall.Sensitive 
+				= ytreeviewAddresses.GetSelectedObjects().Count() == 1;
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -275,6 +279,12 @@ namespace Vodovoz
 				this, new FineDlg (default(decimal), Entity)
 			);
 		}
+
+		protected void OnButtonMadeCallClicked (object sender, EventArgs e)
+		{
+			var selectedAddresses = ytreeviewAddresses.GetSelectedObjects<RouteListKeepingItemNode> ();
+			selectedAddresses[0].RouteListItem.LastCallTime = DateTime.Now;
+		}
 	}	
 
 	public class RouteListKeepingItemNode : PropertyChangedBase
@@ -336,7 +346,19 @@ namespace Vodovoz
 			}
 		}
 
-		public RouteListItem RouteListItem{get;set;}
+		RouteListItem routeListItem;
+
+		public RouteListItem RouteListItem {
+			get {
+				return routeListItem;
+			}
+
+			set {
+				routeListItem = value;
+				if(RouteListItem != null)
+					RouteListItem.PropertyChanged += (sender, e) => OnPropertyChanged (() => RouteListItem);
+			}
+		}
 	}
 }
 

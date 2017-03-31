@@ -123,6 +123,13 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref cashierCommentAuthor, value, () => CashierCommentAuthor); }
 		}
 
+		private DateTime? lastCallTime;
+
+		[Display (Name = "Время последнего созвона")]
+		public virtual DateTime? LastCallTime {
+			get { return lastCallTime; }
+			set { SetField (ref lastCallTime, value, () => LastCallTime); }
+		}
 
 		string comment;
 		public virtual string Comment

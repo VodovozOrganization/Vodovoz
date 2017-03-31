@@ -62,6 +62,8 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonSetStatusComplete;
 
+		private global::Gtk.Button buttonMadeCall;
+
 		private global::Gtk.Button buttonRefresh;
 
 		protected virtual void Build ()
@@ -383,35 +385,45 @@ namespace Vodovoz
 			w30.Expand = false;
 			w30.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonMadeCall = new global::Gtk.Button ();
+			this.buttonMadeCall.CanFocus = true;
+			this.buttonMadeCall.Name = "buttonMadeCall";
+			this.buttonMadeCall.UseUnderline = true;
+			this.buttonMadeCall.Label = global::Mono.Unix.Catalog.GetString ("Сделан звонок");
+			this.hbox8.Add (this.buttonMadeCall);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonMadeCall]));
+			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
+			// Container child hbox8.Gtk.Box+BoxChild
 			this.buttonRefresh = new global::Gtk.Button ();
 			this.buttonRefresh.CanFocus = true;
 			this.buttonRefresh.Name = "buttonRefresh";
 			this.buttonRefresh.UseUnderline = true;
 			this.buttonRefresh.Label = global::Mono.Unix.Catalog.GetString ("Обновить");
-			global::Gtk.Image w31 = new global::Gtk.Image ();
-			w31.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
-			this.buttonRefresh.Image = w31;
+			global::Gtk.Image w32 = new global::Gtk.Image ();
+			w32.Pixbuf = global::Stetic.IconLoader.LoadIcon (this, "gtk-refresh", global::Gtk.IconSize.Menu);
+			this.buttonRefresh.Image = w32;
 			this.hbox8.Add (this.buttonRefresh);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
-			w32.PackType = ((global::Gtk.PackType)(1));
-			w32.Position = 2;
-			w32.Expand = false;
-			w32.Fill = false;
-			this.vbox1.Add (this.hbox8);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox8 [this.buttonRefresh]));
+			w33.PackType = ((global::Gtk.PackType)(1));
 			w33.Position = 3;
 			w33.Expand = false;
 			w33.Fill = false;
+			this.vbox1.Add (this.hbox8);
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox8]));
+			w34.Position = 3;
+			w34.Expand = false;
+			w34.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
-			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonNewFine.Clicked += new global::System.EventHandler (this.OnButtonNewFineClicked);
 			this.buttonChangeDeliveryTime.Clicked += new global::System.EventHandler (this.OnButtonChangeDeliveryTimeClicked);
 			this.buttonSetStatusComplete.Clicked += new global::System.EventHandler (this.OnButtonSetStatusCompleteClicked);
+			this.buttonMadeCall.Clicked += new global::System.EventHandler (this.OnButtonMadeCallClicked);
 			this.buttonRefresh.Clicked += new global::System.EventHandler (this.OnButtonRefreshClicked);
 		}
 	}

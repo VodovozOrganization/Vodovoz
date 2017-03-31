@@ -30,6 +30,7 @@ namespace Vodovoz.HMap
 			Map(x => x.CashierCommentLastUpdate).Column("cashier_comment_last_update");
 			Map (x => x.Notified30Minutes)		.Column("notified_30minutes");
 			Map (x => x.NotifiedTimeout)		.Column("notified_timeout");
+			Map (x => x.LastCallTime)			.Column ("last_call_time");
 
 			References (x => x.RouteList)			.Column ("route_list_id").Not.Nullable ();
 			References (x => x.Order)				.Column ("order_id").Cascade.SaveUpdate();
