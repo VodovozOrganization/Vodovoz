@@ -131,10 +131,24 @@ namespace Vodovoz
 			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
 			ytreeviewAddresses.Sensitive = editing;
 
-			string phones = string.Join("\n", Entity.Driver.Phones);
+			//Заполняем телефоны
+			string phones = null;
+			if (Entity.Driver != null && Entity.Driver.Phones.Count > 0) {
+				phones = String.Format ("<b>Водитель {0}:</b>\n{1}",
+				                        Entity.Driver.FullName,
+				                        String.Join ("\n", Entity.Driver.Phones));
+			}
+			if (Entity.Forwarder != null && Entity.Forwarder.Phones.Count > 0) {
+				if (!string.IsNullOrWhiteSpace (phones))
+					phones += "\n";
+				phones += String.Format ("<b>Экспедитор {0}:</b>\n{1}",
+				                         Entity.Forwarder.FullName,
+				                         String.Join ("\n", Entity.Forwarder.Phones));
+			}
+
 			if (string.IsNullOrWhiteSpace(phones))
 				phones = "Нет телефонов";
-			ytextviewDriverPhones.Buffer.Text = phones;
+			labelPhonesInfo.Markup = phones;
 			UpdateNodes();
 		}
 
