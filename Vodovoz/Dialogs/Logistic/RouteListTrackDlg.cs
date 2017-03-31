@@ -96,7 +96,7 @@ namespace Vodovoz
 
 		protected void OnToggleButtonHideAddressesToggled(object sender, EventArgs e)
 		{
-			GtkScrolledWindow1.Visible = label2.Visible = !toggleButtonHideAddresses.Active;
+			GtkScrolledWindow1.Visible = label2.Visible = toggleButtonHideAddresses.Active;
 		}
 
 		protected void OnYTreeViewDriversRowActivated(object o, Gtk.RowActivatedArgs args)

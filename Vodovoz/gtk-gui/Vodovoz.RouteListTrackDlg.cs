@@ -140,7 +140,7 @@ namespace Vodovoz
 			this.toggleButtonHideAddresses.CanFocus = true;
 			this.toggleButtonHideAddresses.Name = "toggleButtonHideAddresses";
 			this.toggleButtonHideAddresses.UseUnderline = true;
-			this.toggleButtonHideAddresses.Label = global::Mono.Unix.Catalog.GetString("⇧⇩");
+			this.toggleButtonHideAddresses.Label = global::Mono.Unix.Catalog.GetString("⇧⇩ Адреса МЛ");
 			this.hbox3.Add(this.toggleButtonHideAddresses);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.toggleButtonHideAddresses]));
 			w11.Position = 0;
@@ -231,6 +231,8 @@ namespace Vodovoz
 			{
 				this.Child.ShowAll();
 			}
+			this.label2.Hide();
+			this.GtkScrolledWindow1.Hide();
 			this.Hide();
 			this.yTreeViewDrivers.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYTreeViewDriversRowActivated);
 			this.buttonChat.Clicked += new global::System.EventHandler(this.OnButtonChatClicked);

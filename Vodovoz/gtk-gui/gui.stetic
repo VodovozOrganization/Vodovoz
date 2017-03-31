@@ -32992,6 +32992,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="label2">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="LabelProp" translatable="yes">Список адресов</property>
               </widget>
               <packing>
@@ -33003,6 +33004,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
                 <property name="MemberName" />
+                <property name="Visible">False</property>
                 <property name="ShadowType">In</property>
                 <child>
                   <widget class="QSOrmProject.RepresentationTreeView" id="yTreeAddresses">
@@ -33029,7 +33031,7 @@ RegistrationNumber</property>
                     <property name="Tooltip" translatable="yes">Скрыть\показать адреса.</property>
                     <property name="CanFocus">True</property>
                     <property name="Type">TextOnly</property>
-                    <property name="Label" translatable="yes">⇧⇩</property>
+                    <property name="Label" translatable="yes">⇧⇩ Адреса МЛ</property>
                     <property name="UseUnderline">True</property>
                     <signal name="Toggled" handler="OnToggleButtonHideAddressesToggled" />
                   </widget>
