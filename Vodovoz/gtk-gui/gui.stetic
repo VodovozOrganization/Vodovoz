@@ -25849,7 +25849,6 @@ RegistrationNumber</property>
               <widget class="Vodovoz.ReadyForReceptionFilter" id="readyforreceptionfilter1">
                 <property name="MemberName" />
                 <property name="Events">ButtonPressMask</property>
-                <property name="RestrictWithoutUnload">False</property>
               </widget>
               <packing>
                 <property name="Position">0</property>

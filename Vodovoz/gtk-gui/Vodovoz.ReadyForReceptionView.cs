@@ -38,7 +38,6 @@ namespace Vodovoz
 			this.readyforreceptionfilter1 = new global::Vodovoz.ReadyForReceptionFilter ();
 			this.readyforreceptionfilter1.Events = ((global::Gdk.EventMask)(256));
 			this.readyforreceptionfilter1.Name = "readyforreceptionfilter1";
-			this.readyforreceptionfilter1.RestrictWithoutUnload = false;
 			this.hbox1.Add (this.readyforreceptionfilter1);
 			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.readyforreceptionfilter1]));
 			w1.Position = 0;

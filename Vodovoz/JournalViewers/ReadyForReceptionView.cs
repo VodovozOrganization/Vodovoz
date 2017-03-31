@@ -1,11 +1,10 @@
 ﻿using System;
-using QSTDI;
 using QSOrmProject;
-using Vodovoz.Domain.Logistic;
+using QSTDI;
 
 namespace Vodovoz
 {
-	
+
 	public partial class ReadyForReceptionView : TdiTabBase
 	{
 		private IUnitOfWork uow;

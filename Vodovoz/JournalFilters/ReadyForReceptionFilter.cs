@@ -56,6 +56,7 @@ namespace Vodovoz
 			}
 		}
 
+		[System.ComponentModel.Browsable(false)]
 		public bool RestrictWithoutUnload {
 			get { return checkWithoutUnload.Active; }
 			set {
