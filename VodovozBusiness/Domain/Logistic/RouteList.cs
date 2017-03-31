@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Logistic
 			get { return car; }
 			set { 
 				SetField (ref car, value, () => Car); 
-				if (value.Driver != null)
+				if (value?.Driver != null)
 					Driver = value.Driver;
 			}
 		}
