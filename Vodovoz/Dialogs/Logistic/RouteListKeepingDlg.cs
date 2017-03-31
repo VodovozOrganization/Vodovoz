@@ -22,10 +22,10 @@ namespace Vodovoz
 	{
 		private bool editing = true;
 
-		public RouteListKeepingDlg(int id, bool canEdit = true)
+		public RouteListKeepingDlg(int id)
 		{
 			this.Build ();
-			editing = canEdit;
+			editing = QSMain.User.Permissions ["logistican"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Ведение маршрутного листа №{0}",Entity.Id);
 			ConfigureDlg ();
@@ -33,7 +33,7 @@ namespace Vodovoz
 
 		public RouteListKeepingDlg(RouteList sub) : this(sub.Id){ }
 
-		public RouteListKeepingDlg (int routeId, int[] selectOrderId,  bool canEdit = true) : this(routeId, canEdit)
+		public RouteListKeepingDlg (int routeId, int[] selectOrderId) : this(routeId)
 		{
 			var selectedItems = items.Where (x => selectOrderId.Contains(x.RouteListItem.Order.Id)).ToArray();
 			if (selectedItems.Length > 0)
