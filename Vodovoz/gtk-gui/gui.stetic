@@ -22266,7 +22266,7 @@ RegistrationNumber</property>
                   </widget>
                   <packing>
                     <property name="Position">1</property>
-                    <property name="AutoSize">True</property>
+                    <property name="AutoSize">False</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
                   </packing>
@@ -33039,6 +33039,23 @@ RegistrationNumber</property>
                   </packing>
                 </child>
                 <child>
+                  <widget class="Gtk.Button" id="buttonRefresh">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextAndIcon</property>
+                    <property name="Icon">stock:gtk-refresh Menu</property>
+                    <property name="Label" translatable="yes">Обновить все</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonRefreshClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gtk.Button" id="buttonCleanTrack">
                     <property name="MemberName" />
                     <property name="Sensitive">False</property>
@@ -33050,7 +33067,7 @@ RegistrationNumber</property>
                     <signal name="Clicked" handler="OnButtonCleanTrackClicked" />
                   </widget>
                   <packing>
-                    <property name="Position">1</property>
+                    <property name="Position">2</property>
                     <property name="AutoSize">False</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -33068,7 +33085,7 @@ RegistrationNumber</property>
                     <signal name="ChangedByUser" handler="OnYenumcomboMapTypeChangedByUser" />
                   </widget>
                   <packing>
-                    <property name="Position">2</property>
+                    <property name="Position">3</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -33085,7 +33102,7 @@ RegistrationNumber</property>
                     <signal name="Clicked" handler="OnButtonMapInWindowClicked" />
                   </widget>
                   <packing>
-                    <property name="Position">3</property>
+                    <property name="Position">4</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>

@@ -356,6 +356,14 @@ namespace Vodovoz
 		class DistanceTextInfo{
 			public Layout PangoLayout;
 		}
+
+		protected void OnButtonRefreshClicked (object sender, EventArgs e)
+		{
+			logger.Info ("Обновляем данные диалога...");
+			yTreeViewDrivers.RepresentationModel.UpdateNodes ();
+			UpdateCarPosition ();
+			logger.Info ("Ок");
+		}
 	}
 }
 
