@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using Gamma.Utilities;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
-using Gamma.Utilities;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -223,13 +222,12 @@ namespace Vodovoz.Domain.Employees
 
 		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
-			if (String.IsNullOrEmpty (Name))
-				yield return new ValidationResult ("Имя дожно быть заполнено", new[] { "Name" });
-
 			if (String.IsNullOrEmpty (LastName))
 				yield return new ValidationResult ("Фамилия должна быть заполнена", new[] { "LastName" });
 
 			#if !SHORT
+			if (String.IsNullOrEmpty (Name))
+				yield return new ValidationResult ("Имя дожно быть заполнено", new[] { "Name" });
 
 			if (String.IsNullOrEmpty (Patronymic))
 				yield return new ValidationResult ("Отчество должно быть заполнено", new[] { "Patronymic" });
