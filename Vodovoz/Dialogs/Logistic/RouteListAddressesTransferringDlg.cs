@@ -224,10 +224,10 @@ namespace Vodovoz
 
 		private void CheckSensitivities ()
 		{
-			int selectionFromCount = ytreeviewRLFrom.GetSelectedObjects().Count();
 			bool routeListToIsSelected = yentryreferenceRLTo.Subject != null;
+			bool existToTransfer = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode> ().Any (x => x.Status != RouteListItemStatus.Transfered);
 
-			buttonTransfer.Sensitive = selectionFromCount > 0 && routeListToIsSelected;
+			buttonTransfer.Sensitive = existToTransfer && routeListToIsSelected;
 
 			yentryreferenceRLTo.Sensitive = yentryreferenceRLFrom.Sensitive = !HasChanges;
 		}
