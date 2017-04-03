@@ -36558,7 +36558,7 @@ RegistrationNumber</property>
                           </widget>
                           <packing>
                             <property name="Position">1</property>
-                            <property name="AutoSize">True</property>
+                            <property name="AutoSize">False</property>
                           </packing>
                         </child>
                       </widget>
@@ -36584,13 +36584,13 @@ RegistrationNumber</property>
                       </widget>
                       <packing>
                         <property name="Position">1</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                       </packing>
                     </child>
                   </widget>
                   <packing>
                     <property name="Position">0</property>
-                    <property name="AutoSize">True</property>
+                    <property name="AutoSize">False</property>
                   </packing>
                 </child>
                 <child>
@@ -36620,7 +36620,7 @@ RegistrationNumber</property>
                           </widget>
                           <packing>
                             <property name="Position">1</property>
-                            <property name="AutoSize">True</property>
+                            <property name="AutoSize">False</property>
                           </packing>
                         </child>
                       </widget>
@@ -36652,7 +36652,7 @@ RegistrationNumber</property>
                   </widget>
                   <packing>
                     <property name="Position">1</property>
-                    <property name="AutoSize">True</property>
+                    <property name="AutoSize">False</property>
                   </packing>
                 </child>
               </widget>
