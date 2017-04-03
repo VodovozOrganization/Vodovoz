@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QSOrmProject;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
@@ -58,6 +59,29 @@ namespace Vodovoz
 			set{
 				uow = value;
 				bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(1);
+			}
+		}
+
+		Gdk.Pixbuf transferFromIcon;
+
+		protected Gdk.Pixbuf TransferFromIcon {
+			get{
+				if(transferFromIcon == null)
+				{
+					transferFromIcon = Stetic.IconLoader.LoadIcon (this, "gtk-undo", IconSize.Menu);
+				}
+				return transferFromIcon;
+			}
+		}
+
+		Gdk.Pixbuf transferInIcon;
+
+		protected Gdk.Pixbuf TransferInIcon {
+			get {
+				if (transferInIcon == null) {
+					transferInIcon = Stetic.IconLoader.LoadIcon (this, "gtk-jump-to", IconSize.Menu);
+				}
+				return transferInIcon;
 			}
 		}
 
@@ -122,7 +146,9 @@ namespace Vodovoz
 			goodsColumnsCount = goodsColumns.Length;
 
 			var config = ColumnsConfigFactory.Create<RouteListItem>()
-				.AddColumn("Заказ").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.Id.ToString())
+				.AddColumn("Заказ").HeaderAlignment(0.5f)
+			                                 .AddTextRenderer(node => node.Order.Id.ToString())
+			                                 .AddPixbufRenderer(x => GetRowIcon(x))
 				.AddColumn("Адрес").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.DeliveryPoint == null ? String.Empty : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
 				.AddColumn("Опл.").HeaderAlignment(0.5f).AddTextRenderer(node => node.Order.PaymentType.GetEnumShortTitle());
 			
@@ -217,6 +243,32 @@ namespace Vodovoz
 				});
 
 			ytreeviewItems.ColumnsConfig = config.Finish();
+		}
+
+		Gdk.Pixbuf GetRowIcon(RouteListItem item)
+		{
+			if (item.Status == RouteListItemStatus.Transfered)
+				return TransferFromIcon;
+			if (item.WasTransfered)
+				return TransferInIcon;
+			return null;
+		}
+
+		string GetTransferText(RouteListItem item)
+		{
+			if (item.Status == RouteListItemStatus.Transfered)
+				return String.Format("Заказ был перенесен в МЛ №{0} водителя {1}.", 
+				                     item.TransferedTo.RouteList.Id,
+				                     item.TransferedTo.RouteList.Driver.ShortName
+				                    );
+			if (item.WasTransfered) {
+				var transferedFrom = Repository.Logistics.RouteListItemRepository.GetTransferedFrom (UoW, item);
+				return String.Format ("Заказ из МЛ №{0} водителя {1}.",
+									 transferedFrom.RouteList.Id,
+									 transferedFrom.RouteList.Driver.ShortName
+									);
+			}
+			return null;
 		}
 
 		void CommentCellEdited (object o, EditedArgs args)
@@ -359,6 +411,14 @@ namespace Vodovoz
 
 		void OnYtreeviewItemsRowActivated(object sender, RowActivatedArgs args)
 		{
+			if(args.Column.Title == "Заказ" && (
+				GetSelectedRouteListItem().Status == RouteListItemStatus.Transfered
+				|| GetSelectedRouteListItem ().WasTransfered
+			))
+			{
+				MessageDialogWorks.RunInfoDialog (GetTransferText (GetSelectedRouteListItem ()));
+				return;
+			}
 			OnClosingItemActivated(sender, args);
 		}
 

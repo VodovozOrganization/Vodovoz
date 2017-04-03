@@ -31,6 +31,15 @@ namespace Vodovoz.Repository.Logistics
 			return query.List();
 		}
 
+		public static RouteListItem GetTransferedFrom(IUnitOfWork uow, RouteListItem item)
+		{
+			if (!item.WasTransfered)
+				return null;
+			return uow.Session.QueryOver<RouteListItem> ()
+					  .Where (rli => rli.TransferedTo.Id == item.Id)
+					  .Take (1)
+					  .SingleOrDefault ();
+		}
 	}
 }
 
