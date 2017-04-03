@@ -257,16 +257,24 @@ namespace Vodovoz
 		string GetTransferText(RouteListItem item)
 		{
 			if (item.Status == RouteListItemStatus.Transfered)
-				return String.Format("Заказ был перенесен в МЛ №{0} водителя {1}.", 
+			{
+				if(item.TransferedTo != null)
+					return String.Format("Заказ был перенесен в МЛ №{0} водителя {1}.", 
 				                     item.TransferedTo.RouteList.Id,
 				                     item.TransferedTo.RouteList.Driver.ShortName
 				                    );
+				else
+					return "ОШИБКА! Адрес имеет статус перенесенного в другой МЛ, но куда он перенесен не указано.";
+			}
 			if (item.WasTransfered) {
 				var transferedFrom = Repository.Logistics.RouteListItemRepository.GetTransferedFrom (UoW, item);
-				return String.Format ("Заказ из МЛ №{0} водителя {1}.",
-									 transferedFrom.RouteList.Id,
-									 transferedFrom.RouteList.Driver.ShortName
-									);
+				if (transferedFrom != null)
+					return String.Format ("Заказ из МЛ №{0} водителя {1}.",
+										 transferedFrom.RouteList.Id,
+										 transferedFrom.RouteList.Driver.ShortName
+										);
+				else
+					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
 			return null;
 		}
