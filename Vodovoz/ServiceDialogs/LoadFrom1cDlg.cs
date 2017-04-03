@@ -88,6 +88,19 @@ namespace Vodovoz
 			}
 		}
 
+		int skipedOrders = 0;
+
+		public int SkipedOrders {
+			get {
+				return skipedOrders;
+			}
+			set {
+				skipedOrders = value;
+				labelSkipedOrdres.LabelProp = SkipedOrders.ToString ();
+				QSMain.WaitRedraw ();
+			}
+		}
+
 		int readedAccounts = 0;
 
 		public int ReadedAccounts {
@@ -733,6 +746,18 @@ namespace Vodovoz
 				if(nomenclature.Name.ToLower().Contains("забор") && nomenclature.Name.ToLower().Contains("доставка"))
 					order.ToClientText += " раст";
 			}
+
+			#if SHORT
+			foreach (var item in order.OrderItems) {
+				if (ExcludeNomenclatures.Contains (item.Nomenclature.Code1c))
+				{
+					logger.Info ("Заказ {0}, пропущен так как в нем присутствует исключаемая номенклатура.", order.Code1c);
+					SkipedOrders++;
+					return;
+				}
+			}
+			#endif
+
 			OrdersList.Add(order);
 			ReadedOrders++;
 		}
@@ -900,13 +925,6 @@ namespace Vodovoz
 			{
 				progressbar.Adjustment.Value++;
 				QSMain.WaitRedraw ();
-
-				#if SHORT
-				foreach (var item in loaded.OrderItems) {
-					if(ExcludeNomenclatures.Contains(item.Nomenclature.Code1c))
-						continue;
-				}
-				#endif
 
 				var existCounterparty = ExistCouterpaties.FirstOrDefault(n => n.Code1c == loaded.Client.Code1c);
 				if (existCounterparty != null)
