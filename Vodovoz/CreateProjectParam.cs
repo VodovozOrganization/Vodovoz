@@ -37,6 +37,8 @@ namespace Vodovoz
 		static void CreateBaseConfig ()
 		{
 			logger.Info ("Настройка параметров базы...");
+			//Увеличиваем таймоут
+			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
 			// Настройка ORM
 			OrmMain.ConfigureOrm (QSMain.ConnectionString, new System.Reflection.Assembly[] {
