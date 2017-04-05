@@ -60,6 +60,7 @@ namespace Vodovoz
 		List<RouteListKeepingItemNode> items;
 
 		public void ConfigureDlg(){
+			referenceCar.SubjectType = typeof (Car);
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = editing;
 
