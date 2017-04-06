@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -14,7 +14,7 @@
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <Width>7.5in</Width>
+  <Width>210mm</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
@@ -37,6 +37,17 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id,
+    route_lists.date,
+    route_lists.driver_id,
+    CASE route_lists.status
+        WHEN 'New' THEN 'Новый'
+        WHEN 'InLoading' THEN 'На погрузке'
+        WHEN 'EnRoute' THEN 'В пути'
+        WHEN 'OnClosing' THEN 'Сдаётся'
+        WHEN 'NotDelivered' THEN 'Не сдан'
+        WHEN 'MileageCheck' THEN 'Проверка километража'
+        WHEN 'Closed' THEN 'Закрыт'
+    END AS status,
     CONCAT_WS(' ',
             employees.last_name,
             IF(employees.name = '',
@@ -73,7 +84,7 @@ FROM
 WHERE
     route_lists.`date` BETWEEN @start_date AND @end_date
 GROUP BY route_lists.id
-ORDER BY driver_name;</CommandText>
+ORDER BY route_lists.date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -87,6 +98,18 @@ ORDER BY driver_name;</CommandText>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="driver_id">
+          <DataField>driver_id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
@@ -111,18 +134,18 @@ ORDER BY driver_name;</CommandText>
     <Height>.5in</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>8.0pt</Top>
-        <Left>7.2pt</Left>
-        <Width>563.12pt</Width>
-        <Height>18.82pt</Height>
+        <Top>6.40pt</Top>
+        <Left>0.80pt</Left>
+        <Width>557.87pt</Width>
+        <Height>20.32pt</Height>
         <Value>="Реестр маршрутных листов с " + CDate({?start_date}) + " по " + CDate({?end_date})</Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
-          <TextAlign >Center</TextAlign>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -140,31 +163,34 @@ ORDER BY driver_name;</CommandText>
           </BorderStyle>
         </Style>
         <TableColumns>
+          <TableColumn>
+            <Width>37.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>68.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>77.7pt</Width>
+          </TableColumn>
           <TableColumn >
-            <Width>38.1pt</Width>
+            <Width>124.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>92.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>170.5pt</Width>
+            <Width>78.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>110.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>95.7pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>87.5pt</Width>
+            <Width>79.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>16.0pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>№</Value>
@@ -174,8 +200,8 @@ ORDER BY driver_name;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -190,24 +216,40 @@ ORDER BY driver_name;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
-                      <Value>Водитель</Value>
-                      <Style>
+                    <Textbox Name="Textbox13">
+                      <Value>Дата</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>Статус</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -215,15 +257,15 @@ ORDER BY driver_name;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox4">
-                      <Value>Количество адресов</Value>
+                      <Value>Кол-во адресов</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -231,15 +273,15 @@ ORDER BY driver_name;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox5">
-                      <Value>Кол. 19 лит. воды</Value>
+                      <Value>Кол-во 19 лит.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -247,15 +289,15 @@ ORDER BY driver_name;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Кол. 6 лит. воды</Value>
+                      <Value>Кол-во 6 лит.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -270,7 +312,7 @@ ORDER BY driver_name;</CommandText>
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
                       <Value>=RowNumber()</Value>
@@ -279,8 +321,8 @@ ORDER BY driver_name;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -301,14 +343,34 @@ ORDER BY driver_name;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="driver_name">
-                      <Value>=Fields!driver_name.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
+                    <Textbox Name="Textbox14">
+                      <Value>=Fields!date.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <Format>d</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Fields!status.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <Format>d</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -366,7 +428,7 @@ ORDER BY driver_name;</CommandText>
             <TableRow>
               <Height>12pt</Height>
               <TableCells>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox12">
                       <Value>
@@ -394,10 +456,23 @@ ORDER BY driver_name;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox8">
+                    <Textbox Name="Textbox15">
                       <Value>
                       </Value>
-                      <Style>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -416,6 +491,9 @@ ORDER BY driver_name;</CommandText>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight >Bolder</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -431,6 +509,9 @@ ORDER BY driver_name;</CommandText>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight >Bolder</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -446,6 +527,9 @@ ORDER BY driver_name;</CommandText>
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight >Bolder</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -454,9 +538,155 @@ ORDER BY driver_name;</CommandText>
             </TableRow>
           </TableRows>
         </Footer>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="Driver_group">
+              <Label>=Fields!driver_name.Value</Label>
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >={driver_id}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox16">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Left</TextAlign>
+                          </Style>
+                          <Value>=Fields!driver_name.Value</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>7</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox23">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Right</TextAlign>
+                          </Style>
+                          <Value>Всего по водителю:</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>2</ColSpan>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox25">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight >Bold</FontWeight>
+                          </Style>
+                          <Value>=Countdistinct({date})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox18">
+                          <Value>--//--</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign >Center</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox27">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight >Bold</FontWeight>
+                          </Style>
+                          <Value>=Sum(Fields!address_count.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox28">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight >Bold</FontWeight>
+                          </Style>
+                          <Value>=Sum(Fields!water19_amount.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox29">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight >Bold</FontWeight>
+                          </Style>
+                          <Value>=Sum(Fields!water6_amount.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+            <Sorting >
+              <SortBy>
+                <SortExpression>={driver_name}</SortExpression>
+                <Direction>Ascending</Direction>
+              </SortBy>
+            </Sorting>
+          </TableGroup>
+        </TableGroups>
       </Table>
     </ReportItems>
-    <Height>48pt</Height>
+    <Height>73.0pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -470,9 +700,9 @@ ORDER BY driver_name;</CommandText>
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
