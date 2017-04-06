@@ -241,6 +241,11 @@ namespace Vodovoz
 			//LoadAddresses
 			foreach(var point in yTreeAddresses.RepresentationModel.ItemsList as IList<DriverRouteListAddressVMNode>)
 			{
+				if(point.Address == null)
+				{
+					logger.Warn ("Для заказа №{0}, отсутствует точка доставки. Поэтому добавление маркера пропущено.", point.OrderId);
+					continue;
+				}
 				if(point.Address.Latitude.HasValue && point.Address.Longitude.HasValue)
 				{
 					GMarkerGoogleType type;

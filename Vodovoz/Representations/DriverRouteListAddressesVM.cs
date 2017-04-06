@@ -35,6 +35,7 @@ namespace Vodovoz.ViewModel
 				.Where (() => routeListAlias.Driver.Id == driverId)
 				.SelectList(list => list
 					.Select(() => routeListItemAlias.Id).WithAlias(() => resultAlias.Id)
+				    .Select (() => orderAlias.Id).WithAlias (() => resultAlias.OrderId)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
 					.Select(() => routeListItemAlias.Status).WithAlias(() => resultAlias.Status)
 					.Select(() => orderAlias.DeliverySchedule).WithAlias(() => resultAlias.Time)
@@ -86,6 +87,8 @@ namespace Vodovoz.ViewModel
 	public class DriverRouteListAddressVMNode
 	{
 		public int Id{ get; set; }
+
+		public int OrderId { get; set; }
 
 		public DeliveryPoint Address { get; set; }
 
