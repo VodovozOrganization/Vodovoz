@@ -89,6 +89,8 @@ namespace Vodovoz
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = editing;
 
+			ylabelLastTimeCall.Binding.AddFuncBinding (Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource ();
+
 			//Заполняем иконки
 			var ass = Assembly.GetAssembly(typeof(MainClass));
 			statusIcons.Add(RouteListItemStatus.EnRoute, new Gdk.Pixbuf(ass, "Vodovoz.icons.status.car.png"));
@@ -118,8 +120,6 @@ namespace Vodovoz
 					.AddNumericRenderer(node => node.RouteListItem.Order.BottlesReturn)
 				.AddColumn("Сдали по факту")
 					.AddNumericRenderer(node => node.RouteListItem.DriverBottlesReturned)
-				.AddColumn ("Пос. звонок")
-					.AddTextRenderer (node => String.Format("{0:t}", node.RouteListItem.LastCallTime))
 				.AddColumn("Статус изменен")
 					.AddTextRenderer(node => node.LastUpdate)
 				.AddColumn("Комментарий")
@@ -150,7 +150,18 @@ namespace Vodovoz
 			if (string.IsNullOrWhiteSpace(phones))
 				phones = "Нет телефонов";
 			labelPhonesInfo.Markup = phones;
+
 			UpdateNodes();
+		}
+
+		public string GetLastCallTime(DateTime? lastCall)
+		{
+			if (lastCall == null)
+				return "Водителю еще не звонили.";
+			if (lastCall.Value.Date == Entity.Date)
+				return String.Format ("Последний звонок был в {0:t}", lastCall);
+			else
+				return String.Format ("Последний звонок был {0:g}", lastCall);
 		}
 
 		public void UpdateNodes(){
@@ -178,8 +189,7 @@ namespace Vodovoz
 
 		public void OnSelectionChanged(object sender, EventArgs args){
 			buttonSetStatusComplete	.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() > 0;
-			buttonChangeDeliveryTime.Sensitive = buttonMadeCall.Sensitive 
-				= ytreeviewAddresses.GetSelectedObjects().Count() == 1;
+			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
 		}
 
 		#region implemented abstract members of OrmGtkDialogBase
@@ -297,8 +307,7 @@ namespace Vodovoz
 
 		protected void OnButtonMadeCallClicked (object sender, EventArgs e)
 		{
-			var selectedAddresses = ytreeviewAddresses.GetSelectedObjects<RouteListKeepingItemNode> ();
-			selectedAddresses[0].RouteListItem.LastCallTime = DateTime.Now;
+			Entity.LastCallTime = DateTime.Now;
 		}
 	}	
 

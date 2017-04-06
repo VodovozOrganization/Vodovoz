@@ -171,6 +171,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref differencesConfirmed, value, () => DifferencesConfirmed); }
 		}
 
+		private DateTime? lastCallTime;
+
+		[Display (Name = "Время последнего созвона")]
+		public virtual DateTime? LastCallTime {
+			get { return lastCallTime; }
+			set { SetField (ref lastCallTime, value, () => LastCallTime); }
+		}
+
 		private bool closingFilled;
 
 		/// <summary>

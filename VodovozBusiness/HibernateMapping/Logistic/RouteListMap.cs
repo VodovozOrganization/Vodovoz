@@ -19,6 +19,7 @@ namespace Vodovoz.HMap
 			Map (x => x.ClosingDate).Column("closing_date");
 			Map (x => x.ClosingComment).Column("closing_comment");
 			Map (x => x.ClosingFilled).Column("closing_filled");
+			Map (x => x.LastCallTime).Column ("last_call_time");
 
 			References (x => x.Car).Column ("car_id");
 			References (x => x.Shift).Column ("delivery_shift_id");
