@@ -734,7 +734,7 @@ namespace Vodovoz.Domain.Logistic
 							Date 			= DateTime.Now,
 							Casher 			= cashier,
 							Employee 		= Driver,
-							Description 	=$"Закрытие МЛ #{Id}",
+							Description 	=$"Закрытие МЛ №{Id} от {date:d}",
 							Money 			= Math.Round(Total, 0, MidpointRounding.AwayFromZero)
 						};
 				} else {
