@@ -25,6 +25,8 @@ namespace Vodovoz.Domain.Orders
 	)]
 	public class Order: BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
 		#region Cвойства
 
 		public virtual int Id { get; set; }
@@ -57,7 +59,9 @@ namespace Vodovoz.Domain.Orders
 				if (client != null && !CanChangeContractor ())
 					throw new InvalidOperationException ("Нельзя изменить клиента для заполненного заказа.");
 				SetField (ref client, value, () => Client); 
-				if (DeliveryPoint != null && !Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
+				if (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
+					//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
+					logger.Warn ("Очишаем точку доставки, при установке клиента. Возможно это не нужно.");
 					DeliveryPoint = null;
 				}
 			}

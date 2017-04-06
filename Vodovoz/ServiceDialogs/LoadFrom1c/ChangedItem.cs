@@ -117,7 +117,8 @@ namespace ServiceDialogs.LoadFrom1c
 				result.Add(new FieldChange("Изменена точка доставки",
 					oldOrder.DeliveryPoint?.CompiledAddress ?? noValue,
 					newOrder.DeliveryPoint?.CompiledAddress ?? noValue));
-				oldOrder.DeliveryPoint = newOrder.DeliveryPoint;
+				if(newOrder.DeliveryPoint != null)
+					oldOrder.DeliveryPoint = newOrder.DeliveryPoint;
 			}
 			if (oldOrder.Address1c != newOrder.Address1c)
 			{
