@@ -14,7 +14,7 @@ using Vodovoz.Domain.Service;
 namespace Vodovoz
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public partial class ReturnsReceptionView : Gtk.Bin
+	public partial class ReturnsReceptionView : WidgetOnDialogBase
 	{
 		GenericObservableList<ReceptionItemNode> ReceptionReturnsList = new GenericObservableList<ReceptionItemNode>();
 
@@ -23,6 +23,11 @@ namespace Vodovoz
 			get{
 				return ReceptionReturnsList;
 			}
+		}
+
+		public void AddItem(ReceptionItemNode item)
+		{
+			ReceptionReturnsList.Add (item);
 		}
 
 		public ReturnsReceptionView()
@@ -162,6 +167,26 @@ namespace Vodovoz
 			}
 
 		}
+
+		protected void OnButtonAddNomenclatureClicked (object sender, EventArgs e)
+		{
+			var allowCategories = Nomenclature.GetCategoriesForGoods().Where (c => c != NomenclatureCategory.bottle && c != NomenclatureCategory.equipment).ToArray();
+			var SelectNomenclatureDlg = new OrmReference (
+				QueryOver.Of<Nomenclature> ().Where(x => x.Category.IsIn(allowCategories))
+			);
+			SelectNomenclatureDlg.Mode = OrmReferenceMode.MultiSelect;
+			SelectNomenclatureDlg.ObjectSelected += SelectNomenclatureDlg_ObjectSelected;
+			MyTab.TabParent.AddSlaveTab (MyTab, SelectNomenclatureDlg);
+		}
+
+		void SelectNomenclatureDlg_ObjectSelected (object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			foreach (var nomenclature in e.GetEntities<Nomenclature>()) {
+				if (Items.Any (x => x.NomenclatureId == nomenclature.Id))
+					continue;
+				ReceptionReturnsList.Add (new ReceptionItemNode(nomenclature, 0) );
+			}
+		}
 	}
 
 	public class ReceptionItemNode : PropertyChangedBase{
@@ -212,7 +237,6 @@ namespace Vodovoz
 			}
 		}
 
-		public bool IsNew{ get; set; }
 		public Equipment NewEquipment{get;set;}
 		public bool Returned {
 			get {
@@ -222,6 +246,16 @@ namespace Vodovoz
 				Amount = value ? 1 : 0;
 			}
 		}
+
+		public ReceptionItemNode(Nomenclature nomenclature, int amount)
+		{
+			Name = nomenclature.Name;
+			NomenclatureId = nomenclature.Id;
+			NomenclatureCategory = nomenclature.Category;
+			this.amount = amount;
+		}
+
+		public ReceptionItemNode () {}
 	}
 
 }

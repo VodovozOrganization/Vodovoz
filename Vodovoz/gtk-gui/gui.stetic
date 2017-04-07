@@ -33383,38 +33383,83 @@ RegistrationNumber</property>
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <widget class="Gtk.Frame" id="frameReturns">
+      <widget class="Gtk.VBox" id="vbox1">
         <property name="MemberName" />
-        <property name="ShadowType">None</property>
+        <property name="Spacing">6</property>
         <child>
-          <widget class="Gtk.Alignment" id="GtkAlignment1">
+          <widget class="Gtk.Frame" id="frameReturns">
             <property name="MemberName" />
-            <property name="Xalign">0</property>
-            <property name="Yalign">0</property>
-            <property name="LeftPadding">12</property>
+            <property name="ShadowType">None</property>
             <child>
-              <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
+              <widget class="Gtk.Alignment" id="GtkAlignment1">
                 <property name="MemberName" />
-                <property name="ShadowType">In</property>
+                <property name="Xalign">0</property>
+                <property name="Yalign">0</property>
+                <property name="LeftPadding">12</property>
                 <child>
-                  <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeReturns">
+                  <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow3">
                     <property name="MemberName" />
-                    <property name="CanFocus">True</property>
-                    <property name="ShowScrollbars">True</property>
+                    <property name="ShadowType">In</property>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeReturns">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="ShowScrollbars">True</property>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>
             </child>
-          </widget>
-        </child>
-        <child>
-          <widget class="Gtk.Label" id="GtkLabel2">
-            <property name="MemberName" />
-            <property name="LabelProp" translatable="yes">&lt;b&gt;Возврат недовоза&lt;/b&gt;</property>
-            <property name="UseMarkup">True</property>
+            <child>
+              <widget class="Gtk.Label" id="GtkLabel2">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">&lt;b&gt;Возврат недовоза&lt;/b&gt;</property>
+                <property name="UseMarkup">True</property>
+              </widget>
+              <packing>
+                <property name="type">label_item</property>
+              </packing>
+            </child>
           </widget>
           <packing>
-            <property name="type">label_item</property>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.HBox" id="hbox2">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Button" id="buttonAddNomenclature">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-add Menu</property>
+                <property name="Label" translatable="yes">Добавить отсутствующие</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonAddNomenclatureClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
           </packing>
         </child>
       </widget>

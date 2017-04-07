@@ -192,7 +192,15 @@ namespace Vodovoz
 					}
 				}
 				else
-					throw new InvalidProgramException(String.Format("В документе присутствует строка ID {0}, которую не удалось отнести не к одному виджету.", item.Id));
+				{
+					logger.Warn ("Номенклатура {0} не найдена в заказа мл, добавляем отдельно...", item.MovementOperation.Nomenclature);
+					var newItem = new ReceptionItemNode (item.MovementOperation.Nomenclature, (int)item.MovementOperation.Amount);
+					if (item.MovementOperation.Equipment != null)
+					{
+						newItem.EquipmentId = item.MovementOperation.Equipment.Id;
+					}			
+					returnsreceptionview1.AddItem (newItem);
+				}
 			}
 
 			foreach(var item in bottlereceptionview1.Items)
