@@ -12,6 +12,7 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Domain.Goods;
+using QSProjectsLib;
 
 namespace Vodovoz
 {
@@ -56,6 +57,14 @@ namespace Vodovoz
 			}
 		}
 
+		private bool CanEditRows {
+			get{
+				return QSMain.User.Permissions ["logistican"] 
+					         && RouteListUoW.Root.Status != RouteListStatus.Closed 
+					         && RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
+			}
+		}
+
 		void Items_ElementAdded (object aList, int[] aIdx)
 		{
 			UpdateColumns ();
@@ -82,7 +91,6 @@ namespace Vodovoz
 				.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
 			if (goodsColumnsCount != goodsColumns.Length)
 			{
-
 				goodsColumnsCount = goodsColumns.Length;
 
 				foreach (var column in columnsInfo)
@@ -100,12 +108,12 @@ namespace Vodovoz
 			{
 				config
 					.AddColumn("C экспедитором")
-					.AddToggleRenderer(node => node.WithForwarder);
+					.AddToggleRenderer(node => node.WithForwarder).Editing(CanEditRows);
 			}
 			config
 				.AddColumn("Товары").AddTextRenderer(x => ShowAdditional(x.Order.OrderItems))
-				.AddColumn("К клиенту").AddTextRenderer(x => x.ToClientText).Editable()
-				.AddColumn("От клиента").AddTextRenderer(x => x.FromClientText).Editable();
+				.AddColumn("К клиенту").AddTextRenderer(x => x.ToClientText).Editable(CanEditRows)
+				.AddColumn("От клиента").AddTextRenderer(x => x.FromClientText).Editable(CanEditRows);
 			ytreeviewItems.ColumnsConfig = 
 				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
 				.Finish ();

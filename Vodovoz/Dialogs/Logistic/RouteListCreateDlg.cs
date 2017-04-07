@@ -17,6 +17,19 @@ namespace Vodovoz
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
 
+		bool isEditable;
+
+		protected bool IsEditable{
+			get { return isEditable;}
+			set{
+				isEditable = value;
+				speccomboShift.Sensitive = isEditable;
+				datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = isEditable;
+				createroutelistitemsview1.IsEditable (isEditable);
+			}
+		}
+
+
 		public RouteListCreateDlg ()
 		{
 			this.Build ();
@@ -42,8 +55,6 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			subjectAdaptor.Target = UoWGeneric.Root;
-
 			datepickerDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 
 			referenceCar.SubjectType = typeof(Car);
@@ -91,7 +102,8 @@ namespace Vodovoz
 				buttonAccept.Image = icon;
 				buttonAccept.Label = "Редактировать";
 			}
-			IsEditable (UoWGeneric.Root.Status == RouteListStatus.New);
+
+			IsEditable = UoWGeneric.Root.Status == RouteListStatus.New && QSMain.User.Permissions ["logistican"];
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
@@ -140,18 +152,11 @@ namespace Vodovoz
 			return true;
 		}
 
-		private void IsEditable (bool val = false)
-		{
-			speccomboShift.Sensitive = val;
-			datepickerDate.Sensitive = referenceCar.Sensitive = referenceForwarder.Sensitive = val;
-			createroutelistitemsview1.IsEditable (val);
-		}
-
 		private void UpdateButtonStatus()
 		{
 			if(Entity.Status == RouteListStatus.New)
 			{
-				IsEditable (true);
+				IsEditable = (true);
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
@@ -160,7 +165,7 @@ namespace Vodovoz
 			}
 			if(Entity.Status == RouteListStatus.InLoading)
 			{
-				IsEditable (false);
+				IsEditable = (false);
 				var icon = new Image ();
 				icon.Pixbuf = Stetic.IconLoader.LoadIcon (this, "gtk-edit", IconSize.Menu);
 				buttonAccept.Image = icon;
