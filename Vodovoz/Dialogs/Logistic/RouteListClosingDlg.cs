@@ -1,26 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using Gtk;
-using NHibernate.Criterion;
-using NHibernate.Transform;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Cash;
-using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Logistics;
-using System.Text;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz
 {
@@ -35,7 +29,7 @@ namespace Vodovoz
 		private bool 	 editing 			= true;
 		private Employee previousForwarder  = null;
 
-		List<ReturnsNode> allReturnsToWarehouse;
+		List<RouteListRepository.ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 
@@ -140,8 +134,7 @@ namespace Vodovoz
 			foreach (var item in returnableOrderItems)
 			{
 				if (allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
-					allReturnsToWarehouse.Add(new ReturnsNode
-						{
+					allReturnsToWarehouse.Add(new RouteListRepository.ReturnsNode {
 							Name = item.Nomenclature.Name,
 							Trackable = item.Nomenclature.Serial,
 							NomenclatureId = item.Nomenclature.Id,
@@ -149,8 +142,9 @@ namespace Vodovoz
 						});
 			}
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
+			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
 			if(!Entity.ClosingFilled)
-				FirstFillClosing();
+				Entity.FirstFillClosing();
 
 			PerformanceHelper.AddTimePoint("Закончено первоначальное заполнение");
 
@@ -226,49 +220,6 @@ namespace Vodovoz
 			}
 		}
 
-		protected void FirstFillClosing()
-		{
-			PerformanceHelper.StartPointsGroup("Первоначальное заполнение");
-			//var all = UoW.GetAll<Nomenclature>();
-
-			foreach (var routeListItem in Entity.Addresses)
-			{
-				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
-//				var nomenclatures = routeListItem.Order.OrderItems
-//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-//					.Where(item => !item.Nomenclature.Serial).ToList();
-				logger.Debug("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				foreach (var item in routeListItem.Order.OrderItems)
-				{
-					item.ActualCount = routeListItem.IsDelivered() ? item.Count : 0;
-				}
-				PerformanceHelper.AddTimePoint(logger, "Обработали номенклатуры");
-				var equipments = routeListItem.Order.OrderEquipments.Where(orderEq => orderEq.Equipment != null);
-				foreach (var item in equipments)
-				{
-					var returnedToWarehouse = allReturnsToWarehouse.Any(ret => ret.Id == item.Equipment.Id && ret.Amount > 0);
-					item.Confirmed = routeListItem.IsDelivered()
-						&& (item.Direction == Vodovoz.Domain.Orders.Direction.Deliver && !returnedToWarehouse
-							|| item.Direction == Vodovoz.Domain.Orders.Direction.PickUp && returnedToWarehouse);
-				}
-				PerformanceHelper.AddTimePoint("Обработали оборудование");
-				routeListItem.BottlesReturned = routeListItem.IsDelivered()
-					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
-				routeListItem.TotalCash = routeListItem.IsDelivered() &&
-					routeListItem.Order.PaymentType == PaymentType.cash
-					? routeListItem.Order.SumToReceive : 0;
-				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(routeListItem.Order.BottlesReturn);
-				routeListItem.DepositsCollected = routeListItem.IsDelivered()
-					? routeListItem.Order.GetExpectedBottlesDepositsCount() * bottleDepositPrice : 0;
-				PerformanceHelper.AddTimePoint("Получили прайс");
-				routeListItem.RecalculateWages();
-				PerformanceHelper.AddTimePoint("Пересчет");
-				PerformanceHelper.EndPointsGroup();
-			}
-
-			PerformanceHelper.EndPointsGroup();
-			Entity.ClosingFilled = true;
-		}
 
 		void Routelistdiscrepancyview_FineChanged(object sender, EventArgs e)
 		{
@@ -483,55 +434,6 @@ namespace Vodovoz
 			buttonAccept.Sensitive = false;
 		}
 
-		public List<ReturnsNode> GetReturnsToWarehouseByCategory(int routeListId, NomenclatureCategory[] categories)
-		{
-			List<ReturnsNode> result = new List<ReturnsNode>();		
-			Nomenclature nomenclatureAlias = null;
-			ReturnsNode resultAlias = null;
-			Equipment equipmentAlias = null;
-			CarUnloadDocumentItem carUnloadItemsAlias = null;
-			WarehouseMovementOperation movementOperationAlias = null;
-
-			var returnableItems = UoW.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
-				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
-				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
-				.JoinAlias(() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => !nomenclatureAlias.Serial)		
-				.Where(() => nomenclatureAlias.Category.IsIn(categories))
-				.SelectList(list => list
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => false).WithAlias(() => resultAlias.Trackable)
-					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-			                      )
-				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
-				.List<ReturnsNode>();
-
-			var returnableEquipment = UoW.Session.QueryOver<CarUnloadDocument>().Where(doc => doc.RouteList.Id == routeListId)
-				.JoinAlias(doc => doc.Items, () => carUnloadItemsAlias)
-				.JoinAlias(() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
-				.Where(Restrictions.IsNotNull(Projections.Property(() => movementOperationAlias.IncomingWarehouse)))
-				.JoinAlias(() => movementOperationAlias.Equipment, () => equipmentAlias)
-				.JoinAlias(() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where(() => nomenclatureAlias.Category.IsIn(categories))
-				.SelectList(list => list
-					.Select(() => equipmentAlias.Id).WithAlias(() => resultAlias.Id)				
-					.SelectGroup(() => nomenclatureAlias.Id).WithAlias(() => resultAlias.NomenclatureId)
-					.Select(() => nomenclatureAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => nomenclatureAlias.Serial).WithAlias(() => resultAlias.Trackable)
-					.Select(() => nomenclatureAlias.Category).WithAlias(() => resultAlias.NomenclatureCategory)
-					.SelectSum(() => movementOperationAlias.Amount).WithAlias(() => resultAlias.Amount)
-					.Select(() => nomenclatureAlias.Type).WithAlias(() => resultAlias.EquipmentType)
-			                          )
-				.TransformUsing(Transformers.AliasToBean<ReturnsNode>())
-				.List<ReturnsNode>();
-
-			result.AddRange(returnableItems);
-			result.AddRange(returnableEquipment);
-			return result;
-		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
@@ -778,8 +680,8 @@ namespace Vodovoz
 
 		private void ReloadReturnedToWarehouse()
 		{
-			allReturnsToWarehouse = GetReturnsToWarehouseByCategory(Entity.Id, Nomenclature.GetCategoriesForShipment());
-			bottlesReturnedToWarehouse = (int)GetReturnsToWarehouseByCategory(Entity.Id, new []{ NomenclatureCategory.bottle })
+			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
+			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, new []{ NomenclatureCategory.bottle })
 				.Sum(item => item.Amount);
 		}
 
@@ -792,30 +694,4 @@ namespace Vodovoz
 		#endregion
 	}
 
-	public class ReturnsNode{
-		public int 					Id{get;set;}
-		public NomenclatureCategory NomenclatureCategory{ get; set; }
-		public int 					NomenclatureId{ get; set; }
-		public string 				Name{get;set;}
-		public decimal 				Amount{ get; set;}
-		public bool 				Trackable{ get; set; }
-		public EquipmentType 		EquipmentType{get;set;}
-		public string 				Serial{
-					get
-					{ 
-						if (Trackable) {
-							return Id > 0 ? Id.ToString () : "(не определен)";
-						} else
-							return String.Empty;
-					}
-				}
-		public bool 				Returned {
-					get {
-						return Amount > 0;
-					}
-					set {
-						Amount = value ? 1 : 0;
-					}
-				}
-	}
 }

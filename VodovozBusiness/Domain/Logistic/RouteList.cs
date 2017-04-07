@@ -4,14 +4,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
-using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
-using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -20,6 +21,7 @@ namespace Vodovoz.Domain.Logistic
 		Nominative = "маршрутный лист")]
 	public class RouteList: BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
 		#region Свойства
 
@@ -339,6 +341,8 @@ namespace Vodovoz.Domain.Logistic
 				track.CalculateDistanceToBase();
 				UoW.Save(track);
 			}
+			FirstFillClosing ();
+			UoW.Save (this);
 		}
 
 		public virtual bool ShipIfCan(IUnitOfWork uow)
@@ -471,6 +475,41 @@ namespace Vodovoz.Domain.Logistic
 		#endregion
 
 		#region Функции относящиеся к закрытию МЛ
+
+		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
+		public virtual void FirstFillClosing ()
+		{
+			PerformanceHelper.StartMeasurement ("Первоначальное заполнение");
+
+			foreach (var routeListItem in Addresses) {
+				PerformanceHelper.StartPointsGroup ($"Заказ {routeListItem.Order.Id}");
+				//				var nomenclatures = routeListItem.Order.OrderItems
+				//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
+				//					.Where(item => !item.Nomenclature.Serial).ToList();
+
+				logger.Debug ("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
+				foreach (var item in routeListItem.Order.OrderItems) {
+					item.ActualCount = routeListItem.IsDelivered () ? item.Count : 0;
+				}
+				PerformanceHelper.AddTimePoint (logger, "Обработали номенклатуры");
+				routeListItem.BottlesReturned = routeListItem.IsDelivered ()
+					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
+				routeListItem.TotalCash = routeListItem.IsDelivered () &&
+					routeListItem.Order.PaymentType == PaymentType.cash
+					? routeListItem.Order.SumToReceive : 0;
+				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit (UoW).GetPrice (routeListItem.Order.BottlesReturn);
+				routeListItem.DepositsCollected = routeListItem.IsDelivered ()
+					? routeListItem.Order.GetExpectedBottlesDepositsCount () * bottleDepositPrice : 0;
+				PerformanceHelper.AddTimePoint ("Получили прайс");
+				routeListItem.RecalculateWages ();
+				PerformanceHelper.AddTimePoint ("Пересчет");
+				PerformanceHelper.EndPointsGroup ();
+			}
+
+			PerformanceHelper.AddTimePoint ("Закончили");
+			PerformanceHelper.Main.PrintAllPoints(logger);
+			ClosingFilled = true;
+		}
 
 		public virtual List<BottlesMovementOperation> CreateBottlesMovementOperation(){
 			var result = new List<BottlesMovementOperation>();

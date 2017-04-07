@@ -7,6 +7,7 @@ using QSOrmProject;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
@@ -67,7 +68,7 @@ namespace Vodovoz
 			});
 		}	
 
-		public void FindDiscrepancies(IList<RouteListItem> items, List<ReturnsNode> allReturnsToWarehouse){
+		public void FindDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse){
 			var discrepancies = new List<Discrepancy>();
 
 			var goodsDiscrepancies = GetGoodsDiscrepancies(items, allReturnsToWarehouse);
@@ -80,7 +81,7 @@ namespace Vodovoz
 			Items = discrepancies;
 		}
 
-		IList<Discrepancy> GetGoodsDiscrepancies(IList<RouteListItem> items, List<ReturnsNode> allReturnsToWarehouse)
+		IList<Discrepancy> GetGoodsDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
 		{
 			var discrepancies = new List<Discrepancy>();
 			var orderClosingItems = items
@@ -92,8 +93,7 @@ namespace Vodovoz
 				.GroupBy(item => item.Nomenclature,
 					item => item.ReturnedCount,
 					(nomenclature, amounts) => new
-					ReturnsNode
-					{
+					RouteListRepository.ReturnsNode {
 						Name = nomenclature.Name,
 						NomenclatureId = nomenclature.Id,
 						NomenclatureCategory = nomenclature.Category,
@@ -125,7 +125,7 @@ namespace Vodovoz
 			return discrepancies;
 		}
 
-		IList<Discrepancy> GetEquipmentDiscrepancies(IList<RouteListItem> items, List<ReturnsNode> allReturnsToWarehouse)
+		IList<Discrepancy> GetEquipmentDiscrepancies(IList<RouteListItem> items, List<RouteListRepository.ReturnsNode> allReturnsToWarehouse)
 		{
 			var discrepancies = new List<Discrepancy>();
 			var equipmentRejectedItems = items
