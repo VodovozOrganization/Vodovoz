@@ -23,7 +23,7 @@ namespace Vodovoz.Domain.Orders
 		Prepositional = "заказе",
 		PrepositionalPlural = "заказах"
 	)]
-	public class Order: BusinessObjectBase<Order>, IDomainObject, IValidatableObject
+	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
@@ -58,8 +58,8 @@ namespace Vodovoz.Domain.Orders
 					return;
 				if (client != null && !CanChangeContractor ())
 					throw new InvalidOperationException ("Нельзя изменить клиента для заполненного заказа.");
-				SetField (ref client, value, () => Client); 
-				if (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
+				SetField (ref client, value, () => Client);
+				if (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized (Client.DeliveryPoints) && !Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
 					//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
 					logger.Warn ("Очишаем точку доставки, при установке клиента. Возможно это не нужно.");
 					DeliveryPoint = null;
@@ -73,7 +73,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
 			set {
-				SetField (ref deliveryPoint, value, () => DeliveryPoint); 
+				SetField (ref deliveryPoint, value, () => DeliveryPoint);
 				if (value != null && DeliverySchedule == null) {
 					DeliverySchedule = value.DeliverySchedule;
 				}
@@ -85,18 +85,15 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Дата доставки")]
 		public virtual DateTime? DeliveryDate {
 			get { return deliveryDate; }
-			set { 
+			set {
 				SetField (ref deliveryDate, value, () => DeliveryDate);
-				if (NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && value.HasValue)
-				{
-					foreach (OrderDocument document in OrderDocuments)
-					{
-						if (document.Type == OrderDocumentType.AdditionalAgreement)
-						{
+				if (NHibernate.NHibernateUtil.IsInitialized (OrderDocuments) && value.HasValue) {
+					foreach (OrderDocument document in OrderDocuments) {
+						if (document.Type == OrderDocumentType.AdditionalAgreement) {
 							(document as OrderAgreement).AdditionalAgreement.IssueDate = value.Value;
 							(document as OrderAgreement).AdditionalAgreement.StartDate = value.Value;
 						}
-						//TODO FIXME Когда сделаю добавление документов для печати - фильтровать их сдесь и не менять им дату.
+						//TODO FIXME Когда сделаю добавление документов для печати - фильтровать их здесь и не менять им дату.
 					}
 				}
 			}
@@ -112,13 +109,14 @@ namespace Vodovoz.Domain.Orders
 
 		private string deliverySchedule1c;
 
-		[Display(Name = "Время доставки из 1С")]
-		public virtual string DeliverySchedule1c
-		{
-			get { return string.IsNullOrWhiteSpace(deliverySchedule1c)
-					? "Время доставки из 1С не загружено"
-					: deliverySchedule1c; }
-			set { SetField(ref deliverySchedule1c, value, () => DeliverySchedule1c); }
+		[Display (Name = "Время доставки из 1С")]
+		public virtual string DeliverySchedule1c {
+			get {
+				return string.IsNullOrWhiteSpace (deliverySchedule1c)
+				  ? "Время доставки из 1С не загружено"
+				  : deliverySchedule1c;
+			}
+			set { SetField (ref deliverySchedule1c, value, () => DeliverySchedule1c); }
 		}
 
 		bool selfDelivery;
@@ -161,12 +159,21 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref signatureType, value, () => SignatureType); }
 		}
 
-		Decimal sumToReceive;
+		private Decimal extraMoney;
 
-		[Display (Name = "Сумма к получению")]
+		[Display (Name = "Доплата\\Переплата")]
+		[PropertyChangedAlso (nameof (SumToReceive))]
+		public virtual Decimal ExtraMoney {
+			get { return extraMoney; }
+			set { SetField (ref extraMoney, value, () => ExtraMoney); }
+		}
+
+		[Display (Name = "Наличных к получению")]
 		public virtual Decimal SumToReceive {
-			get { return sumToReceive; }
-			set { SetField (ref sumToReceive, value, () => SumToReceive); }
+			get {
+				return PaymentType == PaymentType.cash ? TotalSum + ExtraMoney : 0;
+			}
+			protected set {; }
 		}
 
 		string sumDifferenceReason;
@@ -190,7 +197,7 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Форма оплаты")]
 		public virtual PaymentType PaymentType {
 			get { return paymentType; }
-			set { 
+			set {
 				if (value == paymentType)
 					return;
 				SetField (ref paymentType, value, () => PaymentType);
@@ -207,34 +214,32 @@ namespace Vodovoz.Domain.Orders
 
 		MoneyMovementOperation moneyMovementOperation;
 
-		public virtual MoneyMovementOperation MoneyMovementOperation
-		{
-			get{ return moneyMovementOperation; }
-			set
-			{
-				SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation);
+		public virtual MoneyMovementOperation MoneyMovementOperation {
+			get { return moneyMovementOperation; }
+			set {
+				SetField (ref moneyMovementOperation, value, () => MoneyMovementOperation);
 			}
 		}
 
 		BottlesMovementOperation bottlesMovementOperation;
 
-		public virtual BottlesMovementOperation BottlesMovementOperation{
-			get{
+		public virtual BottlesMovementOperation BottlesMovementOperation {
+			get {
 				return bottlesMovementOperation;
 			}
-			set{
-				SetField(ref bottlesMovementOperation, value, () => BottlesMovementOperation);
+			set {
+				SetField (ref bottlesMovementOperation, value, () => BottlesMovementOperation);
 			}
 		}
 
 		bool collectBottles;
 
-		public virtual bool CollectBottles{
-			get{
+		public virtual bool CollectBottles {
+			get {
 				return collectBottles;
 			}
-			set{
-				SetField(ref collectBottles, value, () => CollectBottles);
+			set {
+				SetField (ref collectBottles, value, () => CollectBottles);
 			}
 		}
 
@@ -243,50 +248,48 @@ namespace Vodovoz.Domain.Orders
 		[Display (Name = "Тип безналичных документов")]
 		public virtual DefaultDocumentType? DocumentType {
 			get { return documentType; }
-			set { SetField(ref documentType, value, () => DocumentType); }
+			set { SetField (ref documentType, value, () => DocumentType); }
 		}
 
 		private string code1c;
 
-		[Display(Name = "Код 1С")]
-		public virtual string Code1c
-		{
+		[Display (Name = "Код 1С")]
+		public virtual string Code1c {
 			get { return code1c; }
-			set { SetField(ref code1c, value, () => Code1c); }
+			set { SetField (ref code1c, value, () => Code1c); }
 		}
 
 		private string address1c;
 
-		[Display(Name = "Адрес 1С")]
-		public virtual string Address1c
-		{
+		[Display (Name = "Адрес 1С")]
+		public virtual string Address1c {
 			get { return address1c; }
-			set { SetField(ref address1c, value, () => Address1c); }
+			set { SetField (ref address1c, value, () => Address1c); }
 		}
 
 		private string fromClientText;
 
 		[Display (Name = "Колонка МЛ от клиента")]
 		public virtual string FromClientText {
-		    get { return fromClientText; }
-		    set { SetField (ref fromClientText, value, () => FromClientText); }
+			get { return fromClientText; }
+			set { SetField (ref fromClientText, value, () => FromClientText); }
 		}
 
 		private string toClientText;
 
 		[Display (Name = "Колонка МЛ к клиенту")]
 		public virtual string ToClientText {
-		    get { return toClientText; }
-		    set { SetField (ref toClientText, value, () => ToClientText); }
+			get { return toClientText; }
+			set { SetField (ref toClientText, value, () => ToClientText); }
 		}
 
 		#endregion
 
-		public bool CanChangeContractor ()
+		public virtual bool CanChangeContractor ()
 		{
 			if ((NHibernate.NHibernateUtil.IsInitialized (OrderDocuments) && OrderDocuments.Count > 0) ||
-			    (NHibernate.NHibernateUtil.IsInitialized (InitialOrderService) && InitialOrderService.Count > 0) ||
-			    (NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
+				(NHibernate.NHibernateUtil.IsInitialized (InitialOrderService) && InitialOrderService.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
 				return false;
 			return true;
 		}
@@ -301,10 +304,12 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderDepositItem> observableOrderDepositItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
+		public virtual GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
 			get {
-				if (observableOrderDepositItems == null)
+				if (observableOrderDepositItems == null) {
 					observableOrderDepositItems = new GenericObservableList<OrderDepositItem> (OrderDepositItems);
+					observableOrderDepositItems.ListContentChanged += ObservableOrderDepositItems_ListContentChanged;
+				}
 				return observableOrderDepositItems;
 			}
 		}
@@ -319,7 +324,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderDocument> observableOrderDocuments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<OrderDocument> ObservableOrderDocuments {
+		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
 			get {
 				if (observableOrderDocuments == null)
 					observableOrderDocuments = new GenericObservableList<OrderDocument> (OrderDocuments);
@@ -337,10 +342,14 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderItem> observableOrderItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<OrderItem> ObservableOrderItems {
+		public virtual GenericObservableList<OrderItem> ObservableOrderItems {
 			get {
 				if (observableOrderItems == null)
+				{
 					observableOrderItems = new GenericObservableList<OrderItem> (orderItems);
+					observableOrderItems.ListContentChanged += ObservableOrderItems_ListContentChanged;
+				}
+				
 				return observableOrderItems;
 			}
 		}
@@ -355,7 +364,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<OrderEquipment> observableOrderEquipments;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<OrderEquipment> ObservableOrderEquipments {
+		public virtual GenericObservableList<OrderEquipment> ObservableOrderEquipments {
 			get {
 				if (observableOrderEquipments == null)
 					observableOrderEquipments = new GenericObservableList<OrderEquipment> (orderEquipments);
@@ -373,7 +382,7 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<ServiceClaim> observableInitialOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<ServiceClaim> ObservableInitialOrderService {
+		public virtual GenericObservableList<ServiceClaim> ObservableInitialOrderService {
 			get {
 				if (observableInitialOrderService == null)
 					observableInitialOrderService = new GenericObservableList<ServiceClaim> (InitialOrderService);
@@ -391,14 +400,14 @@ namespace Vodovoz.Domain.Orders
 
 		GenericObservableList<ServiceClaim> observableFinalOrderService;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
-		public GenericObservableList<ServiceClaim> ObservableFinalOrderService {
+		public virtual GenericObservableList<ServiceClaim> ObservableFinalOrderService {
 			get {
 				if (observableFinalOrderService == null)
 					observableFinalOrderService = new GenericObservableList<ServiceClaim> (FinalOrderService);
 				return observableFinalOrderService;
 			}
 		}
-			
+
 		public Order ()
 		{
 			Comment = String.Empty;
@@ -406,33 +415,34 @@ namespace Vodovoz.Domain.Orders
 			SumDifferenceReason = String.Empty;
 		}
 
-		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author){
-			var order = new Order();
+		public static Order CreateFromServiceClaim (ServiceClaim service, Employee author)
+		{
+			var order = new Order ();
 			order.client = service.Counterparty;
 			order.DeliveryPoint = service.DeliveryPoint;
 			order.DeliveryDate = service.ServiceStartDate;
 			order.PaymentType = service.Payment;
 			order.Author = author;
 			service.InitialOrder = order;
-			order.AddServiceClaimAsInitial(service);
+			order.AddServiceClaimAsInitial (service);
 			return order;
 		}
 
 		#region IValidatableObject implementation
 
-		public IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (validationContext.Items.ContainsKey ("NewStatus")) {
 				OrderStatus newStatus = (OrderStatus)validationContext.Items ["NewStatus"];
 				if (newStatus == OrderStatus.Accepted) {
-					if (DeliveryDate == null || DeliveryDate == default(DateTime))
+					if (DeliveryDate == null || DeliveryDate == default (DateTime))
 						yield return new ValidationResult ("Не указана дата доставки.",
-							new[] { this.GetPropertyName (o => o.DeliveryDate) });
+							new [] { this.GetPropertyName (o => o.DeliveryDate) });
 					if (!SelfDelivery && DeliverySchedule == null)
 						yield return new ValidationResult ("Не указано время доставки.",
-							new[] { this.GetPropertyName (o => o.DeliverySchedule) });
+							new [] { this.GetPropertyName (o => o.DeliverySchedule) });
 
-					#if !SHORT
+#if !SHORT
 					if (PaymentType == PaymentType.cashless && !SignatureType.HasValue)
 						yield return new ValidationResult ("Не указано как будут подписаны документы.",
 							new[] { this.GetPropertyName (o => o.SignatureType) });
@@ -484,57 +494,55 @@ namespace Vodovoz.Domain.Orders
 						}
 					}
 
-					#endif
+#endif
 				}
 
-				if (newStatus == OrderStatus.Closed)
-				{
-					foreach(var equipment in OrderEquipments)
-					{
-						if(!equipment.Confirmed && String.IsNullOrWhiteSpace(equipment.ConfirmedComment))
+				if (newStatus == OrderStatus.Closed) {
+					foreach (var equipment in OrderEquipments) {
+						if (!equipment.Confirmed && String.IsNullOrWhiteSpace (equipment.ConfirmedComment))
 							yield return new ValidationResult (
-								String.Format("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
+								String.Format ("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
 									equipment.NameString, Id),
-								new[] { this.GetPropertyName (o => o.OrderEquipments) });						
+								new [] { this.GetPropertyName (o => o.OrderEquipments) });
 					}
 				}
 			}
 
 			if (!SelfDelivery && DeliveryPoint == null)
 				yield return new ValidationResult ("Необходимо заполнить точку доставки.",
-					new[] { this.GetPropertyName (o => o.DeliveryPoint) });
+					new [] { this.GetPropertyName (o => o.DeliveryPoint) });
 			if (Client == null)
 				yield return new ValidationResult ("Необходимо заполнить поле \"клиент\".",
-					new[] { this.GetPropertyName (o => o.Client) });
-			#if !SHORT
+					new [] { this.GetPropertyName (o => o.Client) });
+#if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
 				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 
 					new[] { this.GetPropertyName (o => o.OrderItems) });
-			#endif
+#endif
 		}
 
 		#endregion
 
 		#region Вычисляемые
 
-		public override string ToString()
+		public override string ToString ()
 		{
-			return String.Format("Заказ №{0}({1})", Id, Code1c);
+			return String.Format ("Заказ №{0}({1})", Id, Code1c);
 		}
 
-		public virtual string Title { 
+		public virtual string Title {
 			get { return String.Format ("Заказ №{0}", Id); }
 		}
 
-		public virtual int TotalDeliveredBottles
-		{
-			get{
-				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
+		public virtual int TotalDeliveredBottles {
+			get {
+				return OrderItems.Where (x => x.Nomenclature.Category == NomenclatureCategory.water).Sum (x => x.Count);
 			}
 		}
 
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
+		[PropertyChangedAlso (nameof (SumToReceive))]
 		public virtual decimal TotalSum {
 			get {
 				Decimal sum = 0;
@@ -549,7 +557,7 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal ActualTotalSum{
+		public virtual decimal ActualTotalSum {
 			get {
 				Decimal sum = 0;
 				foreach (OrderItem item in ObservableOrderItems) {
@@ -563,10 +571,9 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual decimal ActualGoodsTotalSum
-		{
-			get{
-				return OrderItems.Sum(item => item.Price * item.ActualCount);
+		public virtual decimal ActualGoodsTotalSum {
+			get {
+				return OrderItems.Sum (item => item.Price * item.ActualCount);
 			}
 		}
 
@@ -574,7 +581,7 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
-		public void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)
 		{
 			if (nomenclature.Category != NomenclatureCategory.equipment)
 				return;
@@ -601,7 +608,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments ();
 		}
 
-		public void AddAnyGoodsNomenclatureForSale (Nomenclature nomenclature)
+		public virtual void AddAnyGoodsNomenclatureForSale (Nomenclature nomenclature)
 		{
 			if (nomenclature.Category != NomenclatureCategory.additional && nomenclature.Category != NomenclatureCategory.bottle &&
 				nomenclature.Category != NomenclatureCategory.service && nomenclature.Category != NomenclatureCategory.disposableBottleWater)
@@ -617,18 +624,18 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments ();
 		}
 
-		public void AddWaterForSale (Nomenclature nomenclature, WaterSalesAgreement wsa)
+		public virtual void AddWaterForSale (Nomenclature nomenclature, WaterSalesAgreement wsa)
 		{
 			if (nomenclature.Category != NomenclatureCategory.water)
 				return;
 			if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
-			    item.AdditionalAgreement.Id == wsa.Id))
+				item.AdditionalAgreement.Id == wsa.Id))
 				return;
 			decimal price;
-			if (wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id))
-				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
+			if (wsa.IsFixedPrice && wsa.FixedPrices.Any (x => x.Nomenclature.Id == nomenclature.Id))
+				price = wsa.FixedPrices.First (x => x.Nomenclature.Id == nomenclature.Id).Price;
 			else
-				price = nomenclature.GetPrice(1);
+				price = nomenclature.GetPrice (1);
 
 			ObservableOrderItems.Add (new OrderItem {
 				Order = this,
@@ -641,17 +648,17 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments ();
 		}
 
-		public void RecalcBottlesDeposits (IUnitOfWork uow)
+		public virtual void RecalcBottlesDeposits (IUnitOfWork uow)
 		{
-			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount();
-			var bottleDeposit = NomenclatureRepository.GetBottleDeposit(uow);
+			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount ();
+			var bottleDeposit = NomenclatureRepository.GetBottleDeposit (uow);
 			if (bottleDeposit == null)
-				throw new InvalidProgramException("В параметрах базы не настроена номенклатура залога за бутыли.");
+				throw new InvalidProgramException ("В параметрах базы не настроена номенклатура залога за бутыли.");
 			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == bottleDeposit.Id);
 			var depositRefundItem = ObservableOrderDepositItems.FirstOrDefault (item => item.DepositType == DepositType.Bottles);
 
 			//Надо создать услугу залога
-			if (expectedBottleDepositsCount>0) {
+			if (expectedBottleDepositsCount > 0) {
 				if (depositRefundItem != null) {
 					depositRefundItem.Count = expectedBottleDepositsCount;
 					depositRefundItem.PaymentDirection = PaymentDirection.FromClient;
@@ -659,68 +666,68 @@ namespace Vodovoz.Domain.Orders
 				if (depositPaymentItem != null)
 					depositPaymentItem.Count = expectedBottleDepositsCount;
 				else {
-/* Временно отключил взятие с клиента залогов за бутыли. Удалить если залоги так и не вернутся.
- * 					ObservableOrderItems.Add (new OrderItem {
-						Order = this,
-						AdditionalAgreement = null,
-						Count = expectedBottleDepositsCount,
-						Equipment = null,
-						Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
-						Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount)
-					});
-					ObservableOrderDepositItems.Add (new OrderDepositItem {
-						Order = this,
-						Count = expectedBottleDepositsCount,
-						Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount),
-						DepositOperation = null,
-						DepositType = DepositType.Bottles,
-						FreeRentItem = null,
-						PaidRentItem = null,
-						PaymentDirection = PaymentDirection.FromClient
-					}); */
+					/* Временно отключил взятие с клиента залогов за бутыли. Удалить если залоги так и не вернутся.
+					 * 					ObservableOrderItems.Add (new OrderItem {
+											Order = this,
+											AdditionalAgreement = null,
+											Count = expectedBottleDepositsCount,
+											Equipment = null,
+											Nomenclature = NomenclatureRepository.GetBottleDeposit (uow),
+											Price = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount)
+										});
+										ObservableOrderDepositItems.Add (new OrderDepositItem {
+											Order = this,
+											Count = expectedBottleDepositsCount,
+											Deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (expectedBottleDepositsCount),
+											DepositOperation = null,
+											DepositType = DepositType.Bottles,
+											FreeRentItem = null,
+											PaidRentItem = null,
+											PaymentDirection = PaymentDirection.FromClient
+										}); */
 				}
 				return;
 			}
-			if (expectedBottleDepositsCount==0) {
+			if (expectedBottleDepositsCount == 0) {
 				if (depositRefundItem != null)
 					ObservableOrderDepositItems.Remove (depositRefundItem);
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
 				return;
 			}
-			if (expectedBottleDepositsCount<0) {
+			if (expectedBottleDepositsCount < 0) {
 				if (depositPaymentItem != null)
 					ObservableOrderItems.Remove (depositPaymentItem);
 				//Проверяем, сколько надо отдать клиенту залог за бутыли
-				decimal clientDeposit 	= default(decimal);
-				decimal deposit 		= NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount);
-				int 	count 			= -expectedBottleDepositsCount;
-				if(Client != null)
-					clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, Client, DepositType.Bottles);
+				decimal clientDeposit = default (decimal);
+				decimal deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount);
+				int count = -expectedBottleDepositsCount;
+				if (Client != null)
+					clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty (UoW, Client, DepositType.Bottles);
 				if (clientDeposit - deposit * count >= 0)
 					if (depositRefundItem != null) {
-						depositRefundItem.Deposit 	= deposit;
-						depositRefundItem.Count 	= count;
+						depositRefundItem.Deposit = deposit;
+						depositRefundItem.Count = count;
 					} else
 						ObservableOrderDepositItems.Add (new OrderDepositItem {
-							Order 				= this,
-							DepositOperation 	= null,
-							DepositType 		= DepositType.Bottles,
-							Deposit 			= deposit,
-							PaidRentItem 		= null,
-							FreeRentItem 		= null,
-							PaymentDirection 	= PaymentDirection.ToClient,
-							Count 				= count
+							Order = this,
+							DepositOperation = null,
+							DepositType = DepositType.Bottles,
+							Deposit = deposit,
+							PaidRentItem = null,
+							FreeRentItem = null,
+							PaymentDirection = PaymentDirection.ToClient,
+							Count = count
 						});
 				return;
 			}
 		}
 
-		public int GetExpectedBottlesDepositsCount()
+		public virtual int GetExpectedBottlesDepositsCount ()
 		{
 			if (Client == null || Client.PersonType == PersonType.legal)
 				return 0;
-			
+
 			var waterItemsCount = ObservableOrderItems.Select (item => item)
 				.Where (item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum (item => item.Count);
@@ -728,7 +735,7 @@ namespace Vodovoz.Domain.Orders
 			return waterItemsCount - BottlesReturn;
 		}
 
-		public void FillItemsFromAgreement (AdditionalAgreement a)
+		public virtual void FillItemsFromAgreement (AdditionalAgreement a)
 		{
 			if (a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> EquipmentList;
@@ -745,9 +752,9 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
 					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem> (
-						    item => item.AdditionalAgreement.Id == a.Id &&
-						    item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
-						    item.Price == equipment.Deposit)) != null) {
+							item => item.AdditionalAgreement.Id == a.Id &&
+							item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
+							item.Price == equipment.Deposit)) != null) {
 						orderItem.Count++;
 						orderItem.Price = equipment.Deposit;
 					} else {
@@ -765,9 +772,9 @@ namespace Vodovoz.Domain.Orders
 					//Добавляем услугу аренды
 					orderItem = null;
 					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem> (
-						    item => item.AdditionalAgreement.Id == a.Id &&
-						    item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
-						    item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1))) != null) {
+							item => item.AdditionalAgreement.Id == a.Id &&
+							item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
+							item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1))) != null) {
 						orderItem.Count++;
 						orderItem.Price = orderItem.Nomenclature.GetPrice (orderItem.Count);
 						ItemId = ObservableOrderItems.IndexOf (orderItem);
@@ -785,7 +792,7 @@ namespace Vodovoz.Domain.Orders
 					}
 					//Добавляем оборудование
 					ObservableOrderEquipments.Add (
-						new OrderEquipment { 
+						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
@@ -793,7 +800,8 @@ namespace Vodovoz.Domain.Orders
 							OrderItem = ObservableOrderItems [ItemId]
 						}
 					);
-					SumToReceive += equipment.Deposit + equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1);
+					OnPropertyChanged (nameof (TotalSum));
+					OnPropertyChanged (nameof (SumToReceive));
 				}
 			} else if (a.Type == AgreementType.FreeRent) {
 				FreeRentAgreement agreement = a as FreeRentAgreement;
@@ -812,7 +820,7 @@ namespace Vodovoz.Domain.Orders
 					);
 					//Добавляем оборудование.
 					ObservableOrderEquipments.Add (
-						new OrderEquipment { 
+						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
@@ -825,7 +833,7 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments ();
 		}
 
-		public void RemoveItem (OrderItem item)
+		public virtual void RemoveItem (OrderItem item)
 		{
 			ObservableOrderItems.Remove (item);
 			foreach (var equip in ObservableOrderEquipments.Where (e => e.OrderItem == item).ToList ()) {
@@ -834,11 +842,11 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments ();
 		}
 
-		public void AddServiceClaimAsInitial (ServiceClaim service)
+		public virtual void AddServiceClaimAsInitial (ServiceClaim service)
 		{
 			if (service.InitialOrder != null && service.InitialOrder.Id == Id) {
-				if (service.Equipment==null || ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
-					ObservableOrderEquipments.Add (new OrderEquipment { 
+				if (service.Equipment == null || ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
+					ObservableOrderEquipments.Add (new OrderEquipment {
 						Order = this,
 						Direction = Direction.PickUp,
 						Equipment = service.Equipment,
@@ -850,13 +858,13 @@ namespace Vodovoz.Domain.Orders
 				}
 				if (service.ReplacementEquipment != null) {
 					observableOrderEquipments.Add (new OrderEquipment {
-						Order=this,
+						Order = this,
 						Direction = Direction.Deliver,
-						Equipment=service.ReplacementEquipment,
+						Equipment = service.ReplacementEquipment,
 						NewEquipmentNomenclature = null,
-						OrderItem=null,
+						OrderItem = null,
 						Reason = Reason.Service
-					});				
+					});
 				}
 				if (ObservableInitialOrderService.FirstOrDefault (sc => sc.Id == service.Id) == null)
 					ObservableInitialOrderService.Add (service);
@@ -870,11 +878,11 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public void AddServiceClaimAsFinal (ServiceClaim service)
+		public virtual void AddServiceClaimAsFinal (ServiceClaim service)
 		{
 			if (service.FinalOrder != null && service.FinalOrder.Id == Id) {
 				if (ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
-					ObservableOrderEquipments.Add (new OrderEquipment { 
+					ObservableOrderEquipments.Add (new OrderEquipment {
 						Order = this,
 						Direction = Direction.Deliver,
 						Equipment = service.Equipment,
@@ -894,139 +902,128 @@ namespace Vodovoz.Domain.Orders
 			//И вообще много чего тут сделать.
 		}
 
-		public void FillNewEquipment(Equipment registeredEquipment)
+		public virtual void FillNewEquipment (Equipment registeredEquipment)
 		{
 			var newEquipment = ObservableOrderEquipments
-				.Where(orderEq=>orderEq.NewEquipmentNomenclature!=null)
-				.FirstOrDefault(orderEq => orderEq.NewEquipmentNomenclature.Id == registeredEquipment.Nomenclature.Id);
-			if (newEquipment != null)
-			{
+				.Where (orderEq => orderEq.NewEquipmentNomenclature != null)
+				.FirstOrDefault (orderEq => orderEq.NewEquipmentNomenclature.Id == registeredEquipment.Nomenclature.Id);
+			if (newEquipment != null) {
 				newEquipment.Equipment = registeredEquipment;
 				newEquipment.NewEquipmentNomenclature = null;
 			}
 		}
 
-		public void ChangeStatus(OrderStatus newStatus)
+		public virtual void ChangeStatus (OrderStatus newStatus)
 		{
 			OrderStatus = newStatus;
 		}
-			
-		public void UpdateDocuments()
+
+		public virtual void UpdateDocuments ()
 		{
-			if (ObservableOrderItems.Count > 0 && PaymentType == PaymentType.cashless)
-			{
-				AddDocumentIfNotExist(new BillDocument
-					{
+			if (ObservableOrderItems.Count > 0 && PaymentType == PaymentType.cashless) {
+				AddDocumentIfNotExist (new BillDocument {
+					Order = this
+				});
+			} else
+				RemoveDocumentByType (OrderDocumentType.Bill);
+
+			if (ObservableOrderItems.Count > 0 && OrderStatus == OrderStatus.Accepted) {
+				if (paymentType == PaymentType.cashless) {
+					if (this.DocumentType == DefaultDocumentType.upd) {
+						RemoveDocumentByType (OrderDocumentType.Torg12);
+						RemoveDocumentByType (OrderDocumentType.ShetFactura);
+						AddDocumentIfNotExist (new UPDDocument {
+							Order = this
+						});
+					} else if (this.DocumentType == DefaultDocumentType.torg12) {
+						RemoveDocumentByType (OrderDocumentType.UPD);
+						AddDocumentIfNotExist (new Torg12Document {
+							Order = this
+						});
+						AddDocumentIfNotExist (new ShetFacturaDocument {
+							Order = this
+						});
+					}
+					AddDocumentIfNotExist (new DriverTicketDocument {
 						Order = this
 					});
-			}
-			else
-				RemoveDocumentByType(OrderDocumentType.Bill);
-			
-			if (ObservableOrderItems.Count > 0 && OrderStatus==OrderStatus.Accepted)
-			{
-				if (paymentType == PaymentType.cashless)
-				{
-					if (this.DocumentType == DefaultDocumentType.upd)
-					{
-						RemoveDocumentByType(OrderDocumentType.Torg12);
-						RemoveDocumentByType(OrderDocumentType.ShetFactura);
-						AddDocumentIfNotExist(new UPDDocument
-							{
-								Order = this
-							});
-					}
-					else if (this.DocumentType == DefaultDocumentType.torg12)
-					{
-						RemoveDocumentByType(OrderDocumentType.UPD);
-						AddDocumentIfNotExist(new Torg12Document
-							{
-								Order = this
-							});
-						AddDocumentIfNotExist(new ShetFacturaDocument
-							{
-								Order = this
-							});
-					}
-					AddDocumentIfNotExist(new DriverTicketDocument
-						{
-							Order = this
-						});
 				}
-				if (paymentType == PaymentType.cash)
-				{
-					AddDocumentIfNotExist(new InvoiceDocument
-						{
-							Order = this
-						});					
+				if (paymentType == PaymentType.cash) {
+					AddDocumentIfNotExist (new InvoiceDocument {
+						Order = this
+					});
 				}
-				if (paymentType == PaymentType.barter)
-				{
-					AddDocumentIfNotExist(new InvoiceBarterDocument
-						{
-							Order = this
-						});
+				if (paymentType == PaymentType.barter) {
+					AddDocumentIfNotExist (new InvoiceBarterDocument {
+						Order = this
+					});
 				}
-			}
-			else
-			{
-				RemoveDocumentByType(OrderDocumentType.Invoice);
-				RemoveDocumentByType(OrderDocumentType.InvoiceBarter);
-				RemoveDocumentByType(OrderDocumentType.UPD);
-				RemoveDocumentByType(OrderDocumentType.Torg12);
-				RemoveDocumentByType(OrderDocumentType.ShetFactura);
+			} else {
+				RemoveDocumentByType (OrderDocumentType.Invoice);
+				RemoveDocumentByType (OrderDocumentType.InvoiceBarter);
+				RemoveDocumentByType (OrderDocumentType.UPD);
+				RemoveDocumentByType (OrderDocumentType.Torg12);
+				RemoveDocumentByType (OrderDocumentType.ShetFactura);
 			}
 
 			var equipmentforSaleWithCoolerWarranty = ObservableOrderEquipments
-				.Where(orderEquipment => 
-					orderEquipment.Reason == Reason.Sale)
-				.Where(orderEquipment => 
-					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
-			if (equipmentforSaleWithCoolerWarranty.Count()>0 && OrderStatus==OrderStatus.Accepted)
-			{				
-				AddDocumentIfNotExist(new CoolerWarrantyDocument
-					{
-						Order = this
-					});				
-			}
-			else
-				RemoveDocumentByType(OrderDocumentType.CoolerWarranty);
-				
+				.Where (orderEquipment =>
+					 orderEquipment.Reason == Reason.Sale)
+				.Where (orderEquipment =>
+					 orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+			if (equipmentforSaleWithCoolerWarranty.Count () > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddDocumentIfNotExist (new CoolerWarrantyDocument {
+					Order = this
+				});
+			} else
+				RemoveDocumentByType (OrderDocumentType.CoolerWarranty);
+
 			var equipmentforSaleWithPumpWarranty = ObservableOrderEquipments
-				.Where(orderEquipment => 
-					orderEquipment.Reason == Reason.Sale)
-				.Where(orderEquipment => 
-					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
-			if (equipmentforSaleWithPumpWarranty.Count() > 0 && OrderStatus==OrderStatus.Accepted)
-			{
-				AddDocumentIfNotExist(new PumpWarrantyDocument
-					{
-						Order = this
-					});
-			}
-			else
-				RemoveDocumentByType(OrderDocumentType.PumpWarranty);
+				.Where (orderEquipment =>
+					 orderEquipment.Reason == Reason.Sale)
+				.Where (orderEquipment =>
+					 orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			if (equipmentforSaleWithPumpWarranty.Count () > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddDocumentIfNotExist (new PumpWarrantyDocument {
+					Order = this
+				});
+			} else
+				RemoveDocumentByType (OrderDocumentType.PumpWarranty);
 		}
 
-		protected void AddDocumentIfNotExist(OrderDocument document)
+		protected virtual void AddDocumentIfNotExist (OrderDocument document)
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
-			if (!currentOrderDocuments.Any(doc => doc.Type == document.Type))
-				ObservableOrderDocuments.Add(document);
+			var currentOrderDocuments = ObservableOrderDocuments.Where (doc => doc.Order.Id == Id);
+			if (!currentOrderDocuments.Any (doc => doc.Type == document.Type))
+				ObservableOrderDocuments.Add (document);
 		}
 
-		protected void RemoveDocumentByType(OrderDocumentType type)
+		protected virtual void RemoveDocumentByType (OrderDocumentType type)
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
-			ObservableOrderDocuments.Remove(
-				currentOrderDocuments.FirstOrDefault(doc => doc.Type == type)
+			var currentOrderDocuments = ObservableOrderDocuments.Where (doc => doc.Order.Id == Id);
+			ObservableOrderDocuments.Remove (
+				currentOrderDocuments.FirstOrDefault (doc => doc.Type == type)
 			);
 		}
 
-		public void Close()
+		public virtual void Close ()
 		{
 			//FIXME Правильно закрывать заказ
 			OrderStatus = OrderStatus.Closed;
+		}
+
+		#endregion
+
+		#region	Внутренние функции
+
+		void ObservableOrderDepositItems_ListContentChanged (object sender, EventArgs e)
+		{
+			OnPropertyChanged (nameof (TotalSum));
+		}
+
+		void ObservableOrderItems_ListContentChanged (object sender, EventArgs e)
+		{
+			OnPropertyChanged (nameof (TotalSum));
 		}
 
 		#endregion

@@ -185,21 +185,11 @@ namespace Vodovoz
 				FixPrice (aIdx [0]); 			
 			};
 
-			UoWGeneric.Root.ObservableOrderItems.ListContentChanged += (sender, e) => {
-				UpdateSum ();
-			};
-
 			UoWGeneric.Root.ObservableOrderDepositItems.ListContentChanged += (sender, e) => {
-				UpdateSum ();
 				UpdateVisibleOfWingets();
 			};
 
-			UoWGeneric.Root.ObservableFinalOrderService.ElementAdded += (aList, aIdx) => {
-				UpdateSum ();
-			};
-			
 			UoWGeneric.Root.ObservableOrderDepositItems.ElementAdded += (aList, aIdx) => {
-				UpdateSum ();
 				UpdateVisibleOfWingets();
 			};
 
@@ -214,7 +204,10 @@ namespace Vodovoz
 			dataSumDifferenceReason.Completion.Model = OrderRepository.GetListStoreSumDifferenceReasons (UoWGeneric);
 			dataSumDifferenceReason.Completion.TextColumn = 0;
 
-			spinSumDifference.Value = (double)(UoWGeneric.Root.SumToReceive - UoWGeneric.Root.TotalSum);
+			spinSumDifference.Binding.AddBinding (Entity, e => e.ExtraMoney, w => w.ValueAsDecimal).InitializeFromSource ();
+
+			labelSum.Binding.AddFuncBinding (Entity, e => CurrencyWorks.GetShortCurrencyString (e.TotalSum), w => w.LabelProp).InitializeFromSource ();
+			labelCashToReceive.Binding.AddFuncBinding (Entity, e => CurrencyWorks.GetShortCurrencyString (e.SumToReceive), w => w.LabelProp).InitializeFromSource ();
 
 			var colorBlack = new Gdk.Color (0, 0, 0);
 			var colorBlue = new Gdk.Color (0, 0, 0xff);
@@ -272,8 +265,7 @@ namespace Vodovoz
 
 			enumPaymentType.ItemsEnum = typeof(PaymentType);
 			enumPaymentType.Binding.AddBinding (Entity, s => s.PaymentType, w => w.SelectedItem).InitializeFromSource ();
-			
-			UpdateSum ();
+
 			UpdateVisibleOfWingets();
 			UpdateButtonState();
 
@@ -466,7 +458,6 @@ namespace Vodovoz
 			}
 			else
 				UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
-			UpdateSum ();
 		}
 
 		private void AddRentAgreement (OrderAgreementType type)
@@ -505,16 +496,7 @@ namespace Vodovoz
 				AdditionalAgreement = agreement
 			});
 			UoWGeneric.Root.FillItemsFromAgreement (agreement);
-			UpdateSum ();
 			CounterpartyContractRepository.GetCounterpartyContractByPaymentType (UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType).AdditionalAgreements.Add (agreement);
-		}
-
-		void UpdateSum ()
-		{
-			Decimal sum = UoWGeneric.Root.TotalSum;
-			labelSum.Text = CurrencyWorks.GetShortCurrencyString (sum);
-			UoWGeneric.Root.SumToReceive = sum + (Decimal)spinSumDifference.Value;
-			labelSumTotal.Text = CurrencyWorks.GetShortCurrencyString (UoWGeneric.Root.SumToReceive);
 		}
 
 		void UpdateVisibleOfWingets()
@@ -575,7 +557,6 @@ namespace Vodovoz
 
 		protected void OnSpinSumDifferenceValueChanged (object sender, EventArgs e)
 		{
-			UpdateSum ();
 			string text;
 			if (spinSumDifference.Value > 0)
 				text = "Сумма <b>переплаты</b>/недоплаты:";
@@ -970,6 +951,8 @@ namespace Vodovoz
 				(Entity.PaymentType == PaymentType.cashless);
 
 			treeItems.Columns.First(x => x.Title == "В т.ч. НДС").Visible = Entity.PaymentType != PaymentType.cash;
+			spinSumDifference.Visible = labelSumDifference.Visible = labelSumDifferenceReason.Visible =
+				dataSumDifferenceReason.Visible = Entity.PaymentType == PaymentType.cash;
 		}
 
 		protected void OnPickerDeliveryDateDateChanged (object sender, EventArgs e)

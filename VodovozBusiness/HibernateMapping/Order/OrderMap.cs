@@ -1,7 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
-using Vodovoz.Domain.Orders;
-using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.HMap
 {
@@ -10,7 +9,6 @@ namespace Vodovoz.HMap
 		public OrderMap ()
 		{
 			Table ("orders");
-			Not.LazyLoad ();
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 
@@ -18,6 +16,7 @@ namespace Vodovoz.HMap
 			Map (x => x.DeliveryDate)		.Column ("delivery_date");
 			Map (x => x.SelfDelivery)		.Column ("self_delivery");
 			Map (x => x.BottlesReturn)		.Column ("bottles_return");
+			Map (x => x.ExtraMoney).Column ("extra_money");
 			Map (x => x.SumToReceive)		.Column ("sum_to_receive");
 			Map (x => x.Shipped)			.Column ("shipped");
 			Map (x => x.SumDifferenceReason).Column ("sum_difference_reason");

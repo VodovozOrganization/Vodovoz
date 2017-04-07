@@ -1039,7 +1039,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24167,7 +24166,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="957 631">
+  <widget class="Gtk.Bin" id="Vodovoz.OrderDlg" design-size="990 631">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -24228,6 +24227,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24315,7 +24315,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">0</property>
+            <property name="CurrentPage">1</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
@@ -25290,7 +25290,7 @@ RegistrationNumber</property>
                           <widget class="Gtk.Label" id="label12">
                             <property name="MemberName" />
                             <property name="Xalign">1</property>
-                            <property name="LabelProp" translatable="yes">Сумма:</property>
+                            <property name="LabelProp" translatable="yes">Наличных к получению:</property>
                           </widget>
                           <packing>
                             <property name="Position">5</property>
@@ -25298,14 +25298,14 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Label" id="labelSum">
+                          <widget class="Gamma.GtkWidgets.yLabel" id="labelCashToReceive">
                             <property name="MemberName" />
                             <property name="Xalign">0</property>
                             <property name="LabelProp" translatable="yes">%$$$%</property>
                           </widget>
                           <packing>
                             <property name="Position">6</property>
-                            <property name="AutoSize">False</property>
+                            <property name="AutoSize">True</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
                           </packing>
@@ -25334,7 +25334,7 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gtk.Label" id="labelSumTotal">
+                          <widget class="Gamma.GtkWidgets.yLabel" id="labelSum">
                             <property name="MemberName" />
                             <property name="Xalign">0</property>
                             <property name="LabelProp" translatable="yes">%$$$%</property>
@@ -25345,6 +25345,9 @@ RegistrationNumber</property>
                             <property name="Expand">False</property>
                             <property name="Fill">False</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder />
                         </child>
                       </widget>
                       <packing>
@@ -25368,28 +25371,6 @@ RegistrationNumber</property>
                         <property name="TopAttach">1</property>
                         <property name="BottomAttach">2</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">True</property>
-                        <property name="XOptions">Fill</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">False</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="Gtk.Label" id="label5">
-                        <property name="MemberName" />
-                        <property name="Xalign">1</property>
-                        <property name="LabelProp" translatable="yes">Причина:</property>
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">2</property>
-                        <property name="BottomAttach">3</property>
-                        <property name="LeftAttach">2</property>
-                        <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -25441,6 +25422,28 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gtk.Label" id="labelSumDifferenceReason">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Причина:</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">2</property>
+                        <property name="BottomAttach">3</property>
+                        <property name="LeftAttach">2</property>
+                        <property name="RightAttach">3</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gamma.GtkWidgets.ySpinButton" id="spinBottlesReturn">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
@@ -25467,7 +25470,7 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.SpinButton" id="spinSumDifference">
+                      <widget class="Gamma.GtkWidgets.ySpinButton" id="spinSumDifference">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Lower">-100000</property>
@@ -25476,6 +25479,8 @@ RegistrationNumber</property>
                         <property name="StepIncrement">1</property>
                         <property name="ClimbRate">1</property>
                         <property name="Numeric">True</property>
+                        <property name="ValueAsDecimal">0</property>
+                        <property name="ValueAsInt">0</property>
                         <signal name="ValueChanged" handler="OnSpinSumDifferenceValueChanged" />
                       </widget>
                       <packing>
