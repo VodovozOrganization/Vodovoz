@@ -73,7 +73,10 @@ public partial class MainWindow: Gtk.Window
 		labelUser.LabelProp = QSMain.User.Name;
 		ActionCash.Sensitive = QSMain.User.Permissions ["money_manage"];
 		ActionAccounting.Sensitive = QSMain.User.Permissions ["money_manage"];
-		ActionLogistics.Sensitive = QSMain.User.Permissions ["logistican"];
+		ActionRouteListsAtDay.Sensitive = 
+			ActionRouteListTracking.Sensitive = 
+			ActionRouteListMileageCheck.Sensitive = 
+			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions ["logistican"];
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
