@@ -209,7 +209,7 @@ namespace Vodovoz.ViewModel
 			{
 				MainClass.MainWin.TdiMain.OpenTab(
 					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListMileageCheckDlg (rl.Id, QSMain.User.Permissions ["logistican"])
+					() => new RouteListMileageCheckDlg (rl.Id)
 				);
 			}
 		}

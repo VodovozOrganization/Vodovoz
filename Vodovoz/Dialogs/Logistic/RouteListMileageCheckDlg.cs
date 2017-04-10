@@ -22,10 +22,10 @@ namespace Vodovoz
 
 		#endregion
 
-		public RouteListMileageCheckDlg(int id, bool canEdit = true)
+		public RouteListMileageCheckDlg(int id)
 		{
 			this.Build ();
-			editing = canEdit;
+			editing = QSMain.User.Permissions ["logistican"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Контроль за километражом маршрутного листа №{0}",Entity.Id);
 			ConfigureDlg ();
@@ -93,6 +93,8 @@ namespace Vodovoz
 			} );
 
 			ytreeviewAddresses.ItemsDataSource = items;
+
+			buttonConfirm.Sensitive = buttonCloseRouteList.Sensitive = editing;
 		}
 
 		#endregion
