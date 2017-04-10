@@ -97,6 +97,11 @@ namespace Vodovoz
 			dateperiodOrders.StartDateOrNull = startDate;
 			dateperiodOrders.EndDateOrNull = endDate;
 		}
+
+		public void SetFilterStatus(RouteListStatus? status)
+		{
+			enumcomboStatus.SelectedItem = status;
+		}
 	}
 }
 
