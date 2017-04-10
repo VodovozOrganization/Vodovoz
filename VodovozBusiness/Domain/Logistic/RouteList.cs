@@ -231,17 +231,18 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual string Title { get { return String.Format ("Маршрутный лист №{0}", Id); } }
 
-		public virtual decimal AddressCount
+		public virtual decimal UniqueAddressCount
 		{
 			get{
-				return Addresses.Count(item => item.IsDelivered());
+				return Addresses.Where(item => item.IsDelivered()).Select(item => item.Order.DeliveryPoint.Id).Distinct().Count();
 			}
 		}
 
 		public virtual decimal PhoneSum
 		{
 			get{
-				return Wages.GetDriverRates().PhoneServiceCompensationRate * AddressCount;
+				
+				return Wages.GetDriverRates().PhoneServiceCompensationRate * UniqueAddressCount;
 			}
 		}
 
