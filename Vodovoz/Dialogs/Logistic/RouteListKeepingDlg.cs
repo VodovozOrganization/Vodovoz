@@ -20,14 +20,17 @@ namespace Vodovoz
 {
 	public partial class RouteListKeepingDlg : OrmGtkDialogBase<RouteList>
 	{
-		private bool editing = true;
+		//2 уровня доступа к виджетам, для всех и для логистов.
+		private bool allEditing = true;
+		private bool logisticanEditing = true;
 
 		public RouteListKeepingDlg(int id)
 		{
 			this.Build ();
-			editing = QSMain.User.Permissions ["logistican"];
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Ведение маршрутного листа №{0}",Entity.Id);
+			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.MileageCheck;
+			logisticanEditing = QSMain.User.Permissions ["logistican"] && allEditing;
 			ConfigureDlg ();
 		}
 
@@ -62,34 +65,35 @@ namespace Vodovoz
 		public void ConfigureDlg(){
 			referenceCar.SubjectType = typeof (Car);
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
-			referenceCar.Sensitive = editing;
+			referenceCar.Sensitive = logisticanEditing;
 
 			referenceDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery ();
 			referenceDriver.Binding.AddBinding(Entity, rl => rl.Driver, widget => widget.Subject).InitializeFromSource();
 			referenceDriver.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
-			referenceDriver.Sensitive = editing;
-
+			referenceDriver.Sensitive = logisticanEditing;
 			referenceForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery ();
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
-			referenceForwarder.Sensitive = editing;
+			referenceForwarder.Sensitive = logisticanEditing;
 
 			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
-			referenceLogistican.Sensitive = editing;
+			referenceLogistican.Sensitive = logisticanEditing;
 
 			speccomboShift.ItemsList = DeliveryShiftRepository.ActiveShifts(UoW);
 			speccomboShift.Binding.AddBinding(Entity, rl => rl.Shift, widget => widget.SelectedItem).InitializeFromSource();
-			speccomboShift.Sensitive = editing;
+			speccomboShift.Sensitive = logisticanEditing;
 
 			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinActualDistance.Sensitive = editing;
+			yspinActualDistance.Sensitive = logisticanEditing;
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
-			datePickerDate.Sensitive = editing;
+			datePickerDate.Sensitive = logisticanEditing;
 
 			ylabelLastTimeCall.Binding.AddFuncBinding (Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource ();
+
+			buttonMadeCall.Sensitive = allEditing;
 
 			//Заполняем иконки
 			var ass = Assembly.GetAssembly(typeof(MainClass));
@@ -106,10 +110,10 @@ namespace Vodovoz
 				.AddColumn("Адрес")
 				.AddTextRenderer(node => node.RouteListItem.Order.DeliveryPoint == null ? "Требуется точка доставки" : node.RouteListItem.Order.DeliveryPoint.ShortAddress)					
 				.AddColumn("Время")
-					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)					
+					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
-					.AddEnumRenderer(node => node.Status).Editing(true)					
+					.AddEnumRenderer(node => node.Status).Editing(allEditing)					
 				.AddColumn("Отгрузка")
 				.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
 					.Where(b => 
@@ -124,13 +128,13 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.LastUpdate)
 				.AddColumn("Комментарий")
 					.AddTextRenderer(node => node.Comment)
-						.Editable(true)
+					.Editable(allEditing)
 				.RowCells ()
 					.AddSetter<CellRenderer> ((cell, node) => cell.CellBackgroundGdk = node.RowColor)
 				.Finish();
 			ytreeviewAddresses.Selection.Mode = SelectionMode.Multiple;
 			ytreeviewAddresses.Selection.Changed += OnSelectionChanged;
-			ytreeviewAddresses.Sensitive = editing;
+			ytreeviewAddresses.Sensitive = allEditing;
 
 			//Заполняем телефоны
 			string phones = null;
