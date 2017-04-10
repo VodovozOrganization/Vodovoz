@@ -516,6 +516,7 @@ namespace Vodovoz
 			this.routeListAddressesView.Events = ((global::Gdk.EventMask)(256));
 			this.routeListAddressesView.Name = "routeListAddressesView";
 			this.routeListAddressesView.ColumsVisibility = false;
+			this.routeListAddressesView.IsEditing = false;
 			this.hbox6.Add (this.routeListAddressesView);
 			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox6 [this.routeListAddressesView]));
 			w35.Position = 0;

@@ -226,7 +226,7 @@ namespace Vodovoz.ViewModel
 			{
 				MainClass.MainWin.TdiMain.OpenTab(
 					OrmMain.GenerateDialogHashName<RouteList>(rl.Id),
-					() => new RouteListClosingDlg (rl.Id, QSMain.User.Permissions ["money_manage"])
+					() => new RouteListClosingDlg (rl.Id)
 				);
 			}
 		}

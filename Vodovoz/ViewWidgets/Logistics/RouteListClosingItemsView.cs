@@ -108,6 +108,19 @@ namespace Vodovoz
 			}
 		}
 
+		bool isEditing;
+
+		public bool IsEditing {
+			get {
+				return isEditing;
+			}
+
+			set {
+				isEditing = value;
+				ytreeviewItems.Sensitive = isEditing;
+			}
+		}
+
 		void Items_ListChanged (object aList)
 		{
 			UpdateColumns ();

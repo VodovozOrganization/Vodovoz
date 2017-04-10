@@ -26,7 +26,7 @@ namespace Vodovoz
 
 		private Track 	 track 				= null;
 		private decimal  balanceBeforeOp 	= default(decimal);
-		private bool 	 editing 			= true;
+		private bool 	 editing 			= QSMain.User.Permissions ["money_manage"];
 		private Employee previousForwarder  = null;
 
 		List<RouteListRepository.ReturnsNode> allReturnsToWarehouse;
@@ -48,13 +48,12 @@ namespace Vodovoz
 
 		public RouteListClosingDlg(RouteList routeList) : this(routeList.Id){}
 
-		public RouteListClosingDlg(int routeListId, bool canEdit = true)
+		public RouteListClosingDlg(int routeListId)
 		{
 			this.Build();
 
 			PerformanceHelper.StartMeasurement();
 
-			editing = canEdit;
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(routeListId);
 
 			TabName = String.Format("Закрытие маршрутного листа №{0}", Entity.Id);
@@ -89,7 +88,7 @@ namespace Vodovoz
 			speccomboShift.Sensitive = editing;
 
 			yspinActualDistance.Binding.AddBinding(Entity, rl => rl.ActualDistance, widget => widget.ValueAsDecimal).InitializeFromSource();
-			yspinActualDistance.IsEditable = editing;
+			yspinActualDistance.Sensitive = editing;
 
 			datePickerDate.Binding.AddBinding(Entity, rl => rl.Date, widget => widget.Date).InitializeFromSource();
 			datePickerDate.Sensitive = editing;
@@ -122,7 +121,7 @@ namespace Vodovoz
 			}
 			routeListAddressesView.Items.ElementChanged += OnRouteListItemChanged;
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
-			routeListAddressesView.Sensitive = editing;
+			routeListAddressesView.IsEditing = editing;
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			ReloadReturnedToWarehouse();
@@ -545,7 +544,7 @@ namespace Vodovoz
 			
 			//Проверка существования трека и заполнения дистанции
 			bool hasTrack = track?.Distance.HasValue ?? false;
-			buttonGetDistFromTrack.Sensitive = hasTrack;
+			buttonGetDistFromTrack.Sensitive = hasTrack && editing;
 
 			if (hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.TotalDistance));
