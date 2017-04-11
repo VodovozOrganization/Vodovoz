@@ -23,6 +23,7 @@ namespace Vodovoz
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private bool allEditing = true;
 		private bool logisticanEditing = true;
+		private Employee previousForwarder = null;
 
 		public RouteListKeepingDlg(int id)
 		{
@@ -75,7 +76,8 @@ namespace Vodovoz
 			referenceForwarder.Binding.AddBinding(Entity, rl => rl.Forwarder, widget => widget.Subject).InitializeFromSource();
 			referenceForwarder.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
 			referenceForwarder.Sensitive = logisticanEditing;
-
+			referenceForwarder.Changed += ReferenceForwarder_Changed;
+				                   
 			referenceLogistican.ItemsQuery = Repository.EmployeeRepository.ActiveEmployeeQuery();
 			referenceLogistican.Binding.AddBinding(Entity, rl => rl.Logistican, widget => widget.Subject).InitializeFromSource();
 			referenceLogistican.SetObjectDisplayFunc<Employee> (r => StringWorks.PersonNameWithInitials (r.LastName, r.Name, r.Patronymic));
@@ -196,11 +198,25 @@ namespace Vodovoz
 			buttonChangeDeliveryTime.Sensitive = ytreeviewAddresses.GetSelectedObjects().Count() == 1;
 		}
 
+		void ReferenceForwarder_Changed (object sender, EventArgs e)
+		{
+			var newForwarder = Entity.Forwarder;
+
+			if (Entity.Status == RouteListStatus.OnClosing 
+			    && ((previousForwarder == null && newForwarder != null)
+			        || (previousForwarder != null && newForwarder == null)))
+				foreach (var item in Entity.Addresses)
+					item.RecalculateWages ();
+
+			previousForwarder = Entity.Forwarder;
+		}
+
 		#region implemented abstract members of OrmGtkDialogBase
 
 		public override bool Save()
 		{
-			if (items.All(x => x.Status != RouteListItemStatus.EnRoute))
+
+			if (Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
 			{
 				if(MessageDialogWorks.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
 				{
