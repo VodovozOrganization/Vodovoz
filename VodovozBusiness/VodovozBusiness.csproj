@@ -311,15 +311,10 @@
     <Compile Include="HibernateMapping\Counterparty\WaterSalesAgreementFixedPriceMap.cs" />
     <Compile Include="HibernateMapping\ResidueMap.cs" />
     <Compile Include="Domain\Residue.cs" />
-    <Compile Include="Domain\Logistic\GazTicket.cs" />
-    <Compile Include="HibernateMapping\Logistic\GazTicketMap.cs" />
     <Compile Include="HibernateMapping\Operations\FuelOperationMap.cs" />
     <Compile Include="Domain\Operations\FuelOperation.cs" />
     <Compile Include="Repositories\Operations\FuelRepository.cs" />
     <Compile Include="Domain\Logistic\FuelDocument.cs" />
-    <Compile Include="Domain\Logistic\FuelDocumentItem.cs" />
-    <Compile Include="Repositories\Logistics\GasTicketRepository.cs" />
-    <Compile Include="HibernateMapping\Logistic\FuelDocumentItemMap.cs" />
     <Compile Include="HibernateMapping\Logistic\FuelDocumentMap.cs" />
     <Compile Include="Domain\Subdivision.cs" />
     <Compile Include="HibernateMapping\Organization\SubdivisionMap.cs" />

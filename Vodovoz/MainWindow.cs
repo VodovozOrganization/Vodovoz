@@ -576,14 +576,6 @@ public partial class MainWindow: Gtk.Window
 			SwitchToUI ("Vodovoz.toolbars.staff.xml");
 	}
 
-	protected void OnGazTicketActionActivated (object sender, EventArgs e)
-	{
-		tdiMain.OpenTab(
-			OrmReference.GenerateHashName<GazTicket>(),
-			() => new OrmReference(typeof(GazTicket))
-		);
-	}
-
 	protected void OnActionSalesReportActivated (object sender, EventArgs e)
 	{
 		var widget = new Vodovoz.Reports.SalesReport();

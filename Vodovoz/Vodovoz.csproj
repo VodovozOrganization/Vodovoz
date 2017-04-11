@@ -502,11 +502,9 @@
     <Compile Include="Dialogs\ResidueDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ResidueDlg.cs" />
     <Compile Include="Representations\ResidueVM.cs" />
-    <Compile Include="gtk-gui\Vodovoz.GazTicketDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelTypeDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelTypeDlg.cs" />
     <Compile Include="Dialogs\Logistic\CarsDlg.cs" />
-    <Compile Include="Dialogs\Logistic\GasTicketDlg.cs" />
     <Compile Include="Dialogs\Logistic\FuelDocumentDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.FuelDocumentDlg.cs" />
     <Compile Include="Dialogs\Logistic\RoutesAtDayDlg.cs" />

@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using QSOrmProject;
+using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data.Bindings.Collections.Generic;
-using QSProjectsLib;
 using Vodovoz.Repository;
 
 namespace Vodovoz
@@ -15,11 +14,11 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 
-		GenericObservableList<TicketsRow> rows;
-
 		public RouteList RouteListClosing { get; set; }
 
 		public decimal FuelBalance { get; set; }
+
+		public decimal FuelOutlayed { get; set; }
 
 		public FuelDocumentDlg ()
 		{
@@ -67,31 +66,15 @@ namespace Vodovoz
 			yentryfuel.SubjectType = typeof(FuelType);
 			yentryfuel.Binding.AddBinding(Entity, e => e.Fuel, w => w.Subject).InitializeFromSource();
 
-			ytreeTickets.ColumnsConfig = Gamma.GtkWidgets.ColumnsConfigFactory.Create<TicketsRow>()
-				.AddColumn("Талон").AddTextRenderer(x => x.GasTicket.Name)
-				.AddColumn("Количество").AddNumericRenderer(x => x.Count).Editing()
-				.Adjustment(new Gtk.Adjustment(0, 0, 100, 1, 1, 1))
-				.Finish();
-
-			var tikets = Repository.Logistics.GasTicketRepository.GetGasTickets(UoW, Entity.Fuel);
-			var list = tikets.Select(x => new TicketsRow{ GasTicket = x }).ToList();
-			rows = new GenericObservableList<TicketsRow>(list);
-			rows.ListContentChanged += Rows_ListContentChanged;
+			yspinFuelTicketLiters.Binding.AddBinding (Entity, e => e.FuelCoupons, w => w.ValueAsInt).InitializeFromSource ();
 
 			disablespinMoney.Binding.AddBinding(Entity, e => e.PayedForFuel, w => w.ValueAsDecimal).InitializeFromSource();
 
 			UpdateFuelInfo();
 			UpdateResutlInfo();
-			LoadTicketsFromEntity();
-
-			ytreeTickets.ItemsDataSource = rows;
+			Entity.PropertyChanged += FuelDocument_PropertyChanged;
 		}
 
-		void Rows_ListContentChanged (object sender, EventArgs e)
-		{
-			Entity.UpdateOperation(rows.ToDictionary(k => k.GasTicket, v => v.Count));
-			UpdateResutlInfo();
-		}
 
 		private void UpdateFuelInfo() {
 			var text = new List<string>();
@@ -140,8 +123,10 @@ namespace Vodovoz
 				text.Add("Не указан вид топлива");
 			}
 
+			FuelOutlayed = fc / 100 * RouteListClosing.ActualDistance;
+
 			text.Add(string.Format("Израсходовано топлива: {0:f2} л. ({1:f2} л/100км)",
-				fc / 100 * RouteListClosing.ActualDistance, fc));
+			                       FuelOutlayed, fc));
 
 			ytextviewFuelInfo.Buffer.Text = String.Join("\n", text);
 		}
@@ -172,7 +157,6 @@ namespace Vodovoz
 				Entity.FuelCashExpense.Casher = cashier;
 			}
 
-			Entity.UpdateRowList(rows.ToDictionary(k => k.GasTicket, v => v.Count));
 			var valid = new QSValidator<FuelDocument> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -184,10 +168,21 @@ namespace Vodovoz
 
 		protected void OnDisablespinMoneyValueChanged (object sender, EventArgs e)
 		{
-			Entity.UpdateOperation(rows.ToDictionary(k => k.GasTicket, v => v.Count));
+			OnFuelUpdated ();
+		}
+
+		private void OnFuelUpdated()
+		{
+			Entity.UpdateOperation();
 			Entity.UpdateFuelCashExpense(UoW, RouteListClosing.Cashier, RouteListClosing.Id);
 			UpdateResutlInfo();
 			UpdateFuelCashExpenseInfo();
+		}
+
+		void FuelDocument_PropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == nameof (Entity.FuelCoupons))
+				OnFuelUpdated ();
 		}
 
 		private void UpdateFuelCashExpenseInfo()
@@ -206,21 +201,6 @@ namespace Vodovoz
 					buttonOpenExpense.Sensitive = true;
 					labelExpenseInfo.Text = "";
 				}
-			}
-		}
-
-		private void LoadTicketsFromEntity() 
-		{
-			foreach (var ticket in Entity.FuelTickets)
-			{
-				var item = rows.FirstOrDefault(x => x.GasTicket.Id == ticket.GasTicket.Id);
-				if (item == null)
-				{
-					item = new TicketsRow();
-					item.GasTicket = ticket.GasTicket;
-					rows.Add(item);
-				}
-				item.Count = ticket.TicketsCount;
 			}
 		}
 
@@ -249,24 +229,19 @@ namespace Vodovoz
 				TabParent.AddSlaveTab(this, new CashExpenseDlg(Entity.FuelCashExpense.Id));
 		}
 
-		private class TicketsRow : PropertyChangedBase
+		protected void OnButtonFuelBy20Clicked (object sender, EventArgs e)
 		{
-			public GazTicket GasTicket  { get; set; }
-			int count;
-			public int Count
-			{
-				get
-				{
-					return count;
-				}
-				set
-				{
-					SetField(ref count, value, () => Count);
-				}
-			}
+			var needLiters = FuelOutlayed - FuelBalance;
+
+			Entity.FuelCoupons = (((int)needLiters / 20) * 20);
+		}
+
+		protected void OnButtonFuelBy10Clicked (object sender, EventArgs e)
+		{
+			var needLiters = FuelOutlayed - FuelBalance;
+
+			Entity.FuelCoupons = (((int)needLiters / 10) * 10);
 		}
 	}
-
-
 }
 

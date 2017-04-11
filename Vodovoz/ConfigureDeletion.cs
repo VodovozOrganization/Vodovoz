@@ -366,7 +366,6 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelType>()
 				.AddDeleteDependence<FuelDocument>(x => x.Fuel)
-				.AddDeleteDependence<GazTicket>(x => x.FuelType)
 				.AddDeleteDependence<FuelOperation>(x => x.Fuel)
 				.AddClearDependence<Car>(x => x.FuelType);
 
@@ -408,9 +407,6 @@ namespace Vodovoz
 				.AddRemoveFromDependence<RouteList>(x => x.Addresses, x => x.RemoveAddress);
 
 			DeleteConfig.AddHibernateDeleteInfo<Track>();
-
-			DeleteConfig.AddHibernateDeleteInfo<GazTicket>()
-				.AddDeleteDependence<FuelDocumentItem>(x => x.GasTicket);
 
 			#endregion
 
@@ -704,11 +700,8 @@ namespace Vodovoz
 				.AddClearDependence<Counterparty> (item => item.DefaultExpenseCategory);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelDocument>()
-				.AddDeleteDependence<FuelDocumentItem>(item => item.Document)
 				.AddDeleteCascadeDependence(x => x.Operation)
 				.AddClearDependence<RouteList>(x => x.FuelGivedDocument);
-
-			DeleteConfig.AddHibernateDeleteInfo<FuelDocumentItem>();
 
 			DeleteConfig.AddHibernateDeleteInfo<FineNomenclature>();
 
