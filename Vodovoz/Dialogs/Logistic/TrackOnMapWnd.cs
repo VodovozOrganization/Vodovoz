@@ -123,7 +123,7 @@ namespace Dialogs.Logistic
 
 			var text = new List<string>();
 			if (track.Distance.HasValue)
-				text.Add(String.Format("Дистанция трека: {0:N1} км.", track.Distance));
+				text.Add(String.Format("Дистанция трека: {0:N1} км.{1}", track.Distance, track.DistanceEdited ? "(пересчитанная)" : ""));
 			if(track.DistanceToBase.HasValue)
 				text.Add(String.Format("Дистанция до базы: {0:N1} км.", track.DistanceToBase));
 			if (track.DistanceToBase.HasValue && track.Distance.HasValue)
@@ -261,6 +261,8 @@ namespace Dialogs.Logistic
 		protected void OnButtonFindGapClicked (object sender, EventArgs e)
 		{
 			trackOnGapOverlay.Clear ();
+			string message = "Найдены разрывы в треке:";
+			double replacedDistance = 0;
 
 			TrackPoint lastPoint = null;
 			foreach(var point in track.TrackPoints)
@@ -278,6 +280,13 @@ namespace Dialogs.Logistic
 				if(distance > 2)
 				{
 					logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
+					message += String.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
+					                          distance,
+					                          lastPoint.TimeStamp,
+					                          point.TimeStamp
+					                         );
+					replacedDistance += distance;
+
 					var addressesByCompletion = routeList.Addresses
 							.Where (x => x.Status == RouteListItemStatus.Completed)
 							.OrderBy (x => x.StatusLastUpdate)
@@ -298,6 +307,8 @@ namespace Dialogs.Logistic
 						routePoints.AddRange (
 							throughAddress.Where (x => x.Order?.DeliveryPoint?.Latitude != null && x.Order?.DeliveryPoint?.Longitude != null)
 							.Select (x => new PointOnEarth (x.Order.DeliveryPoint.Latitude.Value, x.Order.DeliveryPoint.Longitude.Value)));
+
+						message += $" c выполненными адресами({beforeIndex + 2}-{afterIndex}) п/п в МЛ " + String.Join (", ", throughAddress.Select (x => x.IndexInRoute));
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
@@ -320,6 +331,23 @@ namespace Dialogs.Logistic
 			if(trackOnGapOverlay.Routes.Count > 1)
 			{
 				tracksDistance.Add (MakeDistanceLayout (trackOnGapOverlay.Routes.ToArray()));
+				var oldDistance = track.DistanceEdited ? trackRoute.Distance : track.Distance;
+				var missedRouteDistance = trackOnGapOverlay.Routes.Sum (x => x.Distance);
+				var newDistance = oldDistance - replacedDistance + missedRouteDistance;
+				var diffDistance = newDistance - oldDistance;
+
+				message += $"\n Старая длинна трека:{oldDistance:N1} км." +
+					$"\n Новая длинна трека: {newDistance:N1} км.(+{diffDistance:N1})" +
+					"\n Сохранить изменения длинны трека?";
+
+				if(MessageDialogWorks.RunQuestionDialog(message))
+				{
+					track.Distance = newDistance;
+					track.DistanceEdited = true;
+					UoW.Save (track);
+					UoW.Commit ();
+					UpdateDistanceLabel ();
+				}
 			}
 		}
 	}

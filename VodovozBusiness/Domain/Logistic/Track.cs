@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using GMap.NET;
 using QSOrmProject;
-using RestSharp;
-using Vodovoz.Domain.Employees;
 using QSOsm.Spuntik;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -53,6 +51,14 @@ namespace Vodovoz.Domain.Logistic
 			set { 
 				SetField (ref trackPoints, value, () => TrackPoints); 
 			}
+		}
+
+		private bool distanceEdited = false;
+
+		[Display (Name = "Расстояние изменялось")]
+		public virtual bool DistanceEdited {
+			get { return distanceEdited; }
+			set { SetField (ref distanceEdited, value, () => DistanceEdited); }
 		}
 
 		double? distance;
