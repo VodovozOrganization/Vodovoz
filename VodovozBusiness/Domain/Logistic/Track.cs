@@ -106,10 +106,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual SputnikRouteResponse CalculateDistanceToBase()
 		{
-			var client = new RestClient();
-			client.BaseUrl = new Uri("http://routes.maps.sputnik.ru");
-
-			var request = new RestRequest("osrm/router/viaroute", Method.GET);
 			var lastAddress = RouteList.Addresses
 				.Where(x => x.Status == RouteListItemStatus.Completed)
 				.OrderByDescending(x => x.StatusLastUpdate)
@@ -121,21 +117,20 @@ namespace Vodovoz.Domain.Logistic
 				return null;
 			}
 
+			var points = new List<PointOnEarth> ();
 			var lastPoint = lastAddress.Order.DeliveryPoint;
-
-			request.AddQueryParameter("loc", String.Format(CultureInfo.InvariantCulture,"{0},{1}", lastPoint.Latitude, lastPoint.Longitude));
+			points.Add (new PointOnEarth (lastPoint.Latitude.Value, lastPoint.Longitude.Value));
 			//Координаты базы
-			request.AddQueryParameter("loc", String.Format("{0},{1}", "59.88632093834261","30.394406318664547"));
-			request.AddQueryParameter("alt", "false");
+			points.Add (new PointOnEarth ( 59.88632093834261, 30.394406318664547));
 
-			var response = client.Execute<SputnikRouteResponse>(request);
-			if (response.Data.Status == 0)
+			var response = SputnikMain.GetRoute (points);
+			if (response.Status == 0)
 			{
-				DistanceToBase = (double)response.Data.RouteSummary.TotalDistanceKm;
+				DistanceToBase = (double)response.RouteSummary.TotalDistanceKm;
 			}
 			else
-				logger.Error("Ошибка при получении расстояния до базы {0}: {1}", response.Data.Status, response.Data.StatusMessage);
-			return response.Data;
+				logger.Error("Ошибка при получении расстояния до базы {0}: {1}", response.Status, response.StatusMessage);
+			return response;
 		}
 	}
 }

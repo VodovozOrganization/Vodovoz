@@ -16,7 +16,11 @@ namespace Dialogs.Logistic
 
 		private global::Gtk.Label labelDistance;
 
+		private global::Gtk.VBox vbox2;
+
 		private global::Gtk.Button buttonRecalculateToBase;
+
+		private global::Gtk.Button buttonFindGap;
 
 		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
 
@@ -78,21 +82,41 @@ namespace Dialogs.Logistic
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
+			this.vbox2 = new global::Gtk.VBox ();
+			this.vbox2.Name = "vbox2";
+			this.vbox2.Spacing = 3;
+			// Container child vbox2.Gtk.Box+BoxChild
 			this.buttonRecalculateToBase = new global::Gtk.Button ();
 			this.buttonRecalculateToBase.CanFocus = true;
 			this.buttonRecalculateToBase.Name = "buttonRecalculateToBase";
 			this.buttonRecalculateToBase.UseUnderline = true;
 			this.buttonRecalculateToBase.Label = global::Mono.Unix.Catalog.GetString ("Пересчитать км до базы");
-			this.hbox1.Add (this.buttonRecalculateToBase);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonRecalculateToBase]));
-			w5.Position = 4;
+			this.vbox2.Add (this.buttonRecalculateToBase);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.buttonRecalculateToBase]));
+			w5.Position = 0;
 			w5.Expand = false;
 			w5.Fill = false;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
-			w6.Position = 0;
+			// Container child vbox2.Gtk.Box+BoxChild
+			this.buttonFindGap = new global::Gtk.Button ();
+			this.buttonFindGap.CanFocus = true;
+			this.buttonFindGap.Name = "buttonFindGap";
+			this.buttonFindGap.UseUnderline = true;
+			this.buttonFindGap.Label = global::Mono.Unix.Catalog.GetString ("Найти и пересчитать разрывы");
+			this.vbox2.Add (this.buttonFindGap);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.buttonFindGap]));
+			w6.Position = 1;
 			w6.Expand = false;
 			w6.Fill = false;
+			this.hbox1.Add (this.vbox2);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.vbox2]));
+			w7.Position = 4;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.vbox1.Add (this.hbox1);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			w8.Position = 0;
+			w8.Expand = false;
+			w8.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl ();
 			this.gmapWidget.Name = "gmapWidget";
@@ -110,18 +134,19 @@ namespace Dialogs.Logistic
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox1.Add (this.gmapWidget);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.gmapWidget]));
-			w7.Position = 1;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.gmapWidget]));
+			w9.Position = 1;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();
 			}
-			this.DefaultWidth = 588;
+			this.DefaultWidth = 617;
 			this.DefaultHeight = 300;
 			this.Show ();
 			this.radioSmall.Clicked += new global::System.EventHandler (this.OnRadioSmallClicked);
 			this.radioNumbers.Clicked += new global::System.EventHandler (this.OnRadioNumbersClicked);
 			this.buttonRecalculateToBase.Clicked += new global::System.EventHandler (this.OnButtonRecalculateToBaseClicked);
+			this.buttonFindGap.Clicked += new global::System.EventHandler (this.OnButtonFindGapClicked);
 		}
 	}
 }
