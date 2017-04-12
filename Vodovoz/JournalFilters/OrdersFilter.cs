@@ -17,7 +17,7 @@ namespace Vodovoz
 			}
 			set {
 				uow = value;
-				enumcomboStatus.ItemsEnum = typeof(OrderStatus);
+				enumcomboStatus.ItemsEnum = typeof (OrderStatus);
 				var filter = new CounterpartyFilter (UnitOfWorkFactory.CreateWithoutRoot ());
 				filter.RestrictIncludeCustomer = true;
 				filter.RestrictIncludeSupplier = false;
@@ -36,8 +36,13 @@ namespace Vodovoz
 			this.Build ();
 
 			//Последние месяц назад и месяц вперед.
+#if SHORT
+			dateperiodOrders.StartDateOrNull = DateTime.Today;
+			dateperiodOrders.EndDateOrNull = DateTime.Today;
+#else
 			dateperiodOrders.StartDateOrNull = DateTime.Today.AddMonths (-1);
 			dateperiodOrders.EndDateOrNull = DateTime.Today.AddMonths (1);
+#endif
 		}
 
 		#region IReferenceFilter implementation
