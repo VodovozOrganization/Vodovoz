@@ -140,7 +140,7 @@ namespace Vodovoz
 
 		private void ChangeVisibility ()
 		{
-			string[] columsToChange = {"Залоги за\n бутыли", "  З/П\nводителя", "    З/П\nэкспедитора",};
+			string[] columsToChange = {"Залоги за\n бутыли", "  З/П\nводителя", " доплата\nводителя", "    З/П\nэкспедитора", " доплата\nэкспедитора",};
 			
 			foreach (var columnName in columsToChange) {
 				var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == columnName);
@@ -207,17 +207,17 @@ namespace Vodovoz
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
 				.AddColumn("  З/П\nводителя").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DriverWage)						
-						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
-						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
-						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedDriverWage() ? colorBlue : colorBlack)
-						.AddSetter((cell,node)=>cell.IsExpanded=false)
+				.AddColumn (" доплата\nводителя").HeaderAlignment (0.5f)
+					.AddNumericRenderer (node => node.DriverWageSurcharge)
+						.Adjustment (new Adjustment (0, -100000, 100000, 10, 100, 10))
+						.AddSetter ((cell, node) => cell.Editable = node.IsDelivered ())
 				.AddColumn("    З/П\nэкспедитора").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.ForwarderWage)
-						.AddSetter((cell, node) => cell.Editable = node.WithForwarder)
-						.AddSetter((cell, node) => cell.Sensitive = node.WithForwarder)
-						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
-						.AddSetter((c, node) => c.ForegroundGdk = node.HasUserSpecifiedForwarderWage() ? colorBlue : colorBlack)
-						.AddSetter((c, node) => c.Alignment = Pango.Alignment.Right)
+                .AddColumn(" доплата\nэкспедитора").HeaderAlignment (0.5f)
+					.AddNumericRenderer (node => node.ForwarderWageSurcharge)
+						.AddSetter ((cell, node) => cell.Editable = node.WithForwarder && node.IsDelivered())
+						.AddSetter ((cell, node) => cell.Sensitive = node.WithForwarder)
+						.Adjustment (new Adjustment (0, -100000, 100000, 100, 100, 1))
 				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
