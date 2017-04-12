@@ -314,6 +314,16 @@ namespace Dialogs.Logistic
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
 					var missedTrack = SputnikMain.GetRoute (routePoints);
+					if (missedTrack == null)
+					{
+						MessageDialogWorks.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");
+						return;
+					}
+					if(missedTrack.Status != 0)
+					{
+						MessageDialogWorks.RunErrorDialog ("Cервис \"Спутник\" сообщил об ошибке {0}: {1}", missedTrack.Status, missedTrack.StatusMessageRus);
+						return;
+					}
 
 					var decodedPoints = Polyline.DecodePolyline (missedTrack.RouteGeometry);
 					var points = decodedPoints.Select (p => new PointLatLng (p.Latitude * 0.1, p.Longitude * 0.1)).ToList ();
