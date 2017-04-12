@@ -261,6 +261,7 @@ namespace Dialogs.Logistic
 		protected void OnButtonFindGapClicked (object sender, EventArgs e)
 		{
 			trackOnGapOverlay.Clear ();
+			tracksDistance.RemoveAll (x => x.Id == "MissingTrack");
 			string message = "Найдены разрывы в треке:";
 			double replacedDistance = 0;
 
@@ -330,7 +331,9 @@ namespace Dialogs.Logistic
 
 			if(trackOnGapOverlay.Routes.Count > 1)
 			{
-				tracksDistance.Add (MakeDistanceLayout (trackOnGapOverlay.Routes.ToArray()));
+				var distanceLayout = MakeDistanceLayout (trackOnGapOverlay.Routes.ToArray ());
+				distanceLayout.Id = "MissingTrack";
+				tracksDistance.Add (distanceLayout);
 				var oldDistance = track.DistanceEdited ? trackRoute.Distance : track.Distance;
 				var missedRouteDistance = trackOnGapOverlay.Routes.Sum (x => x.Distance);
 				var newDistance = oldDistance - replacedDistance + missedRouteDistance;
@@ -353,6 +356,7 @@ namespace Dialogs.Logistic
 	}
 
 	class DistanceTextInfo{
+		public string Id;
 		public Pango.Layout PangoLayout;
 	}
 }
