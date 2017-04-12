@@ -39,7 +39,12 @@ namespace Vodovoz
 			[Display (Name = "Перенести разгрузку в другой МЛ")]
 			TransferReceptionToAnotherRL,
 			[Display (Name = "Перенести разгрузку в этот МЛ")]
-			TransferReceptionToThisRL
+			TransferReceptionToThisRL,
+			[Display (Name = "Перенести адреса в этот МЛ")]
+			TransferAddressesToThisRL,
+			[Display (Name = "Перенести адреса из этого МЛ")]
+			TransferAddressesToAnotherRL
+
 		}
 
 		#endregion
@@ -212,6 +217,28 @@ namespace Vodovoz
 				case RouteListActions.TransferReceptionToThisRL:
 					this.TabParent.AddSlaveTab(
 						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Receiver)
+					);
+					break;
+				case RouteListActions.TransferAddressesToThisRL:
+					if (UoW.HasChanges) {
+						if(MessageDialogWorks.RunQuestionDialog ("Необходимо сохранить документ.\nСохранить?"))
+							this.Save ();
+						else
+							return;
+					}
+                    this.TabParent.AddSlaveTab(
+                        this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Sender)
+					);
+					break;
+				case RouteListActions.TransferAddressesToAnotherRL:
+					if (UoW.HasChanges) {
+						if(!MessageDialogWorks.RunQuestionDialog ("Необходимо сохранить документ.\nСохранить?"))
+							 this.Save ();
+						else
+							return;
+					}
+                    this.TabParent.AddSlaveTab(
+                        this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Receiver)
 					);
 					break;
 				default:

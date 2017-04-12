@@ -42,6 +42,8 @@ namespace Vodovoz
 			}
 		}
 
+		public enum OpenParameter { Sender, Receiver }
+
 		#endregion
 
 		#region Конструкторы
@@ -53,6 +55,17 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
+		public RouteListAddressesTransferringDlg (RouteList routeList, OpenParameter param) : this()
+		{
+			switch (param) {
+			case OpenParameter.Sender:
+ 				yentryreferenceRLFrom.Subject = routeList;
+				break;
+			case OpenParameter.Receiver:
+				yentryreferenceRLTo.Subject = routeList;
+				break;
+		}
+				}
 		#endregion
 
 		#region Методы
@@ -128,13 +141,14 @@ namespace Vodovoz
 			
 			RouteList routeList = yentryreferenceRLFrom.Subject as RouteList;
 
-			var tab = TabParent.FindTab(OrmMain.GenerateDialogHashName<RouteList>(routeList.Id));
-			if(tab != null) {
-				MessageDialogWorks.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
-				yentryreferenceRLFrom.Subject = null;
-				return;
+			if (TabParent != null) {
+				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeList.Id));
+				if (tab != null) {
+					MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+					yentryreferenceRLFrom.Subject = null;
+					return;
+				}
 			}
-
 			
 			CheckSensitivities();
 
@@ -151,11 +165,13 @@ namespace Vodovoz
 			
 			RouteList routeList = yentryreferenceRLTo.Subject as RouteList;
 
-			var tab = TabParent.FindTab(OrmMain.GenerateDialogHashName<RouteList>(routeList.Id));
-			if(tab != null) {
-				MessageDialogWorks.RunErrorDialog("Маршрутный лист уже открыт в другой вкладке");
-				yentryreferenceRLTo.Subject = null;
-				return;
+			if (TabParent != null) {
+				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeList.Id));
+				if (tab != null) {
+					MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+					yentryreferenceRLTo.Subject = null;
+					return;
+				}
 			}
 
 			CheckSensitivities();
