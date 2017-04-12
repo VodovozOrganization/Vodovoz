@@ -49,6 +49,8 @@ namespace Dialogs.Logistic
 				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = false;
 				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
 			}
+			else if(routeList.Status < RouteListStatus.OnClosing)
+				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = false;
 
 			ConfigureMap();
 			OpenMap();
@@ -339,7 +341,7 @@ namespace Dialogs.Logistic
 				lastPoint = point;
 			}
 
-			if(trackOnGapOverlay.Routes.Count > 1)
+			if(trackOnGapOverlay.Routes.Count > 0)
 			{
 				var distanceLayout = MakeDistanceLayout (trackOnGapOverlay.Routes.ToArray ());
 				distanceLayout.Id = "MissingTrack";
@@ -361,6 +363,10 @@ namespace Dialogs.Logistic
 					UoW.Commit ();
 					UpdateDistanceLabel ();
 				}
+			}
+			else
+			{
+				MessageDialogWorks.RunInfoDialog ("Разрывов в треке не найдено.");
 			}
 		}
 	}
