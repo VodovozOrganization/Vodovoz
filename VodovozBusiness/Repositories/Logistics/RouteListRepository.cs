@@ -16,16 +16,15 @@ namespace Vodovoz.Repository.Logistics
 {
 	public static class RouteListRepository
 	{
-		public static IList<RouteList> GetDriverRouteLists (IUnitOfWork uow, Employee driver)
+		public static IList<RouteList> GetDriverRouteLists (IUnitOfWork uow, Employee driver, RouteListStatus status, DateTime date)
 		{
 			RouteList routeListAlias = null;
 
 			return uow.Session.QueryOver<RouteList> (() => routeListAlias)
-				.Where (() => routeListAlias.Driver == driver)
-				.Where (() => routeListAlias.Status == RouteListStatus.EnRoute
-					|| routeListAlias.Status == RouteListStatus.InLoading)
-				.Where (() => routeListAlias.Date == DateTime.Now.Date)
-				.List ();
+					  .Where (() => routeListAlias.Driver == driver)
+				      .Where (() => routeListAlias.Status == status)
+				      .Where (() => routeListAlias.Date == date)
+					  .List ();
 		}
 
 		public static QueryOver<RouteList> GetRoutesAtDay (DateTime date)
