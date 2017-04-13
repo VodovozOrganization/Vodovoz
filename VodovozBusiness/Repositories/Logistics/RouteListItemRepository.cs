@@ -13,8 +13,9 @@ namespace Vodovoz.Repository.Logistics
 			RouteListItem routeListItemAlias = null;
 
 			return uow.Session.QueryOver<RouteListItem> (() => routeListItemAlias)
-				.Where (() => routeListItemAlias.Order == order)
-				.SingleOrDefault ();
+				      .Where(rli => rli.Status != RouteListItemStatus.Transfered)
+					  .Where (() => routeListItemAlias.Order == order)
+				      .SingleOrDefault ();
 		}
 
 		public static IList<RouteListItem> GetRouteListItemAtDay(IUnitOfWork uow, DateTime date, RouteListItemStatus? status)
