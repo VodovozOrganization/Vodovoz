@@ -205,6 +205,8 @@ namespace Vodovoz
 													node.IsDelivered())
 						.AddSetter((cell,node)=>cell.Sensitive = node.Order.PaymentType == PaymentType.cash)
 						.Adjustment(new Adjustment(0, 0, 100000, 100, 100, 1))
+				.AddColumn ("Комментарий\nкассира")
+				.AddTextRenderer (node => node.CashierComment).EditedEvent (CommentCellEdited).Editable()
 				.AddColumn("  З/П\nводителя").HeaderAlignment(0.5f)
 					.AddNumericRenderer(node => node.DriverWage)						
 				.AddColumn (" доплата\nводителя").HeaderAlignment (0.5f)
@@ -230,8 +232,6 @@ namespace Vodovoz
 						#if SHORT
 						.AddTextRenderer(node => node.FromClientText).Editable()
 						#endif
-				.AddColumn("Комментарий\nкассира")
-				.AddTextRenderer(node => node.CashierComment).EditedEvent(CommentCellEdited).Editable()
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
