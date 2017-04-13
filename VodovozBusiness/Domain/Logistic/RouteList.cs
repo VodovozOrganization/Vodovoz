@@ -512,7 +512,7 @@ namespace Vodovoz.Domain.Logistic
 			ClosingFilled = true;
 		}
 
-		public virtual List<BottlesMovementOperation> CreateBottlesMovementOperation(){
+		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation(){
 			var result = new List<BottlesMovementOperation>();
 			foreach (RouteListItem address in Addresses)
 			{
@@ -549,15 +549,14 @@ namespace Vodovoz.Domain.Logistic
 			var result = new List<CounterpartyMovementOperation>();
 			foreach (var orderItem in Addresses.SelectMany(item=>item.Order.OrderItems)
 				.Where(item=>Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
-				.Where(item=>!item.Nomenclature.Serial)
-			)
+				.Where(item=>!item.Nomenclature.Serial))
 			{
 				var operation = orderItem.UpdateCounterpartyOperation();
 				if(operation != null)
 					result.Add(operation);
 			}
 
-			//Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
+			//FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
 			if (Addresses.SelectMany(item => item.Order.OrderEquipments).Any(item => item.Equipment == null))
 				throw new InvalidOperationException("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
@@ -571,7 +570,7 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual List<DepositOperation> CreateDepositOperations(IUnitOfWork UoW){
+		public virtual List<DepositOperation> UpdateDepositOperations(IUnitOfWork UoW){
 			var result = new List<DepositOperation>();
 			var bottleDepositNomenclature = NomenclatureRepository.GetBottleDeposit(UoW);
 			var bottleDepositPrice = bottleDepositNomenclature.GetPrice(1);
@@ -729,8 +728,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 			return result;
 		}
-
-		public virtual List<MoneyMovementOperation> CreateMoneyMovementOperations(IUnitOfWork uow, ref Income cashIncome, ref Expense cashExpense)
+		
+		public virtual List<MoneyMovementOperation> UpdateMoneyMovementOperations()
 		{
 			var result = new List<MoneyMovementOperation>();
 			foreach (var address in Addresses)
@@ -762,49 +761,71 @@ namespace Vodovoz.Domain.Logistic
 				order.MoneyMovementOperation = moneyMovementOperation;
 				result.Add(moneyMovementOperation);
 			}
-			if (Total > 0)
-			{
-				cashIncome = Repository.Cash.CashRepository.GetIncomeByRouteList(uow, this.Id);
-				if (cashIncome == null)
-				{
-					cashIncome = new Income
-						{
-							IncomeCategory 	= Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(uow),
-							TypeOperation 	= IncomeType.DriverReport,
-							Date 			= DateTime.Now,
-							Casher 			= cashier,
-							Employee 		= Driver,
-							Description 	=$"Закрытие МЛ №{Id} от {date:d}",
-							Money 			= Math.Round(Total, 0, MidpointRounding.AwayFromZero)
-						};
+			return result;
+		}
+
+		public virtual string[] UpdateCashOperations (ref Income cashIncome, ref Expense cashExpense)
+		{
+			var messages = new List<string> ();
+			cashIncome = Repository.Cash.CashRepository.GetIncomeByRouteList (UoW, this.Id);
+			cashExpense = Repository.Cash.CashRepository.GetExpenseByRouteListId (UoW, this.Id);
+
+			if (Total > 0) {
+				if (cashIncome == null) {
+					cashIncome = new Income {
+						IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory (UoW),
+						TypeOperation = IncomeType.DriverReport,
+						Date = DateTime.Now,
+						Casher = cashier,
+						Employee = Driver,
+						Description = $"Закрытие МЛ №{Id} от {Date:d}",
+						Money = Math.Round (Total, 0, MidpointRounding.AwayFromZero)
+					};
+					messages.Add (String.Format ("Создан приходный ордер №{0} на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
 				} else {
-					cashIncome.Casher = cashier;
-					cashIncome.Money  = Math.Round(Total, 0, MidpointRounding.AwayFromZero);
+					var newSum = Math.Round (Total, 0, MidpointRounding.AwayFromZero);
+					if(cashIncome.Money != newSum)
+					{
+						cashIncome.Casher = cashier;
+						messages.Add (String.Format ("В приходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
+						                             cashIncome.Id, newSum, newSum - cashIncome.Money));
+						cashIncome.Money = newSum;
+					}
 				}
 				cashIncome.RouteListClosing = this;
-			}
-			else
-			{
-				cashExpense = Repository.Cash.CashRepository.GetExpenseByRouteListId(uow, this.Id);
-				if (cashExpense == null)
+				if(cashExpense != null)
 				{
-					cashExpense = new Expense
-						{
-							ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(uow),
-							TypeOperation 	= ExpenseType.Expense,
-							Date 			= DateTime.Now,
-							Casher 			= cashier,
-							Employee 		= Driver,
-							Description 	=$"Закрытие МЛ #{Id}",
-							Money 			= Math.Round(-Total, 0, MidpointRounding.AwayFromZero)
-						};
+					messages.Add (String.Format ("Расходный ордер №{0} на сумму {1:C0} был удалён.", cashExpense.Id, cashExpense.Money));
+					UoW.Delete (cashExpense);
+				}
+			} else {
+				if (cashExpense == null) {
+					cashExpense = new Expense {
+						ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory (UoW),
+						TypeOperation = ExpenseType.Expense,
+						Date = DateTime.Now,
+						Casher = cashier,
+						Employee = Driver,
+						Description = $"Закрытие МЛ #{Id} от {Date:d}",
+						Money = Math.Round (-Total, 0, MidpointRounding.AwayFromZero)
+					};
+					messages.Add (String.Format ("Создан расходный ордер №{0} на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 				} else {
-					cashExpense.Casher = cashier;
-					cashExpense.Money  = Math.Round(-Total, 0, MidpointRounding.AwayFromZero);
+					var newSum = Math.Round (-Total, 0, MidpointRounding.AwayFromZero);
+					if (cashExpense.Money != newSum) {
+						cashExpense.Casher = cashier;
+						messages.Add (String.Format ("В расходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
+							 cashExpense.Id, newSum, newSum - cashExpense.Money));
+						cashExpense.Money = newSum;
+					}
 				}
 				cashExpense.RouteListClosing = this;
+				if (cashIncome != null) {
+					messages.Add (String.Format ("Приходный ордер №{0} на сумму {1:C0} был удалён.", cashIncome.Id, cashIncome.Money));
+					UoW.Delete (cashIncome);
+				}
 			}
-			return result;
+			return messages.ToArray ();
 		}
 
 		public virtual void Confirm()
@@ -828,10 +849,10 @@ namespace Vodovoz.Domain.Logistic
 			ClosingDate = DateTime.Now;
 		}
 
-		public virtual void UpdateFuelOperation(IUnitOfWork uow) {
+		public virtual void UpdateFuelOperation() {
 			if (ActualDistance == 0) {
 				if (FuelOutlayedOperation != null) {
-					uow.Delete(FuelOutlayedOperation);
+					UoW.Delete(FuelOutlayedOperation);
 					FuelOutlayedOperation = null;
 				}
 			} else {
@@ -876,16 +897,26 @@ namespace Vodovoz.Domain.Logistic
 				/ 100 * km;
 		}
 
-		public virtual void CreateWageOperation (IUnitOfWork uow, decimal driverWage)
+		public virtual void UpdateWageOperation ()
 		{
-			this.WageOperation = new WagesMovementOperations
+			var driverWage = Addresses
+				.Where (item => item.IsDelivered ()).Sum (item => item.DriverWageTotal);
+			if(WageOperation == null)
 			{
-				OperationTime = this.Date,
-				Employee 	  = Driver,
-				Money 		  = driverWage,
-				OperationType = WagesType.AccrualWage
-			};
-			uow.Save(WageOperation);
+				WageOperation = new WagesMovementOperations
+				{
+					OperationTime = this.Date,
+					Employee 	  = Driver,
+					Money 		  = driverWage,
+					OperationType = WagesType.AccrualWage
+				};
+				
+			}
+			else
+			{
+				WageOperation.Money = driverWage;
+			}
+			UoW.Save(WageOperation);
 		}
 
 		#endregion

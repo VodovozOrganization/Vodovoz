@@ -403,7 +403,38 @@ namespace Vodovoz
 			if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
+			var messages = new List<string> ();
+
+			if (Entity.Status > RouteListStatus.OnClosing)
+			{
+				Entity.UpdateFuelOperation ();
+
+				var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations ();
+				var moneyMovementOperations = Entity.UpdateMoneyMovementOperations ();
+				var bottleMovementOperations = Entity.UpdateBottlesMovementOperation ();
+				var depositsOperations = Entity.UpdateDepositOperations (UoW);
+
+				counterpartyMovementOperations.ForEach (op => UoW.Save (op));
+				bottleMovementOperations.ForEach (op => UoW.Save (op));
+				depositsOperations.ForEach (op => UoW.Save (op));
+				moneyMovementOperations.ForEach (op => UoW.Save (op));
+
+				Entity.UpdateWageOperation();
+
+				//Закрываем наличку.
+				Income cashIncome = null;
+				Expense cashExpense = null;
+				messages.AddRange(Entity.UpdateCashOperations (ref cashIncome, ref cashExpense));
+
+				if (cashIncome != null) UoW.Save (cashIncome);
+				if (cashExpense != null) UoW.Save (cashExpense);
+			}
+
 			UoW.Save();
+
+			if (messages.Count > 0)
+				MessageDialogWorks.RunInfoDialog (String.Format ("Были выполнены следующие действия:\n*{0}", String.Join ("\n*", messages)));
+
 			return true;
 		}
 
@@ -428,38 +459,10 @@ namespace Vodovoz
 				return;
 
 			Entity.Cashier = casher;
-
-			Income cashIncome = null;
-			Expense cashExpense = null;
-
-			Entity.UpdateFuelOperation(UoW);
-
-			var counterpartyMovementOperations 	= Entity.UpdateCounterpartyMovementOperations();
-			var moneyMovementOperations 		= Entity.CreateMoneyMovementOperations(UoW, ref cashIncome, ref cashExpense);
-			var bottleMovementOperations 		= Entity.CreateBottlesMovementOperation();
-			var depositsOperations 				= Entity.CreateDepositOperations(UoW);
-
-			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-			bottleMovementOperations	  .ForEach(op => UoW.Save(op));
-			depositsOperations			  .ForEach(op => UoW.Save(op));
-			moneyMovementOperations		  .ForEach(op => UoW.Save(op));
-
-			if (cashIncome  != null) UoW.Save(cashIncome);
-			if (cashExpense != null) UoW.Save(cashExpense);
-
-			if (Entity.WageOperation == null) {
-				var wage = routeListAddressesView.Items
-					.Where(item => item.IsDelivered()).Sum(item => item.DriverWage);
-				Entity.CreateWageOperation(UoW, wage);
-			}
-
 			Entity.Confirm();
 
-			UoW.Save();
-
-			buttonAccept.Sensitive = false;
+			SaveAndClose ();
 		}
-
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{

@@ -219,6 +219,8 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual decimal DriverWageTotal{ get{ return DriverWage + DriverWageSurcharge;}}
+
 		decimal defaultDriverWage=-1;
 		public virtual decimal DefaultDriverWage{
 			get{ 
@@ -264,6 +266,8 @@ namespace Vodovoz.Domain.Logistic
                 SetField (ref forwarderWageSurcharge, value, () => ForwarderWageSurcharge);
 			}
 		}
+
+		public virtual decimal ForwarderWageTotal { get { return ForwarderWage + ForwarderWageTotal; } }
 
 		decimal defaultForwarderWage=-1;
 		public virtual decimal DefaultForwarderWage{
