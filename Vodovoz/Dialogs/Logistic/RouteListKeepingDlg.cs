@@ -115,7 +115,8 @@ namespace Vodovoz
 					.AddTextRenderer(node => node.RouteListItem.Order.DeliverySchedule == null ? "" : node.RouteListItem.Order.DeliverySchedule.Name)
 				.AddColumn("Статус")
 					.AddPixbufRenderer(x => statusIcons[x.Status])
-					.AddEnumRenderer(node => node.Status).Editing(allEditing)					
+				.AddEnumRenderer(node => node.Status, excludeItems: new Enum [] { RouteListItemStatus.Transfered })
+				.AddSetter((c, n) => c.Editable = allEditing && n.Status != RouteListItemStatus.Transfered)
 				.AddColumn("Отгрузка")
 				.AddNumericRenderer(node => node.RouteListItem.Order.OrderItems
 					.Where(b => 
