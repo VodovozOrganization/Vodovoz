@@ -1,17 +1,17 @@
 ﻿using System;
-using QSOrmProject;
-using QSReport;
 using System.Collections.Generic;
-using Gamma.GtkWidgets;
-using Vodovoz.Domain.Employees;
-using Gamma.ColumnConfig;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
+using Gtk;
 using NHibernate.Transform;
+using QSOrmProject;
 using QSProjectsLib;
+using QSReport;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class DriversWageBalanceReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
 		private class DriverNode
@@ -21,11 +21,13 @@ namespace Vodovoz.Reports
 			public string LastName 	 { get; set; }
 			public string FullName 	 { get {return LastName + " " + Name;} }
 			public bool   IsSelected { get; set; } = false;
+			public EmployeeCategory Category { get; set; }
 		}
 
 		IColumnsConfig columnsConfig = ColumnsConfigFactory.Create<DriverNode> ()
 			.AddColumn("Имя").AddTextRenderer(d => d.FullName)
 			.AddColumn("Выбрать").AddToggleRenderer(d => d.IsSelected)
+		    .RowCells().AddSetter<CellRenderer>((c, n) => c.CellBackground = n.Category == EmployeeCategory.forwarder ? "Light Gray" : "white")
 			.Finish();
 
 		IList<DriverNode> driversList = new List<DriverNode>();
@@ -94,12 +96,14 @@ namespace Vodovoz.Reports
 			Employee employeeAlias = null;
 
 			driversList = UoW.Session.QueryOver<Employee>(() => employeeAlias)
-				.Where(() => employeeAlias.Category == EmployeeCategory.driver)
+				.Where(() => employeeAlias.Category == EmployeeCategory.driver 
+			           || employeeAlias.Category == EmployeeCategory.forwarder)
 				.SelectList(list => list
 					.Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.Name)
-					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.LastName))
-				.OrderBy(e => e.LastName).Asc
+					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.LastName)
+			        .Select(() => employeeAlias.Category).WithAlias (() => resultAlias.Category))
+				.OrderBy(e => e.LastName).Asc.ThenBy(x => x.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<DriverNode>())
 				.List<DriverNode>();
 		}
