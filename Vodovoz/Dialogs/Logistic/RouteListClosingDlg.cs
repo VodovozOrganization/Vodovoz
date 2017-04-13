@@ -227,7 +227,7 @@ namespace Vodovoz
 							return;
 					}
                     this.TabParent.AddSlaveTab(
-                        this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Sender)
+						this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Receiver)
 					);
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
@@ -238,7 +238,7 @@ namespace Vodovoz
 							return;
 					}
                     this.TabParent.AddSlaveTab(
-                        this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Receiver)
+                        this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Sender)
 					);
 					break;
 				default:
