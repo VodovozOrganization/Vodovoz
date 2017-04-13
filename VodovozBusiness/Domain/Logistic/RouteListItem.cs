@@ -403,8 +403,7 @@ namespace Vodovoz.Domain.Logistic
 			#if SHORT
 
 			var payForEquipmentShort = fullBottleCount == 0
-					&& ((Order.ToClientText?.ToLower().Contains("раст") != true
-					&& !string.IsNullOrWhiteSpace(Order.ToClientText))
+					&& (!string.IsNullOrWhiteSpace(Order.ToClientText)
 					|| bottleCollectionOrder
 					|| Order.OrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.additional)
 					.FirstOrDefault(i => i.ActualCount > 0) != null);
@@ -461,9 +460,10 @@ namespace Vodovoz.Domain.Logistic
 			#if SHORT
 
 			var payForEquipmentShort = fullBottleCount == 0
-				&& ((Order.ToClientText?.ToLower().Contains("раст") != true
-					|| !string.IsNullOrWhiteSpace(Order.ToClientText))
-					|| bottleCollectionOrder);
+				&& (!string.IsNullOrWhiteSpace(Order.ToClientText)
+					|| bottleCollectionOrder
+				    || Order.OrderItems.Where(i => i.Nomenclature.Category == NomenclatureCategory.additional)
+				    .FirstOrDefault (i => i.ActualCount > 0) != null);
 			var equpmentPaymentShort = payForEquipmentShort ? rates.CoolerRate : 0;
 
 			wage += equpmentPaymentShort;
