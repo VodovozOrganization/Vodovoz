@@ -307,7 +307,7 @@ namespace Vodovoz
 				.Sum(item => item.ActualCount);
 			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
-			decimal driverWage = items.Sum(item => item.DriverWage);
+			decimal driverWage = items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
 			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
 			labelAddressCount.Text = String.Format("Адресов: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = String.Format(

@@ -1110,7 +1110,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                  	<Format>0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1184,16 +1184,21 @@
         <DataSetName>TotalInfo</DataSetName>
         <ReportItems>
           <Textbox Name="Textbox6">
-            <Height>14.26pt</Height>
-            <Width>185.18pt</Width>
+            <Height>15.76pt</Height>
+            <Width>296.62pt</Width>
             <Value>="Зарплата водителя: " + {driver_wage}</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>0.00pt</Top>
+            <Left>1.6pt</Left>
+            <Top>0.8pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
               <BorderWidth />
+              <Color>Black</Color>
+              <BackgroundColor>
+              </BackgroundColor>
+              <FontFamily>Arial</FontFamily>
+              <FontSize>10pt</FontSize>
             </Style>
           </Textbox>
           <Textbox Name="Textbox7">
@@ -1201,8 +1206,8 @@
             <Width>183.63pt</Width>
             <Value>="Зарплата экспедитора :" + {forwarder_wage}</Value>
             <ZIndex>1</ZIndex>
-            <Left>0.00pt</Left>
-            <Top>13.50pt</Top>
+            <Left>1.5pt</Left>
+            <Top>34.7pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1210,12 +1215,12 @@
             </Style>
           </Textbox>
           <Textbox Name="Textbox12">
-            <Height>17.25pt</Height>
-            <Width>154.32pt</Width>
+            <Height>17.96pt</Height>
+            <Width>117.43pt</Width>
             <Value>="Итог:" + {cash}</Value>
             <ZIndex>1</ZIndex>
-            <Left>505.00pt</Left>
-            <Top>0.00pt</Top>
+            <Left>547.9pt</Left>
+            <Top>4.6pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1236,12 +1241,25 @@
             </Style>
           </Textbox>
           <Textbox Name="Textbox23">
-            <Height>14.23pt</Height>
-            <Width>154.29pt</Width>
+            <Height>17.24pt</Height>
+            <Width>183.65pt</Width>
             <Value>="Пустых бутылей:" + {empty_bottles}</Value>
             <ZIndex>1</ZIndex>
-            <Left>312.95pt</Left>
-            <Top>13.50pt</Top>
+            <Left>313.0pt</Left>
+            <Top>16.6pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+            <Height>15.76pt</Height>
+            <Width>296.62pt</Width>
+            <Value>="Из них доплата: " + {driver_wage_surcharge}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>0.8pt</Left>
+            <Top>15.3pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1357,7 +1375,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
@@ -1425,7 +1443,7 @@ ORDER BY route_list_addresses.order_in_route;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
           <TypeName>System.String</TypeName>
@@ -1466,18 +1484,20 @@ ORDER BY route_list_addresses.order_in_route;
       </Fields>
     </DataSet>
     <DataSet Name="TotalInfo">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
- SUM(t.driver_wage) AS driver_wage,
+ SUM(t.driver_wage) + SUM(t.driver_wage_surcharge) AS driver_wage,
+ SUM(t.driver_wage_surcharge) AS driver_wage_surcharge,
  SUM(t.forwarder_wage) AS forwarder_wage,
  SUM(t.cash) AS cash,
  SUM(t.full_bottle) AS full_bottles,
  SUM(t.empty_bottle) AS empty_bottles
  FROM(
 SELECT 
-	route_list_addresses.route_list_id AS rl_id,
+    route_list_addresses.route_list_id AS rl_id,
     route_list_addresses.driver_wage AS driver_wage,
+    route_list_addresses.driver_wage_surcharge AS driver_wage_surcharge,
     route_list_addresses.forwarder_wage AS forwarder_wage,
     route_list_addresses.total_cash - 2 AS cash,
     (SELECT 
@@ -1504,9 +1524,13 @@ GROUP BY t.rl_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver_wage">
           <DataField>driver_wage</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="driver_wage_surcharge">
+          <DataField>driver_wage_surcharge</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="forwarder_wage">
@@ -1519,11 +1543,11 @@ GROUP BY t.rl_id</CommandText>
         </Field>
         <Field Name="full_bottles">
           <DataField>full_bottles</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="empty_bottles">
           <DataField>empty_bottles</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
