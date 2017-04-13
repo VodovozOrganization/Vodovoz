@@ -636,7 +636,7 @@ namespace Vodovoz.Domain.Logistic
 		Canceled,
 		[Display(Name="Опоздали")]
 		Overdue,
-		[Display(Name="Перенесен")]
+		[Display(Name="Передан")]
 		Transfered
 	}
 
