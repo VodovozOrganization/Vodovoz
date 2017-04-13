@@ -100,7 +100,7 @@ namespace Vodovoz
 						Amount = amounts.Sum(i => i),
 						Trackable=false
 					}).ToList();
-			var goodsToWarehouse = allReturnsToWarehouse.Where(item => !item.Trackable);
+			var goodsToWarehouse = allReturnsToWarehouse.Where(item => !item.Trackable).ToList();
 			foreach (var itemFromClient in goodsReturnedFromClient)
 			{
 				var itemToWarehouse = 
@@ -122,6 +122,23 @@ namespace Vodovoz
 						Trackable = false,
 					});
 			}
+
+			//Заполняем номенклатуры которые были сданы на склад, но в заказах их не было. Их тоже нужно показывать в расхождения.
+			foreach(var item in goodsToWarehouse.Where(x => x.NomenclatureCategory != NomenclatureCategory.bottle))
+			{
+				if (discrepancies.Any (x => x.NomenclatureId == item.NomenclatureId))
+					continue;
+
+				discrepancies.Add (new Discrepancy {
+					Name = item.Name,
+					NomenclatureId = item.NomenclatureId,
+					FromCancelledOrders = 0,
+					ClientRejected = 0,
+					ToWarehouse = item.Amount,
+					Trackable = false,
+				});
+			}
+
 			return discrepancies;
 		}
 
