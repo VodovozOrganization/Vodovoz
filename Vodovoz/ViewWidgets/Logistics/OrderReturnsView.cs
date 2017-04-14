@@ -143,12 +143,14 @@ namespace Vodovoz
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Overdue);
 			UpdateButtonsState();
+			this.OnCloseTab(false);
 		}
 
 		protected void OnButtonDeliveryCanseledClicked(object sender, EventArgs e)
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Canceled);
 			UpdateButtonsState();
+            this.OnCloseTab(false);
 		}
 
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
