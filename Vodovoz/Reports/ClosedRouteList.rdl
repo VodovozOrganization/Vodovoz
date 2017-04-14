@@ -1381,7 +1381,10 @@ WHERE route_lists.id = @route_list_id;</CommandText>
 SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
-orders.comment AS Comment, route_list_addresses.status AS Status,
+#SHORT В сокращенной версии без комментариев.
+#orders.comment AS Comment,
+NULL AS Comment,
+route_list_addresses.status AS Status,
  #orders.bottles_return AS EmptyBottles,
  SUM(route_list_addresses.bottles_returned) AS EmptyBottles,
  route_list_addresses.total_cash AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
