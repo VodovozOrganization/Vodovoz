@@ -130,20 +130,21 @@ namespace Vodovoz
 
 		protected void OnButtonChatClicked(object sender, EventArgs e)
 		{
-			var driver = uow.GetById<Employee>(yTreeViewDrivers.GetSelectedId());
-			var chat = ChatRepository.GetChatForDriver(uow, driver);
-			if (chat == null)
-			{
-				var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<ChatClass>();
-				chatUoW.Root.ChatType = ChatType.DriverAndLogists;
-				chatUoW.Root.Driver = driver;
-				chatUoW.Save();
-				chat = chatUoW.Root;
+			var drivers = uow.GetById<Employee>(yTreeViewDrivers.GetSelectedIds());
+			foreach (var driver in drivers) {
 
+				var chat = ChatRepository.GetChatForDriver (uow, driver);
+				if (chat == null) {
+					var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<ChatClass> ();
+					chatUoW.Root.ChatType = ChatType.DriverAndLogists;
+					chatUoW.Root.Driver = driver;
+					chatUoW.Save ();
+					chat = chatUoW.Root;
+				}
+				TabParent.OpenTab (ChatWidget.GenerateHashName (chat.Id),
+					() => new ChatWidget (chat.Id)
+				);
 			}
-			TabParent.OpenTab(ChatWidget.GenerateHashName(chat.Id),
-				() => new ChatWidget(chat.Id)
-			);
 		}
 
 		public override void Destroy()
