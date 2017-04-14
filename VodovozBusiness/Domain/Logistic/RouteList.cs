@@ -789,7 +789,7 @@ namespace Vodovoz.Domain.Logistic
 						Description = $"Закрытие МЛ №{Id} от {Date:d}",
 						Money = Math.Round (Total, 0, MidpointRounding.AwayFromZero)
 					};
-					messages.Add (String.Format ("Создан приходный ордер №{0} на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
+					messages.Add (String.Format ("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
 				} else {
 					var newSum = Math.Round (Total, 0, MidpointRounding.AwayFromZero);
 					if(cashIncome.Money != newSum)
@@ -817,7 +817,7 @@ namespace Vodovoz.Domain.Logistic
 						Description = $"Закрытие МЛ #{Id} от {Date:d}",
 						Money = Math.Round (-Total, 0, MidpointRounding.AwayFromZero)
 					};
-					messages.Add (String.Format ("Создан расходный ордер №{0} на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
+					messages.Add (String.Format ("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 				} else {
 					var newSum = Math.Round (-Total, 0, MidpointRounding.AwayFromZero);
 					if (cashExpense.Money != newSum) {
