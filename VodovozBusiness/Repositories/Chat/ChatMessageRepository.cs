@@ -41,6 +41,7 @@ namespace Vodovoz.Repository.Chat
 				.SelectList(list => list
 			                .SelectGroup(() => chatAlias.Id).WithAlias(() => resultAlias.ChatId)
 			                .Select (() => chatAlias.ChatType).WithAlias (() => resultAlias.ChatType)
+			                .Select (() => driverAlias.Id).WithAlias (() => resultAlias.EmployeeId)
 			                .Select (() => driverAlias.LastName).WithAlias (() => resultAlias.EmployeeLastName)
 			                .Select (() => driverAlias.Name).WithAlias (() => resultAlias.EmployeeName)
 			                .Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
@@ -65,13 +66,13 @@ namespace Vodovoz.Repository.Chat
 			return resultList.ToDictionary(x => (int) x[0], y => (int)y[1]);
 		}
 
-
 		public class UnreadedChatDTO{
 
 			public int ChatId { get; set;}
 			public int UnreadedMessages { get; set;}
 			public ChatType ChatType { get; set; }
 
+			public int EmployeeId { get; set;}
 			public string EmployeeLastName { get; set; }
 			public string EmployeeName { get; set; }
 			public string EmployeePatronymic { get; set; }

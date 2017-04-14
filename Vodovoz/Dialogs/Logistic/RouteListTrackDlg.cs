@@ -16,6 +16,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
+using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
 using ChatClass = Vodovoz.Domain.Chat.Chat;
 
@@ -42,13 +43,13 @@ namespace Vodovoz
 			this.TabName = "Мониторинг";
 			yTreeViewDrivers.RepresentationModel = new ViewModel.WorkingDriversVM(uow);
 			yTreeViewDrivers.RepresentationModel.UpdateNodes();
+			yTreeViewDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 			yTreeViewDrivers.Selection.Changed += OnSelectionChanged;
 			buttonChat.Sensitive = false;
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(uow);
 			if (currentEmployee == null)
 			{
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к сотруднику. Чат не будет работать.");
-				buttonChat.Sensitive = false;
 			}
 			else
 			{
@@ -90,7 +91,7 @@ namespace Vodovoz
 		void OnSelectionChanged(object sender, EventArgs e)
 		{
 			bool selected = yTreeViewDrivers.Selection.CountSelectedRows() > 0;
-			buttonChat.Sensitive = selected && currentEmployee != null;
+			buttonChat.Sensitive = buttonSendMessage.Sensitive = selected && currentEmployee != null;
 			buttonOpenKeeping.Sensitive = selected;
 			UpdateSelectionOfCar(selected);
 		}
@@ -381,6 +382,19 @@ namespace Vodovoz
 					() => new RouteListKeepingDlg (routeId)
 				);
 			}
+		}
+
+		protected void OnButtonSendMessageClicked (object sender, EventArgs e)
+		{
+			var selected = yTreeViewDrivers.GetSelectedObjects<WorkingDriverVMNode> ();
+			var drivers = selected.Select (x => x.Id).ToArray();
+			var sendDlg = new SendMessageDlg (drivers);
+			
+			if(sendDlg.Run () == (int)Gtk.ResponseType.Ok)
+			{
+				yTreeViewDrivers.RepresentationModel.UpdateNodes ();
+			}
+			sendDlg.Destroy ();
 		}
 	}
 }

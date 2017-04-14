@@ -68,7 +68,10 @@ namespace Vodovoz
 			GMap.NET.MapProviders.GMapProvider.Language = GMap.NET.LanguageType.Russian;
 
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
-			PerformanceHelper.StartPointsGroup ("Главное окно");		
+
+			Chat.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
+			
+			PerformanceHelper.StartPointsGroup ("Главное окно");
 
 			//Запускаем программу
 			MainWin = new MainWindow ();

@@ -27,7 +27,7 @@ namespace Vodovoz
 		{
 			return new ChannelFactory<IChatService>(
 				new BasicHttpBinding(), 
-				"http://vod-srv.qsolution.ru:9000/ChatService").CreateChannel();
+				ChatMain.ChatServiceUrl).CreateChannel();
 		}
 
 		public ChatWidget(int chatId)
