@@ -36,7 +36,7 @@ namespace Vodovoz
 		public StockDocumentsFilter ()
 		{
 			this.Build ();
-			dateperiodDocs.StartDate = DateTime.Today.AddDays(-30);
+			dateperiodDocs.StartDate = DateTime.Today.AddDays(-7); 
 			dateperiodDocs.EndDate = DateTime.Today.AddDays(1);
 		}
 
