@@ -32,8 +32,7 @@ namespace Vodovoz
 		private readonly GMapOverlay carsOverlay = new GMapOverlay("cars");
 		private readonly GMapOverlay tracksOverlay = new GMapOverlay("tracks");
 		private Dictionary<int, CarMarker> carMarkers;
-		private int lastSelectedDriver = -1;
-		private CarMarkerType lastMarkerType;
+		private Dictionary<int, CarMarkerType> lastSelectedDrivers = new Dictionary<int, CarMarkerType>();
 		private Gtk.Window mapWindow;
 		private List<DistanceTextInfo> tracksDistance = new List<DistanceTextInfo>();
 
@@ -93,7 +92,7 @@ namespace Vodovoz
 			bool selected = yTreeViewDrivers.Selection.CountSelectedRows() > 0;
 			buttonChat.Sensitive = buttonSendMessage.Sensitive = selected && currentEmployee != null;
 			buttonOpenKeeping.Sensitive = selected;
-			UpdateSelectionOfCar(selected);
+			UpdateSelectionOfCar();
 		}
 
 		protected void OnToggleButtonHideAddressesToggled(object sender, EventArgs e)
@@ -109,21 +108,25 @@ namespace Vodovoz
 			LoadTracksForDriver(driverId);
 		}
 
-		void UpdateSelectionOfCar(bool selected)
+		void UpdateSelectionOfCar()
 		{
-			if(lastSelectedDriver > 0)
+			var selectedDriverIds = yTreeViewDrivers.GetSelectedIds ();
+
+			foreach(var driverId in selectedDriverIds)
 			{
-				carMarkers[lastSelectedDriver].Type = lastMarkerType;
-				lastSelectedDriver = -1;
-			}
-			if(selected)
-			{
-				var driverId = yTreeViewDrivers.GetSelectedId();;
-				if (carMarkers.ContainsKey(driverId))
+				if(!lastSelectedDrivers.ContainsKey(driverId) && carMarkers.ContainsKey (driverId))
 				{
-					lastSelectedDriver = driverId;
-					lastMarkerType = carMarkers[lastSelectedDriver].Type;
-					carMarkers[lastSelectedDriver].Type = CarMarkerType.BlackCar;
+					lastSelectedDrivers.Add(driverId, carMarkers[driverId].Type);
+					carMarkers[driverId].Type = CarMarkerType.BlackCar;
+				}
+			}
+
+			foreach(var pair in lastSelectedDrivers.ToList())
+			{
+				if(!selectedDriverIds.Contains(pair.Key))
+				{
+					carMarkers[pair.Key].Type = pair.Value;
+					lastSelectedDrivers.Remove (pair.Key);
 				}
 			}
 		}
@@ -192,9 +195,9 @@ namespace Vodovoz
 				else
 					iconType = CarMarkerType.GreenCar;
 
-				if(lastSelectedDriver == lastPoint.DriverId)
+				if(lastSelectedDrivers.ContainsKey(lastPoint.DriverId))
 				{
-					lastMarkerType = iconType;
+					lastSelectedDrivers[lastPoint.DriverId] = iconType;
 					iconType = CarMarkerType.BlackCar;
 				}
 				
