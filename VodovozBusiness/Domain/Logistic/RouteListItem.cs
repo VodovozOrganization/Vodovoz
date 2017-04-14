@@ -267,7 +267,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public virtual decimal ForwarderWageTotal { get { return ForwarderWage + ForwarderWageTotal; } }
+		public virtual decimal ForwarderWageTotal { get { return ForwarderWage + ForwarderWageSurcharge; } }
 
 		decimal defaultForwarderWage=-1;
 		public virtual decimal DefaultForwarderWage{

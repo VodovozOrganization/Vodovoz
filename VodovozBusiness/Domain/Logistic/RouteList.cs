@@ -922,6 +922,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 			else
 			{
+				DriverWageOperation.Employee = Driver;
 				DriverWageOperation.Money = driverWage;
 			}
 			UoW.Save(DriverWageOperation);
@@ -934,7 +935,7 @@ namespace Vodovoz.Domain.Logistic
 				ForwarderWageOperation = new WagesMovementOperations
 				{
 					OperationTime = this.Date,
-					Employee 	  = Driver,
+					Employee 	  = Forwarder,
 					Money 		  = forwarderWage,
 					OperationType = WagesType.AccrualWage
 				};
@@ -942,6 +943,7 @@ namespace Vodovoz.Domain.Logistic
 			else if (ForwarderWageOperation != null && forwarderWage > 0)
 			{
 				ForwarderWageOperation.Money = forwarderWage;
+				ForwarderWageOperation.Employee = Forwarder;
 			}
 			else if(ForwarderWageOperation != null)
 			{
