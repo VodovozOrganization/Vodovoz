@@ -221,19 +221,6 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal DriverWageTotal{ get{ return DriverWage + DriverWageSurcharge;}}
 
-		decimal defaultDriverWage=-1;
-		public virtual decimal DefaultDriverWage{
-			get{ 
-				if (defaultDriverWage == -1) {
-					defaultDriverWage = DriverWage;
-				}
-				return defaultDriverWage; 
-			}
-			set{
-				SetField(ref defaultDriverWage, value, () => DefaultDriverWage);
-			}
-		}
-
 		decimal defaultTotalCash=-1;
 		public virtual decimal DefaultTotalCash{
 			get{ 
@@ -269,33 +256,12 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal ForwarderWageTotal { get { return ForwarderWage + ForwarderWageSurcharge; } }
 
-		decimal defaultForwarderWage=-1;
-		public virtual decimal DefaultForwarderWage{
-			get{
-				if (defaultForwarderWage == -1) {
-					defaultForwarderWage = ForwarderWage;
-				}
-				return defaultForwarderWage;
-			}
-			set{
-				SetField(ref defaultForwarderWage, value, () => DefaultForwarderWage);
-			}
-		}
-
 		public virtual bool Notified30Minutes {get; set;}
 		public virtual bool NotifiedTimeout {get; set;}
 
 		#endregion
 
 		#region Расчетные
-
-		public virtual bool HasUserSpecifiedForwarderWage(){
-			return ForwarderWage != DefaultForwarderWage;
-		}
-
-		public virtual bool HasUserSpecifiedDriverWage(){
-			return DriverWage != DefaultDriverWage;
-		}
 
 		public virtual bool HasUserSpecifiedTotalCash(){
 			return TotalCash != DefaultTotalCash;
@@ -337,16 +303,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculateWages()
 		{
-			if (!HasUserSpecifiedDriverWage())
-			{
-				DriverWage = CalculateDriverWage();
-				DefaultDriverWage = DriverWage;
-			}
-			if (!HasUserSpecifiedForwarderWage())
-			{
-				ForwarderWage = CalculateForwarderWage();
-				DefaultForwarderWage = ForwarderWage;
-			}
+			DriverWage = CalculateDriverWage();
+			ForwarderWage = CalculateForwarderWage();
 		}
 
 		public virtual void RecalculateTotalCash()
