@@ -99,7 +99,7 @@ namespace Vodovoz
 			datePickerDate.Sensitive = editing;
 
 			ycheckConfirmDifferences.Binding.AddBinding(Entity, e => e.DifferencesConfirmed, w => w.Active).InitializeFromSource();
-			ycheckConfirmDifferences.Sensitive = editing;
+			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 
@@ -293,7 +293,7 @@ namespace Vodovoz
 
 		void UpdateButtonState()
 		{
-			buttonAccept.Sensitive = isConsistentWithUnloadDocument();
+			buttonAccept.Sensitive = Entity.Status == RouteListStatus.OnClosing && isConsistentWithUnloadDocument();
 		}
 
 		private bool buttonFineEditState = false;
