@@ -374,13 +374,14 @@ namespace Vodovoz
 
 		protected void OnButtonOpenKeepingClicked (object sender, EventArgs e)
 		{
-			var selectedDriver = yTreeViewDrivers.GetSelectedObject<WorkingDriverVMNode> ();
-			foreach(var routeId in selectedDriver.RouteListsIds.Select(x => x.Key))
-			{
-				MainClass.MainWin.TdiMain.OpenTab (
-					OrmMain.GenerateDialogHashName<RouteList> (routeId),
-					() => new RouteListKeepingDlg (routeId)
-				);
+			var selectedDrivers = yTreeViewDrivers.GetSelectedObjects<WorkingDriverVMNode> ();
+			foreach (var driver in selectedDrivers) {
+				foreach (var routeId in driver.RouteListsIds.Select (x => x.Key)) {
+					MainClass.MainWin.TdiMain.OpenTab (
+						OrmMain.GenerateDialogHashName<RouteList> (routeId),
+						() => new RouteListKeepingDlg (routeId)
+					);
+				}
 			}
 		}
 
