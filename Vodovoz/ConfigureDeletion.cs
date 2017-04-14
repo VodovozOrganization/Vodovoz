@@ -394,7 +394,9 @@ namespace Vodovoz
 				.AddDeleteDependence<CarUnloadDocument>(x => x.RouteList)
 				.AddDeleteDependence<Track>(x => x.RouteList)
 				.AddClearDependence<Fine>(x => x.RouteList)
-				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation);
+				.AddDeleteCascadeDependence(x => x.FuelOutlayedOperation)
+				.AddDeleteCascadeDependence(x => x.DriverWageOperation)
+				.AddDeleteCascadeDependence(x => x.ForwarderWageOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<RouteList>()
 				.AddClearDependence<Expense>(x => x.RouteListClosing)
@@ -594,7 +596,7 @@ namespace Vodovoz
 			DeleteConfig.AddHibernateDeleteInfo<Residue>()
 				.AddDeleteCascadeDependence(x => x.DepositBottlesOperation)
 				.AddDeleteCascadeDependence(x => x.DepositEquipmentOperation)
-				.AddDeleteCascadeDependence(x => x.BottlesMovementOperation)
+			    .AddDeleteCascadeDependence(x => x.BottlesMovementOperation)
 				.AddDeleteCascadeDependence(x => x.MoneyMovementOperation);
 
 			#endregion
@@ -644,7 +646,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<WagesMovementOperations>()
 				.AddDeleteDependence<FineItem>(item => item.WageOperation)
-				.AddDeleteDependence<RouteList>(item => item.WageOperation)
+				.AddDeleteDependence<RouteList>(item => item.DriverWageOperation)
+			    .AddDeleteDependence<RouteList> (item => item.ForwarderWageOperation)
 				.AddDeleteDependence<Expense>(item => item.WagesOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelOperation>()

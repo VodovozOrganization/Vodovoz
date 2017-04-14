@@ -216,13 +216,21 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private WagesMovementOperations wageOperation;
+		private WagesMovementOperations driverWageOperation;
 
-		[Display(Name = "Операция начисления зарплаты")]
-		public virtual WagesMovementOperations WageOperation
+		[Display(Name = "Операция начисления зарплаты водителю")]
+		public virtual WagesMovementOperations DriverWageOperation
 		{
-			get { return wageOperation; }
-			set { SetField(ref wageOperation, value, () => WageOperation); }
+			get { return driverWageOperation; }
+			set { SetField(ref driverWageOperation, value, () => DriverWageOperation); }
+		}
+
+		private WagesMovementOperations forwarderWageOperation;
+
+		[Display (Name = "Операция начисления зарплаты экспедитору")]
+		public virtual WagesMovementOperations ForwarderWageOperation {
+			get { return forwarderWageOperation; }
+			set { SetField (ref forwarderWageOperation, value, () => ForwarderWageOperation); }
 		}
 
 		#endregion
@@ -901,9 +909,9 @@ namespace Vodovoz.Domain.Logistic
 		{
 			var driverWage = Addresses
 				.Where (item => item.IsDelivered ()).Sum (item => item.DriverWageTotal);
-			if(WageOperation == null)
+			if(DriverWageOperation == null)
 			{
-				WageOperation = new WagesMovementOperations
+				DriverWageOperation = new WagesMovementOperations
 				{
 					OperationTime = this.Date,
 					Employee 	  = Driver,
@@ -914,9 +922,35 @@ namespace Vodovoz.Domain.Logistic
 			}
 			else
 			{
-				WageOperation.Money = driverWage;
+				DriverWageOperation.Money = driverWage;
 			}
-			UoW.Save(WageOperation);
+			UoW.Save(DriverWageOperation);
+			
+			var forwarderWage = Addresses
+				.Where (item => item.IsDelivered ()).Sum (item => item.ForwarderWageTotal);
+
+			if (ForwarderWageOperation == null && forwarderWage > 0)
+			{
+				ForwarderWageOperation = new WagesMovementOperations
+				{
+					OperationTime = this.Date,
+					Employee 	  = Driver,
+					Money 		  = forwarderWage,
+					OperationType = WagesType.AccrualWage
+				};
+			}
+			else if (ForwarderWageOperation != null && forwarderWage > 0)
+			{
+				ForwarderWageOperation.Money = forwarderWage;
+			}
+			else if(ForwarderWageOperation != null)
+			{
+				UoW.Delete (ForwarderWageOperation);
+				ForwarderWageOperation = null;
+			}
+
+			if(ForwarderWageOperation != null)
+				UoW.Save(ForwarderWageOperation);
 		}
 
 		#endregion
