@@ -59,6 +59,7 @@ namespace Vodovoz.Additions.Logistic
 				MessageDialogWorks.RunErrorDialog ("В справочниках не заполнены колонки маршрутного листа. Заполните данные и повторите попытку.");
 
 			string documentName = "RouteList";
+			bool isClosed = false;
 
 			switch (routeList.Status)
 			{
@@ -66,6 +67,7 @@ namespace Vodovoz.Additions.Logistic
 				case RouteListStatus.MileageCheck:
 				case RouteListStatus.Closed:
 					documentName = "ClosedRouteList";
+					isClosed = true;
 					break;
 			}
 
@@ -84,16 +86,11 @@ namespace Vodovoz.Additions.Logistic
 			    "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
 			    "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth />" +
 			    "<TextAlign>Center</TextAlign><Format>0</Format>";
-			
-			switch (routeList.Status)
+
+			if (isClosed)
 			{
-				case RouteListStatus.OnClosing:
-				case RouteListStatus.MileageCheck:
-				case RouteListStatus.Closed:
-					numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
-					break;
-			}
-				
+				numericCellTemplate += "<BackgroundColor>=Iif((Fields!Status.Value = \"EnRoute\") or (Fields!Status.Value = \"Completed\"), White, Lightgrey)</BackgroundColor>";
+			}				
 			numericCellTemplate += "</Style></Textbox></ReportItems></TableCell>";
 
 			//Расширяем требуемые колонки на нужную ширину
@@ -133,9 +130,15 @@ namespace Vodovoz.Additions.Logistic
 				//Ячейка с запасом. Пока там пусто
 				CellColumnStock += String.Format (numericCellTemplate,
 					TextBoxNumber++, "");
-				//Ячейка с суммой по бутылям + запасы.
-				CellColumnTotal += String.Format (numericCellTemplate,
-					TextBoxNumber++, String.Format("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id ));
+				
+				//Ячейка с суммой по бутылям.
+				string formula;
+				if (isClosed)
+					formula = String.Format ("=Iif(Sum(Iif(Fields!Status.Value = \"Completed\", {{Water{0}}}, 0)) = 0, \"\", Sum(Iif(Fields!Status.Value = \"Completed\", {{Water{0}}}, 0)))", column.Id);
+				else
+					formula = String.Format ("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id);
+				CellColumnTotal += String.Format (numericCellTemplate, TextBoxNumber++, formula);
+
 				//Запрос..
 				SqlSelect += String.Format (", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString ());
 				SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
@@ -148,7 +151,12 @@ namespace Vodovoz.Additions.Logistic
 					"</Field>", "Water" + column.Id.ToString ());
 				//Формула итоговой суммы по всем бутялым.
 				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water))
-					TotalSum += "+ Sum({Water" + column.Id.ToString () + "})";
+				{
+					if(isClosed)
+						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{Water{column.Id}}}, 0))";
+					else
+						TotalSum += $"+ Sum({{Water{column.Id}}})";
+				}
 			}
 			RdlText = RdlText.Replace ("<!--table_cell_name-->", CellColumnHeader);
 			RdlText = RdlText.Replace ("<!--table_cell_value-->", CellColumnValue);
