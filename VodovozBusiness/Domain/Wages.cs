@@ -24,7 +24,7 @@ namespace Vodovoz.Domain
 			{
 				PhoneServiceCompensationRate = 2,
 				FullBottleRate = 7,
-				EmptyBottleRate = 6,
+				EmptyBottleRate = 5,
 				CoolerRate = 14,
 				PaymentPerAddress = 30,
 				LargeOrderFullBottleRate = 4,
