@@ -1489,13 +1489,23 @@ ORDER BY route_list_addresses.order_in_route;
     <DataSet Name="TotalInfo">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT
+        <CommandText>SELECT 
     SUM(route_list_addresses.driver_wage + route_list_addresses.driver_wage_surcharge) AS driver_wage,
     SUM(route_list_addresses.driver_wage_surcharge) AS driver_wage_surcharge,
     SUM(route_list_addresses.forwarder_wage + route_list_addresses.forwarder_wage_surcharge) AS forwarder_wage,
-    SUM(route_list_addresses.total_cash - 2) AS cash,
     SUM(bottles_movement_operations.delivered) AS full_bottles,
-    SUM(bottles_movement_operations.returned) AS empty_bottles
+    SUM(bottles_movement_operations.returned) AS empty_bottles,
+    (IFNULL((SELECT 
+            money
+        FROM
+            cash_income
+        WHERE
+            cash_income.route_list_id = route_list_addresses.route_list_id), 0) - IFNULL((SELECT 
+            money
+        FROM
+            cash_expense
+        WHERE
+            cash_expense.route_list_id = route_list_addresses.route_list_id), 0)) AS cash
 FROM
     route_list_addresses
         LEFT JOIN
@@ -1504,8 +1514,8 @@ FROM
     bottles_movement_operations ON orders.bottles_movement_operation_id = bottles_movement_operations.id
 WHERE
     route_list_addresses.route_list_id = @route_list_id
-        AND route_list_addresses.status &lt;&gt; 'Transfered'
-GROUP BY route_list_addresses.route_list_id;</CommandText>
+        AND route_list_addresses.status &lt;&gt; 'Transfered';
+        </CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">
             <Value>={?RouteListId}</Value>
