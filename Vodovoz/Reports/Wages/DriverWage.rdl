@@ -275,7 +275,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
+        <Left>0.8pt</Left>
         <Top>35.8pt</Top>
         <Footer>
           <TableRows>
@@ -645,7 +645,7 @@
           <FontSize>14pt</FontSize>
         </Style>
       </Textbox>
-      <Table Name="Table3" >
+      <Table Name="Table3">
         <DataSetName>Advances</DataSetName>
         <NoRows>Выданных авансов нет</NoRows>
         <Style>
@@ -798,15 +798,15 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.date AS date,
     route_lists.id AS route_list_number,
     SUM(bottles_movement_operations.returned) AS empty_bottles,
     SUM(bottles_movement_operations.delivered) AS full_bottles,
-    SUM(route_list_addresses.driver_wage) AS wage,
-    COUNT(IF(route_list_addresses.status = 'Overdue'
+    SUM(route_list_addresses.driver_wage) + SUM(route_list_addresses.driver_wage_surcharge) AS wage,
+        COUNT(IF(route_list_addresses.status = 'Overdue'
 	OR route_list_addresses.status = 'Canceled', NULL, route_list_addresses.id)) AS addresses_count
 FROM
     route_lists
@@ -834,30 +834,30 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="route_list_number">
           <DataField>route_list_number</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="addresses_count">
-          <DataField>addresses_count</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
-        <Field Name="full_bottles">
-          <DataField>full_bottles</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="empty_bottles">
           <DataField>empty_bottles</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="full_bottles">
+          <DataField>full_bottles</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="wage">
           <DataField>wage</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="addresses_count">
+          <DataField>addresses_count</DataField>
+          <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -941,7 +941,7 @@ GROUP BY fines.date;</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="Advances" >
+    <DataSet Name="Advances">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -978,15 +978,6 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
@@ -1013,4 +1004,13 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_null;user=admey;password=Zaq1xsw2;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
