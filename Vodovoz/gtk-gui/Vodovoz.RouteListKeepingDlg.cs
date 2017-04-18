@@ -430,6 +430,8 @@ namespace Vodovoz
 				this.Child.ShowAll ();
 			}
 			this.Hide ();
+			this.buttonSave.Clicked += new global::System.EventHandler (this.OnButtonSaveClicked);
+			this.buttonCancel.Clicked += new global::System.EventHandler (this.OnButtonCancelClicked);
 			this.buttonMadeCall.Clicked += new global::System.EventHandler (this.OnButtonMadeCallClicked);
 			this.buttonNewFine.Clicked += new global::System.EventHandler (this.OnButtonNewFineClicked);
 			this.buttonChangeDeliveryTime.Clicked += new global::System.EventHandler (this.OnButtonChangeDeliveryTimeClicked);
