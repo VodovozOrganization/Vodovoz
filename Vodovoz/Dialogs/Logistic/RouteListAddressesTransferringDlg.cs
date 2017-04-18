@@ -55,17 +55,18 @@ namespace Vodovoz
 			ConfigureDlg();
 		}
 
-		public RouteListAddressesTransferringDlg (RouteList routeList, OpenParameter param) : this()
+		public RouteListAddressesTransferringDlg (RouteList routeList, OpenParameter param) : this ()
 		{
+			var rl = UoW.GetById<RouteList> (routeList.Id);
 			switch (param) {
 			case OpenParameter.Sender:
- 				yentryreferenceRLFrom.Subject = routeList;
+				yentryreferenceRLFrom.Subject = rl;
 				break;
 			case OpenParameter.Receiver:
-				yentryreferenceRLTo.Subject = routeList;
+				yentryreferenceRLTo.Subject = rl;
 				break;
+			}
 		}
-				}
 		#endregion
 
 		#region Методы
@@ -143,10 +144,13 @@ namespace Vodovoz
 
 			if (TabParent != null) {
 				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeList.Id));
-				if (tab != null) {
-					MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
-					yentryreferenceRLFrom.Subject = null;
-					return;
+
+				if (!(tab is RouteListClosingDlg)) { 
+					if (tab != null) {
+						MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+						yentryreferenceRLFrom.Subject = null;
+						return;
+					}
 				}
 			}
 			
