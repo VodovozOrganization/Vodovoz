@@ -553,6 +553,8 @@
     <Compile Include="gtk-gui\Vodovoz.Reports.Logistic.RoutesListRegisterReport.cs" />
     <Compile Include="ServiceDialogs\Chat\SendMessageDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Chat.SendMessageDlg.cs" />
+    <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -865,6 +867,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\RoutesListRegister.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\DeliveryTime.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
