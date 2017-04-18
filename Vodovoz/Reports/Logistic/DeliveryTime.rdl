@@ -33,7 +33,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_list_addresses.route_list_id,
@@ -74,7 +74,7 @@ ORDER BY driver_name , max_time;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -159,8 +159,8 @@ ORDER BY driver_name , max_time;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -175,8 +175,8 @@ ORDER BY driver_name , max_time;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -191,8 +191,8 @@ ORDER BY driver_name , max_time;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -207,8 +207,8 @@ ORDER BY driver_name , max_time;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -236,8 +236,8 @@ ORDER BY driver_name , max_time;</CommandText>
                               <Default>Solid</Default>
                             </BorderStyle>
                             <FontWeight>Bold</FontWeight>
-                            <BorderColor  />
-                            <BorderWidth  />
+                            <BorderColor />
+                            <BorderWidth />
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -247,71 +247,12 @@ ORDER BY driver_name , max_time;</CommandText>
               </TableRows>
               <RepeatOnNewPage>true</RepeatOnNewPage>
             </Header>
-            <Footer>
-              <TableRows>
-                <TableRow>
-                  <Height>12pt</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox8">
-                          <Value>
-                          </Value>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox9">
-                          <Value>
-                          </Value>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox10">
-                          <Value>
-                          </Value>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox11">
-                          <Value>
-                          </Value>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Footer>
             <Grouping Name="driver_nameGroup">
               <GroupExpressions>
-                <GroupExpression>=Fields!driver_name.Value</GroupExpression>
+                <GroupExpression >=Fields!driver_name.Value</GroupExpression>
               </GroupExpressions>
+              <PageBreakAtStart >false</PageBreakAtStart>
+              <PageBreakAtEnd >false</PageBreakAtEnd>
             </Grouping>
           </TableGroup>
         </TableGroups>
@@ -326,11 +267,14 @@ ORDER BY driver_name , max_time;</CommandText>
                       <Value>=Fields!route_list_id.Value</Value>
                       <Style>
                         <BorderStyle>
-                          <Default>None</Default>
+                          <Default>Solid</Default>
                           <Left>Solid</Left>
+                          <Right >Solid</Right>
+                          <Top >Solid</Top>
+                          <Bottom >Solid</Bottom>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -345,8 +289,8 @@ ORDER BY driver_name , max_time;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -361,8 +305,8 @@ ORDER BY driver_name , max_time;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -377,8 +321,8 @@ ORDER BY driver_name , max_time;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -389,7 +333,7 @@ ORDER BY driver_name , max_time;</CommandText>
         </Details>
       </Table>
     </ReportItems>
-    <Height>53.1pt</Height>
+    <Height>44.4pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -403,9 +347,9 @@ ORDER BY driver_name , max_time;</CommandText>
         <Style>
           <FontSize>10pt</FontSize>
           <FontWeight>Normal</FontWeight>
-          <BorderStyle  />
-          <BorderColor  />
-          <BorderWidth  />
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
         </Style>
       </Textbox>
     </ReportItems>
