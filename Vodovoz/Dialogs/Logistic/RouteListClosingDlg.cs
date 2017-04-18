@@ -232,7 +232,7 @@ namespace Vodovoz
 					break;
 				case RouteListActions.TransferAddressesToAnotherRL:
 					if (UoW.HasChanges) {
-						if(!MessageDialogWorks.RunQuestionDialog ("Необходимо сохранить документ.\nСохранить?"))
+						if(MessageDialogWorks.RunQuestionDialog ("Необходимо сохранить документ.\nСохранить?"))
 							 this.Save ();
 						else
 							return;
@@ -461,7 +461,17 @@ namespace Vodovoz
 			Entity.Cashier = casher;
 			Entity.Confirm();
 
-			SaveAndClose ();
+			if (!MessageDialogWorks.RunQuestionDialog ("Перед выходом распечатать документ?"))
+				SaveAndClose ();
+			else {
+				Save ();
+
+				var document = Vodovoz.Additions.Logistic.PrintRouteListHelper.GetRDLRouteList (UoW, Entity);
+				this.TabParent.OpenTab (
+					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg> (),
+					() => new QSReport.ReportViewDlg (document));
+                UpdateButtonState();
+			}
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
