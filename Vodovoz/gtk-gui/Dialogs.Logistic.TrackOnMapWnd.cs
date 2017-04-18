@@ -24,6 +24,10 @@ namespace Dialogs.Logistic
 
 		private global::GMap.NET.GtkSharp.GMapControl gmapWidget;
 
+		private global::Gtk.Statusbar statusbar1;
+
+		private global::Gamma.GtkWidgets.yLabel ylabelPoint;
+
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);
@@ -136,6 +140,23 @@ namespace Dialogs.Logistic
 			this.vbox1.Add (this.gmapWidget);
 			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.gmapWidget]));
 			w9.Position = 1;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.statusbar1 = new global::Gtk.Statusbar ();
+			this.statusbar1.Name = "statusbar1";
+			this.statusbar1.Spacing = 6;
+			// Container child statusbar1.Gtk.Box+BoxChild
+			this.ylabelPoint = new global::Gamma.GtkWidgets.yLabel ();
+			this.ylabelPoint.Name = "ylabelPoint";
+			this.statusbar1.Add (this.ylabelPoint);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.statusbar1 [this.ylabelPoint]));
+			w10.Position = 2;
+			w10.Expand = false;
+			w10.Fill = false;
+			this.vbox1.Add (this.statusbar1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.statusbar1]));
+			w11.Position = 2;
+			w11.Expand = false;
+			w11.Fill = false;
 			this.Add (this.vbox1);
 			if ((this.Child != null)) {
 				this.Child.ShowAll ();

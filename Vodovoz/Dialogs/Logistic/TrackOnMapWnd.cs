@@ -71,6 +71,7 @@ namespace Dialogs.Logistic
 			gmapWidget.Overlays.Add (trackOnGapOverlay);
 			gmapWidget.Overlays.Add(addressesOverlay);
 			gmapWidget.ExposeEvent += GmapWidget_ExposeEvent;
+			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
 		}
 
 		private void OpenMap()
@@ -110,6 +111,7 @@ namespace Dialogs.Logistic
 			trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Red);
 			trackRoute.Stroke.Width = 4;
 			trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+			trackRoute.IsHitTestVisible = true;
 
 			tracksDistance.Add(MakeDistanceLayout(trackRoute));
 			tracksOverlay.Routes.Add(trackRoute);
@@ -280,7 +282,7 @@ namespace Dialogs.Logistic
 					new PointLatLng (lastPoint.Latitude, lastPoint.Longitude), 
 					new PointLatLng (point.Latitude, point.Longitude));
 				
-				if(distance > 2)
+				if(distance > 1)
 				{
 					logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
 					message += String.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",
@@ -368,6 +370,34 @@ namespace Dialogs.Logistic
 			{
 				MessageDialogWorks.RunInfoDialog ("Разрывов в треке не найдено.");
 			}
+		}
+
+		void GmapWidget_MotionNotifyEvent (object o, Gtk.MotionNotifyEventArgs args)
+		{
+			if(gmapWidget.IsMouseOverRoute)
+			{
+				GPoint tl = new GPoint ((long)args.Event.X - 4, (long)args.Event.Y - 4);
+				var TLPoint = gmapWidget.FromLocalToLatLng (tl);
+				GPoint br = new GPoint ((long)args.Event.X + 4, (long)args.Event.Y + 4);
+				var BRPoint = gmapWidget.FromLocalToLatLng (br);
+
+				GPoint mouse = new GPoint ((long)args.Event.X, (long)args.Event.Y);
+				var geopoint = gmapWidget.FromLocalToLatLng (mouse);
+
+				var rect = RectLatLng.FromLTRB (TLPoint.Lng, TLPoint.Lat, BRPoint.Lng, BRPoint.Lat);
+
+				var nearest = track.TrackPoints
+				                   .Where(x => rect.Contains(x.Latitude, x.Longitude))
+				                   .OrderBy (x => GMapProviders.EmptyProvider.Projection.GetDistance (geopoint, new PointLatLng (x.Latitude, x.Longitude)))
+				                   .FirstOrDefault();
+				if(nearest != null)
+					ylabelPoint.LabelProp = String.Format ("(ш.{0:F6} д.{1:F6}) - {2:T}", nearest.Latitude, nearest.Longitude, nearest.TimeStamp);
+				else
+					ylabelPoint.LabelProp = String.Empty;
+			}
+			else
+				ylabelPoint.LabelProp = String.Empty;
+
 		}
 	}
 
