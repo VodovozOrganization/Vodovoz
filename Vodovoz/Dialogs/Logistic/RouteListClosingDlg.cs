@@ -471,6 +471,7 @@ namespace Vodovoz
 					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg> (),
 					() => new QSReport.ReportViewDlg (document));
                 UpdateButtonState();
+				this.OnCloseTab (false);
 			}
 		}
 
