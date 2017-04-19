@@ -171,10 +171,12 @@ namespace Vodovoz
 
 			if (TabParent != null) {
 				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeList.Id));
-				if (tab != null) {
-					MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
-					yentryreferenceRLTo.Subject = null;
-					return;
+				if (!(tab is RouteListClosingDlg)) {
+					if (tab != null) {
+						MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
+						yentryreferenceRLTo.Subject = null;
+						return;
+					}
 				}
 			}
 
