@@ -42,6 +42,7 @@ namespace Vodovoz.Domain
 				FullBottleRate = 5,
 				EmptyBottleRate = 5,
 				CoolerRate = 10,
+				PaymentPerAddress = 0,
 				LargeOrderFullBottleRate = 4,
 				LargeOrderEmptyBottleRate = 1,
 				SmallFullBottleRate = 1,
