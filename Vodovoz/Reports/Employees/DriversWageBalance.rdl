@@ -111,6 +111,7 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -127,6 +128,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -173,7 +175,8 @@
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-    SUM(wages_movement_operations.money) AS balance
+    SUM(wages_movement_operations.money) AS balance,
+    employees.category
 FROM
     wages_movement_operations
         LEFT JOIN
@@ -181,7 +184,9 @@ FROM
 WHERE
     wages_movement_operations.operation_time &lt;= @date
         AND wages_movement_operations.employee_id IN (@drivers)
-GROUP BY wages_movement_operations.employee_id</CommandText>
+GROUP BY wages_movement_operations.employee_id
+ORDER BY driver
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -199,6 +204,10 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="category">
+          <DataField>category</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
