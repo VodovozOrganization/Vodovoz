@@ -102,6 +102,7 @@ namespace Vodovoz
 			ycheckConfirmDifferences.Sensitive = editing && Entity.Status == RouteListStatus.OnClosing;
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
+			ytextClosingComment.Sensitive = editing;
 
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
@@ -128,6 +129,7 @@ namespace Vodovoz
 			routeListAddressesView.OnClosingItemActivated += OnRouteListItemActivated;
 			routeListAddressesView.IsEditing = editing;
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
+			ycheckHideCells.Sensitive = editing;
 			PerformanceHelper.AddTimePoint("заполнили список адресов");
 			ReloadReturnedToWarehouse();
 			var returnableOrderItems = routeListAddressesView.Items
@@ -163,10 +165,11 @@ namespace Vodovoz
 			routelistdiscrepancyview.Sensitive = editing;
 			PerformanceHelper.AddTimePoint("Заполнили расхождения");
 
-			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null;
+			buttonAddTicket.Sensitive = Entity.Car?.FuelType?.Cost != null && Entity.Driver != null && editing;
 
 			enummenuRLActions.ItemsEnum = typeof(RouteListActions);
 			enummenuRLActions.EnumItemClicked += EnummenuRLActions_EnumItemClicked;
+			enummenuRLActions.Sensitive = editing;
 
 			LoadDataFromFine();
 			OnItemsUpdated();
