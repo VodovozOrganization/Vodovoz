@@ -72,7 +72,7 @@ namespace Vodovoz.Additions.Logistic
 			}
 
 			string RdlText = String.Empty;
-			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/" + documentName + ".rdl"))) {
+			using (var rdr = new StreamReader (System.IO.Path.Combine (Environment.CurrentDirectory, "Reports/Logistic/" + documentName + ".rdl"))) {
 				RdlText = rdr.ReadToEnd ();
 			}
 			//Для уникальности номеров Textbox.
