@@ -156,6 +156,7 @@ namespace Vodovoz
 		protected void OnButtonDeliveredClicked(object sender, EventArgs e)
 		{
 			routeListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
+            routeListItem.FirstFillClosing (UoW);
 			UpdateButtonsState();
 		}
 
