@@ -154,6 +154,9 @@ namespace Vodovoz
 
 			hbox6.Remove(vboxHidenPanel);
 			rightsidepanel1.Panel = vboxHidenPanel;
+			rightsidepanel1.IsHided = true;
+
+			expander1.Expanded = false;
 
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
 			routelistdiscrepancyview.FineChanged += Routelistdiscrepancyview_FineChanged;
