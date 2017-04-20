@@ -31,10 +31,25 @@
           <TextAlign>Center</TextAlign>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox4" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Top>7.3pt</Top>
+        <Left>583.5pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Right</TextAlign>
+        </Style>
+      </Textbox>
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>143.3pt</Height>
+    <Height>136.5pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox3">
@@ -50,6 +65,10 @@
           <BorderWidth />
           <FontSize>12pt</FontSize>
           <TextAlign>Left</TextAlign>
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
         </Style>
       </Textbox>
       <Table Name="Table2">
@@ -65,17 +84,17 @@
             <Width>17pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>130pt</Width>
+            <Width>193.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.2pt</Width>
+            <Width>0.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37pt</Width>
+            <Width>39.4pt</Width>
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>120.8pt</Width>
+            <Width>140.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>120.8pt</Width>
@@ -116,8 +135,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>
-                      </Value>
+                      <Value>КОЛИЧЕСТВО</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -248,8 +266,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox52">
-                      <Value>КОЛИЧЕСТВО</Value>
+                    <Textbox Name="Textbox6">
+                      <Value>БУТЫЛЕЙ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -410,6 +428,9 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                      <Visibility>
+                        <Hidden>true</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -433,7 +454,8 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>БУТЫЛЕЙ</Value>
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -753,6 +775,9 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                       </Style>
+                      <Visibility>
+                        <Hidden>true</Hidden>
+                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -776,7 +801,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Iif(Len({ToClient}) &gt; 20, "См. накладную", {ToClient})</Value>
+                      <Value>=Iif(Len({ToClient}) &gt; 24, "См. накладную", {ToClient})</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1165,23 +1190,7 @@
     </ReportItems>
   </Body>
   <PageFooter>
-    <Height>15.3pt</Height>
-    <ReportItems>
-      <Textbox Name="Textbox4">
-        <Top>1pt</Top>
-        <Left>10pt</Left>
-        <Height>12pt</Height>
-        <Width>3in</Width>
-        <Value>=Globals!PageNumber + ' из ' + Globals!TotalPages</Value>
-        <Style>
-          <FontSize>10pt</FontSize>
-          <FontWeight>Normal</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-        </Style>
-      </Textbox>
-    </ReportItems>
+    <Height>0.0pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
@@ -1269,7 +1278,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
@@ -1337,7 +1346,7 @@ ORDER BY route_list_addresses.order_in_route;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="DeliveryTime">
           <DataField>DeliveryTime</DataField>
           <TypeName>System.String</TypeName>
