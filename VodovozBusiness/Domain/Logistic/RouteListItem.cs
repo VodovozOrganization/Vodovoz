@@ -294,6 +294,7 @@ namespace Vodovoz.Domain.Logistic
 					break;
 				case RouteListItemStatus.Completed:
 					Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.Shipped);
+					FirstFillClosing (uow);
 					break;
 				case RouteListItemStatus.EnRoute:
 					Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.OnTheWay);
