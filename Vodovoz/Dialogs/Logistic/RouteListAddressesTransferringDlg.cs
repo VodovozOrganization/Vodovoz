@@ -240,7 +240,7 @@ namespace Vodovoz
 				item.TransferedTo = newItem;
 				//				uow.Save(item);
 
-				if (routeListTo.ClosingFilled && routeListTo.Status >= RouteListStatus.OnClosing)
+				if (routeListTo.ClosingFilled)
 					newItem.FirstFillClosing (UoW);
 				
 				hasChanges = true;
