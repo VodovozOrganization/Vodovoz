@@ -16,7 +16,7 @@ namespace Vodovoz.HMap
 			Map (x => x.ExpirationDate).Column ("expiration_date");
 			References (x => x.Counterparty).Column ("counterparty_id");
 
-			HasManyToMany(x => x.DeliveryPoints).Table("counterparty_delivery_points")
+			HasManyToMany(x => x.DeliveryPoints).Table("counterparty_proxy_delivery_points")
 				.ParentKeyColumn("counterparty_proxy_id")
 				.ChildKeyColumn("delivery_point_id")
 				.LazyLoad();
