@@ -290,7 +290,7 @@ namespace Vodovoz.Domain.Logistic
 		{
 			if (order.DeliveryPoint == null)
 				throw new NullReferenceException ("В маршрутный нельзя добавить заказ без точки доставки.");
-			var item = new RouteListItem (this, order);
+			var item = new RouteListItem (this, order, RouteListItemStatus.EnRoute);
 			item.WithForwarder = Forwarder != null;
 			ObservableAddresses.Add (item);
 			return item;
@@ -497,21 +497,7 @@ namespace Vodovoz.Domain.Logistic
 				//					.Where(item => !item.Nomenclature.Serial).ToList();
 
 				logger.Debug ("Количество элементов в заказе {0}", routeListItem.Order.OrderItems.Count);
-				foreach (var item in routeListItem.Order.OrderItems) {
-					item.ActualCount = routeListItem.IsDelivered () ? item.Count : 0;
-				}
-				PerformanceHelper.AddTimePoint (logger, "Обработали номенклатуры");
-				routeListItem.BottlesReturned = routeListItem.IsDelivered ()
-					? (routeListItem.DriverBottlesReturned ?? routeListItem.Order.BottlesReturn) : 0;
-				routeListItem.TotalCash = routeListItem.IsDelivered () &&
-					routeListItem.Order.PaymentType == PaymentType.cash
-					? routeListItem.Order.SumToReceive : 0;
-				var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit (UoW).GetPrice (routeListItem.Order.BottlesReturn);
-				routeListItem.DepositsCollected = routeListItem.IsDelivered ()
-					? routeListItem.Order.GetExpectedBottlesDepositsCount () * bottleDepositPrice : 0;
-				PerformanceHelper.AddTimePoint ("Получили прайс");
-				routeListItem.RecalculateWages ();
-				PerformanceHelper.AddTimePoint ("Пересчет");
+				routeListItem.FirstFillClosing (UoW);
 				PerformanceHelper.EndPointsGroup ();
 			}
 

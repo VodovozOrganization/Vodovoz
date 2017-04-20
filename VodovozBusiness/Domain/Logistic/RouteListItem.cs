@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using QSOrmProject;
+using QSProjectsLib;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -15,6 +17,8 @@ namespace Vodovoz.Domain.Logistic
 		Nominative = "адрес маршрутного листа")]
 	public class RouteListItem : PropertyChangedBase, IDomainObject
 	{
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -537,6 +541,25 @@ namespace Vodovoz.Domain.Logistic
 				.Sum(item => item.ActualCount);
 		}
 
+		public virtual void FirstFillClosing (IUnitOfWork uow)
+		{
+			foreach (var item in Order.OrderItems) {
+				item.ActualCount = IsDelivered () ? item.Count : 0;
+			}
+			PerformanceHelper.AddTimePoint (logger, "Обработали номенклатуры");
+			BottlesReturned = IsDelivered ()
+				? (DriverBottlesReturned ?? Order.BottlesReturn) : 0;
+			TotalCash = IsDelivered () &&
+				Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash
+				? Order.SumToReceive : 0;
+			var bottleDepositPrice = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (Order.BottlesReturn);
+			DepositsCollected = IsDelivered ()
+								? Order.GetExpectedBottlesDepositsCount () * bottleDepositPrice : 0;
+			PerformanceHelper.AddTimePoint ("Получили прайс");
+			RecalculateWages ();
+			PerformanceHelper.AddTimePoint ("Пересчет");
+		}
+
 		private Dictionary<int, int> goodsByRouteColumns;
 
 		public virtual Dictionary<int, int> GoodsByRouteColumns{
@@ -569,9 +592,9 @@ namespace Vodovoz.Domain.Logistic
 		public RouteListItem ()
 		{
 		}
-			
+
 		//Конструктор создания новой строки
-		public RouteListItem (RouteList routeList, Order order)
+		public RouteListItem (RouteList routeList, Order order, RouteListItemStatus status)
 		{
 			this.routeList = routeList;
 			if(order.OrderStatus == OrderStatus.Accepted)
@@ -579,6 +602,7 @@ namespace Vodovoz.Domain.Logistic
 				order.OrderStatus = OrderStatus.InTravelList;
 			}
 			this.Order = order;
+			this.status = status;
 		}
 
 		public virtual void RemovedFromRoute()
