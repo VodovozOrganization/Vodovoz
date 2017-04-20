@@ -135,7 +135,10 @@ namespace Vodovoz
 				UoW.Save(fine);
 			}
 			else if (Entity.ConfirmedDistance > Entity.ActualDistance)
-				Entity.RecalculateFuelOutlay();
+			{
+				if (MessageDialogWorks.RunQuestionDialog ("Вы указали больший километраж, чем при сдаче в кассе. Пересчитать баланс водителя по топливу?")) ;
+					Entity.RecalculateFuelOutlay();
+			}
 
 			yspinConfirmedDistance.Sensitive = false;
 			buttonConfirm.Sensitive = false;
