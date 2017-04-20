@@ -21,4 +21,9 @@ rm -v ${BinDir}/*.mdb
 
 cp -r -v ${BinDir}/* ./Beta-Sync
 
+if [ ! -d "./Beta-Sync/.stfolder" ]; then
+  echo "Create .stfolder dir"
+  mkdir "./Beta-Sync/.stfolder"
+fi
+
 syncthing -verbose
