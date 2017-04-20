@@ -10,8 +10,8 @@ namespace Vodovoz.Repository.Cash
 	public class CategoryRepository
 	{
 		const string defaultIncomeCategory 			 = "default_income_category";
-		const string routeListClosingIncomeCategory  = "route_list_income";
-		const string routeListClosingExpenseCategory = "route_list_expense";
+		const string routeListClosingIncomeCategory  = "routelist_income_category_id";
+		const string routeListClosingExpenseCategory = "routelist_expense_category_id";
 		const string fuelDocumentExpenseCategory 	 = "fuel_expense";
 
 		public static IList<IncomeCategory> IncomeCategories (IUnitOfWork uow)
