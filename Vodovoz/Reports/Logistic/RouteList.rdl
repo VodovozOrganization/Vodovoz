@@ -801,7 +801,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
-                      <Value>=Iif(Len({ToClient}) &gt; 24, "См. накладную", {ToClient})</Value>
+                      <Value>={ToClient}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -817,7 +817,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox13">
-                      <Value>=Iif(Len({FromClient}) &gt; 12, "См. накладную", {FromClient})</Value>
+                      <Value>={FromClient}</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
