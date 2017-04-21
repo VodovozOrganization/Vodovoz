@@ -21,7 +21,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     docs.order_id,
@@ -151,7 +151,7 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -203,18 +203,23 @@ FROM
       </Fields>
     </DataSet>
     <DataSet Name="Client">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT full_name FROM counterparty WHERE id = @client_id;</CommandText>
+        <CommandText>SELECT TRIM(full_name) as full_name, inn 
+FROM counterparty WHERE id = @client_id;</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>={?client_id}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="full_name">
           <DataField>full_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="inn">
+          <DataField>inn</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1119,15 +1124,15 @@ WHERE
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>0.0pt</Left>
-        <Top>40.6pt</Top>
+        <Left>0.8pt</Left>
+        <Top>60.6pt</Top>
       </Table>
       <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>0.8pt</Top>
-        <Left>4.5pt</Left>
+        <Top>0.80pt</Top>
+        <Left>4.00pt</Left>
         <Width>566.12pt</Width>
         <Height>18.82pt</Height>
-        <Value>= "по контрагенту " + First({full_name}, "Client")</Value>
+        <Value>= "по контрагенту " + First({full_name}, "Client") + Iif(First({inn}, "Client") != null  and First({inn}, "Client") != "" ,  " (ИНН: " +  First({inn}, "Client")+")" , "") </Value>
         <Style>
           <FontSize>15pt</FontSize>
           <FontWeight>Bold</FontWeight>
@@ -1142,8 +1147,8 @@ WHERE
         <Width>513.51pt</Width>
         <Value>="Реестр документов с " + Format(CDate({?startDate}), "d") + " по "+ Format(CDate({?endDate}), "d")</Value>
         <ZIndex>1</ZIndex>
-        <Left>3.3pt</Left>
-        <Top>24.0pt</Top>
+        <Left>1.5pt</Left>
+        <Top>44.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1158,8 +1163,8 @@ WHERE
 ____________(                        )
 м.п.</Value>
         <ZIndex>1</ZIndex>
-        <Left>25.8pt</Left>
-        <Top>189.6pt</Top>
+        <Left>24.0pt</Left>
+        <Top>209.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1173,8 +1178,8 @@ ____________(                        )
         <Value>___________(                   )
 м.п.</Value>
         <ZIndex>1</ZIndex>
-        <Left>314.7pt</Left>
-        <Top>210.8pt</Top>
+        <Left>312.9pt</Left>
+        <Top>230.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1187,8 +1192,8 @@ ____________(                        )
         <Width>257.45pt</Width>
         <Value>=First({full_name}, "Client")</Value>
         <ZIndex>1</ZIndex>
-        <Left>310.9pt</Left>
-        <Top>187.8pt</Top>
+        <Left>309.1pt</Left>
+        <Top>207.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1201,8 +1206,8 @@ ____________(                        )
         <Width>210.73pt</Width>
         <Value>Забрать бутылей:</Value>
         <ZIndex>1</ZIndex>
-        <Left>13.8pt</Left>
-        <Top>122.3pt</Top>
+        <Left>12.0pt</Left>
+        <Top>142.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1216,8 +1221,8 @@ ____________(                        )
         <Width>118.90pt</Width>
         <Value>=First({bottle_balance}, 'Bottles')</Value>
         <ZIndex>1</ZIndex>
-        <Left>224.9pt</Left>
-        <Top>122.0pt</Top>
+        <Left>223.1pt</Left>
+        <Top>142.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1232,8 +1237,8 @@ ____________(                        )
         <Width>222.50pt</Width>
         <Value>Вернуть залогов за бутыли:</Value>
         <ZIndex>1</ZIndex>
-        <Left>2.3pt</Left>
-        <Top>153.4pt</Top>
+        <Left>0.8pt</Left>
+        <Top>173.4pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1247,8 +1252,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=First({bottle_deposit}, 'BottleDeposit')</Value>
         <ZIndex>1</ZIndex>
-        <Left>223.9pt</Left>
-        <Top>152.8pt</Top>
+        <Left>222.1pt</Left>
+        <Top>172.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1263,8 +1268,8 @@ ____________(                        )
         <Width>222.50pt</Width>
         <Value>Вернуть залогов за оборудование:</Value>
         <ZIndex>1</ZIndex>
-        <Left>1.6pt</Left>
-        <Top>167.8pt</Top>
+        <Left>0.8pt</Left>
+        <Top>187.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1278,8 +1283,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=First({equipment_deposit}, 'EquipmentDeposit')</Value>
         <ZIndex>1</ZIndex>
-        <Left>225.0pt</Left>
-        <Top>167.5pt</Top>
+        <Left>223.2pt</Left>
+        <Top>187.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1294,8 +1299,8 @@ ____________(                        )
         <Width>210.73pt</Width>
         <Value>Забрать оборудование:</Value>
         <ZIndex>1</ZIndex>
-        <Left>14.3pt</Left>
-        <Top>135.8pt</Top>
+        <Left>12.5pt</Left>
+        <Top>155.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1315,8 +1320,8 @@ ____________(                        )
             <Width>41.47pt</Width>
             <Value>={amount}</Value>
             <ZIndex>1</ZIndex>
-            <Left>2.00pt</Left>
-            <Top>0.90pt</Top>
+            <Left>0.8pt</Left>
+            <Top>20.9pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -1329,8 +1334,8 @@ ____________(                        )
             <Width>310.23pt</Width>
             <Value>=" - " + Fields!name.Value</Value>
             <ZIndex>1</ZIndex>
-            <Left>40.00pt</Left>
-            <Top>1.00pt</Top>
+            <Left>38.2pt</Left>
+            <Top>21.0pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
