@@ -22,7 +22,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabel1;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceRLFrom;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceRLFrom;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
@@ -34,7 +34,7 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yLabel ylabel2;
 
-		private global::Gamma.Widgets.yEntryReference yentryreferenceRLTo;
+		private global::Gamma.Widgets.yEntryReferenceVM yentryreferenceRLTo;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 
@@ -116,7 +116,7 @@ namespace Vodovoz
 			w6.Expand = false;
 			w6.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryreferenceRLFrom = new global::Gamma.Widgets.yEntryReference ();
+			this.yentryreferenceRLFrom = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.yentryreferenceRLFrom.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceRLFrom.Name = "yentryreferenceRLFrom";
 			this.hbox3.Add (this.yentryreferenceRLFrom);
@@ -161,7 +161,7 @@ namespace Vodovoz
 			w12.Expand = false;
 			w12.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.yentryreferenceRLTo = new global::Gamma.Widgets.yEntryReference ();
+			this.yentryreferenceRLTo = new global::Gamma.Widgets.yEntryReferenceVM ();
 			this.yentryreferenceRLTo.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceRLTo.Name = "yentryreferenceRLTo";
 			this.hbox4.Add (this.yentryreferenceRLTo);

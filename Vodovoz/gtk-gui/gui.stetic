@@ -1039,6 +1039,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -36523,7 +36524,7 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceRLFrom">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRLFrom">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -36585,7 +36586,7 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
-                          <widget class="Gamma.Widgets.yEntryReference" id="yentryreferenceRLTo">
+                          <widget class="Gamma.Widgets.yEntryReferenceVM" id="yentryreferenceRLTo">
                             <property name="MemberName" />
                             <property name="Events">ButtonPressMask</property>
                           </widget>
@@ -37412,7 +37413,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Маленькие</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

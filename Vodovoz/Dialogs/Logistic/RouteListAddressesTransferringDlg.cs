@@ -1,15 +1,15 @@
 ﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Logistic;
-using NHibernate.Criterion;
-using QSTDI;
-using Gamma.GtkWidgets;
-using Gamma.ColumnConfig;
 using System.Collections.Generic;
-using Vodovoz.Domain.Client;
 using System.Linq;
+using Gamma.ColumnConfig;
+using Gamma.GtkWidgets;
 using Gtk;
+using NHibernate.Criterion;
+using QSOrmProject;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Logistic;
+using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -73,25 +73,26 @@ namespace Vodovoz
 
 		private void ConfigureDlg()
 		{
-			yentryreferenceRLFrom.SubjectType = typeof(RouteList);
-			yentryreferenceRLTo	 .SubjectType = typeof(RouteList);
+			var vm = new RouteListsVM ();
+			vm.Filter.OnlyStatuses = new [] {
+				RouteListStatus.EnRoute,
+				RouteListStatus.NotDelivered,
+				RouteListStatus.MileageCheck,
+				RouteListStatus.OnClosing,
+				RouteListStatus.Closed,
+			};
+			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
+			yentryreferenceRLFrom.RepresentationModel = vm;
 
-			yentryreferenceRLFrom.ItemsQuery = QueryOver.Of<RouteList>()
-				.Where(rl => rl.Status == RouteListStatus.EnRoute
-						  || rl.Status == RouteListStatus.NotDelivered
-						  || rl.Status == RouteListStatus.MileageCheck
-						  || rl.Status == RouteListStatus.OnClosing
-						  || rl.Status == RouteListStatus.Closed)
-				.Where(rl => rl.Date > DateTime.Today.AddDays(-7))
-				.OrderBy(rl => rl.Date).Desc;
-			
-			yentryreferenceRLTo.ItemsQuery = QueryOver.Of<RouteList>()
-				.Where(rl => rl.Status == RouteListStatus.New
-						  || rl.Status == RouteListStatus.InLoading
-						  || rl.Status == RouteListStatus.EnRoute
-						  || rl.Status == RouteListStatus.OnClosing)
-				.Where(rl => rl.Date > DateTime.Today.AddDays(-7))
-				.OrderBy(rl => rl.Date).Desc;
+			vm = new RouteListsVM ();
+			vm.Filter.OnlyStatuses = new [] {
+				RouteListStatus.New,
+				RouteListStatus.InLoading,
+				RouteListStatus.EnRoute,
+				RouteListStatus.OnClosing,
+			};
+			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
+			yentryreferenceRLTo.RepresentationModel = vm;
 
 			yentryreferenceRLFrom.Changed += YentryreferenceRLFrom_Changed;
 			yentryreferenceRLTo	 .Changed += YentryreferenceRLTo_Changed;

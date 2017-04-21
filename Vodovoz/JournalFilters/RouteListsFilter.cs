@@ -48,7 +48,7 @@ namespace Vodovoz
 		public RouteListStatus? RestrictStatus {
 			get { return enumcomboStatus.SelectedItem as RouteListStatus?; }
 			set {
-				enumcomboStatus.SelectedItem = value;
+				enumcomboStatus.SelectedItemOrNull = value;
 				enumcomboStatus.Sensitive = false;
 			}
 		}
@@ -74,6 +74,21 @@ namespace Vodovoz
 			set {
 				dateperiodOrders.EndDateOrNull = value;
 				dateperiodOrders.Sensitive = false;
+			}
+		}
+
+		private RouteListStatus [] onlyStatuses;
+
+		public RouteListStatus[] OnlyStatuses{
+			get{
+				return onlyStatuses;
+			}
+			set{
+				onlyStatuses = value;
+				if(onlyStatuses != null)
+				{
+					RestrictStatus = null;
+				}
 			}
 		}
 
