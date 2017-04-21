@@ -88,6 +88,7 @@ namespace Vodovoz.Reports
 			}
 			else
 			{
+				referenceDeliveryPoint.Subject = null;
 				referenceDeliveryPoint.Sensitive = true;
 				referenceDeliveryPoint.RepresentationModel = new ViewModel.ClientDeliveryPointsVM(UoW, 
 					referenceCounterparty.GetSubject<Counterparty>());
