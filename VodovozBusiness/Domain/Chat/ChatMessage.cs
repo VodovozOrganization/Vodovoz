@@ -35,6 +35,14 @@ namespace Vodovoz.Domain.Chat
 		    set { SetField (ref isServerNotification, value, () => IsServerNotification); }
 		}
 
+		private bool isAutoCeated;
+
+		[Display (Name = "Автоматически созданное сообщение")]
+		public virtual bool IsAutoCeated {
+			get { return isAutoCeated; }
+			set { SetField (ref isAutoCeated, value, () => IsAutoCeated); }
+		}
+
 		string message;
 
 		[Display (Name = "Сообщение")]

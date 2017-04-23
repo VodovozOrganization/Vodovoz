@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QSOrmProject;
 using Vodovoz.Domain.Chat;
@@ -45,7 +47,12 @@ namespace Vodovoz.Repository.Chat
 			                .Select (() => driverAlias.LastName).WithAlias (() => resultAlias.EmployeeLastName)
 			                .Select (() => driverAlias.Name).WithAlias (() => resultAlias.EmployeeName)
 			                .Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.EmployeePatronymic)
-			                .SelectCount(() => chatMessageAlias.Id).WithAlias (() => resultAlias.UnreadedMessages)
+			                .SelectCount(() => chatMessageAlias.Id).WithAlias (() => resultAlias.UnreadedMessagesTotal)
+			                .Select(Projections.SqlFunction ( //Использована проекция, так как при вызове встроенной функции тип получатеся bool
+				                new SQLFunctionTemplate (NHibernateUtil.Int32, "SUM( ?1 )"),
+				                NHibernateUtil.Int32,
+				                Projections.Property (() => chatMessageAlias.IsAutoCeated)))
+			                .WithAlias (() => resultAlias.UnreadedMessagesAuto)
 				).TransformUsing (Transformers.AliasToBean<UnreadedChatDTO> ())
 				.List<UnreadedChatDTO>();
 			return resultList;
@@ -69,7 +76,9 @@ namespace Vodovoz.Repository.Chat
 		public class UnreadedChatDTO{
 
 			public int ChatId { get; set;}
-			public int UnreadedMessages { get; set;}
+			public int UnreadedMessagesTotal { get; set;}
+			public int UnreadedMessagesAuto { get; set; }
+			public int UnreadedMessages { get { return UnreadedMessagesTotal - UnreadedMessagesAuto;} }
 			public ChatType ChatType { get; set; }
 
 			public int EmployeeId { get; set;}

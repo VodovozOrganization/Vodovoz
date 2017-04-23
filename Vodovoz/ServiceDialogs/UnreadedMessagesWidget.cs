@@ -106,7 +106,9 @@ namespace Vodovoz
 		public void HandleChatUpdate()
 		{
 			var unreadedMessages = ChatMessageRepository.GetUnreadedChatMessages(uow, currentEmployee, accessToLogisticChat);
-			unreadedMessagesCount = unreadedMessages.Sum(x => x.UnreadedMessages);
+			unreadedMessagesCount = unreadedMessages.Sum(x => x.UnreadedMessagesTotal);
+			var unreadedMessagesAuto = unreadedMessages.Sum (x => x.UnreadedMessagesAuto);
+			var unreadedMessagesHuman = unreadedMessages.Sum (x => x.UnreadedMessages);
 			if (unreadedMessagesCount > 0)
 			{
 				MainClass.TrayIcon.Blinking = true;
@@ -114,7 +116,12 @@ namespace Vodovoz
 					"непрочитанное сообщение", 
 					"непрочитанных сообщения", 
 					"непрочитанных сообщений"));
-				labelUnreadedMessages.Markup = String.Format("<b><span size=\"large\" foreground=\"red\">+ {0}</span></b>", unreadedMessagesCount);
+				var labelText = new List<string> ();
+				if(unreadedMessagesAuto > 0)
+					labelText.Add(String.Format ("<b><span size=\"large\" foreground=\"blue\">+{0}</span></b>", unreadedMessagesAuto));
+				if (unreadedMessagesHuman > 0)
+					labelText.Add (String.Format ("<b><span size=\"large\" foreground=\"red\">+{0}</span></b>", unreadedMessagesHuman));
+				labelUnreadedMessages.Markup = String.Join(" ", labelText);
 				labelUnreadedMessages.TooltipMarkup = String.Format("<b><span size=\"large\" foreground=\"red\">У вас {0} {1}.</span></b>", 
 					unreadedMessagesCount,
 					RusNumber.Case(unreadedMessagesCount,
@@ -146,10 +153,13 @@ namespace Vodovoz
 						chatName = "";
 						break;	
 				}
-				item = new MenuItem(String.Format("{0} {1}: + {2} {3}",
-				                                  chatType, chatName, chat.UnreadedMessages, 
-				                                  RusNumber.Case(chat.UnreadedMessages, "сообщение", "сообщения", "сообщений")));
-				item.Activated += MenuItemActivated;;
+				item = new MenuItem(String.Format("{0} {1}: +{2}{4} {3}",
+				                                  chatType, chatName, chat.UnreadedMessagesTotal, 
+				                                  RusNumber.Case(chat.UnreadedMessagesTotal, "сообщение", "сообщения", "сообщений"),
+				                                  chat.UnreadedMessages > 0 ? $"({chat.UnreadedMessages})" : String.Empty
+				                                 ));
+				item.Activated += MenuItemActivated;
+
 				MenuItems.Add (item, chat.ChatId);
 				menu.Add (item);
 			}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.GtkWidgets.Cells;
 using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
@@ -87,6 +88,7 @@ namespace Vodovoz.ViewModel
 						if(messages != null)
 						{
 							item.Unreaded = messages.UnreadedMessages;
+							item.UnreadedAuto = messages.UnreadedMessagesAuto;
 						}
 					}
 				}
@@ -98,7 +100,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
 			.AddColumn("Машина").SetDataProperty(node => node.CarNumber)
 			.AddColumn("Маршрутные листы").AddTextRenderer().AddSetter( (c, node) => c.Markup = node.RouteListsText)
-			.AddColumn("Чат").AddTextRenderer().AddSetter((w, n) => w.Markup = (n.Unreaded > 0 ? String.Format("<b><span foreground=\"red\">{0}</span></b>", n.Unreaded) : String.Empty))
+			.AddColumn("Чат").AddTextRenderer().AddSetter(SetChatCellMarkup)
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
 			.Finish();
@@ -106,6 +108,17 @@ namespace Vodovoz.ViewModel
 		public override IColumnsConfig ColumnsConfig
 		{
 			get { return columnsConfig; }
+		}
+
+		static void SetChatCellMarkup (NodeCellRendererText<WorkingDriverVMNode> w, WorkingDriverVMNode n)
+		{
+			var unreads = new List<string> ();
+			if (n.UnreadedAuto > 0)
+				unreads.Add (string.Format ("<b><span foreground=\"blue\">{0}</span></b>", n.UnreadedAuto));
+			if (n.Unreaded > 0)
+				unreads.Add (string.Format ("<b><span foreground=\"red\">{0}</span></b>", n.Unreaded));
+
+			w.Markup = String.Join ("+", unreads);
 		}
 
 		#endregion
@@ -141,6 +154,7 @@ namespace Vodovoz.ViewModel
 		public string CarNumber { get; set; }
 		public string RouteListsText { get; set; }
 		public int Unreaded { get; set; }
+		public int UnreadedAuto { get; set; }
 
 		//RouteListId, TrackId
 		public Dictionary<int, int?> RouteListsIds;
