@@ -36,6 +36,7 @@ namespace Vodovoz.Domain
 		DeliveryPoint deliveryPoint;
 
 		[Display (Name = "Точка доставки")]
+		[Required (ErrorMessage = "Точка доставки должна быть указана.")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
 			set { SetField (ref deliveryPoint, value, () => DeliveryPoint);}
