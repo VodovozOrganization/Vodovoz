@@ -521,7 +521,6 @@
     <Compile Include="gtk-gui\Vodovoz.SubdivisionDlg.cs" />
     <Compile Include="ReportsParameters\DriverWagesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.DriverWagesReport.cs" />
-    <Compile Include="ReportsParameters\FuelReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.FuelReport.cs" />
     <Compile Include="ReportsParameters\ShortfallBattlesReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.Reports.ShortfallBattlesReport.cs" />
@@ -555,6 +554,7 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Chat.SendMessageDlg.cs" />
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\FuelReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -832,9 +832,6 @@
     <None Include="Reports\Wages\DriverWage.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Reports\FuelReport.rdl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Reports\Orders\ShortfallBattlesReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -870,6 +867,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\RouteList.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\FuelReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
