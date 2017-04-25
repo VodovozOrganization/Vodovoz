@@ -51,7 +51,7 @@ namespace Vodovoz.Reports
 					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
 					{ "car_id", (yentryreferenceCar.Subject as Car)?.Id },
 					{ "driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
-						  ? null : (yentryreferenceCar.Subject as Car)?.Driver?.Id}
+						  ? -1 : (yentryreferenceCar.Subject as Car)?.Driver?.Id}
 				}
 			};
 		}	

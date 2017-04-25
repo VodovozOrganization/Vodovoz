@@ -474,7 +474,7 @@ FROM
         DATE(fuel_operations.date) AS date,
             route_lists.id AS route_list_id,
             route_lists.date AS route_list_date,
-            CONCAT_WS(&#39; &#39;, employees.last_name, employees.name) AS driver,
+            CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
             delivery_shift.name AS shift,
             route_lists.actual_distance AS distance,
             SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
@@ -496,7 +496,7 @@ FROM
     WHERE
         fuel_operations.date &gt;= @start_date
             AND fuel_operations.date &lt;= @end_date
-            AND (IF(@driver_id IS NULL, fuel_operations.car_id = @car_id, fuel_operations.driver_id = @driver_id))
+            AND (IF(@driver_id = -1, fuel_operations.car_id = @car_id, fuel_operations.driver_id = @driver_id))
     GROUP BY route_list_id , date) AS main</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -599,7 +599,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="driver_id">
       <DataType>String</DataType>
       <Nullable>true</Nullable>
@@ -610,7 +610,7 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="car_id">
       <DataType>Integer</DataType>
-      <Nullable>false</Nullable>
+      <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
       <Prompt>
