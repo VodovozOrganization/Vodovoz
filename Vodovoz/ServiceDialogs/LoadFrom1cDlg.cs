@@ -27,11 +27,6 @@ namespace Vodovoz
 
 		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 
-		List<OrderStatus> StatusesAcceptedToChange = new List<OrderStatus>{
-			OrderStatus.NewOrder,
-			OrderStatus.Accepted
-		};
-
 		List<string> IncludeParents = new List<string>{
 			"00000002",
 			"00000001",
@@ -913,12 +908,12 @@ namespace Vodovoz
 			progressbar.Text = "Сверяем заказы...";
 			progressbar.Adjustment.Value = 0;
 			progressbar.Adjustment.Upper = OrdersList.Count;
+			QSMain.WaitRedraw ();
 
 			List<Order> OrdersInDataBase = new List<Order>();
 			foreach (var date in LoadedOrderDates)
 				OrdersInDataBase.AddRange(Repository.OrderRepository.GetOrdersBetweenDates(UoW, date, date));
 			
-			QSMain.WaitRedraw ();
 
 			//Проверка заказов
 			foreach (var loaded in OrdersList)
@@ -968,7 +963,7 @@ namespace Vodovoz
 				{
 					var change = ChangedItem.CompareAndChange(exist, loaded);
 					if (change != null) {
-						if(!StatusesAcceptedToChange.Contains(exist.OrderStatus)) {
+						if(exist.OrderStatus > OrderStatus.Accepted) {
 							MessageDialogWorks.RunErrorDialog(
 								$"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше \"Подтвержден\".\n" +
 								"Данный заказ НЕ будет повторно загружен или изменен");
@@ -1029,12 +1024,22 @@ namespace Vodovoz
 						? "(нет кода)" : order.Code1c,
 						order.Id),
 					string.Empty, string.Empty));
+				if((order.OrderStatus == OrderStatus.Accepted || order.OrderStatus == OrderStatus.NewOrder) 
+				   && !String.IsNullOrWhiteSpace(order.Code1c))
+				{
+					order.ChangeStatus (OrderStatus.Canceled);
+					UoW.Save (order);
+				}
 			}
 
 			if (result.Count > 0)
 				return new ChangedItem
 				{
-					Title = string.Format("Заказы, которые не были загружены ({0} штук(а))", orders.Count),
+				Title = RusNumber.FormatCase(orders.Count,
+				                             "Отменён {0} ранее загруженный заказ, так как он(и) отсутствует в загрузке.",
+				                             "Отменено {0} ранее загруженных заказа, так как они отсутствуют в загрузке.",
+											 "Отменено {0} ранее загруженных заказов, так как они отсутствуют в загрузке."
+				                            ),
 					Fields = result
 				};
 			else
