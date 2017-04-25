@@ -6,7 +6,6 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Reports
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class FuelReport : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
 		public FuelReport()
@@ -44,7 +43,7 @@ namespace Vodovoz.Reports
 		{			
 			return new ReportInfo
 			{
-				Identifier = "FuelReport",
+				Identifier = "Logistic.FuelReport",
 				UseUserVariables = true,
 				Parameters = new Dictionary<string, object>
 				{ 
