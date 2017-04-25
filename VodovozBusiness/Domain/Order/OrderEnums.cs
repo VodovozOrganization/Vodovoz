@@ -7,6 +7,10 @@ namespace Vodovoz.Domain.Orders
 	{
 		[Display (Name = "Новый")]
 		NewOrder,
+		[Display (Name = "Отменён")]
+		Canceled,
+		[Display (Name = "Ожидание оплаты")]
+		WaitForPayment,
 		[Display (Name = "Принят")]
 		Accepted,
 		[Display (Name = "В маршрутном листе")]
@@ -15,22 +19,16 @@ namespace Vodovoz.Domain.Orders
 		OnLoading,
 		[Display (Name = "В пути")]
 		OnTheWay,
+		[Display (Name = "Доставка отменена")]
+		DeliveryCanceled,
 		[Display (Name = "Доставлен")]
 		Shipped,
 		[Display (Name = "Выгрузка на складе")]
 		UnloadingOnStock,
-		[Display (Name = "Отчет не закрыт")]
-		ReportNotClosed,
-		[Display (Name = "Закрыт")]
-		Closed,
-		[Display (Name = "Отменен")]
-		Canceled,
 		[Display (Name = "Недовоз")]
 		NotDelivered,
-		[Display (Name = "Доставка отменена")]
-		DeliveryCanceled,
-		[Display (Name = "Ожидание оплаты")]
-		WaitForPayment
+		[Display (Name = "Закрыт")]
+		Closed,
 	}
 
 	public class OrderStatusStringType : NHibernate.Type.EnumStringType

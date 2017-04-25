@@ -956,7 +956,6 @@ namespace Vodovoz.Domain.Logistic
 		[Display (Name = "На погрузке")] InLoading,
 		[Display (Name = "В пути")] EnRoute,
 		[Display (Name = "Сдаётся")] OnClosing,
-		[Display (Name = "Не сдан")] NotDelivered,
 		[Display (Name = "Проверка километража")] MileageCheck,
 		[Display (Name = "Закрыт")] Closed
 	}

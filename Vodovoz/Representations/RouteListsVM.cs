@@ -130,7 +130,6 @@ namespace Vodovoz.ViewModel
 			{
 				RouteListStatus.EnRoute,
 				RouteListStatus.OnClosing,
-				RouteListStatus.NotDelivered,
 				RouteListStatus.MileageCheck,
 				RouteListStatus.Closed
 			};
@@ -138,7 +137,6 @@ namespace Vodovoz.ViewModel
 		private List<RouteListStatus> ClosingDlgStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.OnClosing,
-				RouteListStatus.NotDelivered,
 				RouteListStatus.MileageCheck,
 				RouteListStatus.Closed
 			};
@@ -146,7 +144,6 @@ namespace Vodovoz.ViewModel
 		private List<RouteListStatus> MileageCheckDlgStatuses = new List<RouteListStatus>()
 			{
 				RouteListStatus.OnClosing,
-				RouteListStatus.NotDelivered,
 				RouteListStatus.MileageCheck,
 				RouteListStatus.Closed
 			};

@@ -4,7 +4,6 @@ using System.Linq;
 using Gamma.ColumnConfig;
 using Gamma.GtkWidgets;
 using Gtk;
-using NHibernate.Criterion;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -76,7 +75,6 @@ namespace Vodovoz
 			var vm = new RouteListsVM ();
 			vm.Filter.OnlyStatuses = new [] {
 				RouteListStatus.EnRoute,
-				RouteListStatus.NotDelivered,
 				RouteListStatus.MileageCheck,
 				RouteListStatus.OnClosing,
 				RouteListStatus.Closed,
