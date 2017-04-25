@@ -467,46 +467,37 @@
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    outlayed.date AS date,
-    route_lists.id AS route_list_id,
-    route_lists.date AS route_list_date,
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
-    delivery_shift.name AS shift,
-    route_lists.actual_distance AS distance,
-    outlayed.liters_outlayed AS liters_outlayed,
-    gived.liters_gived AS liters_gived,
-    @fuel_balance:=@fuel_balance - IF(outlayed.liters_outlayed IS NULL,
-        0,
-        outlayed.liters_outlayed) + IF(gived.liters_gived IS NULL,
-        0,
-        gived.liters_gived) AS balance,
-    fuel_documents.payed_for_fuel AS payed_for_fuel
+    main.*,
+    @fuel_balance:=@fuel_balance - main.liters_outlayed + main.liters_gived AS balance
 FROM
     (SELECT 
+        DATE(fuel_operations.date) AS date,
+            route_lists.id AS route_list_id,
+            route_lists.date AS route_list_date,
+            CONCAT_WS(&#39; &#39;, employees.last_name, employees.name) AS driver,
+            delivery_shift.name AS shift,
+            route_lists.actual_distance AS distance,
+            SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
+            SUM(fuel_operations.liters_gived) AS liters_gived,
+            SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel
+    FROM
+        (SELECT 
         SUM(@fuel_balance:=@fuel_balance + IF(internal.liters_gived IS NULL, 0, internal.liters_gived) - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) AS rows_first
     FROM
         fuel_operations AS internal, (SELECT @fuel_balance:=0) t
     WHERE
         internal.date &lt; @start_date
-            AND (IF(@driver_id IS NULL, internal.car_id = @car_id, internal.driver_id = @driver_id))) t1,
-    fuel_operations outlayed
-        LEFT JOIN
-    route_lists ON route_lists.fuel_outlayed_operation_id = outlayed.id
-        LEFT JOIN
-    fuel_documents ON route_lists.fuel_gived_document_id = fuel_documents.id
-        LEFT JOIN
-    fuel_operations AS gived ON fuel_documents.fuel_operation_id = gived.id
-        LEFT JOIN
-    delivery_shift ON route_lists.delivery_shift_id = delivery_shift.id
-        LEFT JOIN
-    employees ON route_lists.driver_id = employees.id
-WHERE
-    outlayed.date &gt;= @start_date
-        AND outlayed.date &lt;= @end_date
-        AND (IF(@driver_id IS NULL,
-	outlayed.car_id = @car_id,
-	outlayed.driver_id = @driver_id))
-        AND outlayed.liters_outlayed &gt; 0</CommandText>
+            AND (IF(@driver_id IS NULL, internal.car_id = @car_id, internal.driver_id = @driver_id))) t1, fuel_operations
+    LEFT JOIN fuel_documents ON fuel_documents.fuel_operation_id = fuel_operations.id
+    LEFT JOIN route_lists ON route_lists.fuel_outlayed_operation_id = fuel_operations.id
+        OR route_lists.fuel_gived_document_id = fuel_documents.id
+    LEFT JOIN delivery_shift ON route_lists.delivery_shift_id = delivery_shift.id
+    LEFT JOIN employees ON route_lists.driver_id = employees.id
+    WHERE
+        fuel_operations.date &gt;= @start_date
+            AND fuel_operations.date &lt;= @end_date
+            AND (IF(@driver_id IS NULL, fuel_operations.car_id = @car_id, fuel_operations.driver_id = @driver_id))
+    GROUP BY route_list_id , date) AS main</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
