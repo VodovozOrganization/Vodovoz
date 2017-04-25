@@ -593,7 +593,7 @@
     orders.id AS order_id,
     counterparty.full_name AS counterparty,
     delivery_points.compiled_address_short AS address,
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
+    CONCAT_WS(&#39; &#39;, employees.last_name, employees.name) AS driver_name,
     orders.comment AS comment,
     (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) AS bottles
 FROM
@@ -603,17 +603,17 @@ FROM
         LEFT JOIN
     delivery_points ON delivery_points.id = orders.delivery_point_id
         LEFT JOIN
-    route_list_addresses ON route_list_addresses.order_id = orders.id
+    route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status &lt;&gt; &#39;Transfered&#39;
         LEFT JOIN
     route_lists ON route_lists.id = route_list_addresses.route_list_id
         LEFT JOIN
     employees ON employees.id = route_lists.driver_id
-    LEFT JOIN
-    bottles_movement_operations ON bottles_movement_operations.order_id = orders.id
+        LEFT JOIN
+    bottles_movement_operations ON bottles_movement_operations.id = orders.bottles_movement_operation_id
 WHERE
-    orders.delivery_date = @date
-        AND (route_lists.status = 'closed'
-        OR route_lists.status = 'MileageCheck')
+    orders.delivery_date = DATE(@date)
+        AND (route_lists.status = &#39;Closed&#39;
+        OR route_lists.status = &#39;MileageCheck&#39;)
         AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
