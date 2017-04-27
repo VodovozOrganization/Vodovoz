@@ -546,7 +546,7 @@ namespace Vodovoz.Domain.Logistic
 				.Where(item=>Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				.Where(item=>!item.Nomenclature.Serial))
 			{
-				var operation = orderItem.UpdateCounterpartyOperation();
+				var operation = orderItem.UpdateCounterpartyOperation(UoW);
 				if(operation != null)
 					result.Add(operation);
 			}

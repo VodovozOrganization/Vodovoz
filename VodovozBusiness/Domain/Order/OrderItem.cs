@@ -12,6 +12,8 @@ namespace Vodovoz.Domain.Orders
 		Nominative = "строка заказа")]
 	public class OrderItem: PropertyChangedBase, IDomainObject, IValidatableObject
 	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+
 		#region Свойства
 
 		public virtual int Id { get; set; }
@@ -187,11 +189,14 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
-		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation()
+		public virtual CounterpartyMovementOperation UpdateCounterpartyOperation(IUnitOfWork uow)
 		{
 			if(ActualCount == 0)
 			{
-				//FIXME Проверить может нужно удалять.
+				if (CounterpartyMovementOperation != null && CounterpartyMovementOperation.Id > 0)
+				{
+					uow.Delete (CounterpartyMovementOperation);
+				}
 				CounterpartyMovementOperation = null;
 				return null;
 			}
@@ -200,10 +205,12 @@ namespace Vodovoz.Domain.Orders
 			{
 				CounterpartyMovementOperation = new CounterpartyMovementOperation();
 			}
+			if (Nomenclature == null)
+				throw new InvalidOperationException ("Номенклатура не может быть null");
 
+			CounterpartyMovementOperation.Nomenclature = Nomenclature;
 			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 			CounterpartyMovementOperation.Amount = ActualCount;
-			CounterpartyMovementOperation.Nomenclature = Nomenclature;
 			CounterpartyMovementOperation.Equipment = Equipment;
 			CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
 			CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
