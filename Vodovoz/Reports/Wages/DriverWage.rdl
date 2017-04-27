@@ -502,7 +502,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox20">
-                      <Value>=Fields!money.Value</Value>
+                      <Value>=Iif(Fields!money.Value = 0, "" ,Fields!money.Value )</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -518,7 +518,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>=Fields!nom_name.Value + " " + Fields!reason.Value</Value>
+                      <Value>=Fields!nom_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -805,8 +805,8 @@
     route_lists.id AS route_list_number,
     SUM(bottles_movement_operations.returned) AS empty_bottles,
     SUM(bottles_movement_operations.delivered) AS full_bottles,
-    SUM(route_list_addresses.driver_wage) + SUM(route_list_addresses.driver_wage_surcharge) AS wage,
-        COUNT(IF(route_list_addresses.status = 'Overdue'
+    SUM(route_list_addresses.driver_wage) AS wage,
+    COUNT(IF(route_list_addresses.status = 'Overdue'
 	OR route_list_addresses.status = 'Canceled', NULL, route_list_addresses.id)) AS addresses_count
 FROM
     route_lists
@@ -843,21 +843,21 @@ GROUP BY route_lists.id;</CommandText>
           <DataField>route_list_number</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
-        <Field Name="empty_bottles">
-          <DataField>empty_bottles</DataField>
-          <TypeName>System.Decimal</TypeName>
+        <Field Name="addresses_count">
+          <DataField>addresses_count</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="full_bottles">
           <DataField>full_bottles</DataField>
-          <TypeName>System.Decimal</TypeName>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="empty_bottles">
+          <DataField>empty_bottles</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
         <Field Name="wage">
           <DataField>wage</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="addresses_count">
-          <DataField>addresses_count</DataField>
-          <TypeName>System.Int64</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -885,27 +885,36 @@ GROUP BY route_lists.id;</CommandText>
     <DataSet Name="DriverFines">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT 
+        <CommandText>SELECT * FROM (
+SELECT 
     fines.date,
-    SUM(money) AS money,
-    nomenclature.name AS nom_name,
+    SUM(money) AS money,     
     route_lists.date AS rl_date,
-    fines.fine_reason_string AS reason
+    fines.fine_reason_string AS nom_name
 FROM
     fines_items
         LEFT JOIN
     fines ON fines.id = fines_items.fine_id
-        LEFT JOIN
-    fines_nomenclatures ON fines_nomenclatures.fine_id = fines_items.fine_id
-        LEFT JOIN
-    nomenclature ON nomenclature.id = fines_nomenclatures.nomenclature_id
         LEFT JOIN
     route_lists ON route_lists.id = fines.route_list_id
 WHERE
     fines_items.employee_id = @driver_id
         AND fines.date &gt;= @start_date
         AND fines.date &lt;= @end_date
-GROUP BY fines.date;</CommandText>
+GROUP BY fines.date
+UNION ALL
+SELECT "", 0 , "",   nomenclature.name AS nom_name
+FROM
+   fines_items
+        LEFT JOIN
+    fines ON fines_items.fine_id =fines.id 
+        LEFT JOIN
+    fines_nomenclatures ON fines_nomenclatures.fine_id = fines.id   
+        LEFT JOIN
+    nomenclature ON nomenclature.id = fines_nomenclatures.nomenclature_id
+WHERE
+    fines_items.employee_id = @driver_id) tab
+</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
             <Value>=Parameters!driver_id</Value>
@@ -927,16 +936,12 @@ GROUP BY fines.date;</CommandText>
           <DataField>money</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="nom_name">
-          <DataField>nom_name</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="rl_date">
           <DataField>rl_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="reason">
-          <DataField>reason</DataField>
+        <Field Name="nom_name">
+          <DataField>nom_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -1008,7 +1013,7 @@ WHERE
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_null;user=admey;password=Zaq1xsw2;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
