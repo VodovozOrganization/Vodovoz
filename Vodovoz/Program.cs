@@ -70,6 +70,8 @@ namespace Vodovoz
 			QSProjectsLib.PerformanceHelper.AddTimePoint (logger, "Закончена настройка карты.");
 
 			Chat.ChatMain.ChatServer = "vod-srv.qsolution.ru:9000";
+			QSOsm.OsmWorker.ServiceHost = "vod-srv.qsolution.ru";
+			QSOsm.OsmWorker.ServicePort = 9000;
 			
 			PerformanceHelper.StartPointsGroup ("Главное окно");
 
