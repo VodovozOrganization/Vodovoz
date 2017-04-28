@@ -805,7 +805,7 @@
     route_lists.id AS route_list_number,
     SUM(bottles_movement_operations.returned) AS empty_bottles,
     SUM(bottles_movement_operations.delivered) AS full_bottles,
-    SUM(route_list_addresses.driver_wage) AS wage,
+    SUM(route_list_addresses.driver_wage) + SUM(route_list_addresses.driver_wage_surcharge) AS wage,
     COUNT(IF(route_list_addresses.status = 'Overdue'
 	OR route_list_addresses.status = 'Canceled', NULL, route_list_addresses.id)) AS addresses_count
 FROM
