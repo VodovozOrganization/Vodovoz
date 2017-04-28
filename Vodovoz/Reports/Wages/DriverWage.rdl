@@ -518,7 +518,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox21">
-                      <Value>=Fields!nom_name.Value</Value>
+                      <Value>=Fields!reason.Value + ": " + Fields!nom_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -885,35 +885,29 @@ GROUP BY route_lists.id;</CommandText>
     <DataSet Name="DriverFines">
       <Query>
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT * FROM (
+        <CommandText>
 SELECT 
-    fines.date,
-    SUM(money) AS money,     
+	fines.date,
+    money,
+    GROUP_CONCAT(nomenclature.name SEPARATOR ', ') AS nom_name,
     route_lists.date AS rl_date,
-    fines.fine_reason_string AS nom_name
+    fines.fine_reason_string AS reason
 FROM
     fines_items
         LEFT JOIN
     fines ON fines.id = fines_items.fine_id
+        LEFT JOIN
+    fines_nomenclatures ON fines_nomenclatures.fine_id = fines_items.fine_id
+        LEFT JOIN
+    nomenclature ON nomenclature.id = fines_nomenclatures.nomenclature_id
         LEFT JOIN
     route_lists ON route_lists.id = fines.route_list_id
 WHERE
     fines_items.employee_id = @driver_id
         AND fines.date &gt;= @start_date
         AND fines.date &lt;= @end_date
-GROUP BY fines.date
-UNION ALL
-SELECT "", 0 , "",   nomenclature.name AS nom_name
-FROM
-   fines_items
-        LEFT JOIN
-    fines ON fines_items.fine_id =fines.id 
-        LEFT JOIN
-    fines_nomenclatures ON fines_nomenclatures.fine_id = fines.id   
-        LEFT JOIN
-    nomenclature ON nomenclature.id = fines_nomenclatures.nomenclature_id
-WHERE
-    fines_items.employee_id = @driver_id) tab
+GROUP BY fines.id
+
 </CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
@@ -936,12 +930,16 @@ WHERE
           <DataField>money</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
+        <Field Name="nom_name">
+          <DataField>nom_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="rl_date">
           <DataField>rl_date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
-        <Field Name="nom_name">
-          <DataField>nom_name</DataField>
+        <Field Name="reason">
+          <DataField>reason</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -958,7 +956,7 @@ WHERE
     wages_movement_operations.operation_type = 'GivedAdvance'
         AND wages_movement_operations.employee_id = @driver_id
         AND wages_movement_operations.operation_time &gt;= @start_date
-        AND wages_movement_operations.operation_time &lt;= @end_date;</CommandText>
+        AND wages_movement_operations.operation_time &lt;= DATE_ADD(@end_date, INTERVAL 1 DAY);</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
             <Value>=Parameters!driver_id</Value>
@@ -1013,7 +1011,7 @@ WHERE
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
