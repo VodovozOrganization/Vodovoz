@@ -113,7 +113,7 @@ namespace Vodovoz
 			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
 
 			ylabelOrderStatus.Binding.AddFuncBinding(Entity, e => e.OrderStatus.GetEnumTitle(), w => w.LabelProp).InitializeFromSource();
-			ylabelNumber1c.Binding.AddBinding (Entity, e => e.Code1c, w => w.LabelProp).InitializeFromSource();
+			ylabelNumber1c.Binding.AddFuncBinding (Entity, e => e.Code1c + (e.DailyNumber1c.HasValue ? $" ({e.DailyNumber1c})" : ""), w => w.LabelProp).InitializeFromSource();
 
 			enumDocumentType.ItemsEnum = typeof(DefaultDocumentType);
 			enumDocumentType.Binding.AddBinding (Entity, s => s.DocumentType, w => w.SelectedItem).InitializeFromSource ();

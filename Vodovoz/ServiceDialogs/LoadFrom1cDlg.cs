@@ -670,13 +670,13 @@ namespace Vodovoz
 			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
 			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
+			var dailyNumber1c		  = node.SelectSingleNode ("Свойство[@Имя='ЕжедневныйНомер']/Значение");
 			var toClient 	 		  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
 			var fromClient 	 	  	  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
 			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
 			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			//TODO Предусмотреть самовывоз в адресе
 			DeliveryPoint deliveryPoint = DeliveryPointsList.FirstOrDefault(d => d.Address1c == addressNode?.InnerText);
 			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
 
@@ -719,6 +719,13 @@ namespace Vodovoz
 					ToClientText 		= toClient?.InnerText,
 					FromClientText 		= fromClient?.InnerText
 				};
+
+			if (!String.IsNullOrWhiteSpace (dailyNumber1c?.InnerText)) {
+				int number;
+				if (Int32.TryParse (dailyNumber1c.InnerText, out number))
+					order.DailyNumber1c = number;
+			}
+
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
 			foreach(var item in goodsNodes){

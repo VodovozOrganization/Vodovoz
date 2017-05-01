@@ -125,6 +125,12 @@ namespace ServiceDialogs.LoadFrom1c
 				result.Add(new FieldChange("Изменен адрес из 1С", oldOrder.Address1c, newOrder.Address1c));
 				oldOrder.Address1c = newOrder.Address1c;
 			}
+
+			if (oldOrder.DailyNumber1c != newOrder.DailyNumber1c) {
+				result.Add (new FieldChange ("Изменен ежедневный номер", oldOrder.DailyNumber1c?.ToString(), newOrder.DailyNumber1c?.ToString()));
+				oldOrder.Address1c = newOrder.Address1c;
+			}
+
 			if (oldOrder.ToClientText != newOrder.ToClientText)
 			{
 				result.Add(new FieldChange("Изменена строка \"К клиенту\"",

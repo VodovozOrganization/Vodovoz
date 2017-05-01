@@ -283,6 +283,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref toClientText, value, () => ToClientText); }
 		}
 
+		private int? dailyNumber1c;
+
+		[Display (Name = "Ежедневный номер из 1с")]
+		public virtual int? DailyNumber1c {
+			get { return dailyNumber1c; }
+			set { SetField (ref dailyNumber1c, value, () => DailyNumber1c); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor ()
