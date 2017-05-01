@@ -8,7 +8,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Orders;
 using Order = Vodovoz.Domain.Orders.Order;
 
-namespace Vodovoz.Repository
+namespace Vodovoz.Repository.Client
 {
 	public static class DeliveryPointRepository
 	{

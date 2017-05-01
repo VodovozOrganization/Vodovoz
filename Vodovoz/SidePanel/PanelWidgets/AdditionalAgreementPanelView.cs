@@ -4,6 +4,7 @@ using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Repository;
+using Vodovoz.Repository.Client;
 
 namespace Vodovoz.Panel
 {

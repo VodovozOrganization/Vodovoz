@@ -1,7 +1,7 @@
 ﻿using System;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
-using Vodovoz.Repository;
+using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 
 namespace Vodovoz.Panel
