@@ -260,7 +260,6 @@
     <Compile Include="Repositories\Cash\CategoryRepository.cs" />
     <Compile Include="Repositories\CounterpartyContractRepository.cs" />
     <Compile Include="Repositories\CounterpartyRepository.cs" />
-    <Compile Include="Repositories\DeliveryPointRepository.cs" />
     <Compile Include="Repositories\EmployeeRepository.cs" />
     <Compile Include="Repositories\EquipmentRepository.cs" />
     <Compile Include="Repositories\EquipmentTypeRepository.cs" />
@@ -333,6 +332,7 @@
     <Compile Include="Domain\FineTemplate.cs" />
     <Compile Include="Domain\BaseParameter.cs" />
     <Compile Include="HibernateMapping\BaseParameterMap.cs" />
+    <Compile Include="Repositories\Client\DeliveryPointRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

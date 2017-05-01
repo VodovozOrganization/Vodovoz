@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using NHibernate.Criterion;
 using QSOrmProject;
@@ -16,6 +15,17 @@ namespace Vodovoz.Repository.Client
 		{
 			return QueryOver.Of<DeliveryPoint> ()
 				.Where (dp => dp.Counterparty.Id == counterparty.Id);
+		}
+
+		public static DeliveryPoint GetByAddress1c(IUnitOfWork uow, string address1c)
+		{
+			if (String.IsNullOrWhiteSpace (address1c))
+				return null;
+
+			return uow.Session.QueryOver<DeliveryPoint> ()
+					  .Where (dp => dp.Address1c == address1c)
+					  .Take (1)
+					  .SingleOrDefault ();
 		}
 
 		public static int GetBottlesOrderedForPeriod(IUnitOfWork uow, DeliveryPoint deliveryPoint, DateTime start, DateTime end)

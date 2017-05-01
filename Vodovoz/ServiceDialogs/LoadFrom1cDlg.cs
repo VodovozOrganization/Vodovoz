@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
+using Gamma.GtkWidgets;
 using Gtk;
 using QSBanks;
 using QSBusinessCommon.Domain;
@@ -11,13 +12,13 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using QSWidgetLib;
+using ServiceDialogs.LoadFrom1c;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.LoadFrom1c;
-using ServiceDialogs.LoadFrom1c;
-using Gamma.GtkWidgets;
+using Vodovoz.Repository.Client;
 
 namespace Vodovoz
 {
@@ -276,7 +277,6 @@ namespace Vodovoz
 		List<DateTime> 		LoadedOrderDates = new List<DateTime>();
 		List<ChangedItem> 	Changes = new List<ChangedItem>();
 
-		List<DeliveryPoint> 	DeliveryPointsList = null;
 		List<DeliverySchedule> 	DeliverySchedules = null;
 
 		MeasurementUnits unitU;
@@ -294,7 +294,6 @@ namespace Vodovoz
 			Filter.AddPattern("*.xml");
 			filechooserXML.Filter = Filter;
 
-			DeliveryPointsList = UoW.GetAll<DeliveryPoint>().ToList<DeliveryPoint>();
 			DeliverySchedules  = UoW.GetAll<DeliverySchedule>().ToList();
 			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
 			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(UoW);
@@ -339,7 +338,6 @@ namespace Vodovoz
 			NomenclaturesList 		 .Clear();
 			OrdersList		  		 .Clear();
 			ChangedOrdersList		 .Clear();
-			DeliveryPointsList		 .Clear();
 
 			XmlDocument content = new XmlDocument ();
 			content.Load (filechooserXML.Filename);
@@ -393,8 +391,7 @@ namespace Vodovoz
 
 			progressbar.Text = "Выполнено";
 			buttonCreate.Sensitive = checkRewrite.Sensitive = checkOnlyAddress.Sensitive =
-				CounterpatiesList.Count > 0 || OrdersList.Count > 0 || NomenclaturesList.Count > 0 ||
-				DeliveryPointsList.Count > 0;
+				CounterpatiesList.Count > 0 || OrdersList.Count > 0 || NomenclaturesList.Count > 0;
 			checkSkipCounterparties.Sensitive = true;
 		}
 
@@ -677,7 +674,7 @@ namespace Vodovoz
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
 			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			DeliveryPoint deliveryPoint = DeliveryPointsList.FirstOrDefault(d => d.Address1c == addressNode?.InnerText);
+			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(UoW, addressNode?.InnerText);
 			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
 
 			if (client == null)
