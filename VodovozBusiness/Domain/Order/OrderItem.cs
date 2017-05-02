@@ -201,19 +201,19 @@ namespace Vodovoz.Domain.Orders
 				return null;
 			}
 
-			if (CounterpartyMovementOperation == null)
-			{
-				CounterpartyMovementOperation = new CounterpartyMovementOperation();
-			}
 			if (Nomenclature == null)
 				throw new InvalidOperationException ("Номенклатура не может быть null");
-
-			CounterpartyMovementOperation.Nomenclature = Nomenclature;
-			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
-			CounterpartyMovementOperation.Amount = ActualCount;
-			CounterpartyMovementOperation.Equipment = Equipment;
-			CounterpartyMovementOperation.IncomingCounterparty = Order.Client;
-			CounterpartyMovementOperation.IncomingDeliveryPoint = Order.DeliveryPoint;
+		
+			if (CounterpartyMovementOperation == null) {
+				CounterpartyMovementOperation = new CounterpartyMovementOperation {
+					Nomenclature = Nomenclature,
+					OperationTime = Order.DeliveryDate.Value.Date.AddHours (23).AddMinutes (59),
+					Amount = ActualCount,
+					Equipment = Equipment,
+					IncomingCounterparty = Order.Client,
+					IncomingDeliveryPoint = Order.DeliveryPoint,
+				};
+			}
 
 			return CounterpartyMovementOperation;
 		}
