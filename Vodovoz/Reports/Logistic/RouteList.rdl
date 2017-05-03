@@ -49,7 +49,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>136.5pt</Height>
+    <Height>220.2pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox3">
@@ -799,7 +799,7 @@
                         </BackgroundColor>
                         <FontFamily>Arial</FontFamily>
                         <FontSize>10pt</FontSize>
-                        <TextAlign >Right</TextAlign>
+                        <TextAlign>Right</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1242,6 +1242,114 @@
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox34" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.76pt</Height>
+        <Width>166.38pt</Width>
+        <Value>="ПРИНЯТО НА СКЛАДЕ"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>144.2pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox23" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.76pt</Height>
+        <Width>166.38pt</Width>
+        <Value>="ПУСТЫХ:"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>163.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.76pt</Height>
+        <Width>166.38pt</Width>
+        <Value>="БРАК: "</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>178.1pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox31" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.76pt</Height>
+        <Width>166.38pt</Width>
+        <Value>="ПОЛНЫХ:"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>193.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox33" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.76pt</Height>
+        <Width>166.38pt</Width>
+        <Value>="Нач. склада ____________"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>414.80pt</Left>
+        <Top>154.70pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
+          <FontSize>10pt</FontSize>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox35" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>15.76pt</Height>
+        <Width>166.38pt</Width>
+        <Value>="Водитель ______________"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>414.6pt</Left>
+        <Top>189.3pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <Color>Black</Color>
+          <BackgroundColor>
+          </BackgroundColor>
+          <FontFamily>Arial</FontFamily>
+          <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
     </ReportItems>
