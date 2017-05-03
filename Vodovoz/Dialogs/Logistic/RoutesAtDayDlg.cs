@@ -559,7 +559,7 @@ namespace Vodovoz
 				}
 				route.AddAddressFromOrder(order);
 			}
-			route.ReorderAddressesByTime();
+			route.ReorderAddressesByDailiNumber ();
 			uow.Save(route);
 			logger.Info("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			UpdateAddressesOnMap();

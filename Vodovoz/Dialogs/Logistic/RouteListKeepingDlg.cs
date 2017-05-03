@@ -174,6 +174,7 @@ namespace Vodovoz
 		public void UpdateNodes(){
 			List<string> emptyDP = new List<string>();
 			items = new List<RouteListKeepingItemNode>();
+			Entity.ReorderAddressesByDailiNumber ();
 			foreach (var item in Entity.Addresses)
 			{
 				items.Add(new RouteListKeepingItemNode{ RouteListItem = item });

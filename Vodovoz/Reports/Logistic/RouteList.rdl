@@ -1504,7 +1504,7 @@ GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
 
 WHERE route_list_addresses.route_list_id = @route_list_id
 GROUP BY orders.id
-ORDER BY route_list_addresses.order_in_route;
+ORDER BY daily_number_1c;
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">

@@ -119,6 +119,7 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Предварительная загрузка");
 
 			routeListAddressesView.UoW = UoW;
+			Entity.ReorderAddressesByDailiNumber ();
 			routeListAddressesView.RouteList = Entity;
 			foreach (RouteListItem item in routeListAddressesView.Items)
 			{
@@ -653,8 +654,8 @@ namespace Vodovoz
 
 		protected void OnButtonGetDistFromTrackClicked(object sender, EventArgs e)
 		{
-			var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
-			Entity.ActualDistance = (decimal)track.TotalDistance.Value;
+			//var track = Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, Entity.Id);
+			//Entity.ActualDistance = (decimal)track.TotalDistance.Value;
 		}
 
 		protected void OnButtonAddTicketClicked(object sender, EventArgs e)
