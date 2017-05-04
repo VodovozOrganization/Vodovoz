@@ -398,7 +398,7 @@ namespace Vodovoz
 		{
 			var hasItemsDiscrepancies = routelistdiscrepancyview.Items.Any(discrepancy => discrepancy.Remainder != 0);
 			bool hasFine = Entity.BottleFine != null;
-			var items = routeListAddressesView.Items.Where(item => item.IsDelivered());
+			var items = Entity.Addresses.Where(item => item.IsDelivered());
 			int bottlesReturnedTotal = items.Sum(item => item.BottlesReturned);
 			var hasTotalBottlesDiscrepancy = bottlesReturnedToWarehouse != bottlesReturnedTotal;
 			return hasFine || (!hasTotalBottlesDiscrepancy && !hasItemsDiscrepancies) || Entity.DifferencesConfirmed;
