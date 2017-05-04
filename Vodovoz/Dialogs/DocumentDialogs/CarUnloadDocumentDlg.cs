@@ -19,9 +19,7 @@ namespace Vodovoz
 
 		public override bool HasChanges {
 			get {
-				if (returnsreceptionview1.Items.Sum(i => i.Amount) > 0)
-					return true;
-				return base.HasChanges;
+				return true;
 			}
 		}
 
