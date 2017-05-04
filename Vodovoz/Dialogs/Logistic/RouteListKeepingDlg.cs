@@ -316,6 +316,8 @@ namespace Vodovoz
 			var selectedObjects = ytreeviewAddresses.GetSelectedObjects();
 			foreach (RouteListKeepingItemNode item in selectedObjects)
 			{
+				if (item.Status == RouteListItemStatus.Transfered)
+					continue;
 				item.RouteListItem.UpdateStatus(UoW, RouteListItemStatus.Completed);
 			}
 		}
