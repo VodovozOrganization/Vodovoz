@@ -13,7 +13,6 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class OrderReturnsView : TdiTabBase
 	{
 		List<OrderItemReturnsNode> equipmentFromClient;
@@ -28,6 +27,9 @@ namespace Vodovoz
 			this.Build();
 			this.routeListItem = routeListItem;
 			this.TabName = "Изменение заказа №" + routeListItem.Order.Id;
+
+			entryTotal.Sensitive = yenumcomboOrderPayment.Sensitive =
+				routeListItem.Status != RouteListItemStatus.Transfered;
 
 			ytreeToClient.Sensitive = routeListItem.IsDelivered();
 			ytreeFromClient.Sensitive = routeListItem.IsDelivered();
@@ -162,9 +164,10 @@ namespace Vodovoz
 
 		void UpdateButtonsState()
 		{
-			buttonDeliveryCanceled.Sensitive = routeListItem.Status != RouteListItemStatus.Canceled;
-			buttonNotDelivered.Sensitive = routeListItem.Status != RouteListItemStatus.Overdue;
-			buttonDelivered.Sensitive = routeListItem.Status != RouteListItemStatus.Completed && routeListItem.Status != RouteListItemStatus.EnRoute;
+			bool isTransfered = routeListItem.Status == RouteListItemStatus.Transfered;
+			buttonDeliveryCanceled.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Canceled;
+			buttonNotDelivered.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Overdue;
+			buttonDelivered.Sensitive = !isTransfered && routeListItem.Status != RouteListItemStatus.Completed && routeListItem.Status != RouteListItemStatus.EnRoute;
 		}
 	}
 
