@@ -137,12 +137,22 @@ namespace Vodovoz
 		void YentryreferenceRLFrom_Changed (object sender, EventArgs e)
 		{
 			if (yentryreferenceRLFrom.Subject == null)
+			{
+				ytreeviewRLFrom.ItemsDataSource = null;
 				return;
+			}
 			
-			RouteList routeList = yentryreferenceRLFrom.Subject as RouteList;
+			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
+
+			if (DomainHelper.EqualDomainObjects(routeListFrom, routeListTo)) {
+				yentryreferenceRLFrom.Subject = null;
+				MessageDialogWorks.RunErrorDialog ("Вы дурачёк?", "Вы не можете забирать адреса из того же МЛ, в который собираетесь передавать.");
+				return;
+			}
 
 			if (TabParent != null) {
-				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeList.Id));
+				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeListFrom.Id));
 
 				if (!(tab is RouteListClosingDlg)) { 
 					if (tab != null) {
@@ -156,7 +166,7 @@ namespace Vodovoz
 			CheckSensitivities();
 
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
-			foreach (var item in routeList.Addresses)
+			foreach (var item in routeListFrom.Addresses)
 				items.Add(new RouteListItemNode{RouteListItem = item});
 			ytreeviewRLFrom.ItemsDataSource = items;
 		}
@@ -164,12 +174,23 @@ namespace Vodovoz
 		void YentryreferenceRLTo_Changed (object sender, EventArgs e)
 		{
 			if (yentryreferenceRLTo.Subject == null)
+			{
+				ytreeviewRLTo.ItemsDataSource = null;
 				return;
+			}
 			
-			RouteList routeList = yentryreferenceRLTo.Subject as RouteList;
+			RouteList routeListTo = yentryreferenceRLTo.Subject as RouteList;
+			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+
+			if(DomainHelper.EqualDomainObjects (routeListFrom, routeListTo))
+			{
+				yentryreferenceRLTo.Subject = null;
+				MessageDialogWorks.RunErrorDialog ("Вы дурачёк?", "Вы не можете передавать адреса в тот же МЛ, из которого забираете.");
+				return;
+			}
 
 			if (TabParent != null) {
-				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeList.Id));
+				var tab = TabParent.FindTab (OrmMain.GenerateDialogHashName<RouteList> (routeListTo.Id));
 				if (!(tab is RouteListClosingDlg)) {
 					if (tab != null) {
 						MessageDialogWorks.RunErrorDialog ("Маршрутный лист уже открыт в другой вкладке");
@@ -182,7 +203,7 @@ namespace Vodovoz
 			CheckSensitivities();
 
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
-			foreach (var item in routeList.Addresses)
+			foreach (var item in routeListTo.Addresses)
 				items.Add(new RouteListItemNode{RouteListItem = item});
 			ytreeviewRLTo.ItemsDataSource = items;
 		}
