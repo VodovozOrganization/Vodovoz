@@ -314,10 +314,18 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void ReorderAddressesByDailiNumber ()
 		{
-			var orderedList = Addresses
+			var orderedList = Addresses.Where(x => x != null)
 				.OrderBy (x => x.Order?.DailyNumber1c)
 				.ToList ();
-			for (int i = 0; i < ObservableAddresses.Count; i++) {
+			for (int i = 0; i < ObservableAddresses.Count; i++) 
+			{
+				if (ObservableAddresses [i] == null)
+				{
+					ObservableAddresses.RemoveAt (i);
+					i--;
+					continue;
+				}
+				
 				if (orderedList [i] == ObservableAddresses [i])
 					continue;
 
@@ -328,11 +336,17 @@ namespace Vodovoz.Domain.Logistic
 
 		private void CheckAddressOrder ()
 		{
-			int i = 0;
-			foreach (var address in Addresses) {
-				if (address.IndexInRoute != i)
-					address.IndexInRoute = i;
-				i++;
+			for (int i = 0; i < Addresses.Count; i++)
+			{
+				if(Addresses[i] == null)
+				{
+					Addresses.RemoveAt (i);
+					i--;
+					continue;
+				}
+				
+				if (Addresses [i].IndexInRoute != i)
+					Addresses [i].IndexInRoute = i;
 			}
 		}
 
