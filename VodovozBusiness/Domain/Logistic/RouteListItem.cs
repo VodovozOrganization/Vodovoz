@@ -483,9 +483,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool IsDelivered ()
 		{
-			var routeListUnloaded = (RouteList.Status == RouteListStatus.OnClosing) ||
-				(RouteList.Status == RouteListStatus.MileageCheck) ||
-				(RouteList.Status == RouteListStatus.Closed);
+			var routeListUnloaded = (RouteList.Status >= RouteListStatus.OnClosing);
 			return Status == RouteListItemStatus.Completed || Status == RouteListItemStatus.EnRoute && routeListUnloaded;
 		}
 
@@ -497,6 +495,11 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void FirstFillClosing (IUnitOfWork uow)
 		{
+			//Эта функция вызывается при переходе адреса в закрытие. Если адрес в пути, при закрытии МЛ он считается автоматически доставленным. 
+			//В этом месте изменяем статус для подстраховки.
+			if (Status == RouteListItemStatus.EnRoute)
+				Status = RouteListItemStatus.Completed;
+
 			foreach (var item in Order.OrderItems) {
 				item.ActualCount = IsDelivered () ? item.Count : 0;
 			}

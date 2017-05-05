@@ -252,13 +252,11 @@ namespace Vodovoz
 				if (item == null || item.Status == RouteListItemStatus.Transfered)
 					continue;
 
-				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, RouteListItemStatus.Completed);
+				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status);
 				newItem.WasTransfered = true;
 				routeListTo.ObservableAddresses.Add(newItem);
-//				uow.Save(newItem);
 
 				item.TransferedTo = newItem;
-				//				uow.Save(item);
 
 				if (routeListTo.ClosingFilled)
 					newItem.FirstFillClosing (UoW);
