@@ -555,6 +555,8 @@
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport.cs" />
     <Compile Include="ReportsParameters\Logistic\FuelReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Reports.OnecCommentsReport.cs" />
+    <Compile Include="ReportsParameters\OnecCommentsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -870,6 +872,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\FuelReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\OnecComments.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

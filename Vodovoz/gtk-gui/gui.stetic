@@ -703,6 +703,12 @@
         <property name="ShortLabel" translatable="yes">Время доставки</property>
         <signal name="Activated" handler="OnActionDeliveryTimeReportActivated" />
       </action>
+      <action id="Action1cComments">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по комментариям из 1С</property>
+        <property name="ShortLabel" translatable="yes">Отчет по комментариям из 1С</property>
+        <signal name="Activated" handler="OnAction1cCommentsActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -831,6 +837,7 @@
                       <node type="Menuitem" action="ActionShortfallBattles" />
                       <node type="Menuitem" action="ActionEquipmentReport" />
                       <node type="Menuitem" action="ActionCashierComments" />
+                      <node type="Menuitem" action="Action1cComments" />
                     </node>
                   </node>
                   <node type="Menu" action="ActionAbout">
@@ -16561,7 +16568,6 @@ Patronymic</property>
                     <property name="Icon">stock:gtk-save Menu</property>
                     <property name="Label" translatable="yes">Сохранить</property>
                     <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnButtonSaveClicked" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -16578,7 +16584,6 @@ Patronymic</property>
                     <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                     <property name="Label" translatable="yes">Отмена</property>
                     <property name="UseUnderline">True</property>
-                    <signal name="Clicked" handler="OnButtonCancelClicked" />
                   </widget>
                   <packing>
                     <property name="Position">1</property>
@@ -17023,7 +17028,6 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -17040,7 +17044,6 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -26900,7 +26903,6 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -26917,7 +26919,6 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -37886,6 +37887,13 @@ RegistrationNumber</property>
           </packing>
         </child>
       </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.OnecCommentsReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
     </child>
   </widget>
 </stetic-interface>

@@ -644,6 +644,15 @@ public partial class MainWindow: Gtk.Window
 		);
 	}
 
+	protected void OnAction1cCommentsActivated (object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.OnecCommentsReport ();
+		tdiMain.OpenTab (
+					QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
+
 	protected void OnActionDriversWageBalanceActivated (object sender, EventArgs e)
 	{
 		var widget = new Vodovoz.Reports.DriversWageBalanceReport();
