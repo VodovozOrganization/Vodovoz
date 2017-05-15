@@ -555,8 +555,8 @@
     <Compile Include="ReportsParameters\Logistic\DeliveryTimeReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport.cs" />
     <Compile Include="ReportsParameters\Logistic\FuelReport.cs" />
-    <Compile Include="gtk-gui\Vodovoz.Reports.OnecCommentsReport.cs" />
     <Compile Include="ReportsParameters\OnecCommentsReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OnecCommentsReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -882,7 +882,10 @@
     <MonoDevelop>
       <Properties>
         <Policies>
-          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild" />
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="MSBuild">
+            <inheritsSet />
+            <inheritsScope />
+          </DotNetNamingPolicy>
         </Policies>
         <Deployment.LinuxDeployData generateScript="False" />
       </Properties>

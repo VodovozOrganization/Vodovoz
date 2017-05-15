@@ -646,7 +646,7 @@ public partial class MainWindow: Gtk.Window
 
 	protected void OnAction1cCommentsActivated (object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.OnecCommentsReport ();
+		var widget = new Vodovoz.ReportsParameters.OnecCommentsReport ();
 		tdiMain.OpenTab (
 					QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg (widget)

@@ -10791,10 +10791,11 @@ Patronymic</property>
                 <property name="RightAttach">3</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">True</property>
+                <property name="YExpand">False</property>
                 <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
@@ -10941,10 +10942,11 @@ Patronymic</property>
                 <property name="RightAttach">5</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">True</property>
+                <property name="YExpand">False</property>
                 <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
@@ -12585,10 +12587,11 @@ Patronymic</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">True</property>
+                <property name="YExpand">False</property>
                 <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
@@ -14010,10 +14013,11 @@ Patronymic</property>
                 <property name="RightAttach">2</property>
                 <property name="AutoSize">True</property>
                 <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
                 <property name="XExpand">False</property>
                 <property name="XFill">True</property>
                 <property name="XShrink">False</property>
-                <property name="YExpand">True</property>
+                <property name="YExpand">False</property>
                 <property name="YFill">True</property>
                 <property name="YShrink">False</property>
               </packing>
@@ -37893,7 +37897,65 @@ RegistrationNumber</property>
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
-      <placeholder />
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gamma.GtkWidgets.yLabel" id="ylabel1">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Дата:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="QSWidgetLib.DatePeriodPicker" id="dateperiodpicker">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="StartDate">0</property>
+                <property name="EndDate">0</property>
+                <signal name="PeriodChanged" handler="OnDateperiodpickerPeriodChanged" />
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateReport">
+            <property name="MemberName" />
+            <property name="Sensitive">False</property>
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateReportClicked" />
+          </widget>
+          <packing>
+            <property name="PackType">End</property>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
     </child>
   </widget>
 </stetic-interface>

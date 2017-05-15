@@ -3,7 +3,7 @@ using QSOrmProject;
 using QSReport;
 using System.Collections.Generic;
 
-namespace Vodovoz.Reports
+namespace Vodovoz.ReportsParameters
 {
 	[System.ComponentModel.ToolboxItem (true)]
 	public partial class OnecCommentsReport : Gtk.Bin, IOrmDialog, IParametersWidget
