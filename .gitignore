@@ -6,10 +6,7 @@
 #Mono Project Files
 bin/
 obj/
-
 packages/*
-
 #Workbench Backup Files
 Base/Factory.mwb.bak
-
 *.DS_Store
