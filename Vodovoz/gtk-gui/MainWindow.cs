@@ -563,7 +563,9 @@ public partial class MainWindow
 		global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.toolbarMain]));
 		w3.Position = 0;
 		// Container child hbox2.Gtk.Box+BoxChild
-		this.unreadedMessagesWidget = null;
+		this.unreadedMessagesWidget = new global::Vodovoz.UnreadedMessagesWidget ();
+		this.unreadedMessagesWidget.Events = ((global::Gdk.EventMask)(256));
+		this.unreadedMessagesWidget.Name = "unreadedMessagesWidget";
 		this.hbox2.Add(this.unreadedMessagesWidget);
 		global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.unreadedMessagesWidget]));
 		w4.Position = 1;
@@ -624,7 +626,9 @@ public partial class MainWindow
 		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
 		w11.Position = 0;
 		// Container child hbox1.Gtk.Box+BoxChild
-		this.infopanel = null;
+		this.infopanel = new global::Vodovoz.Panel.InfoPanel ();
+		this.infopanel.Events = ((global::Gdk.EventMask)(256));
+		this.infopanel.Name = "infopanel";
 		this.hbox1.Add(this.infopanel);
 		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
 		w12.Position = 1;
