@@ -15,7 +15,6 @@ namespace Vodovoz.ReportsParameters
 			this.Build ();
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 			referenceLogisticArea.SubjectType = typeof (LogisticsArea);
-			//referenceLogisticArea.Subject = Repository.Logistics.
 		}
 
 		#region IOrmDialog implementation
@@ -47,7 +46,7 @@ namespace Vodovoz.ReportsParameters
 				{
 					{ "start_date", dateperiodpicker.StartDate },
 					{ "end_date", dateperiodpicker.EndDate.AddHours(23).AddMinutes(59).AddSeconds(59) },
-					{ "id", ((LogisticsArea)referenceLogisticArea.Subject).Id }
+					{ "id_district", ((LogisticsArea)referenceLogisticArea.Subject).Id }
 				} 
 			};
 		} 
@@ -55,8 +54,8 @@ namespace Vodovoz.ReportsParameters
 		protected void OnButtonCreateReportClicked (object sender, EventArgs e)
 		{
 			string errorString = string.Empty;
-			//if (referenceLogisticArea.Subject == null)
-				//errorString += "   \n";
+			if (referenceLogisticArea.Subject == null)
+			errorString += "Не заполнен район\n";
 			if (dateperiodpicker.StartDateOrNull == null)
 				errorString += "Не заполнена дата\n";
 			if (!string.IsNullOrWhiteSpace (errorString)) {

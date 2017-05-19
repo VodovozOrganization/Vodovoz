@@ -4,24 +4,58 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>297mm</PageHeight>
-  <PageWidth>210mm</PageWidth>
+  <PageHeight>210mm</PageHeight>
+  <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
   <TopMargin>5mm</TopMargin>
   <LeftMargin>5mm</LeftMargin>
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
+  <ReportParameters>
+    <ReportParameter Name="id_district">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <Nullable>False</Nullable>
+      <AllowBlank>False</AllowBlank>
+    </ReportParameter>
+  </ReportParameters>
   <PageHeader>
-    <Height>0.0pt</Height>
+    <Height>18.2pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems>
+      <Textbox Name="Textbox2">
+        <Height>18.02pt</Height>
+        <Width>816.08pt</Width>
+        <Value>="Отчет по району"</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.8pt</Left>
+        <Top>0.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>16pt</FontSize>
+          <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
   </PageHeader>
   <Body>
-    <Height>247.8pt</Height>
+    <Height>157.1pt</Height>
     <ReportItems>
-      <Table Name="Table1">
+      <Table Name="Table2">
         <DataSetName>Orders</DataSetName>
-        <NoRows>Данных нет</NoRows>
+        <NoRows>Query returned no rows!</NoRows>
         <Style>
           <BorderStyle>
             <Default>Solid</Default>
@@ -31,29 +65,35 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>86.4pt</Width>
+            <Width>49.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>82.5pt</Width>
+            <Width>56.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>149.3pt</Width>
+            <Width>47.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>164.4pt</Width>
+            <Width>154.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.0pt</Width>
+            <Width>135.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>289.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>85.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>34.7pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
+                    <Textbox Name="Textbox18">
                       <Value>Время доставки</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -69,8 +109,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>К-во бутылок</Value>
+                    <Textbox Name="Textbox19">
+                      <Value>Ко-во бутылок 19 л.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -85,8 +125,24 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
-                      <Value>Инные товары</Value>
+                    <Textbox Name="Textbox3">
+                      <Value>Ко-во бутылок 6 л.</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>Иные товары</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -101,7 +157,23 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox6">
+                    <Textbox Name="Textbox14">
+                      <Value>Оборудование</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
                       <Value>Адрес</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -117,7 +189,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox7">
+                    <Textbox Name="Textbox22">
                       <Value>Водитель</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -143,23 +215,20 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox9">
+                    <Textbox Name="Textbox23">
                       <Value>=Fields!date.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox10">
+                    <Textbox Name="Textbox24">
                       <Value>=Fields!bottles.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -169,20 +238,54 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <Color>Black</Color>
+                        <BackgroundColor>
+                        </BackgroundColor>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>=Fields!equipment_id.Value</Value>
+                    <Textbox Name="Textbox4">
+                      <Value>=Fields!bottles6.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>=Fields!nom_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>General</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=Fields!clients_equipment.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -191,32 +294,26 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox12">
+                    <Textbox Name="Textbox26">
                       <Value>=Fields!address.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox13">
+                    <Textbox Name="Textbox27">
                       <Value>=Fields!last_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -225,16 +322,251 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
-        <Top>35.0pt</Top>
+        <Left>3.1pt</Left>
+        <Top>5.7pt</Top>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="Count_group">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >=Iif({bottles} &lt;= 4, '4', '5')</GroupExpression>
+                <GroupExpression >=Iif({bottles6} &lt;= 4, '4', '5')</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>21.3pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox5">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                          <Value>=Iif({bottles} &lt;= 4 AND {bottles6} &lt;=4, 'ДО 4', 'БОЛЕЕ 4') </Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>7</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+          </TableGroup>
+          <TableGroup>
+            <Grouping Name="district_group">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression>={district}</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>true</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>18.8pt</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox9">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontSize>14pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>=Fields!district.Value</Value>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>7</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox29">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
+                          </Style>
+                          <Value>ИТОГО:</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox30">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
+                            <TextAlign>General</TextAlign>
+                          </Style>
+                          <Value>=Sum({bottles})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox6">
+                          <Value>=Sum({bottles6})</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox31">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox16">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontSize>12pt</FontSize>
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox32">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontSize>12pt</FontSize>
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
+                          <Value>="Количество адресов: " + Count({address})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox33">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+          </TableGroup>
+        </TableGroups>
+      </Table>
+      <Table Name="Table1">
+        <DataSetName>Orders</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>116.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
         <Footer>
           <TableRows>
             <TableRow>
-              <Height>.2in</Height>
+              <Height>13.6pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox23">
+                    <Textbox Name="Textbox12">
+                      <Value>Итого бутылок:</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>14pt</FontSize>
+                      </Style>
+                      <CanGrow>false</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Sum(Fields!bottles.Value) + Sum(Fields!bottles6.Value)</Value>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -242,71 +574,11 @@
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                      <Value>Всего:</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox24">
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                      <Value>=Sum(Iif(Fields!bottles.Value &lt;= 4, Fields!bottles.Value, 0))</Value>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox14">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox16">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
+                        <FontSize>14pt</FontSize>
+                        <Color >Black</Color>
+                        <BackgroundColor >
+                        </BackgroundColor>
+                        <FontFamily >Arial</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -315,55 +587,157 @@
             </TableRow>
           </TableRows>
         </Footer>
+        <Left>57.4pt</Left>
+        <Top>109.4pt</Top>
       </Table>
-      <Textbox Name="Textbox1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-        <Top>8.9pt</Top>
-        <Left>0.4pt</Left>
-        <Width>566.12pt</Width>
-        <Height>18.82pt</Height>
-        <Value>="Район" + {logistics_area.name}</Value>
+      <Table Name="Table3">
+        <DataSetName>Orders</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
         <Style>
-          <FontSize>15pt</FontSize>
-          <FontWeight>Bold</FontWeight>
-          <BorderStyle />
-          <BorderColor />
-          <BorderWidth />
-          <TextAlign>Center</TextAlign>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
         </Style>
-      </Textbox>
+        <TableColumns>
+          <TableColumn>
+            <Width>117.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>14.3pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>Итого адресов:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>14pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>=Count(Fields!address.Value)</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <FontSize>14pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+        <Left>481.5pt</Left>
+        <Top>109.2pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
-    <Height>0.0pt</Height>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
-        <Timeout>5</Timeout>
-        <CommandText>SELECT   delivery_schedule.name as date, 
- order_items.count as bottles,  
- equipment_id,
- compiled_address as address,
- last_name  
- FROM  orders
- LEFT JOIN delivery_schedule on orders.delivery_schedule_id = delivery_schedule.id     
- LEFT JOIN delivery_points on delivery_point_id = delivery_points.id
- LEFT JOIN order_items on orders.id = order_items.order_id
- LEFT JOIN nomenclature on order_items.nomenclature_id = nomenclature.id
- LEFT JOIN equipment on order_items.equipment_id =equipment.id
- LEFT JOIN route_list_addresses on orders.id = route_list_addresses.order_id
- LEFT JOIN route_lists on route_list_addresses.route_list_id = route_lists.id
- LEFT JOIN employees on route_lists.driver_id = employees.id
- WHERE 
-	nomenclature.weight = 20 
-	AND  delivery_date BETWEEN @date_start  AND @date_end 
-	AND ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), (SELECT logistics_district  FROM logistics_area WHERE logistics_area.id = @id))</CommandText>
+        <CommandText>SELECT 
+    delivery_schedule.name AS date,
+    (SELECT 
+            SUM(order_items.count)
+        FROM
+            order_items
+                LEFT JOIN
+            nomenclature ON order_items.nomenclature_id = nomenclature.id
+        WHERE
+            order_items.order_id = route_list_addresses.order_id
+                AND nomenclature.category = 'water') AS bottles,
+    (SELECT 
+            SUM(order_items.count)
+        FROM
+            order_items
+                LEFT JOIN
+            nomenclature ON order_items.nomenclature_id = nomenclature.id
+        WHERE
+            order_items.order_id = route_list_addresses.order_id
+                AND nomenclature.category = 'disposableBottleWater') AS bottles6,
+    (SELECT 
+            GROUP_CONCAT(CONCAT(nomenclature.name,
+                            ':',
+                            order_items.count)
+                    SEPARATOR ', ')
+        FROM
+            order_items
+                LEFT JOIN
+            nomenclature ON order_items.nomenclature_id = nomenclature.id
+        WHERE
+            order_items.order_id = route_list_addresses.order_id
+            AND (nomenclature.category = 'equipment' OR nomenclature.category = 'additional')
+            ) AS nom_name,
+ CONCAT(orders.from_client_text,
+                            ':',
+                            orders.to_client_text, ';' ) as clients_equipment,
+    compiled_address AS address,
+    last_name,
+    logistics_area.name AS district
+FROM
+    orders
+        LEFT JOIN
+    delivery_schedule ON orders.delivery_schedule_id = delivery_schedule.id
+        LEFT JOIN
+    delivery_points ON delivery_point_id = delivery_points.id
+        LEFT JOIN
+    logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')),
+            logistics_district)
+        LEFT JOIN
+    route_list_addresses ON orders.id = route_list_addresses.order_id
+        LEFT JOIN
+    route_lists ON route_list_addresses.route_list_id = route_lists.id
+        LEFT JOIN
+    employees ON route_lists.driver_id = employees.id
+WHERE
+    (delivery_date BETWEEN @start_date AND @end_date)
+        AND logistics_area.id = @id_district
+        AND route_lists.status &lt;&gt; 'Transfered'
+        AND NOT orders.self_delivery
+ORDER BY bottles , last_name</CommandText>
         <QueryParameters>
-          <QueryParameter Name="id">
-            <Value>=Parameters!id</Value>
+          <QueryParameter Name="id_district">
+            <Value>=Parameters!id_district</Value>
           </QueryParameter>
           <QueryParameter Name="start_date">
             <Value>=Parameters!start_date</Value>
@@ -373,7 +747,7 @@
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.String</TypeName>
@@ -382,9 +756,17 @@
           <DataField>bottles</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
-        <Field Name="equipment_id">
-          <DataField>equipment_id</DataField>
-          <TypeName>System.UInt32</TypeName>
+        <Field Name="bottles6">
+          <DataField>bottles6</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="nom_name">
+          <DataField>nom_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="clients_equipment">
+          <DataField>clients_equipment</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="address">
           <DataField>address</DataField>
@@ -394,27 +776,13 @@
           <DataField>last_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="district">
+          <DataField>district</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
-    <ReportParameter Name="start_date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-    <ReportParameter Name="end_date">
-      <DataType>String</DataType>
-      <Nullable>false</Nullable>
-      <AllowBlank>false</AllowBlank>
-      <MultiValue>false</MultiValue>
-      <Prompt>
-      </Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
