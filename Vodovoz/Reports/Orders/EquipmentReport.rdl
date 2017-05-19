@@ -34,7 +34,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>35.3pt</Height>
+    <Height>42.3pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
@@ -49,25 +49,28 @@
             <Width>38.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>119.5pt</Width>
+            <Width>102.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>138.2pt</Width>
+            <Width>139.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>109.3pt</Width>
+            <Width>97.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.3pt</Width>
+            <Width>81.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>69.1pt</Width>
+            <Width>63.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>55.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>22.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -165,6 +168,23 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Ежедневный номер</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanShrink >true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -259,6 +279,20 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Fields!dailynum.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -304,7 +338,7 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -314,7 +348,8 @@
 		GROUP_CONCAT(IF(nomenclature.category = 'additional', nomenclature.official_name, '') SEPARATOR ' ')
         ) AS to_client,
     orders.from_client_text AS from_client,
-    orders.order_status AS status
+    orders.order_status AS status,
+    orders.daily_number_1c AS dailynum
 FROM
     orders
         LEFT JOIN
@@ -345,7 +380,7 @@ GROUP BY orders.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -368,6 +403,10 @@ GROUP BY orders.id</CommandText>
         </Field>
         <Field Name="status">
           <DataField>status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="dailynum">
+          <DataField>dailynum</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
