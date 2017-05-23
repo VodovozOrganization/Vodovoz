@@ -10244,7 +10244,7 @@ Patronymic</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.DeliveryScheduleDlg" design-size="424 104">
+  <widget class="Gtk.Bin" id="Vodovoz.DeliveryScheduleDlg" design-size="438 105">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10263,7 +10263,6 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-save Menu</property>
                 <property name="Label" translatable="yes">Сохранить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonSaveClicked" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -10280,7 +10279,6 @@ Patronymic</property>
                 <property name="Icon">stock:gtk-revert-to-saved Menu</property>
                 <property name="Label" translatable="yes">Отменить</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonCancelClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -34892,7 +34890,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="750 324">
+  <widget class="Gtk.Bin" id="Vodovoz.RoutesAtDayDlg" design-size="1014 324">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -34934,6 +34932,38 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Spacing">6</property>
                 <child>
+                  <widget class="Gtk.Label" id="label3">
+                    <property name="MemberName" />
+                    <property name="Xalign">1</property>
+                    <property name="LabelProp" translatable="yes">Время доставки:</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.Widgets.yTimeEntry" id="ytimeToDelivery">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="IsEditable">True</property>
+                    <property name="InvisibleChar">●</property>
+                    <property name="ShowSeconds">False</property>
+                    <property name="AutocompleteStep">15</property>
+                    <property name="DateTime">0</property>
+                    <property name="Time">0</property>
+                    <signal name="Changed" handler="OnYtimeToDeliveryChanged" />
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="Gtk.Button" id="buttonSaveChanges">
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
@@ -34944,7 +34974,7 @@ RegistrationNumber</property>
                     <signal name="Clicked" handler="OnButtonSaveChangesClicked" />
                   </widget>
                   <packing>
-                    <property name="Position">0</property>
+                    <property name="Position">2</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>
@@ -34961,7 +34991,7 @@ RegistrationNumber</property>
                     <signal name="Clicked" handler="OnButtonCancelChangesClicked" />
                   </widget>
                   <packing>
-                    <property name="Position">1</property>
+                    <property name="Position">3</property>
                     <property name="AutoSize">True</property>
                     <property name="Expand">False</property>
                     <property name="Fill">False</property>

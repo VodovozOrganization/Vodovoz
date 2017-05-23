@@ -548,6 +548,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual int TotalDeliveredBottlesSix {
+			get {
+				return OrderItems.Where (x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater).Sum (x => x.Count);
+			}
+		}
+
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
 		[PropertyChangedAlso (nameof (SumToReceive))]
