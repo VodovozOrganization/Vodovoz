@@ -84,8 +84,8 @@ namespace Vodovoz.Additions.Logistic
 			    "<Textbox Name=\"Textbox{0}\">" +
 			    "<Value>{1}</Value>" +
 			    "<Style xmlns=\"http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition\">" +
-			    "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth />" +
-			    "<TextAlign>Center</TextAlign><Format>0</Format>";
+			    "<BorderStyle><Default>Solid</Default></BorderStyle><BorderColor /><BorderWidth /><FontSize>8pt</FontSize>" +
+				"<TextAlign>Center</TextAlign><Format>{2}</Format>";
 
 			if (isClosed)
 			{
@@ -125,30 +125,52 @@ namespace Vodovoz.Additions.Logistic
 					"<CanGrow>true</CanGrow></Textbox></ReportItems></TableCell>", 
 					TextBoxNumber++, column.Name);
 				//Формула для колонки с водой для информации из запроса
-				CellColumnValue += String.Format (numericCellTemplate,
-					TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id ));
+				//'' + {{Water_fact{0}}} + '(' + ({{Water_fact{0}}} - {{Water{0}}}) + ')'
+				if(isClosed)
+					CellColumnValue += String.Format (numericCellTemplate,
+					                                  TextBoxNumber++, 
+					                                  String.Format ("=Iif({{Water{0}}} + {{Water_fact{0}}} = 0, \"\", Iif( {{Water{0}}} = {{Water_fact{0}}}, Format({{Water{0}}}, '0'), '' + {{Water_fact{0}}} + '(' + ({{Water_fact{0}}} - {{Water{0}}}) + ')'))", column.Id),
+					                                  String.Format ("=Iif({{Water{0}}} = {{Water_fact{0}}}, \"0\", \"\")", column.Id)
+					                                 );
+				else
+					CellColumnValue += String.Format (numericCellTemplate,
+					TextBoxNumber++, String.Format("=Iif({{Water{0}}} = 0, \"\", {{Water{0}}})", column.Id ), 'C');
 				//Ячейка с запасом. Пока там пусто
 				CellColumnStock += String.Format (numericCellTemplate,
-					TextBoxNumber++, "");
+				                                  TextBoxNumber++, "", 0);
 				
 				//Ячейка с суммой по бутылям.
 				string formula;
 				if (isClosed)
-					formula = String.Format ("=Iif(Sum(Iif(Fields!Status.Value = \"Completed\", {{Water{0}}}, 0)) = 0, \"\", Sum(Iif(Fields!Status.Value = \"Completed\", {{Water{0}}}, 0)))", column.Id);
+					formula = String.Format ("=Iif(Sum({{Water_fact{0}}}) = 0, \"\", Sum({{Water_fact{0}}}))", column.Id);
 				else
 					formula = String.Format ("=Iif(Sum({{Water{0}}}) = 0, \"\", Sum({{Water{0}}}))", column.Id);
-				CellColumnTotal += String.Format (numericCellTemplate, TextBoxNumber++, formula);
+				CellColumnTotal += String.Format (numericCellTemplate, TextBoxNumber++, formula, 0);
 
 				//Запрос..
 				SqlSelect += String.Format (", IFNULL(wt_qry.Water{0}, 0) AS Water{0}", column.Id.ToString ());
 				SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.count, 0)) AS {1}",
 					column.Id, "Water" + column.Id.ToString ());
+				if(isClosed)
+				{
+					SqlSelect += String.Format (", IFNULL(wt_qry.Water_fact{0}, 0) AS Water_fact{0}", column.Id.ToString ());
+					SqlSelectSubquery += String.Format (", SUM(IF(nomenclature_route_column.id = {0}, order_items.actual_count, 0)) AS {1}",
+						column.Id, "Water_fact" + column.Id.ToString ());
+				}
 				//Линкуем запрос на переменные RDL
 				Fields += String.Format ("" +
 					"<Field Name=\"{0}\">" +
 					"<DataField>{0}</DataField>" +
 					"<TypeName>System.Int32</TypeName>" +
 					"</Field>", "Water" + column.Id.ToString ());
+				if(isClosed)
+				{
+					Fields += String.Format ("" +
+						"<Field Name=\"{0}\">" +
+						"<DataField>{0}</DataField>" +
+						"<TypeName>System.Int32</TypeName>" +
+						"</Field>", "Water_fact" + column.Id.ToString ());
+				}
 				//Формула итоговой суммы по всем бутялым.
 				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water))
 				{
