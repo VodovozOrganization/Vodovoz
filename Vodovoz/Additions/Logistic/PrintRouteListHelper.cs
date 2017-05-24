@@ -175,7 +175,7 @@ namespace Vodovoz.Additions.Logistic
 				if(RouteColumnRepository.NomenclaturesForColumn(uow, column).Any(x => x.Category == Vodovoz.Domain.Goods.NomenclatureCategory.water))
 				{
 					if(isClosed)
-						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{Water{column.Id}}}, 0))";
+						TotalSum += $"+ Sum(Iif(Fields!Status.Value = \"Completed\", {{Water_fact{column.Id}}}, 0))";
 					else
 						TotalSum += $"+ Sum({{Water{column.Id}}})";
 				}
