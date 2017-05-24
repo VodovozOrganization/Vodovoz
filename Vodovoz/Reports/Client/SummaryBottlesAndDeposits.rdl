@@ -27,7 +27,7 @@
     docs.order_id,
     docs.doc_date,
     docs.payment_type,
-    IFNULL(docs.delivery_point_id, '0') as delivery_point_id,
+    IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
     docs.delivery_point_address,
     IFNULL((SELECT 
                     SUM(order_items.price * order_items.count)
@@ -43,6 +43,18 @@
                     money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
                 WHERE
                     doc_residue.id = docs.order_id)) AS sum,
+    (SELECT 
+            SUM(order_items.price * order_items.count)
+        FROM
+            order_items
+        WHERE
+            order_items.order_id = docs.order_id
+                AND order_items.nomenclature_id = (SELECT 
+                    str_value
+                FROM
+                    base_parameters
+                WHERE
+                    base_parameters.name = 'forfeit_nomenclature_id')) AS forfeit,
     bottles_movement_operations.delivered,
     bottles_movement_operations.returned,
     IFNULL((SELECT 
@@ -87,14 +99,14 @@
             nomenclature ON nomenclature.id = nomenclature_id
         WHERE
             operations_counterparty_movement_docs.order_id = docs.order_id
-            AND nomenclature.category = 'equipment'
+                AND nomenclature.category = 'equipment'
                 AND ((incoming_counterparty_id = @client_id
                 AND (@delivery_point_id = - 1
                 OR incoming_delivery_point_id = @delivery_point_id))
                 OR (writeoff_counterparty_id = @client_id
                 AND (@delivery_point_id = - 1
                 OR writeoff_delivery_point_id = @delivery_point_id)))) AS equipment_moving,
-                doc_name
+    doc_name
 FROM
     (SELECT 
         orders.id AS order_id,
@@ -135,7 +147,7 @@ FROM
             OR doc_residue.date &lt;= @endDate)) AS docs
         LEFT JOIN
     bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id
-    ORDER BY docs.doc_date;</CommandText>
+ORDER BY docs.doc_date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
             <Value>=Parameters!client_id</Value>
@@ -200,10 +212,14 @@ FROM
           <DataField>doc_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="forfeit">
+          <DataField>forfeit</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Client">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT TRIM(full_name) as full_name, inn 
 FROM counterparty WHERE id = @client_id;</CommandText>
@@ -213,7 +229,7 @@ FROM counterparty WHERE id = @client_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="full_name">
           <DataField>full_name</DataField>
           <TypeName>System.String</TypeName>
@@ -225,10 +241,19 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    SUM(CAST(delivered as SIGNED) - CAST(returned as SIGNED)) AS bottle_balance
+    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - (SELECT 
+    order_items.count
+FROM
+    order_items
+        LEFT JOIN
+    orders ON orders.id = order_items.order_id
+WHERE
+    orders.client_id = @client_id
+        AND order_items.nomenclature_id = (SELECT str_value  FROM  base_parameters  WHERE  base_parameters.name = 'forfeit_nomenclature_id'))  AS bottle_balance
+                    
 FROM
     bottles_movement_operations
 WHERE
@@ -244,7 +269,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -406,10 +431,10 @@ WHERE
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>27.3pt</Width>
+            <Width>13.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.3pt</Width>
+            <Width>51.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>96.3pt</Width>
@@ -418,7 +443,7 @@ WHERE
             <Width>44.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>51.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.9pt</Width>
@@ -427,13 +452,16 @@ WHERE
             <Width>43.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.3pt</Width>
+            <Width>58.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>53.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>86.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>57.8pt</Width>
+            <Width>52.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -555,6 +583,22 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>Неустойка</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox9">
                       <Value>Залоги за бутыли</Value>
                       <Style>
@@ -614,7 +658,7 @@ WHERE
                   <Height>12pt</Height>
                   <TableCells>
                     <TableCell>
-                      <ColSpan>10</ColSpan>
+                      <ColSpan>11</ColSpan>
                       <ReportItems>
                         <Textbox Name="Textbox11">
                           <Value>=Fields!delivery_point_address.Value</Value>
@@ -725,6 +769,23 @@ WHERE
                           <Value>=Sum(Fields!returned.Value)</Value>
                           <CanGrow>false</CanGrow>
                           <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <PaddingRight>2pt</PaddingRight>
+                            <TextAlign>Right</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <BorderColor />
+                            <BorderWidth />
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox45">
+                          <Value>=Sum(Fields!forfeit.Value)</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
@@ -916,6 +977,22 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>=Fields!forfeit.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="bottles_deposit">
                       <Value>=Fields!bottles_deposit.Value</Value>
                       <CanGrow>false</CanGrow>
@@ -959,6 +1036,8 @@ WHERE
                         </BorderStyle>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1071,6 +1150,23 @@ WHERE
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>=Sum(Fields!forfeit.Value)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="tf_bottles_deposit">
                       <Value>=Sum(Fields!bottles_deposit.Value)</Value>
                       <CanGrow>false</CanGrow>
@@ -1124,7 +1220,7 @@ WHERE
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>0.8pt</Left>
+        <Left>0.0pt</Left>
         <Top>60.6pt</Top>
       </Table>
       <Textbox Name="Textbox26" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
