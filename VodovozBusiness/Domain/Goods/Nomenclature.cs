@@ -181,6 +181,14 @@ namespace Vodovoz.Domain.Goods
 		get { return shortName; }
 		set { SetField (ref shortName, value, () => ShortName); }
 		}
+
+		bool hide;
+
+		[Display (Name = "Скрыть из МЛ")]
+		public virtual bool Hide {
+			get { return hide; }
+			set { SetField (ref hide, value, () => Hide); }
+		}
 			
 		#endregion
 
