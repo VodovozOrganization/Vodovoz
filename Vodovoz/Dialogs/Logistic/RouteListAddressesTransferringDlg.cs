@@ -12,18 +12,10 @@ using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
-	public partial class RouteListAddressesTransferringDlg : TdiTabBase, ITdiDialog, IOrmDialog
+	public partial class RouteListAddressesTransferringDlg : TdiTabBase, IOrmDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-
-		private bool hasChanges = false;
-
-		public bool HasChanges { 
-			get {
-				return uow.HasChanges || hasChanges;
-			}
-		}
 
 		#region IOrmDialog implementation
 
@@ -213,28 +205,7 @@ namespace Vodovoz
 			YentryreferenceRLFrom_Changed(null, null);
 			YentryreferenceRLTo_Changed(null, null);
 		}
-		
-		public event EventHandler<EntitySavedEventArgs> EntitySaved;
 
-		public bool Save()
-		{
-			RouteList routeListTo 	= yentryreferenceRLTo.Subject as RouteList;
-			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
-
-			if (routeListTo == null || routeListFrom == null)
-				return false;
-			
-			uow.Save(routeListTo);
-			uow.Save(routeListFrom);
-
-			uow.Commit();
-			hasChanges = false;
-			CheckSensitivities();
-			return true;
-		}
-
-		public void SaveAndClose() {}
-		
 		protected void OnButtonTransferClicked (object sender, EventArgs e)
 		{
 			//Дополнительные проверки
@@ -260,10 +231,17 @@ namespace Vodovoz
 
 				if (routeListTo.ClosingFilled)
 					newItem.FirstFillClosing (UoW);
-				
-				hasChanges = true;
+				UoW.Save (item);
+				UoW.Save (newItem);
 			}
+
+			uow.Save (routeListTo);
+			uow.Save (routeListFrom);
+
+			uow.Commit ();
+
 			UpdateNodes();
+			CheckSensitivities ();
 		}
 
 		private void CheckSensitivities ()
@@ -272,20 +250,8 @@ namespace Vodovoz
 			bool existToTransfer = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode> ().Any (x => x.Status != RouteListItemStatus.Transfered);
 
 			buttonTransfer.Sensitive = existToTransfer && routeListToIsSelected;
-
-			yentryreferenceRLTo.Sensitive = yentryreferenceRLFrom.Sensitive = !HasChanges;
 		}
 
-		protected void OnButtonSaveClicked (object sender, EventArgs e)
-		{
-			Save();
-		}
-
-
-		protected void OnButtonCancelClicked (object sender, EventArgs e)
-		{
-			OnCloseTab(false);
-		}
 		#endregion
 	}
 
