@@ -35,7 +35,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>30.7pt</Height>
+    <Height>86.6pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>DriverBalance</DataSetName>
@@ -112,6 +112,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -137,8 +139,48 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
+        <Left>0.8pt</Left>
         <Top>3.2pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign >Center</TextAlign>
+                        <VerticalAlign >Middle</VerticalAlign>
+                      </Style>
+                      <Value>=sum({balance})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
   </Body>
@@ -171,7 +213,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -196,7 +238,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
