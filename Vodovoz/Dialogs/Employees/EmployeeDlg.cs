@@ -37,11 +37,11 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			dataentryPassportSeria.MaxLength = 5;
+			dataentryPassportSeria.MaxLength = 30;
 			dataentryPassportSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
-			dataentryPassportNumber.MaxLength = 6;
+			dataentryPassportNumber.MaxLength = 30;
 			dataentryPassportNumber.Binding.AddBinding(Entity, e => e.PassportNumber, w => w.Text).InitializeFromSource();
-			dataentryDrivingNumber.MaxLength = 11;
+			dataentryDrivingNumber.MaxLength = 20;
 			dataentryDrivingNumber.Binding.AddBinding(Entity, e => e.DrivingNumber, w => w.Text).InitializeFromSource();
 			UoWGeneric.Root.PropertyChanged += OnPropertyChanged;
 			notebookMain.Page = 0;
