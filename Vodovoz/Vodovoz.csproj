@@ -68,14 +68,14 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Drawing" />
     <Reference Include="Mono.Cairo" />
-    <Reference Include="Polylines">
-      <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
-    </Reference>
     <Reference Include="DiffPlex">
       <HintPath>..\..\QSProjects\packages\DiffPlex.1.4.1\lib\netstandard1.0\DiffPlex.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\..\QSProjects\packages\NLog.4.4.7\lib\net40\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Polylines">
+      <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -659,6 +659,10 @@
     <ProjectReference Include="..\..\QSProjects\QSHistoryLog\QSHistoryLog.csproj">
       <Project>{1C3B49FC-372C-46F7-995F-EEB44474E2DE}</Project>
       <Name>QSHistoryLog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\QSProjects\QSExtraGammaWidgets\QSExtraGammaWidgets.csproj">
+      <Project>{3DCDD84A-20D0-4939-BE25-58B19F3961F2}</Project>
+      <Name>QSExtraGammaWidgets</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

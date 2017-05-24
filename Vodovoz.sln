@@ -77,6 +77,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VodovozBusiness", "VodovozB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat", "..\VodovozService\Chat\Chat.csproj", "{4E951BE3-3485-47E8-B7DF-5A098034A90E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QSExtraGammaWidgets", "..\QSProjects\QSExtraGammaWidgets\QSExtraGammaWidgets.csproj", "{3DCDD84A-20D0-4939-BE25-58B19F3961F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -731,6 +733,26 @@ Global
 		{FBD0A975-C275-4C43-9840-9D96C4E4EB21}.v4.0-Debug|Any CPU.Build.0 = Debug|x86
 		{FBD0A975-C275-4C43-9840-9D96C4E4EB21}.v4.0-Release|Any CPU.ActiveCfg = Debug|x86
 		{FBD0A975-C275-4C43-9840-9D96C4E4EB21}.v4.0-Release|Any CPU.Build.0 = Debug|x86
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Debug|x86.Build.0 = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Release|x86.ActiveCfg = Release|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Release|x86.Build.0 = Release|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Debug|x64.Build.0 = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Release|x64.ActiveCfg = Release|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Release|x64.Build.0 = Release|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.BundleLinux|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.BundleLinux|Any CPU.Build.0 = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.BundleLinux|x86.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.BundleLinux|x86.Build.0 = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.BundleLinux|x64.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.BundleLinux|x64.Build.0 = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.v4.0-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.v4.0-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.v4.0-Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.v4.0-Release|Any CPU.Build.0 = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Debug-short|x86.ActiveCfg = Debug|Any CPU
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2}.Debug-short|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D21C0F94-5B1B-49E1-A5B0-50C3F99287E2} = {2B971ED3-E5E1-4CE7-B142-4393EC61DA67}
@@ -765,6 +787,7 @@ Global
 		{5CFB297D-4964-4CBD-9102-A5E795BE7B85} = {4227FE61-2892-4DCD-8089-D1E7D81200D6}
 		{769710D2-BF98-4120-9E07-67BD740CFA1D} = {4227FE61-2892-4DCD-8089-D1E7D81200D6}
 		{22FCCEC7-A025-43A8-A05F-EEB60A4AAF3C} = {4227FE61-2892-4DCD-8089-D1E7D81200D6}
+		{3DCDD84A-20D0-4939-BE25-58B19F3961F2} = {4227FE61-2892-4DCD-8089-D1E7D81200D6}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
@@ -772,8 +795,6 @@ Global
 		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
 		$1.ResourceNamePolicy = MSBuild
 		$0.StandardHeader = $2
-		$2.Text = 
-		$2.IncludeInNewFiles = True
 		$0.NameConventionPolicy = $3
 		$3.Rules = $4
 		$4.NamingRule = $5
@@ -907,10 +928,8 @@ Global
 		$26.inheritsScope = text/plain
 		$26.scope = text/microsoft-resx
 		$0.TextStylePolicy = $27
-		$27.TabsToSpaces = False
-		$27.inheritsSet = VisualStudio
-		$27.inheritsScope = text/plain
 		$27.scope = text/x-csharp
+		$27.FileWidth = 80
 		$0.CSharpFormattingPolicy = $28
 		$28.IndentSwitchBody = True
 		$28.IndentBlocksInsideExpressions = True
@@ -936,15 +955,30 @@ Global
 		$28.BeforeDelegateDeclarationParentheses = False
 		$28.NewParentheses = False
 		$28.SpacesBeforeBrackets = False
-		$28.inheritsSet = Mono
-		$28.inheritsScope = text/x-csharp
 		$28.scope = text/x-csharp
+		$28.IndentSwitchSection = False
+		$28.NewLinesForBracesInProperties = False
+		$28.NewLinesForBracesInAccessors = False
+		$28.NewLinesForBracesInAnonymousMethods = False
+		$28.NewLinesForBracesInControlBlocks = False
+		$28.NewLinesForBracesInAnonymousTypes = False
+		$28.NewLinesForBracesInObjectCollectionArrayInitializers = False
+		$28.NewLinesForBracesInLambdaExpressionBody = False
+		$28.NewLineForElse = False
+		$28.NewLineForCatch = False
+		$28.NewLineForFinally = False
+		$28.NewLineForMembersInObjectInit = False
+		$28.NewLineForMembersInAnonymousTypes = False
+		$28.NewLineForClausesInQuery = False
+		$28.SpacingAfterMethodDeclarationName = True
+		$28.SpaceAfterMethodCallName = True
+		$28.SpaceBeforeOpenSquareBracket = True
 		$0.TextStylePolicy = $29
-		$29.inheritsSet = Mono
-		$29.inheritsScope = text/plain
 		$29.scope = application/x-desktop
+		$29.FileWidth = 80
+		$29.TabWidth = 8
+		$29.IndentWidth = 8
 		$0.VersionControlPolicy = $30
-		$30.inheritsSet = Mono
 		$0.TextStylePolicy = $31
 		$31.inheritsSet = null
 		$31.scope = application/xml

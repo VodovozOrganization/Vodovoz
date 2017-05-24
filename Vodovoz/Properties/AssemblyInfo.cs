@@ -20,6 +20,7 @@ using QSProjectsLib;
 [assembly: AssemblyAppWebsite ("http://www.qsolution.ru/")]
 
 [assembly: AssemblyAuthor ("Ганьков Андрей 2014- <gav@qsolution.ru>")]
+[assembly: AssemblyAuthor ("Якубовский Александр 2017- <all_reg@inbox.ru>")]
 [assembly: AssemblyAuthor ("Делов Дмитрий 2016-2017 <ddelov@qsolution.ru>")]
 [assembly: AssemblyAuthor ("Виноградов Андрей 2014-2016 <vad@qsolution.ru>")]
 [assembly: AssemblyAuthor ("Никитин Дмитрий 2015-2016 <nds@qsolution.ru>")]
@@ -28,7 +29,7 @@ using QSProjectsLib;
 // The form "{Major}.{Minor}.*" will automatically update the build and revision,
 // and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
-[assembly: AssemblyVersion ("0.9.1")]
+[assembly: AssemblyVersion ("0.10")]
 
 // The following attributes are used to specify the signing key for the assembly,
 // if desired. See the Mono documentation for more information about signing.
