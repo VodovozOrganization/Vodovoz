@@ -106,6 +106,9 @@ namespace Vodovoz
 		void YtreeviewRLTo_OnSelectionChanged (object sender, EventArgs e)
 		{
 			CheckSensitivities();
+
+			buttonRevert.Sensitive = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode> ()
+				.Any (x => x.WasTransfered);
 		}
 
 		private IColumnsConfig GetColumnsConfig (bool canEdit)
@@ -250,6 +253,46 @@ namespace Vodovoz
 			bool existToTransfer = ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode> ().Any (x => x.Status != RouteListItemStatus.Transfered);
 
 			buttonTransfer.Sensitive = existToTransfer && routeListToIsSelected;
+		}
+
+		protected void OnButtonRevertClicked (object sender, EventArgs e)
+		{
+			var toRevert = ytreeviewRLTo.GetSelectedObjects<RouteListItemNode> ()
+			                            .Where (x => x.WasTransfered).Select (x => x.RouteListItem);
+			foreach(var address in toRevert)
+			{
+				if(address.Status == RouteListItemStatus.Transfered)
+				{
+					MessageDialogWorks.RunWarningDialog (String.Format ("Адрес {0} сам перенесен в МЛ №{1}. Отмена этого переноса не возможна. Сначала нужно отменить перенос в {1} МЛ.", address?.Order?.DeliveryPoint.ShortAddress, address.TransferedTo?.RouteList.Id));
+					continue;
+				}
+
+				RouteListItem pastPlace = null;
+				if (yentryreferenceRLFrom.Subject != null)
+				{
+					pastPlace = (yentryreferenceRLFrom.Subject as RouteList)
+						.Addresses.FirstOrDefault (x => x.TransferedTo != null && x.TransferedTo.Id == address.Id);
+				}
+				if(pastPlace == null)
+				{
+					pastPlace = Repository.Logistics.RouteListItemRepository.GetTransferedFrom (UoW, address);
+				}
+
+				if(pastPlace != null)
+				{
+					pastPlace.SetStatusWithoutOrderChange (address.Status);
+					pastPlace.DriverBottlesReturned = address.DriverBottlesReturned;
+					pastPlace.TransferedTo = null;
+					if (pastPlace.RouteList.ClosingFilled)
+						pastPlace.FirstFillClosing (UoW);
+					UoW.Save (pastPlace);
+				}
+				address.RouteList.ObservableAddresses.Remove (address);
+				UoW.Save (address.RouteList);
+			}
+
+			UoW.Commit ();
+			UpdateNodes ();
 		}
 
 		#endregion

@@ -22,6 +22,10 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewRLFrom;
 
+		private global::Gtk.HBox hbox8;
+
+		private global::Gtk.Button buttonTransfer;
+
 		private global::Gtk.VBox vbox5;
 
 		private global::Gtk.HBox hbox4;
@@ -34,9 +38,9 @@ namespace Vodovoz
 
 		private global::Gamma.GtkWidgets.yTreeView ytreeviewRLTo;
 
-		private global::Gtk.HBox hbox8;
+		private global::Gtk.HBox hbox5;
 
-		private global::Gtk.Button buttonTransfer;
+		private global::Gtk.Button buttonRevert;
 
 		protected virtual void Build()
 		{
@@ -98,9 +102,33 @@ namespace Vodovoz
 			this.vbox4.Add(this.GtkScrolledWindow);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.GtkScrolledWindow]));
 			w5.Position = 1;
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.hbox8 = new global::Gtk.HBox();
+			this.hbox8.Name = "hbox8";
+			this.hbox8.Spacing = 6;
+			// Container child hbox8.Gtk.Box+BoxChild
+			this.buttonTransfer = new global::Gtk.Button();
+			this.buttonTransfer.Sensitive = false;
+			this.buttonTransfer.CanFocus = true;
+			this.buttonTransfer.Name = "buttonTransfer";
+			this.buttonTransfer.UseUnderline = true;
+			this.buttonTransfer.Label = global::Mono.Unix.Catalog.GetString("Перенести");
+			global::Gtk.Image w6 = new global::Gtk.Image();
+			w6.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-go-forward", global::Gtk.IconSize.Menu);
+			this.buttonTransfer.Image = w6;
+			this.hbox8.Add(this.buttonTransfer);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonTransfer]));
+			w7.Position = 0;
+			w7.Expand = false;
+			w7.Fill = false;
+			this.vbox4.Add(this.hbox8);
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox8]));
+			w8.Position = 2;
+			w8.Expand = false;
+			w8.Fill = false;
 			this.hbox2.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox4]));
-			w6.Position = 0;
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox4]));
+			w9.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.vbox5 = new global::Gtk.VBox();
 			this.vbox5.Name = "vbox5";
@@ -114,22 +142,22 @@ namespace Vodovoz
 			this.ylabel2.Name = "ylabel2";
 			this.ylabel2.LabelProp = global::Mono.Unix.Catalog.GetString("Кому:");
 			this.hbox4.Add(this.ylabel2);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ylabel2]));
-			w7.Position = 0;
-			w7.Expand = false;
-			w7.Fill = false;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.ylabel2]));
+			w10.Position = 0;
+			w10.Expand = false;
+			w10.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.yentryreferenceRLTo = new global::Gamma.Widgets.yEntryReferenceVM();
 			this.yentryreferenceRLTo.Events = ((global::Gdk.EventMask)(256));
 			this.yentryreferenceRLTo.Name = "yentryreferenceRLTo";
 			this.hbox4.Add(this.yentryreferenceRLTo);
-			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yentryreferenceRLTo]));
-			w8.Position = 1;
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.yentryreferenceRLTo]));
+			w11.Position = 1;
 			this.vbox5.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox4]));
-			w9.Position = 0;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox4]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
 			// Container child vbox5.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -141,38 +169,40 @@ namespace Vodovoz
 			this.ytreeviewRLTo.EnableSearch = false;
 			this.GtkScrolledWindow1.Add(this.ytreeviewRLTo);
 			this.vbox5.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow1]));
-			w11.Position = 1;
-			this.hbox2.Add(this.vbox5);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox5]));
-			w12.Position = 1;
-			this.vbox3.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
-			w13.Position = 0;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.hbox8 = new global::Gtk.HBox();
-			this.hbox8.Name = "hbox8";
-			this.hbox8.Spacing = 6;
-			// Container child hbox8.Gtk.Box+BoxChild
-			this.buttonTransfer = new global::Gtk.Button();
-			this.buttonTransfer.Sensitive = false;
-			this.buttonTransfer.CanFocus = true;
-			this.buttonTransfer.Name = "buttonTransfer";
-			this.buttonTransfer.UseUnderline = true;
-			this.buttonTransfer.Label = global::Mono.Unix.Catalog.GetString("Перенести");
-			this.hbox8.Add(this.buttonTransfer);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonTransfer]));
-			w14.Position = 0;
-			w14.Expand = false;
-			w14.Fill = false;
-			this.vbox3.Add(this.hbox8);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox8]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
-			this.hbox1.Add(this.vbox3);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.GtkScrolledWindow1]));
+			w14.Position = 1;
+			// Container child vbox5.Gtk.Box+BoxChild
+			this.hbox5 = new global::Gtk.HBox();
+			this.hbox5.Name = "hbox5";
+			this.hbox5.Spacing = 6;
+			// Container child hbox5.Gtk.Box+BoxChild
+			this.buttonRevert = new global::Gtk.Button();
+			this.buttonRevert.CanFocus = true;
+			this.buttonRevert.Name = "buttonRevert";
+			this.buttonRevert.UseUnderline = true;
+			this.buttonRevert.Label = global::Mono.Unix.Catalog.GetString("Вернуть в исходный МЛ");
+			global::Gtk.Image w15 = new global::Gtk.Image();
+			w15.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-undo", global::Gtk.IconSize.Menu);
+			this.buttonRevert.Image = w15;
+			this.hbox5.Add(this.buttonRevert);
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox5[this.buttonRevert]));
 			w16.Position = 0;
+			w16.Expand = false;
+			w16.Fill = false;
+			this.vbox5.Add(this.hbox5);
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox5[this.hbox5]));
+			w17.Position = 2;
+			w17.Expand = false;
+			w17.Fill = false;
+			this.hbox2.Add(this.vbox5);
+			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox5]));
+			w18.Position = 1;
+			this.vbox3.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w19 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox2]));
+			w19.Position = 0;
+			this.hbox1.Add(this.vbox3);
+			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox3]));
+			w20.Position = 0;
 			this.Add(this.hbox1);
 			if ((this.Child != null))
 			{
@@ -180,6 +210,7 @@ namespace Vodovoz
 			}
 			this.Hide();
 			this.buttonTransfer.Clicked += new global::System.EventHandler(this.OnButtonTransferClicked);
+			this.buttonRevert.Clicked += new global::System.EventHandler(this.OnButtonRevertClicked);
 		}
 	}
 }

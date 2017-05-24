@@ -565,6 +565,11 @@ namespace Vodovoz.Domain.Logistic
 			Order.OrderStatus = OrderStatus.Accepted;
 		}
 
+		public virtual void SetStatusWithoutOrderChange(RouteListItemStatus status)
+		{
+			Status = status;
+		}
+
 		#region Проброс полей для редактирования в заказе.
 		public virtual string FromClientText {
 			get {
@@ -584,7 +589,6 @@ namespace Vodovoz.Domain.Logistic
 				OnPropertyChanged (() => ToClientText);
 			}
 		}
-
 		#endregion
 	}
 
