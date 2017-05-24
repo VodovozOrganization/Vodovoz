@@ -51,7 +51,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>56.1pt</Height>
+    <Height>96.6pt</Height>
     <ReportItems>
       <List Name="List1">
         <Height>26.36pt</Height>
@@ -105,6 +105,9 @@
           <TableColumn>
             <Width>173.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>153.6pt</Width>
+          </TableColumn>
           <TableColumn>
             <Width>74.6pt</Width>
           </TableColumn>
@@ -138,6 +141,22 @@
                     <Textbox Name="Textbox6">
                       <Value>Тип операции</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>Доп. информация</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -222,6 +241,20 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Fields!details.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox11">
@@ -292,7 +325,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Employee_info">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(wages_movement_operations.money) AS balance,
@@ -312,7 +345,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -324,14 +357,26 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="WageBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     @wage_balance:=@wage_balance + IF(wages_movement_operations.money IS NULL,
-        0, wages_movement_operations.money) AS balance,
+        0,
+        wages_movement_operations.money) AS balance,
     wages_movement_operations.operation_time AS date,
     wages_movement_operations.operation_type AS type,
-    wages_movement_operations.money AS money
+    wages_movement_operations.money AS money,
+    CASE
+        WHEN cash_expense.id IS NOT NULL THEN cash_expense.description
+        WHEN route_lists.id IS NOT NULL THEN CONCAT('МЛ №', route_lists.id)
+        WHEN
+            fines_items.id IS NOT NULL
+        THEN
+            CONCAT('МЛ №',
+                    fines.route_list_id,
+                    ' ',
+                    fines.fine_reason_string)
+    END AS details
 FROM
     (SELECT 
         SUM(@wage_balance:=@wage_balance + IF(internal.money IS NULL, 0, internal.money)) AS rows_first
@@ -341,8 +386,17 @@ FROM
         internal.operation_time &lt; @start_date
             AND internal.employee_id = @employee_id) t1,
     wages_movement_operations
+        LEFT JOIN
+    cash_expense ON cash_expense.wages_movement_operations_id = wages_movement_operations.id
+        LEFT JOIN
+    route_lists ON route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
+        OR route_lists.forwarder_wages_movement_operations_id = wages_movement_operations.id
+        LEFT JOIN
+    fines_items ON fines_items.wages_movement_operations_id = wages_movement_operations.id
+        LEFT JOIN
+    fines ON fines.id = fines_items.fine_id
 WHERE
-    employee_id = @employee_id
+    wages_movement_operations.employee_id = @employee_id
         AND wages_movement_operations.operation_time &gt;= @start_date
         AND wages_movement_operations.operation_time &lt;= @end_date</CommandText>
         <QueryParameters>
@@ -357,7 +411,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -373,6 +427,10 @@ WHERE
         <Field Name="money">
           <DataField>money</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="details">
+          <DataField>details</DataField>
+          <TypeName>System.String</TypeName>
         </Field>
       </Fields>
     </DataSet>
