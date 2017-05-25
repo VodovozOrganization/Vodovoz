@@ -434,8 +434,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -449,8 +449,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -498,6 +498,20 @@
         <Left>0.1pt</Left>
         <Top>97.5pt</Top>
       </Table>
+      <Textbox Name="Textbox27" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+        <Height>18.03pt</Height>
+        <Width>292.84pt</Width>
+        <Value>="Итого: " + Convert.ToString( Sum(Fields!wage.Value, "ForwarderWage") - Sum(Fields!advance.Value, "Advances"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>5.2pt</Left>
+        <Top>147.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>14pt</FontSize>
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -614,7 +628,7 @@ GROUP BY route_lists.id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Advances">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     wages_movement_operations.operation_time AS date,
@@ -638,7 +652,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
