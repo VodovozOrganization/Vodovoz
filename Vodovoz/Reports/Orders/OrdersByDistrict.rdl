@@ -308,12 +308,14 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>=Fields!last_name.Value</Value>
+                      <Value>=Fields!last_name.Value + " " + Fields!first_name.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -330,8 +332,8 @@
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >=Iif({bottles} &lt;= 4, '4', '5')</GroupExpression>
-                <GroupExpression >=Iif({bottles6} &lt;= 4, '4', '5')</GroupExpression>
+                <GroupExpression>=Iif({bottles} &lt;= 4, '4', '5')</GroupExpression>
+                <GroupExpression>=Iif({bottles6} &lt;= 4, '4', '5')</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -575,10 +577,10 @@
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
                         <FontSize>14pt</FontSize>
-                        <Color >Black</Color>
-                        <BackgroundColor >
+                        <Color>Black</Color>
+                        <BackgroundColor>
                         </BackgroundColor>
-                        <FontFamily >Arial</FontFamily>
+                        <FontFamily>Arial</FontFamily>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -673,7 +675,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     delivery_schedule.name AS date,
@@ -713,6 +715,7 @@
                             orders.to_client_text, ';' ) as clients_equipment,
     compiled_address AS address,
     last_name,
+    employees.name AS first_name,
     logistics_area.name AS district
 FROM
     orders
@@ -734,6 +737,7 @@ WHERE
         AND logistics_area.id = @id_district
         AND route_lists.status &lt;&gt; 'Transfered'
         AND NOT orders.self_delivery
+	AND delivery_points.city &lt;&gt; 'Семиозерье'
 ORDER BY bottles , last_name</CommandText>
         <QueryParameters>
           <QueryParameter Name="id_district">
@@ -747,7 +751,7 @@ ORDER BY bottles , last_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.String</TypeName>
@@ -774,6 +778,10 @@ ORDER BY bottles , last_name</CommandText>
         </Field>
         <Field Name="last_name">
           <DataField>last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="first_name">
+          <DataField>first_name</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="district">
