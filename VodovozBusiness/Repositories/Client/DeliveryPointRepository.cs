@@ -17,13 +17,17 @@ namespace Vodovoz.Repository.Client
 				.Where (dp => dp.Counterparty.Id == counterparty.Id);
 		}
 
-		public static DeliveryPoint GetByAddress1c(IUnitOfWork uow, string address1c)
+		/// <summary>
+		/// Запрос ищет точку доставки в контрагенте по коду 1с или целиком по адресной строке.
+		/// </summary>
+		public static DeliveryPoint GetByAddress1c(IUnitOfWork uow, Counterparty counterparty, string address1cCode, string address1c)
 		{
-			if (String.IsNullOrWhiteSpace (address1c))
+			if (String.IsNullOrWhiteSpace (address1c) || counterparty != null)
 				return null;
 
 			return uow.Session.QueryOver<DeliveryPoint> ()
-					  .Where (dp => dp.Address1c == address1c)
+				      .Where(x => x.Counterparty.Id == counterparty.Id)
+				      .Where (dp => dp.Code1c == address1cCode || dp.Address1c == address1c)
 					  .Take (1)
 					  .SingleOrDefault ();
 		}

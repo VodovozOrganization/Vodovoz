@@ -305,6 +305,15 @@ namespace Vodovoz.Domain.Client
 			set { SetField(ref address1c, value, () => Address1c); }
 		}
 
+		string code1c;
+
+		[Display (Name = "Код в 1С")]
+		/// Код уникален только внутри контрагента
+		public virtual string Code1c {
+			get { return code1c; }
+			set { SetField (ref code1c, value, () => Code1c); }
+		}
+
 		#endregion
 
 		#region Расчетные

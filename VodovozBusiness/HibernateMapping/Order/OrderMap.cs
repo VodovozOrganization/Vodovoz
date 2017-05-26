@@ -16,13 +16,14 @@ namespace Vodovoz.HMap
 			Map (x => x.DeliveryDate)		.Column ("delivery_date");
 			Map (x => x.SelfDelivery)		.Column ("self_delivery");
 			Map (x => x.BottlesReturn)		.Column ("bottles_return");
-			Map (x => x.ExtraMoney).Column ("extra_money");
+			Map (x => x.ExtraMoney)	        .Column ("extra_money");
 			Map (x => x.SumToReceive)		.Column ("sum_to_receive");
 			Map (x => x.Shipped)			.Column ("shipped");
 			Map (x => x.SumDifferenceReason).Column ("sum_difference_reason");
 			Map (x => x.CollectBottles)		.Column ("collect_bottles");
 			Map (x => x.Code1c)				.Column ("code1c");
 			Map (x => x.Address1c)			.Column ("address_1c");
+			Map (x => x.Address1cCode)		.Column ("address_1c_code");
 			Map (x => x.FromClientText)		.Column ("from_client_text");
 			Map (x => x.ToClientText)		.Column ("to_client_text");
 			Map (x => x.DeliverySchedule1c)	.Column ("delivery_schedule_1c");
