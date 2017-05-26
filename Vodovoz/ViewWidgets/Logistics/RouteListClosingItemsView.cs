@@ -364,8 +364,9 @@ namespace Vodovoz
 			foreach (var orderItem in item.Order.OrderItems) {
 				if(orderItem.Nomenclature.Category == NomenclatureCategory.additional)
 				{
-					stringParts.Add(
-						string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.Count));
+					stringParts.Add(orderItem.IsDelivered
+					                ? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.Count)
+					                : string.Format ("{0}({1:-0})", orderItem.Nomenclature.Name, orderItem.Count));
 				}
 			}
 
