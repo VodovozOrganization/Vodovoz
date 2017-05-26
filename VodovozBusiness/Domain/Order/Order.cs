@@ -267,6 +267,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref address1c, value, () => Address1c); }
 		}
 
+		private string address1cCode;
+
+		[Display (Name = "Код адреса 1С")]
+		public virtual string Address1cCode {
+			get { return address1cCode; }
+			set { SetField (ref address1cCode, value, () => Address1cCode); }
+		}
+
 		private string fromClientText;
 
 		[Display (Name = "Колонка МЛ от клиента")]

@@ -667,19 +667,21 @@ namespace Vodovoz
 			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
 			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
 			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
-			var dailyNumber1c		  = node.SelectSingleNode ("Свойство[@Имя='ЕжедневныйНомер']/Значение");
+			var addressCodeNode 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
+			var dailyNumber1c		  = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
 			var toClient 	 		  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
 			var fromClient 	 	  	  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
 			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
 			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(UoW, addressNode?.InnerText);
 			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
 
 			if (client == null)
 				return;
 			
+			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(UoW, client, addressCodeNode?.InnerText, addressNode?.InnerText);
+
 			#if SHORT
 //			if (addressNode?.InnerText != null)
 //				if (addressNode.InnerText.ToLower().Contains("самовывоз"))
@@ -712,6 +714,7 @@ namespace Vodovoz
 					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
 					DeliveryPoint 	 	= deliveryPoint,
 					Address1c 	  	 	= addressNode?.InnerText,
+					Address1cCode 		= addressCodeNode?.InnerText,
 					PaymentType 		= paymentType,
 					ToClientText 		= toClient?.InnerText,
 					FromClientText 		= fromClient?.InnerText
@@ -931,9 +934,16 @@ namespace Vodovoz
 
 				if (loaded.Client.Id > 0)
 				{
-					loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
+					loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Code1c == loaded.Address1cCode)
+						?? loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
 				}
 
+				if(!String.IsNullOrWhiteSpace(loaded.Address1cCode) && loaded.DeliveryPoint != null && String.IsNullOrWhiteSpace(loaded.DeliveryPoint.Code1c))
+				{
+					loaded.DeliveryPoint.Code1c = loaded.Address1cCode;
+					UoW.Save(loaded.DeliveryPoint);
+				}
+					
 				if (checkOnlyAddress.Active)
 				{
 					if(loaded.DeliveryPoint == null)
@@ -942,6 +952,7 @@ namespace Vodovoz
 //							continue;
 						var newPoint = DeliveryPoint.Create(loaded.Client);
 						newPoint.Address1c = loaded.Address1c;
+						newPoint.Code1c = loaded.Address1cCode;
 						UoW.Save(newPoint);
 						NewAddresses++;
 					}
