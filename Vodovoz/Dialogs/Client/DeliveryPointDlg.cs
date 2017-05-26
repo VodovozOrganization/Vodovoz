@@ -35,12 +35,13 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public DeliveryPointDlg (Counterparty counterparty, string address1c)
+		public DeliveryPointDlg (Counterparty counterparty, string address1c, string code1c)
 		{
 			this.Build ();
 			UoWGeneric = DeliveryPoint.CreateUowForNew (counterparty);
 			TabName = "Новая точка доставки";
 			Entity.Address1c = address1c;
+			Entity.Code1c = code1c;
 			ConfigureDlg ();
 		}
 

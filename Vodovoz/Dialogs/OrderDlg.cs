@@ -1055,16 +1055,17 @@ namespace Vodovoz
 
 		protected void OnButtonCreateDeliveryPointClicked (object sender, EventArgs e)
 		{
-			if (string.IsNullOrEmpty(Entity.Address1c) && Entity.DeliveryPoint == null)
+			if (string.IsNullOrEmpty(Entity.Address1c) || string.IsNullOrEmpty(Entity.Address1cCode))
 				return;
 
-			ITdiTab mytab = TdiHelper.FindMyTab (this);
-			if (mytab == null)
-				return;
+			Entity.DeliveryPoint = Entity.Client.DeliveryPoints.FirstOrDefault(x => x.Code1c == Entity.Address1cCode);
 
-			DeliveryPointDlg dlg = new DeliveryPointDlg (Entity.Client, Entity.Address1c);
+			if(Entity.DeliveryPoint != null)
+				return;
+			
+			DeliveryPointDlg dlg = new DeliveryPointDlg (Entity.Client, Entity.Address1c, Entity.Address1cCode);
 			dlg.EntitySaved += Dlg_EntitySaved;
-			mytab.TabParent.AddSlaveTab (mytab, dlg);
+			TabParent.AddSlaveTab (this, dlg);
 		}
 
 		void Dlg_EntitySaved (object sender, EntitySavedEventArgs e)
