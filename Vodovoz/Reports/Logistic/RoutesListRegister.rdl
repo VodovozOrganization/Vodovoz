@@ -74,13 +74,33 @@
             nomenclature ON nomenclature.id = order_items.nomenclature_id
         WHERE
             order_items.order_id = route_list_addresses.order_id
-                AND nomenclature.category = 'disposableBottleWater')) AS water6_amount
+                AND nomenclature.category = 'disposableBottleWater')) AS water6_amount,
+	     GROUP_CONCAT(DISTINCT ' ',
+        (SELECT 
+                logistics_area.name
+            FROM
+                orders
+                    LEFT JOIN
+                delivery_points ON orders.delivery_point_id = delivery_points.id
+                    LEFT JOIN
+                logistics_area ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')),
+                        logistics_district)
+            WHERE
+                orders.id = route_list_addresses.order_id
+                 )) AS street_district
 FROM
     route_lists
         LEFT JOIN
     employees ON employees.id = route_lists.driver_id
         LEFT JOIN
     route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
+        LEFT JOIN
+    orders ON route_list_addresses.order_id = orders.id
+	LEFT JOIN
+    delivery_points ON orders.delivery_point_id = delivery_points.id
+	LEFT JOIN
+    logistics_area 
+    ON ST_WITHIN(GEOMFROMTEXT(CONCAT('POINT(', latitude, ' ', longitude, ')')), logistics_district)
 WHERE
     route_lists.`date` BETWEEN @start_date AND @end_date
 GROUP BY route_lists.id
@@ -127,6 +147,10 @@ ORDER BY route_lists.date;</CommandText>
           <DataField>water6_amount</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
+        <Field Name="street_district">
+          <DataField>street_district</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -164,31 +188,34 @@ ORDER BY route_lists.date;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>37.6pt</Width>
+            <Width>27.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>68.1pt</Width>
+            <Width>49.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>77.7pt</Width>
-          </TableColumn>
-          <TableColumn >
-            <Width>124.7pt</Width>
+            <Width>72.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>92.7pt</Width>
+            <Width>81.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>78.6pt</Width>
+            <Width>56.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>79.3pt</Width>
+            <Width>44.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>43.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>184.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>16.0pt</Height>
+              <Height>23.9pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -238,7 +265,7 @@ ORDER BY route_lists.date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox3">
                       <Value>Статус</Value>
@@ -291,6 +318,22 @@ ORDER BY route_lists.date;</CommandText>
                     <Textbox Name="Textbox6">
                       <Value>Кол-во 6 лит.</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Район</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -358,7 +401,7 @@ ORDER BY route_lists.date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>=Fields!status.Value</Value>
@@ -372,6 +415,7 @@ ORDER BY route_lists.date;</CommandText>
                         <TextAlign>Center</TextAlign>
                         <Format>d</Format>
                       </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -416,6 +460,23 @@ ORDER BY route_lists.date;</CommandText>
                         <PaddingRight>2pt</PaddingRight>
                         <TextAlign>Right</TextAlign>
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Value>=Fields!street_district.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -467,7 +528,7 @@ ORDER BY route_lists.date;</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
                       <Value>
@@ -493,7 +554,7 @@ ORDER BY route_lists.date;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontWeight >Bolder</FontWeight>
+                        <FontWeight>Bolder</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -511,7 +572,7 @@ ORDER BY route_lists.date;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontWeight >Bolder</FontWeight>
+                        <FontWeight>Bolder</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -529,7 +590,25 @@ ORDER BY route_lists.date;</CommandText>
                         <TextAlign>Right</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontWeight >Bolder</FontWeight>
+                        <FontWeight>Bolder</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bolder</FontWeight>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -545,7 +624,7 @@ ORDER BY route_lists.date;</CommandText>
               <PageBreakAtStart>false</PageBreakAtStart>
               <PageBreakAtEnd>false</PageBreakAtEnd>
               <GroupExpressions>
-                <GroupExpression >={driver_id}</GroupExpression>
+                <GroupExpression>={driver_id}</GroupExpression>
               </GroupExpressions>
             </Grouping>
             <Header>
@@ -569,7 +648,7 @@ ORDER BY route_lists.date;</CommandText>
                           <Value>=Fields!driver_name.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>7</ColSpan>
+                      <ColSpan>8</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -606,13 +685,13 @@ ORDER BY route_lists.date;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <FontWeight >Bold</FontWeight>
+                            <FontWeight>Bold</FontWeight>
                           </Style>
                           <Value>=Countdistinct({date})</Value>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
-                    <TableCell >
+                    <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox18">
                           <Value>--//--</Value>
@@ -622,7 +701,7 @@ ORDER BY route_lists.date;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign >Center</TextAlign>
+                            <TextAlign>Center</TextAlign>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -636,7 +715,7 @@ ORDER BY route_lists.date;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <FontWeight >Bold</FontWeight>
+                            <FontWeight>Bold</FontWeight>
                           </Style>
                           <Value>=Sum(Fields!address_count.Value)</Value>
                         </Textbox>
@@ -651,7 +730,7 @@ ORDER BY route_lists.date;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <FontWeight >Bold</FontWeight>
+                            <FontWeight>Bold</FontWeight>
                           </Style>
                           <Value>=Sum(Fields!water19_amount.Value)</Value>
                         </Textbox>
@@ -666,9 +745,25 @@ ORDER BY route_lists.date;</CommandText>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <FontWeight >Bold</FontWeight>
+                            <FontWeight>Bold</FontWeight>
                           </Style>
                           <Value>=Sum(Fields!water6_amount.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox22">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -676,7 +771,7 @@ ORDER BY route_lists.date;</CommandText>
                 </TableRow>
               </TableRows>
             </Footer>
-            <Sorting >
+            <Sorting>
               <SortBy>
                 <SortExpression>={driver_name}</SortExpression>
                 <Direction>Ascending</Direction>
@@ -686,7 +781,7 @@ ORDER BY route_lists.date;</CommandText>
         </TableGroups>
       </Table>
     </ReportItems>
-    <Height>73.0pt</Height>
+    <Height>88.0pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
