@@ -970,9 +970,7 @@ Global
 		$28.NewLineForMembersInObjectInit = False
 		$28.NewLineForMembersInAnonymousTypes = False
 		$28.NewLineForClausesInQuery = False
-		$28.SpacingAfterMethodDeclarationName = True
-		$28.SpaceAfterMethodCallName = True
-		$28.SpaceBeforeOpenSquareBracket = True
+		$28.SpaceAfterControlFlowStatementKeyword = False
 		$0.TextStylePolicy = $29
 		$29.scope = application/x-desktop
 		$29.FileWidth = 80
