@@ -365,9 +365,10 @@ namespace Vodovoz
 				if(orderItem.Nomenclature.Category == NomenclatureCategory.additional)
 				{
 					stringParts.Add(orderItem.IsDelivered
-					                ? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.Count)
-					                : string.Format ("{0}({1:-0})", orderItem.Nomenclature.Name, orderItem.Count));
+					                ? string.Format("{0}:<b>{1}</b>", orderItem.Nomenclature.Name, orderItem.ActualCount)
+					                : string.Format ("{0}:{1}({2:-0})", orderItem.Nomenclature.Name, orderItem.ActualCount, orderItem.Count - orderItem.ActualCount));
 				}
+
 			}
 
 			return String.Join(",", stringParts);
