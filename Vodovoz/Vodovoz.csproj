@@ -559,8 +559,6 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OnecCommentsReport.cs" />
     <Compile Include="ReportsParameters\OrdersByDistrictReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersByDistrictReport.cs" />
-    <Compile Include="ServiceDialogs\LoadLogisticDistricts.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.LoadLogisticDistricts.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
