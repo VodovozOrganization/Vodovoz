@@ -985,6 +985,7 @@ namespace Vodovoz
 
 							change.Title = $"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше подтвержденного";
 							Changes.Add(change);
+							UoW.Session.Evict(exist);
 							continue;
 						}
 
