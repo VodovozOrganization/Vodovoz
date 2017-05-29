@@ -111,21 +111,25 @@ namespace Vodovoz
 				.Any (x => x.WasTransfered);
 		}
 
-		private IColumnsConfig GetColumnsConfig (bool canEdit)
+		private IColumnsConfig GetColumnsConfig (bool isRightPanel)
 		{
 			var colorGreen = new Gdk.Color(0x44, 0xcc, 0x49);
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
-			
-			return ColumnsConfigFactory.Create<RouteListItemNode>()
-				.AddColumn("Заказ")			.AddTextRenderer	(node => node.Id)
-				.AddColumn("Дата")			.AddTextRenderer	(node => node.Date)
-				.AddColumn("Адрес")			.AddTextRenderer	(node => node.Address)
-				.AddColumn("Бутыли")		.AddTextRenderer	(node => node.BottlesCount)
-				.AddColumn("Статус")		.AddEnumRenderer	(node => node.Status)
-				.AddColumn("Нужна загрузка").AddToggleRenderer	(node => node.NeedToReload)
-					.Editing(canEdit)
-				.AddColumn("Комментарий")	.AddTextRenderer	(node => node.Comment)
-				.RowCells().AddSetter<CellRenderer>((cell,node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen: colorWhite)
+
+			var config = ColumnsConfigFactory.Create<RouteListItemNode>()
+				.AddColumn("Заказ").AddTextRenderer(node => node.Id)
+				.AddColumn("Дата").AddTextRenderer(node => node.Date)
+				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
+				.AddColumn("Бутыли").AddTextRenderer(node => node.BottlesCount)
+				.AddColumn("Статус").AddEnumRenderer(node => node.Status);
+			if(isRightPanel)
+				config.AddColumn("Нужна загрузка").AddToggleRenderer(node => node.NeedToReload)
+					  .AddSetter((c, n) => c.Sensitive = n.WasTransfered);
+			else
+				config.AddColumn("Нужна загрузка");
+
+			return config.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
+				.RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
 				.Finish();
 		}
 
@@ -196,6 +200,8 @@ namespace Vodovoz
 			}
 
 			CheckSensitivities();
+
+			routeListTo.UoW = uow;
 
 			IList<RouteListItemNode> items = new List<RouteListItemNode>();
 			foreach (var item in routeListTo.Addresses)
@@ -319,7 +325,11 @@ namespace Vodovoz
 			get {return RouteListItem.NeedToReload;}
 			set {
 				if(RouteListItem.WasTransfered)
+				{
 					RouteListItem.NeedToReload = value;
+					RouteListItem.RouteList.UoW.Save(RouteListItem);
+					RouteListItem.RouteList.UoW.Commit();
+				}
 			}
 		}
 
