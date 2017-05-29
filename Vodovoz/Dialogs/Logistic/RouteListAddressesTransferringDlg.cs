@@ -126,7 +126,15 @@ namespace Vodovoz
 				config.AddColumn("Нужна загрузка").AddToggleRenderer(node => node.NeedToReload)
 					  .AddSetter((c, n) => c.Sensitive = n.WasTransfered);
 			else
-				config.AddColumn("Нужна загрузка");
+				config.AddColumn("Нужна загрузка")
+				      .AddToggleRenderer(x => x.LeftNeedToReload).Radio()
+				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+				      .AddTextRenderer(x => "Да")
+				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+				      .AddToggleRenderer(x => x.LeftNotNeedToReload).Radio()
+				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered)
+				      .AddTextRenderer(x => "Нет")
+				      .AddSetter((c, x) => c.Visible = x.Status != RouteListItemStatus.Transfered);
 
 			return config.AddColumn("Комментарий").AddTextRenderer(node => node.Comment)
 				.RowCells().AddSetter<CellRenderer>((cell, node) => cell.CellBackgroundGdk = node.WasTransfered ? colorGreen : colorWhite)
@@ -223,17 +231,26 @@ namespace Vodovoz
 
 			if (routeListTo == null || routeListFrom == null || routeListTo.Id == routeListFrom.Id)
 				return;
+
+			List<RouteListItemNode> needReloadNotSet = new List<RouteListItemNode>();
 			
-			foreach (var row in ytreeviewRLFrom.GetSelectedObjects())
+			foreach (var row in ytreeviewRLFrom.GetSelectedObjects<RouteListItemNode>())
 			{
-				RouteListItem item = (row as RouteListItemNode)?.RouteListItem;
+				RouteListItem item = row?.RouteListItem;
 				logger.Debug("Проверка адреса с номером {0}", item?.Id.ToString() ?? "Неправильный адрес");
 
 				if (item == null || item.Status == RouteListItemStatus.Transfered)
 					continue;
 
+				if(!row.LeftNeedToReload && !row.LeftNotNeedToReload)
+				{
+					needReloadNotSet.Add(row);
+					continue;
+				}
+
 				RouteListItem newItem = new RouteListItem(routeListTo, item.Order, item.Status);
 				newItem.WasTransfered = true;
+				newItem.NeedToReload = row.LeftNeedToReload;
 				routeListTo.ObservableAddresses.Add(newItem);
 
 				item.TransferedTo = newItem;
@@ -248,6 +265,11 @@ namespace Vodovoz
 			uow.Save (routeListFrom);
 
 			uow.Commit ();
+
+			if(needReloadNotSet.Count > 0)
+				MessageDialogWorks.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
+				                                    String.Join("\n * ", needReloadNotSet.Select(x => x.Address))
+												   );
 
 			UpdateNodes();
 			CheckSensitivities ();
@@ -330,6 +352,32 @@ namespace Vodovoz
 					RouteListItem.RouteList.UoW.Save(RouteListItem);
 					RouteListItem.RouteList.UoW.Commit();
 				}
+			}
+		}
+
+		private bool leftNeedToReload;
+
+		public bool LeftNeedToReload {
+			get {
+				return leftNeedToReload;
+			}
+			set {
+				leftNeedToReload = value;
+				if(value)
+					leftNotNeedToReload = false;
+			}
+		}
+
+		private bool leftNotNeedToReload;
+
+		public bool LeftNotNeedToReload {
+			get {
+				return leftNotNeedToReload;
+			}
+			set {
+				leftNotNeedToReload = value;
+				if(value)
+					leftNeedToReload = false;
 			}
 		}
 
