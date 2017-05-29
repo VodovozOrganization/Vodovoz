@@ -7,6 +7,7 @@ using Gtk;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
+using QSSupportLib;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Documents;
@@ -728,7 +729,8 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, new []{ NomenclatureCategory.bottle })
+			var refuse = Int32.Parse ( MainSupport.BaseParameters.All ["refuse_nomenclature_id"]);
+			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, new []{ NomenclatureCategory.bottle }, new[] {refuse})
 				.Sum(item => item.Amount);
 		}
 

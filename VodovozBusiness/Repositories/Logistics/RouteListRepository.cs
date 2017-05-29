@@ -127,7 +127,7 @@ namespace Vodovoz.Repository.Logistics
 			return loadedlist;
 		}
 
-		public static List<ReturnsNode> GetReturnsToWarehouse (IUnitOfWork uow, int routeListId, NomenclatureCategory [] categories)
+		public static List<ReturnsNode> GetReturnsToWarehouse (IUnitOfWork uow, int routeListId, NomenclatureCategory [] categories, int[] excludeNomenclatureIds = null)
 		{
 			List<ReturnsNode> result = new List<ReturnsNode> ();
 			Nomenclature nomenclatureAlias = null;
@@ -136,14 +136,18 @@ namespace Vodovoz.Repository.Logistics
 			CarUnloadDocumentItem carUnloadItemsAlias = null;
 			WarehouseMovementOperation movementOperationAlias = null;
 
-			var returnableItems = uow.Session.QueryOver<CarUnloadDocument> ().Where (doc => doc.RouteList.Id == routeListId)
+			var returnableQuery = uow.Session.QueryOver<CarUnloadDocument> ().Where (doc => doc.RouteList.Id == routeListId)
 				.JoinAlias (doc => doc.Items, () => carUnloadItemsAlias)
 				.JoinAlias (() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
 				.Where (Restrictions.IsNotNull (Projections.Property (() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias (() => movementOperationAlias.Nomenclature, () => nomenclatureAlias)
 				.Where (() => !nomenclatureAlias.Serial)
-				.Where (() => nomenclatureAlias.Category.IsIn (categories))
-				.SelectList (list => list
+				.Where (() => nomenclatureAlias.Category.IsIn (categories));
+			if (excludeNomenclatureIds != null)
+				returnableQuery.Where (() => !nomenclatureAlias.Id.IsIn (excludeNomenclatureIds));
+
+			var returnableItems =
+				returnableQuery.SelectList (list => list
 					 .SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					 .Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
 					 .Select (() => false).WithAlias (() => resultAlias.Trackable)
@@ -152,15 +156,19 @@ namespace Vodovoz.Repository.Logistics
 								  )
 				.TransformUsing (Transformers.AliasToBean<ReturnsNode> ())
 				.List<ReturnsNode> ();
-
-			var returnableEquipment = uow.Session.QueryOver<CarUnloadDocument> ().Where (doc => doc.RouteList.Id == routeListId)
+			
+			var returnableQueryEquipment = uow.Session.QueryOver<CarUnloadDocument> ().Where (doc => doc.RouteList.Id == routeListId)
 				.JoinAlias (doc => doc.Items, () => carUnloadItemsAlias)
 				.JoinAlias (() => carUnloadItemsAlias.MovementOperation, () => movementOperationAlias)
 				.Where (Restrictions.IsNotNull (Projections.Property (() => movementOperationAlias.IncomingWarehouse)))
 				.JoinAlias (() => movementOperationAlias.Equipment, () => equipmentAlias)
 				.JoinAlias (() => equipmentAlias.Nomenclature, () => nomenclatureAlias)
-				.Where (() => nomenclatureAlias.Category.IsIn (categories))
-				.SelectList (list => list
+				.Where (() => nomenclatureAlias.Category.IsIn (categories));
+			if (excludeNomenclatureIds != null)
+				returnableQueryEquipment.Where (() => !nomenclatureAlias.Id.IsIn (excludeNomenclatureIds));
+
+			var returnableEquipment =
+				returnableQueryEquipment.SelectList (list => list
 					 .Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.Id)
 					 .SelectGroup (() => nomenclatureAlias.Id).WithAlias (() => resultAlias.NomenclatureId)
 					 .Select (() => nomenclatureAlias.Name).WithAlias (() => resultAlias.Name)
