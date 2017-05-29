@@ -686,7 +686,7 @@
                 LEFT JOIN
             nomenclature ON order_items.nomenclature_id = nomenclature.id
         WHERE
-            order_items.order_id = route_list_addresses.order_id
+            order_items.order_id = orders.id
                 AND nomenclature.category = 'water') AS bottles,
     (SELECT 
             SUM(order_items.count)
@@ -695,7 +695,7 @@
                 LEFT JOIN
             nomenclature ON order_items.nomenclature_id = nomenclature.id
         WHERE
-            order_items.order_id = route_list_addresses.order_id
+            order_items.order_id = orders.id
                 AND nomenclature.category = 'disposableBottleWater') AS bottles6,
     (SELECT 
             GROUP_CONCAT(CONCAT(nomenclature.name,
@@ -735,7 +735,8 @@ FROM
 WHERE
     (delivery_date BETWEEN @start_date AND @end_date)
         AND logistics_area.id = @id_district
-        AND route_lists.status &lt;&gt; 'Transfered'
+        AND route_list_addresses.status &lt;&gt; 'Transfered'
+	AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
         AND NOT orders.self_delivery
 	AND delivery_points.city &lt;&gt; 'Семиозерье'
 ORDER BY bottles , last_name</CommandText>
