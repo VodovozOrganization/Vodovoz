@@ -176,11 +176,14 @@ namespace Vodovoz
 			foreach(var pointsForDriver in lastPoints.GroupBy(x => x.DriverId))
 			{
 				var lastPoint = pointsForDriver.OrderBy(x => x.Time).Last();
+				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<WorkingDriverVMNode>)
+							.First(x => x.Id == lastPoint.DriverId);
+
 				CarMarkerType iconType;
 				var ere20 = ere20Minuts.Where(x => x.DriverId == pointsForDriver.Key).OrderBy(x => x.Time).LastOrDefault();
 				if (lastPoint.Time < DateTime.Now.AddMinutes(-20))
 				{
-					iconType = CarMarkerType.BlueCar;
+					iconType = driverRow.IsVodovozAuto ? CarMarkerType.BlueCarVodovoz : CarMarkerType.BlueCar;
 				}
 				else if (ere20 != null)
 				{
@@ -188,24 +191,22 @@ namespace Vodovoz
 					var point2 = new PointLatLng(ere20.Latitude, ere20.Longitude);
 					var diff = gmapWidget.MapProvider.Projection.GetDistance(point1, point2);
 					if (diff <= 0.1)
-						iconType = CarMarkerType.RedCar;
+						iconType = driverRow.IsVodovozAuto ? CarMarkerType.RedCarVodovoz : CarMarkerType.RedCar;
 					else
-						iconType = CarMarkerType.GreenCar;
+						iconType = driverRow.IsVodovozAuto ? CarMarkerType.GreenCarVodovoz : CarMarkerType.GreenCar;
 				}
 				else
-					iconType = CarMarkerType.GreenCar;
+					iconType = driverRow.IsVodovozAuto ? CarMarkerType.GreenCarVodovoz : CarMarkerType.GreenCar;
 
 				if(lastSelectedDrivers.ContainsKey(lastPoint.DriverId))
 				{
 					lastSelectedDrivers[lastPoint.DriverId] = iconType;
-					iconType = CarMarkerType.BlackCar;
+					iconType = driverRow.IsVodovozAuto ? CarMarkerType.BlackCarVodovoz : CarMarkerType.BlackCar;
 				}
 				
+				string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
 				var marker = new CarMarker(new PointLatLng(lastPoint.Latitude, lastPoint.Longitude),
 					iconType);
-				var driverRow = (yTreeViewDrivers.RepresentationModel.ItemsList as IList<Vodovoz.ViewModel.WorkingDriverVMNode>)
-					.First(x => x.Id == lastPoint.DriverId);
-				string text = String.Format("{0}({1})", driverRow.ShortName, driverRow.CarNumber);
 				if (lastPoint.Time < DateTime.Now.AddSeconds(-30))
 					text += lastPoint.Time.Date == DateTime.Today 
 						? String.Format("\nБыл виден: {0:t} ", lastPoint.Time)

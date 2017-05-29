@@ -55,6 +55,7 @@ namespace Vodovoz.ViewModel
 					.Select(() => driverAlias.LastName).WithAlias(() => resultAlias.LastName)
 					.Select(() => driverAlias.Patronymic).WithAlias(() => resultAlias.Patronymic)
 					.Select(() => carAlias.RegistrationNumber).WithAlias(() => resultAlias.CarNumber)
+				    .Select(() => carAlias.IsCompanyHavings).WithAlias(() => resultAlias.IsVodovozAuto)
 					.Select(() => routeListAlias.Id).WithAlias(() => resultAlias.RouteListNumber)
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
@@ -98,8 +99,8 @@ namespace Vodovoz.ViewModel
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<WorkingDriverVMNode>.Create()
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
-			.AddColumn("Машина").SetDataProperty(node => node.CarNumber)
-			.AddColumn("Журнал МЛ").AddTextRenderer().AddSetter( (c, node) => c.Markup = node.RouteListsText)
+			.AddColumn("Машина").AddTextRenderer().AddSetter((c, node) => c.Markup = node.CarText)
+			.AddColumn("МЛ").AddTextRenderer().AddSetter( (c, node) => c.Markup = node.RouteListsText)
 			.AddColumn("Чат").AddTextRenderer().AddSetter(SetChatCellMarkup)
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
@@ -155,6 +156,7 @@ namespace Vodovoz.ViewModel
 		public string RouteListsText { get; set; }
 		public int Unreaded { get; set; }
 		public int UnreadedAuto { get; set; }
+		public bool IsVodovozAuto { get; set; }
 
 		//RouteListId, TrackId
 		public Dictionary<int, int?> RouteListsIds;
@@ -173,6 +175,12 @@ namespace Vodovoz.ViewModel
 		public string CompletedText{
 			get{
 				return String.Format("{0}/{1}", AddressesCompleted, AddressesAll);
+			}
+		}
+
+		public string CarText{
+			get{
+				return IsVodovozAuto ? String.Format("<b>{0}</b>", CarNumber) : CarNumber;
 			}
 		}
 

@@ -12,9 +12,13 @@ namespace Vodovoz.Additions.Logistic
    {
       	none = 0,
       	GreenCar,
+		GreenCarVodovoz,
 		BlueCar,
+		BlueCarVodovoz,
 		RedCar,
-		BlackCar
+		RedCarVodovoz,
+		BlackCar,
+		BlackCarVodovoz
    }
 		
    [Serializable]

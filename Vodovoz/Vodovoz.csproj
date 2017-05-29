@@ -177,6 +177,10 @@
     <EmbeddedResource Include="toolbars\staff.xml" />
     <EmbeddedResource Include="icons\map\points\green_large.png" />
     <EmbeddedResource Include="icons\map\points\large_marker_shadow.png" />
+    <EmbeddedResource Include="icons\map\BlackCarVodovoz.png" />
+    <EmbeddedResource Include="icons\map\BlueCarVodovoz.png" />
+    <EmbeddedResource Include="icons\map\GreenCarVodovoz.png" />
+    <EmbeddedResource Include="icons\map\RedCarVodovoz.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />
