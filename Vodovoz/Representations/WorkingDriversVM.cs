@@ -99,7 +99,7 @@ namespace Vodovoz.ViewModel
 		IColumnsConfig columnsConfig = FluentColumnsConfig<WorkingDriverVMNode>.Create()
 			.AddColumn("Имя").SetDataProperty(node => node.ShortName)
 			.AddColumn("Машина").SetDataProperty(node => node.CarNumber)
-			.AddColumn("Маршрутные листы").AddTextRenderer().AddSetter( (c, node) => c.Markup = node.RouteListsText)
+			.AddColumn("Журнал МЛ").AddTextRenderer().AddSetter( (c, node) => c.Markup = node.RouteListsText)
 			.AddColumn("Чат").AddTextRenderer().AddSetter(SetChatCellMarkup)
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)

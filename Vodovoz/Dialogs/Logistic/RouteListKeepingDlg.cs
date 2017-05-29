@@ -29,7 +29,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
-			TabName = String.Format("Ведение маршрутного листа №{0}",Entity.Id);
+			TabName = String.Format("Ведение МЛ №{0}",Entity.Id);
 			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.MileageCheck;
 			logisticanEditing = QSMain.User.Permissions ["logistican"] && allEditing;
 			ConfigureDlg ();

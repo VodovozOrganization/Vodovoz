@@ -53,8 +53,8 @@ public partial class MainWindow : Window
 		ActionWarehouseStock = new Action ("ActionWarehouseStock", "Складские остатки", null, "table");
 		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
-		ActionRouteListTable = new Action ("ActionRouteListTable", "Маршрутные листы", null, "table");
-		ActionRouteListsAtDay = new Action ("ActionRouteListsAtDay", "Маршруты на день", null, "table");
+		ActionRouteListTable = new Action ("ActionRouteListTable", "Жрунал МЛ", null, "table");
+		ActionRouteListsAtDay = new Action ("ActionRouteListsAtDay", "Формирование МЛ", null, "table");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин",null,"table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");

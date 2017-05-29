@@ -17,7 +17,7 @@ using Vodovoz.Repository;
 namespace Vodovoz.Domain.Logistic
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
-		NominativePlural = "маршрутные листы",
+		NominativePlural = "Журнал МЛ",
 		Nominative = "маршрутный лист")]
 	public class RouteList : BusinessObjectBase<RouteList>, IDomainObject, IValidatableObject
 	{
@@ -235,7 +235,7 @@ namespace Vodovoz.Domain.Logistic
 
 		#region readonly Свойства
 
-		public virtual string Title { get { return String.Format ("Маршрутный лист №{0}", Id); } }
+		public virtual string Title { get { return String.Format ("МЛ №{0}", Id); } }
 
 		public virtual decimal UniqueAddressCount {
 			get {

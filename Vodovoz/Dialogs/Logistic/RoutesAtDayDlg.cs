@@ -51,7 +51,7 @@ namespace Vodovoz
 
 		public override string TabName {
 			get {
-				return String.Format ("Маршруты на {0:d}", ydateForRoutes.Date);
+				return String.Format ("Формирование МЛ на {0:d}", ydateForRoutes.Date);
 			}
 			protected set {
 				throw new InvalidOperationException ("Установка протеворечит логике работы.");
@@ -239,7 +239,7 @@ namespace Vodovoz
 		{
 			if (row is RouteList) {
 				var rl = (RouteList)row;
-				return String.Format ("Маршрутный лист №{0} - {1}({2})",
+				return String.Format ("МЛ №{0} - {1}({2})",
 					rl.Id,
 					rl.Driver.ShortName,
 					rl.Car.RegistrationNumber
