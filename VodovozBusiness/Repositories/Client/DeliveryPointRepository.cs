@@ -27,7 +27,7 @@ namespace Vodovoz.Repository.Client
 
 			return uow.Session.QueryOver<DeliveryPoint> ()
 				      .Where(x => x.Counterparty.Id == counterparty.Id)
-				      .Where (dp => dp.Code1c == address1cCode || dp.Address1c == address1c)
+				      .Where (dp => (dp.Code1c != null && dp.Code1c == address1cCode) || dp.Address1c == address1c)
 					  .Take (1)
 					  .SingleOrDefault ();
 		}

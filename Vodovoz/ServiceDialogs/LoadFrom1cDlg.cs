@@ -934,8 +934,10 @@ namespace Vodovoz
 
 				if (loaded.Client.Id > 0)
 				{
-					loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Code1c == loaded.Address1cCode)
-						?? loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
+					if(!String.IsNullOrEmpty(loaded.Address1cCode))
+						loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Code1c == loaded.Address1cCode);
+					if(loaded.DeliveryPoint == null)
+						loaded.DeliveryPoint = loaded.Client.DeliveryPoints.FirstOrDefault(x => x.Address1c == loaded.Address1c);
 				}
 
 				if(!String.IsNullOrWhiteSpace(loaded.Address1cCode) && loaded.DeliveryPoint != null && String.IsNullOrWhiteSpace(loaded.DeliveryPoint.Code1c))
@@ -985,6 +987,7 @@ namespace Vodovoz
 
 							change.Title = $"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше подтвержденного";
 							Changes.Add(change);
+							UoW.Session.Evict(exist);
 							continue;
 						}
 
