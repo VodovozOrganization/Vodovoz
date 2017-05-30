@@ -267,7 +267,7 @@ namespace Vodovoz
 			return null;
 		}
 
-		string GetTransferText(RouteListItem item)
+		string GetTransferText(RouteListItem item) // Дубликат метода в RouteListItem, надо переделать метод вызова попапа и убрать.
 		{
 			if (item.Status == RouteListItemStatus.Transfered)
 			{
