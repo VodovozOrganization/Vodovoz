@@ -432,6 +432,7 @@ namespace Vodovoz
 			this.Hide();
 			this.buttonMadeCall.Clicked += new global::System.EventHandler(this.OnButtonMadeCallClicked);
 			this.buttonNewFine.Clicked += new global::System.EventHandler(this.OnButtonNewFineClicked);
+			this.ytreeviewAddresses.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewAddressesRowActivated);
 			this.buttonChangeDeliveryTime.Clicked += new global::System.EventHandler(this.OnButtonChangeDeliveryTimeClicked);
 			this.buttonSetStatusComplete.Clicked += new global::System.EventHandler(this.OnButtonSetStatusCompleteClicked);
 			this.buttonRefresh.Clicked += new global::System.EventHandler(this.OnButtonRefreshClicked);
