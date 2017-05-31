@@ -23,7 +23,7 @@ namespace Vodovoz.Reports
 		{
 			get
 			{
-				return "Акт по бутылям/залогам";
+				return "Акт по бутылям-залогам";
 			}
 		}
 
