@@ -515,7 +515,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual List<BottlesMovementOperation> UpdateBottlesMovementOperation ()
 		{
 			var result = new List<BottlesMovementOperation> ();
-			foreach (RouteListItem address in Addresses) {
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			foreach (RouteListItem address in addresesDelivered) {
 				int amountDelivered = address.Order.OrderItems
 					.Where (item => item.Nomenclature.Category == NomenclatureCategory.water)
 					.Sum (item => item.ActualCount);
@@ -545,7 +546,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual List<CounterpartyMovementOperation> UpdateCounterpartyMovementOperations ()
 		{
 			var result = new List<CounterpartyMovementOperation> ();
-			foreach (var orderItem in Addresses.SelectMany (item => item.Order.OrderItems)
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			foreach (var orderItem in addresesDelivered.SelectMany (item => item.Order.OrderItems)
 				.Where (item => Nomenclature.GetCategoriesForShipment ().Contains (item.Nomenclature.Category))
 				.Where (item => !item.Nomenclature.Serial)) {
 				var operation = orderItem.UpdateCounterpartyOperation (UoW);
@@ -554,10 +556,10 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 			//FIXME Проверка на время тестирования, с более понятным сообщением что прозошло. Если отладим процес можно будет убрать.
-			if (Addresses.SelectMany (item => item.Order.OrderEquipments).Any (item => item.Equipment == null))
+			if (addresesDelivered.SelectMany (item => item.Order.OrderEquipments).Any (item => item.Equipment == null))
 				throw new InvalidOperationException ("В заказе присутстует оборудование без указания серийного номера. К моменту закрытия такого быть не должно.");
 
-			foreach (var orderEquipment in Addresses.SelectMany (item => item.Order.OrderEquipments)
+			foreach (var orderEquipment in addresesDelivered.SelectMany (item => item.Order.OrderEquipments)
 				.Where (item => Nomenclature.GetCategoriesForShipment ().Contains (item.Equipment.Nomenclature.Category))) {
 				var operation = orderEquipment.UpdateCounterpartyOperation ();
 				if (operation != null)
@@ -571,7 +573,8 @@ namespace Vodovoz.Domain.Logistic
 			var result = new List<DepositOperation> ();
 			var bottleDepositNomenclature = NomenclatureRepository.GetBottleDeposit (UoW);
 			var bottleDepositPrice = bottleDepositNomenclature.GetPrice (1);
-			foreach (RouteListItem item in Addresses)//.Where(address=>address.Order.PaymentType == PaymentType.cash))
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			foreach (RouteListItem item in addresesDelivered)//.Where(address=>address.Order.PaymentType == PaymentType.cash))
 			{
 				var deliveredEquipmentForRent = item.Order.OrderEquipments.Where (eq => eq.Confirmed)
 					.Where (eq => eq.Direction == Vodovoz.Domain.Orders.Direction.Deliver)
@@ -723,7 +726,8 @@ namespace Vodovoz.Domain.Logistic
 		public virtual List<MoneyMovementOperation> UpdateMoneyMovementOperations ()
 		{
 			var result = new List<MoneyMovementOperation> ();
-			foreach (var address in Addresses) {
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			foreach (var address in addresesDelivered) {
 				var order = address.Order;
 				var depositsTotal = order.OrderDepositItems.Sum (dep => dep.Count * dep.Deposit);
 				Decimal? money = null;
