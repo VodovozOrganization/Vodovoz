@@ -87,6 +87,7 @@ namespace Vodovoz
 			phonesView.Phones = UoWGeneric.Root.Phones;
 			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account> (UoWGeneric, o => o.Accounts);
 			accountsView.SetTitle ("Банковские счета сотрудника");
+			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.Date).InitializeFromSource();
 
 			logger.Info ("Ok");
 		}

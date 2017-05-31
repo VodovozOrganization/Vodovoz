@@ -22,6 +22,7 @@ namespace Vodovoz.Reports
 			public string FullName 	 { get {return LastName + " " + Name;} }
 			public bool   IsSelected { get; set; } = false;
 			public EmployeeCategory Category { get; set; }
+			public DateTime FirstWorkDay { get; set; }
 		}
 
 		IColumnsConfig columnsConfig = ColumnsConfigFactory.Create<DriverNode> ()
@@ -102,7 +103,8 @@ namespace Vodovoz.Reports
 					.Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.Name)
 					.Select(() => employeeAlias.LastName).WithAlias(() => resultAlias.LastName)
-			        .Select(() => employeeAlias.Category).WithAlias (() => resultAlias.Category))
+			        .Select(() => employeeAlias.Category).WithAlias (() => resultAlias.Category)
+			        .Select(() => employeeAlias.FirstWorkDay).WithAlias(() => resultAlias.FirstWorkDay))
 				.OrderBy(e => e.LastName).Asc.ThenBy(x => x.Name).Asc
 				.TransformUsing(Transformers.AliasToBean<DriverNode>())
 				.List<DriverNode>();
@@ -133,6 +135,29 @@ namespace Vodovoz.Reports
 			ytreeviewDrivers.SetItemsSource(driversList);
 		}
 
+		protected void OnButtonSelectWageClicked(object sender, EventArgs e)
+		{
+			foreach(var item in driversList)
+				item.IsSelected = false;
+
+			var driversListFiltered = driversList.Where(x => CheckDate(x.FirstWorkDay, ydateDateSolary.Date) == true).ToList();
+			foreach(var item in driversListFiltered)
+				item.IsSelected = true;
+			 
+			ytreeviewDrivers.SetItemsSource(driversList);				
+		}
+	 
+		public bool CheckDate(DateTime firsWorkDay, DateTime currentDay)
+		{
+			if(currentDay.Subtract(firsWorkDay).Days > 14)
+			{
+				var monday = currentDay.AddDays(1 - ((int)currentDay.DayOfWeek == 0 ? 7 : (int)currentDay.DayOfWeek));
+				var daydiff = (monday - firsWorkDay).Days;  
+				return (daydiff - 1) % 14 < 7;
+			}
+			 
+			return false;
+		}
 	}
 }
 

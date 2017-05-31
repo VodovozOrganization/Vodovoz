@@ -189,6 +189,15 @@ namespace Vodovoz.Domain.Employees
 		set { SetField (ref subdivision, value, () => Subdivision); }
 		}
 
+		private DateTime? firstWorkDay;
+
+		[Display(Name = "Первый день работы")]
+		public virtual DateTime? FirstWorkDay {
+			get { return firstWorkDay; }
+			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
+		}
+
+
 		#endregion
 
 		public Employee ()
