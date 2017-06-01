@@ -9,7 +9,9 @@ using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
 
@@ -26,6 +28,10 @@ namespace Vodovoz.ViewModel
 			RouteList routeListAlias = null;
 			Car carAlias = null;
 
+			Domain.Orders.Order orderAlias = null;
+			OrderItem ordItemsAlias = null;
+			Nomenclature nomenclatureAlias = null;
+
 			var completedSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
 				.Where(i => i.Status != RouteListItemStatus.EnRoute)
@@ -34,6 +40,15 @@ namespace Vodovoz.ViewModel
 			var addressesSubquery = QueryOver.Of<RouteListItem>()
 				.Where(i => i.RouteList.Id == routeListAlias.Id)
 				.Select(Projections.RowCount());
+
+			var uncompletedBottlesSubquery = QueryOver.Of<RouteListItem>()  // Запрашивает количество ещё не доставленных бутылей.
+				.Where(i => i.RouteList.Id == routeListAlias.Id)
+				.Where(i => i.Status == RouteListItemStatus.EnRoute)
+               	.JoinAlias(rli => rli.Order, () => orderAlias)
+               	.JoinAlias(() => orderAlias.OrderItems, () => ordItemsAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+               	.JoinAlias(() => ordItemsAlias.Nomenclature, () => nomenclatureAlias)
+			   	.Where(() => nomenclatureAlias.Category == NomenclatureCategory.water)
+				.Select(Projections.Sum(() => ordItemsAlias.Count));
 
 			var trackSubquery = QueryOver.Of<Track>()
 				.Where(x => x.RouteList.Id == routeListAlias.Id)
@@ -60,7 +75,8 @@ namespace Vodovoz.ViewModel
 					.SelectSubQuery(addressesSubquery).WithAlias(() => resultAlias.AddressesAll)
 					.SelectSubQuery(completedSubquery).WithAlias(() => resultAlias.AddressesCompleted)
 					.SelectSubQuery(trackSubquery).WithAlias(() => resultAlias.TrackId)
-			             )
+				    .SelectSubQuery(uncompletedBottlesSubquery).WithAlias(() => resultAlias.BottlesLeft)
+					)
 				.TransformUsing(Transformers.AliasToBean<WorkingDriverVMNode>())
 				.List<WorkingDriverVMNode>();
 
@@ -104,6 +120,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn("Чат").AddTextRenderer().AddSetter(SetChatCellMarkup)
 			.AddColumn("Выполнено").AddProgressRenderer(x => x.CompletedPercent)
 			.AddSetter((c, n) => c.Text = n.CompletedText)
+			.AddColumn("Остаток бут.").AddTextRenderer().AddSetter((c, node) => c.Markup = node.BottlesLeft.ToString())
 			.Finish();
 
 		public override IColumnsConfig ColumnsConfig
@@ -163,6 +180,8 @@ namespace Vodovoz.ViewModel
 
 		public int AddressesCompleted { get; set; }
 		public int AddressesAll { get; set; }
+
+		public int BottlesLeft { get; set; } // @Дима
 
 		public int CompletedPercent{
 			get{
