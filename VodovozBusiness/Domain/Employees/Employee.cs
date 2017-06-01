@@ -6,6 +6,7 @@ using Gamma.Utilities;
 using QSBanks;
 using QSOrmProject;
 using QSProjectsLib;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Domain.Employees
 {
@@ -25,7 +26,7 @@ namespace Vodovoz.Domain.Employees
 		[Display (Name = "Имя")]
 		public virtual string Name {
 			get { return name; }
-			set { SetField (ref name, value.Trim(), () => Name); }
+			set { SetField (ref name, value?.Trim(), () => Name); }
 		}
 
 		string lastName;
@@ -33,7 +34,7 @@ namespace Vodovoz.Domain.Employees
 		[Display (Name = "Фамилия")]
 		public virtual string LastName {
 			get { return lastName; }
-			set { SetField (ref lastName, value.Trim(), () => LastName); }
+			set { SetField (ref lastName, value?.Trim(), () => LastName); }
 		}
 
 		string patronymic;
@@ -41,7 +42,7 @@ namespace Vodovoz.Domain.Employees
 		[Display (Name = "Отчество")]
 		public virtual string Patronymic {
 			get { return patronymic; }
-			set { SetField (ref patronymic, value.Trim(), () => Patronymic); }
+			set { SetField (ref patronymic, value?.Trim(), () => Patronymic); }
 		}
 
 		EmployeeCategory category;
@@ -197,6 +198,21 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
 		}
 
+		LogisticsArea districtFirst;
+
+		[Display(Name = "Основной район")]
+		public virtual LogisticsArea DistrictFirst {
+			get { return districtFirst; }
+			set { SetField(ref districtFirst, value, () => DistrictFirst); }
+		}
+
+		LogisticsArea districtSecond;
+
+		[Display(Name = "Дополнительный район")]
+		public virtual LogisticsArea DistrictSecond {
+			get { return districtSecond; }
+			set { SetField(ref districtSecond, value, () => DistrictSecond); }
+		}
 
 		#endregion
 

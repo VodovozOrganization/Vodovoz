@@ -823,12 +823,16 @@ namespace Vodovoz.Domain.Logistic
 			if (Status != RouteListStatus.OnClosing)
 				throw new InvalidOperationException (String.Format ("Закрыть маршрутный лист можно только если он находится в статусе {0}", RouteListStatus.OnClosing));
 
-			if(Driver.FirstWorkDay != null) {
+			if(Driver != null && Driver.FirstWorkDay == null) {
 				Driver.FirstWorkDay = date;
+				UoW.Save(Driver);
 			}
-			if(Forwarder.FirstWorkDay != null) {
+
+			if(Forwarder != null && Forwarder.FirstWorkDay == null) {
 				Forwarder.FirstWorkDay = date;
+				UoW.Save(Forwarder);
 			}
+
 
 			Status = RouteListStatus.MileageCheck;
 			foreach (var address in Addresses) {

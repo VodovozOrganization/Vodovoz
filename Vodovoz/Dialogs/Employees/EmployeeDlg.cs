@@ -8,6 +8,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz
 {
@@ -87,7 +88,11 @@ namespace Vodovoz
 			phonesView.Phones = UoWGeneric.Root.Phones;
 			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account> (UoWGeneric, o => o.Accounts);
 			accountsView.SetTitle ("Банковские счета сотрудника");
-			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.Date).InitializeFromSource();
+			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.DateOrNull).InitializeFromSource();
+			referenceDistrictFirst.SubjectType = typeof(LogisticsArea);
+			referenceDistrictFirst.Binding.AddBinding(Entity, e => e.DistrictFirst, w => w.Subject).InitializeFromSource();
+			referenceDistrictSecond.SubjectType = typeof(LogisticsArea);
+			referenceDistrictSecond.Binding.AddBinding(Entity, e => e.DistrictSecond, w => w.Subject).InitializeFromSource();
 
 			logger.Info ("Ok");
 		}
