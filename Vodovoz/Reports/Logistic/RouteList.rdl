@@ -780,6 +780,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -795,8 +796,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <Color>Black</Color>
-                        <BackgroundColor>
-                        </BackgroundColor>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                         <FontFamily>Arial</FontFamily>
                         <FontSize>10pt</FontSize>
                         <TextAlign>Right</TextAlign>
@@ -815,6 +815,7 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -850,6 +851,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -866,6 +868,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -882,6 +885,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -898,6 +902,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -913,6 +918,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -930,6 +936,7 @@
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
                         <Format>0.00</Format>
+                        <BackgroundColor>=Iif(({Status} = "Transfered") , Lightgrey , White)</BackgroundColor>
                       </Style>
                       <CanGrow>true</CanGrow>
                     </Textbox>
@@ -1456,7 +1463,9 @@ NULL AS Comment,
 orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
-IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
+IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit,
+route_list_addresses.status AS Status
+
 <!--sql_select-->
 FROM route_list_addresses
 LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -1549,7 +1558,11 @@ ORDER BY daily_number_1c;
           <DataField>Total</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <!--fields-->
+        <Field Name="Status">
+          <DataField>Status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+         <!--fields-->
       </Fields>
     </DataSet>
   </DataSets>
