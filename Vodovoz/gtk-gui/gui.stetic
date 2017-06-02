@@ -29340,6 +29340,7 @@ RegistrationNumber</property>
         <child>
           <widget class="QSWidgetLib.DatePeriodPicker" id="dateperiodpicker1">
             <property name="MemberName" />
+            <property name="Visible">False</property>
             <property name="Events">ButtonPressMask</property>
             <property name="StartDate">0</property>
             <property name="EndDate">0</property>
@@ -29362,6 +29363,7 @@ RegistrationNumber</property>
         <child>
           <widget class="Gtk.Label" id="label1">
             <property name="MemberName" />
+            <property name="Visible">False</property>
             <property name="Xalign">1</property>
             <property name="LabelProp" translatable="yes">Период:</property>
           </widget>
