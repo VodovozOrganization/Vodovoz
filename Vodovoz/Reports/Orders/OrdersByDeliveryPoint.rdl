@@ -55,10 +55,13 @@
             <Width>79.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>208.9pt</Width>
+            <Width>168.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>250.5pt</Width>
+            <Width>180.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>124.8pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -103,6 +106,22 @@
                     <Textbox Name="Textbox5">
                       <Value>Адрес</Value>
                       <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Телефон</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -172,12 +191,28 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>=Fields!client_phone.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow >true</CanGrow>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
         </Details>
-        <Left>14.1pt</Left>
-        <Top>9.1pt</Top>
+        <Left>0.0pt</Left>
+        <Top>13.0pt</Top>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -207,12 +242,13 @@
         <CommandText>SELECT  
     delivery_date,
     counterparty.name AS counterparty,
-    address_1c
+    address_1c,
+    client_phone
 FROM
     (SELECT 
         *
     FROM
-        Vodovoz_honeybee.orders
+        orders
     WHERE
         (orders.delivery_date = DATE(@date))
     ORDER BY delivery_date DESC) AS t2 
@@ -237,6 +273,10 @@ GROUP BY t2.delivery_point_id</CommandText>
         </Field>
         <Field Name="address_1c">
           <DataField>address_1c</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="client_phone">
+          <DataField>client_phone</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>

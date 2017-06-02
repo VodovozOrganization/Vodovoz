@@ -28,6 +28,7 @@ namespace Vodovoz.HMap
 			Map (x => x.ToClientText)		.Column ("to_client_text");
 			Map (x => x.DeliverySchedule1c)	.Column ("delivery_schedule_1c");
 			Map (x => x.DailyNumber1c)      .Column ("daily_number_1c");
+			Map (x => x.ClientPhone)        .Column ("client_phone");
 			Map (x => x.OrderStatus)		.Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType)		.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map (x => x.PaymentType)		.Column ("payment_type").CustomType<PaymentTypeStringType> ();

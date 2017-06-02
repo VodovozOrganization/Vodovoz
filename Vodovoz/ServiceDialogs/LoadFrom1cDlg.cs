@@ -671,6 +671,7 @@ namespace Vodovoz
 			var dailyNumber1c		  = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
 			var toClient 	 		  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
 			var fromClient 	 	  	  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
+			var clientPhone	 		  = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
 			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
 			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
 			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
@@ -717,7 +718,8 @@ namespace Vodovoz
 					Address1cCode 		= addressCodeNode?.InnerText,
 					PaymentType 		= paymentType,
 					ToClientText 		= toClient?.InnerText,
-					FromClientText 		= fromClient?.InnerText
+					FromClientText 		= fromClient?.InnerText,
+					ClientPhone			= clientPhone?.InnerText
 				};
 
 			if (!String.IsNullOrWhiteSpace (dailyNumber1c?.InnerText)) {

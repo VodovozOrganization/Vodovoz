@@ -146,6 +146,11 @@ namespace ServiceDialogs.LoadFrom1c
 				oldOrder.FromClientText = newOrder.FromClientText;
 			}
 
+			if(oldOrder.ClientPhone != newOrder.ClientPhone) {
+				result.Add(new FieldChange("Изменен телефон", oldOrder.ClientPhone ?? noValue, newOrder.ClientPhone ?? noValue));
+				oldOrder.ClientPhone = newOrder.ClientPhone;
+			}
+
 			List<OrderItem> oldOrderItems = oldOrder.OrderItems.ToList();
 			List<OrderItem> newOrderItems = newOrder.OrderItems.ToList();
 

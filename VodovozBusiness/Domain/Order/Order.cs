@@ -151,6 +151,14 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref comment, value, () => Comment); }
 		}
 
+		string clientPhone;
+
+		[Display(Name = "Номер телефона")]
+		public virtual string ClientPhone {
+			get { return clientPhone; }
+			set { SetField(ref clientPhone, value, () => ClientPhone); }
+		}
+
 		OrderSignatureType? signatureType;
 
 		[Display (Name = "Подписание документов")]
@@ -429,6 +437,7 @@ namespace Vodovoz.Domain.Orders
 			Comment = String.Empty;
 			OrderStatus = OrderStatus.NewOrder;
 			SumDifferenceReason = String.Empty;
+			ClientPhone = String.Empty;
 		}
 
 		public static Order CreateFromServiceClaim (ServiceClaim service, Employee author)
