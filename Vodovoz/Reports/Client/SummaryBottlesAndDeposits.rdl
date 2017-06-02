@@ -241,18 +241,24 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - (SELECT 
-    order_items.count
-FROM
-    order_items
-        LEFT JOIN
-    orders ON orders.id = order_items.order_id
-WHERE
-    orders.client_id = @client_id
-        AND order_items.nomenclature_id = (SELECT str_value  FROM  base_parameters  WHERE  base_parameters.name = 'forfeit_nomenclature_id'))  AS bottle_balance
+    SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
+                    order_items.count
+                FROM
+                    order_items
+                        LEFT JOIN
+                    orders ON orders.id = order_items.order_id
+                WHERE
+                    orders.client_id = @client_id
+                        AND order_items.nomenclature_id = (SELECT 
+                            str_value
+                        FROM
+                            base_parameters
+                        WHERE
+                            base_parameters.name = 'forfeit_nomenclature_id')),
+            0) AS bottle_balance
                     
 FROM
     bottles_movement_operations
@@ -269,7 +275,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1317,8 +1323,8 @@ ____________(                        )
         <Width>118.90pt</Width>
         <Value>=First({bottle_balance}, 'Bottles')</Value>
         <ZIndex>1</ZIndex>
-        <Left>223.1pt</Left>
-        <Top>142.0pt</Top>
+        <Left>227.2pt</Left>
+        <Top>144.3pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1395,8 +1401,8 @@ ____________(                        )
         <Width>210.73pt</Width>
         <Value>Забрать оборудование:</Value>
         <ZIndex>1</ZIndex>
-        <Left>12.5pt</Left>
-        <Top>155.8pt</Top>
+        <Left>11.5pt</Left>
+        <Top>158.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
