@@ -59,10 +59,10 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>53.9pt</Width>
+            <Width>52.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>136.8pt</Width>
+            <Width>160.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>96.5pt</Width>
@@ -74,7 +74,7 @@
             <Width>32.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>146.5pt</Width>
+            <Width>133.7pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -290,7 +290,7 @@
         </Details>
         <Left>0.0pt</Left>
         <Top>3.5pt</Top>
-        <Footer >
+        <Footer>
           <TableRows>
             <TableRow>
               <Height>.2in</Height>
@@ -587,13 +587,13 @@
   </DataSources>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
-    counterparty.full_name AS counterparty,
+    TRIM(counterparty.full_name) AS counterparty,
     delivery_points.compiled_address_short AS address,
-    CONCAT_WS(&#39; &#39;, employees.last_name, employees.name) AS driver_name,
+    CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
     orders.comment AS comment,
     (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) AS bottles
 FROM
@@ -603,7 +603,7 @@ FROM
         LEFT JOIN
     delivery_points ON delivery_points.id = orders.delivery_point_id
         LEFT JOIN
-    route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status &lt;&gt; &#39;Transfered&#39;
+    route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status &lt;&gt; 'Transfered'
         LEFT JOIN
     route_lists ON route_lists.id = route_list_addresses.route_list_id
         LEFT JOIN
@@ -612,16 +612,17 @@ FROM
     bottles_movement_operations ON bottles_movement_operations.id = orders.bottles_movement_operation_id
 WHERE
     orders.delivery_date = DATE(@date)
-        AND (route_lists.status = &#39;Closed&#39;
-        OR route_lists.status = &#39;MileageCheck&#39;)
-        AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0</CommandText>
+        AND (route_lists.status = 'Closed'
+        OR route_lists.status = 'MileageCheck')
+        AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
+ORDER BY driver_name</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -649,7 +650,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="RouteLists">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id AS route_list_id,
@@ -670,7 +671,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.Int32</TypeName>
