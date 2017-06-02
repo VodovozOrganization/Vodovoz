@@ -22,7 +22,7 @@
       <Textbox Name="Textbox1">
         <Height>21.10pt</Height>
         <Width>568.38pt</Width>
-        <Value>=First(Fields!name, "DriverName") + " " + First(Fields!last_name, "DriverName")</Value>
+        <Value>=First(Fields!name, "DriverName") + " " + First(Fields!last_name, "DriverName") + " "+ CDate({?start_date}) + " по " + CDate({?end_date})</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>3.00pt</Top>
@@ -33,6 +33,7 @@
           <BorderWidth />
           <TextAlign>Center</TextAlign>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
       <Table Name="Table1">
         <DataSetName>DriverInfo</DataSetName>
@@ -275,8 +276,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.8pt</Left>
-        <Top>35.8pt</Top>
+        <Left>0.0pt</Left>
+        <Top>38.2pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -798,7 +799,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.date AS date,
@@ -834,7 +835,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1007,7 +1008,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

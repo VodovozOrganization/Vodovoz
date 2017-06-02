@@ -244,8 +244,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>0.0pt</Left>
-        <Top>22.1pt</Top>
+        <Left>2.4pt</Left>
+        <Top>43.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -350,10 +350,10 @@
       <Textbox Name="Textbox2">
         <Height>24.05pt</Height>
         <Width>569.21pt</Width>
-        <Value>=First(Fields!name, "ForwarderName") + " " + First(Fields!last_name, "ForwarderName")</Value>
+        <Value>=First(Fields!name, "ForwarderName") + " " + First(Fields!last_name, "ForwarderName") + " " + CDate({?start_date}) + " по " + CDate({?end_date})</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>0.0pt</Top>
+        <Left>0.00pt</Left>
+        <Top>0.00pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -361,6 +361,7 @@
           <TextAlign>Center</TextAlign>
           <FontSize>16pt</FontSize>
         </Style>
+        <CanGrow >true</CanGrow>
       </Textbox>
       <Table Name="Table2">
         <DataSetName>Advances</DataSetName>
