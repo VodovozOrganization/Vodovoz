@@ -1123,7 +1123,9 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox75">
-                      <Value><!--table_cell_total_without_stock--></Value>
+                      <Value>
+                        <!--table_cell_total_without_stock-->
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1395,7 +1397,9 @@ route_list_addresses.status AS Status,
  route_list_addresses.total_cash AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')), orders.from_client_text) AS FromClient,
-IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
+#IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
+#База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
+IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit
 <!--sql_select-->
 FROM route_list_addresses
 LEFT JOIN orders ON orders.id = route_list_addresses.order_id
@@ -1492,7 +1496,7 @@ ORDER BY route_list_addresses.order_in_route;
       </Fields>
     </DataSet>
     <DataSet Name="TotalInfo">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(route_list_addresses.driver_wage + route_list_addresses.driver_wage_surcharge) AS driver_wage,
@@ -1527,7 +1531,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="driver_wage">
           <DataField>driver_wage</DataField>
           <TypeName>System.Decimal</TypeName>
