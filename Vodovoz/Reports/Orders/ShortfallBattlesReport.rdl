@@ -11,15 +11,8 @@
   <LeftMargin>5mm</LeftMargin>
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
-  <ReportParameters>
-    <ReportParameter Name="date">
-      <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-  </ReportParameters>
   <PageHeader>
-    <Height>33.4pt</Height>
+    <Height>58.1pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
@@ -28,8 +21,8 @@
         <Width>560.84pt</Width>
         <Value>Отчет о недосданных бутылях</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.0pt</Left>
-        <Top>13.4pt</Top>
+        <Left>0.00pt</Left>
+        <Top>13.40pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -40,6 +33,21 @@
           <PaddingBottom>0mm</PaddingBottom>
           <PaddingRight>0mm</PaddingRight>
           <TextAlign>Center</TextAlign>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox28">
+        <Height>15.00pt</Height>
+        <Width>85.80pt</Width>
+        <Value>=Format(Cdate(Parameters!date), "dd/MM/yyyy")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>240.65pt</Left>
+        <Top>35.90pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
         </Style>
       </Textbox>
     </ReportItems>
@@ -264,6 +272,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -557,6 +566,7 @@
         <Top>62.5pt</Top>
       </Table>
     </ReportItems>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -576,18 +586,9 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
@@ -622,7 +623,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -650,7 +651,7 @@ ORDER BY driver_name</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="RouteLists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id AS route_list_id,
@@ -671,7 +672,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
           <TypeName>System.Int32</TypeName>
@@ -687,4 +688,30 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
+    <ReportParameter Name="date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-05-15</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
