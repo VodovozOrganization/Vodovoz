@@ -728,6 +728,17 @@
         <property name="ShortLabel" translatable="yes">Отчет по последнему заказу</property>
         <signal name="Activated" handler="OnActionLastOrderReportActivated" />
       </action>
+      <action id="Action27">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Обслуживание</property>
+        <property name="ShortLabel" translatable="yes">Обслуживание</property>
+      </action>
+      <action id="ActionAddressDuplicetes">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Дубликаты адресов</property>
+        <property name="ShortLabel" translatable="yes">Дубликаты адресов</property>
+        <signal name="Activated" handler="OnActionAddressDuplicetesActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -751,6 +762,9 @@
                     <node type="Separator" />
                     <node type="Menuitem" action="ActionParameters" />
                     <node type="Menuitem" action="propertiesAction" />
+                    <node type="Menu" action="Action27">
+                      <node type="Menuitem" action="ActionAddressDuplicetes" />
+                    </node>
                     <node type="Separator" />
                     <node type="Menuitem" action="quitAction" />
                   </node>
@@ -38416,6 +38430,110 @@ RegistrationNumber</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ServiceDialogs.Database.MergeAddressesDlg" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox1">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Button" id="buttonFineDuplicates">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-find Menu</property>
+                <property name="Label" translatable="yes">Найти дубли</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonFineDuplicatesClicked" />
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonApply">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextAndIcon</property>
+                <property name="Icon">stock:gtk-apply Menu</property>
+                <property name="Label" translatable="yes">Применить</property>
+                <property name="UseUnderline">True</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder />
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.ProgressBar" id="progressOp">
+            <property name="MemberName" />
+            <property name="Visible">False</property>
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow">
+            <property name="MemberName" />
+            <property name="ShadowType">In</property>
+            <child>
+              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewDuplicates">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="ShowScrollbars">True</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow1">
+            <property name="MemberName" />
+            <property name="ShadowType">In</property>
+            <child>
+              <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewAddresses">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="ShowScrollbars">True</property>
+              </widget>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">3</property>
+            <property name="AutoSize">True</property>
           </packing>
         </child>
       </widget>

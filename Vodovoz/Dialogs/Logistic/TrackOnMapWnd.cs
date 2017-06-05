@@ -282,7 +282,7 @@ namespace Dialogs.Logistic
 					new PointLatLng (lastPoint.Latitude, lastPoint.Longitude), 
 					new PointLatLng (point.Latitude, point.Longitude));
 				
-				if(distance > 1)
+				if(distance > 0.5)
 				{
 					logger.Info ("Найден разрыв в треке расстоянием в {0}", distance);
 					message += String.Format ("\n* разрыв c {1:t} по {2:t} — {0:N1} км.",

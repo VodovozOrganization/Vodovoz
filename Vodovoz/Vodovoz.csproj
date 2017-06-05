@@ -567,6 +567,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.CompanyTrucksReport.cs" />
     <Compile Include="ReportsParameters\LastOrderByDeliveryPointReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.LastOrderByDeliveryPointReport.cs" />
+    <Compile Include="ServiceDialogs\Database\MergeAddressesDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.MergeAddressesDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -711,6 +713,7 @@
     <Folder Include="Reports\Sales\" />
     <Folder Include="ReportsParameters\Logistic\" />
     <Folder Include="ServiceDialogs\Chat\" />
+    <Folder Include="ServiceDialogs\Database\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

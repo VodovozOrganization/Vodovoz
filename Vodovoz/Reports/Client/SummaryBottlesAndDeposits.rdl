@@ -6,14 +6,6 @@
   </Author>
   <PageHeight>11in</PageHeight>
   <PageWidth>8.5in</PageWidth>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <Width>7.5in</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
@@ -126,7 +118,9 @@ FROM
             AND (@startDate = ''
             OR orders.delivery_date &gt;= @startDate)
             AND (@endDate = ''
-            OR orders.delivery_date &lt;= @endDate) UNION SELECT 
+            OR orders.delivery_date &lt;= @endDate)
+            AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NorDelivered')  
+            UNION SELECT 
         doc_residue.id AS doc_residue_id,
             doc_residue.bottles_movement_operation_id,
             doc_residue.date AS doc_date,
@@ -1449,6 +1443,7 @@ ____________(                        )
       </List>
     </ReportItems>
     <Height>247.7pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -1471,9 +1466,16 @@ ____________(                        )
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
   <ReportParameters>
     <ReportParameter Name="client_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2362</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1482,6 +1484,11 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="delivery_point_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2546</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1490,6 +1497,11 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-05-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1498,6 +1510,11 @@ ____________(                        )
     </ReportParameter>
     <ReportParameter Name="endDate">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-06-01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -1505,4 +1522,13 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

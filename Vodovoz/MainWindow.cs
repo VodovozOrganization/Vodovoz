@@ -17,11 +17,12 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.Panel;
+using Vodovoz.ServiceDialogs.Database;
 using Vodovoz.ViewModel;
 
 public partial class MainWindow : Gtk.Window
 {
-	private static Logger logger = LogManager.GetCurrentClassLogger ();
+	private static Logger logger = LogManager.GetCurrentClassLogger();
 	uint LastUiId;
 
 	public TdiNotebook TdiMain {
@@ -30,434 +31,434 @@ public partial class MainWindow : Gtk.Window
 		}
 	}
 
-	public MainWindow () : base (Gtk.WindowType.Toplevel)
+	public MainWindow() : base(Gtk.WindowType.Toplevel)
 	{
-		Build ();
-		PerformanceHelper.AddTimePoint ("Закончена стандартная сборка окна.");
-		this.BuildToolbarActions ();
+		Build();
+		PerformanceHelper.AddTimePoint("Закончена стандартная сборка окна.");
+		this.BuildToolbarActions();
 		this.KeyReleaseEvent += ClipboardWorkaround.HandleKeyReleaseEvent;
 		TDIMain.MainNotebook = tdiMain;
 		this.KeyReleaseEvent += TDIMain.TDIHandleKeyReleaseEvent;
 		//Передаем лебл
 		QSMain.StatusBarLabel = labelStatus;
-		this.Title = MainSupport.GetTitle ();
-		QSMain.MakeNewStatusTargetForNlog ();
+		this.Title = MainSupport.GetTitle();
+		QSMain.MakeNewStatusTargetForNlog();
 
-		MainSupport.LoadBaseParameters ();
+		MainSupport.LoadBaseParameters();
 
-		MainSupport.TestVersion (this); //Проверяем версию базы
-		QSMain.CheckServer (this); // Проверяем настройки сервера
+		MainSupport.TestVersion(this); //Проверяем версию базы
+		QSMain.CheckServer(this); // Проверяем настройки сервера
 
-		PerformanceHelper.AddTimePoint ("Закончена загрузка параметров базы и проверка версии.");
+		PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
 
-		if (QSMain.User.Login == "root") {
+		if(QSMain.User.Login == "root") {
 			string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
-			MessageDialog md = new MessageDialog (this, DialogFlags.DestroyWithParent,
+			MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent,
 								   MessageType.Info,
 								   ButtonsType.Ok,
 								   Message);
-			md.Run ();
-			md.Destroy ();
-			Users WinUser = new Users ();
-			WinUser.Show ();
-			WinUser.Run ();
-			WinUser.Destroy ();
+			md.Run();
+			md.Destroy();
+			Users WinUser = new Users();
+			WinUser.Show();
+			WinUser.Run();
+			WinUser.Destroy();
 			return;
 		}
 
 		//Настраиваем модули
-		MainClass.SetupAppFromBase ();
+		MainClass.SetupAppFromBase();
 
 		UsersAction.Sensitive = QSMain.User.Admin;
 		ActionParameters.Sensitive = QSMain.User.Admin;
 		labelUser.LabelProp = QSMain.User.Name;
-		ActionCash.Sensitive = QSMain.User.Permissions ["money_manage"];
-		ActionAccounting.Sensitive = QSMain.User.Permissions ["money_manage"];
+		ActionCash.Sensitive = QSMain.User.Permissions["money_manage"];
+		ActionAccounting.Sensitive = QSMain.User.Permissions["money_manage"];
 		ActionRouteListsAtDay.Sensitive =
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
-			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions ["logistican"];
+			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
-		switch (CurrentUserSettings.Settings.ToolbarStyle) {
+		switch(CurrentUserSettings.Settings.ToolbarStyle) {
 		case ToolbarStyle.Both:
-			ActionToolBarBoth.Activate ();
+			ActionToolBarBoth.Activate();
 			break;
 		case ToolbarStyle.Icons:
-			ActionToolBarIcon.Activate ();
+			ActionToolBarIcon.Activate();
 			break;
 		case ToolbarStyle.Text:
-			ActionToolBarText.Activate ();
+			ActionToolBarText.Activate();
 			break;
 		}
 
-		switch (CurrentUserSettings.Settings.ToolBarIconsSize) {
+		switch(CurrentUserSettings.Settings.ToolBarIconsSize) {
 		case IconsSize.ExtraSmall:
-			ActionIconsExtraSmall.Activate ();
+			ActionIconsExtraSmall.Activate();
 			break;
 		case IconsSize.Small:
-			ActionIconsSmall.Activate ();
+			ActionIconsSmall.Activate();
 			break;
 		case IconsSize.Middle:
-			ActionIconsMiddle.Activate ();
+			ActionIconsMiddle.Activate();
 			break;
 		case IconsSize.Large:
-			ActionIconsLarge.Activate ();
+			ActionIconsLarge.Activate();
 			break;
 		}
 
-		BanksUpdater.Update (false);
+		BanksUpdater.Update(false);
 	}
 
-	public void OnTdiMainTabAdded (object sender, TabAddedEventArgs args)
+	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
 		var currentTab = args.Tab;
-		if (currentTab is IInfoProvider)
+		if(currentTab is IInfoProvider)
 			(currentTab as IInfoProvider).CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
 	}
 
-	public void OnTdiMainTabClosed (object sender, TabClosedEventArgs args)
+	public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
 	{
 		var closedTab = args.Tab;
-		if (closedTab is IInfoProvider)
-			infopanel.OnInfoProviderDisposed (closedTab as IInfoProvider);
-		if (tdiMain.NPages == 0)
-			infopanel.SetInfoProvider (DefaultInfoProvider.Instance);
+		if(closedTab is IInfoProvider)
+			infopanel.OnInfoProviderDisposed(closedTab as IInfoProvider);
+		if(tdiMain.NPages == 0)
+			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
 
-	public void OnTdiMainTabSwitched (object sender, TabSwitchedEventArgs args)
+	public void OnTdiMainTabSwitched(object sender, TabSwitchedEventArgs args)
 	{
 		var currentTab = args.Tab;
-		if (currentTab is IInfoProvider)
-			infopanel.SetInfoProvider (currentTab as IInfoProvider);
+		if(currentTab is IInfoProvider)
+			infopanel.SetInfoProvider(currentTab as IInfoProvider);
 		else
-			infopanel.SetInfoProvider (DefaultInfoProvider.Instance);
+			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
 
-	protected void OnDeleteEvent (object sender, DeleteEventArgs a)
+	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
-		if (tdiMain.CloseAllTabs ()) {
+		if(tdiMain.CloseAllTabs()) {
 			a.RetVal = false;
-			MainClass.TrayIcon.Dispose ();
-			Application.Quit ();
+			MainClass.TrayIcon.Dispose();
+			Application.Quit();
 		} else {
 			a.RetVal = true;
 		}
 	}
 
-	protected void OnQuitActionActivated (object sender, EventArgs e)
+	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
-		if (tdiMain.CloseAllTabs ()) {
-			Application.Quit ();
+		if(tdiMain.CloseAllTabs()) {
+			Application.Quit();
 		}
 	}
 
-	protected void OnDialogAuthenticationActionActivated (object sender, EventArgs e)
+	protected void OnDialogAuthenticationActionActivated(object sender, EventArgs e)
 	{
-		QSMain.User.ChangeUserPassword (this);
+		QSMain.User.ChangeUserPassword(this);
 	}
 
-	protected void OnAction3Activated (object sender, EventArgs e)
+	protected void OnAction3Activated(object sender, EventArgs e)
 	{
-		Users winUsers = new Users ();
-		winUsers.Show ();
-		winUsers.Run ();
-		winUsers.Destroy ();
+		Users winUsers = new Users();
+		winUsers.Show();
+		winUsers.Run();
+		winUsers.Destroy();
 	}
 
-	protected void OnAboutActionActivated (object sender, EventArgs e)
+	protected void OnAboutActionActivated(object sender, EventArgs e)
 	{
-		QSMain.RunAboutDialog ();
+		QSMain.RunAboutDialog();
 	}
 
-	protected void OnActionOrdersToggled (object sender, EventArgs e)
+	protected void OnActionOrdersToggled(object sender, EventArgs e)
 	{
-		if (ActionOrders.Active)
-			SwitchToUI ("Vodovoz.toolbars.orders.xml");
+		if(ActionOrders.Active)
+			SwitchToUI("Vodovoz.toolbars.orders.xml");
 	}
 
-	private void SwitchToUI (string uiResource)
+	private void SwitchToUI(string uiResource)
 	{
-		if (LastUiId > 0) {
-			this.UIManager.RemoveUi (LastUiId);
+		if(LastUiId > 0) {
+			this.UIManager.RemoveUi(LastUiId);
 			LastUiId = 0;
 		}
-		LastUiId = this.UIManager.AddUiFromResource (uiResource);
-		this.UIManager.EnsureUpdate ();
+		LastUiId = this.UIManager.AddUiFromResource(uiResource);
+		this.UIManager.EnsureUpdate();
 	}
 
-	protected void OnActionServicesToggled (object sender, EventArgs e)
+	protected void OnActionServicesToggled(object sender, EventArgs e)
 	{
-		if (ActionServices.Active)
-			SwitchToUI ("Vodovoz.toolbars.services.xml");
+		if(ActionServices.Active)
+			SwitchToUI("Vodovoz.toolbars.services.xml");
 	}
 
-	protected void OnActionLogisticsToggled (object sender, EventArgs e)
+	protected void OnActionLogisticsToggled(object sender, EventArgs e)
 	{
-		if (ActionLogistics.Active)
-			SwitchToUI ("logistics.xml");
+		if(ActionLogistics.Active)
+			SwitchToUI("logistics.xml");
 	}
 
-	protected void OnActionStockToggled (object sender, EventArgs e)
+	protected void OnActionStockToggled(object sender, EventArgs e)
 	{
-		if (ActionStock.Active)
-			SwitchToUI ("warehouse.xml");
+		if(ActionStock.Active)
+			SwitchToUI("warehouse.xml");
 	}
 
-	protected void OnActionOrganizationsActivated (object sender, EventArgs e)
+	protected void OnActionOrganizationsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Organization));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Organization));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnSubdivisionsActivated (object sender, EventArgs e)
+	protected void OnSubdivisionsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab (
-			OrmReference.GenerateHashName<Subdivision> (),
-			() => new OrmReference (typeof (Subdivision))
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<Subdivision>(),
+			() => new OrmReference(typeof(Subdivision))
 		);
 	}
 
-	protected void OnActionBanksRFActivated (object sender, EventArgs e)
+	protected void OnActionBanksRFActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Bank));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Bank));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionNationalityActivated (object sender, EventArgs e)
+	protected void OnActionNationalityActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Nationality));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Nationality));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionEmploeyActivated (object sender, EventArgs e)
+	protected void OnActionEmploeyActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Employee));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Employee));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionCarsActivated (object sender, EventArgs e)
+	protected void OnActionCarsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Car));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Car));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionUnitsActivated (object sender, EventArgs e)
+	protected void OnActionUnitsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (MeasurementUnits));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(MeasurementUnits));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionColorsActivated (object sender, EventArgs e)
+	protected void OnActionColorsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (EquipmentColors));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(EquipmentColors));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionManufacturersActivated (object sender, EventArgs e)
+	protected void OnActionManufacturersActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Manufacturer));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Manufacturer));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionEquipmentTypesActivated (object sender, EventArgs e)
+	protected void OnActionEquipmentTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (EquipmentType));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(EquipmentType));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionNomenclatureActivated (object sender, EventArgs e)
+	protected void OnActionNomenclatureActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Nomenclature));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Nomenclature));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionPhoneTypesActivated (object sender, EventArgs e)
+	protected void OnActionPhoneTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (PhoneType));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(PhoneType));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionCounterpartyHandbookActivated (object sender, EventArgs e)
+	protected void OnActionCounterpartyHandbookActivated(object sender, EventArgs e)
 	{
-		var refWin = new ReferenceRepresentation (new CounterpartyVM ());
-		tdiMain.AddTab (refWin);
+		var refWin = new ReferenceRepresentation(new CounterpartyVM());
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionSignificanceActivated (object sender, EventArgs e)
+	protected void OnActionSignificanceActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Significance));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Significance));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionStatusActivated (object sender, EventArgs e)
+	protected void OnActionStatusActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (CounterpartyStatus));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(CounterpartyStatus));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionEMailTypesActivated (object sender, EventArgs e)
+	protected void OnActionEMailTypesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (EmailType));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(EmailType));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionCounterpartyPostActivated (object sender, EventArgs e)
+	protected void OnActionCounterpartyPostActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Post));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Post));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionFreeRentPackageActivated (object sender, EventArgs e)
+	protected void OnActionFreeRentPackageActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (FreeRentPackage));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(FreeRentPackage));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionPaidRentPackageActivated (object sender, EventArgs e)
+	protected void OnActionPaidRentPackageActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (PaidRentPackage));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(PaidRentPackage));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionEquipmentActivated (object sender, EventArgs e)
+	protected void OnActionEquipmentActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Equipment));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Equipment));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionDeliveryScheduleActivated (object sender, EventArgs e)
+	protected void OnActionDeliveryScheduleActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (DeliverySchedule));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(DeliverySchedule));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionLogisticsAreaActivated (object sender, EventArgs e)
+	protected void OnActionLogisticsAreaActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (LogisticsArea));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(LogisticsArea));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionUpdateBanksActivated (object sender, EventArgs e)
+	protected void OnActionUpdateBanksActivated(object sender, EventArgs e)
 	{
-		BanksUpdater.Update (true);
+		BanksUpdater.Update(true);
 	}
 
-	protected void OnActionWarehousesActivated (object sender, EventArgs e)
+	protected void OnActionWarehousesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (Warehouse));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(Warehouse));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionProductSpecificationActivated (object sender, EventArgs e)
+	protected void OnActionProductSpecificationActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (ProductSpecification));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(ProductSpecification));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionCullingCategoryActivated (object sender, EventArgs e)
+	protected void OnActionCullingCategoryActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (CullingCategory));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(CullingCategory));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionCommentTemplatesActivated (object sender, EventArgs e)
+	protected void OnActionCommentTemplatesActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (CommentTemplate));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(CommentTemplate));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionLoad1cActivated (object sender, EventArgs e)
+	protected void OnActionLoad1cActivated(object sender, EventArgs e)
 	{
-		var win = new LoadFrom1cDlg ();
-		tdiMain.AddTab (win);
+		var win = new LoadFrom1cDlg();
+		tdiMain.AddTab(win);
 	}
 
-	protected void OnActionRouteColumnsActivated (object sender, EventArgs e)
+	protected void OnActionRouteColumnsActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (RouteColumn));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(RouteColumn));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionFuelTypeActivated (object sender, EventArgs e)
+	protected void OnActionFuelTypeActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab (
-			OrmReference.GenerateHashName<FuelType> (),
-			() => new OrmReference (typeof (FuelType))
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<FuelType>(),
+			() => new OrmReference(typeof(FuelType))
 		);
 	}
 
-	protected void OnActionDeliveryShiftActivated (object sender, EventArgs e)
+	protected void OnActionDeliveryShiftActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (DeliveryShift));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(DeliveryShift));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionParametersActivated (object sender, EventArgs e)
+	protected void OnActionParametersActivated(object sender, EventArgs e)
 	{
-		var config = new ApplicationConfigDialog ();
-		config.ShowAll ();
-		config.Run ();
-		config.Destroy ();
+		var config = new ApplicationConfigDialog();
+		config.ShowAll();
+		config.Run();
+		config.Destroy();
 	}
 
-	protected void OnAction14Activated (object sender, EventArgs e)
+	protected void OnAction14Activated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (IncomeCategory));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(IncomeCategory));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnAction15Activated (object sender, EventArgs e)
+	protected void OnAction15Activated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (ExpenseCategory));
-		tdiMain.AddTab (refWin);
+		OrmReference refWin = new OrmReference(typeof(ExpenseCategory));
+		tdiMain.AddTab(refWin);
 	}
 
-	protected void OnActionCashToggled (object sender, EventArgs e)
+	protected void OnActionCashToggled(object sender, EventArgs e)
 	{
-		if (ActionCash.Active)
-			SwitchToUI ("cash.xml");
+		if(ActionCash.Active)
+			SwitchToUI("cash.xml");
 	}
 
-	protected void OnActionAccountingToggled (object sender, EventArgs e)
+	protected void OnActionAccountingToggled(object sender, EventArgs e)
 	{
-		if (ActionAccounting.Active)
-			SwitchToUI ("accounting.xml");
+		if(ActionAccounting.Active)
+			SwitchToUI("accounting.xml");
 	}
 
-	protected void OnActionDocTemplatesActivated (object sender, EventArgs e)
+	protected void OnActionDocTemplatesActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab (
-			OrmReference.GenerateHashName<DocTemplate> (),
-			() => new OrmReference (typeof (DocTemplate))
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DocTemplate>(),
+			() => new OrmReference(typeof(DocTemplate))
 		);
 	}
 
-	protected void OnActionToolBarTextToggled (object sender, EventArgs e)
+	protected void OnActionToolBarTextToggled(object sender, EventArgs e)
 	{
-		if (ActionToolBarText.Active)
-			ToolBarMode (ToolbarStyle.Text);
+		if(ActionToolBarText.Active)
+			ToolBarMode(ToolbarStyle.Text);
 	}
 
-	private void ToolBarMode (ToolbarStyle style)
+	private void ToolBarMode(ToolbarStyle style)
 	{
-		if (CurrentUserSettings.Settings.ToolbarStyle != style) {
+		if(CurrentUserSettings.Settings.ToolbarStyle != style) {
 			CurrentUserSettings.Settings.ToolbarStyle = style;
-			CurrentUserSettings.SaveSettings ();
+			CurrentUserSettings.SaveSettings();
 		}
 		toolbarMain.ToolbarStyle = style;
 		ActionIconsExtraSmall.Sensitive = ActionIconsSmall.Sensitive = ActionIconsMiddle.Sensitive = ActionIconsLarge.Sensitive =
 			style != ToolbarStyle.Text;
 	}
 
-	private void ToolBarMode (IconsSize size)
+	private void ToolBarMode(IconsSize size)
 	{
-		if (CurrentUserSettings.Settings.ToolBarIconsSize != size) {
+		if(CurrentUserSettings.Settings.ToolBarIconsSize != size) {
 			CurrentUserSettings.Settings.ToolBarIconsSize = size;
-			CurrentUserSettings.SaveSettings ();
+			CurrentUserSettings.SaveSettings();
 		}
-		switch (size) {
+		switch(size) {
 		case IconsSize.ExtraSmall:
 			toolbarMain.IconSize = IconSize.SmallToolbar;
 			break;
@@ -473,229 +474,229 @@ public partial class MainWindow : Gtk.Window
 		}
 	}
 
-	protected void OnActionToolBarIconToggled (object sender, EventArgs e)
+	protected void OnActionToolBarIconToggled(object sender, EventArgs e)
 	{
-		if (ActionToolBarIcon.Active)
-			ToolBarMode (ToolbarStyle.Icons);
+		if(ActionToolBarIcon.Active)
+			ToolBarMode(ToolbarStyle.Icons);
 	}
 
-	protected void OnActionToolBarBothToggled (object sender, EventArgs e)
+	protected void OnActionToolBarBothToggled(object sender, EventArgs e)
 	{
-		if (ActionToolBarBoth.Active)
-			ToolBarMode (ToolbarStyle.Both);
+		if(ActionToolBarBoth.Active)
+			ToolBarMode(ToolbarStyle.Both);
 	}
 
-	protected void OnActionIconsExtraSmallToggled (object sender, EventArgs e)
+	protected void OnActionIconsExtraSmallToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsExtraSmall.Active)
-			ToolBarMode (IconsSize.ExtraSmall);
+		if(ActionIconsExtraSmall.Active)
+			ToolBarMode(IconsSize.ExtraSmall);
 	}
 
-	protected void OnActionIconsSmallToggled (object sender, EventArgs e)
+	protected void OnActionIconsSmallToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsSmall.Active)
-			ToolBarMode (IconsSize.Small);
+		if(ActionIconsSmall.Active)
+			ToolBarMode(IconsSize.Small);
 	}
 
-	protected void OnActionIconsMiddleToggled (object sender, EventArgs e)
+	protected void OnActionIconsMiddleToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsMiddle.Active)
-			ToolBarMode (IconsSize.Middle);
+		if(ActionIconsMiddle.Active)
+			ToolBarMode(IconsSize.Middle);
 	}
 
-	protected void OnActionIconsLargeToggled (object sender, EventArgs e)
+	protected void OnActionIconsLargeToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsLarge.Active)
-			ToolBarMode (IconsSize.Large);
+		if(ActionIconsLarge.Active)
+			ToolBarMode(IconsSize.Large);
 	}
 
-	protected void OnActionDeliveryPointsActivated (object sender, EventArgs e)
+	protected void OnActionDeliveryPointsActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab (
-			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM> (),
-			() => new ReferenceRepresentation (new DeliveryPointsVM ()).Buttons (ReferenceButtonMode.CanEdit | ReferenceButtonMode.CanDelete)
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<DeliveryPointsVM>(),
+			() => new ReferenceRepresentation(new DeliveryPointsVM()).Buttons(ReferenceButtonMode.CanEdit | ReferenceButtonMode.CanDelete)
 		);
 	}
 
-	protected void OnPropertiesActionActivated (object sender, EventArgs e)
+	protected void OnPropertiesActionActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab (
-			OrmMain.GenerateDialogHashName<UserSettings> (CurrentUserSettings.Settings.Id),
-			() => new UserSettingsDlg (CurrentUserSettings.Settings)
+		tdiMain.OpenTab(
+			OrmMain.GenerateDialogHashName<UserSettings>(CurrentUserSettings.Settings.Id),
+			() => new UserSettingsDlg(CurrentUserSettings.Settings)
 		);
 	}
 
-	protected void OnActionTransportationWagonActivated (object sender, EventArgs e)
+	protected void OnActionTransportationWagonActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab (
-			OrmReference.GenerateHashName<MovementWagon> (),
-			() => new OrmReference (typeof (MovementWagon))
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<MovementWagon>(),
+			() => new OrmReference(typeof(MovementWagon))
 		);
 	}
 
-	protected void OnActionRegrandingOfGoodsTempalteActivated (object sender, EventArgs e)
+	protected void OnActionRegrandingOfGoodsTempalteActivated(object sender, EventArgs e)
 	{
-		tdiMain.OpenTab (
-			OrmReference.GenerateHashName<RegradingOfGoodsTemplate> (),
-			() => new OrmReference (typeof (RegradingOfGoodsTemplate))
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<RegradingOfGoodsTemplate>(),
+			() => new OrmReference(typeof(RegradingOfGoodsTemplate))
 		);
 	}
 
-	protected void OnActionEmployeeFinesActivated (object sender, EventArgs e)
+	protected void OnActionEmployeeFinesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.EmployeesFines ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.EmployeesFines();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionStockMovementsActivated (object sender, EventArgs e)
+	protected void OnActionStockMovementsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.StockMovements ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.StockMovements();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionArchiveToggled (object sender, EventArgs e)
+	protected void OnActionArchiveToggled(object sender, EventArgs e)
 	{
-		if (ActionArchive.Active)
-			SwitchToUI ("archive.xml");
+		if(ActionArchive.Active)
+			SwitchToUI("archive.xml");
 	}
 
-	protected void OnActionStaffToggled (object sender, EventArgs e)
+	protected void OnActionStaffToggled(object sender, EventArgs e)
 	{
-		if (ActionStaff.Active)
-			SwitchToUI ("Vodovoz.toolbars.staff.xml");
+		if(ActionStaff.Active)
+			SwitchToUI("Vodovoz.toolbars.staff.xml");
 	}
 
-	protected void OnActionSalesReportActivated (object sender, EventArgs e)
+	protected void OnActionSalesReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.SalesReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.SalesReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
-	protected void OnActionDriverWagesActivated (object sender, EventArgs e)
+	protected void OnActionDriverWagesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.DriverWagesReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.DriverWagesReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
-	protected void OnActionFuelReportActivated (object sender, EventArgs e)
+	protected void OnActionFuelReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.FuelReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.FuelReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
-	protected void OnActionShortfallBattlesActivated (object sender, EventArgs e)
+	protected void OnActionShortfallBattlesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.ShortfallBattlesReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.ShortfallBattlesReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
-	protected void OnActionWagesOperationsActivated (object sender, EventArgs e)
+	protected void OnActionWagesOperationsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.WagesOperationsReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
-		);
-	}
-
-	protected void OnActionEquipmentReportActivated (object sender, EventArgs e)
-	{
-		var widget = new Vodovoz.Reports.EquipmentReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.WagesOperationsReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionForwarderWageReportActivated (object sender, EventArgs e)
+	protected void OnActionEquipmentReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.ForwarderWageReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.EquipmentReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionCashierCommentsActivated (object sender, EventArgs e)
+	protected void OnActionForwarderWageReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.CashierCommentsReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.ForwarderWageReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnAction1cCommentsActivated (object sender, EventArgs e)
+	protected void OnActionCashierCommentsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.OnecCommentsReport ();
-		tdiMain.OpenTab (
-					QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.CashierCommentsReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionDriversWageBalanceActivated (object sender, EventArgs e)
+	protected void OnAction1cCommentsActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.DriversWageBalanceReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.ReportsParameters.OnecCommentsReport();
+		tdiMain.OpenTab(
+					QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionFineCommentTemplatesActivated (object sender, EventArgs e)
+	protected void OnActionDriversWageBalanceActivated(object sender, EventArgs e)
 	{
-		OrmReference refWin = new OrmReference (typeof (FineTemplate));
-		tdiMain.AddTab (refWin);
-	}
-
-	protected void OnActionDeliveriesLateActivated (object sender, EventArgs e)
-	{
-		var widget = new Vodovoz.Reports.Logistic.DeliveriesLateReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.DriversWageBalanceReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionRoutesListRegisterActivated (object sender, EventArgs e)
+	protected void OnActionFineCommentTemplatesActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.Reports.Logistic.RoutesListRegisterReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		OrmReference refWin = new OrmReference(typeof(FineTemplate));
+		tdiMain.AddTab(refWin);
+	}
+
+	protected void OnActionDeliveriesLateActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.Reports.Logistic.DeliveriesLateReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionDeliveryTimeReportActivated (object sender, EventArgs e)
+	protected void OnActionRoutesListRegisterActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.Reports.Logistic.RoutesListRegisterReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
-	protected void OnActionOrdersByDistrict (object sender, EventArgs e)
+	protected void OnActionDeliveryTimeReportActivated(object sender, EventArgs e)
 	{
-		var widget = new Vodovoz.ReportsParameters.OrdersByDistrictReport ();
-		tdiMain.OpenTab (
-			QSReport.ReportViewDlg.GenerateHashName (widget),
-			() => new QSReport.ReportViewDlg (widget)
+		var widget = new Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnActionOrdersByDistrict(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.OrdersByDistrictReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
@@ -714,6 +715,14 @@ public partial class MainWindow : Gtk.Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+	
+	protected void OnActionAddressDuplicetesActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<MergeAddressesDlg>(),
+			() => new MergeAddressesDlg()
 		);
 	}
 }
