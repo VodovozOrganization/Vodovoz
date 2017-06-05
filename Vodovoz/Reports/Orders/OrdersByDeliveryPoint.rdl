@@ -203,7 +203,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -239,23 +239,27 @@
     <DataSet Name="Orders">
       <Query >
         <DataSourceName>DS1</DataSourceName>
-        <CommandText>SELECT  
-    delivery_date,
+        <CommandText>SELECT 
+    delivery_date, 
     counterparty.name AS counterparty,
-    address_1c,
+    address_1c, 
     client_phone
 FROM
-    (SELECT 
-        *
-    FROM
-        orders
-    WHERE
-        (orders.delivery_date = DATE(@date))
-    ORDER BY delivery_date DESC) AS t2 
-    LEFT JOIN counterparty ON t2.client_id = counterparty.id
- WHERE
-   order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
-GROUP BY t2.delivery_point_id</CommandText>
+    orders
+        LEFT JOIN
+    counterparty ON orders.client_id = counterparty.id
+WHERE
+    delivery_date = DATE(@date)
+        AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
+        AND NOT EXISTS( SELECT 
+            *
+        FROM
+            orders AS t2
+        WHERE
+            t2.delivery_point_id = orders.delivery_point_id
+                AND t2.delivery_date &gt; DATE(@date)
+                AND t2.order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled'))
+GROUP BY delivery_point_id</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -284,21 +288,17 @@ GROUP BY t2.delivery_point_id</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>2017-05-29</Value>
-        </Values>
-      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
