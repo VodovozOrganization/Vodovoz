@@ -54,27 +54,29 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.buttonApply = new global::Gtk.Button();
 			this.buttonApply.CanFocus = true;
 			this.buttonApply.Name = "buttonApply";
-			this.buttonApply.UseStock = true;
 			this.buttonApply.UseUnderline = true;
-			this.buttonApply.Label = "gtk-apply";
+			this.buttonApply.Label = global::Mono.Unix.Catalog.GetString("Применить");
+			global::Gtk.Image w3 = new global::Gtk.Image();
+			w3.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-apply", global::Gtk.IconSize.Menu);
+			this.buttonApply.Image = w3;
 			this.hbox1.Add(this.buttonApply);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonApply]));
-			w3.Position = 1;
-			w3.Expand = false;
-			w3.Fill = false;
-			this.vbox1.Add(this.hbox1);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
-			w4.Position = 0;
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonApply]));
+			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
+			w5.Position = 0;
+			w5.Expand = false;
+			w5.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.progressOp = new global::Gtk.ProgressBar();
 			this.progressOp.Name = "progressOp";
 			this.vbox1.Add(this.progressOp);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.progressOp]));
-			w5.Position = 1;
-			w5.Expand = false;
-			w5.Fill = false;
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.progressOp]));
+			w6.Position = 1;
+			w6.Expand = false;
+			w6.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -85,8 +87,8 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.ytreeviewDuplicates.Name = "ytreeviewDuplicates";
 			this.GtkScrolledWindow.Add(this.ytreeviewDuplicates);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w7.Position = 2;
+			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w8.Position = 2;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
@@ -97,8 +99,8 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.ytreeviewAddresses.Name = "ytreeviewAddresses";
 			this.GtkScrolledWindow1.Add(this.ytreeviewAddresses);
 			this.vbox1.Add(this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
-			w9.Position = 3;
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
+			w10.Position = 3;
 			this.Add(this.vbox1);
 			if((this.Child != null)) {
 				this.Child.ShowAll();
@@ -106,6 +108,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.progressOp.Hide();
 			this.Hide();
 			this.buttonFineDuplicates.Clicked += new global::System.EventHandler(this.OnButtonFineDuplicatesClicked);
+			this.ytreeviewDuplicates.KeyReleaseEvent += new global::Gtk.KeyReleaseEventHandler(this.OnYtreeviewDuplicatesKeyReleaseEvent);
 		}
 	}
 }

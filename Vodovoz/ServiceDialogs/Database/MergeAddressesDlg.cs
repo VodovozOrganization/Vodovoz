@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
@@ -17,6 +18,7 @@ namespace Vodovoz.ServiceDialogs.Database
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		List<DublicateNode> Duplicates;
+		GenericObservableList<DublicateNode> ObservableDuplicates;
 
 		public MergeAddressesDlg()
 		{
@@ -42,7 +44,10 @@ namespace Vodovoz.ServiceDialogs.Database
 		void DuplicateSelection_Changed(object sender, EventArgs e)
 		{
 			var selected = ytreeviewDuplicates.GetSelectedObject<DublicateNode>();
-			ytreeviewAddresses.SetItemsSource(selected?.Addresses);
+			if(selected != null)
+				ytreeviewAddresses.SetItemsSource(new GenericObservableList<AddressNode>(selected.Addresses));
+			else
+				ytreeviewAddresses.ItemsDataSource = null;
 		}
 
 		protected void OnButtonFineDuplicatesClicked(object sender, EventArgs e)
@@ -76,10 +81,8 @@ namespace Vodovoz.ServiceDialogs.Database
 
 			Duplicates = new List<DublicateNode>();
 			DublicateNode lastDuplicate = null;
-			foreach(var dp in list)
-			{
-				if(lastDuplicate == null || !lastDuplicate.Compare(dp))
-				{
+			foreach(var dp in list) {
+				if(lastDuplicate == null || !lastDuplicate.Compare(dp)) {
 					lastDuplicate = new DublicateNode();
 					Duplicates.Add(lastDuplicate);
 				}
@@ -92,10 +95,21 @@ namespace Vodovoz.ServiceDialogs.Database
 			progressOp.Adjustment.Value++;
 			QSMain.WaitRedraw();
 
-			ytreeviewDuplicates.SetItemsSource(Duplicates);
+			ObservableDuplicates = new GenericObservableList<DublicateNode>(Duplicates);
+
+			ytreeviewDuplicates.SetItemsSource(ObservableDuplicates);
 			progressOp.Visible = false;
 		}
 
+		protected void OnYtreeviewDuplicatesKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Gdk.Key.space)
+			{
+				var selected = ytreeviewDuplicates.GetSelectedObject<DublicateNode>();
+				if(selected != null)
+					selected.Selected = !selected.Selected;
+			}
+		}
 
 		class DublicateNode : PropertyChangedBase{
 			bool selected;
@@ -227,6 +241,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			}
 
 		}
+
 	}
 }
 
