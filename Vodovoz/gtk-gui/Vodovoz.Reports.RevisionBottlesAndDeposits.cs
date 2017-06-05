@@ -120,6 +120,7 @@ namespace Vodovoz.Reports
 				this.Child.ShowAll();
 			}
 			this.dateperiodpicker1.Hide();
+			this.label1.Hide();
 			this.Hide();
 			this.referenceCounterparty.Changed += new global::System.EventHandler(this.OnReferenceCounterpartyChanged);
 			this.dateperiodpicker1.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpicker1PeriodChanged);
