@@ -727,6 +727,7 @@
         <property name="Label" translatable="yes">Отчет по последнему заказу</property>
         <property name="ShortLabel" translatable="yes">Отчет по последнему заказу</property>
         <signal name="Activated" handler="OnActionLastOrderReportActivated" />
+      </action>
       <action id="Action27">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Обслуживание</property>
