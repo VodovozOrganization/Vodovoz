@@ -277,9 +277,9 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign >Center</TextAlign>
-                            <FontWeight >Bold</FontWeight>
-                            <FontSize >12pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
                           </Style>
                           <Value>=Sum({bottles})</Value>
                         </Textbox>
@@ -294,9 +294,9 @@
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <TextAlign >Center</TextAlign>
-                            <FontWeight >Bold</FontWeight>
-                            <FontSize >12pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
                           </Style>
                           <Value>=Sum({address})</Value>
                         </Textbox>
@@ -352,7 +352,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>=Fields!bottles.Value</Value>
+                      <Value>=sum(Fields!bottles.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -374,8 +374,8 @@
             </TableRow>
           </TableRows>
         </Footer>
-        <Left>82.8pt</Left>
-        <Top>12.6pt</Top>
+        <Left>84.5pt</Left>
+        <Top>13.4pt</Top>
       </Table>
       <Table Name="Table3">
         <DataSetName>Orders</DataSetName>
@@ -417,7 +417,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>=Count(Fields!address.Value)</Value>
+                      <Value>=sum(Fields!address.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
