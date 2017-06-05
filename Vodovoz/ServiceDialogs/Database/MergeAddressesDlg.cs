@@ -76,7 +76,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			              .ThenBy(x => x.Longitude).Asc
 			              .List();
 
-			progressOp.Adjustment.Upper = list.Count + 2;
+			progressOp.Adjustment.Upper = list.Count + 3;
 			progressOp.Text = "Обрабатываем адреса...";
 			progressOp.Adjustment.Value++;
 			QSMain.WaitRedraw();
@@ -94,6 +94,10 @@ namespace Vodovoz.ServiceDialogs.Database
 			}
 
 			Duplicates.ForEach(x => x.FineMain());
+			progressOp.Adjustment.Value++;
+			QSMain.WaitRedraw();
+
+			Duplicates = Duplicates.OrderBy(x => x.CounterParty).ThenBy(x => x.FirstAddress1c).ToList();
 			progressOp.Adjustment.Value++;
 			QSMain.WaitRedraw();
 
