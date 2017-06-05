@@ -108,6 +108,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.progressOp.Hide();
 			this.Hide();
 			this.buttonFineDuplicates.Clicked += new global::System.EventHandler(this.OnButtonFineDuplicatesClicked);
+			this.buttonApply.Clicked += new global::System.EventHandler(this.OnButtonApplyClicked);
 			this.ytreeviewDuplicates.KeyReleaseEvent += new global::Gtk.KeyReleaseEventHandler(this.OnYtreeviewDuplicatesKeyReleaseEvent);
 		}
 	}
