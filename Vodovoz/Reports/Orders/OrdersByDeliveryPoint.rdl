@@ -194,7 +194,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>=Fields!client_phone.Value</Value>
+                      <Value>=Fields!phone_from_1c.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -243,7 +243,7 @@
     delivery_date, 
     counterparty.name AS counterparty,
     address_1c, 
-    client_phone
+    phone_from_1c
 FROM
     orders
         LEFT JOIN
@@ -279,8 +279,8 @@ GROUP BY delivery_point_id</CommandText>
           <DataField>address_1c</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="client_phone">
-          <DataField>client_phone</DataField>
+        <Field Name="phone_from_1c">
+          <DataField>phone_from_1c</DataField>
           <TypeName>System.String</TypeName>
         </Field>
       </Fields>
@@ -288,7 +288,7 @@ GROUP BY delivery_point_id</CommandText>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
@@ -298,7 +298,7 @@ GROUP BY delivery_point_id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

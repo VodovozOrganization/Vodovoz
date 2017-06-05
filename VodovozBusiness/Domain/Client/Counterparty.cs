@@ -342,6 +342,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref signatoryBaseOf, value, () => SignatoryBaseOf); }
 		}
 
+		string phoneFrom1c;
+
+		[Display(Name = "Телефон")]
+		public virtual string PhoneFrom1c {
+			get { return phoneFrom1c; }
+			set { SetField(ref phoneFrom1c, value, () => PhoneFrom1c); }
+		}
+
 		#endregion
 
 		public Counterparty ()
@@ -353,6 +361,7 @@ namespace Vodovoz.Domain.Client
 			INN = String.Empty;
 			KPP = String.Empty;
 			JurAddress = String.Empty;
+			PhoneFrom1c = String.Empty;
 		}
 
 		#region IValidatableObject implementation

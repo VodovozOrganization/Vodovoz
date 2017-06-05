@@ -29,6 +29,7 @@ namespace Vodovoz.HMap
 			Map (x => x.SignatoryFIO).Column ("signatory_FIO");
 			Map (x => x.SignatoryPost).Column ("signatory_post");
 			Map (x => x.SignatoryBaseOf).Column ("signatory_base_of");
+			Map (x => x.PhoneFrom1c).Column("phone_from_1c"); 
 			Map (x => x.PaymentMethod).Column ("payment_method").CustomType<PaymentTypeStringType> ();
 			Map (x => x.PersonType).Column ("person_type").CustomType<PersonTypeStringType> ();
 			Map (x => x.DefaultDocumentType).Column ("default_document_type").CustomType<DefaultDocumentTypeStringType> ();

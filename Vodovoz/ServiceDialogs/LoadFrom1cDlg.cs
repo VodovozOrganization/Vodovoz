@@ -505,6 +505,11 @@ namespace Vodovoz
 				if (MainNode != null)
 					logger.Warn ("ГоловнойКонтрагент не пустой");
 
+				var phoneNode = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
+				if(phoneNode != null) {
+					counterparty.PhoneFrom1c = phoneNode.InnerText;
+				}
+
 				TotalCounterparty++;
 				CounterpatiesList.Add (counterparty);
 			}
