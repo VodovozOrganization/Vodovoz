@@ -107,9 +107,6 @@ namespace Vodovoz
 
 			enumPrint.ItemsEnum = typeof(RouteListPrintableDocuments);
 			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintableDocuments) e.ItemEnum);
-
-			buttonChangeToEnRoute.Sensitive = (Entity.Status == RouteListStatus.New
-											|| Entity.Status == RouteListStatus.InLoading);
 		}
 
 		private void PrintSelectedDocument (RouteListPrintableDocuments choise)
@@ -231,18 +228,5 @@ namespace Vodovoz
 			}
 		}
 
-		protected void OnButtonChangeToEnRouteClicked (object sender, EventArgs e)
-		{
-			bool status = Entity.Status == RouteListStatus.New || Entity.Status == RouteListStatus.InLoading;
-			#if SHORT
-			if (status)
-			{
-				if (Entity.Status == RouteListStatus.New)
-					Entity.ChangeStatus(RouteListStatus.InLoading);
-				if (Entity.Status == RouteListStatus.InLoading)
-					Entity.ChangeStatus(RouteListStatus.EnRoute);
-			}
-			#endif
-		}
 	}
 }

@@ -32,6 +32,7 @@ namespace Vodovoz
 				"Пользователь имеет права для установки максимальной суммы кредита."));
 			QSMain.ProjectPermission.Add ("logistican", new UserPermission ("logistican", "Логист", "Пользователь является логистом."));
 			QSMain.ProjectPermission.Add ("money_manage", new UserPermission ("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
+			QSMain.ProjectPermission.Add ("store_manage", new UserPermission("store_manage", "Управление складом", "Пользователь имеет доступ к складу."));
 		}
 
 		static void CreateBaseConfig ()
@@ -123,8 +124,8 @@ namespace Vodovoz
 				OrmObjectMapping<AccountIncome>.Create (),
 				OrmObjectMapping<AccountExpense>.Create (),
 				//Склад
-				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().DefaultTableView().Column("Название", w=>w.Name).End(),
-				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().DefaultTableView().Column("Название", w=>w.Name).End()
+				OrmObjectMapping<Warehouse>.Create().Dialog<WarehouseDlg>().EditPermision("store_manage").DefaultTableView().Column("Название", w=>w.Name).End(),
+				OrmObjectMapping<RegradingOfGoodsTemplate>.Create().Dialog<RegradingOfGoodsTemplateDlg>().EditPermision("store_manage").DefaultTableView().Column("Название", w=>w.Name).End()
 			};
 			OrmMain.ClassMappingList.AddRange (QSBanks.QSBanksMain.GetModuleMaping ());
 			OrmMain.ClassMappingList.AddRange (QSContactsMain.GetModuleMaping ());

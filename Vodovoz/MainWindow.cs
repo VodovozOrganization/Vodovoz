@@ -78,6 +78,7 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
+		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"];
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
