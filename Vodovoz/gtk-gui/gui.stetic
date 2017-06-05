@@ -38454,6 +38454,7 @@ RegistrationNumber</property>
                 <property name="Icon">stock:gtk-apply Menu</property>
                 <property name="Label" translatable="yes">Применить</property>
                 <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonApplyClicked" />
               </widget>
               <packing>
                 <property name="Position">1</property>
@@ -38494,6 +38495,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="ShowScrollbars">True</property>
+                <signal name="KeyReleaseEvent" handler="OnYtreeviewDuplicatesKeyReleaseEvent" />
               </widget>
             </child>
           </widget>

@@ -6,39 +6,20 @@
   </Author>
   <PageHeight>297mm</PageHeight>
   <PageWidth>210mm</PageWidth>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_null;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <Width>210mm</Width>
   <TopMargin>.25in</TopMargin>
   <LeftMargin>.25in</LeftMargin>
   <RightMargin>.25in</RightMargin>
   <BottomMargin>.25in</BottomMargin>
-  <ReportParameters>
-    <ReportParameter Name="start_date">
-      <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="end_date">
-      <DataType>String</DataType>
-      <Nullable>False</Nullable>
-      <AllowBlank>False</AllowBlank>
-    </ReportParameter>
-  </ReportParameters>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id,
     route_lists.date,
     route_lists.driver_id,
+    route_lists.forwarder_id,
     CASE route_lists.status
         WHEN 'New' THEN 'Новый'
         WHEN 'InLoading' THEN 'На погрузке'
@@ -56,6 +37,7 @@
             IF(employees.patronymic = '',
                 NULL,
                 employees.patronymic)) AS driver_name,
+    forwarders.last_name AS forwarder_name,
     COUNT(route_list_addresses.id) AS address_count,
     SUM((SELECT 
             SUM(order_items.count)
@@ -93,6 +75,8 @@ FROM
         LEFT JOIN
     employees ON employees.id = route_lists.driver_id
         LEFT JOIN
+    employees AS forwarders ON forwarders.id = route_lists.forwarder_id
+        LEFT JOIN
     route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
         LEFT JOIN
     orders ON route_list_addresses.order_id = orders.id
@@ -114,7 +98,7 @@ ORDER BY route_lists.date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -127,12 +111,20 @@ ORDER BY route_lists.date;</CommandText>
           <DataField>driver_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
         </Field>
+        <Field Name="forwarder_id">
+          <DataField>forwarder_id</DataField>
+          <rd:TypeName>System.UInt32</rd:TypeName>
+        </Field>
         <Field Name="status">
           <DataField>status</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="driver_name">
           <DataField>driver_name</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="forwarder_name">
+          <DataField>forwarder_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="address_count">
@@ -188,28 +180,31 @@ ORDER BY route_lists.date;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>27.8pt</Width>
+            <Width>23.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>49.0pt</Width>
+            <Width>35.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.3pt</Width>
+            <Width>62.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>81.5pt</Width>
+            <Width>87.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>56.8pt</Width>
+            <Width>76.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.7pt</Width>
+            <Width>47.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.9pt</Width>
+            <Width>39.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>184.2pt</Width>
+            <Width>39.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>154.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -253,6 +248,22 @@ ORDER BY route_lists.date;</CommandText>
                   <ReportItems>
                     <Textbox Name="Textbox13">
                       <Value>Дата</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Экспедитор</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -403,6 +414,22 @@ ORDER BY route_lists.date;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>={forwarder_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingLeft>2pt</PaddingLeft>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox8">
                       <Value>=Fields!status.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -518,6 +545,19 @@ ORDER BY route_lists.date;</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox15">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -648,7 +688,7 @@ ORDER BY route_lists.date;</CommandText>
                           <Value>=Fields!driver_name.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>8</ColSpan>
+                      <ColSpan>9</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -688,6 +728,22 @@ ORDER BY route_lists.date;</CommandText>
                             <FontWeight>Bold</FontWeight>
                           </Style>
                           <Value>=Countdistinct({date})</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox31">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -782,6 +838,7 @@ ORDER BY route_lists.date;</CommandText>
       </Table>
     </ReportItems>
     <Height>88.0pt</Height>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -804,4 +861,43 @@ ORDER BY route_lists.date;</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
+  <ReportParameters>
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-05-01</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017-05-31</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_null;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

@@ -401,7 +401,7 @@ namespace Vodovoz.Domain.Logistic
 
 			return Order.OrderItems
 				.Where (item => item.Order.PaymentType == Vodovoz.Domain.Client.PaymentType.cash)
-				.Sum (item => item.ActualCount * item.Price * (1 - item.Discount / 100));
+				.Sum (item => item.ActualCount * item.Price * (1 - (decimal)item.Discount / 100));
 		}
 
 		public virtual int CoolersToClient {

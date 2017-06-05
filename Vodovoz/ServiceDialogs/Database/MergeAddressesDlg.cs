@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
@@ -7,6 +8,7 @@ using Gamma.ColumnConfig;
 using NHibernate.Criterion;
 using QSHistoryLog;
 using QSOrmProject;
+using QSOrmProject.Deletion;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Client;
@@ -17,6 +19,7 @@ namespace Vodovoz.ServiceDialogs.Database
 	{
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 		List<DublicateNode> Duplicates;
+		GenericObservableList<DublicateNode> ObservableDuplicates;
 
 		public MergeAddressesDlg()
 		{
@@ -42,7 +45,10 @@ namespace Vodovoz.ServiceDialogs.Database
 		void DuplicateSelection_Changed(object sender, EventArgs e)
 		{
 			var selected = ytreeviewDuplicates.GetSelectedObject<DublicateNode>();
-			ytreeviewAddresses.SetItemsSource(selected?.Addresses);
+			if(selected != null)
+				ytreeviewAddresses.SetItemsSource(new GenericObservableList<AddressNode>(selected.Addresses));
+			else
+				ytreeviewAddresses.ItemsDataSource = null;
 		}
 
 		protected void OnButtonFineDuplicatesClicked(object sender, EventArgs e)
@@ -64,6 +70,7 @@ namespace Vodovoz.ServiceDialogs.Database
 
 			var list = uow.Session.QueryOver<DeliveryPoint>(() => mainPointAlias)
 						  .WithSubquery.WhereExists(dublicateSubquery)
+			              .Fetch(x => x.Counterparty).Eager
 			              .OrderBy(x => x.Counterparty).Asc
 			              .ThenBy(x => x.Latitude).Asc
 			              .ThenBy(x => x.Longitude).Asc
@@ -76,10 +83,8 @@ namespace Vodovoz.ServiceDialogs.Database
 
 			Duplicates = new List<DublicateNode>();
 			DublicateNode lastDuplicate = null;
-			foreach(var dp in list)
-			{
-				if(lastDuplicate == null || !lastDuplicate.Compare(dp))
-				{
+			foreach(var dp in list) {
+				if(lastDuplicate == null || !lastDuplicate.Compare(dp)) {
 					lastDuplicate = new DublicateNode();
 					Duplicates.Add(lastDuplicate);
 				}
@@ -92,10 +97,50 @@ namespace Vodovoz.ServiceDialogs.Database
 			progressOp.Adjustment.Value++;
 			QSMain.WaitRedraw();
 
-			ytreeviewDuplicates.SetItemsSource(Duplicates);
+			ObservableDuplicates = new GenericObservableList<DublicateNode>(Duplicates);
+
+			ytreeviewDuplicates.SetItemsSource(ObservableDuplicates);
 			progressOp.Visible = false;
 		}
 
+		protected void OnYtreeviewDuplicatesKeyReleaseEvent(object o, Gtk.KeyReleaseEventArgs args)
+		{
+			if(args.Event.Key == Gdk.Key.space)
+			{
+				var selected = ytreeviewDuplicates.GetSelectedObject<DublicateNode>();
+				if(selected != null)
+					selected.Selected = !selected.Selected;
+			}
+		}
+
+		protected void OnButtonApplyClicked(object sender, EventArgs e)
+		{
+			var mergeList = Duplicates.Where(x => x.Selected).ToList();
+			progressOp.Visible = true;
+			progressOp.Adjustment.Value = 0;
+			progressOp.Adjustment.Upper = mergeList.Count;
+			progressOp.Text = "Ищем ссылки...";
+			QSMain.WaitRedraw();
+			var totalLinks = 0;
+
+			foreach(var dup in mergeList) {
+				var main = dup.Addresses.First(x => x.IsMain);
+				foreach(var deleted in dup.Addresses.Where(x => !x.IsMain && !x.Ignore))
+				{
+					totalLinks += ReplaceEntity.ReplaceEverywhere(uow, deleted.Address, main.Address);
+					uow.Delete(deleted.Address);
+					uow.Commit();
+
+					progressOp.Text = $"Ищем ссылки... Заменено {totalLinks} ссылок.";
+					QSMain.WaitRedraw();
+				}
+
+				ObservableDuplicates.Remove(dup);
+				progressOp.Adjustment.Value++;
+				QSMain.WaitRedraw();
+			}
+			progressOp.Text = $"Готово. Заменено {totalLinks} ссылок.";
+		}
 
 		class DublicateNode : PropertyChangedBase{
 			bool selected;
@@ -227,6 +272,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			}
 
 		}
+
 	}
 }
 
