@@ -73,6 +73,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref isCompanyHavings, value, () => IsCompanyHavings); }
 		}
 
+		private bool isTruck;
+
+		[Display(Name = "Фура")]
+		public virtual bool IsTruck {
+			get { return isTruck; }
+			set { SetField(ref isTruck, value, () => IsTruck); }
+		}
+
 		byte[] photo;
 
 		[Display (Name = "Фотография")]

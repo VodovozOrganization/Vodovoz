@@ -54,6 +54,7 @@ namespace Vodovoz
 
 			checkIsCompanyHavings.Binding.AddBinding(Entity, e => e.IsCompanyHavings, w => w.Active).InitializeFromSource();
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
+			checkIsTruck.Binding.AddBinding(Entity, e => e.IsTruck, w => w.Active).InitializeFromSource();
 
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));
 			if (!UoWGeneric.IsNew) {

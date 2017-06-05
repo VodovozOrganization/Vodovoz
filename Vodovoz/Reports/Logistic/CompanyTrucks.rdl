@@ -18,6 +18,15 @@
         <CommandText>SELECT 
     route_lists.id,
     route_lists.driver_id,
+    CASE route_lists.status
+        WHEN 'New' THEN 'Новый'
+        WHEN 'InLoading' THEN 'На погрузке'
+        WHEN 'EnRoute' THEN 'В пути'
+        WHEN 'OnClosing' THEN 'Сдаётся'
+        WHEN 'NotDelivered' THEN 'Не сдан'
+        WHEN 'MileageCheck' THEN 'Проверка километража'
+        WHEN 'Closed' THEN 'Закрыт'
+    END AS status,
     reg_number,
     CONCAT_WS(' ',
             employees.last_name,
@@ -52,6 +61,14 @@
             WHERE
                 orders.id = route_list_addresses.order_id)) AS street_district,
     COUNT(route_list_addresses.id) AS address_count,
+    (SELECT 
+            COUNT(route_list_addresses.id)
+        FROM
+            route_list_addresses
+        WHERE
+            route_list_addresses.route_list_id = route_lists.id
+                AND (route_list_addresses.status = 'Canceled'
+                OR route_list_addresses.status = 'Transfered')) AS not_delivered,
     IFNULL(SUM((SELECT 
                     SUM(order_items.count)
                 FROM
@@ -72,7 +89,16 @@
                 order_items.order_id = route_list_addresses.order_id
                     AND nomenclature.category = 'water') IS NULL,
         2,
-        0)) AS water19_absent
+        0)) AS water19_absent,
+    IFNULL((SELECT 
+                    wages_movement_operations.money
+                FROM
+                    wages_movement_operations
+                WHERE
+                    route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
+                        AND (route_lists.status = 'OnClosing'
+                        OR route_lists.status = 'MileageCheck')),
+            0) AS wages
 FROM
     route_lists
         LEFT JOIN
@@ -91,6 +117,7 @@ FROM
 WHERE
     (route_lists.`date` BETWEEN @start_date AND @end_date)
         AND cars.is_company_havings = 1
+       AND cars.is_truck = 0
 GROUP BY route_lists.id
 ORDER BY driver_name</CommandText>
         <QueryParameters>
@@ -143,6 +170,18 @@ ORDER BY driver_name</CommandText>
           <DataField>secondarydistrict</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="not_delivered">
+          <DataField>not_delivered</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="wages">
+          <DataField>wages</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
@@ -152,8 +191,8 @@ ORDER BY driver_name</CommandText>
       <Textbox Name="Textbox1">
         <Top>6.40pt</Top>
         <Left>0.80pt</Left>
-        <Width>557.87pt</Width>
-        <Height>20.32pt</Height>
+        <Width>800.26pt</Width>
+        <Height>18.09pt</Height>
         <Value>="Сводная таблица по загрузке: Ларгусы " + CDate({?start_date}) + " по " + CDate({?end_date})</Value>
         <Style>
           <FontSize>15pt</FontSize>
@@ -182,16 +221,16 @@ ORDER BY driver_name</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>21.5pt</Width>
-          </TableColumn>
-          <TableColumn>
             <Width>31.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>65.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>116.2pt</Width>
+            <Width>65.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>99.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>102.0pt</Width>
@@ -203,19 +242,22 @@ ORDER BY driver_name</CommandText>
             <Width>110.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.2pt</Width>
+            <Width>37.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.4pt</Width>
+            <Width>42.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>46.3pt</Width>
+            <Width>38.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>54.3pt</Width>
+            <Width>32.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>59.0pt</Width>
+            <Width>45.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>37.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -225,8 +267,8 @@ ORDER BY driver_name</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>№</Value>
+                    <Textbox Name="Textbox18">
+                      <Value>№ МЛ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -241,8 +283,8 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>№ МЛ</Value>
+                    <Textbox Name="Textbox45">
+                      <Value>Статус МЛ</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -335,7 +377,7 @@ ORDER BY driver_name</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>4</ColSpan>
+                  <ColSpan>5</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
@@ -360,7 +402,7 @@ ORDER BY driver_name</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox24">
+                    <Textbox Name="Textbox19">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -377,7 +419,7 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox19">
+                    <Textbox Name="Textbox48">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -493,6 +535,22 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>Недовозы</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox33">
                       <Value>Кол-во 19 л.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -568,8 +626,8 @@ ORDER BY driver_name</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox11">
-                      <Value>=RowNumber()</Value>
+                    <Textbox Name="Textbox36">
+                      <Value>=Fields!id.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -583,8 +641,8 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox36">
-                      <Value>=Fields!id.Value</Value>
+                    <Textbox Name="Textbox50">
+                      <Value>=Fields!status.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -699,6 +757,22 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>=Fields!not_delivered.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="water19_amount">
                       <Value>=Fields!water19_amount.Value</Value>
                       <CanGrow>false</CanGrow>
@@ -751,7 +825,7 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="formula">
-                      <Value>=Iif((({address_count} * 50) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 50) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)</Value>
+                      <Value>=Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -776,7 +850,7 @@ ORDER BY driver_name</CommandText>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox12">
+                    <Textbox Name="Textbox40">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -789,7 +863,7 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox40">
+                    <Textbox Name="Textbox54">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -868,6 +942,24 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <PaddingRight>2pt</PaddingRight>
+                        <TextAlign>Right</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bolder</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
                       <Value>
                       </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -991,7 +1083,7 @@ ORDER BY driver_name</CommandText>
                           </Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>12</ColSpan>
+                      <ColSpan>13</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1069,6 +1161,21 @@ ORDER BY driver_name</CommandText>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
+                        <Textbox Name="Textbox58">
+                          <Value>=Sum(Fields!not_delivered.Value)</Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Normal</FontWeight>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
                         <Textbox Name="Textbox28">
                           <Style>
                             <BorderStyle>
@@ -1115,14 +1222,14 @@ ORDER BY driver_name</CommandText>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox5">
-                          <Value>=sum(Iif((({address_count} * 50) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5))  * 5) &lt; 0, 0, ({address_count} * 50) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5))* 5))</Value>
+                          <Value>=sum(Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)))</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
                             </BorderStyle>
                             <BorderColor />
                             <BorderWidth />
-                            <FontWeight>=Iif(sum(({address_count} * 50) + ({water19_amount} + {water19_absent}) * 7 + ({water19_amount} - 5) * 5) &lt; 1625,  'Bold', 'Normal')</FontWeight>
+                            <FontWeight>=Iif ( Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)) &lt; 1625,  'Bold', 'Normal')</FontWeight>
                           </Style>
                         </Textbox>
                       </ReportItems>
@@ -1140,10 +1247,404 @@ ORDER BY driver_name</CommandText>
           </TableGroup>
         </TableGroups>
         <Left>0.0pt</Left>
-        <Top>0.0pt</Top>
+        <Top>1.6pt</Top>
       </Table>
+      <Table Name="Table2">
+        <DataSetName>Data</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>42.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>96.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>114.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>43.3pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>Расценки оплаты</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox59">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>Необходимая загрузка</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>2</ColSpan>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>Адрес = </Value>
+                      <Style>
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>1</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>30</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
+                      <Value>Кол-во адресов = </Value>
+                      <Style>
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>1</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox77">
+                      <Value>25</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox78">
+                      <Value>1 полн. бут =</Value>
+                      <Style>
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox79">
+                      <Value>7</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox80">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox81">
+                      <Value>Кол-во полных бут. = </Value>
+                      <Style>
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox82">
+                      <Value>75</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox83">
+                      <Value>1 пуст. бут =</Value>
+                      <Style>
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox84">
+                      <Value>5</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox85">
+                      <Value>
+                      </Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox86">
+                      <Value>Кол-во пустых =</Value>
+                      <Style>
+                        <TextAlign>Right</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox87">
+                      <Value>70</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>0.1pt</Left>
+        <Top>136.4pt</Top>
+      </Table>
+      <Textbox Name="Textbox88">
+        <Height>15.03pt</Height>
+        <Width>287.57pt</Width>
+        <Value>(25адр * 30руб) + (75бут * 7руб) + (70бут * 5руб) = 1625</Value>
+        <ZIndex>1</ZIndex>
+        <Left>399.0pt</Left>
+        <Top>137.9pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox89">
+        <Height>12.00pt</Height>
+        <Width>254.48pt</Width>
+        <Value>1625руб * 22 дн. = 35750 руб в месяц</Value>
+        <ZIndex>1</ZIndex>
+        <Left>400.6pt</Left>
+        <Top>154.5pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontSize>10pt</FontSize>
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
     </ReportItems>
-    <Height>136.8pt</Height>
+    <Height>262.2pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -1169,21 +1670,12 @@ ORDER BY driver_name</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=admeytest;password=Zaq1xsw2;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2014.01.01</Value>
+          <Value>2017.06.01</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1196,7 +1688,7 @@ ORDER BY driver_name</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2016.12.10</Value>
+          <Value>2017.06.02</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1206,4 +1698,13 @@ ORDER BY driver_name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

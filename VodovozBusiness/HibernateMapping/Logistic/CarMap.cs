@@ -18,6 +18,7 @@ namespace Vodovoz.HMap
 			Map(x => x.IsArchive)			.Column ("is_archive");
 			Map(x => x.Photo)				.Column ("photo").CustomSqlType ("BinaryBlob").LazyLoad ();
 			Map(x => x.IsCompanyHavings)	.Column ("is_company_havings");
+			Map(x => x.IsTruck)				.Column ("is_truck");
 
 			References(x => x.Driver)			.Column ("driver_id");
 			References(x => x.FuelType)			.Column ("fuel_type_id");
