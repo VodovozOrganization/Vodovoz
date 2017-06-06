@@ -851,7 +851,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void UpdateFuelOperation ()
 		{
 			//Необхомо для того что бы случайно не пересчитать операцию расхода топлива. После массовой смены расхода.
-			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 5, 29))
+			if(FuelOutlayedOperation != null && Date < new DateTime(2017, 6, 6))
 				return; 
 
 			if (ActualDistance == 0) {
