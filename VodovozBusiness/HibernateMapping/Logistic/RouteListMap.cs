@@ -21,6 +21,7 @@ namespace Vodovoz.HMap
 			Map (x => x.ClosingFilled).Column("closing_filled");
 			Map (x => x.LastCallTime).Column ("last_call_time");
 			Map (x => x.DifferencesConfirmed).Column ("differences_confirmed");
+			Map (x => x.IsManualAccounting).Column("is_manual_accounting"); 
 
 			References (x => x.Car).Column ("car_id");
 			References (x => x.Shift).Column ("delivery_shift_id");

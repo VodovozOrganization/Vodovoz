@@ -25,25 +25,26 @@ namespace Vodovoz
 
 		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		private Track 	 track 				= null;
-		private decimal  balanceBeforeOp 	= default(decimal);
-		private bool 	 editing 			= QSMain.User.Permissions ["money_manage"];
-		private Employee previousForwarder  = null;
+		private Track track = null;
+		private decimal balanceBeforeOp = default(decimal);
+		private bool editing = QSMain.User.Permissions["money_manage"];
+		private Employee previousForwarder = null;
 
 		List<RouteListRepository.ReturnsNode> allReturnsToWarehouse;
 		int bottlesReturnedToWarehouse;
 		int bottlesReturnedTotal;
 
-		enum RouteListActions {
-			[Display (Name = "Новый штраф")]
+		enum RouteListActions
+		{
+			[Display(Name = "Новый штраф")]
 			CreateNewFine,
-			[Display (Name = "Перенести разгрузку в другой МЛ")]
+			[Display(Name = "Перенести разгрузку в другой МЛ")]
 			TransferReceptionToAnotherRL,
-			[Display (Name = "Перенести разгрузку в этот МЛ")]
+			[Display(Name = "Перенести разгрузку в этот МЛ")]
 			TransferReceptionToThisRL,
-			[Display (Name = "Перенести адреса в этот МЛ")]
+			[Display(Name = "Перенести адреса в этот МЛ")]
 			TransferAddressesToThisRL,
-			[Display (Name = "Перенести адреса из этого МЛ")]
+			[Display(Name = "Перенести адреса из этого МЛ")]
 			TransferAddressesToAnotherRL
 
 		}
@@ -52,7 +53,7 @@ namespace Vodovoz
 
 		#region Конструкторы и конфигурирование диалога
 
-		public RouteListClosingDlg(RouteList routeList) : this(routeList.Id){}
+		public RouteListClosingDlg(RouteList routeList) : this(routeList.Id) { }
 
 		public RouteListClosingDlg(int routeListId)
 		{
@@ -68,7 +69,7 @@ namespace Vodovoz
 		}
 
 		private void ConfigureDlg()
-		{			
+		{
 			referenceCar.Binding.AddBinding(Entity, rl => rl.Car, widget => widget.Subject).InitializeFromSource();
 			referenceCar.Sensitive = editing;
 
@@ -104,26 +105,27 @@ namespace Vodovoz
 
 			ytextClosingComment.Binding.AddBinding(Entity, e => e.ClosingComment, w => w.Buffer.Text).InitializeFromSource();
 			ytextClosingComment.Sensitive = editing;
+			labelOrderEarly.Text = "Сдано ранее:" + GetCashOrder().ToString();
+			spinCashOrder.Value = 0;
 
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
 			//Предварительная загрузка объектов для ускорения.
-/*			Vodovoz.Domain.Orders.Order orderAlias = null;
-			var clients = UoW.Session.QueryOver<RouteListItem>()
-				.Where(rli => rli.RouteList.Id == Entity.Id)
-				.JoinAlias(rli => rli.Order, () => orderAlias)
-				.Fetch(rli => rli.Order.Client).Eager
-				.List();
-				//.Select(Projections. a => orderAlias.Client).Future();
-				//.List<Counterparty>();
-*/
+			/*			Vodovoz.Domain.Orders.Order orderAlias = null;
+						var clients = UoW.Session.QueryOver<RouteListItem>()
+							.Where(rli => rli.RouteList.Id == Entity.Id)
+							.JoinAlias(rli => rli.Order, () => orderAlias)
+							.Fetch(rli => rli.Order.Client).Eager
+							.List();
+							//.Select(Projections. a => orderAlias.Client).Future();
+							//.List<Counterparty>();
+			*/
 			PerformanceHelper.AddTimePoint("Предварительная загрузка");
 
 			routeListAddressesView.UoW = UoW;
-			Entity.ReorderAddressesByDailiNumber ();
+			Entity.ReorderAddressesByDailiNumber();
 			routeListAddressesView.RouteList = Entity;
-			foreach (RouteListItem item in routeListAddressesView.Items)
-			{
+			foreach(RouteListItem item in routeListAddressesView.Items) {
 				item.Order.ObservableOrderItems.ElementChanged += OnOrderReturnsChanged;
 				item.Order.ObservableOrderEquipments.ElementChanged += OnOrderReturnsChanged;
 			}
@@ -139,15 +141,14 @@ namespace Vodovoz
 				.SelectMany(address => address.Order.OrderItems)
 				.Where(orderItem => !orderItem.Nomenclature.Serial)
 				.Where(orderItem => Nomenclature.GetCategoriesForShipment().Any(nom => nom == orderItem.Nomenclature.Category));
-			foreach (var item in returnableOrderItems)
-			{
-				if (allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
+			foreach(var item in returnableOrderItems) {
+				if(allReturnsToWarehouse.All(r => r.NomenclatureId != item.Nomenclature.Id))
 					allReturnsToWarehouse.Add(new RouteListRepository.ReturnsNode {
-							Name = item.Nomenclature.Name,
-							Trackable = item.Nomenclature.Serial,
-							NomenclatureId = item.Nomenclature.Id,
-							Amount = 0
-						});
+						Name = item.Nomenclature.Name,
+						Trackable = item.Nomenclature.Serial,
+						NomenclatureId = item.Nomenclature.Id,
+						Amount = 0
+					});
 			}
 			PerformanceHelper.AddTimePoint("Получили возврат на склад");
 			//FIXME Убрать из этого места первоначальное заполнение. Сейчас оно вызывается при переводе статуса на сдачу. После того как не нормально не переведенных в закрытие маршрутников, тут заполение можно убрать.
@@ -186,9 +187,14 @@ namespace Vodovoz
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric += OnCalUnloadUpdated;
 		}
 
-		void OnCalUnloadUpdated (object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<CarUnloadDocument> e)
+		private decimal GetCashOrder()
 		{
-			if (e.UpdatedSubjects.Any(x => x.RouteList.Id == Entity.Id))
+			return Repository.Cash.CashRepository.CurrentRouteListCash(UoW, Entity.Id);
+		}
+
+		void OnCalUnloadUpdated(object sender, QSOrmProject.UpdateNotification.OrmObjectUpdatedGenericEventArgs<CarUnloadDocument> e)
+		{
+			if(e.UpdatedSubjects.Any(x => x.RouteList.Id == Entity.Id))
 				ReloadDiscrepancies();
 		}
 
@@ -196,61 +202,60 @@ namespace Vodovoz
 
 		#region Методы
 
-		void ReferenceForwarder_Changed (object sender, EventArgs e)
+		void ReferenceForwarder_Changed(object sender, EventArgs e)
 		{
 			var newForwarder = Entity.Forwarder;
 
-			if ((previousForwarder == null && newForwarder != null)
+			if((previousForwarder == null && newForwarder != null)
 			 || (previousForwarder != null && newForwarder == null))
-				foreach (var item in Entity.Addresses)
+				foreach(var item in Entity.Addresses)
 					item.RecalculateWages();
-			
+
 			previousForwarder = Entity.Forwarder;
 		}
 
-		void EnummenuRLActions_EnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		void EnummenuRLActions_EnumItemClicked(object sender, EnumItemClickedEventArgs e)
 		{
-			switch ((RouteListActions)e.ItemEnum)
-			{
-				case RouteListActions.CreateNewFine:
-					this.TabParent.AddSlaveTab(
-						this, new FineDlg(default(decimal), Entity)
-					);
-					break;
-				case RouteListActions.TransferReceptionToAnotherRL:
-					this.TabParent.AddSlaveTab(
-						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Sender)
-					);
-					break;
-				case RouteListActions.TransferReceptionToThisRL:
-					this.TabParent.AddSlaveTab(
-						this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Receiver)
-					);
-					break;
-				case RouteListActions.TransferAddressesToThisRL:
-					if (UoW.HasChanges) {
-						if(MessageDialogWorks.RunQuestionDialog ("Необходимо сохранить документ.\nСохранить?"))
-							this.Save ();
-						else
-							return;
-					}
-                    this.TabParent.AddSlaveTab(
-						this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Receiver)
-					);
-					break;
-				case RouteListActions.TransferAddressesToAnotherRL:
-					if (UoW.HasChanges) {
-						if(MessageDialogWorks.RunQuestionDialog ("Необходимо сохранить документ.\nСохранить?"))
-							 this.Save ();
-						else
-							return;
-					}
-                    this.TabParent.AddSlaveTab(
-                        this, new RouteListAddressesTransferringDlg (Entity, RouteListAddressesTransferringDlg.OpenParameter.Sender)
-					);
-					break;
-				default:
-					break;
+			switch((RouteListActions)e.ItemEnum) {
+			case RouteListActions.CreateNewFine:
+				this.TabParent.AddSlaveTab(
+					this, new FineDlg(default(decimal), Entity)
+				);
+				break;
+			case RouteListActions.TransferReceptionToAnotherRL:
+				this.TabParent.AddSlaveTab(
+					this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Sender)
+				);
+				break;
+			case RouteListActions.TransferReceptionToThisRL:
+				this.TabParent.AddSlaveTab(
+					this, new TransferGoodsBetweenRLDlg(Entity, TransferGoodsBetweenRLDlg.OpenParameter.Receiver)
+				);
+				break;
+			case RouteListActions.TransferAddressesToThisRL:
+				if(UoW.HasChanges) {
+					if(MessageDialogWorks.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
+						this.Save();
+					else
+						return;
+				}
+				this.TabParent.AddSlaveTab(
+					this, new RouteListAddressesTransferringDlg(Entity, RouteListAddressesTransferringDlg.OpenParameter.Receiver)
+				);
+				break;
+			case RouteListActions.TransferAddressesToAnotherRL:
+				if(UoW.HasChanges) {
+					if(MessageDialogWorks.RunQuestionDialog("Необходимо сохранить документ.\nСохранить?"))
+						this.Save();
+					else
+						return;
+				}
+				this.TabParent.AddSlaveTab(
+					this, new RouteListAddressesTransferringDlg(Entity, RouteListAddressesTransferringDlg.OpenParameter.Sender)
+				);
+				break;
+			default:
+				break;
 			}
 		}
 
@@ -273,8 +278,8 @@ namespace Vodovoz
 			var item = routeListAddressesView.Items[aIdx[0]];
 			item.RecalculateWages();
 			item.RecalculateTotalCash();
-			if (!item.IsDelivered())
-				foreach (var itm in item.Order.OrderItems) {
+			if(!item.IsDelivered())
+				foreach(var itm in item.Order.OrderItems) {
 					itm.ActualCount = 0;
 				}
 			routelistdiscrepancyview.FindDiscrepancies(Entity.Addresses, allReturnsToWarehouse);
@@ -283,8 +288,7 @@ namespace Vodovoz
 
 		void OnOrderReturnsChanged(object aList, int[] aIdx)
 		{
-			foreach (var item in routeListAddressesView.Items)
-			{
+			foreach(var item in routeListAddressesView.Items) {
 				var rli = item as RouteListItem;
 				rli.RecalculateWages();
 				rli.RecalculateTotalCash();
@@ -317,36 +321,36 @@ namespace Vodovoz
 			decimal totalCollected = items.Sum(item => item.TotalCash);
 			decimal driverWage = items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
 			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
-			labelAddressCount.Text = String.Format("Адресов: {0}", Entity.UniqueAddressCount);
+			labelAddressCount.Text = String.Format("Адр.: {0}", Entity.UniqueAddressCount);
 			labelPhone.Text = String.Format(
 				"Сот. связь: {0} {1}",
 				Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
-			labelFullBottles.Text = String.Format("Полных бутылей: {0}", fullBottlesTotal);
-			labelEmptyBottles.Text = String.Format("Пустых бутылей: {0}", bottlesReturnedTotal);
+			labelFullBottles.Text = String.Format("Полных бут.: {0}", fullBottlesTotal);
+			labelEmptyBottles.Text = String.Format("Пустых бут.: {0}", bottlesReturnedTotal);
 			labelDeposits.Text = String.Format(
 				"Залогов: {0} {1}",
 				depositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelCash.Text = String.Format(
-				"Сдано по накладным: {0} {1}", 
+				"Сдано по накладным: {0} {1}",
 				totalCollected + depositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotalCollected.Text = String.Format(
-				"Итоговая сумма: {0} {1}", 
+				"Итоговая сумма: {0} {1}",
 				totalCollected + depositsCollectedTotal - Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = String.Format(
 				"Итого сдано: <b>{0:F2}</b> {1}",
-				Entity.MoneyToReturn,
+				Entity.MoneyToReturn - GetCashOrder(),
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = String.Format(
-				"Зарплата водителя: <b>{0}</b> {2}" + "  " + "Зарплата экспедитора: <b>{1}</b> {2}", 
+				"ЗП вод.: <b>{0}</b> {2}" + "  " + "ЗП эксп.: <b>{1}</b> {2}",
 				driverWage,
 				forwarderWage,
 				CurrencyWorks.CurrencyShortName
@@ -355,39 +359,35 @@ namespace Vodovoz
 				bottlesReturnedToWarehouse,
 				bottlesReturnedTotal
 			);
-			if (defaultBottle == null)
+			if(defaultBottle == null)
 				defaultBottle = Repository.NomenclatureRepository.GetDefaultBottle(UoW);
-			
+
 			var bottleDifference = bottlesReturnedToWarehouse - bottlesReturnedTotal;
 			var differenceAttributes = bottlesReturnedToWarehouse - bottlesReturnedTotal > 0 ? "background=\"#ff5555\"" : "";
 			var bottleDifferenceFormat = "<span {1}><b>{0}</b><sub>(осталось)</sub></span>";
 			checkUseBottleFine.Visible = bottleDifference < 0;
-			if (bottleDifference != 0)
-			{
+			if(bottleDifference != 0) {
 				checkUseBottleFine.Label = String.Format("({0:C})", defaultBottle.SumOfDamage * (-bottleDifference));
 			}
 			labelBottleDifference.Markup = String.Format(bottleDifferenceFormat, bottleDifference, differenceAttributes);
 
 			//Штрафы
 			decimal totalSumOfDamage = 0;
-			if (checkUseBottleFine.Active)
+			if(checkUseBottleFine.Active)
 				totalSumOfDamage += defaultBottle.SumOfDamage * (-bottleDifference);
 			totalSumOfDamage += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
 
 			StringBuilder fineText = new StringBuilder();
-			if (totalSumOfDamage != 0)
-			{
+			if(totalSumOfDamage != 0) {
 				fineText.AppendLine(String.Format("Выб. ущерб: {0:C}", totalSumOfDamage));
 			}
-			if (Entity.BottleFine != null)
-			{
+			if(Entity.BottleFine != null) {
 				fineText.AppendLine(String.Format("Штраф: {0:C}", Entity.BottleFine.TotalMoney));
 			}
 			labelBottleFine.LabelProp = fineText.ToString().TrimEnd('\n');
 			buttonBottleAddEditFine.Sensitive = totalSumOfDamage != 0;
 			buttonBottleDelFine.Sensitive = Entity.BottleFine != null;
-			if (buttonFineEditState != (Entity.BottleFine != null))
-			{
+			if(buttonFineEditState != (Entity.BottleFine != null)) {
 				(buttonBottleAddEditFine.Image as Image).Pixbuf = new Gdk.Pixbuf(System.Reflection.Assembly.GetExecutingAssembly(),
 					Entity.BottleFine != null ? "Vodovoz.icons.buttons.edit.png" : "Vodovoz.icons.buttons.add.png"
 				);
@@ -408,40 +408,39 @@ namespace Vodovoz
 		public override bool Save()
 		{
 			var valid = new QSValidator<RouteList>(Entity);
-			if (valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			var messages = new List<string> ();
+			var messages = new List<string>();
 
-			if (Entity.Status > RouteListStatus.OnClosing)
-			{
-				Entity.UpdateFuelOperation ();
+			if(Entity.Status > RouteListStatus.OnClosing) {
+				Entity.UpdateFuelOperation();
 
-				var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations ();
-				var moneyMovementOperations = Entity.UpdateMoneyMovementOperations ();
-				var bottleMovementOperations = Entity.UpdateBottlesMovementOperation ();
-				var depositsOperations = Entity.UpdateDepositOperations (UoW);
+				var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations();
+				var moneyMovementOperations = Entity.UpdateMoneyMovementOperations();
+				var bottleMovementOperations = Entity.UpdateBottlesMovementOperation();
+				var depositsOperations = Entity.UpdateDepositOperations(UoW);
 
-				counterpartyMovementOperations.ForEach (op => UoW.Save (op));
-				bottleMovementOperations.ForEach (op => UoW.Save (op));
-				depositsOperations.ForEach (op => UoW.Save (op));
-				moneyMovementOperations.ForEach (op => UoW.Save (op));
+				counterpartyMovementOperations.ForEach(op => UoW.Save(op));
+				bottleMovementOperations.ForEach(op => UoW.Save(op));
+				depositsOperations.ForEach(op => UoW.Save(op));
+				moneyMovementOperations.ForEach(op => UoW.Save(op));
 
 				Entity.UpdateWageOperation();
 
 				//Закрываем наличку.
 				Income cashIncome = null;
 				Expense cashExpense = null;
-				messages.AddRange(Entity.UpdateCashOperations (ref cashIncome, ref cashExpense));
+				messages.AddRange(Entity.UpdateCashOperations(ref cashIncome, ref cashExpense));
 
-				if (cashIncome != null) UoW.Save (cashIncome);
-				if (cashExpense != null) UoW.Save (cashExpense);
+				if(cashIncome != null) UoW.Save(cashIncome);
+				if(cashExpense != null) UoW.Save(cashExpense);
 			}
 
 			UoW.Save();
 
-			if (messages.Count > 0)
-				MessageDialogWorks.RunInfoDialog (String.Format ("Были выполнены следующие действия:\n*{0}", String.Join ("\n*", messages)));
+			if(messages.Count > 0)
+				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 
 			return true;
 		}
@@ -449,43 +448,42 @@ namespace Vodovoz
 		protected void OnButtonAcceptClicked(object sender, EventArgs e)
 		{
 			var casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if (casher == null)
-			{
+			if(casher == null) {
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
 				return;
 			}
 
-			if (!isConsistentWithUnloadDocument())
+			if(!isConsistentWithUnloadDocument())
 				return;
 
-			var valid = new QSValidator<RouteList>(UoWGeneric.Root, 
-				            new Dictionary<object, object>
+			var valid = new QSValidator<RouteList>(UoWGeneric.Root,
+							new Dictionary<object, object>
 				{
 					{ "NewStatus", RouteListStatus.MileageCheck }
 				});
-			if (valid.RunDlgIfNotValid((Window)this.Toplevel))
+			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 
 			Entity.Cashier = casher;
 			Entity.Confirm();
 
-			if (!MessageDialogWorks.RunQuestionDialog ("Перед выходом распечатать документ?"))
-				SaveAndClose ();
+			if(!MessageDialogWorks.RunQuestionDialog("Перед выходом распечатать документ?"))
+				SaveAndClose();
 			else {
-				Save ();
+				Save();
 
-				var document = Vodovoz.Additions.Logistic.PrintRouteListHelper.GetRDLRouteList (UoW, Entity);
-				this.TabParent.OpenTab (
-					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg> (),
-					() => new QSReport.ReportViewDlg (document));
-                UpdateButtonState();
-				this.OnCloseTab (false);
+				var document = Vodovoz.Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
+				this.TabParent.OpenTab(
+					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+					() => new QSReport.ReportViewDlg(document));
+				UpdateButtonState();
+				this.OnCloseTab(false);
 			}
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
 		{
-			if (!MessageDialogWorks.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
+			if(!MessageDialogWorks.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
 				return;
 			UoW.Save();
 
@@ -503,20 +501,17 @@ namespace Vodovoz
 			summ += routelistdiscrepancyview.Items.Where(x => x.UseFine).Sum(x => x.SumOfDamage);
 			var nomenclatures = routelistdiscrepancyview.Items.Where(x => x.UseFine)
 				.ToDictionary(x => x.Nomenclature, x => -x.Remainder);
-			if (checkUseBottleFine.Active)
+			if(checkUseBottleFine.Active)
 				nomenclatures.Add(defaultBottle, bottleDifference);
 
 			FineDlg fineDlg;
-			if (Entity.BottleFine != null)
-			{
+			if(Entity.BottleFine != null) {
 				fineDlg = new FineDlg(Entity.BottleFine);
 
 				Entity.BottleFine.UpdateNomenclature(nomenclatures);
 				fineDlg.Entity.TotalMoney = summ;
 				fineDlg.EntitySaved += FineDlgExist_EntitySaved;
-			}
-			else
-			{
+			} else {
 				fineDlg = new FineDlg(summ, Entity, fineReason, Entity.Date, Entity.Driver);
 				fineDlg.Entity.AddNomenclature(nomenclatures);
 				fineDlg.EntitySaved += FineDlgNew_EntitySaved;
@@ -558,23 +553,20 @@ namespace Vodovoz
 			var givedOp = Entity.FuelGivedDocument?.Operation;
 			//Проверяем существование операций и исключаем их.
 			var exclude = new List<int>();
-			if (givedOp != null && givedOp.Id != 0)
-			{
+			if(givedOp != null && givedOp.Id != 0) {
 				exclude.Add(givedOp.Id);
 			}
-			if (fuelOtlayedOp != null && fuelOtlayedOp.Id != 0)
-			{
+			if(fuelOtlayedOp != null && fuelOtlayedOp.Id != 0) {
 				exclude.Add(fuelOtlayedOp.Id);
 			}
-			if (exclude.Count == 0)
+			if(exclude.Count == 0)
 				exclude = null;
 
-			if (Entity.Car.FuelType != null)
-			{
+			if(Entity.Car.FuelType != null) {
 				Car car = Entity.Car;
 				Employee driver = Entity.Driver;
 
-				if (car.IsCompanyHavings)
+				if(car.IsCompanyHavings)
 					driver = null;
 				else
 					car = null;
@@ -589,34 +581,32 @@ namespace Vodovoz
 		{
 			var text = new List<string>();
 			decimal spentFuel = (decimal)Entity.Car.FuelConsumption
-			                    		/ 100 * Entity.ActualDistance;
-			
+										/ 100 * Entity.ActualDistance;
+
 			//Проверка существования трека и заполнения дистанции
 			bool hasTrack = track?.Distance.HasValue ?? false;
 			buttonGetDistFromTrack.Sensitive = hasTrack && editing;
 
-			if (hasTrack)
+			if(hasTrack)
 				text.Add(string.Format("Расстояние по треку: {0:F1} км.", track.TotalDistance));
-			
-			if (Entity.Car.FuelType != null)
+
+			if(Entity.Car.FuelType != null)
 				text.Add(string.Format("Вид топлива: {0}", Entity.Car.FuelType.Name));
 			else
 				text.Add("Не указан вид топлива");
-			
-			if (Entity.FuelGivedDocument?.Operation != null || Entity.ActualDistance > 0)
+
+			if(Entity.FuelGivedDocument?.Operation != null || Entity.ActualDistance > 0)
 				text.Add(string.Format("Остаток без выдачи {0:F2} л.", balanceBeforeOp));
 
 			text.Add(string.Format("Израсходовано топлива: {0:F2} л. ({1:F2} л/100км)",
 				spentFuel, (decimal)Entity.Car.FuelConsumption));
 
-			if (Entity.FuelGivedDocument?.Operation != null)
-			{
+			if(Entity.FuelGivedDocument?.Operation != null) {
 				text.Add(string.Format("Выдано {0:F2} литров",
 						Entity.FuelGivedDocument.Operation.LitersGived));
 			}
 
-			if (Entity.Car.FuelType != null)
-			{
+			if(Entity.Car.FuelType != null) {
 				text.Add(string.Format("Текущий остаток топлива {0:F2} л.", balanceBeforeOp
 					+ (Entity.FuelGivedDocument?.Operation.LitersGived ?? 0) - spentFuel));
 			}
@@ -628,22 +618,20 @@ namespace Vodovoz
 
 		void LoadDataFromFine()
 		{
-			if (Entity.BottleFine == null)
+			if(Entity.BottleFine == null)
 				return;
 
-			if (defaultBottle == null)
+			if(defaultBottle == null)
 				defaultBottle = NomenclatureRepository.GetDefaultBottle(UoW);
 
-			foreach (var nom in Entity.BottleFine.Nomenclatures)
-			{
-				if (nom.Nomenclature.Id == defaultBottle.Id)
-				{
+			foreach(var nom in Entity.BottleFine.Nomenclatures) {
+				if(nom.Nomenclature.Id == defaultBottle.Id) {
 					checkUseBottleFine.Active = true;
 					continue;
 				}
 
 				var found = routelistdiscrepancyview.Items.FirstOrDefault(x => x.Nomenclature.Id == nom.Nomenclature.Id);
-				if (found != null)
+				if(found != null)
 					found.UseFine = true;
 			}
 		}
@@ -664,12 +652,9 @@ namespace Vodovoz
 			var document = Entity.FuelGivedDocument;
 			FuelDocumentDlg tab;
 
-			if (document == null)
-			{
+			if(document == null) {
 				tab = new FuelDocumentDlg(UoWGeneric.Root);
-			}
-			else
-			{
+			} else {
 				tab = new FuelDocumentDlg(UoWGeneric.Root, document.Id);
 			}
 			tab.EntitySaved += FuelDoc_EntitySaved;
@@ -678,12 +663,9 @@ namespace Vodovoz
 
 		void FuelDoc_EntitySaved(object sender, QSTDI.EntitySavedEventArgs e)
 		{
-			if (Entity.FuelGivedDocument == null)
-			{
+			if(Entity.FuelGivedDocument == null) {
 				Entity.FuelGivedDocument = e.Entity as FuelDocument;
-			}
-			else
-			{
+			} else {
 				UoW.Session.Refresh(Entity.FuelGivedDocument);
 			}
 			Save();
@@ -693,8 +675,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteTicketClicked(object sender, EventArgs e)
 		{
-			if (Entity.FuelGivedDocument != null)
-			{
+			if(Entity.FuelGivedDocument != null) {
 				UoW.Delete(Entity.FuelGivedDocument);
 				Entity.FuelGivedDocument = null;
 				this.HasChanges = true;
@@ -704,12 +685,12 @@ namespace Vodovoz
 			CalculateTotal();
 		}
 
-		protected void OnYcheckConfirmDifferencesToggled (object sender, EventArgs e)
+		protected void OnYcheckConfirmDifferencesToggled(object sender, EventArgs e)
 		{
 			UpdateButtonState();
 		}
 
-		protected void OnYcheckHideCellsToggled (object sender, EventArgs e)
+		protected void OnYcheckHideCellsToggled(object sender, EventArgs e)
 		{
 			routeListAddressesView.ColumsVisibility = !ycheckHideCells.Active;
 		}
@@ -729,8 +710,8 @@ namespace Vodovoz
 		private void ReloadReturnedToWarehouse()
 		{
 			allReturnsToWarehouse = RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, Nomenclature.GetCategoriesForShipment());
-			var refuse = Int32.Parse ( MainSupport.BaseParameters.All ["refuse_nomenclature_id"]);
-			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, new []{ NomenclatureCategory.bottle }, new[] {refuse})
+			var refuse = Int32.Parse(MainSupport.BaseParameters.All["refuse_nomenclature_id"]);
+			bottlesReturnedToWarehouse = (int)RouteListRepository.GetReturnsToWarehouse(UoW, Entity.Id, new[] { NomenclatureCategory.bottle }, new[] { refuse })
 				.Sum(item => item.Amount);
 		}
 
@@ -738,6 +719,32 @@ namespace Vodovoz
 		{
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric -= OnCalUnloadUpdated;
 			base.Destroy();
+		}
+
+		protected void OnButtonCreateCashOrderClicked(object sender, EventArgs e)
+		{
+			var messages = new List<string>();
+
+			var casher = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(casher == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				return;
+			}
+
+			Income cashIncome = null;
+			Expense cashExpense = null;
+
+			var inputCashOrder = (decimal)spinCashOrder.Value;
+			Entity.Cashier = casher;
+			messages.AddRange(Entity.ManualCashOperations(ref cashIncome, ref cashExpense, inputCashOrder));
+
+			if(cashIncome != null) UoW.Save(cashIncome);
+			if(cashExpense != null) UoW.Save(cashExpense);
+			UoW.Save();
+
+
+			if(messages.Count > 0)
+				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 		}
 
 		#endregion

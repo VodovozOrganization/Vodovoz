@@ -231,6 +231,12 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField (ref forwarderWageOperation, value, () => ForwarderWageOperation); }
 		}
 
+		private bool isManualAccounting;
+		public virtual bool IsManualAccounting {
+			get { return isManualAccounting; }
+			set { SetField(ref isManualAccounting, value, () => IsManualAccounting); }
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -756,66 +762,131 @@ namespace Vodovoz.Domain.Logistic
 			return result;
 		}
 
-		public virtual string [] UpdateCashOperations (ref Income cashIncome, ref Expense cashExpense)
+		public virtual string[] UpdateCashOperations(ref Income cashIncome, ref Expense cashExpense)
 		{
-			var messages = new List<string> ();
-			cashIncome = Repository.Cash.CashRepository.GetIncomeByRouteList (UoW, this.Id);
-			cashExpense = Repository.Cash.CashRepository.GetExpenseByRouteListId (UoW, this.Id);
-
-			if (Total > 0) {
-				if (cashIncome == null) {
+			var messages = new List<string>();
+			cashIncome = Repository.Cash.CashRepository.GetIncomeByRouteList(UoW, this.Id);
+			cashExpense = Repository.Cash.CashRepository.GetExpenseByRouteListId(UoW, this.Id);
+			var oldCashOrder = Repository.Cash.CashRepository.CurrentRouteListCash(UoW, this.Id);
+			var isManual = this.IsManualAccounting;
+			var totalSum = Total - oldCashOrder;
+			if(isManual) {
+				if(totalSum > 0) {
 					cashIncome = new Income {
-						IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory (UoW),
+						IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
 						TypeOperation = IncomeType.DriverReport,
 						Date = DateTime.Now,
 						Casher = cashier,
 						Employee = Driver,
 						Description = $"Закрытие МЛ №{Id} от {Date:d}",
-						Money = Math.Round (Total, 0, MidpointRounding.AwayFromZero)
+						Money = Math.Round(totalSum, 0, MidpointRounding.AwayFromZero)
 					};
-					messages.Add (String.Format ("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
-				} else {
-					var newSum = Math.Round (Total, 0, MidpointRounding.AwayFromZero);
-					if (cashIncome.Money != newSum) {
-						cashIncome.Casher = cashier;
-						messages.Add (String.Format ("В приходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
-													 cashIncome.Id, newSum, newSum - cashIncome.Money));
-						cashIncome.Money = newSum;
-					}
-				}
-				cashIncome.RouteListClosing = this;
-				if (cashExpense != null) {
-					messages.Add (String.Format ("Расходный ордер №{0} на сумму {1:C0} был удалён.", cashExpense.Id, cashExpense.Money));
-					UoW.Delete (cashExpense);
-				}
-			} else {
-				if (cashExpense == null) {
+					messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
+				} else
+				{
 					cashExpense = new Expense {
-						ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory (UoW),
+						ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
 						TypeOperation = ExpenseType.Expense,
 						Date = DateTime.Now,
 						Casher = cashier,
 						Employee = Driver,
 						Description = $"Закрытие МЛ #{Id} от {Date:d}",
-						Money = Math.Round (-Total, 0, MidpointRounding.AwayFromZero)
+						Money = Math.Round(-totalSum, 0, MidpointRounding.AwayFromZero)
 					};
-					messages.Add (String.Format ("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
+					messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
+				}
+			} 
+			else {
+				if(Total > 0) {
+					if(cashIncome == null) {
+						cashIncome = new Income {
+							IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
+							TypeOperation = IncomeType.DriverReport,
+							Date = DateTime.Now,
+							Casher = cashier,
+							Employee = Driver,
+							Description = $"Закрытие МЛ №{Id} от {Date:d}",
+							Money = Math.Round(Total, 0, MidpointRounding.AwayFromZero)
+						};
+						messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
+					} else {
+						var newSum = Math.Round(Total, 0, MidpointRounding.AwayFromZero);
+						if(cashIncome.Money != newSum) {
+							cashIncome.Casher = cashier;
+							messages.Add(String.Format("В приходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
+														 cashIncome.Id, newSum, newSum - cashIncome.Money));
+							cashIncome.Money = newSum;
+						}
+					}
+					cashIncome.RouteListClosing = this;
+					if(cashExpense != null) {
+						messages.Add(String.Format("Расходный ордер №{0} на сумму {1:C0} был удалён.", cashExpense.Id, cashExpense.Money));
+						UoW.Delete(cashExpense);
+					}
 				} else {
-					var newSum = Math.Round (-Total, 0, MidpointRounding.AwayFromZero);
-					if (cashExpense.Money != newSum) {
-						cashExpense.Casher = cashier;
-						messages.Add (String.Format ("В расходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
-							 cashExpense.Id, newSum, newSum - cashExpense.Money));
-						cashExpense.Money = newSum;
+					if(cashExpense == null) {
+						cashExpense = new Expense {
+							ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
+							TypeOperation = ExpenseType.Expense,
+							Date = DateTime.Now,
+							Casher = cashier,
+							Employee = Driver,
+							Description = $"Закрытие МЛ #{Id} от {Date:d}",
+							Money = Math.Round(-Total, 0, MidpointRounding.AwayFromZero)
+						};
+						messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
+					} else {
+						var newSum = Math.Round(-Total, 0, MidpointRounding.AwayFromZero);
+						if(cashExpense.Money != newSum) {
+							cashExpense.Casher = cashier;
+							messages.Add(String.Format("В расходном ордере №{0} изменилась сумма на {1:C0}({2::+#;-#})",
+								 cashExpense.Id, newSum, newSum - cashExpense.Money));
+							cashExpense.Money = newSum;
+						}
+					}
+					cashExpense.RouteListClosing = this;
+					if(cashIncome != null) {
+						messages.Add(String.Format("Приходный ордер №{0} на сумму {1:C0} был удалён.", cashIncome.Id, cashIncome.Money));
+						UoW.Delete(cashIncome);
 					}
 				}
-				cashExpense.RouteListClosing = this;
-				if (cashIncome != null) {
-					messages.Add (String.Format ("Приходный ордер №{0} на сумму {1:C0} был удалён.", cashIncome.Id, cashIncome.Money));
-					UoW.Delete (cashIncome);
-				}
 			}
-			return messages.ToArray ();
+			return messages.ToArray();
+
+		}
+
+		public virtual string[] ManualCashOperations(ref Income cashIncome, ref Expense cashExpense, decimal casheInput)
+		{
+			var messages = new List<string>();
+			if(casheInput > 0) {
+				cashIncome = new Income {
+					IncomeCategory = Repository.Cash.CategoryRepository.RouteListClosingIncomeCategory(UoW),
+					TypeOperation = IncomeType.DriverReport,
+					Date = DateTime.Now,
+					Casher = cashier,
+					Employee = Driver,
+					Description = $"Дополнение к МЛ №{this.Id} от {Date:d}",
+					Money = Math.Round(casheInput, 0, MidpointRounding.AwayFromZero),
+					RouteListClosing = this
+				};
+
+				messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
+
+			} else {
+				cashExpense = new Expense {
+					ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
+					TypeOperation = ExpenseType.Expense,
+					Date = DateTime.Now,
+					Casher = cashier,
+					Employee = Driver,
+					Description = $"Дополнение к МЛ #{this.Id} от {Date:d}",
+					Money = Math.Round(-casheInput, 0, MidpointRounding.AwayFromZero),
+					RouteListClosing = this
+				};
+				messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
+			}
+			IsManualAccounting = true;
+			return messages.ToArray();
 		}
 
 		public virtual void Confirm ()

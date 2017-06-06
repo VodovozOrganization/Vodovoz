@@ -2,6 +2,7 @@
 using QSOrmProject;
 using NHibernate.Criterion;
 using Vodovoz.Domain.Cash;
+using System.Collections.Generic;
 
 namespace Vodovoz.Repository.Cash
 {
@@ -33,6 +34,18 @@ namespace Vodovoz.Repository.Cash
 				.Take(1).SingleOrDefault();
 		}
 
+		public static decimal CurrentRouteListCash(IUnitOfWork uow, int routeListId)
+		{
+			decimal expense = uow.Session.QueryOver<Expense>()
+			                     .Where(exp => exp.RouteListClosing.Id == routeListId)
+			                     .Select(Projections.Sum<Expense>(o => o.Money)).SingleOrDefault<decimal>();
+
+			decimal income = uow.Session.QueryOver<Income>()
+			                    .Where(exp => exp.RouteListClosing.Id == routeListId)
+			                    .Select(Projections.Sum<Income>(o => o.Money)).SingleOrDefault<decimal>();
+
+			return income - expense;
+		}
 	}
 }
 
