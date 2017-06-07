@@ -645,9 +645,10 @@ namespace Vodovoz
 				.AddDeleteDependence<Residue>(x => x.DepositEquipmentOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<WagesMovementOperations>()
+			    .RequiredCascadeDeletion()
 				.AddDeleteDependence<FineItem>(item => item.WageOperation)
-				.AddDeleteDependence<RouteList>(item => item.DriverWageOperation)
-			    .AddDeleteDependence<RouteList> (item => item.ForwarderWageOperation)
+			    .AddClearDependence<RouteList>(item => item.DriverWageOperation)
+			    .AddClearDependence<RouteList> (item => item.ForwarderWageOperation)
 				.AddDeleteDependence<Expense>(item => item.WagesOperation);
 
 			DeleteConfig.AddHibernateDeleteInfo<FuelOperation>()
@@ -665,7 +666,8 @@ namespace Vodovoz
 
 			DeleteConfig.AddHibernateDeleteInfo<Expense>()
 				.AddDeleteDependence<AdvanceClosing>(x => x.AdvanceExpense)
-				.AddDeleteDependence<FuelDocument>(x => x.FuelCashExpense);
+			    .AddDeleteDependence<FuelDocument>(x => x.FuelCashExpense)
+			    .AddDeleteCascadeDependence(x => x.WagesOperation);
 
 			DeleteConfig.AddDeleteInfo (new DeleteInfo {
 				ObjectClass = typeof(AdvanceReport),
