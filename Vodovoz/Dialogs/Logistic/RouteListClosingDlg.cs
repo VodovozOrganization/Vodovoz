@@ -459,11 +459,13 @@ namespace Vodovoz
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root,
 							new Dictionary<object, object>
 				{
-					{ "NewStatus", RouteListStatus.MileageCheck }
+					{ "NewStatus", RouteListStatus.Closed }
 				});
+			Entity.ConfirmedDistance = Entity.ActualDistance;
+
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
-
+			
 			Entity.Cashier = casher;
 			Entity.Confirm();
 
