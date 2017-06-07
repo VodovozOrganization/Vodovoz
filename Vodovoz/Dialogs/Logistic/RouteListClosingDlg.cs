@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -107,6 +107,8 @@ namespace Vodovoz
 			ytextClosingComment.Sensitive = editing;
 			labelOrderEarly.Text = "Сдано ранее:" + GetCashOrder().ToString();
 			spinCashOrder.Value = 0;
+			advanceSpinbutton.Value = 0;
+			advanceSpinbutton.Visible = false;
 
 			PerformanceHelper.AddTimePoint("Создан диалог");
 
@@ -346,7 +348,7 @@ namespace Vodovoz
 			);
 			labelTotal.Markup = String.Format(
 				"Итого сдано: <b>{0:F2}</b> {1}",
-				Entity.MoneyToReturn - GetCashOrder(),
+				Entity.MoneyToReturn - GetCashOrder() - (decimal)advanceSpinbutton.Value,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelWage1.Markup = String.Format(
@@ -466,6 +468,11 @@ namespace Vodovoz
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 			
+			if(advanceCheckbox.Active && advanceSpinbutton.Value > 0)
+			{
+				EmployeeAdvanceOrder((decimal)advanceSpinbutton.Value);
+			}
+
 			Entity.Cashier = casher;
 			Entity.Confirm();
 
@@ -747,6 +754,40 @@ namespace Vodovoz
 
 			if(messages.Count > 0)
 				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
+		}
+
+		private void EmployeeAdvanceOrder(decimal cashInput) // Метод создаёт расходник выдачи аванса из МЛ и выводит сообщение. @Дима
+		{
+			string message, ifAdvanceIsBigger;
+
+			Expense cashExpense = null;
+			decimal cashToReturn = Entity.MoneyToReturn - cashInput;
+
+			ifAdvanceIsBigger = (cashToReturn > 0) ? "Сумма для сдачи в кассу" : "Сумма для выдачи из кассы";  // Выбор варианта сообщения. @Дима
+
+			var cashier = EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(cashier == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете закрыть МЛ, так как некого указывать в качестве кассира.");
+				return;
+			}
+			Entity.Cashier = cashier;
+
+			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput);   // Создание расходника. @Дима
+
+			if(cashExpense != null) UoW.Save(cashExpense);
+			UoW.Save();
+
+			MessageDialogWorks.RunInfoDialog(String.Format("{0}\n\n{1}: {2:C0}", message, ifAdvanceIsBigger, Math.Abs(cashToReturn)));
+		}
+
+		protected void OnAdvanceCheckboxToggled(object sender, EventArgs e)     // Чекбокс выдачи аванса - скрыть или отобразить поле изменения. @Дима
+		{
+			advanceSpinbutton.Visible = advanceCheckbox.Active;
+		}
+
+		protected void OnAdvanceSpinbuttonChanged(object sender, EventArgs e)   // Поле изменения суммы аванса. @Дима
+		{
+			CalculateTotal();
 		}
 
 		#endregion

@@ -889,6 +889,25 @@ namespace Vodovoz.Domain.Logistic
 			return messages.ToArray();
 		}
 
+		public virtual string EmployeeAdvanceOperation(ref Expense cashExpense, decimal cashInput)  // Метод для создания расходника выдачи аванса из МЛ. @Дима
+		{
+			string message;
+
+			cashExpense = new Expense {
+				ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
+				TypeOperation = ExpenseType.EmployeeAdvance,
+				Date = DateTime.Now,
+				Casher = cashier,
+				Employee = Driver,
+				Description = $"Выдача аванса к МЛ #{this.Id} от {Date:d}",	// Уточнить дескрипшен.
+				Money = Math.Round(cashInput, 0, MidpointRounding.AwayFromZero),
+				RouteListClosing = this
+			};
+
+			message = String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money);
+			return (message);
+		}
+
 		public virtual void Confirm ()
 		{
 			if (Status != RouteListStatus.OnClosing)
