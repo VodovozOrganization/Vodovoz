@@ -47,16 +47,19 @@
             <Width>64.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>48.3pt</Width>
+            <Width>60.5pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>52.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50.5pt</Width>
+            <Width>54.4pt</Width>
+          </TableColumn>
+          <TableColumn >
+            <Width>57.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>41.0pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>57.9pt</Width>
+            <Width>58.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -67,7 +70,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox2">
-                      <Value>Дата выдачи</Value>
+                      <Value>Дата действия</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -169,7 +172,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox7">
-                      <Value>Литров потрачено</Value>
+                      <Value>Потрачено литров</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -186,10 +189,27 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Value>Выдано литров талонами</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Литров выдано</Value>
+                      <Value>Выдано литров деньгами</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -204,11 +224,11 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell>
+                <TableCell >
                   <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>Баланс</Value>
-                      <Style>
+                    <Textbox Name="Textbox26">
+                      <Value>Выдано деньгами</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -223,8 +243,8 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>Деньгами</Value>
+                    <Textbox Name="Textbox9">
+                      <Value>Баланс</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -359,10 +379,25 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Value>=Fields!liters_coupons.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox17">
-                      <Value>=Fields!liters_gived.Value</Value>
+                      <Value>=(Fields!liters_gived.Value - Fields!liters_coupons.Value)</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -371,6 +406,22 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Value>=Fields!payed_for_fuel.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                        <Format >0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -379,22 +430,6 @@
                   <ReportItems>
                     <Textbox Name="Textbox18">
                       <Value>=Fields!balance.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <TextAlign>Center</TextAlign>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox19">
-                      <Value>=Fields!payed_for_fuel.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -443,6 +478,7 @@
         </Style>
       </Textbox>
     </ReportItems>
+    <Columns >1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -464,7 +500,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Fuel">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     main.*,
@@ -479,7 +515,8 @@ FROM
             route_lists.actual_distance AS distance,
             SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
             SUM(fuel_operations.liters_gived) AS liters_gived,
-            SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel
+            SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel,
+            SUM(fuel_documents.fuel_coupons) AS liters_coupons
     FROM
         (SELECT 
         SUM(@fuel_balance:=@fuel_balance + IF(internal.liters_gived IS NULL, 0, internal.liters_gived) - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) AS rows_first
@@ -513,14 +550,18 @@ FROM
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="route_list_id">
           <DataField>route_list_id</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="route_list_date">
+          <DataField>route_list_date</DataField>
+          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="driver">
           <DataField>driver</DataField>
@@ -542,17 +583,17 @@ FROM
           <DataField>liters_gived</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="balance">
-          <DataField>balance</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
         <Field Name="payed_for_fuel">
           <DataField>payed_for_fuel</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
-        <Field Name="route_list_date">
-          <DataField>route_list_date</DataField>
-          <TypeName>System.DateTime</TypeName>
+        <Field Name="liters_coupons">
+          <DataField>liters_coupons</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -590,18 +631,14 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters >
     <ReportParameter Name="driver_id">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>626</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>true</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -610,6 +647,11 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="car_id">
       <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>150</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>true</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -618,6 +660,11 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017/06/01</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -626,6 +673,11 @@ WHERE
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017/06/06</Value>
+        </Values>
+      </DefaultValue>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
@@ -633,4 +685,15 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
