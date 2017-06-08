@@ -65,6 +65,9 @@
         </Style>
         <TableColumns>
           <TableColumn>
+            <Width>22.6pt</Width>
+          </TableColumn>
+          <TableColumn>
             <Width>49.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -80,10 +83,10 @@
             <Width>135.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>289.3pt</Width>
+            <Width>269.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>85.2pt</Width>
+            <Width>82.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -91,6 +94,22 @@
             <TableRow>
               <Height>34.7pt</Height>
               <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>№</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox18">
@@ -215,6 +234,18 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>=RowNumber()</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
                     <Textbox Name="Textbox23">
                       <Value>=Fields!date.Value</Value>
                       <CanGrow>true</CanGrow>
@@ -301,6 +332,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -344,6 +377,25 @@
                   <TableCells>
                     <TableCell>
                       <ReportItems>
+                        <Textbox Name="Textbox17">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                            <VerticalAlign>Middle</VerticalAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
                         <Textbox Name="Textbox5">
                           <Style>
                             <BorderStyle>
@@ -382,6 +434,23 @@
                   <TableCells>
                     <TableCell>
                       <ReportItems>
+                        <Textbox Name="Textbox28">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontSize>14pt</FontSize>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
                         <Textbox Name="Textbox9">
                           <Style>
                             <BorderStyle>
@@ -407,6 +476,23 @@
                 <TableRow>
                   <Height>.2in</Height>
                   <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox34">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <FontSize>12pt</FontSize>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox29">
@@ -675,7 +761,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     delivery_schedule.name AS date,
@@ -735,10 +821,10 @@ FROM
 WHERE
     (delivery_date BETWEEN @start_date AND @end_date)
         AND logistics_area.id = @id_district
-        AND route_list_addresses.status &lt;&gt; 'Transfered'
-	AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
+        AND (orders.order_status &lt;&gt;  'Canceled' OR orders.order_status &lt;&gt; 'DeliveryCanceled')
+        AND (route_list_addresses.status &lt;&gt; 'Transfered' OR route_list_addresses.status IS NULL)
         AND NOT orders.self_delivery
-	AND delivery_points.city &lt;&gt; 'Семиозерье'
+        AND delivery_points.city &lt;&gt; 'Семиозерье'
 ORDER BY bottles , last_name</CommandText>
         <QueryParameters>
           <QueryParameter Name="id_district">
@@ -752,7 +838,7 @@ ORDER BY bottles , last_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.String</TypeName>
