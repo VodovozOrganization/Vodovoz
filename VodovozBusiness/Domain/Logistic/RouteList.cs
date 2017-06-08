@@ -576,6 +576,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual List<DepositOperation> UpdateDepositOperations (IUnitOfWork UoW)
 		{
+#if !SHORT
 			var result = new List<DepositOperation> ();
 			var bottleDepositNomenclature = NomenclatureRepository.GetBottleDeposit (UoW);
 			var bottleDepositPrice = bottleDepositNomenclature.GetPrice (1);
@@ -646,6 +647,7 @@ namespace Vodovoz.Domain.Logistic
 					deposit.DepositOperation = operation;
 					result.Add (operation);
 				}
+
 				//TODO Добавить далее обновление операций,если потребуется раскоментировать код ниже!
 				//
 				//				var bottleDepositsOperation = new DepositOperation()
@@ -726,6 +728,35 @@ namespace Vodovoz.Domain.Logistic
 				//				if(bottleDepositsOperation.RefundDeposit!=0 || bottleDepositsOperation.ReceivedDeposit!=0)
 				//					result.Add(bottleDepositsOperation);
 			}
+#else
+			var result = new List<DepositOperation>();
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			foreach(RouteListItem item in addresesDelivered) {
+				if(item.DepositsCollected != 0) {
+					var bottlesOperation = new DepositOperation {
+						Order = item.Order,
+						OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						DepositType = DepositType.Bottles,
+						Counterparty = item.Order.Client,
+						DeliveryPoint = item.Order.DeliveryPoint,
+						ReceivedDeposit = item.DepositsCollected
+					};
+					result.Add(bottlesOperation);
+				}
+
+				if(item.EquipmentDepositsCollected != 0) {
+					var equipmentOperation = new DepositOperation {
+						Order = item.Order,
+						OperationTime = item.Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59),
+						DepositType = DepositType.Equipment,
+						Counterparty = item.Order.Client,
+						DeliveryPoint = item.Order.DeliveryPoint,
+						ReceivedDeposit = item.EquipmentDepositsCollected
+					};
+					result.Add(equipmentOperation);
+				}
+			}
+#endif
 			return result;
 		}
 

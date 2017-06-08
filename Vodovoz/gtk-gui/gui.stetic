@@ -15842,7 +15842,6 @@ Patronymic</property>
                             <property name="CanFocus">True</property>
                             <property name="Events">ButtonPressMask</property>
                             <property name="ShowScrollbars">True</property>
-                            <signal name="RowActivated" handler="OnYtreeviewItemsRowActivated" />
                             <signal name="ButtonPressEvent" handler="OnYtreeviewItemsButtonPressEvent" />
                           </widget>
                         </child>

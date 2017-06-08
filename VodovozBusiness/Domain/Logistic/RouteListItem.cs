@@ -183,6 +183,17 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		decimal equipmentDepositsCollected;
+
+		public virtual decimal EquipmentDepositsCollected {
+			get {
+				return equipmentDepositsCollected;
+			}
+			set {
+				SetField(ref equipmentDepositsCollected, value, () => EquipmentDepositsCollected);
+			}
+		}
+
 		decimal totalCash;
 
 		public virtual decimal TotalCash {

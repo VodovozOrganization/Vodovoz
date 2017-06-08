@@ -16,16 +16,16 @@ using Vodovoz.Repository;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
+	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListClosingItemsView : WidgetOnTdiTabBase
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger ();
+		static Logger logger = LogManager.GetCurrentClassLogger();
 
 		public event RowActivatedHandler OnClosingItemActivated;
 
 		private Menu menu;
 
-		public GenericObservableList<RouteListItem> Items{ get; set; }
+		public GenericObservableList<RouteListItem> Items { get; set; }
 
 		private int goodsColumnsCount = -1;
 
@@ -33,8 +33,8 @@ namespace Vodovoz
 
 		private IList<RouteColumn> columnsInfo {
 			get {
-				if (_columnsInfo == null && UoW!=null)
-					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns (UoW);
+				if(_columnsInfo == null && UoW != null)
+					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns(UoW);
 				return _columnsInfo;
 			}
 		}
@@ -42,7 +42,7 @@ namespace Vodovoz
 		private bool columsVisibility = true;
 
 		public bool ColumsVisibility {
-			get {return columsVisibility;}
+			get { return columsVisibility; }
 			set {
 				columsVisibility = value;
 				ChangeVisibility();
@@ -52,23 +52,26 @@ namespace Vodovoz
 		private decimal bottleDepositPrice;
 
 		IUnitOfWork uow;
-		public IUnitOfWork UoW{ 
-			get{
+		public IUnitOfWork UoW {
+			get {
 				return uow;
 			}
-			set{
+			set {
 				uow = value;
+#if !SHORT
 				bottleDepositPrice = NomenclatureRepository.GetBottleDeposit(UoW).GetPrice(1);
+#endif
 			}
 		}
+
+		private decimal equipmentDepositPrice;
 
 		Gdk.Pixbuf transferFromIcon;
 
 		protected Gdk.Pixbuf TransferFromIcon {
-			get{
-				if(transferFromIcon == null)
-				{
-					transferFromIcon = Stetic.IconLoader.LoadIcon (this, "gtk-undo", IconSize.Menu);
+			get {
+				if(transferFromIcon == null) {
+					transferFromIcon = Stetic.IconLoader.LoadIcon(this, "gtk-undo", IconSize.Menu);
 				}
 				return transferFromIcon;
 			}
@@ -78,30 +81,30 @@ namespace Vodovoz
 
 		protected Gdk.Pixbuf TransferInIcon {
 			get {
-				if (transferInIcon == null) {
-					transferInIcon = Stetic.IconLoader.LoadIcon (this, "gtk-jump-to", IconSize.Menu);
+				if(transferInIcon == null) {
+					transferInIcon = Stetic.IconLoader.LoadIcon(this, "gtk-jump-to", IconSize.Menu);
 				}
 				return transferInIcon;
 			}
 		}
 
 		RouteList routeList;
-		public RouteList RouteList{
-			get{ 
+		public RouteList RouteList {
+			get {
 				return routeList;
 			}
-			set{
-				if (routeList == value)
+			set {
+				if(routeList == value)
 					return;
 				routeList = value;
-				if (routeList.Addresses == null)
-					routeList.Addresses = new List<RouteListItem> ();				
-				Items = routeList.ObservableAddresses;			
+				if(routeList.Addresses == null)
+					routeList.Addresses = new List<RouteListItem>();
+				Items = routeList.ObservableAddresses;
 
 				routeList.ObservableAddresses.ListChanged += Items_ListChanged;
 				RouteList.ObservableAddresses.ElementChanged += OnRouteListItemChanged;
 
-				UpdateColumns ();
+				UpdateColumns();
 
 				ytreeviewItems.ItemsDataSource = Items;
 				ytreeviewItems.Reorderable = true;
@@ -121,13 +124,14 @@ namespace Vodovoz
 			}
 		}
 
-		void Items_ListChanged (object aList)
+		void Items_ListChanged(object aList)
 		{
-			UpdateColumns ();
+			UpdateColumns();
 		}
 
 		void OnRouteListItemChanged(object aList, int[] aIdx)
 		{
+#if !SHORT
 			foreach (int id in aIdx)
 			{
 				if (bottleDepositPrice != 0 && RouteList.ObservableAddresses[id].DepositsCollected % bottleDepositPrice != 0)
@@ -136,11 +140,12 @@ namespace Vodovoz
 					RouteList.ObservableAddresses[id].DepositsCollected = fullDepositsCount * bottleDepositPrice;
 				}
 			}
+#endif
 		}
 
 		private void ChangeVisibility ()
 		{
-			string[] columsToChange = {"Залоги за\n бутыли", "  З/П\nводителя", " доплата\nводителя", "    З/П\nэкспедитора", " доплата\nэкспедитора",};
+			string[] columsToChange = {"Залоги за\n бутыли", "Залоги за\n оборудование","  З/П\nводителя", " доплата\nводителя", "    З/П\nэкспедитора", " доплата\nэкспедитора",};
 			
 			foreach (var columnName in columsToChange) {
 				var column = ytreeviewItems.Columns.FirstOrDefault(x => x.Title == columnName);
@@ -198,7 +203,12 @@ namespace Vodovoz
 						.AddSetter((cell, node) => {
 					var expectedDeposits = (node.GetFullBottlesDeliveredCount()-node.BottlesReturned)*bottleDepositPrice;
 					cell.ForegroundGdk = expectedDeposits!=node.DepositsCollected ? colorBlue : colorBlack;
-					})
+				})
+				.AddColumn("Залоги за\n оборудование").HeaderAlignment(0.5f).EnterToNextCell()
+					.AddNumericRenderer(node => node.EquipmentDepositsCollected)
+						.Adjustment(new Adjustment(0, -100000, 100000, (double)equipmentDepositPrice, (double)equipmentDepositPrice, 1))
+						.AddSetter((cell, node) => cell.Editable = node.IsDelivered())
+						 
 				.AddColumn("Итого\n(нал.)").HeaderAlignment(0.5f).EnterToNextCell()
 					.AddNumericRenderer(node => node.TotalCash)
 						.AddSetter((cell, node) => cell.Editable = node.Order.PaymentType == PaymentType.cash && 
@@ -223,15 +233,15 @@ namespace Vodovoz
 				.AddColumn("Доп. оборудование\n     клиенту").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=ToClientString(node))
-						#if SHORT
+#if SHORT
 						.AddTextRenderer(node => node.ToClientText).Editable()
-						#endif
+#endif
 				.AddColumn("Доп. оборуд.\n от клиента").HeaderAlignment(0.5f)
 					.AddTextRenderer()
 						.AddSetter((cell,node)=>cell.Markup=FromClientString(node))
-						#if SHORT
+#if SHORT
 						.AddTextRenderer(node => node.FromClientText).Editable()
-						#endif
+#endif
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
