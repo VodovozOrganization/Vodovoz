@@ -361,7 +361,7 @@
           <TextAlign>Center</TextAlign>
           <FontSize>16pt</FontSize>
         </Style>
-        <CanGrow >true</CanGrow>
+        <CanGrow>true</CanGrow>
       </Textbox>
       <Table Name="Table2">
         <DataSetName>Advances</DataSetName>
@@ -513,6 +513,105 @@
           <FontSize>14pt</FontSize>
         </Style>
       </Textbox>
+      <Table Name="Table3" >
+        <DataSetName>ForwarderWageBalance</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>90.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>25.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>129.3pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>Баланс:</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>=Fields!balance.Value</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>на</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>=CDate({?end_date})</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>176.0pt</Top>
+      </Table>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -661,6 +760,35 @@ WHERE
         <Field Name="advance">
           <DataField>advance</DataField>
           <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="ForwarderWageBalance" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    SUM(wages_movement_operations.money) AS balance
+FROM
+    wages_movement_operations
+        LEFT JOIN
+    employees ON employees.id = wages_movement_operations.employee_id
+WHERE
+    wages_movement_operations.operation_time &lt;=  DATE_ADD(@end_date, INTERVAL 1 DAY)
+        AND wages_movement_operations.employee_id = @forwarder_id
+GROUP BY wages_movement_operations.employee_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="forwarder_id">
+            <Value>=Parameters!forwarder_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="balance">
+          <DataField>balance</DataField>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
