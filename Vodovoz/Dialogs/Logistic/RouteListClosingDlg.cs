@@ -320,6 +320,7 @@ namespace Vodovoz
 			int fullBottlesTotal = items.SelectMany(item => item.Order.OrderItems).Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(item => item.ActualCount);
 			decimal depositsCollectedTotal = items.Sum(item => item.DepositsCollected);
+			decimal equipmentDepositsCollectedTotal = items.Sum(item => item.EquipmentDepositsCollected);
 			decimal totalCollected = items.Sum(item => item.TotalCash);
 			decimal driverWage = items.Sum(item => item.DriverWage) + items.Sum(item => item.DriverWageSurcharge);
 			decimal forwarderWage = items.Sum(item => item.ForwarderWage);
@@ -333,17 +334,17 @@ namespace Vodovoz
 			labelEmptyBottles.Text = String.Format("Пустых бут.: {0}", bottlesReturnedTotal);
 			labelDeposits.Text = String.Format(
 				"Залогов: {0} {1}",
-				depositsCollectedTotal,
+				depositsCollectedTotal + equipmentDepositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelCash.Text = String.Format(
 				"Сдано по накладным: {0} {1}",
-				totalCollected + depositsCollectedTotal,
+				totalCollected + depositsCollectedTotal + equipmentDepositsCollectedTotal,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotalCollected.Text = String.Format(
 				"Итоговая сумма: {0} {1}",
-				totalCollected + depositsCollectedTotal - Entity.PhoneSum,
+				totalCollected + depositsCollectedTotal + equipmentDepositsCollectedTotal - Entity.PhoneSum,
 				CurrencyWorks.CurrencyShortName
 			);
 			labelTotal.Markup = String.Format(

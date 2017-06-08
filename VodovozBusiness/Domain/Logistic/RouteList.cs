@@ -258,7 +258,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual decimal Total {
 			get {
-				return Addresses.Sum (address => address.TotalCash + address.DepositsCollected) - PhoneSum;
+				return Addresses.Sum (address => address.TotalCash + address.DepositsCollected + address.EquipmentDepositsCollected) - PhoneSum;
 			}
 		}
 
