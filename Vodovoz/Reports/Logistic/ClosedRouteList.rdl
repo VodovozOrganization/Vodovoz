@@ -1503,16 +1503,16 @@ ORDER BY route_list_addresses.order_in_route;
     SUM(bottles_movement_operations.delivered) AS full_bottles,
     SUM(bottles_movement_operations.returned) AS empty_bottles,
     (IFNULL((SELECT 
-            money
+            SUM(money)
         FROM
             cash_income
         WHERE
-            cash_income.route_list_id = route_list_addresses.route_list_id), 0) - IFNULL((SELECT 
-            money
+            cash_income.route_list_id = route_list_addresses.route_list_id GROUP BY cash_income.route_list_id), 0) - IFNULL((SELECT 
+            SUM(money)
         FROM
             cash_expense
         WHERE
-            cash_expense.route_list_id = route_list_addresses.route_list_id), 0)) AS cash
+            cash_expense.route_list_id = route_list_addresses.route_list_id GROUP BY cash_expense.route_list_id), 0)) AS cash
 FROM
     route_list_addresses
         LEFT JOIN

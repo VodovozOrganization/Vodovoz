@@ -810,7 +810,8 @@ namespace Vodovoz.Domain.Logistic
 						Casher = cashier,
 						Employee = Driver,
 						Description = $"Закрытие МЛ №{Id} от {Date:d}",
-						Money = Math.Round(totalSum, 0, MidpointRounding.AwayFromZero)
+						Money = Math.Round(totalSum, 0, MidpointRounding.AwayFromZero),
+						RouteListClosing = this
 					};
 					messages.Add(String.Format("Создан приходный ордер на сумму {1:C0}", cashIncome.Id, cashIncome.Money));
 				} else
@@ -822,7 +823,8 @@ namespace Vodovoz.Domain.Logistic
 						Casher = cashier,
 						Employee = Driver,
 						Description = $"Закрытие МЛ #{Id} от {Date:d}",
-						Money = Math.Round(-totalSum, 0, MidpointRounding.AwayFromZero)
+						Money = Math.Round(-totalSum, 0, MidpointRounding.AwayFromZero),
+						RouteListClosing = this
 					};
 					messages.Add(String.Format("Создан расходный ордер на сумму {1:C0}", cashExpense.Id, cashExpense.Money));
 				}
