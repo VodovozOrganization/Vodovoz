@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -927,7 +927,7 @@ namespace Vodovoz.Domain.Logistic
 			string message;
 
 			cashExpense = new Expense {
-				ExpenseCategory = Repository.Cash.CategoryRepository.RouteListClosingExpenseCategory(UoW),
+				ExpenseCategory = Repository.Cash.CategoryRepository.EmployeeSalaryExpenseCategory(UoW),
 				TypeOperation = ExpenseType.EmployeeAdvance,
 				Date = DateTime.Now,
 				Casher = cashier,
