@@ -955,7 +955,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 
 
-			Status = RouteListStatus.MileageCheck;
+			Status = RouteListStatus.Closed;
 			foreach (var address in Addresses) {
 				if (address.Status == RouteListItemStatus.Completed || address.Status == RouteListItemStatus.EnRoute) {
 					address.Order.ChangeStatus (OrderStatus.Closed);

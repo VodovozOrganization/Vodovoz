@@ -457,14 +457,14 @@ namespace Vodovoz
 
 			if(!isConsistentWithUnloadDocument())
 				return;
+			
+			Entity.ConfirmedDistance = Entity.ActualDistance;
 
 			var valid = new QSValidator<RouteList>(UoWGeneric.Root,
 							new Dictionary<object, object>
 				{
-					{ "NewStatus", RouteListStatus.Closed }
+					{ "NewStatus", RouteListStatus.MileageCheck}
 				});
-			Entity.ConfirmedDistance = Entity.ActualDistance;
-
 			if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 				return;
 			
