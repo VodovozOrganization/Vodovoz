@@ -1463,7 +1463,9 @@ NULL AS Comment,
 orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
-IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit,
+#IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit,
+#База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
+IF(route_list_addresses.deposits_collected IS NULL, 0, route_list_addresses.deposits_collected) AS BottlesDeposit,
 route_list_addresses.status AS Status
 
 <!--sql_select-->
