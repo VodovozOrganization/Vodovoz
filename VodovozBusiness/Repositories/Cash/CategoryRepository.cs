@@ -13,6 +13,7 @@ namespace Vodovoz.Repository.Cash
 		const string routeListClosingIncomeCategory  = "routelist_income_category_id";
 		const string routeListClosingExpenseCategory = "routelist_expense_category_id";
 		const string fuelDocumentExpenseCategory 	 = "fuel_expense";
+		const string employeeSalaryExpenseCategory   = "employee_salary"; 		// Параметр базы для статьи расхода для авансов.
 
 		public static IList<IncomeCategory> IncomeCategories (IUnitOfWork uow)
 		{
@@ -95,6 +96,24 @@ namespace Vodovoz.Repository.Cash
 					.SingleOrDefault ();
 			}
 			return null;
+		}
+
+		public static ExpenseCategory EmployeeSalaryExpenseCategory(IUnitOfWork uow)
+		{
+			if(MainSupport.BaseParameters.All.ContainsKey(employeeSalaryExpenseCategory)) {
+				int id = -1;
+				id = int.Parse(MainSupport.BaseParameters.All[employeeSalaryExpenseCategory]);
+				if(id == -1)
+					return null;
+				return uow.Session.QueryOver<ExpenseCategory>()
+					.Where(fExp => fExp.Id == id)
+					.Take(1)
+					.SingleOrDefault();
+			}
+			return uow.Session.QueryOver<ExpenseCategory>()
+					.Where(fExp => fExp.Id == 1)
+					.Take(1)
+					.SingleOrDefault();
 		}
 	}
 }
