@@ -307,6 +307,23 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref dailyNumber1c, value, () => DailyNumber1c); }
 		}
 
+		User lastEditor;
+
+		[Display(Name = "Последний редактор")]
+
+		public virtual User LastEditor {
+			get { return lastEditor; }
+			set { SetField(ref lastEditor, value, () => LastEditor); }
+		}
+
+		DateTime lastEditedTime;
+
+		[Display(Name = "Последние изменения")]
+		public virtual DateTime LastEditedTime {
+			get { return lastEditedTime; }
+			set { SetField(ref lastEditedTime, value, () => LastEditedTime); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor ()

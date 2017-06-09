@@ -11,6 +11,7 @@ using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -39,6 +40,7 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
+			User lastEditorAlias = null;
 
 			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
@@ -87,12 +89,16 @@ namespace Vodovoz.ViewModel
 				.JoinAlias (o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.Client, () => counterpartyAlias)
+				.JoinAlias (o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin) 
 				.SelectList (list => list
 					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
 					.Select (() => orderAlias.DeliveryDate).WithAlias (() => resultAlias.Date)
 					.Select (() => deliveryScheduleAlias.Name).WithAlias (() => resultAlias.DeliveryTime)
 					.Select (() => orderAlias.OrderStatus).WithAlias (() => resultAlias.StatusEnum)
 					.Select (() => orderAlias.Address1c).WithAlias (() => resultAlias.Address1c)
+				    .Select(() => orderAlias.Author).WithAlias(() => resultAlias.Author)
+				    .Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditor)
+				    .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
@@ -117,6 +123,9 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Коор.").AddTextRenderer (x => x.Latitude.HasValue && x.Longitude.HasValue ? "Есть" : String.Empty)
 			.AddColumn ("Адрес").SetDataProperty (node => node.Address)
 			.AddColumn ("Адрес из 1с").SetDataProperty (node => node.Address1c)
+			.AddColumn ("Автор").SetDataProperty(node => node.Author)
+			.AddColumn ("Изменил").SetDataProperty(node => node.LastEditor)
+			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -305,6 +314,18 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public string Address { get { return String.Format ("{0}, {1} д.{2}", City, Street, Building); } }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string Author { get; set; }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string LastEditor { get; set; }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public DateTime LastEditedTime { get; set; }
 
 		public decimal? Latitude { get; set; }
 		public decimal? Longitude { get; set; }

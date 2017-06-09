@@ -29,6 +29,7 @@ namespace Vodovoz.HMap
 			Map (x => x.DeliverySchedule1c)	.Column ("delivery_schedule_1c");
 			Map (x => x.DailyNumber1c)      .Column ("daily_number_1c");
 			Map (x => x.ClientPhone)        .Column ("client_phone");
+			Map (x => x.LastEditedTime)		.Column("last_edited_time");
 			Map (x => x.OrderStatus)		.Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType)		.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map (x => x.PaymentType)		.Column ("payment_type").CustomType<PaymentTypeStringType> ();
@@ -42,6 +43,7 @@ namespace Vodovoz.HMap
 			References (x => x.PreviousOrder)			.Column ("previous_order_id");
 			References (x => x.BottlesMovementOperation).Column ("bottles_movement_operation_id");
 			References (x => x.MoneyMovementOperation)	.Column ("money_movement_operation_id");
+			References (x => x.LastEditor)				.Column ("editor_employee_id");
 
 			HasMany (x => x.OrderDocuments)		.Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("attached_to_order_id");
 			HasMany (x => x.OrderDepositItems)	.Cascade.AllDeleteOrphan ().LazyLoad ().Inverse ().KeyColumn ("order_id");

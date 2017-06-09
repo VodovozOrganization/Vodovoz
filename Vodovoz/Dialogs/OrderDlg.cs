@@ -323,6 +323,7 @@ namespace Vodovoz
 			}
 
 			logger.Info ("Сохраняем заказ...");
+			SaveChanges();
 			UoWGeneric.Save ();
 			logger.Info ("Ok.");
 			return true;
@@ -767,6 +768,12 @@ namespace Vodovoz
 				UpdateButtonState();
 				return;
 			}
+		}
+
+		void SaveChanges()
+		{
+			Entity.LastEditor = UserRepository.GetCurrentUser(UoW);
+			Entity.LastEditedTime = DateTime.Now;
 		}
 
 		void UpdateButtonState()
