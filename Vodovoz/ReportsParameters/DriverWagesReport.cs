@@ -50,16 +50,23 @@ namespace Vodovoz.Reports
 		}
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
-			{
-				Identifier = "Wages.DriverWage",
-				Parameters = new Dictionary<string, object>
-				{ 
+		{
+			var parameters = new Dictionary<string, object>
+				{
 					{ "driver_id", (yentryreferenceDriver.Subject as Employee).Id},
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", dateperiodpicker.EndDateOrNull }
-				}
+			};
+
+			if(checkShowBalance.Active) {
+				parameters.Add("showbalance", "1");
+			} else {
+				parameters.Add("showbalance", "0");
+			}
+			return new ReportInfo
+			{
+				Identifier = "Wages.DriverWage",
+				Parameters = parameters
 			};
 		}	
 

@@ -42,16 +42,23 @@ namespace Vodovoz.Reports
 		#endregion
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
-			{
-				Identifier = "Employees.ForwarderWage",
-				Parameters = new Dictionary<string, object>
-				{ 
+		{
+			var parameters = new Dictionary<string, object>
+				{
 					{ "start_date", dateperiodpicker.StartDateOrNull },
 					{ "end_date", dateperiodpicker.EndDateOrNull },
 					{ "forwarder_id", (yentryreferenceForwarder.Subject as Employee)?.Id }
-				}
+			};
+
+			if(checkShowBalance.Active) {
+				parameters.Add("showbalance", "1");
+			} else {
+				parameters.Add("showbalance", "0");
+			}
+
+			return new ReportInfo {
+				Identifier = "Employees.ForwarderWage",
+				Parameters = parameters
 			};
 		}
 

@@ -513,23 +513,35 @@
           <FontSize>14pt</FontSize>
         </Style>
       </Textbox>
-      <Table Name="Table3" >
+      <Table Name="Table3">
         <DataSetName>ForwarderWageBalance</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
           <BorderStyle>
-            <Default>Solid</Default>
+            <Default>None</Default>
+            <Left >None</Left>
+            <Right >None</Right>
+            <Top >None</Top>
+            <Bottom >None</Bottom>
           </BorderStyle>
+          <BorderColor >
+            <Default>White</Default>
+            <Left>White</Left>
+            <Right>White</Right>
+            <Top>White</Top>
+            <Bottom>White</Bottom>
+          </BorderColor>
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>57.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>90.0pt</Width>
+            <Width>60.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>25.0pt</Width>
+            <Width>18.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>129.3pt</Width>
@@ -543,11 +555,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox28">
-                      <Value>Баланс:</Value>
+                      <Value>=Iif( {?showbalance}= 1, "Баланс:", "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -559,11 +575,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>=Iif({?showbalance} = 1, {balance}, "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -575,11 +595,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox34">
-                      <Value>на</Value>
+                      <Value>=Iif({?showbalance} = 1, "на ", "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -591,11 +615,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>=CDate({?end_date})</Value>
+                      <Value>=Iif({?showbalance} = 1,  CDate({?end_date}), "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -613,6 +641,7 @@
         <Top>176.0pt</Top>
       </Table>
     </ReportItems>
+    <Columns >1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -763,8 +792,8 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="ForwarderWageBalance" >
-      <Query>
+    <DataSet Name="ForwarderWageBalance">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(wages_movement_operations.money) AS balance
@@ -783,9 +812,12 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
           <QueryParameter Name="end_date">
             <Value>=Parameters!end_date</Value>
           </QueryParameter>
+          <QueryParameter Name="showbalance">
+            <Value>=Parameters!showbalance</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Int32</TypeName>
@@ -793,7 +825,9 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <ReportParameters >
     <ReportParameter Name="forwarder_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -812,6 +846,14 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
     </ReportParameter>
     <ReportParameter Name="end_date">
       <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="showbalance">
+      <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>

@@ -790,7 +790,7 @@
           </TableRows>
         </Footer>
       </Table>
-      <Table Name="Table4" >
+      <Table Name="Table4">
         <DataSetName>DriverWageBalance</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -800,16 +800,16 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>52.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>1in</Width>
+            <Width>56.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>26.3pt</Width>
+            <Width>20.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>150.5pt</Width>
+            <Width>124.6pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -820,11 +820,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox14">
-                      <Value>Баланс:</Value>
+                      <Value>=Iif( {?showbalance}= 1, "Баланс:", "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -836,11 +840,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
-                      <Value>=Fields!balance.Value</Value>
+                      <Value>=Iif({?showbalance} = 1, {balance}, "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -852,11 +860,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox43">
-                      <Value>на:</Value>
+                      <Value>=Iif({?showbalance} = 1, "на ", "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -868,11 +880,15 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox45">
-                      <Value>=CDate({?end_date})</Value>
+                      <Value>=Iif({?showbalance} = 1,  CDate({?end_date}), "")</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
-                          <Default>Solid</Default>
+                          <Default>None</Default>
+                          <Left >None</Left>
+                          <Right >None</Right>
+                          <Top >None</Top>
+                          <Bottom >None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -887,9 +903,10 @@
           <RepeatOnNewPage>true</RepeatOnNewPage>
         </Header>
         <Left>0.0pt</Left>
-        <Top>211.6pt</Top>
+        <Top>208.4pt</Top>
       </Table>
     </ReportItems>
+    <Columns >1</Columns>
   </Body>
   <PageFooter>
     <Height>0.0pt</Height>
@@ -1080,7 +1097,7 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="DriverWageBalance" >
+    <DataSet Name="DriverWageBalance">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
@@ -1110,7 +1127,18 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <ReportParameters >
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -1135,14 +1163,12 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="showbalance">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
+    </ReportParameter>
   </ReportParameters>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
