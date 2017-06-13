@@ -252,7 +252,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -358,7 +358,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="WageBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     @wage_balance:=@wage_balance + IF(wages_movement_operations.money IS NULL,
@@ -399,7 +399,8 @@ FROM
 WHERE
     wages_movement_operations.employee_id = @employee_id
         AND wages_movement_operations.operation_time &gt;= @start_date
-        AND wages_movement_operations.operation_time &lt;= @end_date</CommandText>
+        AND wages_movement_operations.operation_time &lt;= @end_date
+ORDER BY date</CommandText>
         <QueryParameters>
           <QueryParameter Name="employee_id">
             <Value>=Parameters!employee_id</Value>
@@ -412,7 +413,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>

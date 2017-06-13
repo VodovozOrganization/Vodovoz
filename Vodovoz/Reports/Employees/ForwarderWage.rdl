@@ -519,19 +519,19 @@
         <Style>
           <BorderStyle>
             <Default>None</Default>
-            <Left >None</Left>
-            <Right >None</Right>
-            <Top >None</Top>
-            <Bottom >None</Bottom>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
           </BorderStyle>
-          <BorderColor >
+          <BorderColor>
             <Default>White</Default>
             <Left>White</Left>
             <Right>White</Right>
             <Top>White</Top>
             <Bottom>White</Bottom>
           </BorderColor>
-          <BorderWidth  />
+          <BorderWidth />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -560,10 +560,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -580,10 +580,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -600,10 +600,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -620,10 +620,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -641,7 +641,7 @@
         <Top>176.0pt</Top>
       </Table>
     </ReportItems>
-    <Columns >1</Columns>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -802,7 +802,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = wages_movement_operations.employee_id
 WHERE
-    wages_movement_operations.operation_time &lt;=  DATE_ADD(@end_date, INTERVAL 1 DAY)
+    wages_movement_operations.operation_time &lt;=  @end_date
         AND wages_movement_operations.employee_id = @forwarder_id
 GROUP BY wages_movement_operations.employee_id</CommandText>
         <QueryParameters>
@@ -825,9 +825,9 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
       </Fields>
     </DataSet>
   </DataSets>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
     <ReportParameter Name="forwarder_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>

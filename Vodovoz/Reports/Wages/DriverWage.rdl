@@ -825,10 +825,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -845,10 +845,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -865,10 +865,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -885,10 +885,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
                           <Default>None</Default>
-                          <Left >None</Left>
-                          <Right >None</Right>
-                          <Top >None</Top>
-                          <Bottom >None</Bottom>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
@@ -906,7 +906,7 @@
         <Top>208.4pt</Top>
       </Table>
     </ReportItems>
-    <Columns >1</Columns>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>0.0pt</Height>
@@ -1098,7 +1098,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="DriverWageBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(wages_movement_operations.money) AS balance
@@ -1107,7 +1107,7 @@ FROM
         LEFT JOIN
     employees ON employees.id = wages_movement_operations.employee_id
 WHERE
-        wages_movement_operations.operation_time &lt;=  DATE_ADD(@end_date, INTERVAL 1 DAY)
+        wages_movement_operations.operation_time &lt;=   @end_date 
         AND wages_movement_operations.employee_id = @driver_id
 GROUP BY wages_movement_operations.employee_id</CommandText>
         <QueryParameters>
@@ -1119,7 +1119,7 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Int32</TypeName>
@@ -1136,9 +1136,9 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters>
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
