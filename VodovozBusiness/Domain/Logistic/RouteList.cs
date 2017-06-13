@@ -5,6 +5,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
 using QSProjectsLib;
+using QSReport;
 using QSValidation;
 using Vodovoz.Domain.Cash;
 using Vodovoz.Domain.Client;
@@ -1070,6 +1071,21 @@ namespace Vodovoz.Domain.Logistic
 		public RouteList ()
 		{
 			Date = DateTime.Today;
+		}
+
+		public virtual ReportInfo OrderOfAddressesRep(int id)
+		{
+			var reportInfo = new ReportInfo {
+				Title = String.Format("Отчёт по порядку адресов в МЛ №{0}", id),
+				Identifier = "Logistic.OrderOfAddresses",
+				Parameters = new Dictionary<string, object> {
+						{ "RouteListId",  id }
+				}
+			};
+
+			//	var report = new QSReport.ReportViewDlg(reportInfo);
+
+			return reportInfo;
 		}
 	}
 
