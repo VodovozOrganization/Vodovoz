@@ -20,7 +20,8 @@ namespace Vodovoz.Additions.Logistic
 				{
 					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.LoadDocument),
 					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.TimeList),
-					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.RouteList)
+					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.RouteList),
+					new RouteListPrintableDocs(uow, routeList, RouteListPrintableDocuments.OrderOfAddresses)
 				};
 			
 			DocumentPrinter.PrintAll(docsList);
@@ -229,7 +230,9 @@ namespace Vodovoz.Additions.Logistic
 		[Display (Name = "Лист времени")]
 		TimeList,
 		[Display (Name = "Документ погрузки")]
-		LoadDocument
+		LoadDocument,
+		[Display(Name = "Отчёт по порядку адресов")]
+		OrderOfAddresses
 	}
 
 	public class RouteListPrintableDocs : IPrintableDocument
@@ -256,6 +259,9 @@ namespace Vodovoz.Additions.Logistic
 					break;
 				case RouteListPrintableDocuments.TimeList:
 					document = PrintRouteListHelper.GetRDLTimeList(routeList.Id);
+					break;
+				case RouteListPrintableDocuments.OrderOfAddresses:
+					document = routeList.OrderOfAddressesRep(routeList.Id);
 					break;
 				default:
 					throw new NotImplementedException("Неизвестный тип документа");
@@ -296,6 +302,9 @@ namespace Vodovoz.Additions.Logistic
 						break;
 					case RouteListPrintableDocuments.TimeList:
 						name = "Лист времени";
+						break;
+					case RouteListPrintableDocuments.OrderOfAddresses:
+						name = "Отчёт по порядку адресов";
 						break;
 					default:
 						throw new NotImplementedException("Неизвестный тип документа");

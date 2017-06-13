@@ -127,6 +127,9 @@ namespace Vodovoz
 				case RouteListPrintableDocuments.TimeList:
 					document = PrintRouteListHelper.GetRDLTimeList(Entity.Id);
 					break;
+				case RouteListPrintableDocuments.OrderOfAddresses:
+					document = Entity.OrderOfAddressesRep(Entity.Id);	
+					break;
 			}
 
 			if (document != null)

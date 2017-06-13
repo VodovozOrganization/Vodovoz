@@ -186,6 +186,10 @@ namespace Vodovoz.ViewModel
 				MileageCheckDlgStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemRouteListMileageCheckDlg);
 
+			Gtk.MenuItem menuItemOrderOfAddressesRep = new Gtk.MenuItem("Открыть отчёт по порядку адресов в МЛ");
+			menuItemOrderOfAddressesRep.Activated += MenuItemOrderOfAddressesRep_Activated;
+			popupMenu.Add(menuItemOrderOfAddressesRep);
+
 			return popupMenu;
 		}
 
@@ -260,6 +264,19 @@ namespace Vodovoz.ViewModel
 					OrmMain.GenerateDialogHashName<RouteList>(routeId),
 					() => new RouteListCreateDlg (routeId)
 				);
+			}
+		}
+
+		void MenuItemOrderOfAddressesRep_Activated (object sender, EventArgs e) // TODO: Сделать вывод порядка адресов в МЛ через контекстное меню в журнале МЛ. @Дима
+		{
+			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+
+			foreach(var routeId in routeListIds) {
+				//MainClass.MainWin.TdiMain.OpenTab(
+				//	OrmMain.GenerateDialogHashName<RouteList>(routeId)// ,
+				//	() => new OrderOrderOfAddressesRep (
+				//);
+
 			}
 		}
 	}
