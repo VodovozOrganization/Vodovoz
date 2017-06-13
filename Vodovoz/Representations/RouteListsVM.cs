@@ -188,6 +188,7 @@ namespace Vodovoz.ViewModel
 
 			Gtk.MenuItem menuItemOrderOfAddressesRep = new Gtk.MenuItem("Открыть отчёт по порядку адресов в МЛ");
 			menuItemOrderOfAddressesRep.Activated += MenuItemOrderOfAddressesRep_Activated;
+			menuItemOrderOfAddressesRep.Sensitive = false; // NYI @Дима
 			popupMenu.Add(menuItemOrderOfAddressesRep);
 
 			return popupMenu;
