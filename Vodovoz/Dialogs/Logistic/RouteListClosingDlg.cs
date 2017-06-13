@@ -776,6 +776,7 @@ namespace Vodovoz
 			message = Entity.EmployeeAdvanceOperation(ref cashExpense, cashInput);   // Создание расходника. @Дима
 
 			if(cashExpense != null) UoW.Save(cashExpense);
+			cashExpense.UpdateWagesOperations(UoW);
 			UoW.Save();
 
 			MessageDialogWorks.RunInfoDialog(String.Format("{0}\n\n{1}: {2:C0}", message, ifAdvanceIsBigger, Math.Abs(cashToReturn)));
