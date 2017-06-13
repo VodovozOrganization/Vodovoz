@@ -88,8 +88,8 @@
           <TableColumn>
             <Width>39.4pt</Width>
           </TableColumn>
-          <!--table_column-->
-          <TableColumn>
+		  <!--table_column-->
+		  <TableColumn>
             <Width>137.7pt</Width>
           </TableColumn>
           <TableColumn>
@@ -686,8 +686,8 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <!--table_cell_name-->
-                <TableCell>
+				<!--table_cell_name-->
+				<TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>КЛИЕНТУ</Value>
@@ -874,8 +874,8 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <!--table_cell_value-->
-                <TableCell>
+				<!--table_cell_value-->
+				<TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox10">
                       <Value>={ToClient}</Value>
@@ -1005,8 +1005,8 @@
                   </ReportItems>
                   <ColSpan>4</ColSpan>
                 </TableCell>
-                <!--table_cell_stock-->
-                <TableCell>
+				<!--table_cell_stock-->
+				<TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
                       <Value>
@@ -1129,9 +1129,7 @@
                     </Textbox>
                   </ReportItems>
                   <ColSpan>4</ColSpan>
-                </TableCell>
-                <!--table_cell_total-->
-                <TableCell>
+                </TableCell><!--table_cell_total--><TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
                       <Value>Километраж</Value>
