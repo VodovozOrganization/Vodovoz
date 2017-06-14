@@ -627,18 +627,25 @@ namespace Vodovoz
 			var parentNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
 			if (parentNode != null)
 				return;
-			
+
+			double number;
+
 			var code1cNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Код']/Значение");
 			var nameNode 		 = node.SelectSingleNode("Свойство[@Имя='Наименование']/Значение");
 			var officialNameNode = node.SelectSingleNode("Свойство[@Имя='НаименованиеПолное']/Значение");
 			var servicelNode 	 = node.SelectSingleNode("Свойство[@Имя='Услуга']/Значение");
+			var weightNode 		 = node.SelectSingleNode("Свойство[@Имя='Вес']/Значение");
+			var volumeNode 		 = node.SelectSingleNode("Свойство[@Имя='Объем']/Значение");
+			                           
 
 			logger.Debug("Создаем номенклатуру");
 			var nomenclature = new Nomenclature
 			{
 				Code1c = code1cNode?.InnerText,
 				Name = nameNode?.InnerText,
-				OfficialName = officialNameNode?.InnerText
+				OfficialName = officialNameNode?.InnerText,
+				Weight = Double.TryParse(weightNode?.InnerText, out number)?number:0,  
+				Volume = Double.TryParse(volumeNode?.InnerText, out number)?number:0
 			};
 			nomenclature.Category = servicelNode?.InnerText == "true"
 				? NomenclatureCategory.service

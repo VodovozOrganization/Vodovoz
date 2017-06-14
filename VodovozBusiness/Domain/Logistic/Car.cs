@@ -81,6 +81,54 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref isTruck, value, () => IsTruck); }
 		}
 
+		double maxVolume;
+
+		[Display(Name = "Объём")]
+		public virtual double MaxVolume {
+			get { return maxVolume; }
+			set { SetField(ref maxVolume, value, () => MaxVolume); }
+		}
+
+		double maxWeight;
+
+		[Display(Name = "Грузоподъёмность")]
+		public virtual double MaxWeight {
+			get { return maxWeight; }
+			set { SetField(ref maxWeight, value, () => MaxWeight); }
+		}
+
+		int minBottles;
+
+		[Display(Name = "Минимум бутылей")]
+		public virtual int MinBottles {
+			get { return minBottles; }
+			set { SetField(ref minBottles, value, () => MinBottles); }
+		}
+
+		int maxBottles;
+
+		[Display(Name = "Максимум бутылей")]
+		public virtual int MaxBottles {
+			get { return maxBottles; }
+			set { SetField(ref maxBottles, value, () => MaxBottles); }
+		}
+
+		int minRouteAddresses;
+
+		[Display(Name = "Минимум адресов")]
+		public virtual int MinRouteAddresses {
+			get { return minRouteAddresses; }
+			set { SetField(ref minRouteAddresses, value, () => MinRouteAddresses); }
+		}
+
+		int maxRouteAddresses;
+
+		[Display(Name = "Максимум адресов")]
+		public virtual int MaxRouteAddresses {
+			get { return maxRouteAddresses; }
+			set { SetField(ref maxRouteAddresses, value, () => MaxRouteAddresses); }
+		}
+
 		byte[] photo;
 
 		[Display (Name = "Фотография")]
