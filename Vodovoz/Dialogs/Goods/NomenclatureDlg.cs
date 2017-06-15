@@ -39,6 +39,7 @@ namespace Vodovoz
 		{
 			notebook1.ShowTabs = false;
 			spinWeight.Sensitive = false;
+			spinVolume.Sensitive = false;
 			entryName.IsEditable = true;
 			radioInfo.Active = true;
 
@@ -60,6 +61,7 @@ namespace Vodovoz
 			entryCode1c.Binding.AddBinding (Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 			yspinSumOfDamage.Binding.AddBinding(Entity, e => e.SumOfDamage, w => w.ValueAsDecimal).InitializeFromSource();
 			spinWeight.Binding.AddBinding (Entity, e => e.Weight, w => w.Value).InitializeFromSource ();
+			spinVolume.Binding.AddBinding(Entity, e => e.Volume, w => w.Value).InitializeFromSource();
 
 			referenceUnit.SubjectType = typeof (MeasurementUnits);
 			referenceUnit.Binding.AddBinding (Entity, n => n.Unit, w => w.Subject).InitializeFromSource ();
@@ -111,6 +113,7 @@ namespace Vodovoz
 		{
 			radioEuqpment.Sensitive = selected == NomenclatureCategory.equipment;
 			spinWeight.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
+			spinVolume.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 			labelManufacturer.Sensitive = referenceManufacturer.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelColor.Sensitive = referenceColor.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelClass.Sensitive = yentryrefEqupmentType.Sensitive = (selected == NomenclatureCategory.equipment);

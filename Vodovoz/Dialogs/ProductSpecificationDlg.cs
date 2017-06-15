@@ -1,12 +1,11 @@
-﻿using System;
-using QSOrmProject;
+﻿using QSOrmProject;
 using QSValidation;
-using Vodovoz.Domain;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	
+
 	public partial class ProductSpecificationDlg : OrmGtkDialogBase<ProductSpecification>
 	{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
@@ -31,7 +30,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			referenceProduct.SubjectType = typeof (Organization);
+			referenceProduct.SubjectType = typeof (Nomenclature);
 			referenceProduct.Binding.AddBinding (Entity, e => e.Product, w => w.Subject).InitializeFromSource ();
 			productspecificationmaterialsview1.SpecificationUoW = UoWGeneric;
 		}

@@ -61,6 +61,14 @@ namespace Vodovoz.Domain.Goods
 			set { SetField (ref weight, value, () => Weight); }
 		}
 
+		double volume;
+
+		[DisplayAttribute (Name = "Объём")]
+		public virtual double Volume {
+			get { return volume; }
+			set { SetField (ref volume, value, () => Volume);}
+		}
+
 		VAT vAT = VAT.Vat18;
 
 		[Display (Name = "НДС")]

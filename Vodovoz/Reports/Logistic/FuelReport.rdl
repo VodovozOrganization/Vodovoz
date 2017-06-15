@@ -49,13 +49,13 @@
           <TableColumn>
             <Width>60.5pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>52.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>54.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>57.2pt</Width>
           </TableColumn>
           <TableColumn>
@@ -189,7 +189,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
                       <Value>Выдано литров талонами</Value>
@@ -224,7 +224,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox26">
                       <Value>Выдано деньгами</Value>
@@ -379,7 +379,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
                       <Value>=Fields!liters_coupons.Value</Value>
@@ -410,7 +410,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox27">
                       <Value>=Fields!payed_for_fuel.Value</Value>
@@ -421,7 +421,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >0</Format>
+                        <Format>0</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -478,7 +478,7 @@
         </Style>
       </Textbox>
     </ReportItems>
-    <Columns >1</Columns>
+    <Columns>1</Columns>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
@@ -516,7 +516,7 @@ FROM
             SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
             SUM(fuel_operations.liters_gived) AS liters_gived,
             SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel,
-            SUM(fuel_documents.fuel_coupons) AS liters_coupons
+            SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons
     FROM
         (SELECT 
         SUM(@fuel_balance:=@fuel_balance + IF(internal.liters_gived IS NULL, 0, internal.liters_gived) - IF(internal.liters_outlayed IS NULL, 0, internal.liters_outlayed)) AS rows_first
@@ -631,12 +631,23 @@ WHERE
       </Fields>
     </DataSet>
   </DataSets>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=root;password=qsolution;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
   <ReportParameters >
     <ReportParameter Name="driver_id">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>626</Value>
+          <Value>8</Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
@@ -649,7 +660,7 @@ WHERE
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>150</Value>
+          <Value>10</Value>
         </Values>
       </DefaultValue>
       <Nullable>true</Nullable>
@@ -675,7 +686,7 @@ WHERE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>2017/06/06</Value>
+          <Value>2017/06/14</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -685,15 +696,4 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <DataSources >
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
 </Report>
