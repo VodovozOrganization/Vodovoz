@@ -5,6 +5,7 @@ using Vodovoz;
 using Vodovoz.ViewModel;
 using Dialogs.Employees;
 
+
 public partial class MainWindow : Window
 {
 	Action ActionOrdersTable;
@@ -29,6 +30,7 @@ public partial class MainWindow : Window
 	Action ActionFinesJournal;
 	Action ActionRevision;
 	Action ActionRevisionBottlesAndDeposits;
+	Action ActionReportDebtorsBottles;
 	Action ActionTransferBankDocs;
 	Action ActionAccountingTable;
 	Action ActionAccountFlow;
@@ -72,6 +74,7 @@ public partial class MainWindow : Window
 		ActionAccountFlow = new Action ("ActionAccountFlow", "Доходы и расходы (безнал)", null, "table");
 		ActionRevision = new Action ("ActionRevision", "Акт сверки", null, "table");
 		//Архив
+		ActionReportDebtorsBottles = new Action ("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action ("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		ActionResidue = new Action("ActionResidue", "Вввод остатков", null, "table");
 		//Кадры
@@ -102,6 +105,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionFinesJournal, null);
 		w1.Add (ActionRevision, null);
 		w1.Add (ActionRevisionBottlesAndDeposits, null);
+		w1.Add (ActionReportDebtorsBottles, null);
 		w1.Add (ActionTransferBankDocs, null);
 		w1.Add (ActionAccountingTable, null);
 		w1.Add (ActionAccountFlow, null);
@@ -134,6 +138,7 @@ public partial class MainWindow : Window
 		ActionFinesJournal.Activated += ActionFinesJournal_Activated;
 		ActionRevision.Activated += ActionRevision_Activated;
 		ActionRevisionBottlesAndDeposits.Activated += ActionRevisionBottlesAndDeposits_Activated;
+		ActionReportDebtorsBottles.Activated += ActionReportDebtorsBottles_Activated;
 		ActionTransferBankDocs.Activated += ActionTransferBankDocs_Activated;
 		ActionAccountingTable.Activated += ActionAccountingTable_Activated;
 		ActionAccountFlow.Activated += ActionAccountFlow_Activated;
@@ -174,6 +179,15 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg (widget)
+		);
+	}
+
+	void ActionReportDebtorsBottles_Activated(object sender, System.EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.ReportDebtorsBottles();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
 
