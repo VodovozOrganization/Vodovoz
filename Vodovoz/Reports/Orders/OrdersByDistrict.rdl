@@ -77,15 +77,18 @@
             <Width>47.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>154.2pt</Width>
+            <Width>124.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>135.1pt</Width>
+            <Width>98.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>269.0pt</Width>
+            <Width>247.2pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>82.3pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>82.3pt</Width>
           </TableColumn>
         </TableColumns>
@@ -222,6 +225,22 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Клиент</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -332,8 +351,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -350,6 +369,21 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>={client_name}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -411,7 +445,7 @@
                           <Value>=Iif({bottles} &lt;= 4 AND {bottles6} &lt;=4, 'ДО 4', 'БОЛЕЕ 4') </Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>7</ColSpan>
+                      <ColSpan>8</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -464,7 +498,7 @@
                           <Value>=Fields!district.Value</Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>7</ColSpan>
+                      <ColSpan>8</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -600,6 +634,19 @@
                           </Style>
                           <Value>
                           </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell >
+                      <ReportItems>
+                        <Textbox Name="Textbox37">
+                          <Value>
+                          </Value>
+                          <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -761,7 +808,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     delivery_schedule.name AS date,
@@ -802,7 +849,8 @@
     compiled_address AS address,
     last_name,
     employees.name AS first_name,
-    logistics_area.name AS district
+    logistics_area.name AS district,
+    counterparty.full_name AS client_name
 FROM
     orders
         LEFT JOIN
@@ -818,6 +866,8 @@ FROM
     route_lists ON route_list_addresses.route_list_id = route_lists.id
         LEFT JOIN
     employees ON route_lists.driver_id = employees.id
+        LEFT JOIN
+    counterparty ON counterparty.id = orders.client_id
 WHERE
     (delivery_date BETWEEN @start_date AND @end_date)
         AND logistics_area.id = @id_district
@@ -838,18 +888,18 @@ ORDER BY bottles , last_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="bottles">
           <DataField>bottles</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="bottles6">
           <DataField>bottles6</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="nom_name">
           <DataField>nom_name</DataField>
@@ -875,14 +925,18 @@ ORDER BY bottles , last_name</CommandText>
           <DataField>district</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="client_name">
+          <DataField>client_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=admey;password=Zaq1xsw2;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_honeybee;user=root;password=qsolution;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
