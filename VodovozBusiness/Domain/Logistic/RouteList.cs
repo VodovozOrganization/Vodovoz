@@ -1087,6 +1087,35 @@ namespace Vodovoz.Domain.Logistic
 
 			return reportInfo;
 		}
+
+		public virtual List<string> UpdateMovementOperations()
+		{
+			var messages = new List<string>();
+
+			this.UpdateFuelOperation();
+
+			var counterpartyMovementOperations = this.UpdateCounterpartyMovementOperations();
+			var moneyMovementOperations = this.UpdateMoneyMovementOperations();
+			var bottleMovementOperations = this.UpdateBottlesMovementOperation();
+			var depositsOperations = this.UpdateDepositOperations(UoW);
+
+			counterpartyMovementOperations.ForEach(op => UoW.Save(op));
+			bottleMovementOperations.ForEach(op => UoW.Save(op));
+			depositsOperations.ForEach(op => UoW.Save(op));
+			moneyMovementOperations.ForEach(op => UoW.Save(op));
+
+			this.UpdateWageOperation();
+
+			//Закрываем наличку.
+			Income cashIncome = null;
+			Expense cashExpense = null;
+			messages.AddRange(this.UpdateCashOperations(ref cashIncome, ref cashExpense));
+
+			if(cashIncome != null) UoW.Save(cashIncome);
+			if(cashExpense != null) UoW.Save(cashExpense);
+
+			return messages;
+		}
 	}
 
 	public enum RouteListStatus
