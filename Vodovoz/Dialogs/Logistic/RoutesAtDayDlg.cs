@@ -23,6 +23,7 @@ namespace Vodovoz
 		#region Поля
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot ();
+		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay ("addresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay ("selection");
 		private GMapPolygon brokenSelection;
@@ -66,10 +67,12 @@ namespace Vodovoz
 				progressOrders.Adjustment = new Gtk.Adjustment (0, 0, 0, 1, 1, 0);
 
 			//Configure map
+			districtsOverlay.IsVisibile = false;
 			gmapWidget.MapProvider = GMapProviders.OpenStreetMap;
 			gmapWidget.Position = new PointLatLng (59.93900, 30.31646);
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
+			gmapWidget.Overlays.Add(districtsOverlay);
 			gmapWidget.Overlays.Add (addressesOverlay);
 			gmapWidget.Overlays.Add (selectionOverlay);
 			gmapWidget.DisableAltForSelection = true;
@@ -79,6 +82,8 @@ namespace Vodovoz
 			gmapWidget.MotionNotifyEvent += GmapWidget_MotionNotifyEvent;
 
 			yenumcomboMapType.ItemsEnum = typeof (MapProviders);
+
+			LoadDistrictsGeometry();
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create ()
 				.AddColumn ("МЛ/Адрес").AddTextRenderer (x => GetRowTitle (x))
@@ -701,6 +706,26 @@ namespace Vodovoz
 		protected void OnYtimeToDeliveryChanged (object sender, EventArgs e)
 		{
 			FillDialogAtDay ();
+		}
+
+		private void LoadDistrictsGeometry()
+		{
+			districtsOverlay.Clear();
+			var districts = uow.GetAll<LogisticsArea>();
+			foreach(var district in districts)
+			{
+				if(district.Geometry == null)
+					continue;
+				var poligon = new GMapPolygon(
+					district.Geometry.Coordinates.Select(p => new PointLatLng(p.X, p.Y)).ToList()
+					, district.Name);
+				districtsOverlay.Polygons.Add(poligon);
+			}
+		}
+
+		protected void OnCheckShowDistrictsToggled(object sender, EventArgs e)
+		{
+			districtsOverlay.IsVisibile = checkShowDistricts.Active;
 		}
 	}
 }

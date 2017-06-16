@@ -77,6 +77,9 @@
     <Reference Include="Polylines">
       <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
     </Reference>
+    <Reference Include="GeoAPI">
+      <HintPath>..\packages\GeoAPI.1.7.4\lib\net40-client\GeoAPI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
