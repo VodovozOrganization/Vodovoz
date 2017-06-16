@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using GeoAPI.Geometries;
 using QSOrmProject;
 
 namespace Vodovoz.Domain.Logistic
@@ -20,6 +21,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual string Name {
 			get { return name; }
 			set { SetField (ref name, value, () => Name); }
+		}
+
+		private IGeometry geometry;
+
+		[Display(Name = "Полигон района")]
+		public virtual IGeometry Geometry {
+			get { return geometry; }
+			set { SetField(ref geometry, value, () => Geometry); }
 		}
 
 		#endregion

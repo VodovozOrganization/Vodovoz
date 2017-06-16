@@ -1,6 +1,6 @@
-﻿using System;
+﻿using FluentNHibernate.Mapping;
+using NHibernate.Spatial.Type;
 using Vodovoz.Domain.Logistic;
-using FluentNHibernate.Mapping;
 
 namespace Vodovoz.HMap
 {
@@ -12,6 +12,7 @@ namespace Vodovoz.HMap
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Name).Column ("name");
+			Map(x => x.Geometry).Column("logistics_district").CustomType<GeometryType>();
 		}
 	}
 }

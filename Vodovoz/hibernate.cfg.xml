@@ -10,7 +10,7 @@
         <property name="connection.connection_string">Server=localhost;initial catalog=nhibernate;User Id=;Password=</property>
         <property name="show_sql">true</property>
         <property name="format_sql">True</property> 
-        <property name="dialect">NHibernate.Dialect.MySQL55InnoDBDialect</property>
+        <property name="dialect">NHibernate.Spatial.Dialect.MySQL57SpatialDialect, NHibernate.Spatial.MySQL</property>
         <!--<property name="use_outer_join">true</property>-->
 
         <!-- mapping files 
