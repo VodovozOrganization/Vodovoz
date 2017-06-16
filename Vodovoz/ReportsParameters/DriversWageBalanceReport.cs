@@ -97,8 +97,8 @@ namespace Vodovoz.Reports
 			Employee employeeAlias = null;
 
 			driversList = UoW.Session.QueryOver<Employee>(() => employeeAlias)
-			                 .Where(() =>employeeAlias.IsFired == false && employeeAlias.Category == EmployeeCategory.driver
-					   || employeeAlias.Category == EmployeeCategory.forwarder )
+			                 .Where(() => !employeeAlias.IsFired && (employeeAlias.Category == EmployeeCategory.driver 
+			                                                         || employeeAlias.Category == EmployeeCategory.forwarder) )
 				.SelectList(list => list
 					.Select(() => employeeAlias.Id).WithAlias(() => resultAlias.Id)
 					.Select(() => employeeAlias.Name).WithAlias(() => resultAlias.Name)

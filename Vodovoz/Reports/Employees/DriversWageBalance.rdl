@@ -112,8 +112,8 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <BackgroundColor>=Iif({category} = "forwarder", Lightgrey, White)</BackgroundColor>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -170,8 +170,8 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <TextAlign >Center</TextAlign>
-                        <VerticalAlign >Middle</VerticalAlign>
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
                       </Style>
                       <Value>=sum({balance})</Value>
                     </Textbox>
@@ -213,7 +213,7 @@
   </DataSources>
   <DataSets>
     <DataSet Name="DriverBalance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     CONCAT_WS(' ', employees.last_name, employees.name) AS driver,
@@ -227,8 +227,8 @@ WHERE
     wages_movement_operations.operation_time &lt;= @date
         AND wages_movement_operations.employee_id IN (@drivers)
 GROUP BY wages_movement_operations.employee_id
-ORDER BY driver
-</CommandText>
+HAVING balance &lt;&gt; 0
+ORDER BY driver</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -238,7 +238,7 @@ ORDER BY driver
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="driver">
           <DataField>driver</DataField>
           <TypeName>System.String</TypeName>
