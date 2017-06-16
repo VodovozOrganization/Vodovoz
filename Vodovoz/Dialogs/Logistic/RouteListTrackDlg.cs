@@ -14,6 +14,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Domain.Chat;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
 using Vodovoz.ServiceDialogs.Chat;
@@ -274,7 +275,10 @@ namespace Vodovoz
 							break;
 					}
 					var addressMarker = new GMarkerGoogle(new PointLatLng((double)point.Address.Latitude, (double)point.Address.Longitude),	type);
-					addressMarker.ToolTipText = point.Address.ShortAddress;
+					addressMarker.ToolTipText = String.Format("{0}\nВремя доставки: {1}",
+						point.Address.ShortAddress,
+						point.Time?.Name ??"Не назначено"
+					);
 					tracksOverlay.Markers.Add(addressMarker);
 				}
 			}
@@ -402,6 +406,7 @@ namespace Vodovoz
 			}
 			sendDlg.Destroy ();
 		}
+
 	}
 }
 
