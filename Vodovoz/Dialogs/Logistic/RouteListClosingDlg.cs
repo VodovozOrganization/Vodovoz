@@ -417,27 +417,7 @@ namespace Vodovoz
 			var messages = new List<string>();
 
 			if(Entity.Status > RouteListStatus.OnClosing) {
-				Entity.UpdateFuelOperation();
-
-				var counterpartyMovementOperations = Entity.UpdateCounterpartyMovementOperations();
-				var moneyMovementOperations = Entity.UpdateMoneyMovementOperations();
-				var bottleMovementOperations = Entity.UpdateBottlesMovementOperation();
-				var depositsOperations = Entity.UpdateDepositOperations(UoW);
-
-				counterpartyMovementOperations.ForEach(op => UoW.Save(op));
-				bottleMovementOperations.ForEach(op => UoW.Save(op));
-				depositsOperations.ForEach(op => UoW.Save(op));
-				moneyMovementOperations.ForEach(op => UoW.Save(op));
-
-				Entity.UpdateWageOperation();
-
-				//Закрываем наличку.
-				Income cashIncome = null;
-				Expense cashExpense = null;
-				messages.AddRange(Entity.UpdateCashOperations(ref cashIncome, ref cashExpense));
-
-				if(cashIncome != null) UoW.Save(cashIncome);
-				if(cashExpense != null) UoW.Save(cashExpense);
+				messages.AddRange(Entity.UpdateMovementOperations());
 			}
 
 			UoW.Save();

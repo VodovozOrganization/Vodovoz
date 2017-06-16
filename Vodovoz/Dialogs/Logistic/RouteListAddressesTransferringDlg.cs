@@ -80,6 +80,7 @@ namespace Vodovoz
 				RouteListStatus.InLoading,
 				RouteListStatus.EnRoute,
 				RouteListStatus.OnClosing,
+				RouteListStatus.Closed
 			};
 			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
 			yentryreferenceRLTo.RepresentationModel = vm;
@@ -228,6 +229,7 @@ namespace Vodovoz
 			//Дополнительные проверки
 			RouteList routeListTo 	= yentryreferenceRLTo.Subject as RouteList;
 			RouteList routeListFrom = yentryreferenceRLFrom.Subject as RouteList;
+			var messages = new List<string>();
 
 			if (routeListTo == null || routeListFrom == null || routeListTo.Id == routeListFrom.Id)
 				return;
@@ -261,6 +263,16 @@ namespace Vodovoz
 				UoW.Save (newItem);
 			}
 
+			if(routeListFrom.Status == RouteListStatus.Closed)
+			{
+				messages.AddRange(routeListFrom.UpdateMovementOperations());
+			}
+
+			if(routeListTo.Status == RouteListStatus.Closed)
+			{
+				messages.AddRange(routeListTo.UpdateMovementOperations());
+			}
+
 			uow.Save (routeListTo);
 			uow.Save (routeListFrom);
 
@@ -270,6 +282,8 @@ namespace Vodovoz
 				MessageDialogWorks.RunWarningDialog("Для следующих адресов не была указана необходимость загрузки, поэтому они не были перенесены:\n * " +
 				                                    String.Join("\n * ", needReloadNotSet.Select(x => x.Address))
 												   );
+			if(messages.Count > 0)
+				MessageDialogWorks.RunInfoDialog(String.Format("Были выполнены следующие действия:\n*{0}", String.Join("\n*", messages)));
 
 			UpdateNodes();
 			CheckSensitivities ();
