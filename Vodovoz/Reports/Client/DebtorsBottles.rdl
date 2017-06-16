@@ -47,7 +47,7 @@ FROM
         LEFT JOIN
     doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
 HAVING debt &lt;&gt; 0 AND ((@allshow = 0 AND enteredresidue= 1 AND @withresidue =1) OR (@allshow = 0 AND enteredresidue= 0 AND @withresidue =0) OR (@allshow = 1 AND @withresidue = -1))
-ORDER BY full_name</CommandText>
+ORDER BY debt DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="allshow">
             <Value>={?allshow}</Value>
@@ -217,7 +217,7 @@ ORDER BY full_name</CommandText>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -326,7 +326,7 @@ ORDER BY full_name</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <Format >MM/dd/yyyy</Format>
+                        <Format>MM/dd/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
