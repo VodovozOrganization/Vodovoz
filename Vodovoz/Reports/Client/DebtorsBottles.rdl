@@ -326,7 +326,7 @@ ORDER BY debt DESC;</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>MM/dd/yyyy</Format>
+                        <Format>dd/MM/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
