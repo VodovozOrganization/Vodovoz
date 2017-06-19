@@ -225,6 +225,8 @@ public partial class MainWindow
 
 	private global::Gtk.Label labelStatus;
 
+	private global::Gtk.ProgressBar progressStatus;
+
 	private global::Vodovoz.Panel.InfoPanel infopanel;
 
 	protected virtual void Build()
@@ -260,23 +262,23 @@ public partial class MainWindow
 		this.ActionServices.ShortLabel = global::Mono.Unix.Catalog.GetString("Сервис");
 		w1.Add(this.ActionServices, null);
 		this.ActionLogistics = new global::Gtk.RadioAction("ActionLogistics", global::Mono.Unix.Catalog.GetString("Логистика"), null, "logistic", 0);
-		this.ActionLogistics.Group = this.ActionServices.Group;
+		this.ActionLogistics.Group = this.ActionOrders.Group;
 		this.ActionLogistics.ShortLabel = global::Mono.Unix.Catalog.GetString("Логистика");
 		w1.Add(this.ActionLogistics, null);
 		this.ActionStock = new global::Gtk.RadioAction("ActionStock", global::Mono.Unix.Catalog.GetString("Склад"), null, "stock", 0);
-		this.ActionStock.Group = this.ActionServices.Group;
+		this.ActionStock.Group = this.ActionLogistics.Group;
 		this.ActionStock.ShortLabel = global::Mono.Unix.Catalog.GetString("Склад");
 		w1.Add(this.ActionStock, null);
 		this.ActionCash = new global::Gtk.RadioAction("ActionCash", global::Mono.Unix.Catalog.GetString("Касса"), null, "cash", 0);
-		this.ActionCash.Group = this.ActionServices.Group;
+		this.ActionCash.Group = this.ActionLogistics.Group;
 		this.ActionCash.ShortLabel = global::Mono.Unix.Catalog.GetString("Касса");
 		w1.Add(this.ActionCash, null);
 		this.ActionAccounting = new global::Gtk.RadioAction("ActionAccounting", global::Mono.Unix.Catalog.GetString("Бухгалтерия"), null, "accounting", 0);
-		this.ActionAccounting.Group = this.ActionServices.Group;
+		this.ActionAccounting.Group = this.ActionLogistics.Group;
 		this.ActionAccounting.ShortLabel = global::Mono.Unix.Catalog.GetString("Бухгалтерия");
 		w1.Add(this.ActionAccounting, null);
 		this.ActionReports = new global::Gtk.RadioAction("ActionReports", global::Mono.Unix.Catalog.GetString("Отчеты"), null, "report", 0);
-		this.ActionReports.Group = this.ActionServices.Group;
+		this.ActionReports.Group = this.ActionLogistics.Group;
 		this.ActionReports.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчеты");
 		w1.Add(this.ActionReports, null);
 		this.ActionArchive = new global::Gtk.RadioAction("ActionArchive", global::Mono.Unix.Catalog.GetString("Архив"), null, "archive", 0);
@@ -633,34 +635,42 @@ public partial class MainWindow
 		this.labelStatus.Name = "labelStatus";
 		this.statusbarMain.Add(this.labelStatus);
 		global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.labelStatus]));
+		w9.PackType = ((global::Gtk.PackType)(1));
 		w9.Position = 2;
 		w9.Expand = false;
 		w9.Fill = false;
-		this.vbox1.Add(this.statusbarMain);
-		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
+		// Container child statusbarMain.Gtk.Box+BoxChild
+		this.progressStatus = new global::Gtk.ProgressBar();
+		this.progressStatus.Name = "progressStatus";
+		this.statusbarMain.Add(this.progressStatus);
+		global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.statusbarMain[this.progressStatus]));
 		w10.PackType = ((global::Gtk.PackType)(1));
-		w10.Position = 4;
-		w10.Expand = false;
-		w10.Fill = false;
+		w10.Position = 3;
+		this.vbox1.Add(this.statusbarMain);
+		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.statusbarMain]));
+		w11.PackType = ((global::Gtk.PackType)(1));
+		w11.Position = 4;
+		w11.Expand = false;
+		w11.Fill = false;
 		this.hbox1.Add(this.vbox1);
-		global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
-		w11.Position = 0;
+		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox1]));
+		w12.Position = 0;
 		// Container child hbox1.Gtk.Box+BoxChild
 		this.infopanel = new global::Vodovoz.Panel.InfoPanel();
 		this.infopanel.Events = ((global::Gdk.EventMask)(256));
 		this.infopanel.Name = "infopanel";
 		this.hbox1.Add(this.infopanel);
-		global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
-		w12.Position = 1;
-		w12.Expand = false;
-		w12.Fill = false;
+		global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.infopanel]));
+		w13.Position = 1;
+		w13.Expand = false;
+		w13.Fill = false;
 		this.Add(this.hbox1);
-		if ((this.Child != null))
-		{
+		if((this.Child != null)) {
 			this.Child.ShowAll();
 		}
 		this.DefaultWidth = 950;
 		this.DefaultHeight = 530;
+		this.progressStatus.Hide();
 		this.Show();
 		this.DeleteEvent += new global::Gtk.DeleteEventHandler(this.OnDeleteEvent);
 		this.dialogAuthenticationAction.Activated += new global::System.EventHandler(this.OnDialogAuthenticationActionActivated);

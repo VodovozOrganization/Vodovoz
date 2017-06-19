@@ -124,6 +124,39 @@ public partial class MainWindow : Gtk.Window
 		BanksUpdater.Update(false);
 	}
 
+	#region Прогресс в статус строке
+
+	public void ProgressStart(double maxValue, double minValue = 0, string text = null, double startValue = 0)
+	{
+		progressStatus.Adjustment = new Adjustment(startValue, minValue, maxValue, 1, 1, 1);
+		progressStatus.Text = text;
+		progressStatus.Visible = true;
+		QSMain.WaitRedraw();
+	}
+
+	public void ProgressUpdate(double curValue)
+	{
+		progressStatus.Adjustment.Value = curValue;
+		QSMain.WaitRedraw();
+	}
+
+	public void ProgressAdd(double addValue = 1, string text = null)
+	{
+		progressStatus.Adjustment.Value += addValue;
+		if(text != null)
+			progressStatus.Text = text;
+		QSMain.WaitRedraw();
+	}
+
+	public void ProgressClose()
+	{
+		progressStatus.Text = null;
+		progressStatus.Visible = false;
+		QSMain.WaitRedraw();
+	}
+
+	#endregion
+
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
 		var currentTab = args.Tab;

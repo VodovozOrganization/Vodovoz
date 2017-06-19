@@ -353,6 +353,7 @@ namespace Vodovoz
 		void FillDialogAtDay ()
 		{
 			logger.Info ("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
+			MainClass.MainWin.ProgressStart(2);
 			uow.Session.Clear ();
 
 			var ordersQuery = Repository.OrderRepository.GetOrdersForRLEditingQuery (ydateForRoutes.Date, checkShowCompleted.Active)
@@ -366,6 +367,9 @@ namespace Vodovoz
 				.Future ();
 
 			ordersAtDay = ordersQuery.Where (x => x.DeliverySchedule.To <= ytimeToDelivery.Time).ToList ();
+
+			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
+			MainClass.MainWin.ProgressAdd();
 
 			var routesQuery1 = Repository.Logistics.RouteListRepository.GetRoutesAtDay (ydateForRoutes.Date)
 				.GetExecutableQueryOver (uow.Session);
@@ -394,7 +398,9 @@ namespace Vodovoz
 			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem> (x => x.Addresses).LastLevel (c => c.RouteList).EndConfig ();
 			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList> (routesAtDay, levels);
 
+			MainClass.MainWin.ProgressAdd();
 			UpdateAddressesOnMap ();
+			MainClass.MainWin.ProgressClose();
 		}
 
 		void UpdateAddressesOnMap ()
@@ -710,6 +716,7 @@ namespace Vodovoz
 
 		private void LoadDistrictsGeometry()
 		{
+			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
 			var districts = uow.GetAll<LogisticsArea>();
 			foreach(var district in districts)
@@ -721,6 +728,7 @@ namespace Vodovoz
 					, district.Name);
 				districtsOverlay.Polygons.Add(poligon);
 			}
+			logger.Info("Ок.");
 		}
 
 		protected void OnCheckShowDistrictsToggled(object sender, EventArgs e)
