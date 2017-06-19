@@ -99,6 +99,7 @@ namespace Vodovoz
 
 			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.Text).InitializeFromSource();
 			yentryAddress1c.Binding.AddBinding(Entity, e => e.Address1c, w => w.TooltipText).InitializeFromSource();
+			yentryCode1c.Binding.AddBinding(Entity, e => e.Code1c, w => w.Text).InitializeFromSource();
 
 			ylabelFoundOnOsm.Binding.AddFuncBinding (Entity, 
 				entity => entity.СoordinatesExist 

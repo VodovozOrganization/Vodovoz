@@ -277,6 +277,13 @@ namespace Vodovoz.ServiceDialogs.Database
 
 		}
 
+		protected void OnYtreeviewAddressesRowActivated(object o, Gtk.RowActivatedArgs args)
+		{
+			var node = ytreeviewAddresses.GetSelectedObject() as AddressNode;
+			ITdiDialog dlg = new DeliveryPointDlg(node.Address);
+			TabParent.AddSlaveTab(this, dlg);
+
+		}
 	}
 }
 

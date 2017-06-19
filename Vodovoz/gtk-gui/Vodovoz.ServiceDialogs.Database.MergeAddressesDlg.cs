@@ -102,7 +102,8 @@ namespace Vodovoz.ServiceDialogs.Database
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
 			w10.Position = 3;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.progressOp.Hide();
@@ -110,6 +111,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			this.buttonFineDuplicates.Clicked += new global::System.EventHandler(this.OnButtonFineDuplicatesClicked);
 			this.buttonApply.Clicked += new global::System.EventHandler(this.OnButtonApplyClicked);
 			this.ytreeviewDuplicates.KeyReleaseEvent += new global::Gtk.KeyReleaseEventHandler(this.OnYtreeviewDuplicatesKeyReleaseEvent);
+			this.ytreeviewAddresses.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewAddressesRowActivated);
 		}
 	}
 }
