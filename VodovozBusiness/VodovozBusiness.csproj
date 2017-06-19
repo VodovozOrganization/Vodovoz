@@ -97,14 +97,14 @@
     <Reference Include="NHibernate.Spatial">
       <HintPath>..\packages\NHibernate.Spatial.MySQL.4.1.1.4000\lib\net40-Client\NHibernate.Spatial.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.Spatial.MySQL">
-      <HintPath>..\packages\NHibernate.Spatial.MySQL.4.1.1.4000\lib\net40-Client\NHibernate.Spatial.MySQL.dll</HintPath>
-    </Reference>
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.4.1.1.4000\lib\net40\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="Iesi.Collections">
       <HintPath>..\packages\Iesi.Collections.4.0.1.4000\lib\net40\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.Spatial.MySQL">
+      <HintPath>..\packages\NHibernate.Spatial.MySQL.4.1.1.4000\lib\net40-Client\NHibernate.Spatial.MySQL.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -373,6 +373,11 @@
     <Compile Include="Domain\BaseParameter.cs" />
     <Compile Include="HibernateMapping\BaseParameterMap.cs" />
     <Compile Include="Repositories\Client\DeliveryPointRepository.cs" />
+    <Compile Include="Domain\Logistic\AtWorkBase.cs" />
+    <Compile Include="Domain\Logistic\AtWorkDriver.cs" />
+    <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
+    <Compile Include="HibernateMapping\Logistic\AtWorkDriverMap.cs" />
+    <Compile Include="HibernateMapping\Logistic\AtWorkForwarderMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
