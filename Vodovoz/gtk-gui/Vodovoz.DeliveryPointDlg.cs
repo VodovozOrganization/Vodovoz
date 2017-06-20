@@ -365,7 +365,7 @@ namespace Vodovoz
 			this.yentryCode1c = new global::Gamma.GtkWidgets.yEntry();
 			this.yentryCode1c.CanFocus = true;
 			this.yentryCode1c.Name = "yentryCode1c";
-			this.yentryCode1c.IsEditable = false;
+			this.yentryCode1c.IsEditable = true;
 			this.yentryCode1c.InvisibleChar = '●';
 			this.hbox2.Add(this.yentryCode1c);
 			global::Gtk.Box.BoxChild w22 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.yentryCode1c]));
@@ -746,7 +746,7 @@ namespace Vodovoz
 			this.spinMinutesToUnload.Adjustment.PageIncrement = 10;
 			this.spinMinutesToUnload.ClimbRate = 1;
 			this.spinMinutesToUnload.Numeric = true;
-			this.spinMinutesToUnload.Value = 2;
+			this.spinMinutesToUnload.Value = 1;
 			this.spinMinutesToUnload.ValueAsDecimal = 0m;
 			this.spinMinutesToUnload.ValueAsInt = 0;
 			this.datatable1.Add(this.spinMinutesToUnload);
