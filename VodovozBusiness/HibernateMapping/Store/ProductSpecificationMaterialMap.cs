@@ -12,6 +12,7 @@ namespace Vodovoz.HMap
 
 			Id (x => x.Id).Column ("id").GeneratedBy.Native ();
 			Map(x => x.Amount).Column("amount");
+			References (x => x.ProductSpec).Column("specification_production_id").Not.Nullable();
 			References (x => x.Material).Column ("nomenclature_id").Not.Nullable ();
 		}
 	}

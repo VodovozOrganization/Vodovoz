@@ -34,6 +34,16 @@ namespace Vodovoz.Domain.Store
 			}
 		}
 
+		ProductSpecification productSpec;
+
+		[Display (Name = "ID спецификации")]
+		public virtual ProductSpecification ProductSpec
+		{
+			get { return productSpec; }
+			set { SetField(ref productSpec, value, () => ProductSpec); }
+		}
+
+
 		#endregion
 
 		public virtual string NomenclatureName {

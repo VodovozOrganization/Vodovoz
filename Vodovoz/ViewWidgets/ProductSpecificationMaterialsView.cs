@@ -90,7 +90,8 @@ namespace Vodovoz
 		{
 			items.Add (new ProductSpecificationMaterial { 
 				Material = e.Subject as Nomenclature, 
-				Amount = 1
+				Amount = 1,
+				ProductSpec = specificationUoW.Root
 			});
 		}
 
