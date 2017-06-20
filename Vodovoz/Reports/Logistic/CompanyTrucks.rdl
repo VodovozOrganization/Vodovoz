@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id,
@@ -97,7 +97,8 @@
                 WHERE
                     route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
                         AND (route_lists.status = 'OnClosing'
-                        OR route_lists.status = 'MileageCheck')),
+		OR route_lists.status = 'MileageCheck'
+		OR route_lists.status = 'Closed' )),
             0) AS wages
 FROM
     route_lists
@@ -129,7 +130,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -254,10 +255,10 @@ ORDER BY driver_name</CommandText>
             <Width>32.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>45.8pt</Width>
+            <Width>33.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>37.4pt</Width>
+            <Width>50.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -536,7 +537,7 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox55">
-                      <Value>Недовозы</Value>
+                      <Value>Недо- возы</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -584,7 +585,7 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox35">
-                      <Value>Полных бут.</Value>
+                      <Value>Полн. бут.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -836,6 +837,7 @@ ORDER BY driver_name</CommandText>
                         <BorderWidth />
                       </Style>
                       <DataElementName>formula1</DataElementName>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1231,6 +1233,7 @@ ORDER BY driver_name</CommandText>
                             <BorderWidth />
                             <FontWeight>=Iif ( Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)) &lt; 1625,  'Bold', 'Normal')</FontWeight>
                           </Style>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -1619,8 +1622,8 @@ ORDER BY driver_name</CommandText>
         <Width>287.57pt</Width>
         <Value>(25адр * 30руб) + (75бут * 7руб) + (70бут * 5руб) = 1625</Value>
         <ZIndex>1</ZIndex>
-        <Left>399.0pt</Left>
-        <Top>137.9pt</Top>
+        <Left>399.00pt</Left>
+        <Top>137.90pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1698,7 +1701,7 @@ ORDER BY driver_name</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
