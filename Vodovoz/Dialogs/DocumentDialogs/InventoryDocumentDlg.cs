@@ -6,6 +6,7 @@ using QSProjectsLib;
 using QSValidation;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -18,6 +19,7 @@ namespace Vodovoz
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<InventoryDocument> ();
 			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
+
 			if(Entity.Author == null)
 			{
 				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
@@ -26,6 +28,13 @@ namespace Vodovoz
 			}
 			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+
+			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
+
+			if (QSMain.User.Permissions["production"] && productionWarehouse != null)
+			{
+				Entity.Warehouse = productionWarehouse;
+			}
 
 			ConfigureDlg ();
 		}
@@ -62,6 +71,11 @@ namespace Vodovoz
 				MessageDialogWorks.RunErrorDialog(errorMessage);
 				FailInitialize = true;
 				return;
+			}
+
+			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null)
+			{
+				yentryrefWarehouse.Sensitive = false;
 			}
 
 			inventoryitemsview.DocumentUoW = UoWGeneric;

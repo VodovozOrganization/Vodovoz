@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -29,6 +30,12 @@ namespace Vodovoz
 			}
 			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.WriteoffWarehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+
+			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
+
+			if(QSMain.User.Permissions["production"] && productionWarehouse != null) {
+				Entity.WriteoffWarehouse = productionWarehouse;
+			}
 			
 			ConfigureDlg ();
 		}
@@ -75,6 +82,11 @@ namespace Vodovoz
 			comboType.Active = UoWGeneric.Root.Client != null ?
 				(int)WriteoffType.counterparty :
 				(int)WriteoffType.warehouse;
+
+			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null) {
+				referenceWarehouse.Sensitive = false;
+			}
+
 			writeoffdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}
 

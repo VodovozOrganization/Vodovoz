@@ -3,6 +3,7 @@ using Gtk;
 using NLog;
 using QSOrmProject;
 using QSOrmProject.UpdateNotification;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Documents;
 using Vodovoz.ViewModel;
@@ -27,6 +28,8 @@ namespace Vodovoz
 			tableDocuments.Selection.Changed += OnSelectionChanged;
 			buttonEdit.Sensitive = buttonDelete.Sensitive = false;
 			buttonAdd.ItemsEnum = typeof(Domain.Documents.DocumentType);
+			if(QSMain.User.Permissions["production"])
+				IfUserTypeProduction();
 		}
 
 		void OnRefObjectUpdated (object sender, OrmObjectUpdatedEventArgs e)
@@ -141,6 +144,17 @@ namespace Vodovoz
 		protected void OnButtonRefreshClicked(object sender, EventArgs e)
 		{
 			tableDocuments.RepresentationModel.UpdateNodes ();
+		}
+
+		protected void IfUserTypeProduction()
+		{
+			foreach(DocumentType doctype in Enum.GetValues(typeof(DocumentType)))
+			{
+				if(doctype == DocumentType.SelfDeliveryDocument ||
+				   doctype == DocumentType.CarLoadDocument || 
+				   doctype == DocumentType.CarUnloadDocument)
+					buttonAdd.SetSensitive(doctype, false);
+			}
 		}
 	}
 }

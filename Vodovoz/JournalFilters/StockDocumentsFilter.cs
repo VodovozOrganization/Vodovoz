@@ -5,6 +5,8 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Employees;
+using QSProjectsLib;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -25,6 +27,8 @@ namespace Vodovoz
 				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 					yentryrefWarehouse.Subject = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;
 				yentryrefDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
+				if(QSMain.User.Permissions["production"])
+					IfUserTypeProduction();
 			}
 		}
 
@@ -125,6 +129,25 @@ namespace Vodovoz
 		protected void OnDateperiodDocsPeriodChanged(object sender, EventArgs e)
 		{
 			OnRefiltered ();
+		}
+
+		protected void IfUserTypeProduction()
+		{
+			DocumentType[] filteredDoctypeList = { DocumentType.CarLoadDocument, DocumentType.CarUnloadDocument, DocumentType.SelfDeliveryDocument };
+
+			object[] fDoctypeList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
+
+			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(uow);
+
+			enumcomboDocumentType.AddEnumToHideList(fDoctypeList);
+			enumcomboDocumentType.ShowSpecialStateAll = false;
+			enumcomboDocumentType.SelectedItem = DocumentType.MovementDocument;
+
+			if(productionWarehouse != null) {
+				yentryrefWarehouse.Subject = uow.GetById<Warehouse>(WarehouseRepository.DefaultWarehouseForProduction(uow).Id);
+				yentryrefWarehouse.Sensitive = false;
+			}
+
 		}
 	}
 }

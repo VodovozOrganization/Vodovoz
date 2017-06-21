@@ -7,11 +7,14 @@ using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
+using QSSupportLib;
 
 namespace Vodovoz.Repository.Store
 {
 	public static class WarehouseRepository
 	{
+		const string defaultWarehouseForProduction = "production_warehouse";
+
 		public static IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow)
 		{
 			return uow.Session.CreateCriteria<Warehouse> ().List<Warehouse> ();
@@ -95,6 +98,21 @@ namespace Vodovoz.Repository.Store
 				).Where (n => n.Warehouse != null)
 				.Select (Projections.Distinct(Projections.Property<Nomenclature> (n => n.Warehouse)))
 				.List<Warehouse> ();
+		}
+
+		public static Warehouse DefaultWarehouseForProduction(IUnitOfWork uow)
+		{
+			if(MainSupport.BaseParameters.All.ContainsKey(defaultWarehouseForProduction)) {
+				int id = -1;
+				id = int.Parse(MainSupport.BaseParameters.All[defaultWarehouseForProduction]);
+				if(id == -1)
+					return null;
+				return uow.Session.QueryOver<Warehouse>()
+					.Where(fExp => fExp.Id == id)
+					.Take(1)
+					.SingleOrDefault();
+			}
+			return null;
 		}
 	}
 }

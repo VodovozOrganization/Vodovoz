@@ -3,6 +3,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -23,6 +24,12 @@ namespace Vodovoz
 			}
 			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
+
+			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
+
+			if(QSMain.User.Permissions["production"] && productionWarehouse != null) {
+				Entity.Warehouse = productionWarehouse;
+			}
 			
 			ConfigureDlg ();
 		}
@@ -44,6 +51,10 @@ namespace Vodovoz
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+
+			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null) {
+				yentryrefWarehouse.Sensitive = false;
+			}
 
 			regradingofgoodsitemsview.DocumentUoW = UoWGeneric;
 			if (Entity.Items.Count > 0)

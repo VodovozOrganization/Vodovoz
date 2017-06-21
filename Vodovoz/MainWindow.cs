@@ -78,7 +78,19 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
-		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"];
+		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["production"];
+		if(QSMain.User.Permissions["production"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
+		{
+			ActionReadyForShipment.Sensitive =
+				ActionReadyForReception.Sensitive =
+				ActionOrders.Sensitive =
+				ActionServices.Sensitive =
+				ActionLogistics.Sensitive =
+				ActionReports.Sensitive =
+				ActionArchive.Sensitive =
+				ActionClientBalance.Sensitive = 
+				ActionStaff.Sensitive = false;
+		}
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя

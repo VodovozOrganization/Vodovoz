@@ -5,49 +5,63 @@ using QSValidation;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Goods;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class IncomingWaterDlg : OrmGtkDialogBase<IncomingWater>
 	{
-		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		public IncomingWaterDlg ()
+		public IncomingWaterDlg()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater> ();
-			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
-			if(Entity.Author == null)
-			{
-				MessageDialogWorks.RunErrorDialog ("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingWater>();
+			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
+			if(Entity.Author == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
-			ConfigureDlg ();
+
+			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
+
+			if(QSMain.User.Permissions["production"] && productionWarehouse != null) {
+				Entity.WriteOffWarehouse = Entity.IncomingWarehouse = productionWarehouse;
+			}
+
+			ConfigureDlg();
 		}
 
-		public IncomingWaterDlg (int id)
+		public IncomingWaterDlg(int id)
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater> (id);
-			ConfigureDlg ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
+			ConfigureDlg();
 		}
 
-		public IncomingWaterDlg (IncomingWater sub) : this (sub.Id)
+		public IncomingWaterDlg(IncomingWater sub) : this(sub.Id)
 		{
 		}
 
-		void ConfigureDlg ()
+		void ConfigureDlg()
 		{
-			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
-			spinAmount.Binding.AddBinding (Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource ();
+			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
+			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 
 			referenceProduct.SubjectType = typeof(Nomenclature);
-			referenceProduct.Binding.AddBinding (Entity, e => e.Product, w => w.Subject).InitializeFromSource ();
+			referenceProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 			referenceSrcWarehouse.SubjectType = typeof(Warehouse);
-			referenceSrcWarehouse.Binding.AddBinding (Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource ();
+			referenceSrcWarehouse.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
 			referenceDstWarehouse.SubjectType = typeof(Warehouse);
-			referenceDstWarehouse.Binding.AddBinding (Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource ();
+			referenceDstWarehouse.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
+
+			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null) {
+				referenceSrcWarehouse.Sensitive = false;
+				referenceDstWarehouse.Sensitive = false;
+			}
+
+
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;
 		}
 
