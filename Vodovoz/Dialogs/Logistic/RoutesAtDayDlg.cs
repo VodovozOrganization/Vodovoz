@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Binding;
 using Gamma.ColumnConfig;
@@ -12,9 +13,10 @@ using QSProjectsLib;
 using QSTDI;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -28,8 +30,14 @@ namespace Vodovoz
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay ("selection");
 		private GMapPolygon brokenSelection;
 		private List<GMapMarker> selectedMarkers = new List<GMapMarker> ();
-		IList<Order> ordersAtDay;
+		IList<Domain.Orders.Order> ordersAtDay;
 		IList<RouteList> routesAtDay;
+		IList<AtWorkDriver> driversAtDay;
+		IList<AtWorkForwarder> forwardersAtDay;
+
+		GenericObservableList<AtWorkDriver> observableDriversAtDay;
+		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
+
 		int addressesWithoutCoordinats, addressesWithoutRoutes, totalBottlesCountAtDay, bottlesWithoutRL;
 		Pixbuf [] pixbufMarkers;
 		#endregion
@@ -45,6 +53,31 @@ namespace Vodovoz
 
 				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive
 					= hasNoChanges;
+			}
+		}
+
+		private DateTime CurDate{
+			get { return ydateForRoutes.Date; }
+		}
+
+		private IList<AtWorkForwarder> ForwardersAtDay{
+			set{
+				forwardersAtDay = value;
+				observableForwardersAtDay = new GenericObservableList<AtWorkForwarder>(forwardersAtDay);
+				ytreeviewOnDayForwarders.SetItemsSource(observableForwardersAtDay);
+
+			}
+		}
+
+		private IList<AtWorkDriver> DriversAtDay{
+			set{
+				driversAtDay = value;
+				if(observableDriversAtDay != null)
+					observableDriversAtDay.ListChanged -= ObservableDriversAtDay_ListChanged;
+				observableDriversAtDay = new GenericObservableList<AtWorkDriver>(driversAtDay);
+				observableDriversAtDay.ListChanged += ObservableDriversAtDay_ListChanged;
+				ytreeviewOnDayDrivers.SetItemsSource(observableDriversAtDay);
+				ObservableDriversAtDay_ListChanged(null);
 			}
 		}
 
@@ -96,6 +129,24 @@ namespace Vodovoz
 				.Finish ();
 
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
+
+			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
+				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
+				.AddColumn("Поездок").AddNumericRenderer(x => x.Trips).Editing(new Gtk.Adjustment(1, 0, 10,1,1,1))
+				.Finish();
+			ytreeviewOnDayDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
+
+			ytreeviewOnDayDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
+
+			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
+				.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
+				.AddColumn("Поездок").AddNumericRenderer(x => x.Trips).Editing(new Gtk.Adjustment(1, 0, 10, 1, 1, 1))
+				.AddColumn("C водителем").AddComboRenderer(x => x.WithDriver).Tag("WithDriver").Editing()
+				.SetDisplayFunc(x => ((Employee)x).ShortName)
+				.Finish();
+			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
+
+			ytreeviewOnDayForwarders.Selection.Changed += ytreeviewForwarders_Selection_Changed;
 
 			ydateForRoutes.Date = DateTime.Today;
 			ytimeToDelivery.Time = TimeSpan.Parse ("23:59:00");
@@ -223,6 +274,16 @@ namespace Vodovoz
 			var row = ytreeRoutes.GetSelectedObject ();
 			buttonRemoveAddress.Sensitive = row is RouteListItem && !checkShowCompleted.Active;
 			buttonOpen.Sensitive = (row is RouteListItem) || (row is RouteList);
+		}
+
+		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
+		{
+			buttonRemoveDriver.Sensitive = ytreeviewOnDayDrivers.Selection.CountSelectedRows() > 0;
+		}
+
+		void ytreeviewForwarders_Selection_Changed(object sender, EventArgs e)
+		{
+			buttonRemoveForwarder.Sensitive = ytreeviewOnDayForwarders.Selection.CountSelectedRows() > 0;
 		}
 
 		void GmapWidget_OnSelectionChange (RectLatLng Selection, bool ZoomToFit)
@@ -353,7 +414,7 @@ namespace Vodovoz
 		void FillDialogAtDay ()
 		{
 			logger.Info ("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
-			MainClass.MainWin.ProgressStart(2);
+			MainClass.MainWin.ProgressStart(4);
 			uow.Session.Clear ();
 
 			var ordersQuery = Repository.OrderRepository.GetOrdersForRLEditingQuery (ydateForRoutes.Date, checkShowCompleted.Active)
@@ -397,6 +458,14 @@ namespace Vodovoz
 
 			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem> (x => x.Addresses).LastLevel (c => c.RouteList).EndConfig ();
 			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList> (routesAtDay, levels);
+
+			MainClass.MainWin.ProgressAdd();
+			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
+			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(uow, ydateForRoutes.Date);
+
+			MainClass.MainWin.ProgressAdd();
+			logger.Info("Загружаем экспедиторов на {0:d}...", ydateForRoutes.Date);
+			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(uow, ydateForRoutes.Date);
 
 			MainClass.MainWin.ProgressAdd();
 			UpdateAddressesOnMap ();
@@ -561,6 +630,12 @@ namespace Vodovoz
 			menuAddToRL.Menu = menu;
 		}
 
+		void ObservableDriversAtDay_ListChanged(object aList)
+		{
+			var renderer = ytreeviewOnDayForwarders.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkForwarder>>("WithDriver").First();
+			renderer.FillItems(driversAtDay.Select(x => x.Employee).ToList());
+		}
+
 		void AddToRLItem_Activated (object sender, EventArgs e)
 		{
 			var selectedOrders = GetSelectedOrders ();
@@ -666,9 +741,9 @@ namespace Vodovoz
 			var row = ytreeRoutes.GetSelectedObject ();
 			//Открываем заказ
 			if (row is RouteListItem) {
-				Order order = (row as RouteListItem).Order;
+				Domain.Orders.Order order = (row as RouteListItem).Order;
 				TabParent.OpenTab (
-					OrmMain.GenerateDialogHashName<Order> (order.Id),
+					OrmMain.GenerateDialogHashName<Domain.Orders.Order> (order.Id),
 					() => new OrderDlg (order)
 				);
 			}
@@ -734,6 +809,85 @@ namespace Vodovoz
 		protected void OnCheckShowDistrictsToggled(object sender, EventArgs e)
 		{
 			districtsOverlay.IsVisibile = checkShowDistricts.Active;
+		}
+
+		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
+		{
+			var SelectDrivers = new OrmReference(
+				uow,
+				Repository.EmployeeRepository.ActiveDriversOrderedQuery()
+			);
+			SelectDrivers.Mode = OrmReferenceMode.MultiSelect;
+			SelectDrivers.ObjectSelected += SelectDrivers_ObjectSelected;
+			TabParent.AddSlaveTab(this, SelectDrivers);
+		}
+
+		void SelectDrivers_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var addDrivers = e.GetEntities<Employee>();
+			foreach(var driver in addDrivers) {
+				if(driversAtDay.Any(x => x.Employee.Id == driver.Id))
+				{
+					logger.Warn($"Водитель {driver.ShortName} пропущен так как уже присутствует в списке.");
+					continue;
+				}
+				driversAtDay.Add(new AtWorkDriver {
+					Date = CurDate,
+					Employee = driver,
+					Trips = 1
+				});
+			}
+			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+		}
+
+		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
+		{
+			var SelectForwarder = new OrmReference(
+				uow,
+				Repository.EmployeeRepository.ActiveForwarderOrderedQuery()
+			);
+			SelectForwarder.Mode = OrmReferenceMode.MultiSelect;
+			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected;;
+			TabParent.AddSlaveTab(this, SelectForwarder);
+
+		}
+
+		void SelectForwarder_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var addForwarder = e.GetEntities<Employee>();
+			foreach(var forwarder in addForwarder) {
+				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id)) {
+					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
+					continue;
+				}
+				forwardersAtDay.Add(new AtWorkForwarder {
+					Date = CurDate,
+					Employee = forwarder,
+					Trips = 1
+				});
+			}
+			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+		}
+
+		protected void OnButtonRemoveDriverClicked(object sender, EventArgs e)
+		{
+			var toDel = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>();
+			foreach(var driver in toDel)
+			{
+				if(driver.Id > 0)
+					uow.Delete(driver);
+				observableDriversAtDay.Remove(driver);
+			}
+		}
+
+		protected void OnButtonRemoveForwarderClicked(object sender, EventArgs e)
+		{
+			var toDel = ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>();
+			foreach(var forwarder in toDel) {
+				if(forwarder.Id > 0)
+					uow.Delete(forwarder);
+				observableForwardersAtDay.Remove(forwarder);
+			}
 		}
 	}
 }

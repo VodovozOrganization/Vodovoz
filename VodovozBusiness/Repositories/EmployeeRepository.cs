@@ -91,6 +91,18 @@ namespace Vodovoz.Repository
 			return QueryOver.Of<Employee> ().Where (e => !e.IsFired);
 		}
 
+		public static QueryOver<Employee> ActiveDriversOrderedQuery()
+		{
+			return QueryOver.Of<Employee>().Where(e => e.Category == EmployeeCategory.driver && !e.IsFired)
+				            .OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
+		}
+
+		public static QueryOver<Employee> ActiveForwarderOrderedQuery()
+		{
+			return QueryOver.Of<Employee>().Where(e => e.Category == EmployeeCategory.forwarder && !e.IsFired)
+				            .OrderBy(e => e.LastName).Asc.ThenBy(e => e.Name).Asc.ThenBy(e => e.Patronymic).Asc;
+		}
+
 		public static QueryOver<Employee> ActiveEmployeeOrderedQuery ()
 		{
 			return QueryOver.Of<Employee> ().Where (e => !e.IsFired).OrderBy (e => e.LastName).Asc.ThenBy (e => e.Name).Asc.ThenBy (e => e.Patronymic).Asc;

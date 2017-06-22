@@ -378,6 +378,7 @@
     <Compile Include="Domain\Logistic\AtWorkForwarder.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverMap.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkForwarderMap.cs" />
+    <Compile Include="Repositories\Logistics\AtWorkRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

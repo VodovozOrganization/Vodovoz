@@ -35901,7 +35901,7 @@ RegistrationNumber</property>
               <widget class="Gtk.Notebook" id="notebook1">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="CurrentPage">0</property>
+                <property name="CurrentPage">1</property>
                 <property name="TabPos">Left</property>
                 <child>
                   <widget class="Gtk.VBox" id="vboxDrivers">
@@ -35936,6 +35936,7 @@ RegistrationNumber</property>
                             <property name="Icon">stock:gtk-add Menu</property>
                             <property name="Label" translatable="yes">Добавить водителя</property>
                             <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonAddDriverClicked" />
                           </widget>
                           <packing>
                             <property name="Position">0</property>
@@ -35952,6 +35953,7 @@ RegistrationNumber</property>
                             <property name="Icon">stock:gtk-remove Menu</property>
                             <property name="Label" translatable="yes">Снять водителя</property>
                             <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonRemoveDriverClicked" />
                           </widget>
                           <packing>
                             <property name="Position">1</property>
@@ -35992,7 +35994,7 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="ShadowType">In</property>
                         <child>
-                          <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeview2">
+                          <widget class="Gamma.GtkWidgets.yTreeView" id="ytreeviewOnDayForwarders">
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="ShowScrollbars">True</property>
@@ -36016,6 +36018,7 @@ RegistrationNumber</property>
                             <property name="Icon">stock:gtk-add Menu</property>
                             <property name="Label" translatable="yes">Добавить экспедитора</property>
                             <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonAddForwarderClicked" />
                           </widget>
                           <packing>
                             <property name="Position">0</property>
@@ -36032,6 +36035,7 @@ RegistrationNumber</property>
                             <property name="Icon">stock:gtk-remove Menu</property>
                             <property name="Label" translatable="yes">Снять экспедитора</property>
                             <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonRemoveForwarderClicked" />
                           </widget>
                           <packing>
                             <property name="Position">1</property>
