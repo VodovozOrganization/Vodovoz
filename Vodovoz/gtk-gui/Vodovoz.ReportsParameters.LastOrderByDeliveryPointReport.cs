@@ -12,6 +12,8 @@ namespace Vodovoz.ReportsParameters
 
 		private global::Gamma.Widgets.yDatePicker ydatepicker;
 
+		private global::Gtk.CheckButton buttonSanitary;
+
 		private global::Gtk.Button buttonCreateRepot;
 
 		protected virtual void Build()
@@ -54,17 +56,29 @@ namespace Vodovoz.ReportsParameters
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.buttonSanitary = new global::Gtk.CheckButton();
+			this.buttonSanitary.CanFocus = true;
+			this.buttonSanitary.Name = "buttonSanitary";
+			this.buttonSanitary.Label = global::Mono.Unix.Catalog.GetString("Отчёт по санитарной обработке");
+			this.buttonSanitary.DrawIndicator = true;
+			this.buttonSanitary.UseUnderline = true;
+			this.vbox1.Add(this.buttonSanitary);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonSanitary]));
+			w4.Position = 1;
+			w4.Expand = false;
+			w4.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button();
 			this.buttonCreateRepot.CanFocus = true;
 			this.buttonCreateRepot.Name = "buttonCreateRepot";
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateRepot);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
-			w4.PackType = ((global::Gtk.PackType)(1));
-			w4.Position = 2;
-			w4.Expand = false;
-			w4.Fill = false;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
+			w5.PackType = ((global::Gtk.PackType)(1));
+			w5.Position = 3;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{

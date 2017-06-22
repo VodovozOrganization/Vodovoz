@@ -41,7 +41,7 @@ namespace Vodovoz.ReportsParameters
 		private ReportInfo GetReportInfo()
 		{
 			return new ReportInfo {
-				Identifier = "Orders.OrdersByDeliveryPoint",
+				Identifier = buttonSanitary.Active?"Orders.SanitaryReport":"Orders.OrdersByDeliveryPoint",
 				Parameters = new Dictionary<string, object>
 				{
 					{ "date", ydatepicker.Date }
