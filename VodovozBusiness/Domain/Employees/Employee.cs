@@ -228,6 +228,8 @@ namespace Vodovoz.Domain.Employees
 			get {
 				if(observableDistricts == null) {
 					observableDistricts = new GenericObservableList<DriverDistrictPriority>(districts);
+					observableDistricts.ElementAdded += ObservableDistricts_ElementAdded;
+					observableDistricts.ElementRemoved += ObservableDistricts_ElementRemoved;
 				}
 				return observableDistricts;
 			}
@@ -337,6 +339,16 @@ namespace Vodovoz.Domain.Employees
 		}
 
 		#endregion
+
+		void ObservableDistricts_ElementAdded(object aList, int[] aIdx)
+		{
+			CheckDistrictsPriorities();
+		}
+
+		void ObservableDistricts_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			CheckDistrictsPriorities();
+		}
 	}
 
 	public enum EmployeeCategory
