@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -148,8 +148,8 @@ namespace Vodovoz
 
 			ytreeviewOnDayForwarders.Selection.Changed += ytreeviewForwarders_Selection_Changed;
 
+			ytimeToDelivery.Time = TimeSpan.Parse("23:59:00");
 			ydateForRoutes.Date = DateTime.Today;
-			ytimeToDelivery.Time = TimeSpan.Parse ("23:59:00");
 
 			OrmMain.GetObjectDescription<RouteList> ().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
@@ -786,7 +786,8 @@ namespace Vodovoz
 
 		protected void OnYtimeToDeliveryChanged (object sender, EventArgs e)
 		{
-			FillDialogAtDay ();
+			if(CurDate != default(DateTime))
+				FillDialogAtDay ();
 		}
 
 		private void LoadDistrictsGeometry()
