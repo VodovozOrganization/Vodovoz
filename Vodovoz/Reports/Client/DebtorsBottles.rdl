@@ -13,41 +13,61 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="BottleDebt">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT DISTINCT
-    bottles_movement_operations.delivery_point_id AS pointid,
-    TRIM(full_name) AS fullname,
-    compiled_address,
-    (SELECT 
-            SUM(delivered) - SUM(returned)
-        FROM
-            bottles_movement_operations
-        WHERE
-            delivery_point_id = pointid) AS debt,
-    IF(bottles_residue IS NOT NULL, 1, 0) AS enteredresidue,
-    (SELECT 
-            MAX(delivery_date)
-        FROM
-            orders
-                LEFT JOIN
-            order_items ON order_id = orders.id
-                LEFT JOIN
-            nomenclature ON nomenclature.id = order_items.nomenclature_id
-        WHERE
-            orders.delivery_point_id = pointid
-                AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
-                AND category = 'water') AS lastorder
+	bottles_movement_operations.delivery_point_id AS pointid,
+	bottles_movement_operations.counterparty_id AS clientid,
+	delivery_points.comment AS comment,
+	TRIM(full_name) AS fullname,
+	compiled_address,
+	(SELECT
+		SUM(delivered) - SUM(returned)
+	FROM
+		bottles_movement_operations
+	WHERE
+		delivery_point_id = pointid) AS debt,
+	(SELECT
+		(SUM(delivered) - SUM(returned))
+	FROM
+		bottles_movement_operations
+	WHERE
+		counterparty_id = clientid) AS debtsum,
+	IF(bottles_residue IS NOT NULL, 1, 0) AS enteredresidue,
+	(SELECT 
+		MAX(delivery_date)
+	FROM
+		orders
+	LEFT JOIN
+		order_items ON order_id = orders.id
+	LEFT JOIN
+		nomenclature ON nomenclature.id = order_items.nomenclature_id
+	WHERE
+		orders.delivery_point_id = pointid
+		AND order_status &lt;&gt; ('Canceled' OR 'DeliveryCanceled')
+		AND category = 'water') AS lastorder
 FROM
-    bottles_movement_operations
-        LEFT JOIN
-    counterparty ON counterparty_id = counterparty.id
-        LEFT JOIN
-    delivery_points ON delivery_point_id = delivery_points.id
-        LEFT JOIN
-    doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
-HAVING debt &lt;&gt; 0 AND ((@allshow = 0 AND enteredresidue= 1 AND @withresidue =1) OR (@allshow = 0 AND enteredresidue= 0 AND @withresidue =0) OR (@allshow = 1 AND @withresidue = -1))
-ORDER BY debt DESC;</CommandText>
+	bottles_movement_operations
+LEFT JOIN
+	counterparty ON counterparty_id = counterparty.id
+LEFT JOIN
+	delivery_points ON delivery_point_id = delivery_points.id
+LEFT JOIN
+	doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
+HAVING
+	debt &lt;&gt; 0 
+	AND ((@allshow = 0 
+		AND enteredresidue= 1
+		AND @withresidue =1)
+	OR (@allshow = 0
+		AND enteredresidue= 0
+		AND @withresidue =0)
+	OR (@allshow = 1 
+		AND @withresidue = -1))
+ORDER BY
+	debtsum DESC,
+	bottles_movement_operations.counterparty_id ASC,
+	debt DESC;</CommandText>
         <QueryParameters>
           <QueryParameter Name="allshow">
             <Value>={?allshow}</Value>
@@ -57,7 +77,19 @@ ORDER BY debt DESC;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
+        <Field Name="pointid">
+          <DataField>pointid</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="clientid">
+          <DataField>clientid</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="comment">
+          <DataField>comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="fullname">
           <DataField>fullname</DataField>
           <TypeName>System.String</TypeName>
@@ -68,15 +100,19 @@ ORDER BY debt DESC;</CommandText>
         </Field>
         <Field Name="debt">
           <DataField>debt</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="debtsum">
+          <DataField>debtsum</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="enteredresidue">
+          <DataField>enteredresidue</DataField>
           <TypeName>System.Int64</TypeName>
         </Field>
         <Field Name="lastorder">
           <DataField>lastorder</DataField>
           <TypeName>System.DateTime</TypeName>
-        </Field>
-        <Field Name="enteredresidue">
-          <DataField>enteredresidue</DataField>
-          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -105,7 +141,7 @@ ORDER BY debt DESC;</CommandText>
   </PageHeader>
   <Body>
     <ReportItems>
-      <Table Name="Table1">
+      <Table Name="Table2">
         <DataSetName>BottleDebt</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -117,32 +153,32 @@ ORDER BY debt DESC;</CommandText>
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>33.3pt</Width>
+            <Width>33.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>159.5pt</Width>
+            <Width>215.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>206.8pt</Width>
+            <Width>148.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.1pt</Width>
+            <Width>52.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.9pt</Width>
+            <Width>77.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>52.2pt</Width>
+            <Width>51.2pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>22.4pt</Height>
+              <Height>35.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox2">
+                    <Textbox Name="Textbox31">
                       <Value>№ п/п</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -158,8 +194,8 @@ ORDER BY debt DESC;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
-                      <Value>Контрагент</Value>
+                    <Textbox Name="Textbox6">
+                      <Value>Контрагент/Адрес</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -174,8 +210,8 @@ ORDER BY debt DESC;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox4">
-                      <Value>Адрес</Value>
+                    <Textbox Name="Textbox11">
+                      <Value>Комментарий</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -190,7 +226,7 @@ ORDER BY debt DESC;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
+                    <Textbox Name="Textbox12">
                       <Value>Забрать бутылей</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -206,7 +242,7 @@ ORDER BY debt DESC;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox7">
+                    <Textbox Name="Textbox13">
                       <Value>Дата последнего заказа</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -214,16 +250,13 @@ ORDER BY debt DESC;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
-                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox8">
+                    <Textbox Name="Textbox14">
                       <Value>Ввод остатков</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -231,8 +264,6 @@ ORDER BY debt DESC;</CommandText>
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -245,19 +276,15 @@ ORDER BY debt DESC;</CommandText>
         <Details>
           <TableRows>
             <TableRow>
-              <Height>12pt</Height>
+              <Height>14.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox16">
+                    <Textbox Name="Textbox32">
                       <Value>=RowNumber()</Value>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
-                          <Left>Solid</Left>
-                          <Right>Solid</Right>
-                          <Top>Solid</Top>
-                          <Bottom>Solid</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -267,31 +294,13 @@ ORDER BY debt DESC;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="order_id">
-                      <Value>=Fields!fullname.Value</Value>
-                      <CanGrow>true</CanGrow>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <Format>d</Format>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="doc_date">
+                    <Textbox Name="Textbox20">
                       <Value>=Fields!compiled_address.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -300,48 +309,62 @@ ORDER BY debt DESC;</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="delivery_point_address">
+                    <Textbox Name="Textbox22">
+                      <Value>=Fields!comment.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
                       <Value>=Fields!debt.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="delivered">
-                      <Value>={lastorder}</Value>
-                      <CanGrow>false</CanGrow>
+                    <Textbox Name="Textbox24">
+                      <Value>=Fields!lastorder.Value</Value>
+                      <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>dd/MM/yyyy</Format>
+                        <TextAlign>Center</TextAlign>
+                        <Format >dd/MM/yyyy</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox19">
+                    <Textbox Name="Textbox25">
                       <Value>=Iif({enteredresidue} = 1, "да", "нет")</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                      <CanGrow>true</CanGrow>
+                      <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
+                        <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -350,100 +373,153 @@ ORDER BY debt DESC;</CommandText>
             </TableRow>
           </TableRows>
         </Details>
-        <Footer>
-          <TableRows>
-            <TableRow>
-              <Height>12pt</Height>
-              <TableCells>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox17">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox18">
-                      <Value>
-                      </Value>
-                      <Style>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox10">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <BorderColor />
-                        <BorderWidth />
-                        <FontWeight>Bold</FontWeight>
-                        <TextAlign>Right</TextAlign>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                  <ColSpan>2</ColSpan>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox9">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox15">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingRight>2pt</PaddingRight>
-                        <TextAlign>Right</TextAlign>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-              </TableCells>
-            </TableRow>
-          </TableRows>
-        </Footer>
+        <TableGroups>
+          <TableGroup>
+            <Grouping Name="TableGroupGroup2">
+              <PageBreakAtStart>false</PageBreakAtStart>
+              <PageBreakAtEnd>false</PageBreakAtEnd>
+              <GroupExpressions>
+                <GroupExpression >=Fields!debtsum.Value</GroupExpression>
+                <GroupExpression >=Fields!fullname.Value</GroupExpression>
+              </GroupExpressions>
+            </Grouping>
+            <Header>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox44">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>=Fields!fullname.Value</Value>
+                          <CanGrow >true</CanGrow>
+                        </Textbox>
+                      </ReportItems>
+                      <ColSpan>6</ColSpan>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Header>
+            <Footer>
+              <RepeatOnNewPage>false</RepeatOnNewPage>
+              <TableRows>
+                <TableRow>
+                  <Height>.2in</Height>
+                  <TableCells>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox50">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox51">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox52">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <FontWeight>Bold</FontWeight>
+                            <TextAlign>Right</TextAlign>
+                          </Style>
+                          <Value>Итого:</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox53">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign >Center</TextAlign>
+                          </Style>
+                          <Value>=Sum(Fields!debt.Value)</Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox54">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                            <BorderColor />
+                            <BorderWidth />
+                            <TextAlign>Center</TextAlign>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                    <TableCell>
+                      <ReportItems>
+                        <Textbox Name="Textbox55">
+                          <Style>
+                            <BorderStyle>
+                              <Default>Solid</Default>
+                            </BorderStyle>
+                          </Style>
+                          <Value>
+                          </Value>
+                        </Textbox>
+                      </ReportItems>
+                    </TableCell>
+                  </TableCells>
+                </TableRow>
+              </TableRows>
+            </Footer>
+            <Sorting >
+              <SortBy>
+                <SortExpression>=Fields!debtsum.Value</SortExpression>
+                <Direction>Descending</Direction>
+              </SortBy>
+            </Sorting>
+          </TableGroup>
+        </TableGroups>
         <Left>0.0pt</Left>
-        <Top>6.5pt</Top>
+        <Top>19.5pt</Top>
       </Table>
     </ReportItems>
-    <Height>247.7pt</Height>
+    <Height>138.6pt</Height>
     <Columns>1</Columns>
   </Body>
   <PageFooter>
@@ -469,21 +545,12 @@ ORDER BY debt DESC;</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="allshow">
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>2362</Value>
+          <Value>1</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -496,7 +563,7 @@ ORDER BY debt DESC;</CommandText>
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>2546</Value>
+          <Value>1</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -506,4 +573,13 @@ ORDER BY debt DESC;</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
