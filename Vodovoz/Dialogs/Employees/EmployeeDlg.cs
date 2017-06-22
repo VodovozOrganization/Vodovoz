@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Gamma.ColumnConfig;
 using NLog;
 using QSBanks;
 using QSContacts;
@@ -94,6 +95,13 @@ namespace Vodovoz
 			referenceDistrictSecond.SubjectType = typeof(LogisticsArea);
 			referenceDistrictSecond.Binding.AddBinding(Entity, e => e.DistrictSecond, w => w.Subject).InitializeFromSource();
 
+			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
+				.AddColumn("Район").AddTextRenderer(x => x.District.Name)
+				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority)
+				.Finish();
+
+			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
+
 			logger.Info ("Ok");
 		}
 
@@ -160,20 +168,51 @@ namespace Vodovoz
 		protected void OnRadioTabFilesToggled (object sender, EventArgs e)
 		{
 			if (radioTabFiles.Active)
-				notebookMain.CurrentPage = 2;
+				notebookMain.CurrentPage = 3;
 		}
 
 		protected void OnRadioTabAccountingToggled (object sender, EventArgs e)
 		{
 			if (radioTabAccounting.Active)
-				notebookMain.CurrentPage = 1;
+				notebookMain.CurrentPage = 2;
 		}
 
 		protected void OnComboCategoryEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			labelAndroid.Visible = labelAndroidLogin.Visible = 
-				labelAndroidPassword.Visible = dataentryAndroidLogin.Visible = 
-				dataentryAndroidPassword.Visible = ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
+			radioTabLogistic.Visible = ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
+		}
+
+		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
+		{
+			if(radioTabLogistic.Active)
+				notebookMain.CurrentPage = 1;
+		}
+
+		protected void OnButtonAddDistrictClicked(object sender, EventArgs e)
+		{
+			var SelectDistrict = new OrmReference(
+				UoW,
+				Repository.Logistics.LogisticAreaRepository.ActiveAreaQuery()
+			);
+			SelectDistrict.Mode = OrmReferenceMode.MultiSelect;
+			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected;;
+			TabParent.AddSlaveTab(this, SelectDistrict);
+		}
+
+		protected void OnButtonRemoveDistrictClicked(object sender, EventArgs e)
+		{
+			var toRemoveDistricts = ytreeviewDistricts.GetSelectedObjects<DriverDistrictPriority>().ToList();
+			toRemoveDistricts.ForEach(x => Entity.ObservableDistricts.Remove(x));
+		}
+
+		void SelectDistrict_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var addDistricts = e.GetEntities<LogisticsArea>();
+			addDistricts.Where(x => Entity.Districts.All(d => d.District.Id != x.Id))
+			            .Select(x => new DriverDistrictPriority {
+				Driver = Entity,
+				District = x
+			}).ToList().ForEach(x => Entity.ObservableDistricts.Add(x));
 		}
 	}
 }

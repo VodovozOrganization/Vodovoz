@@ -40,6 +40,10 @@ namespace Vodovoz
 
 			HasMany (x => x.Accounts).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");
 			HasMany (x => x.Phones).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");
+
+			HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
+									 .KeyColumn("driver_id")
+			                         .AsList(x => x.Column("priority"));
 		}
 	}
 }
