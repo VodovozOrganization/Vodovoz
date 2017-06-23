@@ -254,19 +254,26 @@ LEFT JOIN
 	nomenclature ON nomenclature.id = order_items.nomenclature_id
 WHERE
 	delivery_date = DATE(@date)
-	AND
+AND
 	nomenclature.code_1c = "00000005"
-	AND
+AND
 	NOT EXISTS
 		(SELECT 
-			*
+			1
 		FROM
 			orders AS t2
+		LEFT JOIN
+			order_items ON order_items.order_id = t2.id
+		LEFT JOIN
+			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
-			t2.delivery_point_id = orders.delivery_point_id
+			t2.client_id = orders.client_id
 		AND
-			t2.delivery_date &gt; DATE(@date))
-GROUP BY delivery_point_id</CommandText>
+			t2.address_1c_code = orders.address_1c_code
+		AND
+			nomenclature.code_1c = "00000005"
+		AND
+			t2.delivery_date &gt; DATE(@date));</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>=Parameters!date</Value>
@@ -305,7 +312,7 @@ GROUP BY delivery_point_id</CommandText>
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
