@@ -30,6 +30,7 @@ namespace Vodovoz
 			Map (x => x.AndroidToken).Column ("android_token");
 			Map (x => x.DateOfCreate).Column ("date_of_create");
 			Map (x => x.FirstWorkDay).Column ("first_work_day"); 
+			Map(x => x.TripPriority).Column("priority_for_trip");
 
 			References (x => x.Subdivision).Column("subdivision_id");
 			References (x => x.Nationality).Column ("nationality_id");
