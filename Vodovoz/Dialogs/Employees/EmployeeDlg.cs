@@ -99,6 +99,7 @@ namespace Vodovoz
 				.AddColumn("Район").AddTextRenderer(x => x.District.Name)
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority)
 				.Finish();
+			ytreeviewDistricts.Reorderable = true;
 
 			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
 
