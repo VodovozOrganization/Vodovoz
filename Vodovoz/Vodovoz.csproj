@@ -80,6 +80,9 @@
     <Reference Include="GeoAPI">
       <HintPath>..\packages\GeoAPI.1.7.4\lib\net40-client\GeoAPI.dll</HintPath>
     </Reference>
+    <Reference Include="NetTopologySuite">
+      <HintPath>..\packages\NetTopologySuite.1.14\lib\net40-client\NetTopologySuite.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -574,6 +577,9 @@
     <Compile Include="gtk-gui\Vodovoz.ServiceDialogs.Database.MergeAddressesDlg.cs" />
     <Compile Include="ReportsParameters\ReportDebtorsBottles.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportDebtorsBottles.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\RouteOptimizer.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\DistrictInfo.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\ProposedRoute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -719,6 +725,7 @@
     <Folder Include="ReportsParameters\Logistic\" />
     <Folder Include="ServiceDialogs\Chat\" />
     <Folder Include="ServiceDialogs\Database\" />
+    <Folder Include="Additions\Logistic\RouteOptimization\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">

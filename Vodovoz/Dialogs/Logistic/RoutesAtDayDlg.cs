@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,7 @@ using QSProjectsLib;
 using QSTDI;
 using QSWidgetLib;
 using Vodovoz.Additions.Logistic;
+using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
@@ -34,6 +35,7 @@ namespace Vodovoz
 		IList<RouteList> routesAtDay;
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
+		RouteOptimizer optimizer = new RouteOptimizer();
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
@@ -889,6 +891,37 @@ namespace Vodovoz
 					uow.Delete(forwarder);
 				observableForwardersAtDay.Remove(forwarder);
 			}
+		}
+
+		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
+		{
+			optimizer.UoW = uow;
+			optimizer.Routes = routesAtDay;
+			optimizer.Orders = ordersAtDay;
+			optimizer.Drivers = driversAtDay;
+			optimizer.Forwarders = forwardersAtDay;
+			optimizer.CreateRoutes();
+
+			routesAtDay.Clear();
+			foreach(var propose in optimizer.ProposedRoutes)
+			{
+				var rl = new RouteList();
+				rl.Car = propose.Car;
+				rl.Driver = propose.Driver.Employee;
+				rl.Date = CurDate;
+				foreach(var order in propose.Orders)
+				{
+					rl.AddAddressFromOrder(order);
+				}
+				routesAtDay.Add(rl);
+			}
+
+			UpdateRoutesPixBuf();
+			UpdateRoutesButton();
+
+			UpdateAddressesOnMap();
+			RoutesWasUpdated();
+			MainClass.MainWin.ProgressClose();
 		}
 	}
 }

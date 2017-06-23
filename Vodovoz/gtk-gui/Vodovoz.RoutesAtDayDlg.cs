@@ -579,6 +579,7 @@ namespace Vodovoz
 			this.buttonSaveChanges.Clicked += new global::System.EventHandler(this.OnButtonSaveChangesClicked);
 			this.buttonCancelChanges.Clicked += new global::System.EventHandler(this.OnButtonCancelChangesClicked);
 			this.checkShowCompleted.Toggled += new global::System.EventHandler(this.OnCheckShowCompletedToggled);
+			this.buttonAutoCreate.Clicked += new global::System.EventHandler(this.OnButtonAutoCreateClicked);
 			this.buttonAddDriver.Clicked += new global::System.EventHandler(this.OnButtonAddDriverClicked);
 			this.buttonRemoveDriver.Clicked += new global::System.EventHandler(this.OnButtonRemoveDriverClicked);
 			this.buttonAddForwarder.Clicked += new global::System.EventHandler(this.OnButtonAddForwarderClicked);
