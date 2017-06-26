@@ -255,7 +255,7 @@ LEFT JOIN
 WHERE
 	delivery_date = DATE(@date)
 AND
-	nomenclature.code_1c = "00000005"
+	(nomenclature.code_1c = "00000005" OR nomenclature.code_1c = "00000969")
 AND
 	NOT EXISTS
 		(SELECT 
@@ -271,7 +271,7 @@ AND
 		AND
 			t2.address_1c_code = orders.address_1c_code
 		AND
-			nomenclature.code_1c = "00000005"
+			(nomenclature.code_1c = "00000005" OR nomenclature.code_1c = "00000969")
 		AND
 			t2.delivery_date &gt; DATE(@date));</CommandText>
         <QueryParameters>

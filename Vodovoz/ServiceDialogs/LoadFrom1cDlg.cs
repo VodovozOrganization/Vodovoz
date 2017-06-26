@@ -41,7 +41,7 @@ namespace Vodovoz
 
 		#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
-			"00000969"
+		//	"00000969"  // Задача I-528. @Дима
 		};
 		#endif
 
@@ -672,82 +672,80 @@ namespace Vodovoz
 			List<OrderItem> orderItems = new List<OrderItem>();
 
 			logger.Debug("Парсим заказ");
-			var code1cNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
-			var dateNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
-			var organisationNode 	  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var commentNode 	 	  = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
-			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
-			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
-			var addressCodeNode 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
-			var dailyNumber1c		  = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
-			var toClient 	 		  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
-			var fromClient 	 	  	  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
-			var clientPhone	 		  = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
-			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
-			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
-			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var code1cNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
+			var dateNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
+			var organisationNode = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var commentNode = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
+			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение"); ;
+			var counterpartyNode = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var addressNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
+			var addressCodeNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
+			var dailyNumber1c = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
+			var toClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
+			var fromClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
+			var clientPhone = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
+			var goodsNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
+			var servicesNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+			var nPayment = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
 
 			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
 
-			if (client == null)
+			if(client == null)
 				return;
-			
+
 			DeliveryPoint deliveryPoint = DeliveryPointRepository.GetByAddress1c(UoW, client, addressCodeNode?.InnerText, addressNode?.InnerText);
 
-			#if SHORT
-//			if (addressNode?.InnerText != null)
-//				if (addressNode.InnerText.ToLower().Contains("самовывоз"))
-//					return;
-			#endif
+#if SHORT
+			//			if (addressNode?.InnerText != null)
+			//				if (addressNode.InnerText.ToLower().Contains("самовывоз"))
+			//					return;
+#endif
 
 			DateTime deliveryDate = Convert.ToDateTime(dateNode?.InnerText.Split('T')[0] ?? "0001-01-01");
-			if (!LoadedOrderDates.Contains(deliveryDate))
+			if(!LoadedOrderDates.Contains(deliveryDate))
 				LoadedOrderDates.Add(deliveryDate);
 
 			var deliverySchedule = DeliverySchedules.FirstOrDefault(x => x.Name == deliverySchedulesNode?.InnerText);
 
 			PaymentType paymentType = PaymentType.cashless;
-			if (nPayment != null)
-			{
+			if(nPayment != null) {
 				if(nPayment.InnerText.Contains(cahsString))
 					paymentType = PaymentType.cash;
-				if (nPayment.InnerText.Contains(cashlessString) || nPayment.InnerText.Contains(barterString))
+				if(nPayment.InnerText.Contains(cashlessString) || nPayment.InnerText.Contains(barterString))
 					paymentType = PaymentType.cashless;
 			}
 
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
-			Order order = new Order
-				{
-					Code1c 		  	 	= code1cNode?.InnerText,
-					Comment 	  	 	= commentNode?.InnerText,
-					Client 		  	 	= client,
-					DeliveryDate  	 	= deliveryDate,
-					DeliverySchedule 	= deliverySchedule,
-					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
-					DeliveryPoint 	 	= deliveryPoint,
-					Address1c 	  	 	= addressNode?.InnerText,
-					Address1cCode 		= addressCodeNode?.InnerText,
-					PaymentType 		= paymentType,
-					ToClientText 		= toClient?.InnerText,
-					FromClientText 		= fromClient?.InnerText,
-					ClientPhone			= clientPhone?.InnerText
-				};
+			Order order = new Order {
+				Code1c = code1cNode?.InnerText,
+				Comment = commentNode?.InnerText,
+				Client = client,
+				DeliveryDate = deliveryDate,
+				DeliverySchedule = deliverySchedule,
+				DeliverySchedule1c = deliverySchedulesNode?.InnerText,
+				DeliveryPoint = deliveryPoint,
+				Address1c = addressNode?.InnerText,
+				Address1cCode = addressCodeNode?.InnerText,
+				PaymentType = paymentType,
+				ToClientText = toClient?.InnerText,
+				FromClientText = fromClient?.InnerText,
+				ClientPhone = clientPhone?.InnerText
+			};
 
-			if (!String.IsNullOrWhiteSpace (dailyNumber1c?.InnerText)) {
+			if(!String.IsNullOrWhiteSpace(dailyNumber1c?.InnerText)) {
 				int number;
-				if (Int32.TryParse (dailyNumber1c.InnerText, out number))
+				if(Int32.TryParse(dailyNumber1c.InnerText, out number))
 					order.DailyNumber1c = number;
 			}
 
 			//Заполняем товары для заказа
 			logger.Debug($"Парсим товары для заказа {code1cNode?.InnerText}");
-			foreach(var item in goodsNodes){
+			foreach(var item in goodsNodes) {
 				orderItems.Add(ParseOrderItem(item as XmlNode, order));
 			}
 			//Заполняем услуги для заказа
 			logger.Debug($"Парсим услуги {code1cNode?.InnerText}");
-			foreach (var item in servicesNodes){
+			foreach(var item in servicesNodes) {
 				orderItems.Add(ParseOrderItem(item as XmlNode, order));
 			}
 
@@ -755,12 +753,20 @@ namespace Vodovoz
 
 			if(order.OrderItems.Count == 1
 				&& string.IsNullOrWhiteSpace(order.ToClientText)
-//				&& string.IsNullOrWhiteSpace(order.FromClientText)
-			)
-			{
+			//				&& string.IsNullOrWhiteSpace(order.FromClientText)
+			) {
 				Nomenclature nomenclature = order.OrderItems[0].Nomenclature;
 				if(nomenclature.Name.ToLower().Contains("забор") && nomenclature.Name.ToLower().Contains("доставка"))
 					order.ToClientText += " раст";
+
+			}
+
+			foreach(var item in order.OrderItems)
+			{
+				if(item.Nomenclature.Code1c == "00000969")
+				{
+					order.OrderStatus = OrderStatus.Closed; // Задача I-528. @Дима
+				}
 			}
 
 			#if SHORT
