@@ -98,7 +98,7 @@ namespace Vodovoz
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.Name)
-				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority)
+				.AddColumn("Приоритет").AddNumericRenderer(x => x.Priority + 1)
 				.Finish();
 			ytreeviewDistricts.Reorderable = true;
 
