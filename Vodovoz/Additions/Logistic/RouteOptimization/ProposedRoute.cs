@@ -9,7 +9,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	{
 		public List<Order> Orders = new List<Order>();
 		public AtWorkDriver Driver;
-		public Car Car;
+
+		public Car Car {
+			get {
+				return Driver.Car;
+			}
+		}
 
 		public int CurrentBottles{
 			get{
@@ -33,10 +38,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 		}
 
-		public ProposedRoute(AtWorkDriver driver, Car car)
+		public ProposedRoute(AtWorkDriver driver)
 		{
 			Driver = driver;
-			Car = car;
 		}
 
 		public bool CanAdd(Order order)

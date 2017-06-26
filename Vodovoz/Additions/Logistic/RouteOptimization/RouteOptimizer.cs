@@ -54,7 +54,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			foreach(var driver in Drivers.OrderBy(x => x.Employee.TripPriority))
 			{
-				var proposed = new ProposedRoute(driver, CarRepository.GetCarByDriver(UoW, driver.Employee));
+				if(driver.Car == null)
+				{
+					logger.Warn($"Водитель {driver.Employee.ShortName} пропущен, так как он без автомобиля.");
+					continue;
+				}
+				var proposed = new ProposedRoute(driver);
 				var prioritedDistricts = driver.Employee.Districts
 										   .Select(x => districts.FirstOrDefault(d => d.District.Id == x.District.Id))
 										   .Where(x => x != null)
