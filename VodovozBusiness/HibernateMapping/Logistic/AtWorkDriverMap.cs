@@ -15,6 +15,7 @@ namespace Vodovoz.HMap
 			Map(x => x.Trips).Column("trips");
 
 			References(x => x.Employee).Column("employee_id");
+			References(x => x.Car).Column("car_id");
 		}
 	}
 }

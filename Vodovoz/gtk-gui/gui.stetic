@@ -971,7 +971,6 @@
                 <child>
                   <widget class="Gtk.Label" id="labelUser">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="Position">0</property>
@@ -983,7 +982,6 @@
                 <child>
                   <widget class="Gtk.Label" id="labelStatus">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="PackType">End</property>
@@ -1096,6 +1094,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1747,7 +1746,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3738,7 +3736,6 @@ Patronymic</property>
                   <widget class="Gtk.Label" id="textDriverInfo">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="TopAttach">7</property>
@@ -8837,7 +8834,6 @@ Patronymic</property>
                                     <property name="MemberName" />
                                     <property name="Visible">False</property>
                                     <property name="Xalign">1</property>
-                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Justify">Right</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -9020,7 +9016,6 @@ Patronymic</property>
                                   <widget class="Gamma.GtkWidgets.yLabel" id="labelCompiledAddress">
                                     <property name="MemberName" />
                                     <property name="Xalign">0</property>
-                                    <property name="LabelProp" translatable="yes" />
                                     <property name="Wrap">True</property>
                                     <property name="Selectable">True</property>
                                   </widget>
@@ -13523,7 +13518,6 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -14211,7 +14205,6 @@ Patronymic</property>
             <child>
               <widget class="Gtk.Label" id="labelCurrentCash">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -14226,7 +14219,6 @@ Patronymic</property>
             <child>
               <widget class="Gtk.Label" id="labelDocsSum">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -14665,7 +14657,6 @@ Patronymic</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -14941,7 +14932,6 @@ Patronymic</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -15312,7 +15302,6 @@ Patronymic</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -16054,7 +16043,6 @@ Patronymic</property>
               <widget class="Gamma.GtkWidgets.yLabel" id="labelTimeStamp">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="LeftAttach">1</property>
@@ -16277,7 +16265,6 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -16386,7 +16373,6 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -16550,7 +16536,6 @@ Patronymic</property>
               <widget class="Gtk.Label" id="labelSum">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -18793,7 +18778,6 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="labelSum1">
                 <property name="MemberName" />
                 <property name="Xalign">1</property>
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -20707,7 +20691,6 @@ RegistrationNumber</property>
                   <widget class="Gamma.GtkWidgets.yLabel" id="dataNumber">
                     <property name="MemberName" />
                     <property name="Xalign">0</property>
-                    <property name="LabelProp" translatable="yes" />
                   </widget>
                   <packing>
                     <property name="LeftAttach">1</property>
@@ -23976,7 +23959,6 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelCurrentDebt">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -24657,7 +24639,6 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelDescription1">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
               <packing>
@@ -28079,7 +28060,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
                 <property name="Yalign">0</property>
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
                 <property name="Selectable">True</property>
               </widget>
@@ -30570,7 +30550,6 @@ RegistrationNumber</property>
                 <child>
                   <widget class="Gtk.Label" id="labelFileChanged">
                     <property name="MemberName" />
-                    <property name="LabelProp" translatable="yes" />
                     <property name="UseMarkup">True</property>
                   </widget>
                   <packing>
@@ -31956,7 +31935,6 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.Label" id="labelTotal">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -34296,7 +34274,6 @@ RegistrationNumber</property>
               <widget class="Gtk.Label" id="labelUnreadedMessages">
                 <property name="MemberName" />
                 <property name="Xalign">0</property>
-                <property name="LabelProp" translatable="yes" />
                 <property name="UseMarkup">True</property>
               </widget>
             </child>
@@ -36140,7 +36117,21 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder />
+                          <widget class="Gtk.Button" id="buttonDriverSelectAuto">
+                            <property name="MemberName" />
+                            <property name="CanFocus">True</property>
+                            <property name="Type">TextAndIcon</property>
+                            <property name="Icon">resource:Vodovoz.icons.buttons.car.png</property>
+                            <property name="Label" translatable="yes">Выбрать авто</property>
+                            <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonDriverSelectAutoClicked" />
+                          </widget>
+                          <packing>
+                            <property name="Position">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
                         </child>
                       </widget>
                       <packing>
@@ -38777,7 +38768,6 @@ RegistrationNumber</property>
             <child>
               <widget class="Gamma.GtkWidgets.yLabel" id="ylabelPoint">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes" />
               </widget>
               <packing>
                 <property name="Position">2</property>

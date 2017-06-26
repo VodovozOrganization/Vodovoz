@@ -18,6 +18,7 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
 {
@@ -135,6 +136,10 @@ namespace Vodovoz
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Поездок").AddNumericRenderer(x => x.Trips).Editing(new Gtk.Adjustment(1, 0, 10,1,1,1))
+				.AddColumn("Автомобиль")
+					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
+					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
+				.AddColumn("")
 				.Finish();
 			ytreeviewOnDayDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 
@@ -280,7 +285,7 @@ namespace Vodovoz
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
 		{
-			buttonRemoveDriver.Sensitive = ytreeviewOnDayDrivers.Selection.CountSelectedRows() > 0;
+			buttonRemoveDriver.Sensitive = buttonDriverSelectAuto.Sensitive = ytreeviewOnDayDrivers.Selection.CountSelectedRows() > 0;
 		}
 
 		void ytreeviewForwarders_Selection_Changed(object sender, EventArgs e)
@@ -302,6 +307,8 @@ namespace Vodovoz
 			labelSelected.LabelProp = String.Format ("Выбрано адресов: {0}\nБутылей: {1}", selected.Count, selectedBottle);
 			menuAddToRL.Sensitive = selected.Count > 0 && routesAtDay.Count > 0 && !checkShowCompleted.Active;
 		}
+
+		Pixbuf vodovozCarIcon = Pixbuf.LoadFromResource("Vodovoz.icons.buttons.vodovoz-logo.png");
 
 		string GetRowTitle (object row)
 		{
@@ -827,20 +834,27 @@ namespace Vodovoz
 
 		void SelectDrivers_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
 		{
-			var addDrivers = e.GetEntities<Employee>();
+			var addDrivers = e.GetEntities<Employee>().ToList();
+			logger.Info("Получаем авто для водителей...");
+			MainClass.MainWin.ProgressStart(addDrivers.Count);
 			foreach(var driver in addDrivers) {
 				if(driversAtDay.Any(x => x.Employee.Id == driver.Id))
 				{
 					logger.Warn($"Водитель {driver.ShortName} пропущен так как уже присутствует в списке.");
 					continue;
 				}
+				var car = CarRepository.GetCarByDriver(uow, driver);
 				driversAtDay.Add(new AtWorkDriver {
 					Date = CurDate,
 					Employee = driver,
+					Car = car,
 					Trips = 1
 				});
+				MainClass.MainWin.ProgressAdd();
 			}
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+			MainClass.MainWin.ProgressClose();
+			logger.Info("Ок");
 		}
 
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
@@ -922,6 +936,27 @@ namespace Vodovoz
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
 			MainClass.MainWin.ProgressClose();
+		}
+
+		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
+		{
+			var SelectDriverCar = new OrmReference(
+				uow,
+				Repository.Logistics.CarRepository.ActiveCompanyCarsQuery()
+			);
+			var driver = ytreeviewOnDayDrivers.GetSelectedObjects<AtWorkDriver>().First();
+			SelectDriverCar.Tag = driver;
+			SelectDriverCar.Mode = OrmReferenceMode.Select;
+			SelectDriverCar.ObjectSelected += SelectDriverCar_ObjectSelected;
+			TabParent.AddSlaveTab(this, SelectDriverCar);
+		}
+
+		void SelectDriverCar_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var driver = e.Tag as AtWorkDriver;
+			var car = e.Subject as Car;
+			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
+			driver.Car = car;
 		}
 	}
 }
