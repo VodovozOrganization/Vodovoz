@@ -810,12 +810,14 @@ namespace Vodovoz
 			w61.XOptions = ((global::Gtk.AttachOptions)(4));
 			w61.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.yspinTripsPriority = new global::Gamma.GtkWidgets.ySpinButton(-5, 5, 1);
+			this.yspinTripsPriority = new global::Gamma.GtkWidgets.ySpinButton(1, 10, 1);
+			this.yspinTripsPriority.TooltipMarkup = "1 - максимальный приоритет\n10 - минимальный приоритет";
 			this.yspinTripsPriority.CanFocus = true;
 			this.yspinTripsPriority.Name = "yspinTripsPriority";
 			this.yspinTripsPriority.Adjustment.PageIncrement = 1;
 			this.yspinTripsPriority.ClimbRate = 1;
 			this.yspinTripsPriority.Numeric = true;
+			this.yspinTripsPriority.Value = 1;
 			this.yspinTripsPriority.ValueAsDecimal = 0m;
 			this.yspinTripsPriority.ValueAsInt = 0;
 			this.table1.Add(this.yspinTripsPriority);

@@ -214,7 +214,7 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref districtSecond, value, () => DistrictSecond); }
 		}
 
-		private short tripPriority;
+		private short tripPriority = 6;
 
 		[Display(Name = "Приоритет для маршрутов")]
 		public virtual short TripPriority {

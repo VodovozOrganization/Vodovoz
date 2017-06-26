@@ -1,10 +1,8 @@
-﻿﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using GeoAPI.Geometries;
+using NetTopologySuite.Geometries;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
-using NetTopologySuite.Geometries;
 using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -54,7 +52,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			MainClass.MainWin.ProgressAdd();
 			logger.Info($"Развозка по {districts.Count} районам.");
 
-			foreach(var driver in Drivers.OrderByDescending(x => x.Employee.TripPriority))
+			foreach(var driver in Drivers.OrderBy(x => x.Employee.TripPriority))
 			{
 				var proposed = new ProposedRoute(driver, CarRepository.GetCarByDriver(UoW, driver.Employee));
 				var prioritedDistricts = driver.Employee.Districts
@@ -76,7 +74,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					ProposedRoutes.Add(proposed);
 			}
 			MainClass.MainWin.ProgressAdd();
-			logger.Info($"Предложени {ProposedRoutes.Count} маршрутов.");
+			logger.Info($"Предложено {ProposedRoutes.Count} маршрутов.");
 		}
 	}
 }

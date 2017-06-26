@@ -1747,6 +1747,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2729,13 +2730,16 @@
                     <child>
                       <widget class="Gamma.GtkWidgets.ySpinButton" id="yspinTripsPriority">
                         <property name="MemberName" />
+                        <property name="Tooltip" translatable="yes">1 - максимальный приоритет
+10 - минимальный приоритет</property>
                         <property name="CanFocus">True</property>
-                        <property name="Lower">-5</property>
-                        <property name="Upper">5</property>
+                        <property name="Lower">1</property>
+                        <property name="Upper">10</property>
                         <property name="PageIncrement">1</property>
                         <property name="StepIncrement">1</property>
                         <property name="ClimbRate">1</property>
                         <property name="Numeric">True</property>
+                        <property name="Value">1</property>
                         <property name="ValueAsDecimal">0</property>
                         <property name="ValueAsInt">0</property>
                       </widget>
