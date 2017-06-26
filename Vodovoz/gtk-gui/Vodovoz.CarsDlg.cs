@@ -319,7 +319,7 @@ namespace Vodovoz
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.maxWeightLabel = new global::Gtk.Label();
 			this.maxWeightLabel.Name = "maxWeightLabel";
-			this.maxWeightLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Грузоподъёмность:");
+			this.maxWeightLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Грузоподъёмность (кг):");
 			this.hbox4.Add(this.maxWeightLabel);
 			global::Gtk.Box.BoxChild w18 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.maxWeightLabel]));
 			w18.Position = 0;
@@ -501,7 +501,6 @@ namespace Vodovoz
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
-			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Марка а/м:");
 			this.tableCarData.Add(this.label3);
@@ -567,7 +566,8 @@ namespace Vodovoz
 			this.maxVolumeLabel = new global::Gtk.Label();
 			this.maxVolumeLabel.Name = "maxVolumeLabel";
 			this.maxVolumeLabel.Xalign = 1F;
-			this.maxVolumeLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Объём:");
+			this.maxVolumeLabel.LabelProp = global::Mono.Unix.Catalog.GetString("Объём груза (м<sup>2</sup>):");
+			this.maxVolumeLabel.UseMarkup = true;
 			this.tableCarData.Add(this.maxVolumeLabel);
 			global::Gtk.Table.TableChild w41 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.maxVolumeLabel]));
 			w41.TopAttach = ((uint)(3));
@@ -600,6 +600,7 @@ namespace Vodovoz
 			this.textDriverInfo = new global::Gtk.Label();
 			this.textDriverInfo.Name = "textDriverInfo";
 			this.textDriverInfo.Xalign = 0F;
+			this.textDriverInfo.LabelProp = "";
 			this.tableCarData.Add(this.textDriverInfo);
 			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.textDriverInfo]));
 			w44.TopAttach = ((uint)(7));
@@ -632,8 +633,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
 			w47.Position = 1;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
