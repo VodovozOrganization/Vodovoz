@@ -2,6 +2,8 @@
 using QSOrmProject;
 using QSReport;
 using System.Collections.Generic;
+using Vodovoz.Domain.Employees;
+using QSProjectsLib;
 
 namespace Vodovoz.Reports
 {
@@ -12,6 +14,8 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date;
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			yentryDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
 		}
 
 		#region IOrmDialog implementation
@@ -39,14 +43,44 @@ namespace Vodovoz.Reports
 		#endregion
 
 		private ReportInfo GetReportInfo()
-		{			
-			return new ReportInfo
-			{
-				Identifier = "Orders.ShortfallBattlesReport",
-				Parameters = new Dictionary<string, object>
-				{ 
-					{ "date", ydatepicker.Date }
+		{
+			var parameters = new Dictionary<string, object>();
+
+			if(checkReason.Active) {
+				if(radiobuttonNewAddress.Active) {
+					parameters.Clear();
+					parameters.Add("reason", "NewAddress");
 				}
+
+				if(radiobuttonOrderIncrease.Active) {
+					parameters.Clear();
+					parameters.Add("reason", "OrderIncrease");
+				}
+
+				if(radiobuttonFirstAddress.Active) {
+					parameters.Clear();
+					parameters.Add("reason", "FirstOrder");
+				}
+
+				if(radiobuttonUnknown.Active) {
+					parameters.Clear();
+					parameters.Add("reason", "Unknown");
+				}
+			}
+			else
+				parameters.Add("reason", -1);
+
+			parameters.Add("date", ydatepicker.Date);
+
+			if(checkOneDriver.Active && yentryDriver.Subject != null)
+				parameters.Add("driver_id", (yentryDriver.Subject as Employee).Id);
+			else {
+				parameters.Add("driver_id", -1);
+			}
+
+			return new ReportInfo {
+				Identifier = "Orders.ShortfallBattlesReport",
+				Parameters = parameters
 			};
 		}
 
@@ -60,6 +94,21 @@ namespace Vodovoz.Reports
 		protected void OnButtonCreateRepotClicked (object sender, EventArgs e)
 		{
 			OnUpdate(true);
+		}
+
+		protected void OnCheckOneDriverToggled(object sender, EventArgs e)
+		{
+			var sensitive = checkOneDriver.Active;
+			yentryDriver.Sensitive = sensitive;
+		}
+
+		protected void OnCheckReasonToggled(object sender, EventArgs e)
+		{
+			var sensitive = checkReason.Active;
+			radiobuttonNewAddress.Sensitive = sensitive;
+			radiobuttonOrderIncrease.Sensitive = sensitive;
+			radiobuttonFirstAddress.Sensitive = sensitive;
+			radiobuttonUnknown.Sensitive = sensitive;
 		}
 	}
 }

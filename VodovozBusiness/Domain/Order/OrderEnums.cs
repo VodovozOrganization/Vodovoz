@@ -55,4 +55,39 @@ namespace Vodovoz.Domain.Orders
 		}
 	}
 
+	public enum ReasonType
+	{
+		[Display(Name = "Причина неизвестна")]
+		Unknown,
+		[Display(Name = "Новый адрес")]
+		NewAddress,
+		[Display(Name = "Увеличение заказа")]
+		OrderIncrease,
+		[Display(Name = "Первый заказ")]
+		FirstOrder
+	}
+
+	public class ReasonTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public ReasonTypeStringType() : base(typeof(ReasonType))
+		{
+		}
+	}
+
+	public enum DriverCallType
+	{
+		[Display(Name = "Водитель не звонил")]
+		NoCall,
+		[Display(Name = "Водитель отзвонился с адреса")]
+		CallFromAddress,
+		[Display(Name = "Водитель отзвонился не с адреса")]
+		CallFromAnywhere
+	}
+
+	public class DriverCallTypeStringType : NHibernate.Type.EnumStringType
+	{
+		public DriverCallTypeStringType() : base(typeof(DriverCallType))
+		{
+		}
+	}
 }

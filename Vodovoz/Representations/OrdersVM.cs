@@ -99,6 +99,7 @@ namespace Vodovoz.ViewModel
 				    .Select(() => orderAlias.Author).WithAlias(() => resultAlias.Author)
 				    .Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditor)
 				    .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+				    .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
 					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
@@ -126,6 +127,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Автор").SetDataProperty(node => node.Author)
 			.AddColumn ("Изменил").SetDataProperty(node => node.LastEditor)
 			.AddColumn ("Послед. изменения").AddTextRenderer(node => node.LastEditedTime != default(DateTime) ? node.LastEditedTime.ToString() : String.Empty)
+		    .AddColumn ("Номер звонка").SetDataProperty(node => node.DriverCallId)
 			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
 			.Finish ();
 
@@ -326,6 +328,10 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		[SearchHighlight]
 		public DateTime LastEditedTime { get; set; }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public int DriverCallId { get; set; }
 
 		public decimal? Latitude { get; set; }
 		public decimal? Longitude { get; set; }

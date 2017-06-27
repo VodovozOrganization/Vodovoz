@@ -17,7 +17,7 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Orders
 {
 
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
+	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "заказы",
 		Nominative = "заказ",
 		Prepositional = "заказе",
@@ -25,7 +25,7 @@ namespace Vodovoz.Domain.Orders
 	)]
 	public class Order : BusinessObjectBase<Order>, IDomainObject, IValidatableObject
 	{
-		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		#region Cвойства
 
@@ -33,35 +33,35 @@ namespace Vodovoz.Domain.Orders
 
 		OrderStatus orderStatus;
 
-		[Display (Name = "Статус заказа")]
+		[Display(Name = "Статус заказа")]
 		public virtual OrderStatus OrderStatus {
 			get { return orderStatus; }
-			set { SetField (ref orderStatus, value, () => OrderStatus); }
+			set { SetField(ref orderStatus, value, () => OrderStatus); }
 		}
 
 		Employee author;
 
-		[Display (Name = "Создатель заказа")]
+		[Display(Name = "Создатель заказа")]
 
 		public virtual Employee Author {
 			get { return author; }
-			set { SetField (ref author, value, () => Author); }
+			set { SetField(ref author, value, () => Author); }
 		}
 
 		Counterparty client;
 
-		[Display (Name = "Клиент")]
+		[Display(Name = "Клиент")]
 		public virtual Counterparty Client {
 			get { return client; }
 			set {
-				if (value == client)
+				if(value == client)
 					return;
-				if (client != null && !CanChangeContractor ())
-					throw new InvalidOperationException ("Нельзя изменить клиента для заполненного заказа.");
-				SetField (ref client, value, () => Client);
-				if (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized (Client.DeliveryPoints) && !Client.DeliveryPoints.Any (d => d.Id == DeliveryPoint.Id)) {
+				if(client != null && !CanChangeContractor())
+					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
+				SetField(ref client, value, () => Client);
+				if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
 					//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
-					logger.Warn ("Очишаем точку доставки, при установке клиента. Возможно это не нужно.");
+					logger.Warn("Очишаем точку доставки, при установке клиента. Возможно это не нужно.");
 					DeliveryPoint = null;
 				}
 			}
@@ -69,12 +69,12 @@ namespace Vodovoz.Domain.Orders
 
 		DeliveryPoint deliveryPoint;
 
-		[Display (Name = "Точка доставки")]
+		[Display(Name = "Точка доставки")]
 		public virtual DeliveryPoint DeliveryPoint {
 			get { return deliveryPoint; }
 			set {
-				SetField (ref deliveryPoint, value, () => DeliveryPoint);
-				if (value != null && DeliverySchedule == null) {
+				SetField(ref deliveryPoint, value, () => DeliveryPoint);
+				if(value != null && DeliverySchedule == null) {
 					DeliverySchedule = value.DeliverySchedule;
 				}
 			}
@@ -82,14 +82,14 @@ namespace Vodovoz.Domain.Orders
 
 		DateTime? deliveryDate;
 
-		[Display (Name = "Дата доставки")]
+		[Display(Name = "Дата доставки")]
 		public virtual DateTime? DeliveryDate {
 			get { return deliveryDate; }
 			set {
-				SetField (ref deliveryDate, value, () => DeliveryDate);
-				if (NHibernate.NHibernateUtil.IsInitialized (OrderDocuments) && value.HasValue) {
-					foreach (OrderDocument document in OrderDocuments) {
-						if (document.Type == OrderDocumentType.AdditionalAgreement) {
+				SetField(ref deliveryDate, value, () => DeliveryDate);
+				if(NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && value.HasValue) {
+					foreach(OrderDocument document in OrderDocuments) {
+						if(document.Type == OrderDocumentType.AdditionalAgreement) {
 							(document as OrderAgreement).AdditionalAgreement.IssueDate = value.Value;
 							(document as OrderAgreement).AdditionalAgreement.StartDate = value.Value;
 						}
@@ -101,54 +101,54 @@ namespace Vodovoz.Domain.Orders
 
 		DeliverySchedule deliverySchedule;
 
-		[Display (Name = "Время доставки")]
+		[Display(Name = "Время доставки")]
 		public virtual DeliverySchedule DeliverySchedule {
 			get { return deliverySchedule; }
-			set { SetField (ref deliverySchedule, value, () => DeliverySchedule); }
+			set { SetField(ref deliverySchedule, value, () => DeliverySchedule); }
 		}
 
 		private string deliverySchedule1c;
 
-		[Display (Name = "Время доставки из 1С")]
+		[Display(Name = "Время доставки из 1С")]
 		public virtual string DeliverySchedule1c {
 			get {
-				return string.IsNullOrWhiteSpace (deliverySchedule1c)
+				return string.IsNullOrWhiteSpace(deliverySchedule1c)
 				  ? "Время доставки из 1С не загружено"
 				  : deliverySchedule1c;
 			}
-			set { SetField (ref deliverySchedule1c, value, () => DeliverySchedule1c); }
+			set { SetField(ref deliverySchedule1c, value, () => DeliverySchedule1c); }
 		}
 
 		bool selfDelivery;
 
-		[Display (Name = "Самовывоз")]
+		[Display(Name = "Самовывоз")]
 		public virtual bool SelfDelivery {
 			get { return selfDelivery; }
-			set { SetField (ref selfDelivery, value, () => SelfDelivery); }
+			set { SetField(ref selfDelivery, value, () => SelfDelivery); }
 		}
 
 		Order previousOrder;
 
-		[Display (Name = "Предыдущий заказ")]
+		[Display(Name = "Предыдущий заказ")]
 		public virtual Order PreviousOrder {
 			get { return previousOrder; }
-			set { SetField (ref previousOrder, value, () => PreviousOrder); }
+			set { SetField(ref previousOrder, value, () => PreviousOrder); }
 		}
 
 		int bottlesReturn;
 
-		[Display (Name = "Бутылей на возврат")]
+		[Display(Name = "Бутылей на возврат")]
 		public virtual int BottlesReturn {
 			get { return bottlesReturn; }
-			set { SetField (ref bottlesReturn, value, () => BottlesReturn); }
+			set { SetField(ref bottlesReturn, value, () => BottlesReturn); }
 		}
 
 		string comment;
 
-		[Display (Name = "Комментарий")]
+		[Display(Name = "Комментарий")]
 		public virtual string Comment {
 			get { return comment; }
-			set { SetField (ref comment, value, () => Comment); }
+			set { SetField(ref comment, value, () => Comment); }
 		}
 
 		string clientPhone;
@@ -161,22 +161,22 @@ namespace Vodovoz.Domain.Orders
 
 		OrderSignatureType? signatureType;
 
-		[Display (Name = "Подписание документов")]
+		[Display(Name = "Подписание документов")]
 		public virtual OrderSignatureType? SignatureType {
 			get { return signatureType; }
-			set { SetField (ref signatureType, value, () => SignatureType); }
+			set { SetField(ref signatureType, value, () => SignatureType); }
 		}
 
 		private Decimal extraMoney;
 
-		[Display (Name = "Доплата\\Переплата")]
-		[PropertyChangedAlso (nameof (SumToReceive))]
+		[Display(Name = "Доплата\\Переплата")]
+		[PropertyChangedAlso(nameof(SumToReceive))]
 		public virtual Decimal ExtraMoney {
 			get { return extraMoney; }
-			set { SetField (ref extraMoney, value, () => ExtraMoney); }
+			set { SetField(ref extraMoney, value, () => ExtraMoney); }
 		}
 
-		[Display (Name = "Наличных к получению")]
+		[Display(Name = "Наличных к получению")]
 		public virtual Decimal SumToReceive {
 			get {
 				return PaymentType == PaymentType.cash ? TotalSum + ExtraMoney : 0;
@@ -186,38 +186,38 @@ namespace Vodovoz.Domain.Orders
 
 		string sumDifferenceReason;
 
-		[Display (Name = "Причина переплаты/недоплаты")]
+		[Display(Name = "Причина переплаты/недоплаты")]
 		public virtual string SumDifferenceReason {
 			get { return sumDifferenceReason; }
-			set { SetField (ref sumDifferenceReason, value, () => SumDifferenceReason); }
+			set { SetField(ref sumDifferenceReason, value, () => SumDifferenceReason); }
 		}
 
 		bool shipped;
 
-		[Display (Name = "Отгружено по платежке")]
+		[Display(Name = "Отгружено по платежке")]
 		public virtual bool Shipped {
 			get { return shipped; }
-			set { SetField (ref shipped, value, () => Shipped); }
+			set { SetField(ref shipped, value, () => Shipped); }
 		}
 
 		PaymentType paymentType;
 
-		[Display (Name = "Форма оплаты")]
+		[Display(Name = "Форма оплаты")]
 		public virtual PaymentType PaymentType {
 			get { return paymentType; }
 			set {
-				if (value == paymentType)
+				if(value == paymentType)
 					return;
-				SetField (ref paymentType, value, () => PaymentType);
+				SetField(ref paymentType, value, () => PaymentType);
 			}
 		}
 
 		CounterpartyContract contract;
 
-		[Display (Name = "Договор")]
+		[Display(Name = "Договор")]
 		public virtual CounterpartyContract Contract {
 			get { return contract; }
-			set { SetField (ref contract, value, () => Contract); }
+			set { SetField(ref contract, value, () => Contract); }
 		}
 
 		MoneyMovementOperation moneyMovementOperation;
@@ -225,7 +225,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual MoneyMovementOperation MoneyMovementOperation {
 			get { return moneyMovementOperation; }
 			set {
-				SetField (ref moneyMovementOperation, value, () => MoneyMovementOperation);
+				SetField(ref moneyMovementOperation, value, () => MoneyMovementOperation);
 			}
 		}
 
@@ -236,7 +236,7 @@ namespace Vodovoz.Domain.Orders
 				return bottlesMovementOperation;
 			}
 			set {
-				SetField (ref bottlesMovementOperation, value, () => BottlesMovementOperation);
+				SetField(ref bottlesMovementOperation, value, () => BottlesMovementOperation);
 			}
 		}
 
@@ -247,64 +247,64 @@ namespace Vodovoz.Domain.Orders
 				return collectBottles;
 			}
 			set {
-				SetField (ref collectBottles, value, () => CollectBottles);
+				SetField(ref collectBottles, value, () => CollectBottles);
 			}
 		}
 
 		DefaultDocumentType? documentType;
 
-		[Display (Name = "Тип безналичных документов")]
+		[Display(Name = "Тип безналичных документов")]
 		public virtual DefaultDocumentType? DocumentType {
 			get { return documentType; }
-			set { SetField (ref documentType, value, () => DocumentType); }
+			set { SetField(ref documentType, value, () => DocumentType); }
 		}
 
 		private string code1c;
 
-		[Display (Name = "Код 1С")]
+		[Display(Name = "Код 1С")]
 		public virtual string Code1c {
 			get { return code1c; }
-			set { SetField (ref code1c, value, () => Code1c); }
+			set { SetField(ref code1c, value, () => Code1c); }
 		}
 
 		private string address1c;
 
-		[Display (Name = "Адрес 1С")]
+		[Display(Name = "Адрес 1С")]
 		public virtual string Address1c {
 			get { return address1c; }
-			set { SetField (ref address1c, value, () => Address1c); }
+			set { SetField(ref address1c, value, () => Address1c); }
 		}
 
 		private string address1cCode;
 
-		[Display (Name = "Код адреса 1С")]
+		[Display(Name = "Код адреса 1С")]
 		public virtual string Address1cCode {
 			get { return address1cCode; }
-			set { SetField (ref address1cCode, value, () => Address1cCode); }
+			set { SetField(ref address1cCode, value, () => Address1cCode); }
 		}
 
 		private string fromClientText;
 
-		[Display (Name = "Колонка МЛ от клиента")]
+		[Display(Name = "Колонка МЛ от клиента")]
 		public virtual string FromClientText {
 			get { return fromClientText; }
-			set { SetField (ref fromClientText, value, () => FromClientText); }
+			set { SetField(ref fromClientText, value, () => FromClientText); }
 		}
 
 		private string toClientText;
 
-		[Display (Name = "Колонка МЛ к клиенту")]
+		[Display(Name = "Колонка МЛ к клиенту")]
 		public virtual string ToClientText {
 			get { return toClientText; }
-			set { SetField (ref toClientText, value, () => ToClientText); }
+			set { SetField(ref toClientText, value, () => ToClientText); }
 		}
 
 		private int? dailyNumber1c;
 
-		[Display (Name = "Ежедневный номер из 1с")]
+		[Display(Name = "Ежедневный номер из 1с")]
 		public virtual int? DailyNumber1c {
 			get { return dailyNumber1c; }
-			set { SetField (ref dailyNumber1c, value, () => DailyNumber1c); }
+			set { SetField(ref dailyNumber1c, value, () => DailyNumber1c); }
 		}
 
 		User lastEditor;
@@ -322,6 +322,54 @@ namespace Vodovoz.Domain.Orders
 		public virtual DateTime LastEditedTime {
 			get { return lastEditedTime; }
 			set { SetField(ref lastEditedTime, value, () => LastEditedTime); }
+		}
+
+		string commentManager;
+
+		[Display(Name = "Комментарий менеджера")]
+		public virtual string CommentManager {
+			get { return commentManager; }
+			set { SetField(ref commentManager, value, () => CommentManager); }
+		}
+
+		int? returnedTare;
+
+		[Display(Name = "Возвратная тара")]
+		public virtual int? ReturnedTare {
+			get { return returnedTare; }
+			set { SetField(ref returnedTare, value, () => ReturnedTare); }
+		}
+
+		string informationOnTara;
+
+		[Display(Name = "Информация о таре")]
+		public virtual string InformationOnTara {
+			get { return informationOnTara; }
+			set { SetField(ref informationOnTara, value, () => InformationOnTara); }
+		}
+
+		ReasonType resonType;
+
+		[Display(Name = "Тип причины")]
+		public virtual ReasonType ReasonType{
+			get { return resonType; }
+			set { SetField(ref resonType, value, () => ReasonType); }
+		}
+
+		DriverCallType driverCallType;
+
+		[Display(Name = "Водитель отзвонился")]
+		public virtual DriverCallType DriverCallType {
+			get { return driverCallType; }
+			set { SetField(ref driverCallType, value, () => DriverCallType); }
+		}
+
+		int? driverCallId;
+
+		[Display(Name = "Номер звонка водителя")]
+		public virtual int? DriverCallId {
+			get { return driverCallId; }
+			set { SetField(ref driverCallId, value, () => DriverCallId); }
 		}
 
 		#endregion

@@ -39,9 +39,11 @@ namespace Vodovoz
 
 		private string cahsString = "00002", cashlessString = "00003", barterString = "00093";
 
+		private string newAddressString = "НОВЫЙ АДРЕС", orderIncreaseString = "УВЕЛИЧЕНИЕ ЗАКАЗА", firstOrderString = "ПЕРВЫЙ ЗАКАЗ";
+
 		#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
-		//	"00000969"  // Задача I-528. @Дима
+			"00000969"
 		};
 		#endif
 
@@ -667,26 +669,28 @@ namespace Vodovoz
 			ReadedNomenclatures++;
 		}
 
-		private void ParseOrders(XmlNode node)
+		public void ParseOrders(XmlNode node)
 		{
 			List<OrderItem> orderItems = new List<OrderItem>();
 
 			logger.Debug("Парсим заказ");
-			var code1cNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
-			var dateNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
-			var organisationNode = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var commentNode = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
-			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение"); ;
-			var counterpartyNode = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var addressNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
-			var addressCodeNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
-			var dailyNumber1c = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
-			var toClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
-			var fromClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
-			var clientPhone = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
-			var goodsNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
-			var servicesNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
-			var nPayment = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var code1cNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
+			var dateNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
+			var organisationNode 	  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var commentNode 	 	  = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
+			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
+			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
+			var addressCodeNode 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
+			var dailyNumber1c		  = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
+			var toClient 	 		  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
+			var fromClient 	 	  	  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
+			var clientPhone	 		  = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
+			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
+			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var returnedTare		  = node.SelectSingleNode("Свойство[@Имя='ВозвратнаяТара']/Значение");
+			var informationOnTara	  = node.SelectSingleNode("Свойство[@Имя='ИнформацияПоТаре']/Значение");
 
 			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
 
@@ -715,27 +719,46 @@ namespace Vodovoz
 					paymentType = PaymentType.cashless;
 			}
 
+			ReasonType reasonType = ReasonType.Unknown;
+			if(commentNode != null) {
+				if(commentNode.InnerText.ToUpper().Contains(newAddressString))
+					reasonType = ReasonType.NewAddress;
+				if(commentNode.InnerText.ToUpper().Contains(orderIncreaseString))
+					reasonType = ReasonType.OrderIncrease;
+				if(commentNode.InnerText.ToUpper().Contains(firstOrderString))
+					reasonType = ReasonType.FirstOrder;
+			}
+
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
-			Order order = new Order {
-				Code1c = code1cNode?.InnerText,
-				Comment = commentNode?.InnerText,
-				Client = client,
-				DeliveryDate = deliveryDate,
-				DeliverySchedule = deliverySchedule,
-				DeliverySchedule1c = deliverySchedulesNode?.InnerText,
-				DeliveryPoint = deliveryPoint,
-				Address1c = addressNode?.InnerText,
-				Address1cCode = addressCodeNode?.InnerText,
-				PaymentType = paymentType,
-				ToClientText = toClient?.InnerText,
-				FromClientText = fromClient?.InnerText,
-				ClientPhone = clientPhone?.InnerText
-			};
+			Order order = new Order
+				{
+					Code1c 		  	 	= code1cNode?.InnerText,
+					Comment 	  	 	= commentNode?.InnerText,
+					Client 		  	 	= client,
+					DeliveryDate  	 	= deliveryDate,
+					DeliverySchedule 	= deliverySchedule,
+					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
+					DeliveryPoint 	 	= deliveryPoint,
+					Address1c 	  	 	= addressNode?.InnerText,
+					Address1cCode 		= addressCodeNode?.InnerText,
+					PaymentType 		= paymentType,
+					ToClientText 		= toClient?.InnerText,
+					FromClientText 		= fromClient?.InnerText,
+					ClientPhone			= clientPhone?.InnerText,
+					InformationOnTara 	= informationOnTara?.InnerText,
+				    ReasonType 			= reasonType
+				};
 
 			if(!String.IsNullOrWhiteSpace(dailyNumber1c?.InnerText)) {
 				int number;
 				if(Int32.TryParse(dailyNumber1c.InnerText, out number))
 					order.DailyNumber1c = number;
+			}
+				
+			if(!String.IsNullOrWhiteSpace(returnedTare?.InnerText)) {
+				int tareNumber;
+				if(Int32.TryParse(returnedTare?.InnerText, out tareNumber))
+						order.ReturnedTare = tareNumber;
 			}
 
 			//Заполняем товары для заказа

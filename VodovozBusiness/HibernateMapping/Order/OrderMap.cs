@@ -29,11 +29,18 @@ namespace Vodovoz.HMap
 			Map (x => x.DeliverySchedule1c)	.Column ("delivery_schedule_1c");
 			Map (x => x.DailyNumber1c)      .Column ("daily_number_1c");
 			Map (x => x.ClientPhone)        .Column ("client_phone");
-			Map (x => x.LastEditedTime)		.Column("last_edited_time");
+			Map (x => x.LastEditedTime)		.Column ("last_edited_time");
+			Map (x => x.CommentManager)		.Column ("comment_manager");
+			Map (x => x.ReturnedTare)		.Column ("returned_tare");
+			Map (x => x.InformationOnTara)	.Column ("information_on_tara");
+			Map (x => x.DriverCallId)		.Column ("driver_call_id");
+
 			Map (x => x.OrderStatus)		.Column ("order_status").CustomType<OrderStatusStringType> ();
 			Map (x => x.SignatureType)		.Column ("signature_type").CustomType<OrderSignatureTypeStringType> ();
 			Map (x => x.PaymentType)		.Column ("payment_type").CustomType<PaymentTypeStringType> ();
 			Map (x => x.DocumentType)		.Column ("document_type").CustomType<DefaultDocumentTypeStringType> ();
+			Map (x => x.ReasonType)			.Column ("reason_type").CustomType<ReasonTypeStringType> (); 
+			Map (x => x.DriverCallType)	    .Column ("driver_call_type").CustomType<DriverCallTypeStringType>();
 
 			References (x => x.Client)					.Column ("client_id");
 			References (x => x.Contract)				.Column ("counterparty_contract_id");
