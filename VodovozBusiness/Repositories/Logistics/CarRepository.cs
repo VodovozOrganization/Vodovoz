@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NHibernate.Criterion;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
@@ -14,6 +15,13 @@ namespace Vodovoz.Repository.Logistics
 					  .Where(x => x.Driver == driver)
 					  .Take(1)
 					  .SingleOrDefault();
+		}
+
+		public static IList<Car> GetCarsbyDrivers(IUnitOfWork uow, int[] driversIds)
+		{
+			return uow.Session.QueryOver<Car>()
+				      .Where(x => x.Driver.Id.IsIn(driversIds))
+				      .List();
 		}
 
 		public static QueryOver<Car> ActiveCompanyCarsQuery()

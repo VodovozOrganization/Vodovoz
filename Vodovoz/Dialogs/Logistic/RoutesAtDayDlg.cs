@@ -836,25 +836,23 @@ namespace Vodovoz
 		{
 			var addDrivers = e.GetEntities<Employee>().ToList();
 			logger.Info("Получаем авто для водителей...");
-			MainClass.MainWin.ProgressStart(addDrivers.Count);
+			MainClass.MainWin.ProgressStart(2);
+			var onlyNew = addDrivers.Where(x => driversAtDay.All(y => y.Employee.Id != x.Id)).ToList();
+			var allCars = CarRepository.GetCarsbyDrivers(uow, onlyNew.Select(x => x.Id).ToArray()); 
+			MainClass.MainWin.ProgressAdd();
+
 			foreach(var driver in addDrivers) {
-				if(driversAtDay.Any(x => x.Employee.Id == driver.Id))
-				{
-					logger.Warn($"Водитель {driver.ShortName} пропущен так как уже присутствует в списке.");
-					continue;
-				}
-				var car = CarRepository.GetCarByDriver(uow, driver);
 				driversAtDay.Add(new AtWorkDriver {
 					Date = CurDate,
 					Employee = driver,
-					Car = car,
+					Car = allCars.FirstOrDefault(x => x.Driver.Id == driver.Id),
 					Trips = 1
 				});
-				MainClass.MainWin.ProgressAdd();
 			}
+			MainClass.MainWin.ProgressAdd();
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
-			MainClass.MainWin.ProgressClose();
 			logger.Info("Ок");
+			MainClass.MainWin.ProgressClose();
 		}
 
 		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
@@ -914,22 +912,25 @@ namespace Vodovoz
 			optimizer.Orders = ordersAtDay;
 			optimizer.Drivers = driversAtDay;
 			optimizer.Forwarders = forwardersAtDay;
+			optimizer.OrdersProgress = progressOrders;
 			optimizer.CreateRoutes();
 
-			routesAtDay.Clear();
-			foreach(var propose in optimizer.ProposedRoutes)
+			if(optimizer.BestPlan != null)
 			{
-				var rl = new RouteList();
-				rl.Car = propose.Car;
-				rl.Driver = propose.Driver.Employee;
-				rl.Date = CurDate;
-				foreach(var order in propose.Orders)
+				routesAtDay.Clear();
+				foreach(var propose in optimizer.BestPlan.Routes)
 				{
-					rl.AddAddressFromOrder(order);
+					var rl = new RouteList();
+					rl.Car = propose.Car;
+					rl.Driver = propose.Driver.Employee;
+					rl.Date = CurDate;
+					foreach(var order in propose.Orders)
+					{
+						rl.AddAddressFromOrder(order);
+					}
+					routesAtDay.Add(rl);
 				}
-				routesAtDay.Add(rl);
 			}
-
 			UpdateRoutesPixBuf();
 			UpdateRoutesButton();
 
