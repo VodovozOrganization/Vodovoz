@@ -235,11 +235,11 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
-                    order_items.count
+                    SUM(order_items.count)
                 FROM
                     order_items
                         LEFT JOIN
@@ -251,7 +251,8 @@ FROM counterparty WHERE id = @client_id;</CommandText>
                         FROM
                             base_parameters
                         WHERE
-                            base_parameters.name = 'forfeit_nomenclature_id')),
+                            base_parameters.name = 'forfeit_nomenclature_id')
+	  GROUP BY client_id),
             0) AS bottle_balance
                     
 FROM
@@ -269,7 +270,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1440,6 +1441,11 @@ ____________(                        )
           </Textbox>
         </ReportItems>
         <DataSetName>NotReturnedEquipment</DataSetName>
+        <Style >
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
       </List>
     </ReportItems>
     <Height>247.7pt</Height>
