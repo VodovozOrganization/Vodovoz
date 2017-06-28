@@ -9,7 +9,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	{
 		public LogisticsArea District;
 		public List<Order> OrdersInDistrict = new List<Order>();
-		public List<Order> FreeOrders;
 
 		public DistrictInfo(LogisticsArea district)
 		{

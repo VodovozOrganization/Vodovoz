@@ -905,14 +905,26 @@ namespace Vodovoz
 			}
 		}
 
+		bool creatingInProgress;
+
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
+			if(creatingInProgress)
+			{
+				buttonAutoCreate.Label = "Создать маршруты";
+				optimizer.Cancel = true;
+				return;
+			}
+			creatingInProgress = true;
+			buttonAutoCreate.Label = "Остановить";
+
 			optimizer.UoW = uow;
 			optimizer.Routes = routesAtDay;
 			optimizer.Orders = ordersAtDay;
 			optimizer.Drivers = driversAtDay;
 			optimizer.Forwarders = forwardersAtDay;
 			optimizer.OrdersProgress = progressOrders;
+			optimizer.DebugBuffer = textOrdersInfo.Buffer;
 			optimizer.CreateRoutes();
 
 			if(optimizer.BestPlan != null)
@@ -937,6 +949,7 @@ namespace Vodovoz
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
 			MainClass.MainWin.ProgressClose();
+			creatingInProgress = false;
 		}
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)

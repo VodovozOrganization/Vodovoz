@@ -36141,6 +36141,7 @@ RegistrationNumber</property>
             <child>
               <widget class="Gtk.ProgressBar" id="progressOrders">
                 <property name="MemberName" />
+                <property name="Ellipsize">Start</property>
               </widget>
               <packing>
                 <property name="TopAttach">1</property>

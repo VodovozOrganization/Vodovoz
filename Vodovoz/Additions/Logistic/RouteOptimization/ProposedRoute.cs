@@ -10,6 +10,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public List<Order> Orders = new List<Order>();
 		public AtWorkDriver Driver;
 
+		public List<FreeOrders> PossibleOrders;
+
 		public Car Car {
 			get {
 				return Driver.Car;
@@ -73,14 +75,21 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				? DistanceCalculator.GetDistanceFromBase(order.DeliveryPoint)
 			                 : DistanceCalculator.GetDistance(Orders.Last().DeliveryPoint, order.DeliveryPoint);
 			Orders.Add(order);
+			RemoveFromPossible(order);
 
 			return cost;
+		}
+
+		public void RemoveFromPossible(Order order)
+		{
+			PossibleOrders.ForEach(x => x.Orders.Remove(order));
 		}
 
 		public ProposedRoute Clone()
 		{
 			var propose = new ProposedRoute(Driver);
 			propose.Orders = Orders.ToList();
+			propose.PossibleOrders = PossibleOrders.Select(x => x.Clone()).ToList();
 
 			return propose;
 		}

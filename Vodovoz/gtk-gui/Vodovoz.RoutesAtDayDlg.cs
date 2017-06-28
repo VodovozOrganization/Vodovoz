@@ -226,6 +226,7 @@ namespace Vodovoz
 			// Container child table1.Gtk.Table+TableChild
 			this.progressOrders = new global::Gtk.ProgressBar();
 			this.progressOrders.Name = "progressOrders";
+			this.progressOrders.Ellipsize = ((global::Pango.EllipsizeMode)(1));
 			this.table1.Add(this.progressOrders);
 			global::Gtk.Table.TableChild w12 = ((global::Gtk.Table.TableChild)(this.table1[this.progressOrders]));
 			w12.TopAttach = ((uint)(1));
@@ -280,7 +281,7 @@ namespace Vodovoz
 			this.notebook1 = new global::Gtk.Notebook();
 			this.notebook1.CanFocus = true;
 			this.notebook1.Name = "notebook1";
-			this.notebook1.CurrentPage = 0;
+			this.notebook1.CurrentPage = 1;
 			this.notebook1.TabPos = ((global::Gtk.PositionType)(0));
 			// Container child notebook1.Gtk.Notebook+NotebookChild
 			this.vboxDrivers = new global::Gtk.VBox();
@@ -586,7 +587,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w53.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

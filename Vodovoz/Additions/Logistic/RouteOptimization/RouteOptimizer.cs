@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Gtk;
 using NetTopologySuite.Geometries;
@@ -26,6 +27,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public ProposedPlan BestPlan;
 
 		public ProgressBar OrdersProgress;
+		public Gtk.TextBuffer DebugBuffer;
+
+		public bool Cancel = false;
 
 		public IUnitOfWork UoW;
 
@@ -57,7 +61,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					district.OrdersInDistrict.Add(order);
 				}
 			}
-			districts.ForEach(x => x.FreeOrders = x.OrdersInDistrict.ToList());
 
 			MainClass.MainWin.ProgressAdd();
 			logger.Info($"Развозка по {districts.Count} районам.");
@@ -78,32 +81,55 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				logger.Info($"Предложено {BestPlan.Routes.Count} маршрутов.");
 		}
 
+		static DateTime lastRedraw;
+
 		void RecursiveSearch(ProposedPlan curPlan)
 		{
-			//OrdersProgress.Adjustment.Value = OrdersProgress.Adjustment.Upper - curPlan.FreeOrdersCount;
-			OrdersProgress.Text = string.Join(":", curPlan.DebugLevel);
+			if (Cancel)
+				return;
+
 			curPlan.DebugLevel.Add(0);
 
-			QSMain.WaitRedraw();
 			if(curPlan.CurRoute == null)
 			{
 				var driver = curPlan.RemainDrivers.First();
 				curPlan.RemainDrivers.Remove(driver);
 				curPlan.CurRoute = new ProposedRoute(driver);
 				curPlan.Routes.Add(curPlan.CurRoute);
+				curPlan.CurRoute.PossibleOrders = curPlan.CurRoute.Driver.Employee.Districts
+					.Select(x => curPlan.RemainOrders.FirstOrDefault(d => d.District.District.Id == x.District.Id))
+					.Where(x => x != null)
+					.Select(x => x.Clone())
+					.ToList();
+				
 				logger.Debug("Новый водитель.");
 			}
 
-			var prioritedDistricts = curPlan.CurRoute.Driver.Employee.Districts
-							   .Select(x => curPlan.RemainOrders.FirstOrDefault(d => d.District.District.Id == x.District.Id))
-						   .Where(x => x != null)
-						   .ToList();
-
 			double districtCost = 0;
 			bool notAdded = true;
-			foreach(var district in prioritedDistricts) {
-				foreach(var order in district.Orders) {
+			foreach(var district in curPlan.CurRoute.PossibleOrders) {
+				foreach(var order in district.Orders.ToList()) {
+
+					//Просто для отображения технической информации.
 					curPlan.DebugLevel[curPlan.DebugLevel.Count-1]++;
+					if (DateTime.Now.Subtract(lastRedraw).Milliseconds > 200)
+					{
+						lastRedraw = DateTime.Now;
+						//OrdersProgress.Adjustment.Value = OrdersProgress.Adjustment.Upper - curPlan.FreeOrdersCount;
+						OrdersProgress.Text = string.Join(":", curPlan.DebugLevel);
+						DebugBuffer.Text = String.Format("Район: {0}({1}\\{2}\\{3})\nВодитель: {4}({5})\nМаршрутов: {6}({7})",
+														 district.District.District.Name,
+														 district.District.OrdersInDistrict.Count,
+						                                 curPlan.RemainOrders.First(x => x.District == district.District).Orders.Count,
+						                                 district.Orders.Count,
+						                                 curPlan.CurRoute.Driver.Employee.ShortName,
+						                                 curPlan.CurRoute.Orders.Count,
+						                                 curPlan.Routes.Count,
+						                                 curPlan.RemainDrivers.Count
+														);
+						QSMain.WaitRedraw();
+					}
+
 					if(curPlan.CurRoute.CanAdd(order)) {
 						notAdded = false;
 						var newPlan = curPlan.Clone();
@@ -137,8 +163,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 							logger.Info($"Найден новый вариант общей стоимостью в {newPlan.PlanCost} очков.");
 							continue;
 						}
-						logger.Debug("Следующий заказ водитель.");
 						RecursiveSearch(newPlan);
+					}
+					else
+					{
+						curPlan.CurRoute.RemoveFromPossible(order);
 					}
 				}
 				districtCost += UnlikeDistrictCost;
