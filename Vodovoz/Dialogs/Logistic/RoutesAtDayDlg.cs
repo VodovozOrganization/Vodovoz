@@ -68,7 +68,9 @@ namespace Vodovoz
 				forwardersAtDay = value;
 				observableForwardersAtDay = new GenericObservableList<AtWorkForwarder>(forwardersAtDay);
 				ytreeviewOnDayForwarders.SetItemsSource(observableForwardersAtDay);
-
+			}
+			get{
+				return forwardersAtDay;
 			}
 		}
 
@@ -81,6 +83,9 @@ namespace Vodovoz
 				observableDriversAtDay.ListChanged += ObservableDriversAtDay_ListChanged;
 				ytreeviewOnDayDrivers.SetItemsSource(observableDriversAtDay);
 				ObservableDriversAtDay_ListChanged(null);
+			}
+			get{
+				return driversAtDay;
 			}
 		}
 
@@ -727,6 +732,8 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
+			DriversAtDay.ToList().ForEach(x => uow.Save(x));
+			ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
 			uow.Commit ();
 			HasNoChanges = true;
 			FillDialogAtDay ();
@@ -950,6 +957,8 @@ namespace Vodovoz
 			RoutesWasUpdated();
 			MainClass.MainWin.ProgressClose();
 			creatingInProgress = false;
+			optimizer.Cancel = false;
+			buttonAutoCreate.Label = "Создать маршруты";
 		}
 
 		protected void OnButtonDriverSelectAutoClicked(object sender, EventArgs e)
