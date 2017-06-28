@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.Utilities;
+using NetTopologySuite.Geometries;
 using QSOrmProject;
 using QSOsm;
 using QSOsm.DTO;
@@ -329,6 +330,12 @@ namespace Vodovoz.Domain.Client
 		public virtual bool СoordinatesExist{
 			get{
 				return (Latitude != null && Longitude != null);
+			}
+		}
+
+		public virtual Point NetTopologyPoint{
+			get{
+				return СoordinatesExist ? new Point((double)Latitude, (double)Longitude) : null;
 			}
 		}
 

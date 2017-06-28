@@ -63,5 +63,26 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			return true;
 		}
+
+		/// <summary>
+		/// Возвращает стоимость добавления адреса.
+		/// </summary>
+		public double AddOrder(Order order)
+		{
+			var cost = Orders.Count == 0
+				? DistanceCalculator.GetDistanceFromBase(order.DeliveryPoint)
+			                 : DistanceCalculator.GetDistance(Orders.Last().DeliveryPoint, order.DeliveryPoint);
+			Orders.Add(order);
+
+			return cost;
+		}
+
+		public ProposedRoute Clone()
+		{
+			var propose = new ProposedRoute(Driver);
+			propose.Orders = Orders.ToList();
+
+			return propose;
+		}
 	}
 }

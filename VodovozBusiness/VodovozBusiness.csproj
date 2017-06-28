@@ -383,6 +383,7 @@
     <Compile Include="HibernateMapping\Logistic\DriverDistrictPriorityMap.cs" />
     <Compile Include="Repositories\Logistics\LogisticAreaRepository.cs" />
     <Compile Include="Repositories\Logistics\CarRepository.cs" />
+    <Compile Include="Constants.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

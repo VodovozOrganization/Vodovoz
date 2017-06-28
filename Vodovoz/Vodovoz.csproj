@@ -582,6 +582,9 @@
     <Compile Include="Additions\Logistic\RouteOptimization\RouteOptimizer.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\DistrictInfo.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\ProposedRoute.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\ProposedPlan.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\DistanceCalculator.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\FreeOrders.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
