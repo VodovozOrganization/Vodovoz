@@ -127,7 +127,7 @@ namespace Vodovoz.Domain.Logistic
 			var lastPoint = lastAddress.Order.DeliveryPoint;
 			points.Add (new PointOnEarth (lastPoint.Latitude.Value, lastPoint.Longitude.Value));
 			//Координаты базы
-			points.Add (new PointOnEarth ( 59.88632093834261, 30.394406318664547));
+			points.Add (new PointOnEarth ( Constants.BaseLatitude, Constants.BaseLongitude));
 
 			var response = SputnikMain.GetRoute (points);
 			if (response.Status == 0)
