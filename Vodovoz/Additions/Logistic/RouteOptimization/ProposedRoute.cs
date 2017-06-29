@@ -18,25 +18,37 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 		}
 
+		int? bottlesCache;
+
 		public int CurrentBottles{
 			get{
-				return Orders.SelectMany(x => x.OrderItems)
+				if(bottlesCache == null)
+					bottlesCache = Orders.SelectMany(x => x.OrderItems)
 							 .Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.water)
 							 .Sum(x => x.Count);
+				return bottlesCache.Value;
 			}
 		}
+
+		double? weightCache;
 
 		public double CurrentWeight {
 			get {
-				return Orders.SelectMany(x => x.OrderItems)
-					         .Sum(x => x.Nomenclature.Weight * x.Count);
+				if(weightCache == null)
+					weightCache = Orders.SelectMany(x => x.OrderItems)
+							 .Sum(x => x.Nomenclature.Weight * x.Count);
+				return weightCache.Value;
 			}
 		}
 
+		double? volumeCache;
+
 		public double CurrentVolume {
 			get {
-				return Orders.SelectMany(x => x.OrderItems)
-					         .Sum(x => x.Nomenclature.Volume * x.Count);
+				if(volumeCache == null)
+					volumeCache = Orders.SelectMany(x => x.OrderItems)
+							 .Sum(x => x.Nomenclature.Volume * x.Count);
+				return volumeCache.Value;
 			}
 		}
 
@@ -76,6 +88,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			                 : DistanceCalculator.GetDistance(Orders.Last().DeliveryPoint, order.DeliveryPoint);
 			Orders.Add(order);
 			RemoveFromPossible(order);
+			CleanCache();
 
 			return cost;
 		}
@@ -92,6 +105,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			propose.PossibleOrders = PossibleOrders.Select(x => x.Clone()).ToList();
 
 			return propose;
+		}
+
+		private void CleanCache()
+		{
+			bottlesCache = null;
+			weightCache = null;
+			volumeCache = null;
 		}
 	}
 }
