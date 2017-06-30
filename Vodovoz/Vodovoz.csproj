@@ -84,10 +84,10 @@
       <HintPath>..\packages\NetTopologySuite.1.14\lib\net40-client\NetTopologySuite.dll</HintPath>
     </Reference>
     <Reference Include="Google.OrTools">
-      <HintPath>..\lib\Google.OrTools.dll</HintPath>
+      <HintPath>..\lib\Google.OrTools\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>..\lib\Google.Protobuf.dll</HintPath>
+      <HintPath>..\lib\Google.OrTools\Google.Protobuf.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
