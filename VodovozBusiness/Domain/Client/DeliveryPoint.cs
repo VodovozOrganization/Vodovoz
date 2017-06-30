@@ -339,6 +339,13 @@ namespace Vodovoz.Domain.Client
 			}
 		}
 
+		public virtual GMap.NET.PointLatLng GmapPoint {
+			get {
+				return new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
+			}
+		}
+
+
 		#endregion
 
 		public DeliveryPoint ()

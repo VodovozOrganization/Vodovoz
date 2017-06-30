@@ -30,6 +30,7 @@ namespace Vodovoz
 		private readonly GMapOverlay districtsOverlay = new GMapOverlay("districts");
 		private readonly GMapOverlay addressesOverlay = new GMapOverlay ("addresses");
 		private readonly GMapOverlay selectionOverlay = new GMapOverlay ("selection");
+		private readonly GMapOverlay routeOverlay = new GMapOverlay("route");
 		private GMapPolygon brokenSelection;
 		private List<GMapMarker> selectedMarkers = new List<GMapMarker> ();
 		IList<Domain.Orders.Order> ordersAtDay;
@@ -114,6 +115,7 @@ namespace Vodovoz
 			gmapWidget.HeightRequest = 150;
 			gmapWidget.HasFrame = true;
 			gmapWidget.Overlays.Add(districtsOverlay);
+			gmapWidget.Overlays.Add(routeOverlay);
 			gmapWidget.Overlays.Add (addressesOverlay);
 			gmapWidget.Overlays.Add (selectionOverlay);
 			gmapWidget.DisableAltForSelection = true;
@@ -286,6 +288,24 @@ namespace Vodovoz
 			var row = ytreeRoutes.GetSelectedObject ();
 			buttonRemoveAddress.Sensitive = row is RouteListItem && !checkShowCompleted.Active;
 			buttonOpen.Sensitive = (row is RouteListItem) || (row is RouteList);
+
+			//Рисуем выделенный маршрут
+			routeOverlay.Clear();
+			if(row != null)
+			{
+				RouteList rl = row as RouteList;
+				if(rl == null)
+					rl = (row as RouteListItem).RouteList;
+
+				var points = rl.Addresses.Select(x => x.Order.DeliveryPoint.GmapPoint);
+				var route = new GMapRoute(points, rl.Id.ToString());
+
+				route.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
+				route.Stroke.Width = 2;
+				route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+
+				routeOverlay.Routes.Add(route);
+			}
 		}
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)

@@ -573,7 +573,7 @@ namespace Vodovoz
 			this.gmapWidget.HasFrame = false;
 			this.gmapWidget.Bearing = 0F;
 			this.gmapWidget.Zoom = 9;
-			this.gmapWidget.RoutesEnabled = false;
+			this.gmapWidget.RoutesEnabled = true;
 			this.gmapWidget.PolygonsEnabled = true;
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
@@ -587,8 +587,7 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w53.Position = 1;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
