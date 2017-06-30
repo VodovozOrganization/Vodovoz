@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Google.OrTools.ConstraintSolver;
 using Gtk;
 using NetTopologySuite.Geometries;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
@@ -23,6 +23,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public IList<Domain.Orders.Order> Orders;
 		public IList<AtWorkDriver> Drivers;
 		public IList<AtWorkForwarder> Forwarders;
+
+		private CalculatedOrder[] Nodes;
 
 		public ProposedPlan BestPlan;
 
@@ -65,16 +67,47 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			MainClass.MainWin.ProgressAdd();
 			logger.Info($"Развозка по {districts.Count} районам.");
 
-			var allDrivers = Drivers.Where(x => x.Car != null).OrderBy(x => x.Employee.TripPriority).ToList();
+			var allDrivers = Drivers.Where(x => x.Car != null).OrderBy(x => x.Employee.TripPriority).ToArray();
+			logger.Info("Подсчитываем товары в заказах...");
+			Nodes = districts.SelectMany(x => x.OrdersInDistrict).Select(x => new CalculatedOrder(x)).ToArray();
+			MainClass.MainWin.ProgressAdd();
 
-			ProposedPlan.BestFinishedPlan = null;
-			ProposedPlan.BestFinishedCost = double.MaxValue;
-			ProposedPlan.BestNotFinishedPlan = null;
-			var startPaln = new ProposedPlan();
-			startPaln.RemainDrivers = allDrivers;
-			startPaln.RemainOrders = districts.Select(x => new FreeOrders(x, x.OrdersInDistrict)).ToList();
-			OrdersProgress.Adjustment.Upper = ProposedPlan.BestNotFinishedCount = startPaln.FreeOrdersCount;
-			RecursiveSearch(startPaln);
+			logger.Info("Настраиваем оптимизацию...");
+			RoutingModel routing = new RoutingModel(Nodes.Length + 1, allDrivers.Length, 0);
+
+			routing.SetCost(new CallbackDistance(Nodes));
+
+			// Solve, returns a solution if any (owned by RoutingModel).
+			RoutingSearchParameters search_parameters =
+			        RoutingModel.DefaultSearchParameters();
+			// Setting first solution heuristic (cheapest addition).
+			search_parameters.FirstSolutionStrategy =
+				                 FirstSolutionStrategy.Types.Value.PathCheapestArc;
+
+			Assignment solution = routing.SolveWithParameters(search_parameters);
+			Console.WriteLine("Status = {0}", routing.Status());
+			if(solution != null) {
+				// Solution cost.
+				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
+				// Inspect solution.
+				// Only one route here; otherwise iterate from 0 to routing.vehicles() - 1
+				int route_number = 0;
+				for(long node = routing.Start(route_number);
+					 !routing.IsEnd(node);
+					 node = solution.Value(routing.NextVar(node))) {
+					Console.Write("{0} -> ", node);
+				}
+				Console.WriteLine("0");
+			}
+
+			//ProposedPlan.BestFinishedPlan = null;
+			//ProposedPlan.BestFinishedCost = double.MaxValue;
+			//ProposedPlan.BestNotFinishedPlan = null;
+			//var startPaln = new ProposedPlan();
+			//startPaln.RemainDrivers = allDrivers;
+			//startPaln.RemainOrders = districts.Select(x => new FreeOrders(x, x.OrdersInDistrict)).ToList();
+			//OrdersProgress.Adjustment.Upper = ProposedPlan.BestNotFinishedCount = startPaln.FreeOrdersCount;
+			//RecursiveSearch(startPaln);
 			MainClass.MainWin.ProgressAdd();
 			BestPlan = ProposedPlan.BestFinishedPlan ?? ProposedPlan.BestNotFinishedPlan;
 			if(BestPlan != null)

@@ -83,6 +83,12 @@
     <Reference Include="NetTopologySuite">
       <HintPath>..\packages\NetTopologySuite.1.14\lib\net40-client\NetTopologySuite.dll</HintPath>
     </Reference>
+    <Reference Include="Google.OrTools">
+      <HintPath>..\lib\Google.OrTools.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>..\lib\Google.Protobuf.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="gtk-gui\gui.stetic">
@@ -585,6 +591,8 @@
     <Compile Include="Additions\Logistic\RouteOptimization\ProposedPlan.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\DistanceCalculator.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\FreeOrders.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\CalculatedOrder.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
