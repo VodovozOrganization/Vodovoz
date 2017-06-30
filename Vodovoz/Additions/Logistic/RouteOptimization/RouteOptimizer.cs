@@ -68,6 +68,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info($"Развозка по {districts.Count} районам.");
 
 			var allDrivers = Drivers.Where(x => x.Car != null).OrderBy(x => x.Employee.TripPriority).ToArray();
+			if(allDrivers.Length == 0)
+			{
+				logger.Error("Для построения маршрутов, нет водителей.");
+				return;
+			}
+
 			logger.Info("Подсчитываем товары в заказах...");
 			Nodes = districts.SelectMany(x => x.OrdersInDistrict).Select(x => new CalculatedOrder(x)).ToArray();
 			MainClass.MainWin.ProgressAdd();
