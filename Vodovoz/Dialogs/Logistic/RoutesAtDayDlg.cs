@@ -954,10 +954,10 @@ namespace Vodovoz
 			optimizer.DebugBuffer = textOrdersInfo.Buffer;
 			optimizer.CreateRoutes();
 
-			if(optimizer.BestPlan != null)
+			if(optimizer.ProposedRoutes.Count > 0)
 			{
 				routesAtDay.Clear();
-				foreach(var propose in optimizer.BestPlan.Routes)
+				foreach(var propose in optimizer.ProposedRoutes)
 				{
 					var rl = new RouteList();
 					rl.Car = propose.Car;

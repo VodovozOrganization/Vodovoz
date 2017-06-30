@@ -26,14 +26,16 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		private CalculatedOrder[] Nodes;
 
-		public ProposedPlan BestPlan;
-
 		public ProgressBar OrdersProgress;
 		public Gtk.TextBuffer DebugBuffer;
 
 		public bool Cancel = false;
 
 		public IUnitOfWork UoW;
+
+		#region Результат
+		public List<ProposedRoute> ProposedRoutes = new List<ProposedRoute>();
+		#endregion
 
 		public RouteOptimizer()
 		{
@@ -90,34 +92,33 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			search_parameters.FirstSolutionStrategy =
 				                 FirstSolutionStrategy.Types.Value.PathCheapestArc;
 
+			logger.Info("Поиск первого решения...");
+			MainClass.MainWin.ProgressAdd();
+
 			Assignment solution = routing.SolveWithParameters(search_parameters);
 			Console.WriteLine("Status = {0}", routing.Status());
 			if(solution != null) {
 				// Solution cost.
 				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
-				// Inspect solution.
-				// Only one route here; otherwise iterate from 0 to routing.vehicles() - 1
-				int route_number = 0;
-				for(long node = routing.Start(route_number);
-					 !routing.IsEnd(node);
-					 node = solution.Value(routing.NextVar(node))) {
-					Console.Write("{0} -> ", node);
+				for(int route_number = 0; route_number < routing.Vehicles(); route_number++)
+				{
+					//FIXME Нужно понять, есть ли у водителя маршрут.
+					var route = new ProposedRoute(allDrivers[route_number]);
+					ProposedRoutes.Add(route);
+					for(long node = routing.Start(route_number);
+						 !routing.IsEnd(node);
+						 node = solution.Value(routing.NextVar(node))) {
+						if(node == 0)
+							continue;
+						route.Orders.Add(Nodes[node - 1].Order);
+					}
 				}
-				Console.WriteLine("0");
 			}
 
-			//ProposedPlan.BestFinishedPlan = null;
-			//ProposedPlan.BestFinishedCost = double.MaxValue;
-			//ProposedPlan.BestNotFinishedPlan = null;
-			//var startPaln = new ProposedPlan();
-			//startPaln.RemainDrivers = allDrivers;
-			//startPaln.RemainOrders = districts.Select(x => new FreeOrders(x, x.OrdersInDistrict)).ToList();
-			//OrdersProgress.Adjustment.Upper = ProposedPlan.BestNotFinishedCount = startPaln.FreeOrdersCount;
-			//RecursiveSearch(startPaln);
 			MainClass.MainWin.ProgressAdd();
-			BestPlan = ProposedPlan.BestFinishedPlan ?? ProposedPlan.BestNotFinishedPlan;
-			if(BestPlan != null)
-				logger.Info($"Предложено {BestPlan.Routes.Count} маршрутов.");
+
+			if(ProposedRoutes.Count > 0)
+				logger.Info($"Предложено {ProposedRoutes.Count} маршрутов.");
 		}
 
 		static DateTime lastRedraw;
