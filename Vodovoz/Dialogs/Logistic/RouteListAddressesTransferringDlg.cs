@@ -80,7 +80,7 @@ namespace Vodovoz
 				RouteListStatus.InLoading,
 				RouteListStatus.EnRoute,
 				RouteListStatus.OnClosing,
-				RouteListStatus.Closed
+			//	RouteListStatus.Closed
 			};
 			vm.Filter.SetFilterDates (DateTime.Today.AddDays (-3), DateTime.Today.AddDays (1));
 			yentryreferenceRLTo.RepresentationModel = vm;
