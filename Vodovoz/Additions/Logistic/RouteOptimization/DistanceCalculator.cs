@@ -1,27 +1,26 @@
-﻿using System;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Operation.Distance;
+﻿using GMap.NET;
+using GMap.NET.MapProviders;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
 	public static class DistanceCalculator
 	{
-		static Point BasePoint = new Point(Constants.BaseLatitude, Constants.BaseLongitude);
+		static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		public static double GetDistance(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
-			return DistanceOp.Distance(fromDP.NetTopologyPoint, toDP.NetTopologyPoint);
+			return GMapProviders.EmptyProvider.Projection.GetDistance(fromDP.GmapPoint, toDP.GmapPoint);
 		}
 
 		public static double GetDistanceFromBase(DeliveryPoint toDP)
 		{
-			return DistanceOp.Distance(BasePoint, toDP.NetTopologyPoint);
+			return GMapProviders.EmptyProvider.Projection.GetDistance(BasePoint, toDP.GmapPoint);
 		}
 
 		public static double GetDistanceToBase(DeliveryPoint fromDP)
 		{
-			return DistanceOp.Distance(fromDP.NetTopologyPoint, BasePoint);
+			return GMapProviders.EmptyProvider.Projection.GetDistance(fromDP.GmapPoint, BasePoint);
 		}
 
 	}
