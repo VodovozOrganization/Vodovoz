@@ -10,6 +10,7 @@ using NHibernate.Criterion;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
@@ -40,7 +41,7 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
-			User lastEditorAlias = null;
+			Employee lastEditorAlias = null;
 
 			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => orderAlias);
 
@@ -97,7 +98,9 @@ namespace Vodovoz.ViewModel
 					.Select (() => orderAlias.OrderStatus).WithAlias (() => resultAlias.StatusEnum)
 					.Select (() => orderAlias.Address1c).WithAlias (() => resultAlias.Address1c)
 				    .Select(() => orderAlias.Author).WithAlias(() => resultAlias.Author)
-				    .Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditor)
+				    .Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorLastName)
+				    .Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+				    .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
 				    .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
 				    .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
 					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
@@ -321,9 +324,13 @@ namespace Vodovoz.ViewModel
 		[SearchHighlight]
 		public string Author { get; set; }
 
+		public string LastEditorLastName { get; set; }
+		public string LastEditorName { get; set; }
+		public string LastEditorPatronymic { get; set; }
+
 		[UseForSearch]
 		[SearchHighlight]
-		public string LastEditor { get; set; }
+		public string LastEditor { get { return StringWorks.PersonNameWithInitials(LastEditorLastName, LastEditorName, LastEditorPatronymic); } }
 
 		[UseForSearch]
 		[SearchHighlight]

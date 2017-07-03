@@ -780,7 +780,7 @@ namespace Vodovoz
 
 		void SaveChanges()
 		{
-			Entity.LastEditor = UserRepository.GetCurrentUser(UoW);
+			Entity.LastEditor = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
 			Entity.LastEditedTime = DateTime.Now;
 		}
 
