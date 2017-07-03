@@ -1094,6 +1094,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25407,34 +25408,6 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
-                      <widget class="Gtk.ScrolledWindow" id="GtkScrolledWindow4">
-                        <property name="MemberName" />
-                        <property name="ShadowType">In</property>
-                        <child>
-                          <widget class="Gamma.GtkWidgets.yTextView" id="textManagerComments">
-                            <property name="MemberName" />
-                            <property name="CanFocus">True</property>
-                            <property name="ShowScrollbars">True</property>
-                            <property name="Text" translatable="yes" />
-                          </widget>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="TopAttach">15</property>
-                        <property name="BottomAttach">16</property>
-                        <property name="LeftAttach">1</property>
-                        <property name="RightAttach">4</property>
-                        <property name="AutoSize">False</property>
-                        <property name="YOptions">Fill</property>
-                        <property name="XExpand">True</property>
-                        <property name="XFill">True</property>
-                        <property name="XShrink">False</property>
-                        <property name="YExpand">False</property>
-                        <property name="YFill">True</property>
-                        <property name="YShrink">False</property>
-                      </packing>
-                    </child>
-                    <child>
                       <widget class="Gtk.HBox" id="hbox10">
                         <property name="MemberName" />
                         <property name="Spacing">6</property>
@@ -25675,7 +25648,7 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="Xalign">1</property>
                         <property name="Yalign">0</property>
-                        <property name="LabelProp" translatable="yes">Комментарий менеджера:</property>
+                        <property name="LabelProp" translatable="yes">Водительский телефон:</property>
                       </widget>
                       <packing>
                         <property name="TopAttach">15</property>
@@ -26070,6 +26043,27 @@ RegistrationNumber</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
                         <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yTextView" id="textManagerComments">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Text" translatable="yes" />
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">15</property>
+                        <property name="BottomAttach">16</property>
+                        <property name="LeftAttach">1</property>
+                        <property name="RightAttach">4</property>
+                        <property name="AutoSize">True</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">True</property>
                         <property name="XFill">True</property>
                         <property name="XShrink">False</property>
                         <property name="YExpand">False</property>
@@ -37333,7 +37327,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Reports.ShortfallBattlesReport" design-size="206 301">
+  <widget class="Gtk.Bin" id="Vodovoz.Reports.ShortfallBattlesReport" design-size="229 345">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -37382,7 +37376,7 @@ RegistrationNumber</property>
         <child>
           <widget class="Gtk.Table" id="table1">
             <property name="MemberName" />
-            <property name="NRows">4</property>
+            <property name="NRows">5</property>
             <property name="NColumns">3</property>
             <property name="RowSpacing">6</property>
             <property name="ColumnSpacing">6</property>
@@ -37406,6 +37400,36 @@ RegistrationNumber</property>
             </child>
             <child>
               <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <widget class="Gtk.CheckButton" id="checkDriverNoCall">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Label" translatable="yes">Водитель без отзвона</property>
+                <property name="DrawIndicator">True</property>
+                <property name="HasLabel">True</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Toggled" handler="OnCheckOneDriverToggled" />
+              </widget>
+              <packing>
+                <property name="TopAttach">4</property>
+                <property name="BottomAttach">5</property>
+                <property name="AutoSize">True</property>
+                <property name="XOptions">Fill</property>
+                <property name="YOptions">Fill</property>
+                <property name="XExpand">False</property>
+                <property name="XFill">True</property>
+                <property name="XShrink">False</property>
+                <property name="YExpand">False</property>
+                <property name="YFill">True</property>
+                <property name="YShrink">False</property>
+              </packing>
             </child>
             <child>
               <widget class="Gtk.CheckButton" id="checkOneDriver">
@@ -37490,7 +37514,6 @@ RegistrationNumber</property>
                     <property name="Sensitive">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">новый адрес</property>
-                    <property name="Active">True</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -37526,11 +37549,11 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="Spacing">6</property>
                     <child>
-                      <widget class="Gtk.RadioButton" id="radiobuttonFirstAddress">
+                      <widget class="Gtk.RadioButton" id="radiobuttonFirstOrder">
                         <property name="MemberName" />
                         <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
-                        <property name="Label" translatable="yes">первый адрес</property>
+                        <property name="Label" translatable="yes">первый заказ</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -37608,6 +37631,8 @@ RegistrationNumber</property>
           <packing>
             <property name="Position">1</property>
             <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
           </packing>
         </child>
         <child>
