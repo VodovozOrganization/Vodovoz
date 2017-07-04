@@ -593,6 +593,10 @@
     <Compile Include="Additions\Logistic\RouteOptimization\FreeOrders.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CalculatedOrder.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistance.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\CallbackBottles.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\CallbackMonitor.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\CallbackWeight.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\CallbackVolume.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

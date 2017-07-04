@@ -44,7 +44,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public void CreateRoutes()
 		{
 			logger.Info("Разбираем заказы по районам...");
-			MainClass.MainWin.ProgressStart(3);
+			PerformanceHelper.StartMeasurement($"Строим оптимальные маршруты");
+			MainClass.MainWin.ProgressStart(4);
 			var areas = UoW.GetAll<LogisticsArea>().ToList();
 			List<DistrictInfo> districts = new List<DistrictInfo>();
 
@@ -68,8 +69,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			MainClass.MainWin.ProgressAdd();
 			logger.Info($"Развозка по {districts.Count} районам.");
+			PerformanceHelper.AddTimePoint(logger, $"Разбор по районам");
 
-			var allDrivers = Drivers.Where(x => x.Car != null).OrderBy(x => x.Employee.TripPriority).ToArray();
+			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
+			var allDrivers = Drivers.Where(x => x.Car != null).OrderByDescending(x => x.Employee.TripPriority).ToArray();
 			if(allDrivers.Length == 0)
 			{
 				logger.Error("Для построения маршрутов, нет водителей.");
@@ -83,19 +86,32 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Настраиваем оптимизацию...");
 			RoutingModel routing = new RoutingModel(Nodes.Length + 1, allDrivers.Length, 0);
 
-			routing.SetCost(new CallbackDistance(Nodes));
+			routing.SetArcCostEvaluatorOfAllVehicles(new CallbackDistance(Nodes));
 
-			// Solve, returns a solution if any (owned by RoutingModel).
+			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles).ToArray();
+			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
+
+			var weightCapacity = allDrivers.Select(x => (long)x.Car.MaxWeight).ToArray();
+			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
+
+			var volumeCapacity = allDrivers.Select(x => (long)(x.Car.MaxVolume * 1000)).ToArray();
+			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
+
 			RoutingSearchParameters search_parameters =
 			        RoutingModel.DefaultSearchParameters();
 			// Setting first solution heuristic (cheapest addition).
 			search_parameters.FirstSolutionStrategy =
 				                 FirstSolutionStrategy.Types.Value.PathCheapestArc;
+//			var solver = routing.solver();
+			//routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress));
 
+			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
 			logger.Info("Поиск первого решения...");
 			MainClass.MainWin.ProgressAdd();
 
 			Assignment solution = routing.SolveWithParameters(search_parameters);
+			PerformanceHelper.AddTimePoint(logger, $"Получили первое решение.");
+			//Assignment solution = routing.Solve();
 			Console.WriteLine("Status = {0}", routing.Status());
 			if(solution != null) {
 				// Solution cost.
@@ -104,14 +120,16 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				{
 					//FIXME Нужно понять, есть ли у водителя маршрут.
 					var route = new ProposedRoute(allDrivers[route_number]);
-					ProposedRoutes.Add(route);
-					for(long node = routing.Start(route_number);
-						 !routing.IsEnd(node);
-						 node = solution.Value(routing.NextVar(node))) {
-						if(node == 0)
-							continue;
+					long node = routing.Start(route_number);
+					node = solution.Value(routing.NextVar(node)); // Пропускаем первый узел, так как это наша база.
+					while(!routing.IsEnd(node))
+					{
 						route.Orders.Add(Nodes[node - 1].Order);
+						node = solution.Value(routing.NextVar(node));
 					}
+
+					if(route.Orders.Count > 0)
+						ProposedRoutes.Add(route);
 				}
 			}
 
@@ -119,6 +137,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			if(ProposedRoutes.Count > 0)
 				logger.Info($"Предложено {ProposedRoutes.Count} маршрутов.");
+			PerformanceHelper.Main.PrintAllPoints(logger);
 		}
 
 		static DateTime lastRedraw;

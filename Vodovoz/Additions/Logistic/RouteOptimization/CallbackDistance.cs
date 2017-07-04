@@ -23,10 +23,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public override long Run(int first_index, int second_index)
 		{
-			if(first_index > Nodes.Length || second_index > Nodes.Length)
+			if(first_index > Nodes.Length || second_index > Nodes.Length || first_index < 0 || second_index < 0)
 			{
 				logger.Error($"Get Distance {first_index} -> {second_index} out of orders ({Nodes.Length})");
-				return 1;
+				return 0;
 			}
 
 			if(first_index == second_index)

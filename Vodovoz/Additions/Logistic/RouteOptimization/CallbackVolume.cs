@@ -3,12 +3,12 @@ using Google.OrTools.ConstraintSolver;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
-	public class CallbackBottles : NodeEvaluator2
+	public class CallbackVolume : NodeEvaluator2
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private CalculatedOrder[] Nodes;
 
-		public CallbackBottles(CalculatedOrder[] nodes)
+		public CallbackVolume(CalculatedOrder[] nodes)
 		{
 			Nodes = nodes;
 		}
@@ -19,11 +19,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				return 0;
 
 			if(first_index > Nodes.Length) {
-				logger.Error($"Get Bottles {first_index} -> {second_index} out of orders ({Nodes.Length})");
+				logger.Error($"Get Weight {first_index} -> {second_index} out of orders ({Nodes.Length})");
 				return 0;
 			}
 
-			return (long)Nodes[first_index - 1].Bootles;
+			return (long)(Nodes[first_index - 1].Volume * 1000);
 		}
 	}
 }
