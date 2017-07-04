@@ -197,7 +197,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>Пуст. бут. план</Value>
+                      <Value>Пуст. бут. план (1c)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -431,7 +431,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>=Fields!delivered.Value</Value>
+                      <Value>=Fields!returned_tare.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1095,7 +1095,7 @@
     SUM(order_items.actual_count) AS actual_count,
     delivered,
     returned,
-    (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) AS bottles,
+    (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) AS bottles,
        CASE reason_type
         WHEN 'Unknown' THEN 'неизвестна'
         WHEN 'NewAddress' THEN 'новый адрес'
@@ -1134,7 +1134,7 @@ WHERE
         AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
         AND (@reason = -1 OR @reason = reason_type)
         AND (@driver_id = -1 OR @driver_id = employees.id)
-        AND ((@driver_call = 1 AND driver_call_type = 'NoCall' AND returned &lt; delivered) OR (@driver_call = -1))
+        AND ((@driver_call = 1 AND driver_call_type = 'NoCall' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) OR (@driver_call = -1))
 GROUP BY order_id
 ORDER BY reason_type_status</CommandText>
         <QueryParameters>
