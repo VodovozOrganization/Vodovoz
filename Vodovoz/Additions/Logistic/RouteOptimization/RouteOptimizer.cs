@@ -88,14 +88,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			routing.SetArcCostEvaluatorOfAllVehicles(new CallbackDistance(Nodes));
 
-			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles).ToArray();
+			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
 
-			var weightCapacity = allDrivers.Select(x => (long)x.Car.MaxWeight).ToArray();
+			var weightCapacity = allDrivers.Select(x => (long)x.Car.MaxWeight + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
 
-			var volumeCapacity = allDrivers.Select(x => (long)(x.Car.MaxVolume * 1000)).ToArray();
+			var volumeCapacity = allDrivers.Select(x => (long)(x.Car.MaxVolume * 1000) + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
+
+			var addressCapacity = allDrivers.Select(x => (long)(x.Car.MaxRouteAddresses + 1)).ToArray();
+			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			RoutingSearchParameters search_parameters =
 			        RoutingModel.DefaultSearchParameters();
