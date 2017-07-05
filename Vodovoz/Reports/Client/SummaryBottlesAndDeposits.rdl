@@ -13,134 +13,225 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    docs.order_id,
-    docs.doc_date,
-    docs.payment_type,
-    IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
-    docs.delivery_point_address,
-    IFNULL((SELECT 
-                    SUM(order_items.price * order_items.count)
-                FROM
-                    order_items
-                WHERE
-                    order_items.order_id = docs.order_id),
-            (SELECT 
-                    debt
-                FROM
-                    doc_residue
-                        LEFT JOIN
-                    money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
-                WHERE
-                    doc_residue.id = docs.order_id)) AS sum,
-    (SELECT 
-            SUM(order_items.price * order_items.count)
-        FROM
-            order_items
-        WHERE
-            order_items.order_id = docs.order_id
-                AND order_items.nomenclature_id = (SELECT 
-                    str_value
-                FROM
-                    base_parameters
-                WHERE
-                    base_parameters.name = 'forfeit_nomenclature_id')) AS forfeit,
-    bottles_movement_operations.delivered,
-    bottles_movement_operations.returned,
-    IFNULL((SELECT 
-                    SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-                FROM
-                    deposit_operations
-                WHERE
-                    deposit_operations.order_id = docs.order_id
-                        AND deposit_operations.deposit_type = 'Bottles'),
-            (SELECT 
-                    deposit_residue_bottles
-                FROM
-                    doc_residue
-                WHERE
-                    doc_residue.id = docs.order_id)) AS bottles_deposit,
-    IFNULL((SELECT 
-                    SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
-                FROM
-                    deposit_operations
-                WHERE
-                    deposit_operations.order_id = docs.order_id
-                        AND deposit_operations.deposit_type = 'Equipment'),
-            (SELECT 
-                    deposit_residue_equipment
-                FROM
-                    doc_residue
-                WHERE
-                    doc_residue.id = docs.order_id)) AS equipment_deposit,
-    (SELECT 
-            GROUP_CONCAT(CONCAT(CASE
-                                WHEN writeoff_counterparty_id IS NULL THEN '&gt;&gt; '
-                                WHEN incoming_counterparty_id IS NULL THEN '&lt;&lt; '
-                                ELSE '&lt;&lt;&gt;&gt; '
-                            END,
-                            nomenclature.name,
-                            ' - ',
-                            amount)
-                    SEPARATOR ', ')
-        FROM
-            operations_counterparty_movement_docs
-                LEFT JOIN
-            nomenclature ON nomenclature.id = nomenclature_id
-        WHERE
-            operations_counterparty_movement_docs.order_id = docs.order_id
-                AND nomenclature.category = 'equipment'
-                AND ((incoming_counterparty_id = @client_id
-                AND (@delivery_point_id = - 1
-                OR incoming_delivery_point_id = @delivery_point_id))
-                OR (writeoff_counterparty_id = @client_id
-                AND (@delivery_point_id = - 1
-                OR writeoff_delivery_point_id = @delivery_point_id)))) AS equipment_moving,
-    doc_name
+	docs.order_id,
+	docs.doc_date,
+	docs.payment_type,
+	IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
+	docs.delivery_point_address,
+	IFNULL((SELECT 
+			SUM(order_items.price * order_items.count)
+		FROM
+			order_items
+		WHERE
+			order_items.order_id = docs.order_id),
+		(SELECT 
+			debt
+		FROM
+			doc_residue
+		LEFT JOIN
+			money_movement_operations ON money_movement_operations.id = doc_residue.money_movement_operation_id
+		WHERE
+			doc_residue.id = docs.order_id)) AS sum,
+	(SELECT 
+		SUM(order_items.price * order_items.count)
+	FROM
+		order_items
+	WHERE
+		order_items.order_id = docs.order_id
+	AND order_items.nomenclature_id = (SELECT 
+			str_value
+		FROM
+			base_parameters
+		WHERE
+			base_parameters.name = 'forfeit_nomenclature_id')) AS forfeit,
+	bottles_movement_operations.delivered,
+	bottles_movement_operations.returned,
+	IFNULL((SELECT 
+			SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+		FROM
+			deposit_operations
+		WHERE
+			deposit_operations.order_id = docs.order_id
+		AND deposit_operations.deposit_type = 'Bottles'),
+		IFNULL((SELECT 
+				deposit_residue_bottles
+			FROM
+				doc_residue
+			WHERE
+				doc_residue.id = docs.order_id),
+			(SELECT
+				CASE
+					WHEN docs.payment_type = 'out' THEN SUM(out_bd_op.received_deposit - out_bd_op.refund_deposit)
+					WHEN docs.payment_type = 'inc' THEN SUM(inc_bd_op.received_deposit - inc_bd_op.refund_deposit)
+                END
+			FROM
+				transfer_operations
+			LEFT JOIN
+				deposit_operations AS out_bd_op ON out_bd_op.id = transfer_operations.outgoing_bottle_deposit_operation
+			LEFT JOIN
+				deposit_operations AS inc_bd_op ON inc_bd_op.id = transfer_operations.incoming_bottle_deposit_operation
+			WHERE
+				(out_bd_op.deposit_type = 'Bottles' OR inc_bd_op.deposit_type = 'Bottles')
+                AND 
+                transfer_operations.id = docs.order_id))
+                ) AS bottles_deposit,
+	IFNULL((SELECT 
+			SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
+		FROM
+			deposit_operations
+		WHERE
+			deposit_operations.order_id = docs.order_id
+		AND deposit_operations.deposit_type = 'Equipment'),
+		IFNULL((SELECT 
+				deposit_residue_equipment
+			FROM
+				doc_residue
+			WHERE
+				doc_residue.id = docs.order_id),
+			(SELECT
+				CASE
+					WHEN docs.payment_type = 'out' THEN SUM(out_ed_op.received_deposit - out_ed_op.refund_deposit)
+					WHEN docs.payment_type = 'inc' THEN SUM(inc_ed_op.received_deposit - inc_ed_op.refund_deposit)
+                END
+			FROM
+				transfer_operations
+			LEFT JOIN
+				deposit_operations AS out_ed_op ON out_ed_op.id = transfer_operations.outgoing_equipment_deposit_operation
+			LEFT JOIN
+				deposit_operations AS inc_ed_op ON inc_ed_op.id = transfer_operations.incoming_equipment_deposit_operation
+			WHERE
+				(out_ed_op.deposit_type = 'Equipment' OR inc_ed_op.deposit_type = 'Equipment')
+                AND 
+                transfer_operations.id = docs.order_id))
+            ) AS equipment_deposit,
+	(SELECT 
+		GROUP_CONCAT(CONCAT(CASE
+			WHEN writeoff_counterparty_id IS NULL THEN '&gt;&gt; '
+			WHEN incoming_counterparty_id IS NULL THEN '&lt;&lt; '
+			ELSE '&lt;&lt;&gt;&gt; '
+			END,
+			nomenclature.name,
+			' - ',
+			amount)
+			SEPARATOR ', ')
+	FROM
+		operations_counterparty_movement_docs
+	LEFT JOIN
+		nomenclature ON nomenclature.id = nomenclature_id
+	WHERE
+		operations_counterparty_movement_docs.order_id = docs.order_id
+	AND nomenclature.category = 'equipment'
+	AND ((incoming_counterparty_id = @client_id
+		AND (@delivery_point_id = - 1
+			OR incoming_delivery_point_id = @delivery_point_id))
+	OR (writeoff_counterparty_id = @client_id
+		AND (@delivery_point_id = - 1
+			OR writeoff_delivery_point_id = @delivery_point_id)))) AS equipment_moving,
+	doc_name
 FROM
-    (SELECT 
-        orders.id AS order_id,
-            orders.bottles_movement_operation_id,
-            orders.delivery_date AS doc_date,
-            orders.payment_type,
-            delivery_points.id AS delivery_point_id,
-            delivery_points.compiled_address AS delivery_point_address,
-            'Заказ' AS doc_name
-    FROM
-        orders
-    LEFT JOIN delivery_points ON delivery_points.id = orders.delivery_point_id
-    WHERE
-        orders.client_id = @client_id
-            AND (@delivery_point_id = - 1
-            OR orders.delivery_point_id = @delivery_point_id)
-            AND (@startDate = ''
-            OR orders.delivery_date &gt;= @startDate)
-            AND (@endDate = ''
-            OR orders.delivery_date &lt;= @endDate)
-            AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NorDelivered')  
-            UNION SELECT 
-        doc_residue.id AS doc_residue_id,
-            doc_residue.bottles_movement_operation_id,
-            doc_residue.date AS doc_date,
-            doc_residue.debt_payment_type,
-            doc_residue.delivery_point_id AS delivery_point_id,
-            delivery_points.compiled_address AS delivery_point_address,
-            'Ввод остатков' AS doc_name
-    FROM
-        doc_residue
-    LEFT JOIN delivery_points ON delivery_points.id = doc_residue.delivery_point_id
-    WHERE
-        doc_residue.client_id = @client_id
-            AND (@delivery_point_id = - 1
-            OR doc_residue.delivery_point_id = @delivery_point_id)
-            AND (@startDate = ''
-            OR doc_residue.date &gt;= @startDate)
-            AND (@endDate = ''
-            OR doc_residue.date &lt;= @endDate)) AS docs
-        LEFT JOIN
-    bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id
+	(SELECT 
+		orders.id AS order_id,
+		orders.bottles_movement_operation_id,
+		orders.delivery_date AS doc_date,
+		orders.payment_type,
+		delivery_points.id AS delivery_point_id,
+		delivery_points.compiled_address AS delivery_point_address,
+		'Заказ' AS doc_name
+	FROM
+		orders
+	LEFT JOIN
+		delivery_points ON delivery_points.id = orders.delivery_point_id
+	WHERE
+		orders.client_id = @client_id
+	AND (@delivery_point_id = - 1
+	OR orders.delivery_point_id = @delivery_point_id)
+	AND (@startDate = ''
+	OR orders.delivery_date &gt;= @startDate)
+	AND (@endDate = ''
+	OR orders.delivery_date &lt;= @endDate)
+	AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NorDelivered')  
+	UNION SELECT 
+		doc_residue.id AS doc_residue_id,
+		doc_residue.bottles_movement_operation_id,
+		doc_residue.date AS doc_date,
+		doc_residue.debt_payment_type,
+		doc_residue.delivery_point_id AS delivery_point_id,
+		delivery_points.compiled_address AS delivery_point_address,
+		'Ввод остатков' AS doc_name
+	FROM
+		doc_residue
+	LEFT JOIN
+		delivery_points ON delivery_points.id = doc_residue.delivery_point_id
+	WHERE
+		doc_residue.client_id = @client_id
+	AND (@delivery_point_id = - 1
+	OR doc_residue.delivery_point_id = @delivery_point_id)
+	AND (@startDate = ''
+	OR doc_residue.date &gt;= @startDate)
+	AND (@endDate = ''
+	OR doc_residue.date &lt;= @endDate)
+    UNION SELECT
+		transfer_operations.id AS transfer_operation_id,
+        transfer_operations.outgoing_bottle_operation AS bottles_movement_operation_id,
+        transfer_operations.operation_time AS doc_date,
+        'out' AS payment_type,  #костыль
+        transfer_operations.from_delivery_point_id AS delivery_point_id,
+        out_delivery_point.compiled_address AS delivery_point_address,
+        CONCAT(
+			'Перенесено от клиента ',
+            inc_counterparty.name,
+            ' с адреса ',
+            inc_delivery_point.compiled_address) AS doc_name
+	FROM
+		transfer_operations
+	LEFT JOIN
+		delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
+	LEFT JOIN
+		delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
+	LEFT JOIN
+		counterparty AS inc_counterparty ON inc_counterparty.id = transfer_operations.to_client_id
+	WHERE
+		transfer_operations.from_client_id = @client_id
+	AND (@delivery_point_id = - 1
+	OR transfer_operations.from_delivery_point_id = @delivery_point_id)
+	AND (@startDate = ''
+	OR transfer_operations.operation_time &gt;= @startDate)
+	AND (@endDate = ''
+	OR transfer_operations.operation_time &lt;= @endDate)
+	UNION SELECT
+		transfer_operations.id AS transfer_operation_id,
+        transfer_operations.incoming_bottle_operation AS bottles_movement_operation_id,
+        transfer_operations.operation_time AS doc_date,
+        'inc' AS payment_type, # костыль
+        transfer_operations.to_delivery_point_id AS delivery_point_id,
+        inc_delivery_point.compiled_address AS delivery_point_address,
+        CONCAT(
+			'Перенесено от клиента ',
+            out_counterparty.name,
+            ' с адреса ',
+            out_delivery_point.compiled_address) AS doc_name
+	FROM
+		transfer_operations
+	LEFT JOIN
+		delivery_points AS inc_delivery_point ON inc_delivery_point.id = transfer_operations.to_delivery_point_id
+	LEFT JOIN
+		delivery_points AS out_delivery_point ON out_delivery_point.id = transfer_operations.from_delivery_point_id
+	LEFT JOIN
+		counterparty AS out_counterparty ON out_counterparty.id = transfer_operations.from_client_id
+	WHERE
+		transfer_operations.to_client_id = @client_id
+	AND (@delivery_point_id = - 1
+	OR transfer_operations.to_delivery_point_id = @delivery_point_id)
+	AND (@startDate = ''
+	OR transfer_operations.operation_time &gt;= @startDate)
+	AND (@endDate = ''
+	OR transfer_operations.operation_time &lt;= @endDate)
+	) AS docs
+LEFT JOIN
+	bottles_movement_operations ON docs.bottles_movement_operation_id = bottles_movement_operations.id
 ORDER BY docs.doc_date;</CommandText>
         <QueryParameters>
           <QueryParameter Name="client_id">
@@ -157,7 +248,7 @@ ORDER BY docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -172,7 +263,7 @@ ORDER BY docs.doc_date;</CommandText>
         </Field>
         <Field Name="delivery_point_id">
           <DataField>delivery_point_id</DataField>
-          <rd:TypeName>System.UInt32</rd:TypeName>
+          <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="delivery_point_address">
           <DataField>delivery_point_address</DataField>
@@ -180,6 +271,10 @@ ORDER BY docs.doc_date;</CommandText>
         </Field>
         <Field Name="sum">
           <DataField>sum</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="forfeit">
+          <DataField>forfeit</DataField>
           <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
         <Field Name="delivered">
@@ -206,10 +301,6 @@ ORDER BY docs.doc_date;</CommandText>
           <DataField>doc_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="forfeit">
-          <DataField>forfeit</DataField>
-          <rd:TypeName>System.UInt32</rd:TypeName>
-        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Client">
@@ -235,7 +326,7 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
@@ -270,7 +361,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -278,10 +369,10 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="BottleDeposit">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    SUM(received_deposit - refund_deposit) as bottle_deposit
+    SUM(CAST(received_deposit AS SIGNED) - CAST(refund_deposit AS SIGNED)) as bottle_deposit
 FROM
     deposit_operations
 WHERE
@@ -298,7 +389,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bottle_deposit">
           <DataField>bottle_deposit</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -306,10 +397,10 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="EquipmentDeposit">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    SUM(received_deposit - refund_deposit) as equipment_deposit
+    SUM(CAST(received_deposit AS SIGNED) - CAST(refund_deposit AS SIGNED)) as equipment_deposit
 FROM
     deposit_operations
 WHERE
@@ -326,7 +417,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="equipment_deposit">
           <DataField>equipment_deposit</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1355,7 +1446,6 @@ ____________(                        )
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <Format>C</Format>
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
         </Style>
@@ -1386,7 +1476,6 @@ ____________(                        )
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
-          <Format>C</Format>
           <TextAlign>Left</TextAlign>
           <FontWeight>Bold</FontWeight>
         </Style>
@@ -1441,7 +1530,7 @@ ____________(                        )
           </Textbox>
         </ReportItems>
         <DataSetName>NotReturnedEquipment</DataSetName>
-        <Style >
+        <Style>
           <BorderStyle />
           <BorderColor />
           <BorderWidth />
@@ -1528,11 +1617,11 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=andrey;password=123;port=3306;server=192.168.1.5</ConnectString>
+        <ConnectString>database=Vodovoz_temp;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

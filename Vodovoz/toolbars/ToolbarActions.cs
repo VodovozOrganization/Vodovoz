@@ -4,7 +4,7 @@ using QSTDI;
 using Vodovoz;
 using Vodovoz.ViewModel;
 using Dialogs.Employees;
-
+using Vodovoz.Dialogs.DocumentDialogs;
 
 public partial class MainWindow : Window
 {
@@ -38,6 +38,8 @@ public partial class MainWindow : Window
 	Action ActionResidue;
 	Action ActionEmployeeWorkChart;
 	Action ActionRouteListAddressesTransferring;
+//	Action ActionTransferOperationDlg;
+	Action ActionTransferOperationJournal;
 
 	public void BuildToolbarActions ()
 	{
@@ -77,6 +79,8 @@ public partial class MainWindow : Window
 		ActionReportDebtorsBottles = new Action ("ReportDebtorsBottles", "Отчет по должникам тары", null, "table");
 		ActionRevisionBottlesAndDeposits = new Action ("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		ActionResidue = new Action("ActionResidue", "Вввод остатков", null, "table");
+//		ActionTransferOperationDlg = new Action("ActionTransferOperationDlg", "Перемещения между точками доставки", null, "table");
+		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Перемещения между точками доставки", null, "table");
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
@@ -113,6 +117,8 @@ public partial class MainWindow : Window
 		w1.Add(ActionResidue, null);
 		w1.Add(ActionEmployeeWorkChart, null);
 		w1.Add(ActionRouteListAddressesTransferring, null);
+//		w1.Add(ActionTransferOperationDlg, null);
+		w1.Add(ActionTransferOperationJournal, null);
 		UIManager.InsertActionGroup (w1, 0);
 		#endregion
 		#region Creating events
@@ -146,6 +152,8 @@ public partial class MainWindow : Window
 		ActionResidue.Activated += ActionResidueActivated;
 		ActionEmployeeWorkChart.Activated += ActionEmployeeWorkChart_Activated;
 		ActionRouteListAddressesTransferring.Activated += ActionRouteListAddressesTransferring_Activated;
+//		ActionTransferOperationDlg.Activated += ActionTransferOperationDlg_Activated;
+		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		#endregion
 	}
 
@@ -394,5 +402,20 @@ public partial class MainWindow : Window
 			ReferenceRepresentation.GenerateHashName<ResidueVM>(),
 			() => new ReferenceRepresentation (new ResidueVM ()).CustomTabName("Журнал остатков")
 		);
+	}
+
+/*	void ActionTransferOperationDlg_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmMain.GenerateDialogHashName<Vodovoz.Domain.Documents.TransferOperationDocument>(0),
+			() => new TransferOperationDocumentDlg()
+		); 
+	} */
+
+	void ActionTransferOperationJournal_Activated (object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			ReferenceRepresentation.GenerateHashName<TransferOperationsVM>(),
+			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Перемещения между точками доставки").Buttons(ReferenceButtonMode.CanAll)		);
 	}
 }

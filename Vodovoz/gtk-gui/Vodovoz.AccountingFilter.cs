@@ -14,61 +14,61 @@ namespace Vodovoz
 
 		private global::QSOrmProject.EnumComboBox comboType;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.AccountingFilter
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.AccountingFilter";
 			// Container child Vodovoz.AccountingFilter.Gtk.Container+ContainerChild
-			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.label1 = new global::Gtk.Label ();
+			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
 			this.label1.Xalign = 1F;
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Период:");
-			this.hbox1.Add (this.label1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label1]));
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Период:");
+			this.hbox1.Add(this.label1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.periodPicker = new global::QSWidgetLib.DatePeriodPicker ();
+			this.periodPicker = new global::QSWidgetLib.DatePeriodPicker();
 			this.periodPicker.Events = ((global::Gdk.EventMask)(256));
 			this.periodPicker.Name = "periodPicker";
-			this.periodPicker.StartDate = new global::System.DateTime (0);
-			this.periodPicker.EndDate = new global::System.DateTime (0);
-			this.hbox1.Add (this.periodPicker);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.periodPicker]));
+			this.periodPicker.StartDate = new global::System.DateTime(0);
+			this.periodPicker.EndDate = new global::System.DateTime(0);
+			this.hbox1.Add(this.periodPicker);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.periodPicker]));
 			w2.Position = 1;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.label4 = new global::Gtk.Label ();
+			this.label4 = new global::Gtk.Label();
 			this.label4.Name = "label4";
 			this.label4.Xalign = 1F;
-			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString ("Тип операции:");
-			this.hbox1.Add (this.label4);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label4]));
+			this.label4.LabelProp = global::Mono.Unix.Catalog.GetString("Тип операции:");
+			this.hbox1.Add(this.label4);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label4]));
 			w3.Position = 2;
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.comboType = new global::QSOrmProject.EnumComboBox ();
+			this.comboType = new global::QSOrmProject.EnumComboBox();
 			this.comboType.Name = "comboType";
 			this.comboType.ItemsEnumName = "Vodovoz.AccountingFilter.OperationType, Vodovoz";
 			this.comboType.ShowSpecialStateAll = true;
 			this.comboType.ShowSpecialStateNot = false;
-			this.hbox1.Add (this.comboType);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.comboType]));
+			this.hbox1.Add(this.comboType);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.comboType]));
 			w4.Position = 3;
-			this.Add (this.hbox1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.hbox1);
+			if((this.Child != null)) {
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.periodPicker.PeriodChanged += new global::System.EventHandler (this.OnPeriodPickerPeriodChanged);
-			this.comboType.EnumItemSelected += new global::System.EventHandler<QSOrmProject.EnumItemClickedEventArgs> (this.OnComboTypeEnumItemSelected);
+			this.Hide();
+			this.periodPicker.PeriodChanged += new global::System.EventHandler(this.OnPeriodPickerPeriodChanged);
+			this.comboType.EnumItemSelected += new global::System.EventHandler< QSOrmProject.EnumItemClickedEventArgs > (this.OnComboTypeEnumItemSelected);
 		}
 	}
 }

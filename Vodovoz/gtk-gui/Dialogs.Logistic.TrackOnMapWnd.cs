@@ -86,7 +86,6 @@ namespace Dialogs.Logistic
 			this.radioSmall = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Маленькие"));
 			this.radioSmall.CanFocus = true;
 			this.radioSmall.Name = "radioSmall";
-			this.radioSmall.Active = false;
 			this.radioSmall.DrawIndicator = true;
 			this.radioSmall.UseUnderline = true;
 			this.radioSmall.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -99,7 +98,6 @@ namespace Dialogs.Logistic
 			this.radioNumbers = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Пронумерованные"));
 			this.radioNumbers.CanFocus = true;
 			this.radioNumbers.Name = "radioNumbers";
-			this.radioNumbers.Active = false;
 			this.radioNumbers.DrawIndicator = true;
 			this.radioNumbers.UseUnderline = true;
 			this.radioNumbers.Group = this.radioSmall.Group;
@@ -233,7 +231,6 @@ namespace Dialogs.Logistic
 			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.ydatepickerEnd]));
 			w15.Position = 1;
 			w15.Expand = false;
-			w15.Fill = false;
 			this.hbox1.Add(this.vbox4);
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.vbox4]));
 			w16.PackType = ((global::Gtk.PackType)(1));

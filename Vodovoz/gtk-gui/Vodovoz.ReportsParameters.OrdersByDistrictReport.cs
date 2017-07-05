@@ -113,8 +113,7 @@ namespace Vodovoz.ReportsParameters
 			w8.Expand = false;
 			w8.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();

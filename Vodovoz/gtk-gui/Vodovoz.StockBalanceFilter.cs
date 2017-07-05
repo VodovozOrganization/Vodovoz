@@ -10,44 +10,44 @@ namespace Vodovoz
 
 		private global::Gamma.Widgets.ySpecComboBox speccomboStock;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.StockBalanceFilter
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.StockBalanceFilter";
 			// Container child Vodovoz.StockBalanceFilter.Gtk.Container+ContainerChild
-			this.table1 = new global::Gtk.Table (((uint)(1)), ((uint)(2)), false);
+			this.table1 = new global::Gtk.Table(((uint)(1)), ((uint)(2)), false);
 			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.label1 = new global::Gtk.Label ();
+			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Склад:");
-			this.table1.Add (this.label1);
-			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1 [this.label1]));
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Склад:");
+			this.table1.Add(this.label1);
+			global::Gtk.Table.TableChild w1 = ((global::Gtk.Table.TableChild)(this.table1[this.label1]));
 			w1.XOptions = ((global::Gtk.AttachOptions)(4));
 			w1.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
-			this.speccomboStock = new global::Gamma.Widgets.ySpecComboBox ();
+			this.speccomboStock = new global::Gamma.Widgets.ySpecComboBox();
 			this.speccomboStock.Name = "speccomboStock";
 			this.speccomboStock.AddIfNotExist = false;
 			this.speccomboStock.DefaultFirst = false;
 			this.speccomboStock.ShowSpecialStateAll = true;
 			this.speccomboStock.ShowSpecialStateNot = false;
-			this.table1.Add (this.speccomboStock);
-			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1 [this.speccomboStock]));
+			this.table1.Add(this.speccomboStock);
+			global::Gtk.Table.TableChild w2 = ((global::Gtk.Table.TableChild)(this.table1[this.speccomboStock]));
 			w2.LeftAttach = ((uint)(1));
 			w2.RightAttach = ((uint)(2));
 			w2.XOptions = ((global::Gtk.AttachOptions)(4));
 			w2.YOptions = ((global::Gtk.AttachOptions)(4));
-			this.Add (this.table1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.table1);
+			if((this.Child != null)) {
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.speccomboStock.ItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs> (this.OnSpeccomboStockItemSelected);
+			this.Hide();
+			this.speccomboStock.ItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnSpeccomboStockItemSelected);
 		}
 	}
 }

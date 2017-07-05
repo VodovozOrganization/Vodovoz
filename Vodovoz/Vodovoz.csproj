@@ -582,6 +582,11 @@
     <Compile Include="Additions\Logistic\RouteOptimization\RouteOptimizer.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\DistrictInfo.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\ProposedRoute.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.TransferOperationDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentItemView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.TransferOperationDocumentItemView.cs" />
+    <Compile Include="Representations\TransferOperationsVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

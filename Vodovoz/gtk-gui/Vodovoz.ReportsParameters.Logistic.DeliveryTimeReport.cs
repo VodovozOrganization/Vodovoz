@@ -14,66 +14,66 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		private global::Gtk.Button buttonCreateReport;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport";
 			// Container child Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.label1 = new global::Gtk.Label ();
+			this.label1 = new global::Gtk.Label();
 			this.label1.Name = "label1";
-			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString ("Время доставки до:");
-			this.hbox1.Add (this.label1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.label1]));
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Время доставки до:");
+			this.hbox1.Add(this.label1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.label1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.ytimeDelivery = new global::Gamma.Widgets.yTimeEntry ();
+			this.ytimeDelivery = new global::Gamma.Widgets.yTimeEntry();
 			this.ytimeDelivery.CanFocus = true;
 			this.ytimeDelivery.Name = "ytimeDelivery";
 			this.ytimeDelivery.IsEditable = true;
 			this.ytimeDelivery.InvisibleChar = '●';
 			this.ytimeDelivery.ShowSeconds = false;
 			this.ytimeDelivery.AutocompleteStep = 30;
-			this.ytimeDelivery.DateTime = new global::System.DateTime (0);
-			this.ytimeDelivery.Time = new global::System.TimeSpan (0);
-			this.hbox1.Add (this.ytimeDelivery);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.ytimeDelivery]));
+			this.ytimeDelivery.DateTime = new global::System.DateTime(0);
+			this.ytimeDelivery.Time = new global::System.TimeSpan(0);
+			this.hbox1.Add(this.ytimeDelivery);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ytimeDelivery]));
 			w2.Position = 1;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button ();
+			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.Sensitive = false;
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
-			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString ("Сформировать отчет");
-			this.vbox1.Add (this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.buttonCreateReport]));
+			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
+			this.vbox1.Add(this.buttonCreateReport);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
 			w4.Position = 2;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.Add (this.vbox1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.vbox1);
+			if((this.Child != null)) {
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.ytimeDelivery.Changed += new global::System.EventHandler (this.OnYtimeDeliveryChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler (this.OnButtonCreateReportClicked);
+			this.Hide();
+			this.ytimeDelivery.Changed += new global::System.EventHandler(this.OnYtimeDeliveryChanged);
+			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

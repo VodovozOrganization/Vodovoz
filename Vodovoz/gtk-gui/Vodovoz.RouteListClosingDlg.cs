@@ -919,8 +919,7 @@ namespace Vodovoz
 			w78.Expand = false;
 			w78.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();

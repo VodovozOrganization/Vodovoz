@@ -501,6 +501,7 @@ namespace Vodovoz
 			w34.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableCarData.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
+			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Марка а/м:");
 			this.tableCarData.Add(this.label3);
@@ -600,7 +601,6 @@ namespace Vodovoz
 			this.textDriverInfo = new global::Gtk.Label();
 			this.textDriverInfo.Name = "textDriverInfo";
 			this.textDriverInfo.Xalign = 0F;
-			this.textDriverInfo.LabelProp = "";
 			this.tableCarData.Add(this.textDriverInfo);
 			global::Gtk.Table.TableChild w44 = ((global::Gtk.Table.TableChild)(this.tableCarData[this.textDriverInfo]));
 			w44.TopAttach = ((uint)(7));
