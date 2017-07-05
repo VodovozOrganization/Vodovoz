@@ -75,7 +75,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			Nodes = calculatedOrders.ToArray();
 			if(unusedDistricts.Count > 0)
 			{
-				logger.Warn("Районы без водителей: {0}", String.Join(" ,", unusedDistricts.Select(x => x.Name)));
+				logger.Warn("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
 			}
 
 			MainClass.MainWin.ProgressAdd();
@@ -111,7 +111,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			        RoutingModel.DefaultSearchParameters();
 			// Setting first solution heuristic (cheapest addition).
 			search_parameters.FirstSolutionStrategy =
-				                 FirstSolutionStrategy.Types.Value.PathCheapestArc;
+				                 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 			//			var solver = routing.solver();
 			//routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress));
 			search_parameters.TimeLimitMs = 30000;
