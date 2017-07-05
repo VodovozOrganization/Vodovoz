@@ -55,7 +55,7 @@ namespace Vodovoz
 			private set {
 				hasNoChanges = value;
 
-				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive
+				ydateForRoutes.Sensitive = checkShowCompleted.Sensitive = ytimeToDelivery.Sensitive
 					= hasNoChanges;
 			}
 		}
