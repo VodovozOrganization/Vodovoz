@@ -46,11 +46,11 @@ namespace Dialogs.Logistic
 			track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
 			if(track == null)
 			{
-				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = false;
+				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 				MessageDialogWorks.RunInfoDialog($"Маршрутный лист №{routeList.Id}\nТрек не обнаружен");
 			}
 			else if(routeList.Status < RouteListStatus.OnClosing)
-				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = false;
+				buttonRecalculateToBase.Sensitive = buttonFindGap.Sensitive = buttonCutTrack.Sensitive = buttonLastAddress.Sensitive = false;
 
 			ConfigureMap();
 			OpenMap();
@@ -197,7 +197,7 @@ namespace Dialogs.Logistic
 			var layout = new Pango.Layout(this.PangoContext);
 			layout.Alignment = Pango.Alignment.Right;
 			var colTXT = System.Drawing.ColorTranslator.ToHtml(route[0].Stroke.Color);
-			layout.SetMarkup(String.Format("<span foreground=\"{1}\"><span font=\"Segoe UI Symbol\">⛽</span> {0:N1} км.</span>", route.Sum(x => x.Distance), colTXT));
+			layout.SetMarkup(String.Format("<span foreground=\"{1}\"><span font=\"Segoe UI Symbol\">⛽</span> {0:N1} км.</span>", route.Sum(x =>x.Distance), colTXT));
 
 			return new DistanceTextInfo{
 				PangoLayout = layout
@@ -399,6 +399,66 @@ namespace Dialogs.Logistic
 				ylabelPoint.LabelProp = String.Empty;
 
 		}
+
+		protected void OnButtonCutTrackClicked(object sender, EventArgs e)
+		{
+			
+			IEnumerable<PointLatLng> midlPoints;
+			var track = Vodovoz.Repository.Logistics.TrackRepository.GetTrackForRouteList(UoW, routeList.Id);
+
+			tracksOverlay.Clear();
+
+			var startDateTime = ydatepickerStart.Date;
+			var endDateTime = ydatepickerEnd.Date;
+
+			var startPoints = track.TrackPoints.Where(x => x.TimeStamp < startDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			var endPoints = track.TrackPoints.Where(x => x.TimeStamp >= endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+
+			if(!ydatepickerStart.IsEmpty) {
+
+				midlPoints = track.TrackPoints.Where(x => x.TimeStamp >= startDateTime && x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+
+				trackRoute = new GMapRoute(startPoints, routeList.Id.ToString());
+				trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Gray);
+				trackRoute.Stroke.Width = 4;
+				trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.DashDot;
+				trackRoute.IsHitTestVisible = true;
+				tracksOverlay.Routes.Add(trackRoute);
+ 
+			} else
+			{
+				midlPoints = track.TrackPoints.Where(x => x.TimeStamp < endDateTime).Select(p => new PointLatLng(p.Latitude, p.Longitude));
+			}
+
+			trackRoute = new GMapRoute(midlPoints, routeList.Id.ToString());
+			trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Red);
+			trackRoute.Stroke.Width = 4;
+			trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+			trackRoute.IsHitTestVisible = true;
+			 
+			labelCutTrack.Text = String.Format("Обработанный\nтрек: {0:N1} км.", Math.Round(trackRoute.Distance, 2)) ;
+			 
+			tracksOverlay.Routes.Add(trackRoute);
+
+			trackRoute = new GMapRoute(endPoints, routeList.Id.ToString());
+			trackRoute.Stroke = new System.Drawing.Pen(System.Drawing.Color.Gray);
+			trackRoute.Stroke.Width = 4;
+			trackRoute.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.DashDotDot;
+			trackRoute.IsHitTestVisible = true;
+
+			tracksOverlay.Routes.Add(trackRoute);
+		
+
+		}
+
+		protected void OnButtonLastAddressClicked(object sender, EventArgs e)
+		{
+ 
+			 ydatepickerEnd.Date = routeList.Addresses
+									.Where(x => x.Status == RouteListItemStatus.Completed)
+									.Select(x => x.StatusLastUpdate).Max(x => x.Value);  
+		}
+ 
 	}
 
 	class DistanceTextInfo{

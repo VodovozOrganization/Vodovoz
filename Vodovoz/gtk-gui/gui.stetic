@@ -1094,7 +1094,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1111,6 +1111,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Счета</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1746,6 +1747,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1762,6 +1764,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Логистика</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1778,6 +1781,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Реквизиты</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1794,6 +1798,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2058,6 +2063,7 @@
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Label" translatable="yes" />
+                                <property name="Active">False</property>
                                 <property name="DrawIndicator">True</property>
                                 <property name="HasLabel">True</property>
                                 <property name="UseUnderline">True</property>
@@ -2998,6 +3004,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Файлы</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3015,6 +3022,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3076,6 +3084,7 @@
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes" />
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -3101,6 +3110,7 @@
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Имущество компании</property>
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -3127,6 +3137,7 @@
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Фура</property>
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -3838,6 +3849,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Цены</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3855,6 +3867,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Оборудование</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3872,6 +3885,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -3931,6 +3945,7 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Label" translatable="yes" />
+                            <property name="Active">False</property>
                             <property name="DrawIndicator">True</property>
                             <property name="HasLabel">True</property>
                             <property name="UseUnderline">True</property>
@@ -3956,7 +3971,7 @@ Patronymic</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Label" translatable="yes" />
-                            <property name="Active">True</property>
+                            <property name="Active">False</property>
                             <property name="DrawIndicator">True</property>
                             <property name="HasLabel">True</property>
                             <property name="UseUnderline">True</property>
@@ -4591,6 +4606,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes" />
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -4799,6 +4815,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes" />
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -4993,6 +5010,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5009,6 +5027,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Контакты</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5025,6 +5044,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Реквизиты</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5041,6 +5061,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Кураторы</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5057,6 +5078,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Контактные лица</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5073,6 +5095,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Доверенности</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5089,6 +5112,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Договор</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5105,6 +5129,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Точки доставки</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -5352,6 +5377,7 @@ Patronymic</property>
                                 <property name="Tooltip" translatable="yes">Больше не работаем с этим клиентом</property>
                                 <property name="CanFocus">True</property>
                                 <property name="Label" translatable="yes">Архивный</property>
+                                <property name="Active">False</property>
                                 <property name="DrawIndicator">True</property>
                                 <property name="HasLabel">True</property>
                                 <property name="UseUnderline">True</property>
@@ -5839,6 +5865,7 @@ Patronymic</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Label" translatable="yes">Покупатель</property>
+                                <property name="Active">False</property>
                                 <property name="DrawIndicator">True</property>
                                 <property name="HasLabel">True</property>
                                 <property name="UseUnderline">True</property>
@@ -5855,6 +5882,7 @@ Patronymic</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Label" translatable="yes">Поставщик</property>
+                                <property name="Active">False</property>
                                 <property name="DrawIndicator">True</property>
                                 <property name="HasLabel">True</property>
                                 <property name="UseUnderline">True</property>
@@ -5872,6 +5900,7 @@ Patronymic</property>
                                 <property name="MemberName" />
                                 <property name="CanFocus">True</property>
                                 <property name="Label" translatable="yes">Партнер</property>
+                                <property name="Active">False</property>
                                 <property name="DrawIndicator">True</property>
                                 <property name="HasLabel">True</property>
                                 <property name="UseUnderline">True</property>
@@ -7436,7 +7465,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes" />
-                    <property name="Active">True</property>
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -8697,6 +8726,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -8713,6 +8743,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Ответственные лица</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -9030,6 +9061,7 @@ Patronymic</property>
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Label" translatable="yes">Исправлено</property>
+                                    <property name="Active">False</property>
                                     <property name="DrawIndicator">True</property>
                                     <property name="HasLabel">True</property>
                                     <property name="UseUnderline">True</property>
@@ -9046,6 +9078,7 @@ Patronymic</property>
                                     <property name="MemberName" />
                                     <property name="CanFocus">True</property>
                                     <property name="Label" translatable="yes">Активный</property>
+                                    <property name="Active">False</property>
                                     <property name="DrawIndicator">True</property>
                                     <property name="HasLabel">True</property>
                                     <property name="UseUnderline">True</property>
@@ -10271,7 +10304,7 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Показывать уволенных</property>
-            <property name="Active">True</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -10548,6 +10581,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Наклейка</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -10565,6 +10599,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -10602,6 +10637,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes" />
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -10993,6 +11029,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Требуется сан. обработка</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -12133,6 +12170,7 @@ Patronymic</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Включая проданное</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -12884,6 +12922,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">На расторжении</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -12966,6 +13005,7 @@ Patronymic</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Архивный</property>
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -13604,6 +13644,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes" />
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14125,6 +14166,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Фильтр</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -14306,6 +14348,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Фильтр</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -15011,7 +15054,7 @@ Patronymic</property>
               <widget class="Gamma.GtkWidgets.ySpinButton" id="spinAmount">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Upper">100</property>
+                <property name="Upper">10000</property>
                 <property name="PageIncrement">10</property>
                 <property name="StepIncrement">1</property>
                 <property name="ClimbRate">1</property>
@@ -16814,7 +16857,7 @@ Patronymic</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Печатать по 2 наклейки</property>
-                <property name="Active">True</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18304,7 +18347,7 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Скрыть столбцы</property>
-                    <property name="Active">True</property>
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -18493,6 +18536,7 @@ RegistrationNumber</property>
                         <property name="Tooltip" translatable="yes">Штраф за бутыли</property>
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">checkbutton1</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -18702,6 +18746,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Аванс</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -18917,6 +18962,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Расхождения подтверждаю</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -19827,6 +19873,7 @@ RegistrationNumber</property>
                         <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Сохранять только адреса</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -19844,6 +19891,7 @@ RegistrationNumber</property>
                         <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Перезаписывать</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -19860,6 +19908,7 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Пропускать контрагентов</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -20002,6 +20051,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Только самовывоз</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -20028,6 +20078,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Только без координат</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -20054,6 +20105,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Без самовывоза</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -20405,6 +20457,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Включая архивных</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -20432,7 +20485,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Покупатель</property>
-                <property name="Active">True</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -20448,7 +20501,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Поставщик</property>
-                <property name="Active">True</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -20464,7 +20517,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Партнер</property>
-                <property name="Active">True</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -20586,6 +20639,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -20602,6 +20656,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Запчасти и работы</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -20618,6 +20673,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">История</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -20664,6 +20720,7 @@ RegistrationNumber</property>
                     <property name="MemberName" />
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">Повторный ремонт</property>
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -21986,6 +22043,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Фильтр</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -22155,6 +22213,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Частичный возврат</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -24270,7 +24329,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Детализированный</property>
-            <property name="Active">True</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -24598,7 +24657,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Отметить все</property>
-            <property name="Active">True</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -24724,6 +24783,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Фильтр</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25116,7 +25176,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25133,6 +25193,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Товары</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25149,6 +25210,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Оборудование</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25165,6 +25227,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Сервис</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25181,6 +25244,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Документы</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25253,6 +25317,7 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Отгружен по платежке</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -25278,6 +25343,7 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Самовывоз</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -26061,7 +26127,7 @@ RegistrationNumber</property>
                         <property name="BottomAttach">16</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                         <property name="YOptions">Fill</property>
                         <property name="XExpand">True</property>
                         <property name="XFill">True</property>
@@ -26083,7 +26149,7 @@ RegistrationNumber</property>
                         <property name="BottomAttach">17</property>
                         <property name="LeftAttach">1</property>
                         <property name="RightAttach">4</property>
-                        <property name="AutoSize">True</property>
+                        <property name="AutoSize">False</property>
                         <property name="YOptions">Fill</property>
                         <property name="XExpand">True</property>
                         <property name="XFill">True</property>
@@ -26285,6 +26351,7 @@ RegistrationNumber</property>
                             <property name="MemberName" />
                             <property name="CanFocus">True</property>
                             <property name="Label" translatable="yes">Забор бутылей</property>
+                            <property name="Active">False</property>
                             <property name="DrawIndicator">True</property>
                             <property name="HasLabel">True</property>
                             <property name="UseUnderline">True</property>
@@ -27091,6 +27158,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Только без разгрузок</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -27201,6 +27269,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Прием тары</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">False</property>
             <property name="UseUnderline">True</property>
@@ -27217,6 +27286,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Прием оборудования</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">False</property>
             <property name="UseUnderline">True</property>
@@ -34562,6 +34632,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Только не найденные в OSM</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -34583,6 +34654,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Только без улиц</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -35990,6 +36062,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Показывать уехавшие</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -36547,6 +36620,7 @@ RegistrationNumber</property>
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">Районы</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -37193,6 +37267,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">вывести баланс</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -37412,6 +37487,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Водитель без отзвона</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -37436,6 +37512,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">По водителю</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -37458,6 +37535,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Причина несдачи:</property>
+                <property name="Active">False</property>
                 <property name="DrawIndicator">True</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -37532,6 +37610,7 @@ RegistrationNumber</property>
                     <property name="Sensitive">False</property>
                     <property name="CanFocus">True</property>
                     <property name="Label" translatable="yes">увеличение заказа</property>
+                    <property name="Active">False</property>
                     <property name="DrawIndicator">True</property>
                     <property name="HasLabel">True</property>
                     <property name="UseUnderline">True</property>
@@ -37554,6 +37633,7 @@ RegistrationNumber</property>
                         <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">первый заказ</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -37572,6 +37652,7 @@ RegistrationNumber</property>
                         <property name="Sensitive">False</property>
                         <property name="CanFocus">True</property>
                         <property name="Label" translatable="yes">неизвестно</property>
+                        <property name="Active">False</property>
                         <property name="DrawIndicator">True</property>
                         <property name="HasLabel">True</property>
                         <property name="UseUnderline">True</property>
@@ -38039,6 +38120,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">вывести баланс</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -39048,7 +39130,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Window" id="Dialogs.Logistic.TrackOnMapWnd" design-size="617 300">
+  <widget class="Gtk.Window" id="Dialogs.Logistic.TrackOnMapWnd" design-size="1090 300">
     <property name="MemberName" />
     <property name="Title" translatable="yes">TrackOnMapWnd</property>
     <property name="WindowPosition">CenterOnParent</property>
@@ -39061,9 +39143,58 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="Spacing">6</property>
             <child>
-              <widget class="Gtk.Label" id="label1">
+              <widget class="Gtk.VBox" id="vbox6">
                 <property name="MemberName" />
-                <property name="LabelProp" translatable="yes">Вид маркеров:</property>
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Label" id="label1">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">Вид маркеров:</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.RadioButton" id="radioSmall">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Label" translatable="yes">Маленькие</property>
+                    <property name="DrawIndicator">True</property>
+                    <property name="HasLabel">True</property>
+                    <property name="UseUnderline">True</property>
+                    <property name="Group">group1</property>
+                    <signal name="Clicked" handler="OnRadioSmallClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.RadioButton" id="radioNumbers">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Label" translatable="yes">Пронумерованные</property>
+                    <property name="Active">False</property>
+                    <property name="DrawIndicator">True</property>
+                    <property name="HasLabel">True</property>
+                    <property name="UseUnderline">True</property>
+                    <property name="Group">group1</property>
+                    <signal name="Clicked" handler="OnRadioNumbersClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
                 <property name="Position">0</property>
@@ -39073,40 +39204,7 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.RadioButton" id="radioSmall">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Label" translatable="yes">Маленькие</property>
-                <property name="DrawIndicator">True</property>
-                <property name="HasLabel">True</property>
-                <property name="UseUnderline">True</property>
-                <property name="Group">group1</property>
-                <signal name="Clicked" handler="OnRadioSmallClicked" />
-              </widget>
-              <packing>
-                <property name="Position">1</property>
-                <property name="AutoSize">False</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="Gtk.RadioButton" id="radioNumbers">
-                <property name="MemberName" />
-                <property name="CanFocus">True</property>
-                <property name="Label" translatable="yes">Пронумерованные</property>
-                <property name="DrawIndicator">True</property>
-                <property name="HasLabel">True</property>
-                <property name="UseUnderline">True</property>
-                <property name="Group">group1</property>
-                <signal name="Clicked" handler="OnRadioNumbersClicked" />
-              </widget>
-              <packing>
-                <property name="Position">2</property>
-                <property name="AutoSize">False</property>
-                <property name="Expand">False</property>
-                <property name="Fill">False</property>
-              </packing>
+              <placeholder />
             </child>
             <child>
               <widget class="Gtk.Label" id="labelDistance">
@@ -39114,11 +39212,14 @@ RegistrationNumber</property>
                 <property name="LabelProp" translatable="yes">Расстояние</property>
               </widget>
               <packing>
-                <property name="Position">3</property>
+                <property name="Position">2</property>
                 <property name="AutoSize">True</property>
                 <property name="Expand">False</property>
                 <property name="Fill">False</property>
               </packing>
+            </child>
+            <child>
+              <placeholder />
             </child>
             <child>
               <widget class="Gtk.VBox" id="vbox2">
@@ -39164,6 +39265,180 @@ RegistrationNumber</property>
                 <property name="Fill">False</property>
               </packing>
             </child>
+            <child>
+              <placeholder />
+            </child>
+            <child>
+              <widget class="Gtk.VBox" id="vbox7">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Label" id="labelCutTrack">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">Обработанный
+трек:</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+                <child>
+                  <placeholder />
+                </child>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">6</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VBox" id="vbox5">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Button" id="buttonLastAddress">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Последний адрес</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonLastAddressClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Button" id="buttonCutTrack">
+                    <property name="MemberName" />
+                    <property name="CanFocus">True</property>
+                    <property name="Type">TextOnly</property>
+                    <property name="Label" translatable="yes">Обрезать</property>
+                    <property name="UseUnderline">True</property>
+                    <signal name="Clicked" handler="OnButtonCutTrackClicked" />
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">7</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VBox" id="vbox4">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gamma.Widgets.yDatePicker" id="ydatepickerStart">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">True</property>
+                    <property name="Date">0</property>
+                    <property name="IsEditable">True</property>
+                    <property name="AutoSeparation">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gamma.Widgets.yDatePicker" id="ydatepickerEnd">
+                    <property name="MemberName" />
+                    <property name="Events">ButtonPressMask</property>
+                    <property name="WithTime">True</property>
+                    <property name="Date">0</property>
+                    <property name="IsEditable">True</property>
+                    <property name="AutoSeparation">False</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">8</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.VBox" id="vbox3">
+                <property name="MemberName" />
+                <property name="Spacing">6</property>
+                <child>
+                  <widget class="Gtk.Label" id="label4">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">обрезать до</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">0</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Label" id="label2">
+                    <property name="MemberName" />
+                    <property name="Visible">False</property>
+                    <property name="Sensitive">False</property>
+                    <property name="LabelProp" translatable="yes">label1</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">1</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="Gtk.Label" id="label5">
+                    <property name="MemberName" />
+                    <property name="LabelProp" translatable="yes">обрезать после</property>
+                  </widget>
+                  <packing>
+                    <property name="Position">2</property>
+                    <property name="AutoSize">True</property>
+                    <property name="Expand">False</property>
+                    <property name="Fill">False</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="PackType">End</property>
+                <property name="Position">9</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
           </widget>
           <packing>
             <property name="Position">0</property>
@@ -39171,6 +39446,9 @@ RegistrationNumber</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
           </packing>
+        </child>
+        <child>
+          <placeholder />
         </child>
         <child>
           <widget class="GMap.NET.GtkSharp.GMapControl" id="gmapWidget">
@@ -39190,7 +39468,7 @@ RegistrationNumber</property>
             <property name="CanDragMap">True</property>
           </widget>
           <packing>
-            <property name="Position">1</property>
+            <property name="Position">2</property>
             <property name="AutoSize">False</property>
           </packing>
         </child>
@@ -39214,7 +39492,7 @@ RegistrationNumber</property>
             </child>
           </widget>
           <packing>
-            <property name="Position">2</property>
+            <property name="Position">3</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>
@@ -39703,6 +39981,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">По всем районам</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -39956,6 +40235,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">Отчёт по санитарной обработке</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -40067,6 +40347,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">все</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -40094,6 +40375,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">без ввода остатков</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
@@ -40121,6 +40403,7 @@ RegistrationNumber</property>
             <property name="MemberName" />
             <property name="CanFocus">True</property>
             <property name="Label" translatable="yes">с вводом остатков</property>
+            <property name="Active">False</property>
             <property name="DrawIndicator">True</property>
             <property name="HasLabel">True</property>
             <property name="UseUnderline">True</property>
