@@ -288,6 +288,7 @@ namespace Vodovoz
 			this.toggleInformation = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Информация"));
 			this.toggleInformation.CanFocus = true;
 			this.toggleInformation.Name = "toggleInformation";
+			this.toggleInformation.Active = false;
 			this.toggleInformation.DrawIndicator = false;
 			this.toggleInformation.UseUnderline = true;
 			this.toggleInformation.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -298,6 +299,7 @@ namespace Vodovoz
 			this.toggleGoods = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Товары"));
 			this.toggleGoods.CanFocus = true;
 			this.toggleGoods.Name = "toggleGoods";
+			this.toggleGoods.Active = false;
 			this.toggleGoods.DrawIndicator = false;
 			this.toggleGoods.UseUnderline = true;
 			this.toggleGoods.Group = this.toggleInformation.Group;
@@ -308,6 +310,7 @@ namespace Vodovoz
 			this.toggleEquipment = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Оборудование"));
 			this.toggleEquipment.CanFocus = true;
 			this.toggleEquipment.Name = "toggleEquipment";
+			this.toggleEquipment.Active = false;
 			this.toggleEquipment.DrawIndicator = false;
 			this.toggleEquipment.UseUnderline = true;
 			this.toggleEquipment.Group = this.toggleInformation.Group;
@@ -318,6 +321,7 @@ namespace Vodovoz
 			this.toggleService = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Сервис"));
 			this.toggleService.CanFocus = true;
 			this.toggleService.Name = "toggleService";
+			this.toggleService.Active = false;
 			this.toggleService.DrawIndicator = false;
 			this.toggleService.UseUnderline = true;
 			this.toggleService.Group = this.toggleInformation.Group;
@@ -328,6 +332,7 @@ namespace Vodovoz
 			this.toggleDocuments = new global::Gtk.RadioButton(global::Mono.Unix.Catalog.GetString("Документы"));
 			this.toggleDocuments.CanFocus = true;
 			this.toggleDocuments.Name = "toggleDocuments";
+			this.toggleDocuments.Active = false;
 			this.toggleDocuments.DrawIndicator = false;
 			this.toggleDocuments.UseUnderline = true;
 			this.toggleDocuments.Group = this.toggleInformation.Group;
@@ -373,6 +378,7 @@ namespace Vodovoz
 			this.checkDelivered.CanFocus = true;
 			this.checkDelivered.Name = "checkDelivered";
 			this.checkDelivered.Label = global::Mono.Unix.Catalog.GetString("Отгружен по платежке");
+			this.checkDelivered.Active = false;
 			this.checkDelivered.DrawIndicator = true;
 			this.checkDelivered.UseUnderline = true;
 			this.table1.Add(this.checkDelivered);
@@ -388,6 +394,7 @@ namespace Vodovoz
 			this.checkSelfDelivery.CanFocus = true;
 			this.checkSelfDelivery.Name = "checkSelfDelivery";
 			this.checkSelfDelivery.Label = global::Mono.Unix.Catalog.GetString("Самовывоз");
+			this.checkSelfDelivery.Active = false;
 			this.checkSelfDelivery.DrawIndicator = true;
 			this.checkSelfDelivery.UseUnderline = true;
 			this.checkSelfDelivery.Xalign = 0F;
@@ -975,6 +982,7 @@ namespace Vodovoz
 			this.ycheckbuttonCollectBottles.CanFocus = true;
 			this.ycheckbuttonCollectBottles.Name = "ycheckbuttonCollectBottles";
 			this.ycheckbuttonCollectBottles.Label = global::Mono.Unix.Catalog.GetString("Забор бутылей");
+			this.ycheckbuttonCollectBottles.Active = false;
 			this.ycheckbuttonCollectBottles.DrawIndicator = true;
 			this.ycheckbuttonCollectBottles.UseUnderline = true;
 			this.hbox11.Add(this.ycheckbuttonCollectBottles);
@@ -1439,7 +1447,8 @@ namespace Vodovoz
 			w120.Expand = false;
 			w120.Fill = false;
 			this.Add(this.vbox2);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.labelProxyInfo.Hide();
