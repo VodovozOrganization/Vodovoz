@@ -257,6 +257,7 @@ namespace Vodovoz
 		protected void OnButtonSaveClicked (object sender, EventArgs e)
 		{
 			Save();
+			OnCloseTab(false);
 		}
 
 		protected void OnButtonCreateNewReceptionTicketClicked (object sender, EventArgs e)

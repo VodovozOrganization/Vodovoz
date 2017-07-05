@@ -226,7 +226,8 @@ namespace Vodovoz
 			w18.RightAttach = ((uint)(2));
 			w18.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.Add(this.table1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
