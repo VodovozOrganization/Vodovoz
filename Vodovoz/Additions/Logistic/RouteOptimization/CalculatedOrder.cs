@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
@@ -12,9 +13,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public double Weight;
 		public double Volume;
 
-		public CalculatedOrder(Order order)
+		public LogisticsArea District;
+
+		public CalculatedOrder(Order order, LogisticsArea district)
 		{
 			Order = order;
+			District = district;
+
 			Bootles = order.OrderItems.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.water)
 							 .Sum(x => x.Count);
 			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);

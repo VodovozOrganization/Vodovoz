@@ -43,11 +43,20 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public void CreateRoutes()
 		{
-			logger.Info("Разбираем заказы по районам...");
+			logger.Info("Подготавливаем заказы...");
 			PerformanceHelper.StartMeasurement($"Строим оптимальные маршруты");
 			MainClass.MainWin.ProgressStart(4);
+
+			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
+			var allDrivers = Drivers.Where(x => x.Car != null).OrderByDescending(x => x.Employee.TripPriority).ToArray();
+			if(allDrivers.Length == 0) {
+				logger.Error("Для построения маршрутов, нет водителей.");
+				return;
+			}
+
 			var areas = UoW.GetAll<LogisticsArea>().ToList();
-			List<DistrictInfo> districts = new List<DistrictInfo>();
+			List<LogisticsArea> unusedDistricts = new List<LogisticsArea>();
+			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
 			foreach(var order in Orders)
 			{
@@ -57,36 +66,31 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var aria = areas.Find(x => x.Geometry.Contains(point));
 				if(aria != null)
 				{
-					var district = districts.FirstOrDefault(x => x.District.Id == aria.Id);
-					if(district == null)
-					{
-						district = new DistrictInfo(aria);
-						districts.Add(district);
-					}
-					district.OrdersInDistrict.Add(order);
+					if(allDrivers.SelectMany(x => x.Employee.Districts).Any(x => x.District.Id == aria.Id))
+						calculatedOrders.Add(new CalculatedOrder(order, aria));
+					else if(!unusedDistricts.Contains(aria))
+						unusedDistricts.Add(aria);
 				}
 			}
-
-			MainClass.MainWin.ProgressAdd();
-			logger.Info($"Развозка по {districts.Count} районам.");
-			PerformanceHelper.AddTimePoint(logger, $"Разбор по районам");
-
-			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
-			var allDrivers = Drivers.Where(x => x.Car != null).OrderByDescending(x => x.Employee.TripPriority).ToArray();
-			if(allDrivers.Length == 0)
+			Nodes = calculatedOrders.ToArray();
+			if(unusedDistricts.Count > 0)
 			{
-				logger.Error("Для построения маршрутов, нет водителей.");
-				return;
+				logger.Warn("Районы без водителей: {0}", String.Join(" ,", unusedDistricts.Select(x => x.Name)));
 			}
 
-			logger.Info("Подсчитываем товары в заказах...");
-			Nodes = districts.SelectMany(x => x.OrdersInDistrict).Select(x => new CalculatedOrder(x)).ToArray();
 			MainClass.MainWin.ProgressAdd();
+			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
+			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
 			logger.Info("Настраиваем оптимизацию...");
 			RoutingModel routing = new RoutingModel(Nodes.Length + 1, allDrivers.Length, 0);
 
-			routing.SetArcCostEvaluatorOfAllVehicles(new CallbackDistance(Nodes));
+			for(int ix = 0; ix < allDrivers.Length; ix++)
+			{
+				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix]), ix);
+			}
+
+			//routing.SetArcCostEvaluatorOfAllVehicles(new CallbackDistance(Nodes));
 
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
@@ -100,13 +104,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var addressCapacity = allDrivers.Select(x => (long)(x.Car.MaxRouteAddresses + 1)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
+			for(int ix = 1; ix < Nodes.Length; ix++)
+				routing.AddDisjunction(new int[]{ix}, 300000);
+
 			RoutingSearchParameters search_parameters =
 			        RoutingModel.DefaultSearchParameters();
 			// Setting first solution heuristic (cheapest addition).
 			search_parameters.FirstSolutionStrategy =
 				                 FirstSolutionStrategy.Types.Value.PathCheapestArc;
-//			var solver = routing.solver();
+			//			var solver = routing.solver();
 			//routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress));
+			search_parameters.TimeLimitMs = 30000;
 
 			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
 			logger.Info("Поиск первого решения...");

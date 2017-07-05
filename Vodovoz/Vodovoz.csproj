@@ -598,6 +598,7 @@
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackWeight.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackVolume.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackAddressCount.cs" />
+    <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistanceDistrict.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
