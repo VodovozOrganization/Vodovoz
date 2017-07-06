@@ -10,11 +10,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private CalculatedOrder[] Nodes;
 		AtWorkDriver Driver;
+		Dictionary<LogisticsArea, int> priorites;
 
 		public CallbackDistanceDistrict(CalculatedOrder[] nodes, AtWorkDriver driver)
 		{
 			Nodes = nodes;
 			Driver = driver;
+			priorites = driver.Employee.Districts.ToDictionary(x => x.District, x => x.Priority);
 		}
 
 		public override long Run(int first_index, int second_index)
@@ -33,8 +35,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			long distance;
 			var aria = Nodes[second_index - 1].District;
-			var priority = Driver.Employee.Districts.FirstOrDefault(x => x.District == aria);
-			if(priority == null)
+			if(!priorites.ContainsKey(aria))
 				return 100000;
 
 			if(first_index == 0)
@@ -42,7 +43,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			else
 				distance = (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
 
-			return distance + priority.Priority * 1000 ; // приоритет = 1 км. Можно умножить на нужное количество км.
+			return distance + priorites[aria] * 1000 ; // приоритет = 1 км. Можно умножить на нужное количество км.
 		}
 	}
 }
