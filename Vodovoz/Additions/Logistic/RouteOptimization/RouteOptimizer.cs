@@ -82,15 +82,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
-			logger.Info("Настраиваем оптимизацию...");
+			logger.Info("Создаем модель...");
 			RoutingModel routing = new RoutingModel(Nodes.Length + 1, allDrivers.Length, 0);
 
 			for(int ix = 0; ix < allDrivers.Length; ix++)
 			{
 				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix]), ix);
 			}
-
-			//routing.SetArcCostEvaluatorOfAllVehicles(new CallbackDistance(Nodes));
 
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
@@ -115,14 +113,30 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			//			var solver = routing.solver();
 			//routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress));
 			search_parameters.TimeLimitMs = 30000;
+			search_parameters.FingerprintArcCostEvaluators = true;
+			search_parameters.OptimizationStep = 100;
+
+			var solver = routing.solver();
 
 			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
-			logger.Info("Поиск первого решения...");
+			MainClass.MainWin.ProgressAdd();
+			logger.Info("Закрываем модель...");
+			routing.CloseModelWithParameters(search_parameters);
+
+			var lastSolution = solver.MakeLastSolutionCollector();
+			lastSolution.AddObjective(routing.CostVar());
+			routing.AddSearchMonitor(lastSolution);
+			routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress, DebugBuffer, lastSolution));
+
+			PerformanceHelper.AddTimePoint(logger, $"Закрыли модель");
+			logger.Info("Поиск решения...");
 			MainClass.MainWin.ProgressAdd();
 
 			Assignment solution = routing.SolveWithParameters(search_parameters);
-			PerformanceHelper.AddTimePoint(logger, $"Получили первое решение.");
-			//Assignment solution = routing.Solve();
+			PerformanceHelper.AddTimePoint(logger, $"Получили решение.");
+			logger.Info("Готово. Заполняем.");
+			MainClass.MainWin.ProgressAdd();
+
 			Console.WriteLine("Status = {0}", routing.Status());
 			if(solution != null) {
 				// Solution cost.
