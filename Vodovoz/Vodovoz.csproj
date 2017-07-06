@@ -586,11 +586,8 @@
     <Compile Include="ReportsParameters\ReportDebtorsBottles.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.ReportDebtorsBottles.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\RouteOptimizer.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\DistrictInfo.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\ProposedRoute.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\ProposedPlan.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\DistanceCalculator.cs" />
-    <Compile Include="Additions\Logistic\RouteOptimization\FreeOrders.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CalculatedOrder.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistance.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackBottles.cs" />
