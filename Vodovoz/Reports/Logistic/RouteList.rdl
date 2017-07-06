@@ -807,7 +807,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox39">
-                      <Value>={Address}</Value>
+                      <Value>={Address} + Iif({Reloaded}, "*", "")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1455,13 +1455,13 @@ WHERE route_lists.id = @route_list_id;</CommandText>
         <CommandText>
 SELECT 
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
-orders.daily_number_1c,
+orders.daily_number_1c, route_list_addresses.need_to_reload AS Reloaded,
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
 #SHORT В сокращенной версии без комментариев.
 #orders.comment AS Comment,
 NULL AS Comment,
 orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
-CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), orders.to_client_text) AS ToClient,
+CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), IF((orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), "; ", ""), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
 #IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit,
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.
@@ -1523,18 +1523,38 @@ ORDER BY daily_number_1c;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
-        <Field Name="DeliveryTime">
-          <DataField>DeliveryTime</DataField>
-          <TypeName>System.String</TypeName>
+      <Fields >
+        <Field Name="RouteListId">
+          <DataField>RouteListId</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="OrderId">
+          <DataField>OrderId</DataField>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="daily_number_1c">
           <DataField>daily_number_1c</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="Reloaded">
+          <DataField>Reloaded</DataField>
+          <TypeName>System.Boolean</TypeName>
+        </Field>
+        <Field Name="DeliveryTime">
+          <DataField>DeliveryTime</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="Comment">
           <DataField>Comment</DataField>
           <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="EmptyBottles">
+          <DataField>EmptyBottles</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="Total">
+          <DataField>Total</DataField>
+          <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="Address">
           <DataField>Address</DataField>
@@ -1548,23 +1568,15 @@ ORDER BY daily_number_1c;
           <DataField>FromClient</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="EmptyBottles">
-          <DataField>EmptyBottles</DataField>
-          <TypeName>System.Int32</TypeName>
-        </Field>
         <Field Name="BottlesDeposit">
           <DataField>BottlesDeposit</DataField>
-          <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="Total">
-          <DataField>Total</DataField>
           <TypeName>System.Decimal</TypeName>
         </Field>
         <Field Name="Status">
           <DataField>Status</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-         <!--fields-->
+        <!--fields-->
       </Fields>
     </DataSet>
   </DataSets>
@@ -1587,7 +1599,7 @@ ORDER BY daily_number_1c;
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>

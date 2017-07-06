@@ -331,7 +331,7 @@ namespace Vodovoz
 			this.hbox8.Add(this.enumPrint);
 			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.enumPrint]));
 			w25.PackType = ((global::Gtk.PackType)(1));
-			w25.Position = 0;
+			w25.Position = 1;
 			w25.Expand = false;
 			w25.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
@@ -346,7 +346,7 @@ namespace Vodovoz
 			this.hbox8.Add(this.buttonAccept);
 			global::Gtk.Box.BoxChild w27 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonAccept]));
 			w27.PackType = ((global::Gtk.PackType)(1));
-			w27.Position = 1;
+			w27.Position = 2;
 			w27.Expand = false;
 			w27.Fill = false;
 			this.vbox1.Add(this.hbox8);
@@ -355,8 +355,7 @@ namespace Vodovoz
 			w28.Expand = false;
 			w28.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();

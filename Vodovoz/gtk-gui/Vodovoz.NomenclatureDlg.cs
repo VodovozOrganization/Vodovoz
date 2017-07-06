@@ -403,6 +403,7 @@ namespace Vodovoz
 			w23.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child datatable1.Gtk.Table+TableChild
 			this.label3 = new global::Gtk.Label();
+			this.label3.Name = "label3";
 			this.label3.Xalign = 1F;
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("Колонка маршрутного листа:");
 			this.datatable1.Add(this.label3);

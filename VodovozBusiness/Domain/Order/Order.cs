@@ -307,11 +307,11 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref dailyNumber1c, value, () => DailyNumber1c); }
 		}
 
-		User lastEditor;
+		Employee lastEditor;
 
 		[Display(Name = "Последний редактор")]
 
-		public virtual User LastEditor {
+		public virtual Employee LastEditor {
 			get { return lastEditor; }
 			set { SetField(ref lastEditor, value, () => LastEditor); }
 		}

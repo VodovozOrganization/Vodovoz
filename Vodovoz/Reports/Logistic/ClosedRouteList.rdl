@@ -1518,7 +1518,7 @@ route_list_addresses.status AS Status,
  #orders.bottles_return AS EmptyBottles,
  SUM(route_list_addresses.bottles_returned) AS EmptyBottles,
  route_list_addresses.total_cash AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
-CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), orders.to_client_text) AS ToClient,
+CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), IF((orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), "; ", ""), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')), orders.from_client_text) AS FromClient,
 #IF(deposit_qry.deposit IS NULL, 0, deposit_qry.deposit) AS BottlesDeposit
 #База в запросе выше на проде пустая, залоги гребутся из той, что в запросе ниже.

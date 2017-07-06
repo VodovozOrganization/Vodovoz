@@ -14,63 +14,63 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Button buttonCreateReport;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.Reports.CashierCommentsReport
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.Reports.CashierCommentsReport";
 			// Container child Vodovoz.Reports.CashierCommentsReport.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel ();
+			this.ylabel1 = new global::Gamma.GtkWidgets.yLabel();
 			this.ylabel1.Name = "ylabel1";
-			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString ("Дата:");
-			this.hbox1.Add (this.ylabel1);
-			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.ylabel1]));
+			this.ylabel1.LabelProp = global::Mono.Unix.Catalog.GetString("Дата:");
+			this.hbox1.Add(this.ylabel1);
+			global::Gtk.Box.BoxChild w1 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.ylabel1]));
 			w1.Position = 0;
 			w1.Expand = false;
 			w1.Fill = false;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.dateperiodpicker = new global::QSWidgetLib.DatePeriodPicker ();
+			this.dateperiodpicker = new global::QSWidgetLib.DatePeriodPicker();
 			this.dateperiodpicker.Events = ((global::Gdk.EventMask)(256));
 			this.dateperiodpicker.Name = "dateperiodpicker";
-			this.dateperiodpicker.StartDate = new global::System.DateTime (0);
-			this.dateperiodpicker.EndDate = new global::System.DateTime (0);
-			this.hbox1.Add (this.dateperiodpicker);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.dateperiodpicker]));
+			this.dateperiodpicker.StartDate = new global::System.DateTime(0);
+			this.dateperiodpicker.EndDate = new global::System.DateTime(0);
+			this.hbox1.Add(this.dateperiodpicker);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.dateperiodpicker]));
 			w2.Position = 1;
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.buttonCreateReport = new global::Gtk.Button ();
+			this.buttonCreateReport = new global::Gtk.Button();
 			this.buttonCreateReport.Sensitive = false;
 			this.buttonCreateReport.CanFocus = true;
 			this.buttonCreateReport.Name = "buttonCreateReport";
 			this.buttonCreateReport.UseUnderline = true;
-			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString ("Сформировать отчет");
-			this.vbox1.Add (this.buttonCreateReport);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.buttonCreateReport]));
+			this.buttonCreateReport.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
+			this.vbox1.Add(this.buttonCreateReport);
+			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateReport]));
 			w4.PackType = ((global::Gtk.PackType)(1));
 			w4.Position = 1;
 			w4.Expand = false;
 			w4.Fill = false;
-			this.Add (this.vbox1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.vbox1);
+			if((this.Child != null)) {
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler (this.OnDateperiodpickerPeriodChanged);
-			this.buttonCreateReport.Clicked += new global::System.EventHandler (this.OnButtonCreateReportClicked);
+			this.Hide();
+			this.dateperiodpicker.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpickerPeriodChanged);
+			this.buttonCreateReport.Clicked += new global::System.EventHandler(this.OnButtonCreateReportClicked);
 		}
 	}
 }

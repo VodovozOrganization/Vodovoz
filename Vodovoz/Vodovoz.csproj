@@ -596,6 +596,11 @@
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackVolume.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackAddressCount.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackDistanceDistrict.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.TransferOperationDocumentDlg.cs" />
+    <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentItemView.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.TransferOperationDocumentItemView.cs" />
+    <Compile Include="Representations\TransferOperationsVM.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

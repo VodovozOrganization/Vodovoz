@@ -117,12 +117,15 @@ namespace Vodovoz.ViewModel
 	public class ResidueVMNode
 	{
 		[UseForSearch]
+		[SearchHighlight]
 		public int Id { get; set; }
 
 		public DateTime Date { get; set; }
 
 		public string DateString { get { return  Date.ToShortDateString () + " " + Date.ToShortTimeString (); } }
 
+		[UseForSearch]
+		[SearchHighlight]
 		public string Counterparty { get; set; }
 
 

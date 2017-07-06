@@ -102,8 +102,7 @@ namespace Vodovoz.ServiceDialogs.Database
 			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
 			w10.Position = 3;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.progressOp.Hide();

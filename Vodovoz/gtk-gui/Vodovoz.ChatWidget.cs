@@ -22,101 +22,101 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonSend;
 
-		protected virtual void Build ()
+		protected virtual void Build()
 		{
-			global::Stetic.Gui.Initialize (this);
+			global::Stetic.Gui.Initialize(this);
 			// Widget Vodovoz.ChatWidget
-			global::Stetic.BinContainer.Attach (this);
+			global::Stetic.BinContainer.Attach(this);
 			this.Name = "Vodovoz.ChatWidget";
 			// Container child Vodovoz.ChatWidget.Gtk.Container+ContainerChild
-			this.vbox1 = new global::Gtk.VBox ();
+			this.vbox1 = new global::Gtk.VBox();
 			this.vbox1.Name = "vbox1";
 			this.vbox1.Spacing = 6;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox2 = new global::Gtk.HBox ();
+			this.hbox2 = new global::Gtk.HBox();
 			this.hbox2.Name = "hbox2";
 			this.hbox2.Spacing = 6;
 			// Container child hbox2.Gtk.Box+BoxChild
-			this.buttonHistory = new global::Gtk.Button ();
+			this.buttonHistory = new global::Gtk.Button();
 			this.buttonHistory.CanFocus = true;
 			this.buttonHistory.Name = "buttonHistory";
 			this.buttonHistory.UseUnderline = true;
 			this.buttonHistory.Relief = ((global::Gtk.ReliefStyle)(2));
-			this.buttonHistory.Label = global::Mono.Unix.Catalog.GetString ("Архив");
-			global::Gtk.Image w1 = new global::Gtk.Image ();
-			w1.Pixbuf = global::Gdk.Pixbuf.LoadFromResource ("document-open-recent.png");
+			this.buttonHistory.Label = global::Mono.Unix.Catalog.GetString("Архив");
+			global::Gtk.Image w1 = new global::Gtk.Image();
+			w1.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("document-open-recent.png");
 			this.buttonHistory.Image = w1;
-			this.hbox2.Add (this.buttonHistory);
-			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2 [this.buttonHistory]));
+			this.hbox2.Add(this.buttonHistory);
+			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.buttonHistory]));
 			w2.Position = 1;
 			w2.Expand = false;
 			w2.Fill = false;
 			w2.Padding = ((uint)(4));
-			this.vbox1.Add (this.hbox2);
-			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox2]));
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
 			w3.Position = 0;
 			w3.Expand = false;
 			w3.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
 			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			this.GtkScrolledWindow1.BorderWidth = ((uint)(4));
 			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
-			this.textViewChat = new global::Gtk.TextView ();
+			this.textViewChat = new global::Gtk.TextView();
 			this.textViewChat.CanFocus = true;
 			this.textViewChat.Name = "textViewChat";
 			this.textViewChat.Editable = false;
 			this.textViewChat.WrapMode = ((global::Gtk.WrapMode)(2));
-			this.GtkScrolledWindow1.Add (this.textViewChat);
-			this.vbox1.Add (this.GtkScrolledWindow1);
-			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.GtkScrolledWindow1]));
+			this.GtkScrolledWindow1.Add(this.textViewChat);
+			this.vbox1.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow1]));
 			w5.Position = 1;
 			// Container child vbox1.Gtk.Box+BoxChild
-			this.hbox1 = new global::Gtk.HBox ();
+			this.hbox1 = new global::Gtk.HBox();
 			this.hbox1.Name = "hbox1";
 			this.hbox1.Spacing = 6;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow ();
+			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
 			this.GtkScrolledWindow.BorderWidth = ((uint)(4));
 			// Container child GtkScrolledWindow.Gtk.Container+ContainerChild
-			this.textViewMessage = new global::Gtk.TextView ();
+			this.textViewMessage = new global::Gtk.TextView();
 			this.textViewMessage.CanFocus = true;
 			this.textViewMessage.Name = "textViewMessage";
-			this.GtkScrolledWindow.Add (this.textViewMessage);
-			this.hbox1.Add (this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.GtkScrolledWindow]));
+			this.GtkScrolledWindow.Add(this.textViewMessage);
+			this.hbox1.Add(this.GtkScrolledWindow);
+			global::Gtk.Box.BoxChild w7 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.GtkScrolledWindow]));
 			w7.Position = 0;
 			// Container child hbox1.Gtk.Box+BoxChild
-			this.buttonSend = new global::Gtk.Button ();
+			this.buttonSend = new global::Gtk.Button();
 			this.buttonSend.CanFocus = true;
 			this.buttonSend.Name = "buttonSend";
 			this.buttonSend.UseUnderline = true;
-			this.buttonSend.Label = global::Mono.Unix.Catalog.GetString ("Отправить");
-			global::Gtk.Image w8 = new global::Gtk.Image ();
-			w8.Pixbuf = global::Gdk.Pixbuf.LoadFromResource ("document-send.png");
+			this.buttonSend.Label = global::Mono.Unix.Catalog.GetString("Отправить");
+			global::Gtk.Image w8 = new global::Gtk.Image();
+			w8.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("document-send.png");
 			this.buttonSend.Image = w8;
-			this.hbox1.Add (this.buttonSend);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1 [this.buttonSend]));
+			this.hbox1.Add(this.buttonSend);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.hbox1[this.buttonSend]));
 			w9.Position = 1;
 			w9.Expand = false;
 			w9.Fill = false;
 			w9.Padding = ((uint)(4));
-			this.vbox1.Add (this.hbox1);
-			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1 [this.hbox1]));
+			this.vbox1.Add(this.hbox1);
+			global::Gtk.Box.BoxChild w10 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox1]));
 			w10.Position = 2;
 			w10.Expand = false;
 			w10.Fill = false;
-			this.Add (this.vbox1);
-			if ((this.Child != null)) {
-				this.Child.ShowAll ();
+			this.Add(this.vbox1);
+			if((this.Child != null)) {
+				this.Child.ShowAll();
 			}
-			this.Hide ();
-			this.buttonHistory.Clicked += new global::System.EventHandler (this.OnButtonHistoryClicked);
-			this.textViewMessage.KeyPressEvent += new global::Gtk.KeyPressEventHandler (this.OnTextViewMessageKeyPressEvent);
-			this.buttonSend.Clicked += new global::System.EventHandler (this.OnButtonSendClicked);
+			this.Hide();
+			this.buttonHistory.Clicked += new global::System.EventHandler(this.OnButtonHistoryClicked);
+			this.textViewMessage.KeyPressEvent += new global::Gtk.KeyPressEventHandler(this.OnTextViewMessageKeyPressEvent);
+			this.buttonSend.Clicked += new global::System.EventHandler(this.OnButtonSendClicked);
 		}
 	}
 }

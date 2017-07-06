@@ -57,7 +57,7 @@ namespace Vodovoz.Reports
 					parameters.Add("reason", "OrderIncrease");
 				}
 
-				if(radiobuttonFirstAddress.Active) {
+				if(radiobuttonFirstOrder.Active) {
 					parameters.Clear();
 					parameters.Add("reason", "FirstOrder");
 				}
@@ -77,6 +77,11 @@ namespace Vodovoz.Reports
 			else {
 				parameters.Add("driver_id", -1);
 			}
+
+			if(checkDriverNoCall.Active)
+				parameters.Add("driver_call", 1);
+			else
+				parameters.Add("driver_call", -1);
 
 			return new ReportInfo {
 				Identifier = "Orders.ShortfallBattlesReport",
@@ -107,7 +112,7 @@ namespace Vodovoz.Reports
 			var sensitive = checkReason.Active;
 			radiobuttonNewAddress.Sensitive = sensitive;
 			radiobuttonOrderIncrease.Sensitive = sensitive;
-			radiobuttonFirstAddress.Sensitive = sensitive;
+			radiobuttonFirstOrder.Sensitive = sensitive;
 			radiobuttonUnknown.Sensitive = sensitive;
 		}
 	}

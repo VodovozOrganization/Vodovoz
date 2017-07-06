@@ -211,7 +211,7 @@ namespace Vodovoz
 			w16.XOptions = ((global::Gtk.AttachOptions)(4));
 			w16.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child tableWater.Gtk.Table+TableChild
-			this.spinAmount = new global::Gamma.GtkWidgets.ySpinButton(0, 100, 1);
+			this.spinAmount = new global::Gamma.GtkWidgets.ySpinButton(0, 10000, 1);
 			this.spinAmount.CanFocus = true;
 			this.spinAmount.Name = "spinAmount";
 			this.spinAmount.Adjustment.PageIncrement = 10;

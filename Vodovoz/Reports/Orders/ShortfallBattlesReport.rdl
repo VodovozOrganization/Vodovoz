@@ -12,17 +12,17 @@
   <RightMargin>5mm</RightMargin>
   <BottomMargin>5mm</BottomMargin>
   <PageHeader>
-    <Height>58.1pt</Height>
+    <Height>26.5pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
     <ReportItems>
       <Textbox Name="Textbox2">
-        <Height>19.57pt</Height>
-        <Width>560.84pt</Width>
+        <Height>18.81pt</Height>
+        <Width>247.64pt</Width>
         <Value>Отчет о недосданных бутылях</Value>
         <ZIndex>1</ZIndex>
-        <Left>0.00pt</Left>
-        <Top>13.40pt</Top>
+        <Left>154.9pt</Left>
+        <Top>5.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -40,8 +40,8 @@
         <Width>85.80pt</Width>
         <Value>=Format(Cdate(Parameters!date), "dd/MM/yyyy")</Value>
         <ZIndex>1</ZIndex>
-        <Left>240.65pt</Left>
-        <Top>35.90pt</Top>
+        <Left>397.8pt</Left>
+        <Top>8.2pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -53,7 +53,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>143.2pt</Height>
+    <Height>158.2pt</Height>
     <ReportItems>
       <Table Name="Table1">
         <DataSetName>Orders</DataSetName>
@@ -67,37 +67,37 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>41.3pt</Width>
+            <Width>38.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>143.1pt</Width>
+            <Width>120.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>91.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>78.7pt</Width>
+            <Width>69.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>38.0pt</Width>
+            <Width>33.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>29.3pt</Width>
+            <Width>31.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>28.7pt</Width>
+            <Width>31.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.0pt</Width>
+            <Width>35.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>72.1pt</Width>
+            <Width>110.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>42.6pt</Width>
+            <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>51.1pt</Width>
+            <Width>53.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>44.2pt</Width>
@@ -181,7 +181,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox62">
-                      <Value>Бут. в заказе</Value>
+                      <Value>Полн. бут.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -197,7 +197,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox29">
-                      <Value>Бут. план</Value>
+                      <Value>Пуст. бут. план (1c)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -213,7 +213,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox32">
-                      <Value>Бут. факт</Value>
+                      <Value>Пуст. бут. факт</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -245,7 +245,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>Коментарий</Value>
+                      <Value>Комментарий</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -431,7 +431,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox30">
-                      <Value>=Fields!delivered.Value</Value>
+                      <Value>=Fields!returned_tare.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -571,8 +571,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>2.4pt</Left>
-        <Top>2.7pt</Top>
+        <Left>3.3pt</Left>
+        <Top>24.5pt</Top>
         <Footer>
           <TableRows>
             <TableRow>
@@ -831,8 +831,8 @@
         <Width>561.61pt</Width>
         <Value>Маршрутные листы</Value>
         <ZIndex>1</ZIndex>
-        <Left>3.8pt</Left>
-        <Top>82.8pt</Top>
+        <Left>4.7pt</Left>
+        <Top>104.6pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -973,8 +973,93 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>3.8pt</Left>
-        <Top>104.7pt</Top>
+        <Left>4.7pt</Left>
+        <Top>126.5pt</Top>
+      </Table>
+      <Table Name="Table3">
+        <DataSetName>Orders</DataSetName>
+        <NoRows>
+        </NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>58.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>Причина:</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Value>=Fields!reason_type_status.Value</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Left>0.0pt</Left>
+        <Top>2.1pt</Top>
+        <Filters>
+          <Filter>
+            <FilterExpression>={?reason}</FilterExpression>
+            <Operator>NotEqual</Operator>
+            <FilterValues>
+              <FilterValue>-1</FilterValue>
+            </FilterValues>
+          </Filter>
+        </Filters>
       </Table>
     </ReportItems>
     <Columns>1</Columns>
@@ -1010,7 +1095,7 @@
     SUM(order_items.actual_count) AS actual_count,
     delivered,
     returned,
-    (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) AS bottles,
+    (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) AS bottles,
        CASE reason_type
         WHEN 'Unknown' THEN 'неизвестна'
         WHEN 'NewAddress' THEN 'новый адрес'
@@ -1021,6 +1106,7 @@
     information_on_tara,
     driver_call_id,
     CASE driver_call_type
+        WHEN 'NoCall'  THEN 'не звонил'
         WHEN 'CallFromAddress' THEN 'с адреса'
         WHEN 'CallFromAnywhere' THEN 'не с адреса'
     END AS driver_call_string,
@@ -1048,8 +1134,9 @@ WHERE
         AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
         AND (@reason = -1 OR @reason = reason_type)
         AND (@driver_id = -1 OR @driver_id = employees.id)
+        AND ((@driver_call = 1 AND driver_call_type = 'NoCall' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) OR (@driver_call = -1))
 GROUP BY order_id
-ORDER BY driver_name</CommandText>
+ORDER BY reason_type_status</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
             <Value>={?date}</Value>
@@ -1059,6 +1146,9 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
           <QueryParameter Name="driver_id">
             <Value>={?driver_id}</Value>
+          </QueryParameter>
+          <QueryParameter Name="driver_call">
+            <Value>={?driver_call}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -1193,9 +1283,18 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
     <ReportParameter Name="driver_id">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="driver_call">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

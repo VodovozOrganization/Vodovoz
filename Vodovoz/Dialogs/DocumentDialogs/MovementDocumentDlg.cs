@@ -127,7 +127,7 @@ namespace Vodovoz
 			referenceDeliveryPointFrom.Sensitive = referenceCounterpartyFrom.Subject != null;
 			if (referenceCounterpartyFrom.Subject != null) {
 				var points = ((Counterparty)referenceCounterpartyFrom.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
-				referenceDeliveryPointFrom.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+				referenceDeliveryPointFrom.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint> ()
 					.Add (Restrictions.In ("Id", points));
 			}
 		}
@@ -137,7 +137,7 @@ namespace Vodovoz
 			referenceDeliveryPointTo.Sensitive = referenceCounterpartyTo.Subject != null;
 			if (referenceCounterpartyTo.Subject != null) {
 				var points = ((Counterparty)referenceCounterpartyTo.Subject).DeliveryPoints.Select (o => o.Id).ToList ();
-				referenceDeliveryPointTo.ItemsCriteria = Session.CreateCriteria<DeliveryPoint> ()
+				referenceDeliveryPointTo.ItemsCriteria = UoWGeneric.Session.CreateCriteria<DeliveryPoint> ()
 					.Add (Restrictions.In ("Id", points));
 			}
 		}
