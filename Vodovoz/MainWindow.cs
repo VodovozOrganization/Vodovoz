@@ -145,6 +145,11 @@ public partial class MainWindow : Gtk.Window
 		progressStatus.Adjustment.Value += addValue;
 		if(text != null)
 			progressStatus.Text = text;
+		if(progressStatus.Adjustment.Value > progressStatus.Adjustment.Upper)
+			logger.Warn("Значение ({0}) прогресс бара в статусной строке больше максимального ({1})",
+			            (int)progressStatus.Adjustment.Value,
+			            (int)progressStatus.Adjustment.Upper
+					   );
 		QSMain.WaitRedraw();
 	}
 
