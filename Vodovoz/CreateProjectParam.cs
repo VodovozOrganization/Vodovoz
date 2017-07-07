@@ -37,14 +37,20 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("production", new UserPermission("production", "Производство", ""));
 		}
 
-		static void CreateBaseConfig ()
+		static void CreateBaseConfig()
 		{
-			logger.Info ("Настройка параметров базы...");
+			logger.Info("Настройка параметров базы...");
 			//Увеличиваем таймоут
 			QSMain.ConnectionString += ";ConnectionTimeout=120";
 
+			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
+			                                .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
+						 					.ConnectionString(QSMain.ConnectionString)
+											.ShowSql()
+											.FormatSql();
+
 			// Настройка ORM
-			OrmMain.ConfigureOrm (QSMain.ConnectionString, new System.Reflection.Assembly[] {
+			OrmMain.ConfigureOrm (db_config, new System.Reflection.Assembly[] {
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
