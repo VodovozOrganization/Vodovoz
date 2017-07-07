@@ -51,16 +51,10 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 			datepickerDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeSupplier = false;
-			counterpartyFilter.RestrictIncludeCustomer = true;
-			counterpartyFilter.RestrictIncludePartner = false;
 			referenceCounterpartyFrom.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceCounterpartyFrom.Binding.AddBinding(Entity, e => e.FromClient, w => w.Subject).InitializeFromSource();
 
 			counterpartyFilter = new CounterpartyFilter(UoW);
-			counterpartyFilter.RestrictIncludeSupplier = false;
-			counterpartyFilter.RestrictIncludeCustomer = true;
-			counterpartyFilter.RestrictIncludePartner = false;
 			referenceCounterpartyTo.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
