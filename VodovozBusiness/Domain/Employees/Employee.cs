@@ -198,22 +198,6 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
 		}
 
-		LogisticsArea districtFirst;
-
-		[Display(Name = "Основной район")]
-		public virtual LogisticsArea DistrictFirst {
-			get { return districtFirst; }
-			set { SetField(ref districtFirst, value, () => DistrictFirst); }
-		}
-
-		LogisticsArea districtSecond;
-
-		[Display(Name = "Дополнительный район")]
-		public virtual LogisticsArea DistrictSecond {
-			get { return districtSecond; }
-			set { SetField(ref districtSecond, value, () => DistrictSecond); }
-		}
-
 		private short tripPriority = 6;
 
 		[Display(Name = "Приоритет для маршрутов")]

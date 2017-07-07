@@ -91,10 +91,6 @@ namespace Vodovoz
 			accountsView.SetTitle ("Банковские счета сотрудника");
 			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.DateOrNull).InitializeFromSource();
 			yspinTripsPriority.Binding.AddBinding(Entity, e => e.TripPriority, w => w.ValueAsShort).InitializeFromSource();
-			referenceDistrictFirst.SubjectType = typeof(LogisticsArea);
-			referenceDistrictFirst.Binding.AddBinding(Entity, e => e.DistrictFirst, w => w.Subject).InitializeFromSource();
-			referenceDistrictSecond.SubjectType = typeof(LogisticsArea);
-			referenceDistrictSecond.Binding.AddBinding(Entity, e => e.DistrictSecond, w => w.Subject).InitializeFromSource();
 
 			ytreeviewDistricts.ColumnsConfig = FluentColumnsConfig<DriverDistrictPriority>.Create()
 				.AddColumn("Район").AddTextRenderer(x => x.District.Name)

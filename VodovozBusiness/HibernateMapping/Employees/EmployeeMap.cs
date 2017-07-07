@@ -36,8 +36,6 @@ namespace Vodovoz
 			References (x => x.Nationality).Column ("nationality_id");
 			References (x => x.User).Column ("user_id");
 			References (x => x.DefaultAccount).Column ("default_account_id");
-			References(x => x.DistrictFirst).Column("district_first_id");
-			References(x => x.DistrictSecond).Column("district_second_id");
 
 			HasMany (x => x.Accounts).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");
 			HasMany (x => x.Phones).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");
