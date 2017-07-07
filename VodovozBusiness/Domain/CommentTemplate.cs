@@ -29,7 +29,7 @@ namespace Vodovoz.Domain
 
 		#region IValidatableObject implementation
 
-		public System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual System.Collections.Generic.IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
 		{
 			if (String.IsNullOrEmpty (Comment))
 				yield return new ValidationResult ("Текст комментария должен быть заполнен.", new [] { "Comment" });

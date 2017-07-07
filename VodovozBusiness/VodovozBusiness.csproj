@@ -388,6 +388,8 @@
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
+    <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
+    <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -402,11 +404,6 @@
     <Folder Include="Repositories\Client\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\Logistic\" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HibernateMapping\Organization\Database.hbm.xml">
-      <LogicalName>Vodovoz.Database.hbm.xml</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\QSProjects\Modules\QSBanks\QSBanks.csproj">
