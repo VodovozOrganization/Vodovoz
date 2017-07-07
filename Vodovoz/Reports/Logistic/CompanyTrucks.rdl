@@ -37,17 +37,13 @@
                 NULL,
                 employees.patronymic)) AS driver_name,
     (SELECT 
-            logistics_area.name
+            GROUP_CONCAT(logistics_area.name SEPARATOR ', ')
         FROM
-            logistics_area
+            driver_district_priorities
+                LEFT JOIN
+            logistics_area ON driver_district_priorities.district_id = logistics_area.id
         WHERE
-            employees.district_first_id = logistics_area.id) AS primarydistrict,
-    (SELECT 
-            logistics_area.name
-        FROM
-            logistics_area
-        WHERE
-            employees.district_second_id = logistics_area.id) AS secondarydistrict,
+            employees.id = driver_district_priorities.driver_id) AS driver_districts,
     GROUP_CONCAT(DISTINCT ' ',
         (SELECT 
                 logistics_area.name
@@ -97,8 +93,8 @@
                 WHERE
                     route_lists.driver_wages_movement_operations_id = wages_movement_operations.id
                         AND (route_lists.status = 'OnClosing'
-		OR route_lists.status = 'MileageCheck'
-		OR route_lists.status = 'Closed' )),
+                        OR route_lists.status = 'MileageCheck'
+                        OR route_lists.status = 'Closed')),
             0) AS wages
 FROM
     route_lists
@@ -118,7 +114,7 @@ FROM
 WHERE
     (route_lists.`date` BETWEEN @start_date AND @end_date)
         AND cars.is_company_havings = 1
-       AND cars.is_truck = 0
+        AND cars.is_truck = 0
 GROUP BY route_lists.id
 ORDER BY driver_name</CommandText>
         <QueryParameters>
@@ -163,12 +159,8 @@ ORDER BY driver_name</CommandText>
           <DataField>street_district</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="primarydistrict">
-          <DataField>primarydistrict</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="secondarydistrict">
-          <DataField>secondarydistrict</DataField>
+        <Field Name="driver_districts">
+          <DataField>driver_districts</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
         <Field Name="status">
@@ -231,16 +223,13 @@ ORDER BY driver_name</CommandText>
             <Width>65.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>99.9pt</Width>
+            <Width>123.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>102.0pt</Width>
+            <Width>142.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>97.3pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>110.7pt</Width>
+            <Width>136.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>37.7pt</Width>
@@ -345,12 +334,12 @@ ORDER BY driver_name</CommandText>
                       </Style>
                     </Textbox>
                   </ReportItems>
-                  <ColSpan>2</ColSpan>
+                  <ColSpan>1</ColSpan>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox41">
-                      <Value>Сегодня</Value>
+                      <Value>Районы сегодня</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -359,6 +348,11 @@ ORDER BY driver_name</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
+                        <Color >Black</Color>
+                        <BackgroundColor >
+                        </BackgroundColor>
+                        <FontFamily >Arial</FontFamily>
+                        <FontSize >10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -471,24 +465,9 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox31">
-                      <Value>Осн.</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <TextAlign>Center</TextAlign>
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox37">
-                      <Value>Втор.</Value>
+                    <Textbox Name="Textbox11">
+                      <Value>
+                      </Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -692,24 +671,7 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
-                      <Value>=Fields!primarydistrict.Value</Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <BorderColor />
-                        <BorderWidth />
-                        <TextAlign>Center</TextAlign>
-                      </Style>
-                      <CanGrow>true</CanGrow>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
-                    <Textbox Name="Textbox38">
-                      <Value>=Fields!secondarydistrict.Value</Value>
+                      <Value>=Fields!driver_districts.Value</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -917,19 +879,6 @@ ORDER BY driver_name</CommandText>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox39">
-                      <Value>
-                      </Value>
-                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
-                        <BorderStyle>
-                          <Default>Solid</Default>
-                        </BorderStyle>
-                      </Style>
-                    </Textbox>
-                  </ReportItems>
-                </TableCell>
-                <TableCell>
-                  <ReportItems>
                     <Textbox Name="Textbox44">
                       <Value>
                       </Value>
@@ -1085,7 +1034,7 @@ ORDER BY driver_name</CommandText>
                           </Value>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>13</ColSpan>
+                      <ColSpan>12</ColSpan>
                     </TableCell>
                   </TableCells>
                 </TableRow>
@@ -1144,7 +1093,7 @@ ORDER BY driver_name</CommandText>
                           </Style>
                         </Textbox>
                       </ReportItems>
-                      <ColSpan>3</ColSpan>
+                      <ColSpan>2</ColSpan>
                     </TableCell>
                     <TableCell>
                       <ReportItems>
