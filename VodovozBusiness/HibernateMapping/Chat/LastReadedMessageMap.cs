@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Chat;
 using FluentNHibernate.Mapping;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class LastReadedMessageMap : ClassMap<LastReadedMessage>
 	{

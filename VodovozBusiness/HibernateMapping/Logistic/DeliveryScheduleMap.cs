@@ -3,7 +3,7 @@ using DataAccess.NhibernateFixes;
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Logistic;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class DeliveryScheduleMap : ClassMap<DeliverySchedule>
 	{

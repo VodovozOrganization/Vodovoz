@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Store;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class ProductSpecificationMaterialMap : ClassMap<ProductSpecificationMaterial>
 	{

@@ -2,7 +2,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class CounterpartyMap : ClassMap<Counterparty>
 	{

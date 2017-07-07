@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Operations;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class MoneyMovementOperationMap : ClassMap<MoneyMovementOperation>
 	{

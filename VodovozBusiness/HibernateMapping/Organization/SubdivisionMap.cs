@@ -1,7 +1,7 @@
 ﻿using System;
 using FluentNHibernate.Mapping;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class SubdivisionMap : ClassMap<Subdivision>
 	{

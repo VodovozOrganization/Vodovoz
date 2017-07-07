@@ -2,7 +2,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Documents;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class SelfDeliveryDocumentMap : ClassMap<SelfDeliveryDocument>
 	{

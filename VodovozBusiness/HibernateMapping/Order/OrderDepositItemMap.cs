@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Operations;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class OrderDepositItemMap : ClassMap<OrderDepositItem>
 	{

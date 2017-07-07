@@ -45,7 +45,7 @@ namespace Vodovoz
 
 			// Настройка ORM
 			OrmMain.ConfigureOrm (QSMain.ConnectionString, new System.Reflection.Assembly[] {
-				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HMap.OrganizationMap)),
+				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
 			});

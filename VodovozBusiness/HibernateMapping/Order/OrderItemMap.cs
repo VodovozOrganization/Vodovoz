@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class OrderItemMap : ClassMap<OrderItem>
 	{

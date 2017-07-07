@@ -3,7 +3,7 @@ using FluentNHibernate.Mapping;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class DocTemplateMap : ClassMap<DocTemplate>
 	{

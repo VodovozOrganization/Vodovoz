@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Goods;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class IncomingInvoiceItemMap : ClassMap<IncomingInvoiceItem>
 	{

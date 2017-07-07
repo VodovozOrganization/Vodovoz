@@ -1,7 +1,7 @@
 ﻿using Vodovoz.Domain.Documents;
 using FluentNHibernate.Mapping;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class InventoryDocumentMap : ClassMap<InventoryDocument>
 	{

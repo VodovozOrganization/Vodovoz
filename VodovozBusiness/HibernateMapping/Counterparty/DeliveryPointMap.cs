@@ -2,7 +2,7 @@
 using QSOsm.DTO;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class DeliveryPointMap : ClassMap<DeliveryPoint>
 	{

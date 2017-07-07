@@ -2,7 +2,7 @@
 using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Cash;
 
-namespace Vodovoz.HMap
+namespace Vodovoz.HibernateMapping
 {
 	public class IncomeCategoryMap : ClassMap<IncomeCategory>
 	{
