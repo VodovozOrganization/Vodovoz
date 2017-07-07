@@ -386,6 +386,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Domain\Documents\TransferOperationDocument.cs" />
     <Compile Include="HibernateMapping\Documents\TransferOperationDocumentMap.cs" />
+    <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -398,6 +399,8 @@
     <Folder Include="HibernateMapping\Chat\" />
     <Folder Include="Repositories\Chat\" />
     <Folder Include="Repositories\Client\" />
+    <Folder Include="Tools\" />
+    <Folder Include="Tools\Logistic\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HibernateMapping\Organization\Database.hbm.xml">

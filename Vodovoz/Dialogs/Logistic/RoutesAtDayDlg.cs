@@ -19,6 +19,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository.Logistics;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz
 {
@@ -132,8 +133,9 @@ namespace Vodovoz
 				.AddColumn ("МЛ/Адрес").AddTextRenderer (x => GetRowTitle (x))
 				.AddColumn ("Время").AddTextRenderer (x => GetRowTime (x))
 				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x))
-				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
+				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
+				.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
 				.AddColumn ("К клиенту").AddTextRenderer (x => GetRowEquipmentToClien (x))
 				.AddColumn ("От клиента").AddTextRenderer (x => GetRowEquipmentFromClien (x))
 				.Finish ();
@@ -381,6 +383,29 @@ namespace Vodovoz
 			var rli = row as RouteListItem;
 			if (rli != null)
 				return rli.Order.TotalDeliveredBottlesSix.ToString ();
+			return null;
+		}
+
+		string GetRowDistance(object row)
+		{
+			var rl = row as RouteList;
+			if(rl != null)
+			{
+				var proposed = optimizer.ProposedRoutes.First(x => x.RealRoute == rl);
+				if(proposed == null)
+					return String.Format("{0:N1}км", rl.PlanedDistance);
+				else
+					return String.Format("{0:N1}км ({1:N})", rl.PlanedDistance, (double)proposed.RouteCost / 1000);
+			}
+
+			var rli = row as RouteListItem;
+			if(rli != null)
+			{
+				if(rli.IndexInRoute == 0)
+					return String.Format("{0:N1}км", DistanceCalculator.GetDistanceFromBase(rli.Order.DeliveryPoint));
+				
+				return String.Format("{0:N1}км", DistanceCalculator.GetDistance(rli.RouteList.Addresses[rli.IndexInRoute -1].Order.DeliveryPoint, rli.Order.DeliveryPoint));
+			}
 			return null;
 		}
 
@@ -968,6 +993,7 @@ namespace Vodovoz
 						rl.AddAddressFromOrder(order);
 					}
 					routesAtDay.Add(rl);
+					propose.RealRoute = rl;
 				}
 			}
 			UpdateRoutesPixBuf();

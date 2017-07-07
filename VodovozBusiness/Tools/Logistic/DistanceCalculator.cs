@@ -2,7 +2,7 @@
 using GMap.NET.MapProviders;
 using Vodovoz.Domain.Client;
 
-namespace Vodovoz.Additions.Logistic.RouteOptimization
+namespace Vodovoz.Tools.Logistic
 {
 	public static class DistanceCalculator
 	{

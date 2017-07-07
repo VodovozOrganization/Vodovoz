@@ -145,12 +145,15 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				{
 					//FIXME Нужно понять, есть ли у водителя маршрут.
 					var route = new ProposedRoute(allDrivers[route_number]);
-					long node = routing.Start(route_number);
-					node = solution.Value(routing.NextVar(node)); // Пропускаем первый узел, так как это наша база.
-					while(!routing.IsEnd(node))
+					long first_node = routing.Start(route_number);
+					long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
+					route.RouteCost = routing.GetCost(first_node, second_node, route_number);
+					while(!routing.IsEnd(second_node))
 					{
-						route.Orders.Add(Nodes[node - 1].Order);
-						node = solution.Value(routing.NextVar(node));
+						route.Orders.Add(Nodes[second_node - 1].Order);
+						first_node = second_node;
+						second_node = solution.Value(routing.NextVar(first_node));
+						route.RouteCost += routing.GetCost(first_node, second_node, route_number);
 					}
 
 					if(route.Orders.Count > 0)

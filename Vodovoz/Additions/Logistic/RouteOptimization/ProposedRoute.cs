@@ -10,6 +10,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public List<Order> Orders = new List<Order>();
 		public AtWorkDriver Driver;
 
+		public RouteList RealRoute;
+
+		public long RouteCost;
+
 		public Car Car {
 			get {
 				return Driver.Car;

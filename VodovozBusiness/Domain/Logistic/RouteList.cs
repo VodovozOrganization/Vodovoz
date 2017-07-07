@@ -14,6 +14,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -270,6 +271,25 @@ namespace Vodovoz.Domain.Logistic
 					payedForFuel = FuelGivedDocument.PayedForFuel.Value;
 
 				return Total - payedForFuel;
+			}
+		}
+
+		public virtual double PlanedDistance{
+			get{
+				if(Addresses.Count == 0)
+					return 0;
+				var last_point = Addresses.First().Order.DeliveryPoint;
+				double distance = 0; 
+				foreach(var next in Addresses.Select(x => x.Order.DeliveryPoint))
+				{
+					if(last_point == null)
+						distance += DistanceCalculator.GetDistanceFromBase(last_point);
+					else
+						distance += DistanceCalculator.GetDistance(last_point, next);
+					last_point = next;
+				}
+				distance += DistanceCalculator.GetDistanceToBase(last_point);
+				return distance;
 			}
 		}
 
