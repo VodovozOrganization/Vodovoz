@@ -80,7 +80,7 @@ public partial class MainWindow : Window
 		ActionRevisionBottlesAndDeposits = new Action ("RevisionBottlesAndDeposits", "Акт по бутылям/залогам", null, "table");
 		ActionResidue = new Action("ActionResidue", "Вввод остатков", null, "table");
 //		ActionTransferOperationDlg = new Action("ActionTransferOperationDlg", "Перемещения между точками доставки", null, "table");
-		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Перемещения между точками доставки", null, "table");
+		ActionTransferOperationJournal = new Action("ActionTransferOperationJournal", "Переносы между точками доставки", null, "table");
 		//Кадры
 		ActionEmployeeWorkChart = new Action("ActionEmployeeWorkChart", "График работы сотрудников", null, "table");
 		ActionFinesJournal = new Action("ActionFinesJournal", "Штрафы", null, "table");
@@ -416,6 +416,6 @@ public partial class MainWindow : Window
 	{
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<TransferOperationsVM>(),
-			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Перемещения между точками доставки").Buttons(ReferenceButtonMode.CanAll)		);
+			() => new ReferenceRepresentation(new TransferOperationsVM()).CustomTabName("Переносы между точками доставки").Buttons(ReferenceButtonMode.CanAll)		);
 	}
 }

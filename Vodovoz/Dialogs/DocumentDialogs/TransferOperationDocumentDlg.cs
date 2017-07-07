@@ -89,7 +89,7 @@ namespace Vodovoz.Dialogs.DocumentDialogs
 
 			messages.AddRange(Entity.SaveOperations(UoWGeneric, (int)spinBottles.Value, (decimal)spinDepositsBottles.Value, (decimal)spinDepositsEquipment.Value));
 
-			logger.Info("Сохраняем документ перемещения...");
+			logger.Info("Сохраняем документ переноса...");
 			UoWGeneric.Save();
 			logger.Info("Ok.");
 			return true;

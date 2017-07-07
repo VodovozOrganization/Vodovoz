@@ -11,8 +11,13 @@ using Vodovoz.Domain.Operations;
 
 namespace Vodovoz.Domain.Documents
 {
+
+		[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
+		NominativePlural = "переносы",
+		Nominative = "перенос")]
 	public class TransferOperationDocument: Document, IValidatableObject, IDomainObject
 	{
+		[Display(Name = "Дата")]
 		public override DateTime TimeStamp {
 			get {
 				return base.TimeStamp;
@@ -86,6 +91,8 @@ namespace Vodovoz.Domain.Documents
 
 		Counterparty fromClient;
 
+		[Display(Name = "Контрагент-отправитель")]
+		[Required(ErrorMessage = "Контрагент-отправитель должен быть указан.")]
 		public virtual Counterparty FromClient {
 			get { return fromClient; }
 			set { SetField(ref fromClient, value, () => FromClient); }
@@ -93,6 +100,8 @@ namespace Vodovoz.Domain.Documents
 
 		Counterparty toClient;
 
+		[Display(Name = "Контрагент-получатель")]
+		[Required(ErrorMessage = "Контрагент-получатель должен быть указан.")]
 		public virtual Counterparty ToClient {
 			get { return toClient; }
 			set { SetField(ref toClient, value, () => ToClient); }
@@ -100,6 +109,8 @@ namespace Vodovoz.Domain.Documents
 
 		DeliveryPoint fromDeliveryPoint;
 
+		[Display(Name = "Точка доставки отправителя")]
+		[Required(ErrorMessage = "Точка доставки отправителя должна быть указана.")]
 		public virtual DeliveryPoint FromDeliveryPoint {
 			get { return fromDeliveryPoint; }
 			set { SetField(ref fromDeliveryPoint, value, () => FromDeliveryPoint); }
@@ -107,6 +118,8 @@ namespace Vodovoz.Domain.Documents
 
 		DeliveryPoint toDeliveryPoint;
 
+		[Display(Name = "Точка доставки получателя")]
+		[Required(ErrorMessage = "Точка доставки получателя должна быть указана.")]
 		public virtual DeliveryPoint ToDeliveryPoint {
 			get { return toDeliveryPoint; }
 			set { SetField(ref toDeliveryPoint, value, () => ToDeliveryPoint); }

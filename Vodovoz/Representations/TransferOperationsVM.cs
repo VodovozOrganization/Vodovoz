@@ -71,7 +71,7 @@ namespace Vodovoz.ViewModel
 		}
 
 		IColumnsConfig columnsConfig = FluentColumnsConfig<TransferOperationVMNode>.Create()
-										.AddColumn("ID").AddTextRenderer(node => String.Format("Перемещение №{0}", node.Id)).SearchHighlight()
+										.AddColumn("ID").AddTextRenderer(node => String.Format("Перенос №{0}", node.Id)).SearchHighlight()
 										.AddColumn("Дата").SetDataProperty(node => node.DateString)
 										.AddColumn("От клиента").SetDataProperty(node => node.FromCounterparty)
 										.AddColumn("Откуда").SetDataProperty(node => node.FromDeliveryPoint)
