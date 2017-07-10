@@ -91,7 +91,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			for(int ix = 0; ix < allDrivers.Length; ix++)
 			{
 				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix]), ix);
-				routing.SetFixedCostOfVehicle(allDrivers[ix].Employee.TripPriority * DriverPriorityPenalty, ix);
+				routing.SetFixedCostOfVehicle((allDrivers[ix].Employee.TripPriority - 1) * DriverPriorityPenalty, ix);
 			}
 
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();

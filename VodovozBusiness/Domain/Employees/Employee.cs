@@ -200,6 +200,9 @@ namespace Vodovoz.Domain.Employees
 
 		private short tripPriority = 6;
 
+		/// <summary>
+		/// Приорите(1-10) чем меньше тем лучше. Фактически это штраф.
+		/// </summary>
 		[Display(Name = "Приоритет для маршрутов")]
 		public virtual short TripPriority {
 			get { return tripPriority; }
