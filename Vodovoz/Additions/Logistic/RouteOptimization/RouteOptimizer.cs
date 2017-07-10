@@ -15,7 +15,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
 		#region Настройки оптимизации
-		public static double UnlikeDistrictCost = 3;
+		public static long UnlikeDistrictPenalty = 100000; //Штраф за поездку в отсутствующий в списке район
+		public static long DistrictPriorityPenalty = 1000; //Штраф за каждый шаг приоритета к каждому адресу, в менее приоритеном районе
+		public static long DriverPriorityPenalty = 20000; //Штраф каждому менее приоритетному водителю, на единицу приоритета, за выход в маршрут.
+		public static long MaxDistanceAddressPenalty = 300000; //Штраф за не отвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
 
 		#endregion
 
@@ -88,6 +91,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			for(int ix = 0; ix < allDrivers.Length; ix++)
 			{
 				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix]), ix);
+				routing.SetFixedCostOfVehicle(allDrivers[ix].Employee.TripPriority * DriverPriorityPenalty, ix);
 			}
 
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
@@ -103,7 +107,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			for(int ix = 1; ix < Nodes.Length; ix++)
-				routing.AddDisjunction(new int[]{ix}, 300000);
+				routing.AddDisjunction(new int[]{ix}, MaxDistanceAddressPenalty);
 
 			RoutingSearchParameters search_parameters =
 			        RoutingModel.DefaultSearchParameters();

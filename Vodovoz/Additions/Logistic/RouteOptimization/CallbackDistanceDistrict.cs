@@ -37,14 +37,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long distance;
 			var aria = Nodes[second_index - 1].District;
 			if(!priorites.ContainsKey(aria))
-				return 100000;
+				return RouteOptimizer.UnlikeDistrictPenalty;
 
 			if(first_index == 0)
 				distance = (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
 			else
 				distance = (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
 
-			return distance + priorites[aria] * 1000 ; // приоритет = 1 км. Можно умножить на нужное количество км.
+			return distance + priorites[aria] * RouteOptimizer.DistrictPriorityPenalty ;
 		}
 	}
 }
