@@ -4,7 +4,7 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Tools.Logistic
 {
-	public static class DistanceCalculator
+	public class DistanceCalculator : IDistanceCalculator
 	{
 		static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
 
@@ -23,5 +23,19 @@ namespace Vodovoz.Tools.Logistic
 			return GMapProviders.EmptyProvider.Projection.GetDistance(fromDP.GmapPoint, BasePoint);
 		}
 
+		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
+		{
+			return (int)(GetDistance(fromDP, toDP) * 1000);
+		}
+
+		public int DistanceFromBaseMeter(DeliveryPoint toDP)
+		{
+			return (int)(GetDistanceFromBase(toDP) * 1000);
+		}
+
+		public int DistanceToBaseMeter(DeliveryPoint fromDP)
+		{
+			return (int)(GetDistanceToBase(fromDP) * 1000);
+		}
 	}
 }

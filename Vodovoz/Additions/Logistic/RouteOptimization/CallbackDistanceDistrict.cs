@@ -12,12 +12,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		private CalculatedOrder[] Nodes;
 		AtWorkDriver Driver;
 		Dictionary<LogisticsArea, int> priorites;
+		IDistanceCalculator distanceCalculator;
 
-		public CallbackDistanceDistrict(CalculatedOrder[] nodes, AtWorkDriver driver)
+		public CallbackDistanceDistrict(CalculatedOrder[] nodes, AtWorkDriver driver, IDistanceCalculator distanceCalculator)
 		{
 			Nodes = nodes;
 			Driver = driver;
 			priorites = driver.Employee.Districts.ToDictionary(x => x.District, x => x.Priority);
+			this.distanceCalculator = distanceCalculator;
 		}
 
 		public override long Run(int first_index, int second_index)
@@ -32,7 +34,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				return 0;
 
 			if(second_index == 0)
-				return (long)(DistanceCalculator.GetDistanceToBase(Nodes[first_index - 1].Order.DeliveryPoint) * 1000);
+				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint);
 
 			long distance;
 			var aria = Nodes[second_index - 1].District;
@@ -40,9 +42,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				return RouteOptimizer.UnlikeDistrictPenalty;
 
 			if(first_index == 0)
-				distance = (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
 			else
-				distance = (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				distance = distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
 			return distance + priorites[aria] * RouteOptimizer.DistrictPriorityPenalty ;
 		}

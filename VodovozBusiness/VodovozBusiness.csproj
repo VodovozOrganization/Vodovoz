@@ -390,6 +390,11 @@
     <Compile Include="Tools\Logistic\DistanceCalculator.cs" />
     <Compile Include="HibernateMapping\Service\CullingCategoryMap.cs" />
     <Compile Include="HibernateMapping\Order\CommentTemplateMap.cs" />
+    <Compile Include="Tools\Logistic\DistanceCalculatorSputnik.cs" />
+    <Compile Include="Tools\Logistic\IDistanceCalculator.cs" />
+    <Compile Include="Domain\Logistic\CachedDistance.cs" />
+    <Compile Include="HibernateMapping\Logistic\CachedDistanceMap.cs" />
+    <Compile Include="Repositories\Logistics\CachedDistanceRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

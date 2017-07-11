@@ -317,7 +317,7 @@ namespace Dialogs.Logistic
 					}
 					routePoints.Add (new PointOnEarth (point.Latitude, point.Longitude));
 
-					var missedTrack = SputnikMain.GetRoute (routePoints);
+					var missedTrack = SputnikMain.GetRoute (routePoints, false, true);
 					if (missedTrack == null)
 					{
 						MessageDialogWorks.RunErrorDialog ("Не удалось получить ответ от сервиса \"Спутник\"");

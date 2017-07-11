@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Google.OrTools.ConstraintSolver;
@@ -7,6 +7,7 @@ using NetTopologySuite.Geometries;
 using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
@@ -28,6 +29,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public IList<AtWorkForwarder> Forwarders;
 
 		private CalculatedOrder[] Nodes;
+		private IDistanceCalculator distanceCalculator;
 
 		public ProgressBar OrdersProgress;
 		public Gtk.TextBuffer DebugBuffer;
@@ -81,6 +83,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				logger.Warn("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
 			}
 
+			distanceCalculator = new DistanceCalculatorSputnik(Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
+
 			MainClass.MainWin.ProgressAdd();
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
@@ -90,7 +94,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			for(int ix = 0; ix < allDrivers.Length; ix++)
 			{
-				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix]), ix);
+				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix], distanceCalculator), ix);
 				routing.SetFixedCostOfVehicle((allDrivers[ix].Employee.TripPriority - 1) * DriverPriorityPenalty, ix);
 			}
 
@@ -125,6 +129,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
 			MainClass.MainWin.ProgressAdd();
 			logger.Info("Закрываем модель...");
+			logger.Info("Рассчет расстояний между точками...");
 			routing.CloseModelWithParameters(search_parameters);
 
 			var lastSolution = solver.MakeLastSolutionCollector();

@@ -129,7 +129,7 @@ namespace Vodovoz.Domain.Logistic
 			//Координаты базы
 			points.Add (new PointOnEarth ( Constants.BaseLatitude, Constants.BaseLongitude));
 
-			var response = SputnikMain.GetRoute (points);
+			var response = SputnikMain.GetRoute (points, false, true);
 			if (response.Status == 0)
 			{
 				DistanceToBase = (double)response.RouteSummary.TotalDistanceKm;
