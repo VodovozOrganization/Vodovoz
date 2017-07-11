@@ -776,4 +776,13 @@ public partial class MainWindow : Gtk.Window
 			() => new MergeAddressesDlg()
 		);
 	}
+
+	protected void OnActionOrdersWithMinPriceLessThanActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }

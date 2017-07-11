@@ -567,7 +567,7 @@
         <property name="ShortLabel" translatable="yes">Шаблоны для пересортицы</property>
         <signal name="Activated" handler="OnActionRegrandingOfGoodsTempalteActivated" />
       </action>
-      <action id="Action19">
+      <action id="Action29">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчеты</property>
         <property name="ShortLabel" translatable="yes">Отчеты</property>
@@ -722,7 +722,7 @@
         <property name="ShortLabel" translatable="yes">Загрузка "Ларгусы"</property>
         <signal name="Activated" handler="OnActionCompanyTrucksActivated" />
       </action>
-      <action id="ActionLastOrderReport">
+      <action id="Action30">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчет по последнему заказу</property>
         <property name="ShortLabel" translatable="yes">Отчет по последнему заказу</property>
@@ -738,6 +738,21 @@
         <property name="Label" translatable="yes">Дубликаты адресов</property>
         <property name="ShortLabel" translatable="yes">Дубликаты адресов</property>
         <signal name="Activated" handler="OnActionAddressDuplicetesActivated" />
+      </action>
+      <action id="Action28">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes" />
+      </action>
+      <action id="ActionLastOrderReport">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчёт по заказам меньше 130р.</property>
+        <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 130р.</property>
+      </action>
+      <action id="ActionOrdersWithMinPriceLessThan">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчёт по заказам меньше 130 р.</property>
+        <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 130 р.</property>
+        <signal name="Activated" handler="OnActionOrdersWithMinPriceLessThanActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -845,7 +860,7 @@
                       <node type="Menuitem" action="ActionFineCommentTemplates" />
                     </node>
                   </node>
-                  <node type="Menu" action="Action19">
+                  <node type="Menu" action="Action29">
                     <node type="Menu" action="Action20">
                       <node type="Menuitem" action="ActionEmployeeFines" />
                       <node type="Menuitem" action="ActionWagesOperations" />
@@ -873,8 +888,10 @@
                       <node type="Menuitem" action="ActionCashierComments" />
                       <node type="Menuitem" action="Action1cComments" />
                       <node type="Menuitem" action="ActionOrdersByDistrict" />
-                      <node type="Menuitem" action="ActionLastOrderReport" />
+                      <node type="Menuitem" action="Action30" />
+                      <node type="Menuitem" action="ActionOrdersWithMinPriceLessThan" />
                     </node>
+                    <node type="Menuitem" />
                   </node>
                   <node type="Menu" action="ActionAbout">
                     <node type="Menuitem" action="aboutAction" />
@@ -1094,6 +1111,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -41112,6 +41130,43 @@ RegistrationNumber</property>
           </widget>
           <packing>
             <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Widget" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <placeholder />
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateRepot">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateRepotClicked" />
+          </widget>
+          <packing>
+            <property name="PackType">End</property>
+            <property name="Position">1</property>
             <property name="AutoSize">True</property>
             <property name="Expand">False</property>
             <property name="Fill">False</property>

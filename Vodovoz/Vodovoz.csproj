@@ -631,6 +631,9 @@
     <Compile Include="Dialogs\DocumentDialogs\TransferOperationDocumentItemView.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.DocumentDialogs.TransferOperationDocumentItemView.cs" />
     <Compile Include="Representations\TransferOperationsVM.cs" />
+    <Compile Include="ReportsParameters\OrdersWithMinPriceLessThan.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Widget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -976,6 +979,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="app.config" />
+    <None Include="Reports\Orders\OrdersWithMinPriceLessThan.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
