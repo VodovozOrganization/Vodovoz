@@ -391,7 +391,7 @@ namespace Vodovoz
 			var rl = row as RouteList;
 			if(rl != null)
 			{
-				var proposed = optimizer.ProposedRoutes.First(x => x.RealRoute == rl);
+				var proposed = optimizer.ProposedRoutes.FirstOrDefault(x => x.RealRoute == rl);
 				if(proposed == null)
 					return String.Format("{0:N1}км", rl.PlanedDistance);
 				else
