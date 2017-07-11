@@ -29,7 +29,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public IList<AtWorkForwarder> Forwarders;
 
 		private CalculatedOrder[] Nodes;
-		private IDistanceCalculator distanceCalculator;
+		private DistanceCalculatorSputnik distanceCalculator;
 
 		public ProgressBar OrdersProgress;
 		public Gtk.TextBuffer DebugBuffer;
@@ -175,6 +175,27 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(ProposedRoutes.Count > 0)
 				logger.Info($"Предложено {ProposedRoutes.Count} маршрутов.");
 			PerformanceHelper.Main.PrintAllPoints(logger);
+
+			if(distanceCalculator.ErrorWays.Count > 0)
+			{
+				logger.Debug("Ошибок получения расстояний {0}", distanceCalculator.ErrorWays.Count);
+				var uniqueFrom = distanceCalculator.ErrorWays.Select(x => x.FromHash).Distinct().ToList();
+				var uniqueTo = distanceCalculator.ErrorWays.Select(x => x.ToHash).Distinct().ToList();
+				logger.Debug("Уникальных точек: отправки = {0}, прибытия = {1}", uniqueFrom.Count, uniqueTo.Count);
+				logger.Debug("Проблемные точки отправки:\n{0}",
+				             String.Join("; ", distanceCalculator.ErrorWays
+				                         .GroupBy(x => x.FromHash)
+				                         .Where(x => x.Count() > (uniqueTo.Count / 2))
+				                         .Select(x => CachedDistance.GetText(x.Key)))
+				            );
+				logger.Debug("Проблемные точки прибытия:\n{0}",
+			 			String.Join("; ", distanceCalculator.ErrorWays
+				                    .GroupBy(x => x.ToHash)
+				                    .Where(x => x.Count() > (uniqueFrom.Count / 2))
+						 			.Select(x => CachedDistance.GetText(x.Key)))
+			);
+
+			}
 		}
 	}
 }

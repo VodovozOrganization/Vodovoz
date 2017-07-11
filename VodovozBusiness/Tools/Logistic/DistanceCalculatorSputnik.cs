@@ -16,7 +16,6 @@ namespace Vodovoz.Tools.Logistic
 		#endregion
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
 		static long BaseHash = CachedDistance.GetHash(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
@@ -25,6 +24,8 @@ namespace Vodovoz.Tools.Logistic
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
+
+		public List<WayHash> ErrorWays = new List<WayHash>();
 
 		public DistanceCalculatorSputnik(DeliveryPoint[] points, Gtk.TextBuffer buffer)
 		{
@@ -72,6 +73,12 @@ namespace Vodovoz.Tools.Logistic
 			if(cache.ContainsKey(fromHash) && cache[fromHash].ContainsKey(toHash))
 				return cache[fromHash][toHash].DistanceMeters;
 
+			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
+			{
+				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
+				return DistanceFalsePenality;
+			}
+
 			logger.Debug("Расстояние {0}->{1} не найдено в кеше запрашиваем.", fromHash, toHash);
 			List<PointOnEarth> points = new List<PointOnEarth>();
 			double latitude, longitude;
@@ -96,7 +103,9 @@ namespace Vodovoz.Tools.Logistic
 				UpdateText();
 				return cachedValue.DistanceMeters;
 			}
+			ErrorWays.Add(new WayHash(fromHash, toHash));
 			totalErrors++;
+			UpdateText();
 			//FIXME Реализовать запрос манхентанского расстояния.
 			return DistanceFalsePenality; 
 		}
@@ -106,6 +115,17 @@ namespace Vodovoz.Tools.Logistic
 			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}\nНовых со спутника: {3}\nОшибок в запросах: {4}",
 			                                  totalPoints, startCached, totalCached, addedCached, totalErrors);
 			QSMain.WaitRedraw(200);
+		}
+
+		public struct WayHash{
+			public long FromHash;
+			public long ToHash;
+
+			public WayHash(long fromHash, long toHash)
+			{
+				FromHash = fromHash;
+				ToHash = toHash;
+			}
 		}
 	}
 }

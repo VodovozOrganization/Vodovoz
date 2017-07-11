@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Logistic
@@ -36,6 +37,13 @@ namespace Vodovoz.Domain.Logistic
 		{
 			latitude = (double)(hash / 1000000) / 10000;
 			longitude = (double)(hash % 1000000) / 10000;
+		}
+
+		public static string GetText(long hash)
+		{
+			double latitude, longitude;
+			GetLatLon(hash, out latitude, out longitude);
+			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", latitude, longitude);
 		}
 
 		public override bool Equals(object obj)
