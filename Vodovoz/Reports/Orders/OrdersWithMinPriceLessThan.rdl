@@ -19,7 +19,7 @@
       <Textbox Name="Textbox15">
         <Height>17.28pt</Height>
         <Width>575.89pt</Width>
-        <Value>Отчёт по заказам с минимальной ценой менее 130 р.</Value>
+        <Value>Отчёт по заказам с минимальной ценой менее 100 р.</Value>
         <ZIndex>1</ZIndex>
         <Left>0.00pt</Left>
         <Top>8.00pt</Top>
@@ -36,9 +36,9 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>148.9pt</Height>
+    <Height>133.1pt</Height>
     <ReportItems>
-      <Table Name="Table1">
+      <Table Name="Table2">
         <DataSetName>Data</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -48,32 +48,35 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>36.0pt</Width>
+            <Width>36.6pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>228.5pt</Width>
+            <Width>108.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>83.1pt</Width>
+            <Width>121.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>80.0pt</Width>
+            <Width>77.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.2pt</Width>
+            <Width>76.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>76.1pt</Width>
+            <Width>79.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>78.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>58.1pt</Height>
+              <Height>58.5pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox2">
+                    <Textbox Name="Textbox16">
                       <Value>№ п/п</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -81,6 +84,20 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>Клиент</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
                       </Style>
@@ -89,7 +106,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox3">
+                    <Textbox Name="Textbox18">
                       <Value>Адрес точки доставки</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -97,15 +114,13 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox4">
+                    <Textbox Name="Textbox19">
                       <Value>Дата последнего заказа</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -113,15 +128,13 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox5">
+                    <Textbox Name="Textbox20">
                       <Value>Дата заказа с минимальной ценой</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -129,15 +142,13 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox6">
+                    <Textbox Name="Textbox21">
                       <Value>Минимальная цена</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -145,15 +156,13 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox7">
+                    <Textbox Name="Textbox22">
                       <Value>Количество 19л бутылей в заказе с минимальной ценой</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
@@ -161,8 +170,6 @@
                           <Default>Solid</Default>
                         </BorderStyle>
                         <FontWeight>Bold</FontWeight>
-                        <BorderColor />
-                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -179,7 +186,7 @@
               <TableCells>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox8">
+                    <Textbox Name="Textbox23">
                       <Value>=RowNumber()</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -194,7 +201,20 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox9">
+                    <Textbox Name="Textbox24">
+                      <Value>=Fields!client_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
                       <Value>=Fields!dpoint_address.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -207,7 +227,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox10">
+                    <Textbox Name="Textbox26">
                       <Value>=Fields!last_order_date.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -216,7 +236,6 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>dd.MM.yyyy</Format>
                         <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
@@ -224,7 +243,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox11">
+                    <Textbox Name="Textbox27">
                       <Value>=Fields!min_price_date.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -233,7 +252,6 @@
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>dd.MM.yyyy</Format>
                         <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
@@ -241,7 +259,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox12">
+                    <Textbox Name="Textbox28">
                       <Value>=Fields!min_price.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -257,7 +275,7 @@
                 </TableCell>
                 <TableCell>
                   <ReportItems>
-                    <Textbox Name="Textbox13">
+                    <Textbox Name="Textbox29">
                       <Value>=Fields!min_price_quantity.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
@@ -275,43 +293,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <TableGroups>
-          <TableGroup>
-            <Grouping Name="TableGroupGroup1">
-              <GroupExpressions>
-                <GroupExpression>=Fields!client_name.Value</GroupExpression>
-              </GroupExpressions>
-            </Grouping>
-            <Header>
-              <TableRows>
-                <TableRow>
-                  <Height>12 pt</Height>
-                  <TableCells>
-                    <TableCell>
-                      <ReportItems>
-                        <Textbox Name="Textbox14">
-                          <Value>=Fields!client_name.Value</Value>
-                          <CanGrow>true</CanGrow>
-                          <Style>
-                            <BorderStyle>
-                              <Default>Solid</Default>
-                            </BorderStyle>
-                            <BorderColor />
-                            <BorderWidth />
-                            <FontWeight>Bold</FontWeight>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <ColSpan>6</ColSpan>
-                    </TableCell>
-                  </TableCells>
-                </TableRow>
-              </TableRows>
-            </Header>
-          </TableGroup>
-        </TableGroups>
         <Left>0.0pt</Left>
-        <Top>19.5pt</Top>
+        <Top>21.9pt</Top>
       </Table>
     </ReportItems>
   </Body>
@@ -333,114 +316,78 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=root;password=qsolution;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <DataSets>
     <DataSet Name="Data">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT DISTINCT
-	counterparty.id AS client_id,
-	counterparty.name AS client_name,
-	delivery_points.id AS dpoint_id,
-	IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS dpoint_address,
+	counterparty_mq.id AS cl_id,
+	counterparty_mq.name AS client_name,
+	orders_mq.address_1c_code AS dpoint_id,
+	orders_mq.address_1c AS dpoint_address,
+	order_items_mq.price AS min_price,
+	order_items_mq.count AS min_price_quantity,
+	MIN(orders_mq.delivery_date) AS min_price_date,
 	(
 		SELECT
 			MAX(orders.delivery_date)
 		FROM
 			orders
 		WHERE
-			orders.delivery_point_id = dpoint_id
-	) AS last_order_date,
-	(
-		SELECT
-			MIN(order_items.price)
-		FROM
-			orders
-		LEFT JOIN
-			order_items ON order_items.order_id = orders.id
-		LEFT JOIN
-			nomenclature ON nomenclature.id = order_items.nomenclature_id
-		WHERE
-				orders.delivery_point_id = dpoint_id
+				orders.client_id = cl_id
 			AND
-				nomenclature.category = 'water'
-			AND
-				order_items.price &gt; 0
-			AND
-				order_items.price BETWEEN 0.01 AND 129.99
-	) AS min_price,
-	(
-		SELECT
-			orders.delivery_date
-		FROM
-			orders
-		LEFT JOIN
-			order_items ON order_items.order_id = orders.id
-		LEFT JOIN
-			nomenclature ON nomenclature.id = order_items.nomenclature_id
-		WHERE
-				orders.delivery_point_id = dpoint_id
-			AND
-				nomenclature.category = 'water'
-			AND
-				order_items.price = min_price				
-		LIMIT 1
-	) AS min_price_date,
-	(
-		SELECT
-			order_items.actual_count
-		FROM
-			orders
-		LEFT JOIN
-			order_items ON order_items.order_id = orders.id
-		LEFT JOIN
-			nomenclature ON nomenclature.id = order_items.nomenclature_id
-		WHERE
-				orders.delivery_point_id = dpoint_id
-			AND
-				nomenclature.category = 'water'
-			AND
-				order_items.price = min_price				
-		LIMIT 1
-	) AS min_price_quantity
+				orders.address_1c_code = dpoint_id
+		) AS last_order_date
 FROM
-	counterparty
+	counterparty AS counterparty_mq
 LEFT JOIN
-	delivery_points ON delivery_points.counterparty_id = counterparty.id
+	orders AS orders_mq ON orders_mq.client_id = counterparty_mq.id
 LEFT JOIN
-	orders ON orders.client_id = counterparty.id
-WHERE
-	EXISTS
+	order_items AS order_items_mq ON order_items_mq.order_id = orders_mq.id
+INNER JOIN
 	(
 		SELECT
-			1
+			counterparty.id AS oid,
+            orders.address_1c_code,
+			MIN(order_items.price) AS min_price
 		FROM
-			orders
+			counterparty
+		LEFT JOIN
+			orders ON orders.client_id = counterparty.id
 		LEFT JOIN
 			order_items ON order_items.order_id = orders.id
 		LEFT JOIN
 			nomenclature ON nomenclature.id = order_items.nomenclature_id
 		WHERE
-				orders.delivery_point_id = delivery_points.id
-			AND
 				nomenclature.category = 'water'
 			AND
-				order_items.price BETWEEN 0.01 AND 129.99
+				order_items.price BETWEEN 0.01 AND 99.99
 			AND 
 				order_items.discount &lt; 100
+		GROUP BY
+			counterparty.id,
+            orders.address_1c_code
+	) AS counterparty_sq ON counterparty_sq.oid = counterparty_mq.id
+WHERE
+	order_items_mq.price = counterparty_sq.min_price
+GROUP BY
+	cl_id,
+	dpoint_id,
+	min_price,
+	(
+		SELECT
+			MAX(orders.delivery_date)
+		FROM
+			orders
+		WHERE
+			orders.client_id = cl_id
+		AND
+			orders.address_1c_code = dpoint_id
 	)</CommandText>
       </Query>
       <Fields>
-        <Field Name="client_id">
-          <DataField>client_id</DataField>
+        <Field Name="cl_id">
+          <DataField>cl_id</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="client_name">
@@ -449,29 +396,38 @@ WHERE
         </Field>
         <Field Name="dpoint_id">
           <DataField>dpoint_id</DataField>
-          <TypeName>System.UInt32</TypeName>
+          <TypeName>System.String</TypeName>
         </Field>
         <Field Name="dpoint_address">
           <DataField>dpoint_address</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="last_order_date">
-          <DataField>last_order_date</DataField>
-          <TypeName>System.DateTime</TypeName>
-        </Field>
         <Field Name="min_price">
           <DataField>min_price</DataField>
           <TypeName>System.Decimal</TypeName>
-        </Field>
-        <Field Name="min_price_date">
-          <DataField>min_price_date</DataField>
-          <TypeName>System.DateTime</TypeName>
         </Field>
         <Field Name="min_price_quantity">
           <DataField>min_price_quantity</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
+        <Field Name="min_price_date">
+          <DataField>min_price_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="last_order_date">
+          <DataField>last_order_date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
       </Fields>
     </DataSet>
   </DataSets>
+  <DataSources>
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_sanitary;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

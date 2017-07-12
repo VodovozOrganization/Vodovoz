@@ -435,7 +435,7 @@ public partial class MainWindow
 		this.ActionToolBarIcon.ShortLabel = global::Mono.Unix.Catalog.GetString("Только иконки");
 		w1.Add(this.ActionToolBarIcon, null);
 		this.ActionToolBarBoth = new global::Gtk.RadioAction("ActionToolBarBoth", global::Mono.Unix.Catalog.GetString("Иконки и Текст"), null, null, 0);
-		this.ActionToolBarBoth.Group = this.ActionToolBarText.Group;
+		this.ActionToolBarBoth.Group = this.ActionToolBarIcon.Group;
 		this.ActionToolBarBoth.ShortLabel = global::Mono.Unix.Catalog.GetString("Иконки и Текст");
 		w1.Add(this.ActionToolBarBoth, null);
 		this.ActionIconsExtraSmall = new global::Gtk.RadioAction("ActionIconsExtraSmall", global::Mono.Unix.Catalog.GetString("Очень маленькие иконки"), null, null, 0);
@@ -559,8 +559,8 @@ public partial class MainWindow
 		this.ActionLastOrderReport = new global::Gtk.Action("ActionLastOrderReport", global::Mono.Unix.Catalog.GetString("Отчёт по заказам меньше 130р."), null, null);
 		this.ActionLastOrderReport.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчёт по заказам меньше 130р.");
 		w1.Add(this.ActionLastOrderReport, null);
-		this.ActionOrdersWithMinPriceLessThan = new global::Gtk.Action("ActionOrdersWithMinPriceLessThan", global::Mono.Unix.Catalog.GetString("Отчёт по заказам меньше 130 р."), null, null);
-		this.ActionOrdersWithMinPriceLessThan.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчёт по заказам меньше 130 р.");
+		this.ActionOrdersWithMinPriceLessThan = new global::Gtk.Action("ActionOrdersWithMinPriceLessThan", global::Mono.Unix.Catalog.GetString("Отчёт по заказам меньше 100 р."), null, null);
+		this.ActionOrdersWithMinPriceLessThan.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчёт по заказам меньше 100 р.");
 		w1.Add(this.ActionOrdersWithMinPriceLessThan, null);
 		this.UIManager.InsertActionGroup(w1, 0);
 		this.AddAccelGroup(this.UIManager.AccelGroup);

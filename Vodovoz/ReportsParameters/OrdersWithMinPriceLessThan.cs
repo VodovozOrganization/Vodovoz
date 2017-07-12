@@ -31,7 +31,7 @@ namespace Vodovoz.ReportsParameters
 
 		public string Title {
 			get {
-				return "Отчет по заказам с минимальной ценой меньше 130р.";
+				return "Отчет по заказам с минимальной ценой меньше 100р.";
 			}
 		}
 

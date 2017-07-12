@@ -750,8 +750,8 @@
       </action>
       <action id="ActionOrdersWithMinPriceLessThan">
         <property name="Type">Action</property>
-        <property name="Label" translatable="yes">Отчёт по заказам меньше 130 р.</property>
-        <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 130 р.</property>
+        <property name="Label" translatable="yes">Отчёт по заказам меньше 100 р.</property>
+        <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 100 р.</property>
         <signal name="Activated" handler="OnActionOrdersWithMinPriceLessThanActivated" />
       </action>
     </action-group>
