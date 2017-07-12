@@ -11,7 +11,7 @@
     <ApplicationIcon>icons\logo.ico</ApplicationIcon>
     <UseMSBuildEngine>False</UseMSBuildEngine>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetOS>Linux</TargetOS>
+    <TargetOS>Win</TargetOS>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -993,6 +993,18 @@
     </None>
     <None Include="app.config" />
     <None Include="Reports\Orders\OrdersWithMinPriceLessThan.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition=" '$(TargetOS)' == 'Win' " Include="../lib/OnlyWin/Mono.Posix.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition=" '$(TargetOS)' == 'Win' " Include="../lib/OnlyWin/Mono.Data.Sqlite.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition=" '$(TargetOS)' == 'Win' " Include="../lib/OnlyWin/sqlite3.def">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition=" '$(TargetOS)' == 'Win' " Include="../lib/OnlyWin/sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
