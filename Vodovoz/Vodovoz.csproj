@@ -11,6 +11,7 @@
     <ApplicationIcon>icons\logo.ico</ApplicationIcon>
     <UseMSBuildEngine>False</UseMSBuildEngine>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetOS>Linux</TargetOS>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,6 +44,18 @@
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugShortWin|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\DebugWin</OutputPath>
+    <DefineConstants>DEBUG;SHORT;</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration.Contains('Win')">
+    <TargetOS>Win</TargetOS>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Mono.Posix" />
@@ -69,10 +82,10 @@
       <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
     </Reference>
     <Reference Include="Google.OrTools">
-      <HintPath>..\lib\Google.OrTools\Google.OrTools.dll</HintPath>
+      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
-      <HintPath>..\lib\Google.OrTools\Google.Protobuf.dll</HintPath>
+      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.Protobuf.dll</HintPath>
     </Reference>
     <Reference Include="GeoAPI">
       <HintPath>..\packages\GeoAPI.1.7.4\lib\net45\GeoAPI.dll</HintPath>
