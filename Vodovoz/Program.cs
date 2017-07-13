@@ -16,14 +16,13 @@ namespace Vodovoz
 		public static void Main (string[] args)
 		{
 			Application.Init ();
+			QSMain.SubscribeToUnhadledExceptions();
+			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 
 			TrayIcon = new StatusIcon(Pixbuf.LoadFromResource ("Vodovoz.icons.logo.png"));
 			TrayIcon.Visible = true;
-
 			TrayIcon.Tooltip = "Веселый Водовоз";
 
-			QSMain.SubscribeToUnhadledExceptions ();
-			QSMain.GuiThread = System.Threading.Thread.CurrentThread;
 			CreateProjectParam ();
 			// Создаем окно входа
 			Login LoginDialog = new Login ();
