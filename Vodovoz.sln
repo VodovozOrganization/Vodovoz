@@ -85,9 +85,6 @@ Global
 		Release|x86 = Release|x86
 		Debug|x64 = Debug|x64
 		Release|x64 = Release|x64
-		BundleLinux|Any CPU = BundleLinux|Any CPU
-		BundleLinux|x86 = BundleLinux|x86
-		BundleLinux|x64 = BundleLinux|x64
 		v4.0-Debug|Any CPU = v4.0-Debug|Any CPU
 		v4.0-Release|Any CPU = v4.0-Release|Any CPU
 		Debug-short|x86 = Debug-short|x86
