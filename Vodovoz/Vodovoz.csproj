@@ -80,8 +80,11 @@
     <Reference Include="Polylines">
       <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
     </Reference>
-    <Reference Include="Google.OrTools">
+    <Reference Condition=" '$(TargetOS)' == 'Linux' " Include="Google.OrTools">
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.dll</HintPath>
+    </Reference>
+    <Reference Condition=" '$(TargetOS)' == 'Win' " Include="Google.OrTools">
+      <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.OrTools.x86.dll</HintPath>
     </Reference>
     <Reference Include="Google.Protobuf">
       <HintPath>..\lib\Google.OrTools\$(TargetOS)\Google.Protobuf.dll</HintPath>
@@ -1000,6 +1003,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Condition=" '$(TargetOS)' == 'Win' " Include="../lib/OnlyWin/sqlite3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Condition=" '$(TargetOS)' == 'Linux' " Include="../lib/Google.OrTools/Linux/libGoogle.OrTools.so">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
