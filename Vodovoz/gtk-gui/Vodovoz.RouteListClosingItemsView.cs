@@ -64,11 +64,13 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w5.Position = 0;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.ytreeviewItems.ButtonPressEvent += new global::Gtk.ButtonPressEventHandler(this.OnYtreeviewItemsButtonPressEvent);
+			this.ytreeviewItems.RowActivated += new global::Gtk.RowActivatedHandler(this.OnYtreeviewItemsRowActivated);
 		}
 	}
 }
