@@ -943,9 +943,6 @@
     <None Include="Reports\Employees\DriversWageBalance.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Vodovoz.exe.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Reports\Logistic\DeliveriesLate.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
