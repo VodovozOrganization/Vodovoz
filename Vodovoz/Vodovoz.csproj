@@ -9,9 +9,8 @@
     <AssemblyName>Vodovoz</AssemblyName>
     <StartupObject>Vodovoz.MainClass</StartupObject>
     <ApplicationIcon>icons\logo.ico</ApplicationIcon>
-    <UseMSBuildEngine>False</UseMSBuildEngine>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetOS>Win</TargetOS>
+    <TargetOS>Linux</TargetOS>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition="$(Configuration.Contains('Win')">
+  <PropertyGroup Condition="$(Configuration.Contains('Win'))">
     <TargetOS>Win</TargetOS>
   </PropertyGroup>
   <ItemGroup>
