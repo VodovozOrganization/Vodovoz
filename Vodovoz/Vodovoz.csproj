@@ -646,7 +646,6 @@
     <Compile Include="Representations\TransferOperationsVM.cs" />
     <Compile Include="ReportsParameters\OrdersWithMinPriceLessThan.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan.cs" />
-    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Widget.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
