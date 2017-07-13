@@ -16343,6 +16343,7 @@ Patronymic</property>
                             <property name="Events">ButtonPressMask</property>
                             <property name="ShowScrollbars">True</property>
                             <signal name="ButtonPressEvent" handler="OnYtreeviewItemsButtonPressEvent" />
+                            <signal name="RowActivated" handler="OnYtreeviewItemsRowActivated" />
                           </widget>
                         </child>
                       </widget>
