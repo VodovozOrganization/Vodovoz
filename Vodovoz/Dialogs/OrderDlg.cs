@@ -390,7 +390,7 @@ namespace Vodovoz
 			enumAddRentButton.Sensitive = enumSignatureType.Sensitive =// enumStatus.Sensitive = 
 				enumPaymentType.Sensitive = enumDocumentType.Sensitive = val;
 			buttonAddDoneService.Sensitive = buttonAddServiceClaim.Sensitive =
-				buttonAddForSale.Sensitive = buttonFillComment.Sensitive = val;
+				buttonAddForSale.Sensitive = val;
 			spinBottlesReturn.Sensitive = spinSumDifference.Sensitive = val;
 			checkDelivered.Sensitive = checkSelfDelivery.Sensitive = val;
 			textComments.Sensitive = val;
