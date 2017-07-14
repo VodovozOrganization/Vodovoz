@@ -7,6 +7,7 @@ using Gamma.Utilities;
 using Gtk;
 using NHibernate;
 using NHibernate.Criterion;
+using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
@@ -75,6 +76,17 @@ namespace Vodovoz.ViewModel
 
 			if (Filter.RestrictOnlyWithoutCoodinates) {
 				query.Where (() => deliveryPointAlias.Longitude == null && deliveryPointAlias.Latitude == null);
+			}
+
+			if (Filter.RestrictLessThreeHours == true)
+			{
+				query.Where(Restrictions
+							.GtProperty(Projections.SqlFunction(
+											new SQLFunctionTemplate(NHibernateUtil.Time, "ADDTIME(?1, ?2)"),
+											NHibernateUtil.Time,
+											Projections.Property(() => deliveryScheduleAlias.From),
+											Projections.Constant("3:0:0")),
+											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
 			if (Filter.ExceptIds != null && Filter.ExceptIds.Length > 0)

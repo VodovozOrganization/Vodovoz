@@ -137,6 +137,22 @@ namespace Vodovoz
 			}
 		}
 
+		bool? restrictLessThreeHours;
+
+		public bool? RestrictLessThreeHours
+		{
+			get
+			{
+				return checkLessThreeHours.Active ? true : restrictLessThreeHours;
+			}
+			set
+			{
+				restrictLessThreeHours = value;
+				checkLessThreeHours.Active = value == true;
+				checkLessThreeHours.Sensitive = false;
+			}
+		}
+
 		public int[] ExceptIds{ get; set; }
 
 		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
@@ -181,6 +197,11 @@ namespace Vodovoz
 		{
 			OnRefiltered ();
 			checkOnlySelfDelivery.Sensitive = !checkWithoutSelfDelivery.Active;
+		}
+
+		protected void OnCheckLessThreeHoursToggled(object sender, EventArgs e)
+		{
+			OnRefiltered();
 		}
 	}
 }
