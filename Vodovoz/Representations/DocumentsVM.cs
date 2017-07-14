@@ -156,6 +156,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => movementAlias.TimeStamp).WithAlias (() => resultAlias.Date)
 					.Select (() => DocumentType.MovementDocument).WithAlias (() => resultAlias.DocTypeEnum)
 					.Select (() => movementAlias.Category).WithAlias (() => resultAlias.MDCategory)
+					.Select (() => movementAlias.TransportationStatus).WithAlias(() => resultAlias.Status)          
 					.Select (() => wagonAlias.Name).WithAlias (() => resultAlias.CarNumber)
 					.Select (Projections.Conditional (
 					                  Restrictions.Where (() => counterpartyAlias.Name == null),
@@ -492,29 +493,33 @@ namespace Vodovoz.ViewModel
 
 		[UseForSearch]
 		public string Description { 
-			get {
-				switch (DocTypeEnum) {
-				case DocumentType.IncomingInvoice:
-					return String.Format ("Поставщик: {0}; Склад поступления: {1};", Counterparty, Warehouse);
-				case DocumentType.IncomingWater:
-					return String.Format ("Количество: {0}; Склад поступления: {1};", Amount, Warehouse); 
-				case DocumentType.MovementDocument: 
-					if (MDCategory == MovementDocumentCategory.counterparty)
-						return String.Format ("\"{0}\" -> \"{1}\"", Counterparty, SecondCounterparty);
-						return String.Format ("{0} -> {1}{2}", Warehouse, SecondWarehouse,
-							String.IsNullOrEmpty(CarNumber) ? null : String.Format(", Фура: {0}", CarNumber)
-						); 
-				case DocumentType.WriteoffDocument:
-					if (Warehouse != String.Empty)
-						return String.Format ("Со склада \"{0}\"", Warehouse);
-					if (Counterparty != String.Empty)
-						return String.Format ("От клиента \"{0}\"", Counterparty);
-					return "";
-				case DocumentType.CarLoadDocument:
-						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
+			get
+			{
+				switch (DocTypeEnum)
+				{
+					case DocumentType.IncomingInvoice:
+						return String.Format("Поставщик: {0}; Склад поступления: {1};", Counterparty, Warehouse);
+					case DocumentType.IncomingWater:
+						return String.Format("Количество: {0}; Склад поступления: {1};", Amount, Warehouse);
+					case DocumentType.MovementDocument:
+						if (MDCategory == MovementDocumentCategory.counterparty)
+							return String.Format("\"{0}\" -> \"{1}\"", Counterparty, SecondCounterparty);
+						if (MDCategory == MovementDocumentCategory.Transportation)
+							return String.Format("{0} -> {1}{2} - {3}", Warehouse, SecondWarehouse,
+							String.IsNullOrEmpty(CarNumber) ? null : String.Format(", Фура: {0}", CarNumber), Status == TransportationStatus.Delivered ? "Доставлено" : "");
+						return String.Format("{0} -> {1}{2}", Warehouse, SecondWarehouse,
+							String.IsNullOrEmpty(CarNumber) ? null : String.Format(", Фура: {0}", CarNumber));
+					case DocumentType.WriteoffDocument:
+						if (Warehouse != String.Empty)
+							return String.Format("Со склада \"{0}\"", Warehouse);
+						if (Counterparty != String.Empty)
+							return String.Format("От клиента \"{0}\"", Counterparty);
+						return "";
+					case DocumentType.CarLoadDocument:
+						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber,
 									StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
 					case DocumentType.CarUnloadDocument:
-						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber, 
+						return String.Format("Маршрутный лист: {3} Автомобиль: {0} ({1}) Водитель: {2}", CarModel, CarNumber,
 							StringWorks.PersonNameWithInitials(DirverSurname, DirverName, DirverPatronymic), RouteListId);
 					case DocumentType.InventoryDocument:
 						return String.Format("По складу: {0}", Warehouse);
@@ -522,8 +527,8 @@ namespace Vodovoz.ViewModel
 						return String.Format("По складу: {0}", Warehouse);
 					case DocumentType.SelfDeliveryDocument:
 						return String.Format("Склад: {0}, Клиент:{1}", Warehouse, Counterparty);
-				default:
-					return "";
+					default:
+						return "";
 				}
 			}
 		}
@@ -565,6 +570,8 @@ namespace Vodovoz.ViewModel
 		public string DirverPatronymic { get; set; }
 
 		public MovementDocumentCategory MDCategory { get; set; }
+
+		public TransportationStatus  Status { get; set; }
 	}
 }
 
