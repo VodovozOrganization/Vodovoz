@@ -32,7 +32,7 @@ namespace Vodovoz
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Ведение МЛ №{0}",Entity.Id);
-			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.MileageCheck;
+			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.OnClosing;
 			logisticanEditing = QSMain.User.Permissions ["logistican"] && allEditing;
 			ConfigureDlg ();
 		}
@@ -219,7 +219,7 @@ namespace Vodovoz
 
 		public override bool Save()
 		{
-
+			
 			if (Entity.Status == RouteListStatus.EnRoute && items.All(x => x.Status != RouteListItemStatus.EnRoute))
 			{
 				if(MessageDialogWorks.RunQuestionDialog("В маршрутном листе не осталось адресов со статусом в 'В пути'. Завершить маршрут?"))
