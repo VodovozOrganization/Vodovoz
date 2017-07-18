@@ -1,11 +1,11 @@
 ﻿using System;
 using QSOrmProject;
 using QSOrmProject.RepresentationModel;
+using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
-using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Employees;
-using QSProjectsLib;
+using Vodovoz.Domain.Store;
 using Vodovoz.Repository.Store;
 
 namespace Vodovoz
@@ -55,11 +55,6 @@ namespace Vodovoz
 		}
 
 		#endregion
-
-		void UpdateCreteria ()
-		{
-			OnRefiltered ();
-		}
 
 		public DocumentType? RestrictDocumentType {
 			get { return enumcomboDocumentType.SelectedItem as DocumentType?;}
