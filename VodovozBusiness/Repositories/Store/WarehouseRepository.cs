@@ -14,6 +14,7 @@ namespace Vodovoz.Repository.Store
 	public static class WarehouseRepository
 	{
 		const string defaultWarehouseForProduction = "production_warehouse";
+		const string defaultWaterWarehouse = "water_warehouse";
 
 		public static IList<Warehouse> GetActiveWarehouse(IUnitOfWork uow)
 		{
@@ -106,6 +107,22 @@ namespace Vodovoz.Repository.Store
 				int id = -1;
 				id = int.Parse(MainSupport.BaseParameters.All[defaultWarehouseForProduction]);
 				if(id == -1)
+					return null;
+				return uow.Session.QueryOver<Warehouse>()
+					.Where(fExp => fExp.Id == id)
+					.Take(1)
+					.SingleOrDefault();
+			}
+			return null;
+		}
+
+		public static Warehouse DefaultWaterWarehouse(IUnitOfWork uow)
+		{
+			if (MainSupport.BaseParameters.All.ContainsKey(defaultWaterWarehouse))
+			{
+				int id = -1;
+				id = int.Parse(MainSupport.BaseParameters.All[defaultWaterWarehouse]);
+				if (id == -1)
 					return null;
 				return uow.Session.QueryOver<Warehouse>()
 					.Where(fExp => fExp.Id == id)

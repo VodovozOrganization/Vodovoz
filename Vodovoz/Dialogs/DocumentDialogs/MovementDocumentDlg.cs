@@ -9,6 +9,7 @@ using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
@@ -43,8 +44,8 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			textComment.Binding.AddBinding (Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource ();
-			labelTimeStamp.Binding.AddBinding (Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource ();
+			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
+			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeSupplier = false;
@@ -61,17 +62,17 @@ namespace Vodovoz
 			referenceCounterpartyTo.Binding.AddBinding(Entity, e => e.ToClient, w => w.Subject).InitializeFromSource();
 
 			referenceWarehouseTo.SubjectType = typeof(Warehouse);
-			referenceWarehouseTo.Binding.AddBinding (Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource ();
+			referenceWarehouseTo.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
 			referenceWarehouseFrom.SubjectType = typeof(Warehouse);
-			referenceWarehouseFrom.Binding.AddBinding (Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource ();
+			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPointTo.CanEditReference = false;
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointTo.Binding.AddBinding (Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource ();
+			referenceDeliveryPointTo.Binding.AddBinding(Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceDeliveryPointFrom.CanEditReference = false;
 			referenceDeliveryPointFrom.SubjectType = typeof(DeliveryPoint);
-			referenceDeliveryPointFrom.Binding.AddBinding (Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource ();
+			referenceDeliveryPointFrom.Binding.AddBinding(Entity, e => e.FromDeliveryPoint, w => w.Subject).InitializeFromSource();
 			referenceEmployee.SubjectType = typeof(Employee);
-			referenceEmployee.Binding.AddBinding (Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource ();
+			referenceEmployee.Binding.AddBinding(Entity, e => e.ResponsiblePerson, w => w.Subject).InitializeFromSource();
 
 			yentryrefWagon.SubjectType = typeof(MovementWagon);
 			yentryrefWagon.Binding.AddBinding(Entity, e => e.MovementWagon, w => w.Subject).InitializeFromSource();
@@ -81,9 +82,17 @@ namespace Vodovoz
 			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
 			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
 
-			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged;
+
+			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged && !CheckUserAndStore();
 
 			movementdocumentitemsview1.DocumentUoW = UoWGeneric;
+		}
+
+		private bool CheckUserAndStore()
+		{
+			if (QSMain.User.Permissions["production"] && Entity.ToWarehouse == WarehouseRepository.DefaultWaterWarehouse(UoWGeneric))
+				return true;
+			return false;
 		}
 
 		public override bool Save ()
