@@ -974,7 +974,7 @@ namespace Vodovoz
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
 		{
 			//Заполняем точку доставки если она одна.
-			if(Entity.DeliveryPoint == null && Entity.Client != null && Entity.Client.DeliveryPoints != null
+			if(Entity.Client != null && Entity.Client.DeliveryPoints != null
 				&& Entity.OrderStatus == OrderStatus.NewOrder && !Entity.SelfDelivery
 				&& Entity.Client.DeliveryPoints.Count == 1) {
 				Entity.DeliveryPoint = Entity.Client.DeliveryPoints[0];
