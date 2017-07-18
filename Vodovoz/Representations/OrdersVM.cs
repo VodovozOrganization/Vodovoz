@@ -42,6 +42,7 @@ namespace Vodovoz.ViewModel
 			Counterparty counterpartyAlias = null;
 			DeliveryPoint deliveryPointAlias = null;
 			DeliverySchedule deliveryScheduleAlias = null;
+			Employee authorAlias = null;
 			Employee lastEditorAlias = null;
 
 			var query = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order> (() => orderAlias);
@@ -102,6 +103,7 @@ namespace Vodovoz.ViewModel
 				.JoinAlias (o => o.DeliveryPoint, () => deliveryPointAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.DeliverySchedule, () => deliveryScheduleAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.Client, () => counterpartyAlias)
+				.JoinAlias (o => o.Author, () => authorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.LastEditor, () => lastEditorAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin) 
 				.SelectList (list => list
 					.Select (() => orderAlias.Id).WithAlias (() => resultAlias.Id)
@@ -109,12 +111,14 @@ namespace Vodovoz.ViewModel
 					.Select (() => deliveryScheduleAlias.Name).WithAlias (() => resultAlias.DeliveryTime)
 					.Select (() => orderAlias.OrderStatus).WithAlias (() => resultAlias.StatusEnum)
 					.Select (() => orderAlias.Address1c).WithAlias (() => resultAlias.Address1c)
-				    .Select(() => orderAlias.Author).WithAlias(() => resultAlias.Author)
-				    .Select(() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorLastName)
-				    .Select(() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
-				    .Select(() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
-				    .Select(() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
-				    .Select(() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
+				    .Select (() => authorAlias.LastName).WithAlias(() => resultAlias.AuthorLastName)
+					.Select (() => authorAlias.Name).WithAlias(() => resultAlias.AuthorName)
+					.Select (() => authorAlias.Patronymic).WithAlias(() => resultAlias.AuthorPatronymic)
+				    .Select (() => lastEditorAlias.LastName).WithAlias(() => resultAlias.LastEditorLastName)
+				    .Select (() => lastEditorAlias.Name).WithAlias(() => resultAlias.LastEditorName)
+				    .Select (() => lastEditorAlias.Patronymic).WithAlias(() => resultAlias.LastEditorPatronymic)
+				    .Select (() => orderAlias.LastEditedTime).WithAlias(() => resultAlias.LastEditedTime)
+				    .Select (() => orderAlias.DriverCallId).WithAlias(() => resultAlias.DriverCallId)
 					.Select (() => counterpartyAlias.Name).WithAlias (() => resultAlias.Counterparty)
 					.Select (() => deliveryPointAlias.City).WithAlias (() => resultAlias.City)
 					.Select (() => deliveryPointAlias.Street).WithAlias (() => resultAlias.Street)
@@ -332,13 +336,17 @@ namespace Vodovoz.ViewModel
 		[SearchHighlight]
 		public string Address { get { return String.Format ("{0}, {1} д.{2}", City, Street, Building); } }
 
-		[UseForSearch]
-		[SearchHighlight]
-		public string Author { get; set; }
+		public string AuthorLastName { get; set; }
+		public string AuthorName { get; set; }
+		public string AuthorPatronymic { get; set; }
 
 		public string LastEditorLastName { get; set; }
 		public string LastEditorName { get; set; }
 		public string LastEditorPatronymic { get; set; }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string Author { get { return StringWorks.PersonNameWithInitials(AuthorLastName, AuthorName, AuthorPatronymic); } }
 
 		[UseForSearch]
 		[SearchHighlight]
