@@ -1077,9 +1077,14 @@ namespace Vodovoz
 
 		protected void OnEnumDiverCallTypeChanged(object sender, EventArgs e)
 		{
-			var t = UoW.Session.QueryOver<Order>().Where(x => x.Id == Entity.Id).Select(x => x.DriverCallType).List<DriverCallType>();
+			var listDriverCallType = UoW.Session.QueryOver<Order>()
+			                            .Where(x => x.Id == Entity.Id)
+			                            .Select(x => x.DriverCallType).List<DriverCallType>();
+			
+			if(listDriverCallType.Count() == 0)
+				return;
 
-			if(t[0] != (DriverCallType)enumDiverCallType.SelectedItem) {
+			if(listDriverCallType[0] != (DriverCallType)enumDiverCallType.SelectedItem) {
 				var max = UoW.Session.QueryOver<Order>().Select(NHibernate.Criterion.Projections.Max<Order>(x => x.DriverCallId)).SingleOrDefault<int>();
 				if(max != 0)
 					Entity.DriverCallId = max + 1;
