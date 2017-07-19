@@ -11,11 +11,25 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using System.Linq;
+using Vodovoz.JournalFilters;
 
 namespace Vodovoz.ViewModel
 {
 	public class NomenclatureForSaleVM:RepresentationModelWithoutEntityBase<NomenclatureForSaleVMNode>
 	{
+
+		public NomenclatureRepFilter Filter
+		{
+			get
+			{
+				return RepresentationFilter as NomenclatureRepFilter;
+			}
+			set
+			{
+				RepresentationFilter = value as IRepresentationFilter;
+			}
+		}
+
 		#region implemented abstract members of RepresentationModelBase
 
 		public override void UpdateNodes ()
@@ -27,6 +41,13 @@ namespace Vodovoz.ViewModel
 			WarehouseMovementOperation operationRemoveAlias = null;
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
+
+			NomenclatureCategory[] filteredCat = new NomenclatureCategory[1];
+
+			if(!Filter.AllSelected)
+			{
+				filteredCat[0] = Filter.NomenCategory;
+			}
 
 			var subqueryAdded = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
 				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
@@ -46,7 +67,8 @@ namespace Vodovoz.ViewModel
 				.Select (Projections.Sum (() => orderItemsAlias.Count));
 
 			var items = UoW.Session.QueryOver<Nomenclature>(()=>nomenclatureAlias)
-				.Where(Restrictions.In(Projections.Property(()=>nomenclatureAlias.Category),Nomenclature.GetCategoriesForSale()))
+			    .Where(Restrictions.In(Projections.Property(()=>nomenclatureAlias.Category),Nomenclature.GetCategoriesForSale()))
+			               .Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category),(Filter.AllSelected? Enum.GetValues(typeof(NomenclatureCategory)) : filteredCat)))
 				.JoinAlias(()=>nomenclatureAlias.Unit,()=>unitAlias).Where(()=>!nomenclatureAlias.Serial)
 				.SelectList(list=>list
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
@@ -65,6 +87,7 @@ namespace Vodovoz.ViewModel
 				.GetExecutableQueryOver(UoW.Session)
 				.Where (eq => !eq.OnDuty)
 				.JoinAlias (eq => eq.Nomenclature, () => nomenclatureAlias)
+				.Where(Restrictions.In(Projections.Property(() => nomenclatureAlias.Category), (Filter.AllSelected ? Enum.GetValues(typeof(NomenclatureCategory)) : filteredCat)))
 				.JoinAlias (() => nomenclatureAlias.Unit, () => unitAlias)
 				.SelectList(list=>list
 					.SelectGroup(()=>nomenclatureAlias.Id).WithAlias(()=>resultAlias.Id)
@@ -92,7 +115,10 @@ namespace Vodovoz.ViewModel
 			List<NomenclatureForSaleVMNode> forSale = new List<NomenclatureForSaleVMNode>();
 			forSale.AddRange (items);
 			forSale.AddRange (equipment);
-			forSale.AddRange(services);
+			if (Filter.AllSelected || Filter.NomenCategory == NomenclatureCategory.service)
+			{
+				forSale.AddRange(services);
+			}
 			forSale.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.CurrentCulture));
 			SetItemsSource (forSale);
 		}
@@ -122,6 +148,11 @@ namespace Vodovoz.ViewModel
 		public NomenclatureForSaleVM (IUnitOfWork uow) : base(typeof(Nomenclature), typeof(WarehouseMovementOperation))
 		{
 			this.UoW = uow;
+		}
+
+		public NomenclatureForSaleVM (NomenclatureRepFilter filter) : this(filter.UoW)
+		{
+			Filter = filter;
 		}
 
 		#region implemented abstract members of RepresentationModelWithoutEntityBase

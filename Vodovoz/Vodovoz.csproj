@@ -648,6 +648,8 @@
     <Compile Include="Representations\TransferOperationsVM.cs" />
     <Compile Include="ReportsParameters\OrdersWithMinPriceLessThan.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan.cs" />
+    <Compile Include="JournalFilters\NomenclatureRepFilter.cs" />
+    <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureRepFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

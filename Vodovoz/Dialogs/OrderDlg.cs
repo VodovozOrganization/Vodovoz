@@ -22,6 +22,7 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Panel;
 using Vodovoz.Repository;
 using QSDocTemplates;
+using Vodovoz.JournalFilters;
 
 namespace Vodovoz
 {
@@ -413,7 +414,9 @@ namespace Vodovoz
 				return;
 			}
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(UoWGeneric));
+			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.NomenCategory = NomenclatureCategory.water;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.TabName = "Номенклатура на продажу";
 			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
