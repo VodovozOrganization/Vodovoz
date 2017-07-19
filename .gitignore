@@ -10,3 +10,8 @@ packages/*
 #Workbench Backup Files
 Base/Factory.mwb.bak
 *.DS_Store
+
+#Project Specific
+WinInstall/
+!*.nsi
+!*.sh
