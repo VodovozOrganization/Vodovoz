@@ -11,7 +11,7 @@ using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
-	public class RouteOptimizer
+	public class RouteOptimizer : PropertyChangedBase
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
@@ -35,6 +35,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public Gtk.TextBuffer DebugBuffer;
 
 		public bool Cancel = false;
+
+		public int MaxTimeSeconds { get; set; } = 30;
 
 		public IUnitOfWork UoW;
 
@@ -120,9 +122,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				                 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 			//			var solver = routing.solver();
 			//routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress));
-			search_parameters.TimeLimitMs = 30000;
+			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
 			search_parameters.FingerprintArcCostEvaluators = true;
-			search_parameters.OptimizationStep = 100;
+			//search_parameters.OptimizationStep = 100;
 
 			var solver = routing.solver();
 

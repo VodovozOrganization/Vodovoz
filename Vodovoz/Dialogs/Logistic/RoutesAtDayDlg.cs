@@ -167,6 +167,8 @@ namespace Vodovoz
 			ytimeToDelivery.Time = TimeSpan.Parse("23:59:00");
 			ydateForRoutes.Date = DateTime.Today;
 
+			yspinMaxTime.Binding.AddBinding(optimizer, e => e.MaxTimeSeconds, w => w.ValueAsInt);
+
 			OrmMain.GetObjectDescription<RouteList> ().ObjectUpdatedGeneric += RouteListExternalUpdated;
 		}
 

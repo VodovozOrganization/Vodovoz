@@ -92,6 +92,8 @@ namespace Vodovoz
 
 		private global::Gtk.CheckButton checkShowDistricts;
 
+		private global::Gamma.GtkWidgets.ySpinButton yspinMaxTime;
+
 		private global::Gtk.Button buttonMapHelp;
 
 		private global::Gamma.Widgets.yEnumComboBox yenumcomboMapType;
@@ -528,21 +530,38 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w46 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.checkShowDistricts]));
 			w46.Position = 2;
 			// Container child hbox3.Gtk.Box+BoxChild
+			this.yspinMaxTime = new global::Gamma.GtkWidgets.ySpinButton(0, 1000, 1);
+			this.yspinMaxTime.TooltipMarkup = "Максимальное время оптимизаций, в секундах.";
+			this.yspinMaxTime.CanFocus = true;
+			this.yspinMaxTime.Name = "yspinMaxTime";
+			this.yspinMaxTime.Adjustment.PageIncrement = 10;
+			this.yspinMaxTime.ClimbRate = 1;
+			this.yspinMaxTime.Numeric = true;
+			this.yspinMaxTime.UpdatePolicy = ((global::Gtk.SpinButtonUpdatePolicy)(1));
+			this.yspinMaxTime.Value = 30;
+			this.yspinMaxTime.ValueAsDecimal = 0m;
+			this.yspinMaxTime.ValueAsInt = 0;
+			this.hbox3.Add(this.yspinMaxTime);
+			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yspinMaxTime]));
+			w47.Position = 3;
+			w47.Expand = false;
+			w47.Fill = false;
+			// Container child hbox3.Gtk.Box+BoxChild
 			this.buttonMapHelp = new global::Gtk.Button();
 			this.buttonMapHelp.TooltipMarkup = "Справка по работе с картой.";
 			this.buttonMapHelp.CanFocus = true;
 			this.buttonMapHelp.Name = "buttonMapHelp";
 			this.buttonMapHelp.UseUnderline = true;
 			this.buttonMapHelp.Relief = ((global::Gtk.ReliefStyle)(1));
-			global::Gtk.Image w47 = new global::Gtk.Image();
-			w47.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
-			this.buttonMapHelp.Image = w47;
+			global::Gtk.Image w48 = new global::Gtk.Image();
+			w48.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-help", global::Gtk.IconSize.Menu);
+			this.buttonMapHelp.Image = w48;
 			this.hbox3.Add(this.buttonMapHelp);
-			global::Gtk.Box.BoxChild w48 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonMapHelp]));
-			w48.PackType = ((global::Gtk.PackType)(1));
-			w48.Position = 3;
-			w48.Expand = false;
-			w48.Fill = false;
+			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.buttonMapHelp]));
+			w49.PackType = ((global::Gtk.PackType)(1));
+			w49.Position = 4;
+			w49.Expand = false;
+			w49.Fill = false;
 			// Container child hbox3.Gtk.Box+BoxChild
 			this.yenumcomboMapType = new global::Gamma.Widgets.yEnumComboBox();
 			this.yenumcomboMapType.Name = "yenumcomboMapType";
@@ -551,16 +570,16 @@ namespace Vodovoz
 			this.yenumcomboMapType.UseShortTitle = false;
 			this.yenumcomboMapType.DefaultFirst = true;
 			this.hbox3.Add(this.yenumcomboMapType);
-			global::Gtk.Box.BoxChild w49 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yenumcomboMapType]));
-			w49.PackType = ((global::Gtk.PackType)(1));
-			w49.Position = 4;
-			w49.Expand = false;
-			w49.Fill = false;
-			this.vbox2.Add(this.hbox3);
-			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
-			w50.Position = 0;
+			global::Gtk.Box.BoxChild w50 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yenumcomboMapType]));
+			w50.PackType = ((global::Gtk.PackType)(1));
+			w50.Position = 5;
 			w50.Expand = false;
 			w50.Fill = false;
+			this.vbox2.Add(this.hbox3);
+			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.hbox3]));
+			w51.Position = 0;
+			w51.Expand = false;
+			w51.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.gmapWidget = new global::GMap.NET.GtkSharp.GMapControl();
 			this.gmapWidget.Name = "gmapWidget";
@@ -578,16 +597,17 @@ namespace Vodovoz
 			this.gmapWidget.MarkersEnabled = true;
 			this.gmapWidget.CanDragMap = true;
 			this.vbox2.Add(this.gmapWidget);
-			global::Gtk.Box.BoxChild w51 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.gmapWidget]));
-			w51.Position = 1;
-			this.hbox2.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
+			global::Gtk.Box.BoxChild w52 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.gmapWidget]));
 			w52.Position = 1;
-			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			this.hbox2.Add(this.vbox2);
+			global::Gtk.Box.BoxChild w53 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
 			w53.Position = 1;
+			this.vbox1.Add(this.hbox2);
+			global::Gtk.Box.BoxChild w54 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w54.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
