@@ -402,6 +402,18 @@ namespace Vodovoz.Domain.Logistic
 			UoW.Save (this);
 		}
 
+		public virtual void RollBackEnRouteStatus()
+		{
+			Status = RouteListStatus.EnRoute;
+			ClosingFilled = false;
+			foreach (var item in Addresses.Where(x => x.Status == RouteListItemStatus.Completed))
+			{
+				item.Order.OrderStatus = OrderStatus.OnTheWay;
+			}
+
+			UoW.Save(this);
+		}
+
 		public virtual bool ShipIfCan (IUnitOfWork uow)
 		{
 			var inLoaded = Repository.Logistics.RouteListRepository.AllGoodsLoaded (uow, this);

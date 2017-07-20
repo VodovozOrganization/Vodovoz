@@ -23,6 +23,7 @@ namespace Vodovoz
 		//2 уровня доступа к виджетам, для всех и для логистов.
 		private bool allEditing = true;
 		private bool logisticanEditing = true;
+		private bool isUserLogist = true;
 		private Employee previousForwarder = null;
 
 		public event RowActivatedHandler OnClosingItemActivated;
@@ -33,7 +34,9 @@ namespace Vodovoz
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RouteList>(id);
 			TabName = String.Format("Ведение МЛ №{0}",Entity.Id);
 			allEditing = Entity.Status != RouteListStatus.Closed && Entity.Status != RouteListStatus.OnClosing;
-			logisticanEditing = QSMain.User.Permissions ["logistican"] && allEditing;
+			isUserLogist = QSMain.User.Permissions["logistican"];
+			logisticanEditing = isUserLogist && allEditing;
+
 			ConfigureDlg ();
 		}
 
@@ -98,6 +101,8 @@ namespace Vodovoz
 			ylabelLastTimeCall.Binding.AddFuncBinding (Entity, e => GetLastCallTime(e.LastCallTime), w => w.LabelProp).InitializeFromSource ();
 
 			buttonMadeCall.Sensitive = allEditing;
+
+			buttonRetriveEnRoute.Sensitive = Entity.Status == RouteListStatus.OnClosing && isUserLogist;
 
 			//Заполняем иконки
 			var ass = Assembly.GetAssembly(typeof(MainClass));
@@ -350,6 +355,11 @@ namespace Vodovoz
 				return;
 			}
 			//		OnClosingItemActivated(o, args);
+		}
+
+		protected void OnButtonRetriveEnRouteClicked(object sender, EventArgs e)
+		{
+			Entity.RollBackEnRouteStatus();
 		}
 	}	
 
