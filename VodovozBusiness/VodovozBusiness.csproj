@@ -395,6 +395,7 @@
     <Compile Include="Domain\Logistic\CachedDistance.cs" />
     <Compile Include="HibernateMapping\Logistic\CachedDistanceMap.cs" />
     <Compile Include="Repositories\Logistics\CachedDistanceRepository.cs" />
+    <Compile Include="Repositories\WaterSalesAgreementFixedPriceRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

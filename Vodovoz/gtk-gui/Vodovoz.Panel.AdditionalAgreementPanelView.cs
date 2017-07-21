@@ -28,6 +28,12 @@ namespace Vodovoz.Panel
 
 		private global::Vodovoz.WrapLabel labelRent;
 
+		private global::Gtk.VBox vboxFixedPrices;
+
+		private global::Gtk.Label label6;
+
+		private global::Vodovoz.WrapLabel labelFixedPrices;
+
 		protected virtual void Build()
 		{
 			global::Stetic.Gui.Initialize(this);
@@ -156,8 +162,37 @@ namespace Vodovoz.Panel
 			this.vbox1.Add(this.vboxRent);
 			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxRent]));
 			w11.Position = 5;
+			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxFixedPrices = new global::Gtk.VBox();
+			this.vboxFixedPrices.Name = "vboxFixedPrices";
+			this.vboxFixedPrices.Spacing = 6;
+			// Container child vboxFixedPrices.Gtk.Box+BoxChild
+			this.label6 = new global::Gtk.Label();
+			this.label6.Name = "label6";
+			this.label6.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Фиксированные цены:</b>");
+			this.label6.UseMarkup = true;
+			this.vboxFixedPrices.Add(this.label6);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.label6]));
+			w12.Position = 0;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child vboxFixedPrices.Gtk.Box+BoxChild
+			this.labelFixedPrices = new global::Vodovoz.WrapLabel();
+			this.labelFixedPrices.Name = "labelFixedPrices";
+			this.labelFixedPrices.LabelProp = global::Mono.Unix.Catalog.GetString("labelFixedPrices");
+			this.labelFixedPrices.Wrap = true;
+			this.labelFixedPrices.Selectable = true;
+			this.vboxFixedPrices.Add(this.labelFixedPrices);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vboxFixedPrices[this.labelFixedPrices]));
+			w13.Position = 1;
+			w13.Expand = false;
+			w13.Fill = false;
+			this.vbox1.Add(this.vboxFixedPrices);
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxFixedPrices]));
+			w14.Position = 6;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -76,6 +77,24 @@ namespace Vodovoz.Panel
 			if (bottlesLeftToOrder > 0)
 				leftToOrderText = String.Format(" (осталось: {0})", bottlesLeftToOrder);
 			labelBottlesPerMonth.Text = String.Format("{0} из {1}{2}", bottlesThisMonth, requiredBottlesThisMonth, leftToOrderText);
+
+			List<WaterSalesAgreementFixedPrice> fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
+			string fixedPricesString = "";
+
+			foreach(AdditionalAgreement agreement in agreements)
+			{
+				var fixedPrices = WaterSalesAgreementFixedPriceRepository.GetFixedPricesForAgreement(InfoProvider.UoW, agreement);
+				fixedPricesList.AddRange(fixedPrices);
+			}
+
+			vboxFixedPrices.Visible = fixedPricesList.Count > 0;
+			foreach (WaterSalesAgreementFixedPrice fixedPrice in fixedPricesList)
+			{
+				fixedPricesString += String.Format("{0}: {1:C}\n", fixedPrice.Nomenclature.Name, fixedPrice.Price);
+			}
+
+			labelFixedPrices.Text = fixedPricesString;
+
 		}
 
 		public bool VisibleOnPanel

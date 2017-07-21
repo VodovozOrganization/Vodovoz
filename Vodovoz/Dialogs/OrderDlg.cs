@@ -98,6 +98,8 @@ namespace Vodovoz
 			hboxStatusButtons.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder 
 				|| UoWGeneric.Root.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled);
 
+			var fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
+
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
@@ -212,6 +214,8 @@ namespace Vodovoz
 
 			var colorBlack = new Gdk.Color (0, 0, 0);
 			var colorBlue = new Gdk.Color (0, 0, 0xff);
+			var colorGreen = new Gdk.Color(0, 0xff, 0);
+			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 
 			treeItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderItem> ()
 				.AddColumn ("Номенклатура").SetDataProperty (node => node.NomenclatureString)
@@ -230,6 +234,12 @@ namespace Vodovoz
 				.AddColumn("Скидка %").AddNumericRenderer(node => node.Discount)
 				.Adjustment(new Adjustment(0, 0, 100, 1, 100, 1)).Editing(true)
 				.AddColumn ("Доп. соглашение").SetDataProperty (node => node.AgreementString)
+				.RowCells()
+				.AddSetter<CellRenderer>((cell, node) =>
+				{
+					var color = fixedPrices.Contains(node.Nomenclature) ? colorWhite : colorGreen;
+					cell.CellBackgroundGdk = color;
+				})
 				.Finish ();
 
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
@@ -1118,6 +1128,32 @@ namespace Vodovoz
 			{
 				DocumentPrinter.PrintAll(docList);
 			}
+		}
+
+		/// <summary>
+		/// Получить список номенклатур с фиксированной ценой для данной точки доставки.
+		/// </summary>
+		/// <returns>Лист номенклатур с фиксированной ценой.</returns>
+		/// <param name="delPoint">Точка доставки.</param>
+		private List<Nomenclature> GetFixedPriceList(DeliveryPoint delPoint)
+		{
+			var agreements = AdditionalAgreementRepository.GetActiveAgreementsForDeliveryPoint(UoW, delPoint);
+
+			List<WaterSalesAgreementFixedPrice> fixedPricesList = new List<WaterSalesAgreementFixedPrice>();
+			List<Nomenclature> nomenclature = new List<Nomenclature>();
+
+			foreach (AdditionalAgreement agreement in agreements)
+			{
+				var fixedPrices = WaterSalesAgreementFixedPriceRepository.GetFixedPricesForAgreement(UoW, agreement);
+				fixedPricesList.AddRange(fixedPrices);
+			}
+
+			foreach (WaterSalesAgreementFixedPrice fixedPrice in fixedPricesList)
+			{
+				nomenclature.Add(fixedPrice.Nomenclature);
+			}
+
+			return nomenclature;
 		}
 	}
 }
