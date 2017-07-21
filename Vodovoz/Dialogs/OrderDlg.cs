@@ -332,6 +332,18 @@ namespace Vodovoz
 			logger.Info("Сохраняем заказ...");
 			SaveChanges();
 			UoWGeneric.Save();
+
+			if (Entity.OrderDocuments.Count() > 0)
+			{
+				string whatToPrint = "Распечатать " +
+										Entity.OrderDocuments.Count() +
+											  (Entity.OrderDocuments.Count() > 1 ? " документов?" : " документ?");
+				if (MessageDialogWorks.RunQuestionDialog(whatToPrint))
+				{
+					PrintDocuments(Entity.OrderDocuments);
+				}
+			}
+
 			logger.Info("Ok.");
 			return true;
 		}
@@ -1093,6 +1105,18 @@ namespace Vodovoz
 					Entity.DriverCallId = max + 1;
 				else
 					Entity.DriverCallId = 1;
+			}
+		}
+
+		/// <summary>
+		/// Распечатать документы.
+		/// </summary>
+		/// <param name="docList">Лист документов.</param>
+		private void PrintDocuments(IList<OrderDocument> docList)
+		{
+			if (docList.Count > 0)
+			{
+				DocumentPrinter.PrintAll(docList);
 			}
 		}
 	}
