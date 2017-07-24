@@ -233,7 +233,7 @@ namespace Vodovoz.Domain.Orders
 
 		private void RecalculateNDS()
 		{
-			if (Nomenclature == null || Sum <= 0)
+			if (Nomenclature == null || Sum < 0)
 				return;
 
 			switch (Nomenclature.VAT)
