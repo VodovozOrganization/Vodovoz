@@ -31,6 +31,8 @@ namespace Vodovoz
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
 
+		List<Nomenclature> fixedPrices = new List<Nomenclature>();
+
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
 		public PanelViewType[] InfoWidgets
@@ -98,7 +100,7 @@ namespace Vodovoz
 			hboxStatusButtons.Visible = (UoWGeneric.Root.OrderStatus == OrderStatus.NewOrder 
 				|| UoWGeneric.Root.OrderStatus == OrderStatus.Accepted || Entity.OrderStatus == OrderStatus.Canceled);
 
-			var fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
+	//		var fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
 
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
@@ -237,7 +239,7 @@ namespace Vodovoz
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					var color = fixedPrices.Contains(node.Nomenclature) ? colorWhite : colorGreen;
+					var color = fixedPrices.Count > 0 && fixedPrices.Contains(node.Nomenclature) ? colorWhite : colorGreen;
 					cell.CellBackgroundGdk = color;
 				})
 				.Finish ();
@@ -873,6 +875,7 @@ namespace Vodovoz
 			if(CurrentObjectChanged != null)
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
 			UpdateProxyInfo();
+			fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
