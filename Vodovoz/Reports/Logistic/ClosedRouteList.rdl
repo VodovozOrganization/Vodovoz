@@ -88,21 +88,21 @@
           <TableColumn>
             <Width>39.4pt</Width>
           </TableColumn>
-		  <!--table_column-->
-		  <TableColumn>
-            <Width>137.7pt</Width>
+          <!--table_column-->
+          <TableColumn>
+            <Width>118.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>115.4pt</Width>
+            <Width>113.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>53.8pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>40.7pt</Width>
+            <Width>39.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>43.0pt</Width>
+            <Width>41.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>42.8pt</Width>
@@ -1516,7 +1516,7 @@ CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) A
 NULL AS Comment,
 route_list_addresses.status AS Status,
  #orders.bottles_return AS EmptyBottles,
- SUM(route_list_addresses.bottles_returned) AS EmptyBottles,
+ route_list_addresses.bottles_returned AS EmptyBottles,
  route_list_addresses.total_cash AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ' - ', eq_qry.cnt, 'шт')), IF((orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), "; ", ""), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ' - ', pickup_eq_qry.cnt, 'шт')), orders.from_client_text) AS FromClient,
