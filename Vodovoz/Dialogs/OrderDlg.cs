@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -239,7 +239,7 @@ namespace Vodovoz
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
 				{
-					var color = fixedPrices.Count > 0 && fixedPrices.Contains(node.Nomenclature) ? colorWhite : colorGreen;
+					var color = fixedPrices.Count > 0 && fixedPrices.Contains(node.Nomenclature) ? colorGreen: colorWhite;
 					cell.CellBackgroundGdk = color;
 				})
 				.Finish ();

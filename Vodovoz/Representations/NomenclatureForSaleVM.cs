@@ -44,10 +44,7 @@ namespace Vodovoz.ViewModel
 
 			NomenclatureCategory[] filteredCat = new NomenclatureCategory[1];
 
-			if(!Filter.AllSelected)
-			{
-				filteredCat[0] = Filter.NomenCategory;
-			}
+			filteredCat[0] = Filter.NomenCategory;
 
 			var subqueryAdded = QueryOver.Of<WarehouseMovementOperation> (() => operationAddAlias)
 				.Where (() => operationAddAlias.Nomenclature.Id == nomenclatureAlias.Id)
