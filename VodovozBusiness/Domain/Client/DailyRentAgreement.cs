@@ -44,8 +44,15 @@ namespace Vodovoz.Domain.Client
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
 				yield return result;
+			
 			if (RentDays < 1)
 				yield return new ValidationResult ("Срок аренды не может быть меньше одного дня.", new[] { "RentDays" });
+
+			if (DeliveryPoint == null)
+				yield return new ValidationResult("Необходимо указать точку доставки.", new[] { "DeliveryPoint" });
+
+			if (Equipment.Count < 1)
+				yield return new ValidationResult("Необходимо добавить в список оборудование.", new[] { "Equipment" });
 		}
 
 		public static IUnitOfWorkGeneric<DailyRentAgreement> Create (CounterpartyContract contract)

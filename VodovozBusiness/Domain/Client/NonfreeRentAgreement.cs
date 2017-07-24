@@ -34,8 +34,12 @@ namespace Vodovoz.Domain.Client
 		{
 			foreach (ValidationResult result in base.Validate (validationContext))
 				yield return result;
+			
 			if (DeliveryPoint == null)
 				yield return new ValidationResult ("Необходимо указать точку доставки.", new[] { "DeliveryPoint" });
+
+			if (Equipment.Count < 1)
+				yield return new ValidationResult("Необходимо добавить в список оборудование.", new[] { "Equipment" });
 		}
 
 		public static IUnitOfWorkGeneric<NonfreeRentAgreement> Create (CounterpartyContract contract)
