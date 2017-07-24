@@ -351,7 +351,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox9">
-                      <Value>=Fields!order_id.Value</Value>
+                      <Value>=Fields!ordersIdAlias.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1087,12 +1087,21 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    orders.id AS order_id,
+    orders.id AS ordersIdAlias,
     TRIM(counterparty.full_name) AS counterparty,
     delivery_points.compiled_address_short AS address,
     CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
     orders.comment AS comment,
-    SUM(order_items.actual_count) AS actual_count,
+    (SELECT 
+        SUM(order_items.actual_count)
+                FROM
+                    orders
+                        LEFT JOIN
+                    order_items ON order_id = orders.id
+                        LEFT JOIN
+                    nomenclature ON nomenclature.id = order_items.nomenclature_id
+                WHERE
+                   orders.id = ordersIdAlias AND nomenclature.category = 'water')  AS actual_count,
     delivered,
     returned,
     (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) AS bottles,
@@ -1135,7 +1144,7 @@ WHERE
         AND (@reason = -1 OR @reason = reason_type)
         AND (@driver_id = -1 OR @driver_id = employees.id)
         AND ((@driver_call = 1 AND driver_call_type = 'NoCall' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) OR (@driver_call = -1))
-GROUP BY order_id
+GROUP BY ordersIdAlias
 ORDER BY reason_type_status</CommandText>
         <QueryParameters>
           <QueryParameter Name="date">
@@ -1153,8 +1162,8 @@ ORDER BY reason_type_status</CommandText>
         </QueryParameters>
       </Query>
       <Fields >
-        <Field Name="order_id">
-          <DataField>order_id</DataField>
+        <Field Name="ordersIdAlias">
+          <DataField>ordersIdAlias</DataField>
           <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="counterparty">
