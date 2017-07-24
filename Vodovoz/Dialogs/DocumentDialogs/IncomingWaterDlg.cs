@@ -12,6 +12,7 @@ namespace Vodovoz
 	public partial class IncomingWaterDlg : OrmGtkDialogBase<IncomingWater>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+		bool isEditingStore = true;
 
 		public IncomingWaterDlg()
 		{
@@ -23,13 +24,11 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-
-			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
-
-			if(QSMain.User.Permissions["production"] && productionWarehouse != null) {
-				Entity.WriteOffWarehouse = Entity.IncomingWarehouse = productionWarehouse;
+			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
+			{
+				Entity.WriteOffWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
 			}
-
 			ConfigureDlg();
 		}
 
@@ -37,6 +36,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
+			isEditingStore = false;
 			ConfigureDlg();
 		}
 
@@ -53,13 +53,11 @@ namespace Vodovoz
 			referenceProduct.Binding.AddBinding(Entity, e => e.Product, w => w.Subject).InitializeFromSource();
 			referenceSrcWarehouse.SubjectType = typeof(Warehouse);
 			referenceSrcWarehouse.Binding.AddBinding(Entity, e => e.WriteOffWarehouse, w => w.Subject).InitializeFromSource();
+			referenceSrcWarehouse.Sensitive = isEditingStore;
 			referenceDstWarehouse.SubjectType = typeof(Warehouse);
 			referenceDstWarehouse.Binding.AddBinding(Entity, e => e.IncomingWarehouse, w => w.Subject).InitializeFromSource();
 
-			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null) {
-				referenceSrcWarehouse.Sensitive = false;
-				referenceDstWarehouse.Sensitive = false;
-			}
+			referenceSrcWarehouse.Sensitive = referenceDstWarehouse.Sensitive = isEditingStore;
 
 
 			incomingwatermaterialview1.DocumentUoW = UoWGeneric;

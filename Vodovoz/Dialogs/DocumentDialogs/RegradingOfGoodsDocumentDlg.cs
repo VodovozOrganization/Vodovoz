@@ -10,6 +10,7 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentDlg : OrmGtkDialogBase<RegradingOfGoodsDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		bool isEditingStore = true;
 
 		public RegradingOfGoodsDocumentDlg()
 		{
@@ -22,22 +23,22 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
+			{
+				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
+			}
+			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 
-			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
-
-			if(QSMain.User.Permissions["production"] && productionWarehouse != null) {
-				Entity.Warehouse = productionWarehouse;
-			}
-			
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		public RegradingOfGoodsDocumentDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
+			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -50,11 +51,8 @@ namespace Vodovoz
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			yentryrefWarehouse.Sensitive = isEditingStore;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
-
-			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null) {
-				yentryrefWarehouse.Sensitive = false;
-			}
 
 			regradingofgoodsitemsview.DocumentUoW = UoWGeneric;
 			if (Entity.Items.Count > 0)

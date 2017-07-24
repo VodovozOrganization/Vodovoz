@@ -34,7 +34,9 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("logistican", new UserPermission ("logistican", "Логист", "Пользователь является логистом."));
 			QSMain.ProjectPermission.Add ("money_manage", new UserPermission ("money_manage", "Управление деньгами", "Пользователь имеет доступ к денежным операциям(касса и т.п.)."));
 			QSMain.ProjectPermission.Add ("store_manage", new UserPermission("store_manage", "Управление складом", "Пользователь имеет доступ к складу."));
-			QSMain.ProjectPermission.Add ("production", new UserPermission("production", "Производство", ""));
+			QSMain.ProjectPermission.Add ("store_production", new UserPermission("store_production", "Управление складом производство", ""));
+			QSMain.ProjectPermission.Add ("store_office", new UserPermission("store_office", "Управление складом офис", ""));
+			QSMain.ProjectPermission.Add ("store_equipment", new UserPermission("store_equipment", "Управление складом оборудование", ""));
 		}
 
 		static void CreateBaseConfig()

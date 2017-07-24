@@ -27,7 +27,7 @@ namespace Vodovoz
 				if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 					yentryrefWarehouse.Subject = uow.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id) ;
 				yentryrefDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
-				if(QSMain.User.Permissions["production"])
+				if(QSMain.User.Permissions["store_production"])
 					IfUserTypeProduction();
 			}
 		}

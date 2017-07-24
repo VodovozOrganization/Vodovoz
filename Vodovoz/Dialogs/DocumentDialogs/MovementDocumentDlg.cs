@@ -16,11 +16,18 @@ namespace Vodovoz
 	public partial class MovementDocumentDlg : OrmGtkDialogBase<MovementDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
+		bool isEditingStore = true;
 
 		public MovementDocumentDlg ()
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument> ();
+			if(WarehouseRepository.WarehouseByPermission(UoWGeneric) != null){
+				Entity.FromWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
+			}
+
+
 			ConfigureDlg ();
 			Entity.Author = Entity.ResponsiblePerson = Repository.EmployeeRepository.GetEmployeeForCurrentUser (UoW);
 			if(Entity.Author == null)
@@ -35,6 +42,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<MovementDocument> (id);
+			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -65,6 +73,7 @@ namespace Vodovoz
 			referenceWarehouseTo.Binding.AddBinding(Entity, e => e.ToWarehouse, w => w.Subject).InitializeFromSource();
 			referenceWarehouseFrom.SubjectType = typeof(Warehouse);
 			referenceWarehouseFrom.Binding.AddBinding(Entity, e => e.FromWarehouse, w => w.Subject).InitializeFromSource();
+			referenceWarehouseFrom.Sensitive = isEditingStore;
 			referenceDeliveryPointTo.CanEditReference = false;
 			referenceDeliveryPointTo.SubjectType = typeof(DeliveryPoint);
 			referenceDeliveryPointTo.Binding.AddBinding(Entity, e => e.ToDeliveryPoint, w => w.Subject).InitializeFromSource();
@@ -79,9 +88,12 @@ namespace Vodovoz
 
 			ylabelTransportationStatus.Binding.AddBinding(Entity, e => e.TransportationDescription, w => w.LabelProp).InitializeFromSource();
 
+			MovementDocumentCategory[] filteredDoctypeList = { MovementDocumentCategory.counterparty };
+			object[] MovementDocumentList = Array.ConvertAll(filteredDoctypeList, x => (object)x);
 			enumMovementType.ItemsEnum = typeof(MovementDocumentCategory);
+			enumMovementType.AddEnumToHideList(MovementDocumentList);
 			enumMovementType.Binding.AddBinding(Entity, e => e.Category, w => w.SelectedItem).InitializeFromSource();
-
+			Entity.Category = MovementDocumentCategory.Transportation;
 
 			buttonDelivered.Sensitive = Entity.TransportationStatus == TransportationStatus.Submerged && !CheckUserAndStore();
 
@@ -90,7 +102,7 @@ namespace Vodovoz
 
 		private bool CheckUserAndStore()
 		{
-			if (QSMain.User.Permissions["production"] && Entity.ToWarehouse == WarehouseRepository.DefaultWaterWarehouse(UoWGeneric))
+			if (QSMain.User.Permissions["store_production"] && Entity.ToWarehouse == WarehouseRepository.DefaultWarehouseForWater(UoWGeneric))
 				return true;
 			return false;
 		}
@@ -120,6 +132,7 @@ namespace Vodovoz
 			var selected = Entity.Category;
 			referenceWarehouseTo.Visible = referenceWarehouseFrom.Visible = labelStockFrom.Visible = labelStockTo.Visible 
 				= (selected == MovementDocumentCategory.warehouse || selected == MovementDocumentCategory.Transportation);
+
 			referenceCounterpartyTo.Visible = referenceCounterpartyFrom.Visible = labelClientFrom.Visible = labelClientTo.Visible
 				= referenceDeliveryPointFrom.Visible = referenceDeliveryPointTo.Visible = labelPointFrom.Visible = labelPointTo.Visible
 				= (selected == MovementDocumentCategory.counterparty);

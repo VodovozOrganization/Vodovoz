@@ -8,12 +8,14 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Store;
 using Vodovoz.Domain.Service;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class CarUnloadDocumentDlg : OrmGtkDialogBase<CarUnloadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		bool isEditingStore = true;
 
 		IList<Equipment> alreadyUnloadedEquipment;
 
@@ -35,11 +37,16 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
+			{
+				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
+			}
+			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
+ 
 
 		public CarUnloadDocumentDlg (int routeListId, int? warehouseId) : this()
 		{
@@ -53,6 +60,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarUnloadDocument> (id);
+			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -62,15 +70,16 @@ namespace Vodovoz
 		#endregion
 
 		#region Методы
+
 		void ConfigureDlg ()
 		{
-			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
-			yentryrefWarehouse.SubjectType = typeof(Warehouse);
-
 			bottlereceptionview1.UoW = UoW;
 			returnsreceptionview1.UoW = UoW;
 
+			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
+			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			yentryrefWarehouse.Sensitive = isEditingStore;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new RouteListsFilter(UoW);
 			filter.RestrictStatus = RouteListStatus.EnRoute;

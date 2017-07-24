@@ -5,12 +5,14 @@ using QSProjectsLib;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Store;
+using Vodovoz.Repository.Store;
 
 namespace Vodovoz
 {
 	public partial class SelfDeliveryDocumentDlg : OrmGtkDialogBase<SelfDeliveryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		bool isEditingStore = true;
 
 		public override bool HasChanges
 		{
@@ -34,16 +36,22 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
+			{
+				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
+			}
+			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
 		public SelfDeliveryDocumentDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<SelfDeliveryDocument> (id);
+			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -56,6 +64,7 @@ namespace Vodovoz
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			yentryrefWarehouse.Sensitive = isEditingStore;
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			var filter = new OrdersFilter(UoW);
 			filter.RestrictSelfDelivery = true;

@@ -12,26 +12,26 @@ namespace Vodovoz
 	public partial class IncomingInvoiceDlg : OrmGtkDialogBase<IncomingInvoice>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
+		bool isEditingStore = true;
 
 		public IncomingInvoiceDlg()
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<IncomingInvoice>();
 			Entity.Author = Repository.EmployeeRepository.GetEmployeeForCurrentUser(UoW);
-			if(Entity.Author == null) {
+			if (Entity.Author == null)
+			{
 				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать складские документы, так как некого указывать в качестве кладовщика.");
 				FailInitialize = true;
 				return;
 			}
-			if(CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-
-			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
-
-			if(QSMain.User.Permissions["production"] && productionWarehouse != null) {
-				Entity.Warehouse = productionWarehouse;
+			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
+			{
+				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
 			}
-
+			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 			ConfigureDlg();
 		}
 
@@ -39,6 +39,7 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingInvoice>(id);
+			isEditingStore = false;
 			ConfigureDlg();
 		}
 
@@ -54,6 +55,7 @@ namespace Vodovoz
 
 			referenceWarehouse.SubjectType = typeof(Warehouse);
 			referenceWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			referenceWarehouse.Sensitive = isEditingStore;
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeSupplier = true;
@@ -61,10 +63,6 @@ namespace Vodovoz
 			counterpartyFilter.RestrictIncludePartner = false;
 			referenceContractor.RepresentationModel = new ViewModel.CounterpartyVM(counterpartyFilter);
 			referenceContractor.Binding.AddBinding(Entity, e => e.Contractor, w => w.Subject);
-
-			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null) {
-				referenceWarehouse.Sensitive = false;
-			}
 
 			incominginvoiceitemsview1.DocumentUoW = UoWGeneric;
 			ytextviewComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();

@@ -16,6 +16,7 @@ namespace Vodovoz
 	public partial class WriteoffDocumentDlg : OrmGtkDialogBase<WriteoffDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		bool isEditingStore = true;
 
 		public WriteoffDocumentDlg ()
 		{
@@ -28,14 +29,13 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.WriteoffWarehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-
-			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
-
-			if(QSMain.User.Permissions["production"] && productionWarehouse != null) {
-				Entity.WriteoffWarehouse = productionWarehouse;
+			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
+			{
+				Entity.WriteoffWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
 			}
+			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+				Entity.WriteoffWarehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 			
 			ConfigureDlg ();
 		}
@@ -44,6 +44,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<WriteoffDocument> (id);
+			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -77,15 +78,14 @@ namespace Vodovoz
 			comboType.EnumItemSelected += (object sender, EnumItemClickedEventArgs e) => {
 				referenceDeliveryPoint.Sensitive = (comboType.Active == (int)WriteoffType.counterparty && UoWGeneric.Root.Client != null);
 				referenceCounterparty.Sensitive = (comboType.Active == (int)WriteoffType.counterparty);
-				referenceWarehouse.Sensitive = (comboType.Active == (int)WriteoffType.warehouse);
+				//referenceWarehouse.Sensitive = (comboType.Active == (int)WriteoffType.warehouse);
 			};
 			comboType.Active = UoWGeneric.Root.Client != null ?
 				(int)WriteoffType.counterparty :
 				(int)WriteoffType.warehouse;
 
-			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null) {
-				referenceWarehouse.Sensitive = false;
-			}
+			referenceWarehouse.Sensitive = isEditingStore;
+		 
 
 			writeoffdocumentitemsview1.DocumentUoW = UoWGeneric;
 		}

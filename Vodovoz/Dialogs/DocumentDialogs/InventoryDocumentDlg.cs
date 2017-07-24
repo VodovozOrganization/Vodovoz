@@ -13,6 +13,8 @@ namespace Vodovoz
 	public partial class InventoryDocumentDlg : OrmGtkDialogBase<InventoryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
+		bool isEditingStore = true;
+		//bool isEditing = false;
 
 		public InventoryDocumentDlg()
 		{
@@ -26,16 +28,13 @@ namespace Vodovoz
 				FailInitialize = true;
 				return;
 			}
-			if (CurrentUserSettings.Settings.DefaultWarehouse != null)
-				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
-
-			Warehouse productionWarehouse = WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric);
-
-			if (QSMain.User.Permissions["production"] && productionWarehouse != null)
+			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
 			{
-				Entity.Warehouse = productionWarehouse;
+				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
+				isEditingStore = false;
 			}
-
+			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
+				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 			ConfigureDlg ();
 		}
 
@@ -43,6 +42,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<InventoryDocument> (id);
+			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -55,6 +55,8 @@ namespace Vodovoz
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
+			yentryrefWarehouse.Sensitive = isEditingStore;
+
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 
 			string errorMessage = "Не установлены единицы измерения у следующих номенклатур :" + Environment.NewLine;
@@ -71,11 +73,6 @@ namespace Vodovoz
 				MessageDialogWorks.RunErrorDialog(errorMessage);
 				FailInitialize = true;
 				return;
-			}
-
-			if(QSMain.User.Permissions["production"] && WarehouseRepository.DefaultWarehouseForProduction(UoWGeneric) != null)
-			{
-				yentryrefWarehouse.Sensitive = false;
 			}
 
 			inventoryitemsview.DocumentUoW = UoWGeneric;
