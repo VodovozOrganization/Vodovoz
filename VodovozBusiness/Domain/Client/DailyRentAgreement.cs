@@ -37,6 +37,7 @@ namespace Vodovoz.Domain.Client
 			get{
 				return base.StartDate.AddDays(RentDays);
 			}
+			set {; }
 		}
 
 		public override IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
