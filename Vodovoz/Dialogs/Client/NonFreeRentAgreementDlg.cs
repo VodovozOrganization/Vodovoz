@@ -32,11 +32,14 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public NonFreeRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate) : this (contract)
+		public NonFreeRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate)// : this (contract)
 		{
+			this.Build();
+			UoWGeneric = NonfreeRentAgreement.Create(contract);
 			UoWGeneric.Root.DeliveryPoint = point;
 			if(IssueDate.HasValue)
 				UoWGeneric.Root.IssueDate = UoWGeneric.Root.StartDate = IssueDate.Value;
+			ConfigureDlg();
 		}
 
 		public NonFreeRentAgreementDlg (NonfreeRentAgreement sub) : this (sub.Id)
