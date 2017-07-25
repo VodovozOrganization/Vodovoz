@@ -512,6 +512,8 @@ namespace Vodovoz
 					counterparty.PhoneFrom1c = phoneNode.InnerText;
 				}
 
+				counterparty.CooperationCustomer = true;
+
 				TotalCounterparty++;
 				CounterpatiesList.Add (counterparty);
 			}
