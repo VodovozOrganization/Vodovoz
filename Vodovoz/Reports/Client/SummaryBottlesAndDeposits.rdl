@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	docs.order_id,
@@ -22,7 +22,7 @@
 	IFNULL(docs.delivery_point_id, '0') AS delivery_point_id,
 	docs.delivery_point_address,
 	IFNULL((SELECT 
-			SUM(order_items.price * order_items.count)
+			SUM(order_items.price * order_items.actual_count)
 		FROM
 			order_items
 		WHERE
@@ -36,7 +36,7 @@
 		WHERE
 			doc_residue.id = docs.order_id)) AS sum,
 	(SELECT 
-		SUM(order_items.price * order_items.count)
+		SUM(order_items.price * order_items.actual_count)
 	FROM
 		order_items
 	WHERE
@@ -248,7 +248,7 @@ ORDER BY docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -326,11 +326,11 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
-                    SUM(order_items.count)
+                    SUM(order_items.actual_count)
                 FROM
                     order_items
                         LEFT JOIN
@@ -361,7 +361,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
