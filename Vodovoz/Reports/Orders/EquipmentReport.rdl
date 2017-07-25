@@ -181,7 +181,7 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -246,6 +246,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -338,14 +340,14 @@
   </ReportParameters>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     orders.id AS order_id,
     counterparty.full_name AS client_name,
     delivery_points.compiled_address_short AS address,
 	CONCAT_WS(' ', orders.to_client_text,
-		GROUP_CONCAT(IF(nomenclature.category = 'additional', nomenclature.official_name, '') SEPARATOR ' ')
+		GROUP_CONCAT(IF(nomenclature.category = 'additional', CONCAT(nomenclature.official_name, IF(order_items.count &gt; 1, CONCAT(': ', order_items.count, ' шт.'), '')), '') SEPARATOR ' ')
         ) AS to_client,
     orders.from_client_text AS from_client,
     orders.order_status AS status,
@@ -380,10 +382,10 @@ GROUP BY orders.id</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
-          <TypeName>System.Int32</TypeName>
+          <TypeName>System.UInt32</TypeName>
         </Field>
         <Field Name="client_name">
           <DataField>client_name</DataField>
@@ -407,16 +409,16 @@ GROUP BY orders.id</CommandText>
         </Field>
         <Field Name="dailynum">
           <DataField>dailynum</DataField>
-          <TypeName>System.String</TypeName>
+          <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
     </DataSet>
   </DataSets>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
