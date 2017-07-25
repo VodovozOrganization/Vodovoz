@@ -667,7 +667,7 @@ namespace Vodovoz
 
 		protected void RunAdditionalAgreementWaterDialog()
 		{
-			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryDate);
+			ITdiDialog dlg = new WaterAgreementDlg(CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType), UoWGeneric.Root.DeliveryPoint, UoWGeneric.Root.DeliveryDate);
 			(dlg as IAgreementSaved).AgreementSaved += AgreementSaved;
 			TabParent.AddSlaveTab(this, dlg);
 		}
