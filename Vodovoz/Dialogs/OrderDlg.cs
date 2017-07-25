@@ -405,7 +405,8 @@ namespace Vodovoz
 			} else {
 				referenceDeliveryPoint.Sensitive = referenceContract.Sensitive = false;
 			}
-			UpdateProxyInfo();
+			SetProxyForOrder();
+		//	UpdateProxyInfo();
 		}
 
 		private void IsEditable(bool val = false)
@@ -876,6 +877,7 @@ namespace Vodovoz
 				CurrentObjectChanged(this, new CurrentObjectChangedArgs(referenceDeliveryPoint.Subject));
 			UpdateProxyInfo();
 			fixedPrices = GetFixedPriceList(Entity.DeliveryPoint);
+			SetProxyForOrder();
 		}
 
 		protected void OnButtonPrintSelectedClicked(object c, EventArgs args)
@@ -996,7 +998,8 @@ namespace Vodovoz
 
 		protected void OnPickerDeliveryDateDateChanged(object sender, EventArgs e)
 		{
-			UpdateProxyInfo();
+			SetProxyForOrder();
+		//	UpdateProxyInfo();
 		}
 
 		protected void OnReferenceClientChangedByUser(object sender, EventArgs e)
@@ -1020,7 +1023,6 @@ namespace Vodovoz
 			} else {
 				Entity.Contract = null;
 			}
-
 		}
 
 		protected void OnButtonOpenServiceClaimClicked(object sender, EventArgs e)
@@ -1157,6 +1159,19 @@ namespace Vodovoz
 			}
 
 			return nomenclature;
+		}
+
+		private void SetProxyForOrder(){
+			if(Entity.Client != null 
+			   && Entity.DeliveryDate.HasValue)
+			{
+				var proxies = Entity.Client.Proxies.Where(p => p.IsActiveProxy(Entity.DeliveryDate.Value) && (p.DeliveryPoints == null || p.DeliveryPoints.Any(x => DomainHelper.EqualDomainObjects(x, Entity.DeliveryPoint))));
+				if(proxies.Count() > 0)
+				{
+					enumSignatureType.SelectedItem = OrderSignatureType.ByProxy;
+				}
+				UpdateProxyInfo();
+			}
 		}
 	}
 }
