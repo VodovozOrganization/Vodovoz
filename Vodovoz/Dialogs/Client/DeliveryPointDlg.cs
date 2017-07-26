@@ -413,6 +413,7 @@ namespace Vodovoz
 					Entity.Latitude  = latitude;
 					Entity.Longitude = longitude;
 					error = false;
+					Entity.ManualCoordinates = true;
 				}
 			}
 			if (error)
