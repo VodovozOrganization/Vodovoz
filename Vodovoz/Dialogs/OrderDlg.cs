@@ -203,6 +203,7 @@ namespace Vodovoz
 			};
 
 			treeItems.Selection.Changed += TreeItems_Selection_Changed;
+			treeDepositRefundItems.Selection.Changed += TreeDepositRefundItems_Selection_Changed;
 			#endregion
 			dataSumDifferenceReason.Binding.AddBinding (Entity, s => s.SumDifferenceReason, w => w.Text).InitializeFromSource ();
 			dataSumDifferenceReason.Completion = new EntryCompletion ();
@@ -261,8 +262,8 @@ namespace Vodovoz
 
 			treeDepositRefundItems.ColumnsConfig = ColumnsConfigFactory.Create<OrderDepositItem>()
 				.AddColumn("Тип").SetDataProperty(node => node.DepositTypeString)
-				.AddColumn("Количество").AddNumericRenderer(node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1))
-				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit)
+				.AddColumn("Количество").AddNumericRenderer(node => node.Count).Adjustment(new Adjustment(1, 0, 100000, 1, 100, 1)).Editing(true)
+				.AddColumn("Цена").AddNumericRenderer(node => node.Deposit).Adjustment(new Adjustment(1, 0, 1000000, 1, 100, 1)).Editing(true)
 				.AddColumn("Сумма").AddNumericRenderer(node => node.Total)
 				.RowCells().AddSetter<CellRendererText>((c, n) => c.Visible = n.PaymentDirection == PaymentDirection.ToClient)
 				.Finish();
@@ -330,7 +331,34 @@ namespace Vodovoz
 		{
 			object[] items = treeItems.GetSelectedObjects();
 
+			if (items.Length == 0)
+			{
+				return;
+			}
+
+			if(treeDepositRefundItems.GetSelectedObjects().Length > 0)
+			{
+				treeDepositRefundItems.Selection.UnselectAll();
+			}
+
 			buttonDelete.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water);
+		}
+
+		void TreeDepositRefundItems_Selection_Changed(object sender, EventArgs e)
+		{
+			object[] items = treeDepositRefundItems.GetSelectedObjects();
+
+			if (items.Length == 0)
+			{
+				return;
+			}
+
+			if(treeItems.GetSelectedObjects().Length > 0)
+			{
+				treeItems.Selection.UnselectAll();
+			}
+
+			buttonDelete.Sensitive = items.Length > 0;
 		}
 
 		public override bool Save()
