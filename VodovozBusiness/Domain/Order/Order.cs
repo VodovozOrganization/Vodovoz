@@ -732,9 +732,9 @@ namespace Vodovoz.Domain.Orders
 		{
 			if (nomenclature.Category != NomenclatureCategory.water)
 				return;
-			/*	if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
-					item.AdditionalAgreement.Id == wsa.Id))
-					return; */ // (I-441) @Дима
+		/*	if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
+				item.AdditionalAgreement.Id == wsa.Id))
+				return; */ // (I-441) Возможно, потребуется раскомментить/переделать. @Дима
 			decimal price;
 			if (wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id))
 				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
@@ -946,7 +946,13 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void AddServiceClaimAsInitial(ServiceClaim service)
+		public virtual void RemoveDepositItem (OrderDepositItem item)
+		{
+			ObservableOrderDepositItems.Remove(item);
+			UpdateDocuments();
+		}
+
+		public virtual void AddServiceClaimAsInitial (ServiceClaim service)
 		{
 			if (service.InitialOrder != null && service.InitialOrder.Id == Id) {
 				if (service.Equipment == null || ObservableOrderEquipments.FirstOrDefault(eq => eq.Equipment.Id == service.Equipment.Id) == null) {
