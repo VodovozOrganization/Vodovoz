@@ -26,6 +26,7 @@ namespace Vodovoz
 			}
 			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
 			{
+				Entity.IncomingWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
 				Entity.WriteOffWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
 				isEditingStore = false;
 			}
