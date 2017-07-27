@@ -126,13 +126,42 @@ namespace Vodovoz.Tools.Logistic
 			QSMain.WaitRedraw(200);
 		}
 
+		public List<WayHash> GenerateWaysOfRoute(long[] route)
+		{
+			List<WayHash> resultRoute = new List<WayHash>();
+			for (int ix = 1; ix < route.Length; ix++)
+			{
+				resultRoute.Add(new WayHash(route[ix-1], route[ix]));
+			}
+			return resultRoute;
+		}
+
+		public List<WayHash> FilterForDBCheck(List<WayHash> list)
+		{
+			return list.Where(x => !(cache.ContainsKey(x.FromHash) && cache[x.FromHash].ContainsKey(x.ToHash))
+			                  && !ErrorWays.Any(y => x.FromHash == y.FromHash && x.ToHash == y.ToHash)
+			                 )
+				       .ToList();
+		}
+
 		/// <param name="pulseProgress">делегат вызываемый для отображения прогресс, первый параметр текущее значение. Второй сколько всего.</param>
 		public List<PointLatLng> GetGeometryOfRoute(long[] route, Action<uint, uint> pulseProgress)
 		{
+			//Запрашиваем кешь одним запросом для всего маршрута.
+			var prepared = FilterForDBCheck(GenerateWaysOfRoute(route));
+			if(prepared.Count > 0)
+			{
+				var fromDB = CachedDistanceRepository.GetCache(UoW, prepared.ToArray());
+				foreach (var loaded in fromDB)
+				{
+					AddNewCacheDistance(loaded);
+				}
+			}
+
 			List<PointLatLng> resultRoute = new List<PointLatLng>();
 			for (int ix = 1; ix < route.Length; ix++)
 			{
-				CachedDistance way = GetCachedGeometry(route[ix-1], route[ix]);
+				CachedDistance way = GetCachedGeometry(route[ix - 1], route[ix], false);
 
 				if(way?.PolylineGeometry != null)
 				{
@@ -167,7 +196,7 @@ namespace Vodovoz.Tools.Logistic
 			//Проверяем в базе данных если разрешено.
 			if(distance == null && checkDB)
 			{
-				var list = CachedDistanceRepository.GetCache(UoW, new[] { new WayHash(fromP, toP) }, true);
+				var list = CachedDistanceRepository.GetCache(UoW, new[] { new WayHash(fromP, toP) });
 				distance = list.FirstOrDefault();
 			}
 			//Не нашли создаем новый.
@@ -188,7 +217,11 @@ namespace Vodovoz.Tools.Logistic
 				return null;
 
 			if (needAdd)
+			{
 				AddNewCacheDistance(distance);
+				UoW.TrySave(distance);
+				UoW.Commit();
+			}
 
 			return distance;
 		}
@@ -216,6 +249,8 @@ namespace Vodovoz.Tools.Logistic
 				distance.TravelTimeSec = result.RouteSummary.TotalTimeSeconds;
 				distance.PolylineGeometry = result.RouteGeometry;
 				AddNewCacheDistance(distance);
+				UoW.TrySave(distance);
+				UoW.Commit();
 				addedCached++;
 				UpdateText();
 				return true;
