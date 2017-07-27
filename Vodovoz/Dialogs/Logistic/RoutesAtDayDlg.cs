@@ -39,6 +39,10 @@ namespace Vodovoz
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
 		RouteOptimizer optimizer = new RouteOptimizer();
+		RouteGeometrySputnikCalculator distanceCalculator = new RouteGeometrySputnikCalculator();
+
+		//FIXME Временно, задаем из кода, в идеале потом позволить переключать режим пользователю.
+		bool UseSputnikDistance = true;
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
 		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
@@ -301,7 +305,25 @@ namespace Vodovoz
 				if(rl == null)
 					rl = (row as RouteListItem).RouteList;
 
-				var points = rl.Addresses.Select(x => x.Order.DeliveryPoint.GmapPoint);
+				List<PointLatLng> points;
+				if(UseSputnikDistance)
+				{
+					var address = new List<long>();
+					address.Add(RouteGeometrySputnikCalculator.BaseHash);
+					address.AddRange(rl.Addresses.Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+					address.Add(RouteGeometrySputnikCalculator.BaseHash);
+					MainClass.MainWin.ProgressStart(address.Count);
+					points = distanceCalculator.GetGeometryOfRoute(address.ToArray(), (val, max) => MainClass.MainWin.ProgressUpdate(val));
+					MainClass.MainWin.ProgressClose();
+				}
+				else
+				{
+					points = new List<PointLatLng>();
+					points.Add(DistanceCalculator.BasePoint);
+					points.AddRange(rl.Addresses.Select(x => x.Order.DeliveryPoint.GmapPoint));
+					points.Add(DistanceCalculator.BasePoint);
+				}
+
 				var route = new GMapRoute(points, rl.Id.ToString());
 
 				route.Stroke = new System.Drawing.Pen(System.Drawing.Color.Blue);
@@ -310,6 +332,7 @@ namespace Vodovoz
 
 				routeOverlay.Routes.Add(route);
 			}
+			logger.Info("Ok");
 		}
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)

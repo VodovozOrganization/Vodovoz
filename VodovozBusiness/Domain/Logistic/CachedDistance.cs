@@ -15,6 +15,8 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual int TravelTimeSec { get; set; }
 
+		public virtual string PolylineGeometry { get; set; }
+
 		public virtual DateTime Created { get; set; }
 
 		public CachedDistance()

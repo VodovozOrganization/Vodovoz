@@ -107,6 +107,9 @@
     <Reference Include="Iesi.Collections">
       <HintPath>..\packages\Iesi.Collections.4.0.2\lib\net40\Iesi.Collections.dll</HintPath>
     </Reference>
+    <Reference Include="Polylines">
+      <HintPath>..\packages\Polylines.1.0.0\lib\Polylines.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -396,6 +399,7 @@
     <Compile Include="HibernateMapping\Logistic\CachedDistanceMap.cs" />
     <Compile Include="Repositories\Logistics\CachedDistanceRepository.cs" />
     <Compile Include="Repositories\WaterSalesAgreementFixedPriceRepository.cs" />
+    <Compile Include="Tools\Logistic\RouteGeometrySputnikCalculator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

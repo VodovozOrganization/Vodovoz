@@ -6,7 +6,7 @@ namespace Vodovoz.Tools.Logistic
 {
 	public class DistanceCalculator : IDistanceCalculator
 	{
-		static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
+		public static PointLatLng BasePoint = new PointLatLng(Constants.BaseLatitude, Constants.BaseLongitude);
 
 		public static double GetDistance(DeliveryPoint fromDP, DeliveryPoint toDP)
 		{
