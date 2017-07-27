@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using NHibernate.Criterion;
 using QSOrmProject;
 using Vodovoz.Domain.Logistic;
@@ -14,11 +14,9 @@ namespace Vodovoz.Repository.Logistics
 				      .List();
 		}
 
-		public static IList<CachedDistance> GetCache(IUnitOfWork uow, WayHash[] hashes, bool withGeometry = false)
+		public static IList<CachedDistance> GetCache(IUnitOfWork uow, WayHash[] hashes)
 		{
 			var query = uow.Session.QueryOver<CachedDistance>();
-			if (withGeometry)
-				query.Fetch(x => x.PolylineGeometry);
 			
 			var disjunction = new Disjunction();
 			foreach(var hash in hashes)

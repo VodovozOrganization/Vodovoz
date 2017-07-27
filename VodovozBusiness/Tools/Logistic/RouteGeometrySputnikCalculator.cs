@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using GMap.NET;
@@ -8,6 +8,7 @@ using QSOsm.Spuntik;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Tools.Logistic
 {
@@ -31,7 +32,7 @@ namespace Vodovoz.Tools.Logistic
 
 		public RouteGeometrySputnikCalculator(WayHash[] ways)
 		{
-			var fromDB = Repository.Logistics.CachedDistanceRepository.GetCache(UoW, ways, true);
+			var fromDB = Repository.Logistics.CachedDistanceRepository.GetCache(UoW, ways);
 			startCached = fromDB.Count;
 			foreach (var distance in fromDB)
 			{
@@ -154,34 +155,42 @@ namespace Vodovoz.Tools.Logistic
 			return resultRoute;
 		}
 
-		CachedDistance GetCachedGeometry(long fromP, long toP)
+		CachedDistance GetCachedGeometry(long fromP, long toP, bool checkDB = true)
 		{
-			CachedDistance dist;
+			CachedDistance distance = null;
 			bool needAdd = false;
+			//Проверяем в локальном кеше
 			if (cache.ContainsKey(fromP) && cache[fromP].ContainsKey(toP))
 			{
-				dist = cache[fromP][toP];
+				distance = cache[fromP][toP];
 			}
-			else
+			//Проверяем в базе данных если разрешено.
+			if(distance == null && checkDB)
 			{
-				dist = new CachedDistance();
-				dist.FromGeoHash = fromP;
-				dist.ToGeoHash = toP;
+				var list = CachedDistanceRepository.GetCache(UoW, new[] { new WayHash(fromP, toP) }, true);
+				distance = list.FirstOrDefault();
+			}
+			//Не нашли создаем новый.
+			if(distance == null)
+			{
+				distance = new CachedDistance();
+				distance.FromGeoHash = fromP;
+				distance.ToGeoHash = toP;
 				needAdd = true;
 			}
-			if(dist.PolylineGeometry == null)
+			if(distance.PolylineGeometry == null)
 			{
-				if (!UpdateFromSputnik(dist))
+				if (!UpdateFromSputnik(distance))
 					return null;
 			}
 
-			if (dist.PolylineGeometry == null)
+			if (distance.PolylineGeometry == null)
 				return null;
 
 			if (needAdd)
-				AddNewCacheDistance(dist);
+				AddNewCacheDistance(distance);
 
-			return dist;
+			return distance;
 		}
 
 		bool UpdateFromSputnik(CachedDistance distance)
