@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Gamma.GtkWidgets;
@@ -113,6 +113,7 @@ namespace Vodovoz
 			Entity.ObservableOrderDocuments.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
+			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
@@ -307,6 +308,11 @@ namespace Vodovoz
 			referenceClient.Sensitive = Entity.CanChangeContractor();
 		}
 
+		void Entity_ObservableOrderItems_ElementAdded (object aList, int[] aIdx)
+		{
+			EditItemCountCellOnAdd();
+		}
+
 		void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)
 		{
 			buttonOpenServiceClaim.Sensitive = treeServiceClaim.Selection.CountSelectedRows() > 0;
@@ -482,6 +488,7 @@ namespace Vodovoz
 			SelectDialog.TabName = "Номенклатура на продажу";
 			SelectDialog.ObjectSelected += NomenclatureForSaleSelected;
 			TabParent.AddSlaveTab(this, SelectDialog);
+		
 		}
 
 		void NomenclatureForSaleSelected(object sender, ReferenceRepresentationSelectedEventArgs e)
@@ -1229,6 +1236,21 @@ namespace Vodovoz
 			}
 		}
 
+		private void EditItemCountCellOnAdd()
+		{
+			int index = treeItems.Model.IterNChildren() - 1;
+			Gtk.TreeIter iter;
+			Gtk.TreePath path;
 
+			treeItems.Model.IterNthChild(out iter, index);
+			path = treeItems.Model.GetPath(iter);
+
+			var column = treeItems.Columns.First(x => x.Title == "Кол-во");
+			var renderer = column.CellRenderers.First();
+			Application.Invoke(delegate {
+				treeItems.SetCursorOnCell(path, column, renderer, true);
+			});
+			treeItems.GrabFocus();
+		}
 	}
 }
