@@ -5,6 +5,7 @@ using Vodovoz;
 using Vodovoz.ViewModel;
 using Dialogs.Employees;
 using Vodovoz.Dialogs.DocumentDialogs;
+using QSProjectsLib;
 
 public partial class MainWindow : Window
 {
@@ -287,7 +288,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<RouteListsVM>(),
 			() => new ReferenceRepresentation(new RouteListsVM())
-			.Buttons(ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
+			.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}
 
@@ -392,7 +393,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<OrdersVM>(),
 			() => new ReferenceRepresentation (new OrdersVM ()).CustomTabName("Журнал заказов")
-			.Buttons(ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit)
+			.Buttons(QSMain.User.Permissions["can_delete"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}
 

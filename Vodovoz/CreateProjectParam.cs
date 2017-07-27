@@ -37,6 +37,7 @@ namespace Vodovoz
 			QSMain.ProjectPermission.Add ("store_production", new UserPermission("store_production", "Управление складом производство", ""));
 			QSMain.ProjectPermission.Add ("store_office", new UserPermission("store_office", "Управление складом офис", ""));
 			QSMain.ProjectPermission.Add ("store_equipment", new UserPermission("store_equipment", "Управление складом оборудование", ""));
+			QSMain.ProjectPermission.Add ("can_delete", new UserPermission("can_delete", "Удаление заказов и маршрутных листов", "Пользователь может удалять заказы и маршрутные листы в журналах."));
 		}
 
 		static void CreateBaseConfig()
