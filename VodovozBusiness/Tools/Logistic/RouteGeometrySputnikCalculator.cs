@@ -77,44 +77,9 @@ namespace Vodovoz.Tools.Logistic
 
 		private int DistanceMeter(long fromHash, long toHash)
 		{
-			if(cache.ContainsKey(fromHash) && cache[fromHash].ContainsKey(toHash))
-				return cache[fromHash][toHash].DistanceMeters;
-
-			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
-			{
-				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
-				return DistanceFalsePenality;
-			}
-
-			logger.Debug("Расстояние {0}->{1} не найдено в кеше запрашиваем.", fromHash, toHash);
-			List<PointOnEarth> points = new List<PointOnEarth>();
-			double latitude, longitude;
-			CachedDistance.GetLatLon(fromHash, out latitude, out longitude);
-			points.Add(new PointOnEarth(latitude, longitude));
-			CachedDistance.GetLatLon(toHash, out latitude, out longitude);
-			points.Add(new PointOnEarth(latitude, longitude));
-			var result = SputnikMain.GetRoute(points, false, false);
-			if(result.Status == 0)
-			{
-				var cachedValue = new CachedDistance {
-					Created = DateTime.Now,
-					DistanceMeters = result.RouteSummary.TotalDistance,
-					TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
-					FromGeoHash = fromHash,
-					ToGeoHash = toHash
-				};
-				UoW.TrySave(cachedValue);
-				UoW.Commit();
-				AddNewCacheDistance(cachedValue);
-				addedCached++;
-				UpdateText();
-				return cachedValue.DistanceMeters;
-			}
-			ErrorWays.Add(new WayHash(fromHash, toHash));
-			totalErrors++;
-			UpdateText();
-			//FIXME Реализовать запрос манхентанского расстояния.
-			return DistanceFalsePenality; 
+			var wayHash = new WayHash(fromHash, toHash);
+			var way = GetCachedGeometry(wayHash, true);
+			return way?.DistanceMeters ?? GetSimpleDistance(wayHash);
 		}
 
 		void UpdateText()
@@ -144,12 +109,27 @@ namespace Vodovoz.Tools.Logistic
 				       .ToList();
 		}
 
-		/// <param name="pulseProgress">делегат вызываемый для отображения прогресс, первый параметр текущее значение. Второй сколько всего.</param>
-		public List<PointLatLng> GetGeometryOfRoute(long[] route, Action<uint, uint> pulseProgress)
+		public int GetRouteDistance(long[] route)
 		{
-			//Запрашиваем кешь одним запросом для всего маршрута.
-			var prepared = FilterForDBCheck(GenerateWaysOfRoute(route));
-			if(prepared.Count > 0)
+			var ways = GenerateWaysOfRoute(route);
+			LoadDBCacheIfNeed(ways);
+			return ways.Sum(x =>
+			                GetCachedGeometry(x, false)?.DistanceMeters ?? GetSimpleDistance(x)
+			               );
+		}
+
+		private int GetSimpleDistance(WayHash way)
+		{
+			return (int)(GMap.NET.MapProviders.GMapProviders.EmptyProvider.Projection.GetDistance(
+				CachedDistance.GetPointLatLng(way.FromHash),
+				CachedDistance.GetPointLatLng(way.ToHash)
+			) * 1000);
+		}
+
+		private void LoadDBCacheIfNeed(List<WayHash> ways)
+		{
+			var prepared = FilterForDBCheck(ways);
+			if (prepared.Count > 0)
 			{
 				var fromDB = CachedDistanceRepository.GetCache(UoW, prepared.ToArray());
 				foreach (var loaded in fromDB)
@@ -157,6 +137,14 @@ namespace Vodovoz.Tools.Logistic
 					AddNewCacheDistance(loaded);
 				}
 			}
+
+		}
+
+		/// <param name="pulseProgress">делегат вызываемый для отображения прогресс, первый параметр текущее значение. Второй сколько всего.</param>
+		public List<PointLatLng> GetGeometryOfRoute(long[] route, Action<uint, uint> pulseProgress)
+		{
+			//Запрашиваем кешь одним запросом для всего маршрута.
+			LoadDBCacheIfNeed(GenerateWaysOfRoute(route));
 
 			List<PointLatLng> resultRoute = new List<PointLatLng>();
 			for (int ix = 1; ix < route.Length; ix++)
@@ -182,6 +170,11 @@ namespace Vodovoz.Tools.Logistic
 			}
 
 			return resultRoute;
+		}
+
+		CachedDistance GetCachedGeometry(WayHash way, bool checkDB = true)
+		{
+			return GetCachedGeometry(way.FromHash, way.ToHash, checkDB);
 		}
 
 		CachedDistance GetCachedGeometry(long fromP, long toP, bool checkDB = true)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using GMap.NET;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Logistic
@@ -40,6 +41,14 @@ namespace Vodovoz.Domain.Logistic
 			latitude = (double)(hash / 1000000) / 10000;
 			longitude = (double)(hash % 1000000) / 10000;
 		}
+
+		public static PointLatLng GetPointLatLng(long hash)
+		{
+			double lat, lon;
+			GetLatLon(hash, out lat, out lon);
+			return new PointLatLng(lat, lon);
+		}
+
 
 		public static string GetText(long hash)
 		{

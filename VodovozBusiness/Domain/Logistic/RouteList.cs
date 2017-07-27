@@ -274,6 +274,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		//FIXME Удалить если не понадобится. Там где использовалось переписали на реальные расстояния.
 		public virtual double PlanedDistance{
 			get{
 				if(Addresses.Count == 0)

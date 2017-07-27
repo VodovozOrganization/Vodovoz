@@ -308,10 +308,7 @@ namespace Vodovoz
 				List<PointLatLng> points;
 				if(UseSputnikDistance)
 				{
-					var address = new List<long>();
-					address.Add(RouteGeometrySputnikCalculator.BaseHash);
-					address.AddRange(rl.Addresses.Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
-					address.Add(RouteGeometrySputnikCalculator.BaseHash);
+					var address = GenerateHashPiontsOfRoute(rl);
 					MainClass.MainWin.ProgressStart(address.Count);
 					points = distanceCalculator.GetGeometryOfRoute(address.ToArray(), (val, max) => MainClass.MainWin.ProgressUpdate(val));
 					MainClass.MainWin.ProgressClose();
@@ -333,6 +330,15 @@ namespace Vodovoz
 				routeOverlay.Routes.Add(route);
 			}
 			logger.Info("Ok");
+		}
+
+		private List<long> GenerateHashPiontsOfRoute(RouteList rl)
+		{
+			var result = new List<long>();
+			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			result.AddRange(rl.Addresses.Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.Add(RouteGeometrySputnikCalculator.BaseHash);
+			return result;
 		}
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
@@ -418,18 +424,20 @@ namespace Vodovoz
 			{
 				var proposed = optimizer.ProposedRoutes.FirstOrDefault(x => x.RealRoute == rl);
 				if(proposed == null)
-					return String.Format("{0:N1}км", rl.PlanedDistance);
+					return String.Format("{0:N1}км", (double)distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute(rl).ToArray()) / 1000);
 				else
-					return String.Format("{0:N1}км ({1:N})", rl.PlanedDistance, (double)proposed.RouteCost / 1000);
+					return String.Format("{0:N1}км ({1:N})", 
+					                     (double)distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute(rl).ToArray()) / 1000,
+					                     (double)proposed.RouteCost / 1000);
 			}
 
 			var rli = row as RouteListItem;
 			if(rli != null)
 			{
 				if(rli.IndexInRoute == 0)
-					return String.Format("{0:N1}км", DistanceCalculator.GetDistanceFromBase(rli.Order.DeliveryPoint));
+					return String.Format("{0:N1}км", (double)distanceCalculator.DistanceFromBaseMeter(rli.Order.DeliveryPoint) / 1000);
 				
-				return String.Format("{0:N1}км", DistanceCalculator.GetDistance(rli.RouteList.Addresses[rli.IndexInRoute -1].Order.DeliveryPoint, rli.Order.DeliveryPoint));
+				return String.Format("{0:N1}км", (double)distanceCalculator.DistanceMeter(rli.RouteList.Addresses[rli.IndexInRoute -1].Order.DeliveryPoint, rli.Order.DeliveryPoint) / 1000);
 			}
 			return null;
 		}
