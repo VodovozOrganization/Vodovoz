@@ -479,9 +479,13 @@ namespace Vodovoz
 					rl = rli.RouteList;
 			}
 			if (rl != null)
-				return pixbufMarkers [routesAtDay.IndexOf (rl)];
-			else
-				return null;
+			{
+				var routeIndex = routesAtDay.IndexOf(rl);
+				if(routeIndex < pixbufMarkers.Length)
+					return pixbufMarkers [routeIndex];
+			}
+
+			return null;
 		}
 
 		private void FillFullOrdersInfo ()
