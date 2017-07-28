@@ -28,7 +28,6 @@ namespace Vodovoz
 			{
 				Entity.IncomingWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
 				Entity.WriteOffWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingStore = false;
 			}
 			ConfigureDlg();
 		}
