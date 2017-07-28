@@ -165,7 +165,11 @@ namespace Vodovoz.Tools.Logistic
 			var prepared = FilterForDBCheck(ways);
 			if (prepared.Count > 0)
 			{
-				var fromDB = CachedDistanceRepository.GetCache(UoW, prepared.ToArray());
+				IList<CachedDistance> fromDB;
+				lock(UoW)
+				{
+					fromDB = CachedDistanceRepository.GetCache(UoW, prepared.ToArray());
+				}
 				foreach (var loaded in fromDB)
 				{
 					AddNewCacheDistance(loaded);
@@ -223,7 +227,11 @@ namespace Vodovoz.Tools.Logistic
 			//Проверяем в базе данных если разрешено.
 			if(distance == null && checkDB)
 			{
-				var list = CachedDistanceRepository.GetCache(UoW, new[] { new WayHash(fromP, toP) });
+				IList<CachedDistance> list;
+				lock(UoW)
+				{
+					list = CachedDistanceRepository.GetCache(UoW, new[] { new WayHash(fromP, toP) });
+				}
 				distance = list.FirstOrDefault();
 			}
 			//Не нашли создаем новый.
@@ -245,9 +253,12 @@ namespace Vodovoz.Tools.Logistic
 
 			if (needAdd)
 			{
-				AddNewCacheDistance(distance);
-				UoW.TrySave(distance);
-				UoW.Commit();
+				lock(UoW)
+				{
+					AddNewCacheDistance(distance);
+					UoW.TrySave(distance);
+					UoW.Commit();
+				}
 			}
 
 			return distance;
@@ -275,9 +286,12 @@ namespace Vodovoz.Tools.Logistic
 				distance.DistanceMeters = result.RouteSummary.TotalDistance;
 				distance.TravelTimeSec = result.RouteSummary.TotalTimeSeconds;
 				distance.PolylineGeometry = result.RouteGeometry;
-				AddNewCacheDistance(distance);
-				UoW.TrySave(distance);
-				UoW.Commit();
+				lock(UoW)
+				{
+					AddNewCacheDistance(distance);
+					UoW.TrySave(distance);
+					UoW.Commit();
+				}
 				addedCached++;
 				return true;
 			}
