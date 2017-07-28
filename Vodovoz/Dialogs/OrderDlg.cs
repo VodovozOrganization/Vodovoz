@@ -285,6 +285,8 @@ namespace Vodovoz
 
 			referenceDriverCallId.Binding.AddBinding(Entity, e => e.DriverCallId, w => w.Subject).InitializeFromSource();
 			textTaraComments.Binding.AddBinding(Entity, e => e.InformationOnTara, w => w.Buffer.Text).InitializeFromSource();
+			enumareRasonType.ItemsEnum = typeof(ReasonType);
+			enumareRasonType.Binding.AddBinding(Entity, s => s.ReasonType, w => w.SelectedItem).InitializeFromSource();
 
 			UpdateVisibleOfWingets();
 			UpdateButtonState();
@@ -368,28 +370,34 @@ namespace Vodovoz
 				notebook1.CurrentPage = 0;
 		}
 
+		protected void OnToggleTareControlToggled(object sender, EventArgs e)
+		{
+			if (toggleTareControl.Active)
+				notebook1.CurrentPage = 1;
+		}
+
 		protected void OnToggleGoodsToggled(object sender, EventArgs e)
 		{
 			if(toggleGoods.Active)
-				notebook1.CurrentPage = 1;
+				notebook1.CurrentPage = 2;
 		}
 
 		protected void OnToggleEquipmentToggled(object sender, EventArgs e)
 		{
 			if(toggleEquipment.Active)
-				notebook1.CurrentPage = 2;
+				notebook1.CurrentPage = 3;
 		}
 
 		protected void OnToggleServiceToggled(object sender, EventArgs e)
 		{
 			if(toggleService.Active)
-				notebook1.CurrentPage = 3;
+				notebook1.CurrentPage = 4;
 		}
 
 		protected void OnToggleDocumentsToggled(object sender, EventArgs e)
 		{
 			if(toggleDocuments.Active)
-				notebook1.CurrentPage = 4;
+				notebook1.CurrentPage = 5;
 		}
 
 		#endregion
@@ -1173,5 +1181,7 @@ namespace Vodovoz
 				UpdateProxyInfo();
 			}
 		}
+
+
 	}
 }
