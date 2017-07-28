@@ -76,9 +76,6 @@ namespace Vodovoz
 			comboRoomType.ItemsEnum = typeof(RoomType);
 			comboRoomType.Binding.AddBinding (Entity, entity => entity.RoomType, widget => widget.SelectedItem)
 				.InitializeFromSource ();
-			referenceLogisticsArea.SubjectType = typeof(LogisticsArea);
-			referenceLogisticsArea.Sensitive = QSMain.User.Permissions ["logistican"];
-			referenceLogisticsArea.Binding.AddBinding(Entity, e => e.LogisticsArea, w => w.Subject).InitializeFromSource();
 			referenceDeliverySchedule.SubjectType = typeof(DeliverySchedule);
 			referenceDeliverySchedule.Binding.AddBinding(Entity, e => e.DeliverySchedule, w => w.Subject).InitializeFromSource();
 			entryCity.FocusOutEvent += FocusOut;
