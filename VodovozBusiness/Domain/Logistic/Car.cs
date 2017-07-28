@@ -89,10 +89,10 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref maxVolume, value, () => MaxVolume); }
 		}
 
-		double maxWeight;
+		int maxWeight;
 
 		[Display(Name = "Грузоподъёмность")]
-		public virtual double MaxWeight {
+		public virtual int MaxWeight {
 			get { return maxWeight; }
 			set { SetField(ref maxWeight, value, () => MaxWeight); }
 		}

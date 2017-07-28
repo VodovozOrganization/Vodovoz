@@ -326,12 +326,11 @@ namespace Vodovoz
 			w18.Expand = false;
 			w18.Fill = false;
 			// Container child hbox4.Gtk.Box+BoxChild
-			this.maxWeightSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 999, 1);
+			this.maxWeightSpin = new global::Gamma.GtkWidgets.ySpinButton(0, 20000, 500);
 			this.maxWeightSpin.CanFocus = true;
 			this.maxWeightSpin.Name = "maxWeightSpin";
-			this.maxWeightSpin.Adjustment.PageIncrement = 10;
+			this.maxWeightSpin.Adjustment.PageIncrement = 500;
 			this.maxWeightSpin.ClimbRate = 1;
-			this.maxWeightSpin.Digits = ((uint)(2));
 			this.maxWeightSpin.Numeric = true;
 			this.maxWeightSpin.ValueAsDecimal = 0m;
 			this.maxWeightSpin.ValueAsInt = 0;
@@ -633,7 +632,8 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w47 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.notebook1]));
 			w47.Position = 1;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
