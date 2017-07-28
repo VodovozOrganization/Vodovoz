@@ -35,6 +35,16 @@ namespace Vodovoz
 
 		public event EventHandler<CurrentObjectChangedArgs> CurrentObjectChanged;
 
+		LastChosenAction lastChosenAction = LastChosenAction.None;
+
+		private enum LastChosenAction //
+		{
+			None,
+			NonFreeRentAgreement,
+			DailyRentAgreement,
+			FreeRentAgreement,
+		}
+
 		public PanelViewType[] InfoWidgets
 		{
 			get
@@ -114,6 +124,7 @@ namespace Vodovoz
 			Entity.ObservableFinalOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableInitialOrderService.ElementAdded += Entity_UpdateClientCanChange;
 			Entity.ObservableOrderItems.ElementAdded += Entity_ObservableOrderItems_ElementAdded;
+			Entity.ObservableOrderDocuments.ElementAdded += Entity_ObservableOrderDocuments_ElementAdded;
 
 			enumSignatureType.ItemsEnum = typeof(OrderSignatureType);
 			enumSignatureType.Binding.AddBinding (Entity, s => s.SignatureType, w => w.SelectedItem).InitializeFromSource ();
@@ -313,6 +324,25 @@ namespace Vodovoz
 		void Entity_ObservableOrderItems_ElementAdded (object aList, int[] aIdx)
 		{
 			EditItemCountCellOnAdd();
+		}
+
+		void Entity_ObservableOrderDocuments_ElementAdded (object aList, int[] aIdx)
+		{
+			switch(lastChosenAction)
+			{
+				case LastChosenAction.NonFreeRentAgreement:
+					AddRentAgreement(OrderAgreementType.NonfreeRent);
+					break;
+				case LastChosenAction.DailyRentAgreement:
+					AddRentAgreement(OrderAgreementType.DailyRent);
+					break;
+				case LastChosenAction.FreeRentAgreement:
+					AddRentAgreement(OrderAgreementType.FreeRent);
+					break;
+				default:
+					break;
+			}
+			lastChosenAction = LastChosenAction.None;
 		}
 
 		void TreeServiceClaim_Selection_Changed(object sender, EventArgs e)
@@ -569,6 +599,17 @@ namespace Vodovoz
 			}
 			CounterpartyContract contract = CounterpartyContractRepository.GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
 			if(contract == null) {
+				switch(type) {
+					case OrderAgreementType.NonfreeRent:
+						lastChosenAction = LastChosenAction.NonFreeRentAgreement;
+						break;
+					case OrderAgreementType.DailyRent:
+						lastChosenAction = LastChosenAction.DailyRentAgreement;
+						break;
+					default:
+						lastChosenAction = LastChosenAction.FreeRentAgreement;
+						break;
+				}
 				RunContractCreateDialog();
 				return;
 			}
