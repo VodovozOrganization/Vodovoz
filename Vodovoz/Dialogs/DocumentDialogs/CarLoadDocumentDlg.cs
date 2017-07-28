@@ -12,8 +12,8 @@ namespace Vodovoz
 	public partial class CarLoadDocumentDlg : OrmGtkDialogBase<CarLoadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = true;
-
+		bool isEditingStore = false;
+		bool editing = false;
 		public CarLoadDocumentDlg()
 		{
 			this.Build();
@@ -29,7 +29,6 @@ namespace Vodovoz
 			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
 			{
 				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingStore = false;
 			}else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 			ConfigureDlg();
@@ -37,18 +36,21 @@ namespace Vodovoz
 
 		public CarLoadDocumentDlg (int routeListId, int? warehouseId) : this()
 		{
-			if(warehouseId.HasValue)
+			if (warehouseId.HasValue)
+			{
 				Entity.Warehouse = UoW.GetById<Warehouse>(warehouseId.Value);
+				editing |= UoW.GetById<Warehouse>(warehouseId.Value) == WarehouseRepository.WarehouseByPermission(UoWGeneric);	
+			}
 			Entity.RouteList = UoW.GetById<RouteList>(routeListId);
 			UpdateRouteListInfo();
 			carloaddocumentview1.FillItemsByWarehouse();
+			ConfigureDlg();
 		}
 
 		public CarLoadDocumentDlg (int id)
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarLoadDocument> (id);
-			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -56,8 +58,12 @@ namespace Vodovoz
 		{
 		}
 
+
 		void ConfigureDlg ()
 		{
+			if(QSMain.User.Permissions["store_manage"])
+				editing = isEditingStore = true;
+			
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
@@ -73,6 +79,7 @@ namespace Vodovoz
 			Entity.UpdateAlreadyLoaded(UoW);
 			Entity.UpdateInRouteListAmount(UoW);
 			carloaddocumentview1.DocumentUoW = UoWGeneric;
+			carloaddocumentview1.SetButtonEditing(editing) ;
 		}
 
 		public override bool Save ()

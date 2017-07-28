@@ -12,7 +12,7 @@ namespace Vodovoz
 	public partial class IncomingWaterDlg : OrmGtkDialogBase<IncomingWater>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-		bool isEditingStore = true;
+		bool isEditingStore = false;
 
 		public IncomingWaterDlg()
 		{
@@ -37,7 +37,6 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingWater>(id);
-			isEditingStore = false;
 			ConfigureDlg();
 		}
 
@@ -47,6 +46,8 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			if (QSMain.User.Permissions["store_manage"])
+				isEditingStore = true;
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();
 

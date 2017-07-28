@@ -267,12 +267,11 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w23 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.hbox4]));
 			w23.Position = 2;
 			this.Add(this.vbox4);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.yentryrefWarehouse.ChangedByUser += new global::System.EventHandler(this.OnYentryrefWarehouseChangedByUser);
 			this.yentryrefOrder.ChangedByUser += new global::System.EventHandler(this.OnYentryrefOrderChangedByUser);
 		}

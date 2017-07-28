@@ -36,10 +36,15 @@ namespace Vodovoz
 				buttonFillWarehouseItems.Click();
 		}
 
+		public void SetButtonEditing(bool isEditing)
+		{
+			buttonFillAllItems.Sensitive = buttonFillWarehouseItems.Sensitive = isEditing;
+		}
+
 		void YtreeviewItems_Selection_Changed (object sender, EventArgs e)
 		{
 			var selected = ytreeviewItems.GetSelectedObject<CarLoadDocumentItem>();
-			buttonDelete.Sensitive = selected != null;
+			buttonDelete.Sensitive = (selected != null && buttonFillAllItems.Sensitive == true);
 		}
 
 		private IUnitOfWorkGeneric<CarLoadDocument> documentUoW;

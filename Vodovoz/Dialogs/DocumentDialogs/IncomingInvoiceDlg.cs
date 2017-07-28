@@ -12,7 +12,7 @@ namespace Vodovoz
 	public partial class IncomingInvoiceDlg : OrmGtkDialogBase<IncomingInvoice>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();
-		bool isEditingStore = true;
+		bool isEditingStore = false;
 
 		public IncomingInvoiceDlg()
 		{
@@ -28,7 +28,6 @@ namespace Vodovoz
 			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
 			{
 				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingStore = false;
 			}
 			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
@@ -39,7 +38,6 @@ namespace Vodovoz
 		{
 			this.Build();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<IncomingInvoice>(id);
-			isEditingStore = false;
 			ConfigureDlg();
 		}
 
@@ -49,6 +47,8 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
+			if (QSMain.User.Permissions["store_manage"])
+				isEditingStore = true;
 			entryInvoiceNumber.Binding.AddBinding(Entity, e => e.InvoiceNumber, w => w.Text).InitializeFromSource();
 			entryWaybillNumber.Binding.AddBinding(Entity, e => e.WaybillNumber, w => w.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();

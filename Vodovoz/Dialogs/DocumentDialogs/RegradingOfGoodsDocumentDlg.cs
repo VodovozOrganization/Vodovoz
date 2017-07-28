@@ -10,7 +10,7 @@ namespace Vodovoz
 	public partial class RegradingOfGoodsDocumentDlg : OrmGtkDialogBase<RegradingOfGoodsDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = true;
+		bool isEditingStore = false;
 
 		public RegradingOfGoodsDocumentDlg()
 		{
@@ -24,10 +24,7 @@ namespace Vodovoz
 				return;
 			}
 			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-			{
 				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingStore = false;
-			}
 			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 
@@ -38,7 +35,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<RegradingOfGoodsDocument> (id);
-			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -48,6 +44,8 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			if (QSMain.User.Permissions["store_manage"])
+				isEditingStore = true;
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();

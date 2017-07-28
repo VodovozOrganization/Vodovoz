@@ -185,12 +185,13 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.inventoryitemsview]));
 			w16.Position = 2;
 			this.Add(this.vbox4);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
-			this.yentryrefWarehouse.BeforeChangeByUser += new global::System.EventHandler< QSOrmProject.EntryReferenceBeforeChangeEventArgs > (this.OnYentryrefWarehouseBeforeChangeByUser);
+			this.yentryrefWarehouse.BeforeChangeByUser += new global::System.EventHandler<QSOrmProject.EntryReferenceBeforeChangeEventArgs>(this.OnYentryrefWarehouseBeforeChangeByUser);
 		}
 	}
 }

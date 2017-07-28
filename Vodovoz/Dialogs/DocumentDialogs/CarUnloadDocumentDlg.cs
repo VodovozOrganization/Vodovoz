@@ -15,7 +15,7 @@ namespace Vodovoz
 	public partial class CarUnloadDocumentDlg : OrmGtkDialogBase<CarUnloadDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = true;
+		bool isEditingStore = false;
 
 		IList<Equipment> alreadyUnloadedEquipment;
 
@@ -38,10 +38,7 @@ namespace Vodovoz
 				return;
 			}
 			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
-			{
 				Entity.Warehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingStore = false;
-			}
 			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.Warehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
 			ConfigureDlg();
@@ -60,7 +57,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<CarUnloadDocument> (id);
-			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -73,6 +69,9 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			if (QSMain.User.Permissions["store_manage"])
+			 	isEditingStore = true;
+			
 			bottlereceptionview1.UoW = UoW;
 			returnsreceptionview1.UoW = UoW;
 

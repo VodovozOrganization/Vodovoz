@@ -16,16 +16,14 @@ namespace Vodovoz
 	public partial class MovementDocumentDlg : OrmGtkDialogBase<MovementDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = true;
+		bool isEditingStore = false;
 
 		public MovementDocumentDlg ()
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<MovementDocument> ();
-			if(WarehouseRepository.WarehouseByPermission(UoWGeneric) != null){
+			if(WarehouseRepository.WarehouseByPermission(UoWGeneric) != null) 
 				Entity.FromWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingStore = false;
-			}
 
 
 			ConfigureDlg ();
@@ -42,7 +40,6 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<MovementDocument> (id);
-			isEditingStore = false;
 			ConfigureDlg ();
 		}
 
@@ -52,6 +49,9 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
+			if (QSMain.User.Permissions["store_manage"])
+				isEditingStore = true;
+			
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 
