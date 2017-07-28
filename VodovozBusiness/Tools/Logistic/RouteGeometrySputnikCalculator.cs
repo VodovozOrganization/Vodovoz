@@ -56,8 +56,6 @@ namespace Vodovoz.Tools.Logistic
 			if(!cache.ContainsKey(distance.FromGeoHash))
 				cache[distance.FromGeoHash] = new Dictionary<long, CachedDistance>();
 			cache[distance.FromGeoHash][distance.ToGeoHash] = distance;
-			UoW.TrySave(distance);
-			UoW.Commit();
 			totalCached++;
 		}
 
