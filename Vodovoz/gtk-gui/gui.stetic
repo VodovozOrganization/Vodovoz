@@ -41439,7 +41439,6 @@ RegistrationNumber</property>
             <property name="ShowSpecialStateNot">False</property>
             <property name="UseShortTitle">False</property>
             <property name="DefaultFirst">True</property>
-            <signal name="Changed" handler="OnEnumcomboTypeChanged" />
             <signal name="ChangedByUser" handler="OnEnumcomboTypeChangedByUser" />
           </widget>
           <packing>

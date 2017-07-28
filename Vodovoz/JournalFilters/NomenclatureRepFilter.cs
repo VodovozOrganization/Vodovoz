@@ -105,8 +105,5 @@ namespace Vodovoz.JournalFilters
 			return objList.Cast<object>().ToArray();
 		}
 
-		protected void OnEnumcomboTypeChanged(object sender, EventArgs e)
-		{
-		} 
 	}
 }

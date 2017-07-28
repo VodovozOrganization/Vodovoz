@@ -47,7 +47,6 @@ namespace Vodovoz.JournalFilters
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.enumcomboType.Changed += new global::System.EventHandler(this.OnEnumcomboTypeChanged);
 			this.enumcomboType.ChangedByUser += new global::System.EventHandler(this.OnEnumcomboTypeChangedByUser);
 		}
 	}
