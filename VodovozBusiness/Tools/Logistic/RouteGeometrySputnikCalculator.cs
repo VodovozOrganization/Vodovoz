@@ -1,6 +1,7 @@
 ﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using GMap.NET;
 using Polylines;
 using QSOrmProject;
@@ -23,8 +24,13 @@ namespace Vodovoz.Tools.Logistic
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-		Gtk.TextBuffer staticBuffer;
-		int startCached, totalCached, addedCached, totalPoints, totalErrors;
+		Dictionary<int, long[]> routeQueue = new Dictionary<int, long[]>();
+		Dictionary<int, int> calculetedRoutes = new Dictionary<int, int>();
+		Thread backgroundThread;
+
+		public event EventHandler RouteCalculeted;
+
+		int startCached, totalCached, addedCached, totalErrors;
 
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
@@ -38,7 +44,6 @@ namespace Vodovoz.Tools.Logistic
 			{
 				AddNewCacheDistance(distance);
 			}
-			UpdateText();
 		}
 
 		public RouteGeometrySputnikCalculator()
@@ -82,15 +87,6 @@ namespace Vodovoz.Tools.Logistic
 			return way?.DistanceMeters ?? GetSimpleDistance(wayHash);
 		}
 
-		void UpdateText()
-		{
-			if (staticBuffer == null)
-				return;
-			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}\nНовых со спутника: {3}\nОшибок в запросах: {4}",
-			                                  totalPoints, startCached, totalCached, addedCached, totalErrors);
-			QSMain.WaitRedraw(200);
-		}
-
 		public List<WayHash> GenerateWaysOfRoute(long[] route)
 		{
 			List<WayHash> resultRoute = new List<WayHash>();
@@ -111,11 +107,49 @@ namespace Vodovoz.Tools.Logistic
 
 		public int GetRouteDistance(long[] route)
 		{
+			var routeHash = String.Concat(route).GetHashCode();
+			if (calculetedRoutes.ContainsKey(routeHash))
+				return calculetedRoutes[routeHash];
 			var ways = GenerateWaysOfRoute(route);
 			LoadDBCacheIfNeed(ways);
-			return ways.Sum(x =>
+			var distance = ways.Sum(x =>
 			                GetCachedGeometry(x, false)?.DistanceMeters ?? GetSimpleDistance(x)
 			               );
+			if (distance > 0)
+				calculetedRoutes.Add(routeHash, distance);
+			return distance;
+		}
+
+		public int GetRouteDistanceBackground(long[] route)
+		{
+			var routeHash = String.Concat(route).GetHashCode();
+			if (calculetedRoutes.ContainsKey(routeHash))
+				return calculetedRoutes[routeHash];
+
+			if (routeQueue.ContainsKey(routeHash))
+				return -1; //В процессе обработки.
+
+			routeQueue.Add(routeHash, route);
+
+			if(backgroundThread == null)
+			{
+				backgroundThread = new Thread(delegate() {
+					//Вызываем чисто чтобы посчитать.
+					while(routeQueue.Count > 0)
+					{
+						var curPair = routeQueue.First();
+						GetRouteDistance(curPair.Value);
+						routeQueue.Remove(curPair.Key);
+						Gtk.Application.Invoke(delegate {
+							RouteCalculeted?.Invoke(this, EventArgs.Empty);
+						});
+					}
+					backgroundThread = null;
+				});
+				backgroundThread.Start();
+			}
+
+			return -1;
 		}
 
 		private int GetSimpleDistance(WayHash way)
@@ -126,7 +160,7 @@ namespace Vodovoz.Tools.Logistic
 			) * 1000);
 		}
 
-		private void LoadDBCacheIfNeed(List<WayHash> ways)
+		public void LoadDBCacheIfNeed(List<WayHash> ways)
 		{
 			var prepared = FilterForDBCheck(ways);
 			if (prepared.Count > 0)
@@ -245,12 +279,10 @@ namespace Vodovoz.Tools.Logistic
 				UoW.TrySave(distance);
 				UoW.Commit();
 				addedCached++;
-				UpdateText();
 				return true;
 			}
 			ErrorWays.Add(new WayHash(distance.FromGeoHash, distance.ToGeoHash));
 			totalErrors++;
-			UpdateText();
 			return false;
 		}
 	}

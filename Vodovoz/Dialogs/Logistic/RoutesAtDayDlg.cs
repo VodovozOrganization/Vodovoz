@@ -145,6 +145,7 @@ namespace Vodovoz
 				.Finish ();
 
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
+			distanceCalculator.RouteCalculeted += DistanceCalculator_RouteCalculeted;
 
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
@@ -423,11 +424,14 @@ namespace Vodovoz
 			if(rl != null)
 			{
 				var proposed = optimizer.ProposedRoutes.FirstOrDefault(x => x.RealRoute == rl);
+				var distanceMeters = distanceCalculator.GetRouteDistanceBackground(GenerateHashPiontsOfRoute(rl).ToArray());
+				if (distanceMeters == -1)
+					return "⌛";
 				if(proposed == null)
-					return String.Format("{0:N1}км", (double)distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute(rl).ToArray()) / 1000);
+					return String.Format("{0:N1}км", (double)distanceMeters / 1000);
 				else
 					return String.Format("{0:N1}км ({1:N})", 
-					                     (double)distanceCalculator.GetRouteDistance(GenerateHashPiontsOfRoute(rl).ToArray()) / 1000,
+					                     (double)distanceMeters / 1000,
 					                     (double)proposed.RouteCost / 1000);
 			}
 
@@ -506,7 +510,7 @@ namespace Vodovoz
 		void FillDialogAtDay ()
 		{
 			logger.Info ("Загружаем заказы на {0:d}...", ydateForRoutes.Date);
-			MainClass.MainWin.ProgressStart(4);
+			MainClass.MainWin.ProgressStart(5);
 			uow.Session.Clear ();
 
 			var ordersQuery = Repository.OrderRepository.GetOrdersForRLEditingQuery (ydateForRoutes.Date, checkShowCompleted.Active)
@@ -545,11 +549,9 @@ namespace Vodovoz
 			routesAtDay = routesQuery.ToList ();
 			routesAtDay.ToList ().ForEach (rl => rl.UoW = uow);
 
+
 			UpdateRoutesPixBuf ();
 			UpdateRoutesButton ();
-
-			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem> (x => x.Addresses).LastLevel (c => c.RouteList).EndConfig ();
-			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList> (routesAtDay, levels);
 
 			MainClass.MainWin.ProgressAdd();
 			logger.Info("Загружаем водителей на {0:d}...", ydateForRoutes.Date);
@@ -561,6 +563,11 @@ namespace Vodovoz
 
 			MainClass.MainWin.ProgressAdd();
 			UpdateAddressesOnMap ();
+
+			MainClass.MainWin.ProgressAdd();
+			var levels = LevelConfigFactory.FirstLevel<RouteList, RouteListItem>(x => x.Addresses).LastLevel(c => c.RouteList).EndConfig();
+			ytreeRoutes.YTreeModel = new LevelTreeModel<RouteList>(routesAtDay, levels);
+
 			MainClass.MainWin.ProgressClose();
 		}
 
@@ -1059,6 +1066,11 @@ namespace Vodovoz
 			var car = e.Subject as Car;
 			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
 			driver.Car = car;
+		}
+
+		void DistanceCalculator_RouteCalculeted(object sender, EventArgs e)
+		{
+			ytreeRoutes.QueueDraw();
 		}
 	}
 }
