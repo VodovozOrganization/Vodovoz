@@ -481,7 +481,7 @@ namespace Vodovoz
 			if (rl != null)
 			{
 				var routeIndex = routesAtDay.IndexOf(rl);
-				if(routeIndex < pixbufMarkers.Length)
+				if(routeIndex >= 0 && routeIndex < pixbufMarkers.Length)
 					return pixbufMarkers [routeIndex];
 			}
 
