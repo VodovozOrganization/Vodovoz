@@ -739,10 +739,6 @@
         <property name="ShortLabel" translatable="yes">Дубликаты адресов</property>
         <signal name="Activated" handler="OnActionAddressDuplicetesActivated" />
       </action>
-      <action id="Action28">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-      </action>
       <action id="ActionLastOrderReport">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчёт по заказам меньше 130р.</property>
@@ -1050,7 +1046,6 @@
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.OrganizationDlg" design-size="533 549">
-    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -1702,7 +1697,6 @@
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="837 533">
-    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10407,7 +10401,6 @@ Patronymic</property>
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.EquipmentDlg" design-size="470 394">
-    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -16474,7 +16467,6 @@ Patronymic</property>
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.EquipmentGenerator" design-size="764 325">
-    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
