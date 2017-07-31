@@ -8,6 +8,7 @@ using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
+using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -634,6 +635,12 @@ namespace Vodovoz.Domain.Logistic
 				.Sum(item => item.ActualCount);
 		}
 
+		public virtual int GetFullBottlesToDeliverCount()
+		{
+			return Order.OrderItems.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum(item => item.Count);
+		}
+
 		/// <summary>
 		/// Функция вызывается при переходе адреса в закрытие.
 		/// Если адрес в пути, при закрытии МЛ он считается автоматически доставленным.
@@ -729,6 +736,53 @@ namespace Vodovoz.Domain.Logistic
 					return "ОШИБКА! Адрес помечен как перенесенный из другого МЛ, но строка откуда он был перенесен не найдена.";
 			}
 			return null;
+		}
+
+		#endregion
+
+		#region Для расчетов в логистике
+
+		/// <summary>
+		/// Время в минутах.
+		/// </summary>
+		public virtual int TimeOnPoint{
+			get{
+				int byFormula = 3; //На подпись документво 3 мин.
+				int bottels = GetFullBottlesToDeliverCount();
+				if (RouteList.Forwarder == null)
+					byFormula += CalculateGoDoorCount(bottels, 2) * 5; //5 минут на 2 бутыли без экспедитора.
+				else
+					byFormula += CalculateGoDoorCount(bottels, 4) * 3; //3 минут на 4 бутыли c экспедитором.
+				
+				if (byFormula < 20) // 20 минут.
+					return 20;
+				else
+					return byFormula;
+			}
+		}
+
+		private int CalculateGoDoorCount(int bottles, int atTime)
+		{
+			return bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
+		}
+
+		public virtual TimeSpan CalculatePlanedTime(RouteGeometrySputnikCalculator sputnikCache){
+			DateTime time = default(DateTime);
+
+			for (int ix = 0; ix < RouteList.Addresses.Count; ix++)
+			{
+				var address = RouteList.Addresses[ix];
+				if (ix == 0)
+					time = time.Add(RouteList.Addresses[ix].Order.DeliverySchedule.From);
+				else
+					time = time.AddSeconds(sputnikCache.TimeSec(RouteList.Addresses[ix-1].Order.DeliveryPoint, RouteList.Addresses[ix].Order.DeliveryPoint));
+
+				if (address == this)
+					break;
+
+				time = time.AddMinutes(RouteList.Addresses[ix].TimeOnPoint);
+			}
+			return time.TimeOfDay;
 		}
 
 		#endregion

@@ -66,7 +66,20 @@ namespace Vodovoz.Tools.Logistic
 			return DistanceMeter(fromHash, toHash);
 		}
 
+		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
+		{
+			var fromHash = CachedDistance.GetHash(fromDP);
+			var toHash = CachedDistance.GetHash(toDP);
+			return TimeSec(fromHash, toHash);
+		}
+
 		public int DistanceFromBaseMeter(DeliveryPoint toDP)
+		{
+			var toHash = CachedDistance.GetHash(toDP);
+			return DistanceMeter(BaseHash, toHash);
+		}
+
+		public int TimeFromBase(DeliveryPoint toDP)
 		{
 			var toHash = CachedDistance.GetHash(toDP);
 			return DistanceMeter(BaseHash, toHash);
@@ -83,6 +96,13 @@ namespace Vodovoz.Tools.Logistic
 			var wayHash = new WayHash(fromHash, toHash);
 			var way = GetCachedGeometry(wayHash, true);
 			return way?.DistanceMeters ?? GetSimpleDistance(wayHash);
+		}
+
+		private int TimeSec(long fromHash, long toHash)
+		{
+			var wayHash = new WayHash(fromHash, toHash);
+			var way = GetCachedGeometry(wayHash, true);
+			return way?.TravelTimeSec ?? GetSimpleTime(wayHash);
 		}
 
 		public List<WayHash> GenerateWaysOfRoute(long[] route)
@@ -156,6 +176,11 @@ namespace Vodovoz.Tools.Logistic
 				CachedDistance.GetPointLatLng(way.FromHash),
 				CachedDistance.GetPointLatLng(way.ToHash)
 			) * 1000);
+		}
+
+		private int GetSimpleTime(WayHash way)
+		{
+			return (int)(GetSimpleDistance(way) / 13.3); //13.3 м/с среднее время получаемое по спутнику.
 		}
 
 		public void LoadDBCacheIfNeed(List<WayHash> ways)

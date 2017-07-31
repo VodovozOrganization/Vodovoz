@@ -136,6 +136,7 @@ namespace Vodovoz
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create ()
 				.AddColumn ("МЛ/Адрес").AddTextRenderer (x => GetRowTitle (x))
 				.AddColumn ("Время").AddTextRenderer (x => GetRowTime (x))
+				.AddColumn("План").AddTextRenderer(x => GetRowPlanTime(x))
 				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x))
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
 				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
@@ -392,6 +393,21 @@ namespace Vodovoz
 			if (rl != null)
 				return rl.Addresses.Count.ToString ();
 			return (row as RouteListItem)?.Order.DeliverySchedule.Name;
+		}
+
+		string GetRowPlanTime(object row)
+		{
+			var rl = row as RouteList;
+			if (rl != null)
+				return rl.FirstAddressTime.ToString("hh\\:mm");
+
+			var rli = row as RouteListItem;
+			if (rli != null)
+			{
+				return String.Format("{0:hh\\:mm} (+{1})", rli.CalculatePlanedTime(distanceCalculator), rli.TimeOnPoint);
+			}
+
+			return null;
 		}
 
 		string GetRowBottles (object row)
@@ -1074,6 +1090,7 @@ namespace Vodovoz
 
 		void DistanceCalculator_RouteCalculeted(object sender, EventArgs e)
 		{
+			ytreeRoutes.ColumnsAutosize();
 			ytreeRoutes.QueueDraw();
 		}
 	}
