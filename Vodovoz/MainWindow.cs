@@ -136,7 +136,7 @@ public partial class MainWindow : Gtk.Window
 
 	public void ProgressUpdate(double curValue)
 	{
-		if (progressStatus == null)
+		if (progressStatus == null || progressStatus.Adjustment == null)
 			return;
 		progressStatus.Adjustment.Value = curValue;
 		QSMain.WaitRedraw();
