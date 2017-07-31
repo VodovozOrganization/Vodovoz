@@ -31,7 +31,7 @@ namespace Vodovoz
 			ConfigureDlg ();
 		}
 
-		public FreeRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate) : this (contract)
+		public FreeRentAgreementDlg (CounterpartyContract contract, DeliveryPoint point, DateTime? IssueDate)
 		{
 			this.Build();
 			UoWGeneric = FreeRentAgreement.Create(contract);
