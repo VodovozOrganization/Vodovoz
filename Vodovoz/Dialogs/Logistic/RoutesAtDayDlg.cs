@@ -136,7 +136,7 @@ namespace Vodovoz
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create ()
 				.AddColumn ("МЛ/Адрес").AddTextRenderer (x => GetRowTitle (x))
 				.AddColumn ("Время").AddTextRenderer (x => GetRowTime (x))
-				.AddColumn("План").AddTextRenderer(x => GetRowPlanTime(x))
+				.AddColumn("План").AddTextRenderer(x => GetRowPlanTime(x), useMarkup:true)
 				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x))
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
 				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
@@ -404,7 +404,22 @@ namespace Vodovoz
 			var rli = row as RouteListItem;
 			if (rli != null)
 			{
-				return String.Format("{0:hh\\:mm} (+{1})", rli.PlanTime, rli.TimeOnPoint);
+				string color;
+				if (rli.PlanTime == null)
+					color = "grey";
+				else if (rli.PlanTime.Value < rli.Order.DeliverySchedule.From - new TimeSpan(0, 30, 0))
+					color = "purple";
+				else if (rli.PlanTime.Value < rli.Order.DeliverySchedule.From)
+					color = "blue";
+				else if (rli.PlanTime.Value > rli.Order.DeliverySchedule.To)
+					color = "red";
+				else if (rli.PlanTime.Value > rli.Order.DeliverySchedule.To - new TimeSpan(0, 25, 0))
+					color = "orange";
+				else
+					color = "dark green";
+						
+				return String.Format("<span foreground=\"{2}\"> {0:hh\\:mm}</span> (+{1})",
+				                     rli.PlanTime, rli.TimeOnPoint, color);
 			}
 
 			return null;
