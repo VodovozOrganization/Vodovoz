@@ -22,6 +22,7 @@ namespace Vodovoz.Tools.Logistic
 
 		Gtk.TextBuffer staticBuffer;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
+		long totalMeters, totalSec;
 
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
@@ -47,6 +48,8 @@ namespace Vodovoz.Tools.Logistic
 				cache[distance.FromGeoHash] = new Dictionary<long, CachedDistance>();
 			cache[distance.FromGeoHash][distance.ToGeoHash] = distance;
 			totalCached++;
+			totalMeters += distance.DistanceMeters;
+			totalSec += distance.TravelTimeSec;
 		}
 
 		public int DistanceMeter(DeliveryPoint fromDP, DeliveryPoint toDP)
@@ -112,8 +115,9 @@ namespace Vodovoz.Tools.Logistic
 
 		void UpdateText()
 		{
-			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}\nНовых со спутника: {3}\nОшибок в запросах: {4}",
-			                                  totalPoints, startCached, totalCached, addedCached, totalErrors);
+			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}\nНовых со спутника: {3}\nОшибок в запросах: {4}\nСреднее скорость: {5:F2}м/с",
+			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec
+			                                 );
 			QSMain.WaitRedraw(200);
 		}
 
