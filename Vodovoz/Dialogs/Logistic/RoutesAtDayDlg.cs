@@ -399,12 +399,12 @@ namespace Vodovoz
 		{
 			var rl = row as RouteList;
 			if (rl != null)
-				return rl.FirstAddressTime.ToString("hh\\:mm");
+				return rl.Addresses.Last().PlanTime?.ToString("hh\\:mm");
 
 			var rli = row as RouteListItem;
 			if (rli != null)
 			{
-				return String.Format("{0:hh\\:mm} (+{1})", rli.CalculatePlanedTime(distanceCalculator), rli.TimeOnPoint);
+				return String.Format("{0:hh\\:mm} (+{1})", rli.PlanTime, rli.TimeOnPoint);
 			}
 
 			return null;
@@ -775,6 +775,7 @@ namespace Vodovoz
 				route.AddAddressFromOrder (order);
 			}
 			route.ReorderAddressesByDailiNumber ();
+			route.RecalculatePlanTime(distanceCalculator);
 			uow.Save (route);
 			logger.Info ("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
 			UpdateAddressesOnMap ();
@@ -822,6 +823,7 @@ namespace Vodovoz
 			route.RemoveAddress (row);
 			uow.Save (route);
 			UpdateAddressesOnMap ();
+			route.RecalculatePlanTime(distanceCalculator);
 			RoutesWasUpdated ();
 		}
 
@@ -1054,6 +1056,7 @@ namespace Vodovoz
 					}
 					routesAtDay.Add(rl);
 					propose.RealRoute = rl;
+					rl.RecalculatePlanTime(distanceCalculator);
 				}
 			}
 			UpdateRoutesPixBuf();

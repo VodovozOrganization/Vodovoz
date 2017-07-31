@@ -1,6 +1,6 @@
-﻿using System;
-using Vodovoz.Domain.Logistic;
+﻿using DataAccess.NhibernateFixes;
 using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping
 {
@@ -33,6 +33,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.CashierCommentLastUpdate).Column("cashier_comment_last_update");
 			Map (x => x.Notified30Minutes)		.Column("notified_30minutes");
 			Map (x => x.NotifiedTimeout)		.Column("notified_timeout");
+			Map(x => x.PlanTime )				.Column("plan_time").CustomType<TimeAsTimeSpanTypeClone>();
 
 			References (x => x.RouteList)			.Column ("route_list_id").Not.Nullable ();
 			References (x => x.Order)				.Column ("order_id").Cascade.SaveUpdate();

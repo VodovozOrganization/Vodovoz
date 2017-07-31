@@ -1150,6 +1150,23 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual void RecalculatePlanTime(RouteGeometrySputnikCalculator sputnikCache)
+		{
+			DateTime time = default(DateTime);
+
+			for (int ix = 0; ix < Addresses.Count; ix++) {
+				
+				if (ix == 0)
+					time = time.Add(Addresses[ix].Order.DeliverySchedule.From);
+				else
+					time = time.AddSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
+
+				Addresses[ix].PlanTime = time.TimeOfDay;
+
+				time = time.AddMinutes(Addresses[ix].TimeOnPoint);
+			}
+		}
+
 		#endregion
 	}
 
