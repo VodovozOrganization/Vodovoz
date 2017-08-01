@@ -1,6 +1,11 @@
 ﻿using System;
+using Gamma.GtkWidgets;
+using Gamma.Utilities;
+using Gtk;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
+using Vodovoz.Domain.Orders;
+using Vodovoz.Repository;
 using Vodovoz.Repository.Client;
 using Vodovoz.Repository.Operations;
 
@@ -20,6 +25,19 @@ namespace Vodovoz.Panel
 		void Configure()
 		{
 			labelAddress.LineWrapMode = Pango.WrapMode.WordChar;
+			labelLastOrders.LineWrapMode = Pango.WrapMode.WordChar;
+
+			ytreeLastOrders.RowActivated += OnOrdersRowActivated;
+			ytreeLastOrders.Selection.Changed += OnOrdersSelectionChanged;
+
+			ytreeLastOrders.ColumnsConfig = ColumnsConfigFactory.Create<Order>()
+				.AddColumn("Номер")
+				.AddNumericRenderer(node => node.Id)
+				.AddColumn("Дата")
+				.AddTextRenderer(node => node.DeliveryDate.HasValue ? node.DeliveryDate.Value.ToShortDateString() : String.Empty)
+				.Finish();
+
+
 		}
 
 		#region IPanelView implementation
@@ -37,6 +55,10 @@ namespace Vodovoz.Panel
 			var depositsAtDeliveryPoint = DepositRepository.GetDepositsAtDeliveryPoint(InfoProvider.UoW, DeliveryPoint, null);
 			labelDeposits.Text = CurrencyWorks.GetShortCurrencyString(depositsAtDeliveryPoint);
 			textviewComment.Buffer.Text = DeliveryPoint.Comment;
+
+			var currentOrders = OrderRepository.GetLatestOrdersForCounterparty(InfoProvider.UoW, DeliveryPoint, 5);
+			ytreeLastOrders.SetItemsSource<Order>(currentOrders);
+			vboxLastOrders.Visible = currentOrders.Count > 0;
 		}
 
 		public bool VisibleOnPanel
@@ -55,8 +77,42 @@ namespace Vodovoz.Panel
 				DeliveryPoint = deliveryPoint;
 				Refresh();
 			}
-		}			
+		}
 		#endregion
+
+		void OnOrdersRowActivated(object sender, RowActivatedArgs args)
+		{
+			var order = ytreeLastOrders.GetSelectedObject() as Order;
+			if (InfoProvider is OrderDlg)
+			{
+				(InfoProvider as OrderDlg)?.FillOrderItems(order);
+			}
+		}
+
+		void OnOrdersSelectionChanged (object sender, EventArgs args)
+		{
+			var order = ytreeLastOrders.GetSelectedObject() as Order;
+			GenerateTooltip(order);
+		}
+
+		private void GenerateTooltip(Order order)
+		{
+			ytreeLastOrders.HasTooltip = false;
+
+			if(order == null)
+			{
+				return;
+			}
+			string tooltip = "Заказ №" + order.Id + ":";
+
+			foreach(OrderItem orderItem in order.OrderItems)
+			{
+				tooltip += "\n" + orderItem.Nomenclature.Name + ": " + orderItem.Count;
+			}
+
+			ytreeLastOrders.TooltipText = tooltip;
+			ytreeLastOrders.HasTooltip = true;
+		}
 	}
 }
 

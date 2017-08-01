@@ -765,7 +765,101 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void RecalcBottlesDeposits(IUnitOfWork uow)
+		#region test_methods_for_sidebar
+
+		/// <summary>
+		/// Добавить оборудование из выбранного предыдущего заказа.
+		/// </summary>
+		/// <param name="orderItem">Элемент заказа.</param>
+		/// <param name="UoW">IUnitOfWork</param>
+		public virtual void AddEquipmentNomenclatureForSaleFromPreviousOrder(OrderItem orderItem, IUnitOfWork UoW)
+		{
+			if (orderItem.Nomenclature.Category != NomenclatureCategory.equipment)
+				return;
+			if (!orderItem.Nomenclature.Serial)
+			{
+				ObservableOrderItems.Add(new OrderItem
+				{
+					Order = this,
+					AdditionalAgreement = orderItem.AdditionalAgreement,
+					Count = orderItem.Count,
+					Equipment = orderItem.Equipment,
+					Nomenclature = orderItem.Nomenclature,
+					Price = orderItem.Price
+				});
+			}
+			else
+			{
+				ObservableOrderItems.AddWithReturn(new OrderItem
+				{
+					Order = this,
+					AdditionalAgreement = orderItem.AdditionalAgreement,
+					Count = orderItem.Count,
+					Equipment = orderItem.Equipment,
+					Nomenclature = orderItem.Nomenclature,
+					Price = orderItem.Price
+				});
+			}
+			UpdateDocuments();
+		}
+
+		/// <summary>
+		/// Добавить номенклатуру (не вода и не оборудование из выбранного предыдущего заказа).
+		/// </summary>
+		/// <param name="orderItem">Элемент заказа.</param>
+		public virtual void AddAnyGoodsNomenclatureForSaleFromPreviousOrder(OrderItem orderItem)
+		{
+			if (orderItem.Nomenclature.Category != NomenclatureCategory.additional && orderItem.Nomenclature.Category != NomenclatureCategory.bottle &&
+			    orderItem.Nomenclature.Category != NomenclatureCategory.service && orderItem.Nomenclature.Category != NomenclatureCategory.disposableBottleWater)
+				return;
+			ObservableOrderItems.Add(new OrderItem
+			{
+				Order = this,
+				AdditionalAgreement = orderItem.AdditionalAgreement,
+				Count = orderItem.Nomenclature.Category == NomenclatureCategory.service ? 1 : 0,
+				Equipment = orderItem.Equipment,
+				Nomenclature = orderItem.Nomenclature,
+				Price = orderItem.Price
+			});
+			UpdateDocuments();
+		}
+
+		/// <summary>
+		/// Добавить воду из выбранного прерыдущего заказа.
+		/// </summary>
+		/// <param name="orderItem">Элемент заказа.</param>
+		/// <param name="wsa">Договор о продаже воды.</param>
+		public virtual void AddWaterForSaleFromPreviousOrder(OrderItem orderItem, WaterSalesAgreement wsa)
+		{
+			if (orderItem.Nomenclature.Category != NomenclatureCategory.water)
+				return;
+			decimal price;
+			if (wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == orderItem.Nomenclature.Id))
+				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == orderItem.Nomenclature.Id).Price;
+			else
+				price = orderItem.Price;
+
+			ObservableOrderItems.Add(new OrderItem
+			{
+				Order = this,
+				AdditionalAgreement = wsa,
+				Count = orderItem.Count,
+				Equipment = null,
+				Nomenclature = orderItem.Nomenclature,
+				Price = price
+			});
+			UpdateDocuments();
+		}
+
+		public virtual void ClearOrderItemsList()
+		{
+			ObservableOrderItems.Clear();
+			UpdateDocuments();
+		}
+
+		#endregion
+
+		public virtual void RecalcBottlesDeposits (IUnitOfWork uow)
 		{
 			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount();
 			var bottleDeposit = NomenclatureRepository.GetBottleDeposit(uow);
