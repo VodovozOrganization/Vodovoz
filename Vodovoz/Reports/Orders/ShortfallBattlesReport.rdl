@@ -70,7 +70,7 @@
             <Width>38.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>120.4pt</Width>
+            <Width>116.4pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>91.8pt</Width>
@@ -90,20 +90,23 @@
           <TableColumn>
             <Width>35.0pt</Width>
           </TableColumn>
+          <TableColumn >
+            <Width>43.4pt</Width>
+          </TableColumn>
           <TableColumn>
-            <Width>110.3pt</Width>
+            <Width>95.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>48.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>53.5pt</Width>
+            <Width>47.9pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>44.2pt</Width>
+            <Width>41.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>55.1pt</Width>
+            <Width>41.3pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>61.0pt</Width>
@@ -242,6 +245,22 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Залоги- неустойки</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox8">
@@ -293,7 +312,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox56">
-                      <Value>Информация об отзвоне водителя</Value>
+                      <Value>Инф. об отзвоне вод.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -309,7 +328,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox53">
-                      <Value>Номер звонка водителя</Value>
+                      <Value>Номер звонка вод.</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -472,6 +491,21 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>0</Format>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>=Fields!forfeitAndDeposit.Value</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -700,6 +734,25 @@
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>
+                      </Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
@@ -1105,6 +1158,23 @@
     delivered,
     returned,
     (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) AS bottles,
+   IFNULL((SELECT 
+                    order_items.count
+                FROM
+                    orders
+                        LEFT JOIN
+                    order_items ON order_id = orders.id
+                        LEFT JOIN
+                    nomenclature ON nomenclature.id = order_items.nomenclature_id
+                WHERE
+                    orders.id = ordersIdAlias
+                        AND nomenclature.id = (SELECT 
+                            str_value
+                        FROM
+                            base_parameters
+                        WHERE
+                            base_parameters.name = 'forfeit_nomenclature_id')),
+            received_deposit) AS forfeitAndDeposit,
        CASE reason_type
         WHEN 'Unknown' THEN 'неизвестна'
         WHEN 'NewAddress' THEN 'новый адрес'
@@ -1136,6 +1206,8 @@ FROM
     employees ON employees.id = route_lists.driver_id
         LEFT JOIN
     bottles_movement_operations ON bottles_movement_operations.id = orders.bottles_movement_operation_id
+        LEFT JOIN
+    deposit_operations ON deposit_operations.order_id = orders.id
 WHERE
     orders.delivery_date = DATE(@date)
         AND (route_lists.status = 'Closed'
@@ -1221,6 +1293,10 @@ ORDER BY reason_type_status</CommandText>
         </Field>
         <Field Name="actual_count">
           <DataField>actual_count</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="forfeitAndDeposit">
+          <DataField>forfeitAndDeposit</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
