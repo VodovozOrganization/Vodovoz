@@ -650,6 +650,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.OrdersWithMinPriceLessThan.cs" />
     <Compile Include="JournalFilters\NomenclatureRepFilter.cs" />
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureRepFilter.cs" />
+    <Compile Include="ReportsParameters\Logistic\RouteListsOnClosingReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1008,6 +1010,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Condition=" '$(TargetOS)' == 'Linux' " Include="../lib/Google.OrTools/Linux/libGoogle.OrTools.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\RouteListOnClosing.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

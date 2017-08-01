@@ -739,6 +739,10 @@
         <property name="ShortLabel" translatable="yes">Дубликаты адресов</property>
         <signal name="Activated" handler="OnActionAddressDuplicetesActivated" />
       </action>
+      <action id="Action28">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes" />
+      </action>
       <action id="ActionLastOrderReport">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes">Отчёт по заказам меньше 130р.</property>
@@ -749,6 +753,12 @@
         <property name="Label" translatable="yes">Отчёт по заказам меньше 100 р.</property>
         <property name="ShortLabel" translatable="yes">Отчёт по заказам меньше 100 р.</property>
         <signal name="Activated" handler="OnActionOrdersWithMinPriceLessThanActivated" />
+      </action>
+      <action id="ActionRouteListsOnClosing">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчет по незакрытым МЛ</property>
+        <property name="ShortLabel" translatable="yes">Отчет по незакрытым МЛ</property>
+        <signal name="Activated" handler="OnActionRouteListsOnClosingActivated" />
       </action>
     </action-group>
     <property name="MemberName" />
@@ -873,6 +883,7 @@
                       <node type="Menuitem" action="ActionFuelReport" />
                       <node type="Menuitem" action="ActionDriversWageBalance" />
                       <node type="Menuitem" action="ActionDeliveriesLate" />
+                      <node type="Menuitem" action="ActionRouteListsOnClosing" />
                       <node type="Separator" />
                       <node type="Menuitem" action="ActionRoutesListRegister" />
                       <node type="Menuitem" action="ActionDeliveryTimeReport" />
@@ -1046,6 +1057,7 @@
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.OrganizationDlg" design-size="533 549">
+    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -1106,6 +1118,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1697,6 +1710,7 @@
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.EmployeeDlg" design-size="837 533">
+    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -10401,6 +10415,7 @@ Patronymic</property>
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.EquipmentDlg" design-size="470 394">
+    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -16467,6 +16482,7 @@ Patronymic</property>
     </child>
   </widget>
   <widget class="Gtk.Bin" id="Vodovoz.EquipmentGenerator" design-size="764 325">
+    <action-group name="Default" />
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -37696,6 +37712,8 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">1</property>
                 <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
               </packing>
             </child>
           </widget>
@@ -40078,7 +40096,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport" design-size="291 300">
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Logistic.DeliveryTimeReport" design-size="307 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -41686,6 +41704,35 @@ RegistrationNumber</property>
             <property name="UseShortTitle">False</property>
             <property name="DefaultFirst">True</property>
             <signal name="ChangedByUser" handler="OnEnumcomboTypeChangedByUser" />
+          </widget>
+          <packing>
+            <property name="Position">1</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox1">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateReport">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateReportClicked" />
           </widget>
           <packing>
             <property name="Position">1</property>

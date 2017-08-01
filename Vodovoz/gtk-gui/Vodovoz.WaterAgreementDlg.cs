@@ -142,7 +142,6 @@ namespace Vodovoz
 			this.checkIsFixedPrice.CanFocus = true;
 			this.checkIsFixedPrice.Name = "checkIsFixedPrice";
 			this.checkIsFixedPrice.Label = "";
-			this.checkIsFixedPrice.Active = true;
 			this.checkIsFixedPrice.DrawIndicator = true;
 			this.checkIsFixedPrice.UseUnderline = true;
 			this.hbox6.Add(this.checkIsFixedPrice);
@@ -293,7 +292,8 @@ namespace Vodovoz
 			w23.Expand = false;
 			w23.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

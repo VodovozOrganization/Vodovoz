@@ -138,6 +138,7 @@ namespace Vodovoz.Reports
 			this.radiobuttonNewAddress.Sensitive = false;
 			this.radiobuttonNewAddress.CanFocus = true;
 			this.radiobuttonNewAddress.Name = "radiobuttonNewAddress";
+			this.radiobuttonNewAddress.Active = true;
 			this.radiobuttonNewAddress.DrawIndicator = true;
 			this.radiobuttonNewAddress.UseUnderline = true;
 			this.radiobuttonNewAddress.Group = new global::GLib.SList(global::System.IntPtr.Zero);

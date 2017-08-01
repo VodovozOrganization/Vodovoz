@@ -78,6 +78,8 @@ namespace Vodovoz.Reports
 			this.hbox3.Add(this.yentryreferenceCar);
 			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryreferenceCar]));
 			w5.Position = 1;
+			w5.Expand = false;
+			w5.Fill = false;
 			this.vbox1.Add(this.hbox3);
 			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w6.Position = 1;
@@ -96,7 +98,8 @@ namespace Vodovoz.Reports
 			w7.Expand = false;
 			w7.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
