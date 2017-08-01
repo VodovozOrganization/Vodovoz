@@ -822,14 +822,6 @@ Global
 		$28.NewParentheses = False
 		$28.SpacesBeforeBrackets = False
 		$28.scope = text/x-csharp
-		$28.NewLinesForBracesInProperties = False
-		$28.NewLinesForBracesInAccessors = False
-		$28.NewLinesForBracesInAnonymousMethods = False
-		$28.NewLinesForBracesInControlBlocks = False
-		$28.NewLinesForBracesInAnonymousTypes = False
-		$28.NewLinesForBracesInObjectCollectionArrayInitializers = False
-		$28.NewLinesForBracesInLambdaExpressionBody = False
-		$28.NewLineForElse = False
 		$0.TextStylePolicy = $29
 		$29.scope = application/x-desktop
 		$29.FileWidth = 80
