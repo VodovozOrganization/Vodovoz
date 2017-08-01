@@ -22,6 +22,14 @@ namespace Vodovoz.Panel
 
 		private global::Vodovoz.WrapLabel labelDeposits;
 
+		private global::Gtk.VBox vboxLastOrders;
+
+		private global::Gtk.Label labelLastOrders;
+
+		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
+
+		private global::Gamma.GtkWidgets.yTreeView ytreeLastOrders;
+
 		private global::Gtk.Label label3;
 
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -127,15 +135,48 @@ namespace Vodovoz.Panel
 			global::Gtk.Box.BoxChild w8 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table2]));
 			w8.Position = 3;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.vboxLastOrders = new global::Gtk.VBox();
+			this.vboxLastOrders.Name = "vboxLastOrders";
+			this.vboxLastOrders.Spacing = 6;
+			// Container child vboxLastOrders.Gtk.Box+BoxChild
+			this.labelLastOrders = new global::Gtk.Label();
+			this.labelLastOrders.Name = "labelLastOrders";
+			this.labelLastOrders.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Последние заказы:</b>");
+			this.labelLastOrders.UseMarkup = true;
+			this.vboxLastOrders.Add(this.labelLastOrders);
+			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vboxLastOrders[this.labelLastOrders]));
+			w9.Position = 0;
+			w9.Expand = false;
+			w9.Fill = false;
+			// Container child vboxLastOrders.Gtk.Box+BoxChild
+			this.GtkScrolledWindow1 = new global::Gtk.ScrolledWindow();
+			this.GtkScrolledWindow1.Name = "GtkScrolledWindow1";
+			this.GtkScrolledWindow1.VscrollbarPolicy = ((global::Gtk.PolicyType)(2));
+			this.GtkScrolledWindow1.ShadowType = ((global::Gtk.ShadowType)(1));
+			// Container child GtkScrolledWindow1.Gtk.Container+ContainerChild
+			this.ytreeLastOrders = new global::Gamma.GtkWidgets.yTreeView();
+			this.ytreeLastOrders.TooltipMarkup = "tooltip\nnot tooltip";
+			this.ytreeLastOrders.CanFocus = true;
+			this.ytreeLastOrders.Name = "ytreeLastOrders";
+			this.ytreeLastOrders.HeadersVisible = false;
+			this.ytreeLastOrders.HoverSelection = true;
+			this.GtkScrolledWindow1.Add(this.ytreeLastOrders);
+			this.vboxLastOrders.Add(this.GtkScrolledWindow1);
+			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vboxLastOrders[this.GtkScrolledWindow1]));
+			w11.Position = 1;
+			this.vbox1.Add(this.vboxLastOrders);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.vboxLastOrders]));
+			w12.Position = 4;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.label3 = new global::Gtk.Label();
 			this.label3.Name = "label3";
 			this.label3.LabelProp = global::Mono.Unix.Catalog.GetString("<b>Комментарий:</b>");
 			this.label3.UseMarkup = true;
 			this.vbox1.Add(this.label3);
-			global::Gtk.Box.BoxChild w9 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label3]));
-			w9.Position = 4;
-			w9.Expand = false;
-			w9.Fill = false;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.label3]));
+			w13.Position = 5;
+			w13.Expand = false;
+			w13.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
@@ -150,10 +191,11 @@ namespace Vodovoz.Panel
 			this.textviewComment.WrapMode = ((global::Gtk.WrapMode)(3));
 			this.GtkScrolledWindow.Add(this.textviewComment);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w11 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w11.Position = 5;
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w15.Position = 6;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

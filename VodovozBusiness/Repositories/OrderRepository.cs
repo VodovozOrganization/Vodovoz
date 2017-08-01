@@ -93,6 +93,23 @@ namespace Vodovoz.Repository
 				.Where(c => c.Code1c.IsIn(codes1c))
 				.List<VodovozOrder> ();
 		}
+
+		/// <summary>
+		/// Список последних заказов для точки.
+		/// </summary>
+		/// <returns>Список последних заказов для точки.</returns>
+		/// <param name="UoW">IUnitOfWork</param>
+		/// <param name="deliveryPoint">Точка доставки.</param>
+		/// <param name="count">Требуемое количество последних заказов.</param>
+		public static IList<VodovozOrder> GetLatestOrdersForCounterparty(IUnitOfWork UoW, DeliveryPoint deliveryPoint, int count)
+		{
+			VodovozOrder orderAlias = null;
+			var queryResult = UoW.Session.QueryOver<Vodovoz.Domain.Orders.Order>(() => orderAlias)
+			    .Where(() => orderAlias.DeliveryPoint.Id == deliveryPoint.Id)
+				.OrderBy(() => orderAlias.Id).Desc
+			    .Take(count).List();
+			return queryResult;
+		}
 	}
 }
 

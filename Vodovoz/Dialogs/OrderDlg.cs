@@ -1293,5 +1293,64 @@ namespace Vodovoz
 			});
 			treeItems.GrabFocus();
 		}
+
+		public void FillOrderItems(Order order)
+		{
+			if(Entity.ObservableOrderItems.Count > 0 && !MessageDialogWorks.RunQuestionDialog("Вы уверены, что хотите удалить все позиции текущего из заказа и заполнить его позициями из выбранного?"))
+			{
+				return;
+			}
+
+			Entity.ClearOrderItemsList();
+			foreach (OrderItem orderItem in order.OrderItems)
+			{
+				switch (orderItem.Nomenclature.Category)
+				{
+					case NomenclatureCategory.equipment:
+						Entity.AddEquipmentNomenclatureForSaleFromPreviousOrder(orderItem, UoWGeneric);
+						continue;
+					case NomenclatureCategory.water:
+						CounterpartyContract contract = CounterpartyContractRepository.
+						GetCounterpartyContractByPaymentType(UoWGeneric, UoWGeneric.Root.Client, UoWGeneric.Root.PaymentType);
+						if (contract == null)
+						{
+						/*	var result = AskCreateContract();
+							switch (result)
+							{
+								case (int)ResponseType.Yes:
+									RunContractAndWaterAgreementDialog(orderItem.Nomenclature);
+									break;
+								case (int)ResponseType.Accept:
+									CreateDefaultContractWithAgreement(orderItem.Nomenclature);
+									break;
+								default:
+									break;
+							} */
+							continue;
+						}
+						UoWGeneric.Session.Refresh(contract);
+						WaterSalesAgreement wsa = contract.GetWaterSalesAgreement(UoWGeneric.Root.DeliveryPoint, orderItem.Nomenclature);
+						if (wsa == null)
+						{
+							//Если нет доп. соглашения продажи воды.
+							if (MessageDialogWorks.RunQuestionDialog("Отсутствует доп. соглашение с клиентом для продажи воды. Создать?"))
+							{
+								RunAdditionalAgreementWaterDialog();
+							}
+							else
+								continue;
+						}
+						else
+						{
+							Entity.AddWaterForSaleFromPreviousOrder(orderItem, wsa);
+							UoWGeneric.Root.RecalcBottlesDeposits(UoWGeneric);
+						}
+						continue;
+					default:
+						Entity.AddAnyGoodsNomenclatureForSaleFromPreviousOrder(orderItem);
+						continue;
+				}
+			}
+		}
 	}
 }
