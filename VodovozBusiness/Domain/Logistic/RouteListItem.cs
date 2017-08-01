@@ -755,23 +755,8 @@ namespace Vodovoz.Domain.Logistic
 		/// </summary>
 		public virtual int TimeOnPoint{
 			get{
-				int byFormula = 3; //На подпись документво 3 мин.
-				int bottels = GetFullBottlesToDeliverCount();
-				if (RouteList.Forwarder == null)
-					byFormula += CalculateGoDoorCount(bottels, 2) * 5; //5 минут на 2 бутыли без экспедитора.
-				else
-					byFormula += CalculateGoDoorCount(bottels, 4) * 3; //3 минут на 4 бутыли c экспедитором.
-				
-				if (byFormula < 20) // 20 минут.
-					return 20;
-				else
-					return byFormula;
+				return Order.CalculateTimeOnPoint(RouteList.Forwarder != null);
 			}
-		}
-
-		private int CalculateGoDoorCount(int bottles, int atTime)
-		{
-			return bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
 		}
 
 		public virtual TimeSpan CalculatePlanedTime(RouteGeometrySputnikCalculator sputnikCache){

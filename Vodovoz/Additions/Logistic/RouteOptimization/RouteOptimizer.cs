@@ -101,6 +101,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				routing.SetFixedCostOfVehicle((allDrivers[ix].Employee.TripPriority - 1) * DriverPriorityPenalty, ix);
 			}
 
+			int horizon = 24 * 3600;
+
+			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), horizon, horizon, false, "Time");
+
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
 
@@ -114,7 +118,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			for(int ix = 1; ix < Nodes.Length; ix++)
+			{
+				routing.CumulVar(ix, "Time").SetRange((long)Nodes[ix].Order.DeliverySchedule.From.TotalSeconds,
+				                                      (long)Nodes[ix].Order.DeliverySchedule.To.TotalSeconds
+				                                     );
 				routing.AddDisjunction(new int[]{ix}, MaxDistanceAddressPenalty);
+			}
 
 			RoutingSearchParameters search_parameters =
 			        RoutingModel.DefaultSearchParameters();
@@ -153,6 +162,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(solution != null) {
 				// Solution cost.
 				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
+				var time_dimension = routing.GetDimensionOrDie("Time");
+
 				for(int route_number = 0; route_number < routing.Vehicles(); route_number++)
 				{
 					//FIXME Нужно понять, есть ли у водителя маршрут.
@@ -160,16 +171,28 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					long first_node = routing.Start(route_number);
 					long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
 					route.RouteCost = routing.GetCost(first_node, second_node, route_number);
+
 					while(!routing.IsEnd(second_node))
 					{
-						route.Orders.Add(Nodes[second_node - 1].Order);
+						var time_var = time_dimension.CumulVar(second_node);
+						route.Orders.Add(new ProposedRoutePoint(
+							new DateTime().AddSeconds(solution.Value(time_var)),
+							Nodes[second_node - 1].Order
+						));
+						
 						first_node = second_node;
 						second_node = solution.Value(routing.NextVar(first_node));
 						route.RouteCost += routing.GetCost(first_node, second_node, route_number);
 					}
 
 					if(route.Orders.Count > 0)
+					{
 						ProposedRoutes.Add(route);
+						logger.Debug("Маршрут {0}: {1}",
+						             route.Driver.Employee.ShortName,
+						             String.Join(" -> ", route.Orders.Select(x => x.ProposedTime.ToShortTimeString()))
+						            );
+					}
 				}
 			}
 

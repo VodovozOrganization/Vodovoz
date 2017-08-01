@@ -54,12 +54,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual Counterparty Client {
 			get { return client; }
 			set {
-				if(value == client)
+				if (value == client)
 					return;
-				if(client != null && !CanChangeContractor())
+				if (client != null && !CanChangeContractor())
 					throw new InvalidOperationException("Нельзя изменить клиента для заполненного заказа.");
 				SetField(ref client, value, () => Client);
-				if(DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
+				if (DeliveryPoint != null && NHibernate.NHibernateUtil.IsInitialized(Client.DeliveryPoints) && !Client.DeliveryPoints.Any(d => d.Id == DeliveryPoint.Id)) {
 					//FIXME Убрать когда поймем что проблемы с пропаданием точек доставки нет.
 					logger.Warn("Очишаем точку доставки, при установке клиента. Возможно это не нужно.");
 					DeliveryPoint = null;
@@ -74,7 +74,7 @@ namespace Vodovoz.Domain.Orders
 			get { return deliveryPoint; }
 			set {
 				SetField(ref deliveryPoint, value, () => DeliveryPoint);
-				if(value != null && DeliverySchedule == null) {
+				if (value != null && DeliverySchedule == null) {
 					DeliverySchedule = value.DeliverySchedule;
 				}
 			}
@@ -87,9 +87,9 @@ namespace Vodovoz.Domain.Orders
 			get { return deliveryDate; }
 			set {
 				SetField(ref deliveryDate, value, () => DeliveryDate);
-				if(NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && value.HasValue) {
-					foreach(OrderDocument document in OrderDocuments) {
-						if(document.Type == OrderDocumentType.AdditionalAgreement) {
+				if (NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && value.HasValue) {
+					foreach (OrderDocument document in OrderDocuments) {
+						if (document.Type == OrderDocumentType.AdditionalAgreement) {
 							(document as OrderAgreement).AdditionalAgreement.IssueDate = value.Value;
 							(document as OrderAgreement).AdditionalAgreement.StartDate = value.Value;
 						}
@@ -206,7 +206,7 @@ namespace Vodovoz.Domain.Orders
 		public virtual PaymentType PaymentType {
 			get { return paymentType; }
 			set {
-				if(value == paymentType)
+				if (value == paymentType)
 					return;
 				SetField(ref paymentType, value, () => PaymentType);
 			}
@@ -351,7 +351,7 @@ namespace Vodovoz.Domain.Orders
 		ReasonType resonType;
 
 		[Display(Name = "Тип причины")]
-		public virtual ReasonType ReasonType{
+		public virtual ReasonType ReasonType {
 			get { return resonType; }
 			set { SetField(ref resonType, value, () => ReasonType); }
 		}
@@ -374,21 +374,21 @@ namespace Vodovoz.Domain.Orders
 
 		#endregion
 
-		public virtual bool CanChangeContractor ()
+		public virtual bool CanChangeContractor()
 		{
-			if ((NHibernate.NHibernateUtil.IsInitialized (OrderDocuments) && OrderDocuments.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized (InitialOrderService) && InitialOrderService.Count > 0) ||
-				(NHibernate.NHibernateUtil.IsInitialized (FinalOrderService) && FinalOrderService.Count > 0))
+			if ((NHibernate.NHibernateUtil.IsInitialized(OrderDocuments) && OrderDocuments.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized(InitialOrderService) && InitialOrderService.Count > 0) ||
+				(NHibernate.NHibernateUtil.IsInitialized(FinalOrderService) && FinalOrderService.Count > 0))
 				return false;
 			return true;
 		}
 
-		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem> ();
+		IList<OrderDepositItem> orderDepositItems = new List<OrderDepositItem>();
 
-		[Display (Name = "Залоги заказа")]
+		[Display(Name = "Залоги заказа")]
 		public virtual IList<OrderDepositItem> OrderDepositItems {
 			get { return orderDepositItems; }
-			set { SetField (ref orderDepositItems, value, () => OrderDepositItems); }
+			set { SetField(ref orderDepositItems, value, () => OrderDepositItems); }
 		}
 
 		GenericObservableList<OrderDepositItem> observableOrderDepositItems;
@@ -396,19 +396,19 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<OrderDepositItem> ObservableOrderDepositItems {
 			get {
 				if (observableOrderDepositItems == null) {
-					observableOrderDepositItems = new GenericObservableList<OrderDepositItem> (OrderDepositItems);
+					observableOrderDepositItems = new GenericObservableList<OrderDepositItem>(OrderDepositItems);
 					observableOrderDepositItems.ListContentChanged += ObservableOrderDepositItems_ListContentChanged;
 				}
 				return observableOrderDepositItems;
 			}
 		}
 
-		IList<OrderDocument> orderDocuments = new List<OrderDocument> ();
+		IList<OrderDocument> orderDocuments = new List<OrderDocument>();
 
-		[Display (Name = "Документы заказа")]
+		[Display(Name = "Документы заказа")]
 		public virtual IList<OrderDocument> OrderDocuments {
 			get { return orderDocuments; }
-			set { SetField (ref orderDocuments, value, () => OrderDocuments); }
+			set { SetField(ref orderDocuments, value, () => OrderDocuments); }
 		}
 
 		GenericObservableList<OrderDocument> observableOrderDocuments;
@@ -416,39 +416,38 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<OrderDocument> ObservableOrderDocuments {
 			get {
 				if (observableOrderDocuments == null)
-					observableOrderDocuments = new GenericObservableList<OrderDocument> (OrderDocuments);
+					observableOrderDocuments = new GenericObservableList<OrderDocument>(OrderDocuments);
 				return observableOrderDocuments;
 			}
 		}
 
-		IList<OrderItem> orderItems = new List<OrderItem> ();
+		IList<OrderItem> orderItems = new List<OrderItem>();
 
-		[Display (Name = "Строки заказа")]
+		[Display(Name = "Строки заказа")]
 		public virtual IList<OrderItem> OrderItems {
 			get { return orderItems; }
-			set { SetField (ref orderItems, value, () => OrderItems); }
+			set { SetField(ref orderItems, value, () => OrderItems); }
 		}
 
 		GenericObservableList<OrderItem> observableOrderItems;
 		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
 		public virtual GenericObservableList<OrderItem> ObservableOrderItems {
 			get {
-				if (observableOrderItems == null)
-				{
-					observableOrderItems = new GenericObservableList<OrderItem> (orderItems);
+				if (observableOrderItems == null) {
+					observableOrderItems = new GenericObservableList<OrderItem>(orderItems);
 					observableOrderItems.ListContentChanged += ObservableOrderItems_ListContentChanged;
 				}
-				
+
 				return observableOrderItems;
 			}
 		}
 
-		IList<OrderEquipment> orderEquipments = new List<OrderEquipment> ();
+		IList<OrderEquipment> orderEquipments = new List<OrderEquipment>();
 
-		[Display (Name = "Список оборудования")]
+		[Display(Name = "Список оборудования")]
 		public virtual IList<OrderEquipment> OrderEquipments {
 			get { return orderEquipments; }
-			set { SetField (ref orderEquipments, value, () => OrderEquipments); }
+			set { SetField(ref orderEquipments, value, () => OrderEquipments); }
 		}
 
 		GenericObservableList<OrderEquipment> observableOrderEquipments;
@@ -456,17 +455,17 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<OrderEquipment> ObservableOrderEquipments {
 			get {
 				if (observableOrderEquipments == null)
-					observableOrderEquipments = new GenericObservableList<OrderEquipment> (orderEquipments);
+					observableOrderEquipments = new GenericObservableList<OrderEquipment>(orderEquipments);
 				return observableOrderEquipments;
 			}
 		}
 
-		IList<ServiceClaim> initialOrderService = new List<ServiceClaim> ();
+		IList<ServiceClaim> initialOrderService = new List<ServiceClaim>();
 
-		[Display (Name = "Список заявок на сервис")]
+		[Display(Name = "Список заявок на сервис")]
 		public virtual IList<ServiceClaim> InitialOrderService {
 			get { return initialOrderService; }
-			set { SetField (ref initialOrderService, value, () => InitialOrderService); }
+			set { SetField(ref initialOrderService, value, () => InitialOrderService); }
 		}
 
 		GenericObservableList<ServiceClaim> observableInitialOrderService;
@@ -474,17 +473,17 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<ServiceClaim> ObservableInitialOrderService {
 			get {
 				if (observableInitialOrderService == null)
-					observableInitialOrderService = new GenericObservableList<ServiceClaim> (InitialOrderService);
+					observableInitialOrderService = new GenericObservableList<ServiceClaim>(InitialOrderService);
 				return observableInitialOrderService;
 			}
 		}
 
-		IList<ServiceClaim> finalOrderService = new List<ServiceClaim> ();
+		IList<ServiceClaim> finalOrderService = new List<ServiceClaim>();
 
-		[Display (Name = "Список заявок на сервис")]
+		[Display(Name = "Список заявок на сервис")]
 		public virtual IList<ServiceClaim> FinalOrderService {
 			get { return finalOrderService; }
-			set { SetField (ref finalOrderService, value, () => FinalOrderService); }
+			set { SetField(ref finalOrderService, value, () => FinalOrderService); }
 		}
 
 		GenericObservableList<ServiceClaim> observableFinalOrderService;
@@ -492,12 +491,12 @@ namespace Vodovoz.Domain.Orders
 		public virtual GenericObservableList<ServiceClaim> ObservableFinalOrderService {
 			get {
 				if (observableFinalOrderService == null)
-					observableFinalOrderService = new GenericObservableList<ServiceClaim> (FinalOrderService);
+					observableFinalOrderService = new GenericObservableList<ServiceClaim>(FinalOrderService);
 				return observableFinalOrderService;
 			}
 		}
 
-		public Order ()
+		public Order()
 		{
 			Comment = String.Empty;
 			OrderStatus = OrderStatus.NewOrder;
@@ -505,32 +504,32 @@ namespace Vodovoz.Domain.Orders
 			ClientPhone = String.Empty;
 		}
 
-		public static Order CreateFromServiceClaim (ServiceClaim service, Employee author)
+		public static Order CreateFromServiceClaim(ServiceClaim service, Employee author)
 		{
-			var order = new Order ();
+			var order = new Order();
 			order.client = service.Counterparty;
 			order.DeliveryPoint = service.DeliveryPoint;
 			order.DeliveryDate = service.ServiceStartDate;
 			order.PaymentType = service.Payment;
 			order.Author = author;
 			service.InitialOrder = order;
-			order.AddServiceClaimAsInitial (service);
+			order.AddServiceClaimAsInitial(service);
 			return order;
 		}
 
 		#region IValidatableObject implementation
 
-		public virtual IEnumerable<ValidationResult> Validate (ValidationContext validationContext)
+		public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
 		{
-			if (validationContext.Items.ContainsKey ("NewStatus")) {
-				OrderStatus newStatus = (OrderStatus)validationContext.Items ["NewStatus"];
+			if (validationContext.Items.ContainsKey("NewStatus")) {
+				OrderStatus newStatus = (OrderStatus)validationContext.Items["NewStatus"];
 				if (newStatus == OrderStatus.Accepted) {
-					if (DeliveryDate == null || DeliveryDate == default (DateTime))
-						yield return new ValidationResult ("Не указана дата доставки.",
-							new [] { this.GetPropertyName (o => o.DeliveryDate) });
+					if (DeliveryDate == null || DeliveryDate == default(DateTime))
+						yield return new ValidationResult("Не указана дата доставки.",
+							new[] { this.GetPropertyName(o => o.DeliveryDate) });
 					if (!SelfDelivery && DeliverySchedule == null)
-						yield return new ValidationResult ("Не указано время доставки.",
-							new [] { this.GetPropertyName (o => o.DeliverySchedule) });
+						yield return new ValidationResult("Не указано время доставки.",
+							new[] { this.GetPropertyName(o => o.DeliverySchedule) });
 
 #if !SHORT
 					if (PaymentType == PaymentType.cashless && !SignatureType.HasValue)
@@ -589,21 +588,21 @@ namespace Vodovoz.Domain.Orders
 
 				if (newStatus == OrderStatus.Closed) {
 					foreach (var equipment in OrderEquipments) {
-						if (!equipment.Confirmed && String.IsNullOrWhiteSpace (equipment.ConfirmedComment))
-							yield return new ValidationResult (
-								String.Format ("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
+						if (!equipment.Confirmed && String.IsNullOrWhiteSpace(equipment.ConfirmedComment))
+							yield return new ValidationResult(
+								String.Format("Забор оборудования {0} по заказу {1} не произведен, а в комментарии не указана причина.",
 									equipment.NameString, Id),
-								new [] { this.GetPropertyName (o => o.OrderEquipments) });
+								new[] { this.GetPropertyName(o => o.OrderEquipments) });
 					}
 				}
 			}
 
 			if (!SelfDelivery && DeliveryPoint == null)
-				yield return new ValidationResult ("Необходимо заполнить точку доставки.",
-					new [] { this.GetPropertyName (o => o.DeliveryPoint) });
+				yield return new ValidationResult("Необходимо заполнить точку доставки.",
+					new[] { this.GetPropertyName(o => o.DeliveryPoint) });
 			if (Client == null)
-				yield return new ValidationResult ("Необходимо заполнить поле \"клиент\".",
-					new [] { this.GetPropertyName (o => o.Client) });
+				yield return new ValidationResult("Необходимо заполнить поле \"клиент\".",
+					new[] { this.GetPropertyName(o => o.Client) });
 #if !SHORT
 			if (ObservableOrderItems.Any (item => item.Count < 1))
 				yield return new ValidationResult ("В заказе присутствуют позиции с нулевым количеством.", 
@@ -615,30 +614,30 @@ namespace Vodovoz.Domain.Orders
 
 		#region Вычисляемые
 
-		public override string ToString ()
+		public override string ToString()
 		{
-			return String.Format ("Заказ №{0}({1})", Id, Code1c);
+			return String.Format("Заказ №{0}({1})", Id, Code1c);
 		}
 
 		public virtual string Title {
-			get { return String.Format ("Заказ №{0}", Id); }
+			get { return String.Format("Заказ №{0}", Id); }
 		}
 
 		public virtual int TotalDeliveredBottles {
 			get {
-				return OrderItems.Where (x => x.Nomenclature.Category == NomenclatureCategory.water).Sum (x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.water).Sum(x => x.Count);
 			}
 		}
 
 		public virtual int TotalDeliveredBottlesSix {
 			get {
-				return OrderItems.Where (x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater).Sum (x => x.Count);
+				return OrderItems.Where(x => x.Nomenclature.Category == NomenclatureCategory.disposableBottleWater).Sum(x => x.Count);
 			}
 		}
 
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
-		[PropertyChangedAlso (nameof (SumToReceive))]
+		[PropertyChangedAlso(nameof(SumToReceive))]
 		public virtual decimal TotalSum {
 			get {
 				Decimal sum = 0;
@@ -669,7 +668,7 @@ namespace Vodovoz.Domain.Orders
 
 		public virtual decimal ActualGoodsTotalSum {
 			get {
-				return OrderItems.Sum (item => item.Price * item.ActualCount);
+				return OrderItems.Sum(item => item.Price * item.ActualCount);
 			}
 		}
 
@@ -677,63 +676,63 @@ namespace Vodovoz.Domain.Orders
 
 		#region Функции
 
-		public virtual void AddEquipmentNomenclatureForSale (Nomenclature nomenclature, IUnitOfWork UoW)
+		public virtual void AddEquipmentNomenclatureForSale(Nomenclature nomenclature, IUnitOfWork UoW)
 		{
 			if (nomenclature.Category != NomenclatureCategory.equipment)
 				return;
 			if (!nomenclature.Serial) {
-				ObservableOrderItems.Add (new OrderItem {
+				ObservableOrderItems.Add(new OrderItem {
 					Order = this,
 					AdditionalAgreement = null,
 					Count = 0,
 					Equipment = null,
 					Nomenclature = nomenclature,
-					Price = nomenclature.GetPrice (1)
+					Price = nomenclature.GetPrice(1)
 				});
 			} else {
-				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature (UoW, nomenclature);
-				ObservableOrderItems.AddWithReturn (new OrderItem {
+				Equipment eq = EquipmentRepository.GetEquipmentForSaleByNomenclature(UoW, nomenclature);
+				ObservableOrderItems.AddWithReturn(new OrderItem {
 					Order = this,
 					AdditionalAgreement = null,
 					Count = 1,
 					Equipment = eq,
 					Nomenclature = nomenclature,
-					Price = nomenclature.GetPrice (1)
+					Price = nomenclature.GetPrice(1)
 				});
 			}
-			UpdateDocuments ();
+			UpdateDocuments();
 		}
 
-		public virtual void AddAnyGoodsNomenclatureForSale (Nomenclature nomenclature)
+		public virtual void AddAnyGoodsNomenclatureForSale(Nomenclature nomenclature)
 		{
 			if (nomenclature.Category != NomenclatureCategory.additional && nomenclature.Category != NomenclatureCategory.bottle &&
 				nomenclature.Category != NomenclatureCategory.service && nomenclature.Category != NomenclatureCategory.disposableBottleWater)
 				return;
-			ObservableOrderItems.Add (new OrderItem {
+			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
 				AdditionalAgreement = null,
 				Count = nomenclature.Category == NomenclatureCategory.service ? 1 : 0,
 				Equipment = null,
 				Nomenclature = nomenclature,
-				Price = nomenclature.GetPrice (1)
+				Price = nomenclature.GetPrice(1)
 			});
-			UpdateDocuments ();
+			UpdateDocuments();
 		}
 
-		public virtual void AddWaterForSale (Nomenclature nomenclature, WaterSalesAgreement wsa)
+		public virtual void AddWaterForSale(Nomenclature nomenclature, WaterSalesAgreement wsa)
 		{
 			if (nomenclature.Category != NomenclatureCategory.water)
 				return;
-		/*	if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
-				item.AdditionalAgreement.Id == wsa.Id))
-				return; */ // (I-441) @Дима
+			/*	if (ObservableOrderItems.Any (item => item.Nomenclature.Id == nomenclature.Id &&
+					item.AdditionalAgreement.Id == wsa.Id))
+					return; */ // (I-441) @Дима
 			decimal price;
-			if (wsa.IsFixedPrice && wsa.FixedPrices.Any (x => x.Nomenclature.Id == nomenclature.Id))
-				price = wsa.FixedPrices.First (x => x.Nomenclature.Id == nomenclature.Id).Price;
+			if (wsa.IsFixedPrice && wsa.FixedPrices.Any(x => x.Nomenclature.Id == nomenclature.Id))
+				price = wsa.FixedPrices.First(x => x.Nomenclature.Id == nomenclature.Id).Price;
 			else
-				price = nomenclature.GetPrice (1);
+				price = nomenclature.GetPrice(1);
 
-			ObservableOrderItems.Add (new OrderItem {
+			ObservableOrderItems.Add(new OrderItem {
 				Order = this,
 				AdditionalAgreement = wsa,
 				Count = 0,
@@ -741,17 +740,17 @@ namespace Vodovoz.Domain.Orders
 				Nomenclature = nomenclature,
 				Price = price
 			});
-			UpdateDocuments ();
+			UpdateDocuments();
 		}
 
-		public virtual void RecalcBottlesDeposits (IUnitOfWork uow)
+		public virtual void RecalcBottlesDeposits(IUnitOfWork uow)
 		{
-			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount ();
-			var bottleDeposit = NomenclatureRepository.GetBottleDeposit (uow);
+			var expectedBottleDepositsCount = GetExpectedBottlesDepositsCount();
+			var bottleDeposit = NomenclatureRepository.GetBottleDeposit(uow);
 			if (bottleDeposit == null)
-				throw new InvalidProgramException ("В параметрах базы не настроена номенклатура залога за бутыли.");
-			var depositPaymentItem = ObservableOrderItems.FirstOrDefault (item => item.Nomenclature.Id == bottleDeposit.Id);
-			var depositRefundItem = ObservableOrderDepositItems.FirstOrDefault (item => item.DepositType == DepositType.Bottles);
+				throw new InvalidProgramException("В параметрах базы не настроена номенклатура залога за бутыли.");
+			var depositPaymentItem = ObservableOrderItems.FirstOrDefault(item => item.Nomenclature.Id == bottleDeposit.Id);
+			var depositRefundItem = ObservableOrderDepositItems.FirstOrDefault(item => item.DepositType == DepositType.Bottles);
 
 			//Надо создать услугу залога
 			if (expectedBottleDepositsCount > 0) {
@@ -786,26 +785,26 @@ namespace Vodovoz.Domain.Orders
 			}
 			if (expectedBottleDepositsCount == 0) {
 				if (depositRefundItem != null)
-					ObservableOrderDepositItems.Remove (depositRefundItem);
+					ObservableOrderDepositItems.Remove(depositRefundItem);
 				if (depositPaymentItem != null)
-					ObservableOrderItems.Remove (depositPaymentItem);
+					ObservableOrderItems.Remove(depositPaymentItem);
 				return;
 			}
 			if (expectedBottleDepositsCount < 0) {
 				if (depositPaymentItem != null)
-					ObservableOrderItems.Remove (depositPaymentItem);
+					ObservableOrderItems.Remove(depositPaymentItem);
 				//Проверяем, сколько надо отдать клиенту залог за бутыли
-				decimal clientDeposit = default (decimal);
-				decimal deposit = NomenclatureRepository.GetBottleDeposit (uow).GetPrice (-expectedBottleDepositsCount);
+				decimal clientDeposit = default(decimal);
+				decimal deposit = NomenclatureRepository.GetBottleDeposit(uow).GetPrice(-expectedBottleDepositsCount);
 				int count = -expectedBottleDepositsCount;
 				if (Client != null)
-					clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty (UoW, Client, DepositType.Bottles);
+					clientDeposit = Repository.Operations.DepositRepository.GetDepositsAtCounterparty(UoW, Client, DepositType.Bottles);
 				if (clientDeposit - deposit * count >= 0)
 					if (depositRefundItem != null) {
 						depositRefundItem.Deposit = deposit;
 						depositRefundItem.Count = count;
 					} else
-						ObservableOrderDepositItems.Add (new OrderDepositItem {
+						ObservableOrderDepositItems.Add(new OrderDepositItem {
 							Order = this,
 							DepositOperation = null,
 							DepositType = DepositType.Bottles,
@@ -819,19 +818,19 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual int GetExpectedBottlesDepositsCount ()
+		public virtual int GetExpectedBottlesDepositsCount()
 		{
 			if (Client == null || Client.PersonType == PersonType.legal)
 				return 0;
 
-			var waterItemsCount = ObservableOrderItems.Select (item => item)
-				.Where (item => item.Nomenclature.Category == NomenclatureCategory.water)
-				.Sum (item => item.Count);
+			var waterItemsCount = ObservableOrderItems.Select(item => item)
+				.Where(item => item.Nomenclature.Category == NomenclatureCategory.water)
+				.Sum(item => item.Count);
 
 			return waterItemsCount - BottlesReturn;
 		}
 
-		public virtual void FillItemsFromAgreement (AdditionalAgreement a)
+		public virtual void FillItemsFromAgreement(AdditionalAgreement a)
 		{
 			if (a.Type == AgreementType.DailyRent || a.Type == AgreementType.NonfreeRent) {
 				IList<PaidRentEquipment> EquipmentList;
@@ -847,14 +846,14 @@ namespace Vodovoz.Domain.Orders
 					int ItemId;
 					//Добавляем номенклатуру залога
 					OrderItem orderItem = null;
-					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem> (
+					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement.Id == a.Id &&
 							item.Nomenclature.Id == equipment.PaidRentPackage.DepositService.Id &&
 							item.Price == equipment.Deposit)) != null) {
 						orderItem.Count++;
 						orderItem.Price = equipment.Deposit;
 					} else {
-						ObservableOrderItems.Add (
+						ObservableOrderItems.Add(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
@@ -867,15 +866,15 @@ namespace Vodovoz.Domain.Orders
 					}
 					//Добавляем услугу аренды
 					orderItem = null;
-					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem> (
+					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement.Id == a.Id &&
 							item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
 							item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1))) != null) {
 						orderItem.Count++;
-						orderItem.Price = orderItem.Nomenclature.GetPrice (orderItem.Count);
-						ItemId = ObservableOrderItems.IndexOf (orderItem);
+						orderItem.Price = orderItem.Nomenclature.GetPrice(orderItem.Count);
+						ItemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
-						ItemId = ObservableOrderItems.AddWithReturn (
+						ItemId = ObservableOrderItems.AddWithReturn(
 							new OrderItem {
 								Order = this,
 								AdditionalAgreement = a,
@@ -887,24 +886,24 @@ namespace Vodovoz.Domain.Orders
 						);
 					}
 					//Добавляем оборудование
-					ObservableOrderEquipments.Add (
+					ObservableOrderEquipments.Add(
 						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
-							OrderItem = ObservableOrderItems [ItemId]
+							OrderItem = ObservableOrderItems[ItemId]
 						}
 					);
-					OnPropertyChanged (nameof (TotalSum));
-					OnPropertyChanged (nameof (SumToReceive));
+					OnPropertyChanged(nameof(TotalSum));
+					OnPropertyChanged(nameof(SumToReceive));
 				}
 			} else if (a.Type == AgreementType.FreeRent) {
 				FreeRentAgreement agreement = a as FreeRentAgreement;
 				foreach (FreeRentEquipment equipment in agreement.Equipment) {
 					int ItemId;
 					//Добавляем номенклатуру залога.
-					ItemId = ObservableOrderItems.AddWithReturn (
+					ItemId = ObservableOrderItems.AddWithReturn(
 						new OrderItem {
 							Order = this,
 							AdditionalAgreement = agreement,
@@ -915,34 +914,34 @@ namespace Vodovoz.Domain.Orders
 						}
 					);
 					//Добавляем оборудование.
-					ObservableOrderEquipments.Add (
+					ObservableOrderEquipments.Add(
 						new OrderEquipment {
 							Order = this,
 							Direction = Direction.Deliver,
 							Equipment = equipment.Equipment,
 							Reason = Reason.Rent,
-							OrderItem = ObservableOrderItems [ItemId]
+							OrderItem = ObservableOrderItems[ItemId]
 						}
 					);
 				}
 			}
-			UpdateDocuments ();
+			UpdateDocuments();
 		}
 
-		public virtual void RemoveItem (OrderItem item)
+		public virtual void RemoveItem(OrderItem item)
 		{
-			ObservableOrderItems.Remove (item);
-			foreach (var equip in ObservableOrderEquipments.Where (e => e.OrderItem == item).ToList ()) {
-				ObservableOrderEquipments.Remove (equip);
+			ObservableOrderItems.Remove(item);
+			foreach (var equip in ObservableOrderEquipments.Where(e => e.OrderItem == item).ToList()) {
+				ObservableOrderEquipments.Remove(equip);
 			}
-			UpdateDocuments ();
+			UpdateDocuments();
 		}
 
-		public virtual void AddServiceClaimAsInitial (ServiceClaim service)
+		public virtual void AddServiceClaimAsInitial(ServiceClaim service)
 		{
 			if (service.InitialOrder != null && service.InitialOrder.Id == Id) {
-				if (service.Equipment == null || ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
-					ObservableOrderEquipments.Add (new OrderEquipment {
+				if (service.Equipment == null || ObservableOrderEquipments.FirstOrDefault(eq => eq.Equipment.Id == service.Equipment.Id) == null) {
+					ObservableOrderEquipments.Add(new OrderEquipment {
 						Order = this,
 						Direction = Direction.PickUp,
 						Equipment = service.Equipment,
@@ -953,7 +952,7 @@ namespace Vodovoz.Domain.Orders
 					});
 				}
 				if (service.ReplacementEquipment != null) {
-					observableOrderEquipments.Add (new OrderEquipment {
+					observableOrderEquipments.Add(new OrderEquipment {
 						Order = this,
 						Direction = Direction.Deliver,
 						Equipment = service.ReplacementEquipment,
@@ -962,11 +961,11 @@ namespace Vodovoz.Domain.Orders
 						Reason = Reason.Service
 					});
 				}
-				if (ObservableInitialOrderService.FirstOrDefault (sc => sc.Id == service.Id) == null)
-					ObservableInitialOrderService.Add (service);
-				if (ObservableOrderDocuments.Where (doc => doc.Type == OrderDocumentType.EquipmentTransfer).Cast<EquipmentTransferDocument> ()
-					.FirstOrDefault (doc => doc.ServiceClaim.Id == service.Id) == null) {
-					ObservableOrderDocuments.Add (new EquipmentTransferDocument {
+				if (ObservableInitialOrderService.FirstOrDefault(sc => sc.Id == service.Id) == null)
+					ObservableInitialOrderService.Add(service);
+				if (ObservableOrderDocuments.Where(doc => doc.Type == OrderDocumentType.EquipmentTransfer).Cast<EquipmentTransferDocument>()
+					.FirstOrDefault(doc => doc.ServiceClaim.Id == service.Id) == null) {
+					ObservableOrderDocuments.Add(new EquipmentTransferDocument {
 						Order = this,
 						ServiceClaim = service
 					});
@@ -974,11 +973,11 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
-		public virtual void AddServiceClaimAsFinal (ServiceClaim service)
+		public virtual void AddServiceClaimAsFinal(ServiceClaim service)
 		{
 			if (service.FinalOrder != null && service.FinalOrder.Id == Id) {
-				if (ObservableOrderEquipments.FirstOrDefault (eq => eq.Equipment.Id == service.Equipment.Id) == null) {
-					ObservableOrderEquipments.Add (new OrderEquipment {
+				if (ObservableOrderEquipments.FirstOrDefault(eq => eq.Equipment.Id == service.Equipment.Id) == null) {
+					ObservableOrderEquipments.Add(new OrderEquipment {
 						Order = this,
 						Direction = Direction.Deliver,
 						Equipment = service.Equipment,
@@ -986,9 +985,9 @@ namespace Vodovoz.Domain.Orders
 						Reason = Reason.Service
 					});
 				}
-				if (ObservableOrderDocuments.Where (doc => doc.Type == OrderDocumentType.DoneWorkReport).Cast<DoneWorkDocument> ()
-					.FirstOrDefault (doc => doc.ServiceClaim.Id == service.Id) == null) {
-					ObservableOrderDocuments.Add (new DoneWorkDocument {
+				if (ObservableOrderDocuments.Where(doc => doc.Type == OrderDocumentType.DoneWorkReport).Cast<DoneWorkDocument>()
+					.FirstOrDefault(doc => doc.ServiceClaim.Id == service.Id) == null) {
+					ObservableOrderDocuments.Add(new DoneWorkDocument {
 						Order = this,
 						ServiceClaim = service
 					});
@@ -998,111 +997,111 @@ namespace Vodovoz.Domain.Orders
 			//И вообще много чего тут сделать.
 		}
 
-		public virtual void FillNewEquipment (Equipment registeredEquipment)
+		public virtual void FillNewEquipment(Equipment registeredEquipment)
 		{
 			var newEquipment = ObservableOrderEquipments
-				.Where (orderEq => orderEq.NewEquipmentNomenclature != null)
-				.FirstOrDefault (orderEq => orderEq.NewEquipmentNomenclature.Id == registeredEquipment.Nomenclature.Id);
+				.Where(orderEq => orderEq.NewEquipmentNomenclature != null)
+				.FirstOrDefault(orderEq => orderEq.NewEquipmentNomenclature.Id == registeredEquipment.Nomenclature.Id);
 			if (newEquipment != null) {
 				newEquipment.Equipment = registeredEquipment;
 				newEquipment.NewEquipmentNomenclature = null;
 			}
 		}
 
-		public virtual void ChangeStatus (OrderStatus newStatus)
+		public virtual void ChangeStatus(OrderStatus newStatus)
 		{
 			OrderStatus = newStatus;
 		}
 
-		public virtual void UpdateDocuments ()
+		public virtual void UpdateDocuments()
 		{
 			if (ObservableOrderItems.Count > 0 && PaymentType == PaymentType.cashless) {
-				AddDocumentIfNotExist (new BillDocument {
+				AddDocumentIfNotExist(new BillDocument {
 					Order = this
 				});
 			} else
-				RemoveDocumentByType (OrderDocumentType.Bill);
+				RemoveDocumentByType(OrderDocumentType.Bill);
 
 			if (ObservableOrderItems.Count > 0 && OrderStatus == OrderStatus.Accepted) {
 				if (paymentType == PaymentType.cashless) {
 					if (this.DocumentType == DefaultDocumentType.upd) {
-						RemoveDocumentByType (OrderDocumentType.Torg12);
-						RemoveDocumentByType (OrderDocumentType.ShetFactura);
-						AddDocumentIfNotExist (new UPDDocument {
+						RemoveDocumentByType(OrderDocumentType.Torg12);
+						RemoveDocumentByType(OrderDocumentType.ShetFactura);
+						AddDocumentIfNotExist(new UPDDocument {
 							Order = this
 						});
 					} else if (this.DocumentType == DefaultDocumentType.torg12) {
-						RemoveDocumentByType (OrderDocumentType.UPD);
-						AddDocumentIfNotExist (new Torg12Document {
+						RemoveDocumentByType(OrderDocumentType.UPD);
+						AddDocumentIfNotExist(new Torg12Document {
 							Order = this
 						});
-						AddDocumentIfNotExist (new ShetFacturaDocument {
+						AddDocumentIfNotExist(new ShetFacturaDocument {
 							Order = this
 						});
 					}
-					AddDocumentIfNotExist (new DriverTicketDocument {
+					AddDocumentIfNotExist(new DriverTicketDocument {
 						Order = this
 					});
 				}
 				if (paymentType == PaymentType.cash) {
-					AddDocumentIfNotExist (new InvoiceDocument {
+					AddDocumentIfNotExist(new InvoiceDocument {
 						Order = this
 					});
 				}
 				if (paymentType == PaymentType.barter) {
-					AddDocumentIfNotExist (new InvoiceBarterDocument {
+					AddDocumentIfNotExist(new InvoiceBarterDocument {
 						Order = this
 					});
 				}
 			} else {
-				RemoveDocumentByType (OrderDocumentType.Invoice);
-				RemoveDocumentByType (OrderDocumentType.InvoiceBarter);
-				RemoveDocumentByType (OrderDocumentType.UPD);
-				RemoveDocumentByType (OrderDocumentType.Torg12);
-				RemoveDocumentByType (OrderDocumentType.ShetFactura);
+				RemoveDocumentByType(OrderDocumentType.Invoice);
+				RemoveDocumentByType(OrderDocumentType.InvoiceBarter);
+				RemoveDocumentByType(OrderDocumentType.UPD);
+				RemoveDocumentByType(OrderDocumentType.Torg12);
+				RemoveDocumentByType(OrderDocumentType.ShetFactura);
 			}
 
 			var equipmentforSaleWithCoolerWarranty = ObservableOrderEquipments
-				.Where (orderEquipment =>
-					 orderEquipment.Reason == Reason.Sale)
-				.Where (orderEquipment =>
-					 orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
-			if (equipmentforSaleWithCoolerWarranty.Count () > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist (new CoolerWarrantyDocument {
+				.Where(orderEquipment =>
+					orderEquipment.Reason == Reason.Sale)
+				.Where(orderEquipment =>
+					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.CoolerWarranty);
+			if (equipmentforSaleWithCoolerWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddDocumentIfNotExist(new CoolerWarrantyDocument {
 					Order = this
 				});
 			} else
-				RemoveDocumentByType (OrderDocumentType.CoolerWarranty);
+				RemoveDocumentByType(OrderDocumentType.CoolerWarranty);
 
 			var equipmentforSaleWithPumpWarranty = ObservableOrderEquipments
-				.Where (orderEquipment =>
-					 orderEquipment.Reason == Reason.Sale)
-				.Where (orderEquipment =>
-					 orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
-			if (equipmentforSaleWithPumpWarranty.Count () > 0 && OrderStatus == OrderStatus.Accepted) {
-				AddDocumentIfNotExist (new PumpWarrantyDocument {
+				.Where(orderEquipment =>
+					orderEquipment.Reason == Reason.Sale)
+				.Where(orderEquipment =>
+					orderEquipment.Equipment.Nomenclature.Type.WarrantyCardType == WarrantyCardType.PumpWarranty);
+			if (equipmentforSaleWithPumpWarranty.Count() > 0 && OrderStatus == OrderStatus.Accepted) {
+				AddDocumentIfNotExist(new PumpWarrantyDocument {
 					Order = this
 				});
 			} else
-				RemoveDocumentByType (OrderDocumentType.PumpWarranty);
+				RemoveDocumentByType(OrderDocumentType.PumpWarranty);
 		}
 
-		protected virtual void AddDocumentIfNotExist (OrderDocument document)
+		protected virtual void AddDocumentIfNotExist(OrderDocument document)
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where (doc => doc.Order.Id == Id);
-			if (!currentOrderDocuments.Any (doc => doc.Type == document.Type))
-				ObservableOrderDocuments.Add (document);
+			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
+			if (!currentOrderDocuments.Any(doc => doc.Type == document.Type))
+				ObservableOrderDocuments.Add(document);
 		}
 
-		protected virtual void RemoveDocumentByType (OrderDocumentType type)
+		protected virtual void RemoveDocumentByType(OrderDocumentType type)
 		{
-			var currentOrderDocuments = ObservableOrderDocuments.Where (doc => doc.Order.Id == Id);
-			ObservableOrderDocuments.Remove (
-				currentOrderDocuments.FirstOrDefault (doc => doc.Type == type)
+			var currentOrderDocuments = ObservableOrderDocuments.Where(doc => doc.Order.Id == Id);
+			ObservableOrderDocuments.Remove(
+				currentOrderDocuments.FirstOrDefault(doc => doc.Type == type)
 			);
 		}
 
-		public virtual void Close ()
+		public virtual void Close()
 		{
 			//FIXME Правильно закрывать заказ
 			OrderStatus = OrderStatus.Closed;
@@ -1112,14 +1111,40 @@ namespace Vodovoz.Domain.Orders
 
 		#region	Внутренние функции
 
-		void ObservableOrderDepositItems_ListContentChanged (object sender, EventArgs e)
+		void ObservableOrderDepositItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged (nameof (TotalSum));
+			OnPropertyChanged(nameof(TotalSum));
 		}
 
-		void ObservableOrderItems_ListContentChanged (object sender, EventArgs e)
+		void ObservableOrderItems_ListContentChanged(object sender, EventArgs e)
 		{
-			OnPropertyChanged (nameof (TotalSum));
+			OnPropertyChanged(nameof(TotalSum));
+		}
+
+		#endregion
+
+		#region Для расчетов в логистике
+
+		/// <summary>
+		/// Время в минутах.
+		/// </summary>
+		public virtual int CalculateTimeOnPoint(bool hasForwarder){
+			int byFormula = 3; //На подпись документво 3 мин.
+			int bottels = TotalDeliveredBottles;
+			if (!hasForwarder)
+				byFormula += CalculateGoDoorCount(bottels, 2) * 5; //5 минут на 2 бутыли без экспедитора.
+			else
+				byFormula += CalculateGoDoorCount(bottels, 4) * 3; //3 минут на 4 бутыли c экспедитором.
+
+			if (byFormula < 20) // 20 минут.
+				return 20;
+			else
+				return byFormula;
+		}
+
+		private int CalculateGoDoorCount(int bottles, int atTime)
+		{
+			return bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
 		}
 
 		#endregion

@@ -399,7 +399,9 @@ namespace Vodovoz
 		{
 			var rl = row as RouteList;
 			if (rl != null)
-				return rl.Addresses.Last().PlanTime?.ToString("hh\\:mm");
+				return String.Format("{0:hh\\:mm}-{1:hh\\:mm}",
+				                     rl.Addresses.First().PlanTime,
+				                     rl.Addresses.Last().PlanTime);
 
 			var rli = row as RouteListItem;
 			if (rli != null)
@@ -1067,11 +1069,11 @@ namespace Vodovoz
 					rl.Date = CurDate;
 					foreach(var order in propose.Orders)
 					{
-						rl.AddAddressFromOrder(order);
+						var address = rl.AddAddressFromOrder(order.Order);
+						address.PlanTime = order.ProposedTime.TimeOfDay;
 					}
 					routesAtDay.Add(rl);
 					propose.RealRoute = rl;
-					rl.RecalculatePlanTime(distanceCalculator);
 				}
 			}
 			UpdateRoutesPixBuf();

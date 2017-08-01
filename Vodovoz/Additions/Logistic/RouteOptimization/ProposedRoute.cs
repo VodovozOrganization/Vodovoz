@@ -1,4 +1,5 @@
-﻿﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
@@ -7,7 +8,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 {
 	public class ProposedRoute
 	{
-		public List<Order> Orders = new List<Order>();
+		public List<ProposedRoutePoint> Orders = new List<ProposedRoutePoint>();
 		public AtWorkDriver Driver;
 
 		public RouteList RealRoute;
@@ -23,6 +24,18 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public ProposedRoute(AtWorkDriver driver)
 		{
 			Driver = driver;
+		}
+	}
+
+	public class ProposedRoutePoint
+	{
+		public DateTime ProposedTime;
+		public Order Order;
+
+		public ProposedRoutePoint(DateTime time, Order order)
+		{
+			ProposedTime = time;
+			Order = order;
 		}
 	}
 }

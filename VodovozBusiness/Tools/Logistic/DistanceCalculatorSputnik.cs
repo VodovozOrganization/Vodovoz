@@ -71,15 +71,59 @@ namespace Vodovoz.Tools.Logistic
 			return DistanceMeter(fromHash, BaseHash);
 		}
 
+		public int TimeSec(DeliveryPoint fromDP, DeliveryPoint toDP)
+		{
+			var fromHash = CachedDistance.GetHash(fromDP);
+			var toHash = CachedDistance.GetHash(toDP);
+			return TimeSec(fromHash, toHash);
+		}
+
+		public int TimeFromBaseSec(DeliveryPoint toDP)
+		{
+			var toHash = CachedDistance.GetHash(toDP);
+			return TimeSec(BaseHash, toHash);
+		}
+
+		public int TimeToBaseSec(DeliveryPoint fromDP)
+		{
+			var fromHash = CachedDistance.GetHash(fromDP);
+			return TimeSec(fromHash, BaseHash);
+		}
+
 		private int DistanceMeter(long fromHash, long toHash)
 		{
+			var dist = GetCache(fromHash, toHash);
+			return dist?.DistanceMeters ?? DistanceFalsePenality;
+		}
+
+		private int TimeSec(long fromHash, long toHash)
+		{
+			var dist = GetCache(fromHash, toHash);
+			return dist?.TravelTimeSec ?? GetSimpleTime(new WayHash(fromHash, toHash));
+		}
+
+		private int GetSimpleTime(WayHash way)
+		{
+			return (int)(GetSimpleDistance(way) / 13.3); //13.3 м/с среднее время получаемое по спутнику.
+		}
+
+		private int GetSimpleDistance(WayHash way)
+		{
+			return (int)(GMap.NET.MapProviders.GMapProviders.EmptyProvider.Projection.GetDistance(
+				CachedDistance.GetPointLatLng(way.FromHash),
+				CachedDistance.GetPointLatLng(way.ToHash)
+			) * 1000);
+		}
+
+		private CachedDistance GetCache(long fromHash, long toHash)
+		{
 			if(cache.ContainsKey(fromHash) && cache[fromHash].ContainsKey(toHash))
-				return cache[fromHash][toHash].DistanceMeters;
+				return cache[fromHash][toHash];
 
 			if(ErrorWays.Any(x => x.FromHash == fromHash && x.ToHash == toHash))
 			{
 				logger.Warn("Повторный запрос дистанции с ошибкой расчета. Пропускаем...");
-				return DistanceFalsePenality;
+				return null;
 			}
 
 			logger.Debug("Расстояние {0}->{1} не найдено в кеше запрашиваем.", fromHash, toHash);
@@ -104,13 +148,13 @@ namespace Vodovoz.Tools.Logistic
 				AddNewCacheDistance(cachedValue);
 				addedCached++;
 				UpdateText();
-				return cachedValue.DistanceMeters;
+				return cachedValue;
 			}
 			ErrorWays.Add(new WayHash(fromHash, toHash));
 			totalErrors++;
 			UpdateText();
 			//FIXME Реализовать запрос манхентанского расстояния.
-			return DistanceFalsePenality; 
+			return null;
 		}
 
 		void UpdateText()
@@ -120,7 +164,6 @@ namespace Vodovoz.Tools.Logistic
 			                                 );
 			QSMain.WaitRedraw(200);
 		}
-
 	}
 
 	public struct WayHash
