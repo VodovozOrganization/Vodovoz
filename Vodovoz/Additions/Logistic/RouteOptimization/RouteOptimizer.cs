@@ -103,7 +103,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			int horizon = 24 * 3600;
 
-			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), horizon, horizon, false, "Time");
+			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), horizon, horizon, true, "Time");
+			var time_dimension = routing.GetDimensionOrDie("Time");
 
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
@@ -117,9 +118,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var addressCapacity = allDrivers.Select(x => (long)(x.Car.MaxRouteAddresses + 1)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
-			for(int ix = 1; ix < Nodes.Length; ix++)
+			for(int ix = 0; ix < Nodes.Length; ix++)
 			{
-				routing.CumulVar(ix, "Time").SetRange((long)Nodes[ix].Order.DeliverySchedule.From.TotalSeconds,
+				time_dimension.CumulVar(ix + 1).SetRange((long)Nodes[ix].Order.DeliverySchedule.From.TotalSeconds,
 				                                      (long)Nodes[ix].Order.DeliverySchedule.To.TotalSeconds
 				                                     );
 				routing.AddDisjunction(new int[]{ix}, MaxDistanceAddressPenalty);
@@ -162,7 +163,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(solution != null) {
 				// Solution cost.
 				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
-				var time_dimension = routing.GetDimensionOrDie("Time");
+				time_dimension = routing.GetDimensionOrDie("Time");
 
 				for(int route_number = 0; route_number < routing.Vehicles(); route_number++)
 				{
@@ -175,10 +176,18 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					while(!routing.IsEnd(second_node))
 					{
 						var time_var = time_dimension.CumulVar(second_node);
-						route.Orders.Add(new ProposedRoutePoint(
+						var rPoint = new ProposedRoutePoint(
 							new DateTime().AddSeconds(solution.Value(time_var)),
 							Nodes[second_node - 1].Order
-						));
+						);
+						rPoint.DebugMaxMin = String.Format("\n({0},{1})[{3}-{4}]-{2}",
+						                                   new DateTime().AddSeconds(solution.Min(time_var)).ToShortTimeString(),
+						                                   new DateTime().AddSeconds(solution.Max(time_var)).ToShortTimeString(),
+						                                   second_node,
+						                                   rPoint.Order.DeliverySchedule.From.ToString("hh\\:mm"),
+						                                   rPoint.Order.DeliverySchedule.To.ToString("hh\\:mm")
+														  );
+						route.Orders.Add(rPoint);
 						
 						first_node = second_node;
 						second_node = solution.Value(routing.NextVar(first_node));
@@ -190,7 +199,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 						ProposedRoutes.Add(route);
 						logger.Debug("Маршрут {0}: {1}",
 						             route.Driver.Employee.ShortName,
-						             String.Join(" -> ", route.Orders.Select(x => x.ProposedTime.ToShortTimeString()))
+						             String.Join(" -> ", route.Orders.Select(x => x.ProposedTime.ToShortTimeString() + x.DebugMaxMin))
 						            );
 					}
 				}

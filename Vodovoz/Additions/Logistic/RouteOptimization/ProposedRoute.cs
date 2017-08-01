@@ -32,6 +32,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public DateTime ProposedTime;
 		public Order Order;
 
+		public string DebugMaxMin;
+
 		public ProposedRoutePoint(DateTime time, Order order)
 		{
 			ProposedTime = time;
