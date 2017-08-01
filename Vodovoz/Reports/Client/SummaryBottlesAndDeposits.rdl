@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	docs.order_id,
@@ -47,6 +47,19 @@
 			base_parameters
 		WHERE
 			base_parameters.name = 'forfeit_nomenclature_id')) AS forfeit,
+	 (SELECT 
+             order_items.actual_count 
+        FROM
+            order_items
+        WHERE
+            order_items.order_id = docs.order_id
+                AND order_items.nomenclature_id = (SELECT 
+                    str_value
+                FROM
+                    base_parameters
+                WHERE
+                    base_parameters.name = 'forfeit_nomenclature_id')) AS forfeitCount, 
+
 	bottles_movement_operations.delivered,
 	bottles_movement_operations.returned,
 	IFNULL((SELECT 
@@ -248,7 +261,7 @@ ORDER BY docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -301,6 +314,10 @@ ORDER BY docs.doc_date;</CommandText>
           <DataField>doc_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
+        <Field Name="forfeitCount">
+          <DataField>forfeitCount</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="Client">
@@ -326,7 +343,7 @@ FROM counterparty WHERE id = @client_id;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="Bottles">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) - IFNULL((SELECT 
@@ -361,7 +378,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="bottle_balance">
           <DataField>bottle_balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -520,6 +537,8 @@ WHERE
           <BorderStyle>
             <Default>Solid</Default>
           </BorderStyle>
+          <BorderColor  />
+          <BorderWidth  />
         </Style>
         <TableColumns>
           <TableColumn>
@@ -992,7 +1011,7 @@ WHERE
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox41">
-                          <Value>=Sum(Fields!delivered.Value) - Sum(Fields!returned.Value)</Value>
+                          <Value>=Sum(Fields!delivered.Value) - Sum(Fields!returned.Value) - Sum(Fields!forfeitCount.Value)</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1610,8 +1629,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=First({bottle_deposit}, 'BottleDeposit')</Value>
         <ZIndex>1</ZIndex>
-        <Left>222.1pt</Left>
-        <Top>172.8pt</Top>
+        <Left>222.10pt</Left>
+        <Top>172.80pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1640,8 +1659,8 @@ ____________(                        )
         <Width>130.88pt</Width>
         <Value>=First({equipment_deposit}, 'EquipmentDeposit')</Value>
         <ZIndex>1</ZIndex>
-        <Left>223.2pt</Left>
-        <Top>187.5pt</Top>
+        <Left>223.20pt</Left>
+        <Top>187.50pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
