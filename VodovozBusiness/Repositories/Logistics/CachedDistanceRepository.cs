@@ -10,7 +10,7 @@ namespace Vodovoz.Repository.Logistics
 	{
 		public static IList<CachedDistance> GetCache (IUnitOfWork uow, long[] hash){
 			return uow.Session.QueryOver<CachedDistance>()
-				      .Where(x => x.FromGeoHash.IsIn(hash) || x.ToGeoHash.IsIn(hash))
+				      .Where(x => x.FromGeoHash.IsIn(hash) && x.ToGeoHash.IsIn(hash))
 				      .List();
 		}
 

@@ -21,6 +21,7 @@ namespace Vodovoz.Tools.Logistic
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		Gtk.TextBuffer staticBuffer;
+		public int ProposeNeedCached = 0;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
 
@@ -31,7 +32,9 @@ namespace Vodovoz.Tools.Logistic
 		public DistanceCalculatorSputnik(DeliveryPoint[] points, Gtk.TextBuffer buffer)
 		{
 			staticBuffer = buffer;
-			var hashes = points.Select(x => CachedDistance.GetHash(x)).Distinct().ToArray();
+			var hashes = points.Select(x => CachedDistance.GetHash(x))
+			                   .Concat(new[] {BaseHash})
+			                   .Distinct().ToArray();
 			totalPoints = hashes.Length;
 			var fromDB = Repository.Logistics.CachedDistanceRepository.GetCache(UoW, hashes);
 			startCached = fromDB.Count;
