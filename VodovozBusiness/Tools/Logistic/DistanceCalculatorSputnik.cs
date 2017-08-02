@@ -162,8 +162,9 @@ namespace Vodovoz.Tools.Logistic
 
 		void UpdateText()
 		{
-			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}\nНовых со спутника: {3}\nОшибок в запросах: {4}\nСреднее скорость: {5:F2}м/с",
-			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec
+			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых со спутника: {3}\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
+			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec,
+			                                  (double)totalCached/ProposeNeedCached, ProposeNeedCached
 			                                 );
 			QSMain.WaitRedraw(200);
 		}
