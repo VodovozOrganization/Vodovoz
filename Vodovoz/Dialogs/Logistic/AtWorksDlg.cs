@@ -149,6 +149,7 @@ namespace Vodovoz.Dialogs.Logistic
 				driversAtDay.Add(new AtWorkDriver
 				{
 					Date = DialogAtDate,
+					PriorityAtDay = driver.TripPriority,
 					Employee = driver,
 					Car = allCars.FirstOrDefault(x => x.Driver.Id == driver.Id),
 					Trips = 1

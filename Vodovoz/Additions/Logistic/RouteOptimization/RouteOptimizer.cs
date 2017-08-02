@@ -55,7 +55,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			MainClass.MainWin.ProgressStart(4);
 
 			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
-			var allDrivers = Drivers.Where(x => x.Car != null).OrderByDescending(x => x.Employee.TripPriority).ToArray();
+			var allDrivers = Drivers.Where(x => x.Car != null).OrderByDescending(x => x.PriorityAtDay).ToArray();
 			if(allDrivers.Length == 0) {
 				logger.Error("Для построения маршрутов, нет водителей.");
 				return;
@@ -108,7 +108,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			for(int ix = 0; ix < allDrivers.Length; ix++)
 			{
 				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix], distanceCalculator), ix);
-				routing.SetFixedCostOfVehicle((allDrivers[ix].Employee.TripPriority - 1) * DriverPriorityPenalty, ix);
+				routing.SetFixedCostOfVehicle((allDrivers[ix].PriorityAtDay - 1) * DriverPriorityPenalty, ix);
 			}
 
 			int horizon = 24 * 3600;
