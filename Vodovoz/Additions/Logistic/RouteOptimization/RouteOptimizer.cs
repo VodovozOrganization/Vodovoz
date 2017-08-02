@@ -163,6 +163,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(solution != null) {
 				// Solution cost.
 				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
+				ProposedRoutes.Clear();
 				time_dimension = routing.GetDimensionOrDie("Time");
 
 				for(int route_number = 0; route_number < routing.Vehicles(); route_number++)
