@@ -653,6 +653,8 @@
     <Compile Include="ReportsParameters\Logistic\RouteListsOnClosingReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport.cs" />
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackTime.cs" />
+    <Compile Include="Dialogs\Logistic\AtWorksDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.AtWorksDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -6,6 +6,7 @@ using Vodovoz.ViewModel;
 using Dialogs.Employees;
 using Vodovoz.Dialogs.DocumentDialogs;
 using QSProjectsLib;
+using Vodovoz.Dialogs.Logistic;
 
 public partial class MainWindow : Window
 {
@@ -15,6 +16,7 @@ public partial class MainWindow : Window
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
 	Action ActionRouteListTable;
+	Action ActionAtWorks;
 	Action ActionRouteListsAtDay;
 	Action ActionRouteListClosingTable;
 	Action ActionRouteListKeeping;
@@ -59,6 +61,7 @@ public partial class MainWindow : Window
 		ActionClientBalance = new Action ("ActionClientBalance", "Оборудование у клиентов", null, "table");
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Журнал МЛ", null, "table");
+		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
 		ActionRouteListsAtDay = new Action ("ActionRouteListsAtDay", "Формирование МЛ", null, "table");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин",null,"table");
@@ -98,6 +101,7 @@ public partial class MainWindow : Window
 		w1.Add (ActionWarehouseStock, null);
 		w1.Add (ActionClientBalance, null);
 		w1.Add (ActionRouteListTable, null);
+		w1.Add(ActionAtWorks, null);
 		w1.Add (ActionRouteListsAtDay, null);
 		w1.Add (ActionRouteListClosingTable, null);
 		w1.Add (ActionRouteListKeeping, null);
@@ -133,6 +137,7 @@ public partial class MainWindow : Window
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
+		ActionAtWorks.Activated +=ActionAtWorks_Activated;
 		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
 		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
@@ -197,6 +202,14 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	void ActionAtWorks_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<AtWorksDlg>(),
+			() => new AtWorksDlg()
 		);
 	}
 
