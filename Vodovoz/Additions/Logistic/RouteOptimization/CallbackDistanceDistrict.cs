@@ -39,7 +39,13 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long distance;
 			var aria = Nodes[second_index - 1].District;
 			if(!priorites.ContainsKey(aria))
-				return RouteOptimizer.UnlikeDistrictPenalty;
+			{
+				if (first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без спутника.
+					return RouteOptimizer.UnlikeDistrictPenalty + (int)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				else
+					return RouteOptimizer.UnlikeDistrictPenalty + (int)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+			}
+
 
 			if(first_index == 0)
 				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
