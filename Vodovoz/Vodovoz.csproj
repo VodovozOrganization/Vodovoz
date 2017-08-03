@@ -652,9 +652,12 @@
     <Compile Include="gtk-gui\Vodovoz.JournalFilters.NomenclatureRepFilter.cs" />
     <Compile Include="ReportsParameters\Logistic\RouteListsOnClosingReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport.cs" />
+<<<<<<< Updated upstream
     <Compile Include="Additions\Logistic\RouteOptimization\CallbackTime.cs" />
     <Compile Include="Dialogs\Logistic\AtWorksDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.AtWorksDlg.cs" />
+=======
+>>>>>>> Stashed changes
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

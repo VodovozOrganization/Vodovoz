@@ -528,10 +528,10 @@ namespace Vodovoz.Domain.Logistic
 		//FIXME потом метод скрыть. Должен вызываться только при переходе в статус на закрытии.
 		public virtual void FirstFillClosing()
 		{
-			PerformanceHelper.StartMeasurement("Первоначальное заполнение");
-
-			foreach (var routeListItem in Addresses) {
-				PerformanceHelper.StartPointsGroup($"Заказ {routeListItem.Order.Id}");
+			PerformanceHelper.StartMeasurement ("Первоначальное заполнение");
+			var addresesDelivered = Addresses.Where(x => x.Status != RouteListItemStatus.Transfered).ToList();
+			foreach (var routeListItem in addresesDelivered) {
+				PerformanceHelper.StartPointsGroup ($"Заказ {routeListItem.Order.Id}");
 				//				var nomenclatures = routeListItem.Order.OrderItems
 				//					.Where(item => Nomenclature.GetCategoriesForShipment().Contains(item.Nomenclature.Category))
 				//					.Where(item => !item.Nomenclature.Serial).ToList();

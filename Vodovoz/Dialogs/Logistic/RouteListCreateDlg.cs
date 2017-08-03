@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using Gamma.Utilities;
 using Gtk;
@@ -189,13 +189,14 @@ namespace Vodovoz
 
 				foreach (var address in UoWGeneric.Root.Addresses)
 				{
-					address.Order.ChangeStatus(Vodovoz.Domain.Orders.OrderStatus.OnLoading);
+					if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
+						address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
 				}
 				Save();
 
 				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 				var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, Entity.Id);
-				if(forShipment.Count == 0)
+				if(forShipment.Count == 0 || (forShipment.Count == 1 && UoWGeneric.Root.Addresses[0].Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay))
 				{
 					if (MessageDialogWorks.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
 					{
