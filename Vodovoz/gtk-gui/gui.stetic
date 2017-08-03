@@ -41743,7 +41743,6 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-<<<<<<< Updated upstream
   <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.AtWorksDlg" design-size="618 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
@@ -41959,6 +41958,5 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-=======
->>>>>>> Stashed changes
+
 </stetic-interface>
