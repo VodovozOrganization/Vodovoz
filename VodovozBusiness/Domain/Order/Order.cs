@@ -976,7 +976,8 @@ namespace Vodovoz.Domain.Orders
 								Count = 1,
 								Equipment = null,
 								Nomenclature = equipment.PaidRentPackage.DepositService,
-								Price = equipment.Deposit
+								Price = equipment.Deposit,
+								PaidRentEquipment = equipment
 							}
 						);
 					}
@@ -991,13 +992,15 @@ namespace Vodovoz.Domain.Orders
 						ItemId = ObservableOrderItems.IndexOf(orderItem);
 					} else {
 						ItemId = ObservableOrderItems.AddWithReturn(
-							new OrderItem {
+							new OrderItem
+							{
 								Order = this,
 								AdditionalAgreement = a,
 								Count = 1,
 								Equipment = null,
 								Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
-								Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1)
+								Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1),
+								PaidRentEquipment = equipment
 							}
 						);
 					}
@@ -1020,13 +1023,15 @@ namespace Vodovoz.Domain.Orders
 					int ItemId;
 					//Добавляем номенклатуру залога.
 					ItemId = ObservableOrderItems.AddWithReturn(
-						new OrderItem {
+						new OrderItem
+						{
 							Order = this,
 							AdditionalAgreement = agreement,
 							Count = 1,
 							Equipment = null,
 							Nomenclature = equipment.FreeRentPackage.DepositService,
-							Price = equipment.Deposit
+							Price = equipment.Deposit,
+							FreeRentEquipment = equipment
 						}
 					);
 					//Добавляем оборудование.
@@ -1044,13 +1049,59 @@ namespace Vodovoz.Domain.Orders
 			UpdateDocuments();
 		}
 
-		public virtual void RemoveItem(OrderItem item)
+		public virtual void RemoveItem(IUnitOfWork uow, OrderItem item)
 		{
-			ObservableOrderItems.Remove(item);
-			foreach (var equip in ObservableOrderEquipments.Where(e => e.OrderItem == item).ToList()) {
-				ObservableOrderEquipments.Remove(equip);
+			if (item.AdditionalAgreement.Type == AgreementType.DailyRent
+			    || item.AdditionalAgreement.Type == AgreementType.FreeRent
+			    || item.AdditionalAgreement.Type == AgreementType.NonfreeRent)
+			{
+				RemoveRentItems(uow, item);
+			}
+			ObservableOrderItems.Remove (item);
+			foreach (var equip in ObservableOrderEquipments.Where (e => e.OrderItem == item).ToList ()) {
+				ObservableOrderEquipments.Remove (equip);
 			}
 			UpdateDocuments();
+		}
+
+		private void RemoveRentItems(IUnitOfWork uow, OrderItem item)
+		{
+			if (item.FreeRentEquipment != null) // Для бесплатной аренды.
+			{
+				foreach (OrderItem orderItem in ObservableOrderItems.ToList())
+				{
+					if (orderItem.FreeRentEquipment == item.FreeRentEquipment && orderItem != item)
+					{
+						ObservableOrderItems.Remove(orderItem);
+					}
+				}
+
+			// TODO: разобраться с удалением оборудования.
+			//	item.DeleteFreeRentEquipment(uow);
+			}
+
+			if (item.PaidRentEquipment != null) // Для помесячной и посуточной аренды.
+			{
+				foreach (OrderItem orderItem in ObservableOrderItems.ToList())
+				{
+					if (orderItem.PaidRentEquipment == item.PaidRentEquipment && orderItem != item)
+					{
+						ObservableOrderItems.Remove(orderItem);
+					}
+				}
+			//	TODO: разобраться с удалением оборудования.
+			//	item.DeletePaidRentEquipment(uow);
+			}
+
+			foreach(OrderItem orderItem in ObservableOrderItems.ToList())
+			{
+				if(orderItem.AdditionalAgreement == item.AdditionalAgreement && orderItem != item)
+				{
+					return;
+				}
+			}
+		//	TODO: разобраться с удалением доп.соглашения.
+		//	item.DeleteAdditionalAgreement(uow);
 		}
 
 		public virtual void RemoveDepositItem (OrderDepositItem item)
@@ -1268,6 +1319,8 @@ namespace Vodovoz.Domain.Orders
 		{
 			return bottles / atTime + (bottles % atTime > 0 ? 1 : 0);
 		}
+
+
 
 		#endregion
 	}

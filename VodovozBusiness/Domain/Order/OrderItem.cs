@@ -117,6 +117,21 @@ namespace Vodovoz.Domain.Orders
 			set { SetField (ref counterpartyMovementOperation, value, () => CounterpartyMovementOperation); }
 		}
 
+		FreeRentEquipment freeRentEquipment;
+
+		public virtual FreeRentEquipment FreeRentEquipment {
+			get { return freeRentEquipment; }
+			set { SetField(ref freeRentEquipment, value, () => FreeRentEquipment); }
+		}
+
+		PaidRentEquipment paidRentEquipment;
+
+		public virtual PaidRentEquipment PaidRentEquipment
+		{
+			get { return paidRentEquipment; }
+			set { SetField(ref paidRentEquipment, value, () => PaidRentEquipment); }
+		}
+
 		#endregion
 
 		#region Вычисляемы
@@ -216,6 +231,42 @@ namespace Vodovoz.Domain.Orders
 			}
 
 			return CounterpartyMovementOperation;
+		}
+
+		public virtual void DeleteAdditionalAgreement(IUnitOfWork uow)
+		{
+			uow.Delete(this.AdditionalAgreement);
+			this.AdditionalAgreement = null;
+			uow.Save();
+		}
+
+		public virtual void DeleteFreeRentEquipment(IUnitOfWork uow)
+		{
+			if (this.AdditionalAgreement is FreeRentAgreement)
+			{
+				((FreeRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.FreeRentEquipment);
+			}
+
+			uow.Delete(this.FreeRentEquipment);
+			this.FreeRentEquipment = null;
+			uow.Save();
+		}
+
+		public virtual void DeletePaidRentEquipment(IUnitOfWork uow)
+		{
+			if (this.AdditionalAgreement is DailyRentAgreement)
+			{
+				((DailyRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.PaidRentEquipment);
+			}
+
+			if (this.AdditionalAgreement is NonfreeRentAgreement)
+			{
+				((NonfreeRentAgreement)this.AdditionalAgreement).RemoveEquipment(this.PaidRentEquipment);
+			}
+
+			uow.Delete(this.PaidRentEquipment);
+			this.PaidRentEquipment = null;
+			uow.Save();
 		}
 
 		#endregion
