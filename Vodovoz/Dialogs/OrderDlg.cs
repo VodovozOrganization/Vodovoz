@@ -375,7 +375,10 @@ namespace Vodovoz
 				treeDepositRefundItems.Selection.UnselectAll();
 			}
 
-			buttonDelete.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water);
+			buttonDelete.Sensitive = items.Length > 0 && ((items[0] as OrderItem).AdditionalAgreement == null || (items[0] as OrderItem).Nomenclature.Category == NomenclatureCategory.water
+			                                              || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.DailyRent
+			                                              || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.FreeRent
+			                                              || (items[0] as OrderItem).AdditionalAgreement.Type == AgreementType.NonfreeRent);
 		}
 
 		void TreeDepositRefundItems_Selection_Changed(object sender, EventArgs e)
@@ -501,7 +504,7 @@ namespace Vodovoz
 
 		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			Entity.RemoveItem(treeItems.GetSelectedObject() as OrderItem);
+			Entity.RemoveItem(UoWGeneric, treeItems.GetSelectedObject() as OrderItem);
 		}
 
 		protected void OnButtonAddForSaleClicked(object sender, EventArgs e)

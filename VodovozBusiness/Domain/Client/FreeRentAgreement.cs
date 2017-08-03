@@ -51,6 +51,17 @@ namespace Vodovoz.Domain.Client
 			uow.Root.AgreementNumber = AdditionalAgreement.GetNumber (uow.Root.Contract);
 			return uow;
 		}
+
+		public virtual void RemoveEquipment(FreeRentEquipment freeEquipment)
+		{
+			foreach (FreeRentEquipment eq in this.ObservableEquipment.CreateList())
+			{
+				if (eq == freeEquipment)
+				{
+					ObservableEquipment.Remove(eq);
+				}
+			}
+		}
 	}
 	
 }
