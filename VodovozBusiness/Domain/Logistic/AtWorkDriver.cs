@@ -8,7 +8,8 @@ namespace Vodovoz.Domain.Logistic
 		private Car car;
 
 		[Display(Name = "Автомобиль")]
-		public virtual Car Car {
+		public virtual Car Car
+		{
 			get { return car; }
 			set { SetField(ref car, value, () => Car); }
 		}
@@ -20,6 +21,29 @@ namespace Vodovoz.Domain.Logistic
 		{
 			get { return priorityAtDay; }
 			set { SetField(ref priorityAtDay, value, () => PriorityAtDay); }
+		}
+
+		private TimeSpan? endOfDay;
+
+		[Display(Name = "Конец рабочего дня")]
+		public virtual TimeSpan? EndOfDay
+		{
+			get { return endOfDay; }
+			set { SetField(ref endOfDay, value, () => EndOfDay); }
+		}
+
+		public virtual string EndOfDayText{
+			get { return EndOfDay?.ToString("hh\\:mm"); }
+			set{
+				if (String.IsNullOrWhiteSpace(value))
+				{
+					EndOfDay = null;
+					return;
+				}
+				TimeSpan temp;
+				if(TimeSpan.TryParse(value, out temp))
+					EndOfDay = temp;
+			}
 		}
 
 		public AtWorkDriver()

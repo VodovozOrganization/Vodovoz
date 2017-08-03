@@ -61,9 +61,11 @@ namespace Vodovoz.Dialogs.Logistic
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.PriorityAtDay).Editing(new Gtk.Adjustment(6, 1, 10,1,1,1))
 				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
 				.AddColumn("Поездок").AddNumericRenderer(x => x.Trips).Editing(new Gtk.Adjustment(1, 0, 10, 1, 1, 1))
+				.AddColumn("Оконч. работы").AddTextRenderer(x => x.EndOfDayText).Editable()
 				.AddColumn("Автомобиль")
 					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
+				.AddColumn("Грузоп.").AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
 				.AddColumn("")
 				.Finish();
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
