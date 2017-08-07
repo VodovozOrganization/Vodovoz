@@ -78,6 +78,7 @@ namespace Vodovoz.ViewModel
 					.Select (() => driverAlias.LastName).WithAlias (() => resultAlias.DriverSurname)
 					.Select (() => driverAlias.Name).WithAlias (() => resultAlias.DriverName)
 					.Select (() => driverAlias.Patronymic).WithAlias (() => resultAlias.DriverPatronymic)
+				    .Select (() => routeListAlias.ClosingComment).WithAlias(() => resultAlias.ClosinComments)
 				).OrderBy(rl => rl.Date).Desc
 				.TransformUsing (Transformers.AliasToBean<RouteListsVMNode> ())
 				.List<RouteListsVMNode> ();
@@ -91,6 +92,7 @@ namespace Vodovoz.ViewModel
 			.AddColumn ("Смена").SetDataProperty (node => node.ShiftName)
 			.AddColumn ("Статус").SetDataProperty (node => node.StatusEnum.GetEnumTitle ())
 			.AddColumn ("Водитель и машина").SetDataProperty (node => node.DriverAndCar)
+		    .AddColumn ("Комментарий по закрытию").SetDataProperty(node => node.ClosinComments)
 			.Finish ();
 
 		public override IColumnsConfig ColumnsConfig {
@@ -307,5 +309,6 @@ namespace Vodovoz.ViewModel
 		[UseForSearch]
 		public string DriverAndCar { get{ return String.Format("{0} - {1} ({2})", Driver, CarModel, CarNumber);
 			} }
+		public string ClosinComments { get; set; }
 	}
 }
