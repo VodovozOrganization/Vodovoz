@@ -73,6 +73,15 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref isCompanyHavings, value, () => IsCompanyHavings); }
 		}
 
+		private CarTypeOfUse? typeOfUse;
+
+		[Display(Name = "Тип использования")]
+		public virtual CarTypeOfUse? TypeOfUse
+		{
+			get { return typeOfUse; }
+			set { SetField(ref typeOfUse, value, () => TypeOfUse); }
+		}
+
 		private bool isTruck;
 
 		[Display(Name = "Фура")]
@@ -177,6 +186,22 @@ namespace Vodovoz.Domain.Logistic
 		}
 
 		#endregion
+	}
+
+	public enum CarTypeOfUse{
+		[Display(Name = "Ларгус")]
+		Largus,
+		[Display(Name = "Фура")]
+		Truck,
+		[Display(Name = "Прочее")]
+		Other
+	}
+
+	public class CarTypeOfUseStringType : NHibernate.Type.EnumStringType
+	{
+		public CarTypeOfUseStringType() : base(typeof(CarTypeOfUse))
+		{
+		}
 	}
 }
 
