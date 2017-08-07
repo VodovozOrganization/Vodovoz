@@ -73,7 +73,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var aria = areas.Find(x => x.Geometry.Contains(point));
 				if(aria != null)
 				{
-					if(allDrivers.SelectMany(x => x.Employee.Districts).Any(x => x.District.Id == aria.Id))
+					if(allDrivers.SelectMany(x => x.Districts).Any(x => x.District.Id == aria.Id))
 						calculatedOrders.Add(new CalculatedOrder(order, aria));
 					else if(!unusedDistricts.Contains(aria))
 						unusedDistricts.Add(aria);
@@ -90,8 +90,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 #region Нужно только для подсчета предположителного количества расстояний.
 			Dictionary<LogisticsArea, int> pointsByDistrict = Nodes.GroupBy(x => x.District).ToDictionary(x => x.Key, y => y.Count());
 			var districtPairs = Drivers.SelectMany(diver =>
-										   diver.Employee.Districts.SelectMany(dis1 =>
-			                                                                   diver.Employee.Districts//.Where(dis2 => dis2.District.Id >= dis1.District.Id)
+										   diver.Districts.SelectMany(dis1 =>
+			                                                                   diver.Districts//.Where(dis2 => dis2.District.Id >= dis1.District.Id)
 			                                                                   .Select(dis2 => new Tuple<LogisticsArea, LogisticsArea>(dis1.District, dis2.District))
 																			  )).Distinct().ToList();
 			var total = districtPairs.Where(pair => pointsByDistrict.ContainsKey(pair.Item1) && pointsByDistrict.ContainsKey(pair.Item2))

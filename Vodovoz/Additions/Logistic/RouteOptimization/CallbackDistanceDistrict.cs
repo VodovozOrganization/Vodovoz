@@ -18,7 +18,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		{
 			Nodes = nodes;
 			Driver = driver;
-			priorites = driver.Employee.Districts.ToDictionary(x => x.District, x => x.Priority);
+			priorites = driver.Districts.ToDictionary(x => x.District, x => x.Priority);
 			this.distanceCalculator = distanceCalculator;
 		}
 
