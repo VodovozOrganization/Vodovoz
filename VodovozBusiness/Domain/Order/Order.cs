@@ -986,7 +986,7 @@ namespace Vodovoz.Domain.Orders
 					if ((orderItem = ObservableOrderItems.FirstOrDefault<OrderItem>(
 							item => item.AdditionalAgreement.Id == a.Id &&
 							item.Nomenclature.Id == (IsDaily ? equipment.PaidRentPackage.RentServiceDaily.Id : equipment.PaidRentPackage.RentServiceMonthly.Id) &&
-							item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1))) != null) {
+							item.Price == equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths))) != null) {
 						orderItem.Count++;
 						orderItem.Price = orderItem.Nomenclature.GetPrice(orderItem.Count);
 						ItemId = ObservableOrderItems.IndexOf(orderItem);
@@ -999,7 +999,7 @@ namespace Vodovoz.Domain.Orders
 								Count = 1,
 								Equipment = null,
 								Nomenclature = IsDaily ? equipment.PaidRentPackage.RentServiceDaily : equipment.PaidRentPackage.RentServiceMonthly,
-								Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : 1),
+								Price = equipment.Price * (IsDaily ? (a as DailyRentAgreement).RentDays : (a as NonfreeRentAgreement).RentMonths),
 								PaidRentEquipment = equipment
 							}
 						);

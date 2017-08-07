@@ -65,6 +65,8 @@ namespace Vodovoz
 			referenceDeliveryPoint.Binding.AddBinding (Entity, e => e.DeliveryPoint, w => w.Subject).InitializeFromSource ();
 			ylabelNumber.Binding.AddBinding(Entity, e => e.FullNumberText, w => w.LabelProp).InitializeFromSource();
 
+			spinMonths.Binding.AddBinding(Entity, e => e.RentMonths, w => w.ValueAsInt).InitializeFromSource();
+
 			paidrentpackagesview1.AgreementUoW = UoWGeneric;
 			if (Entity.AgreementTemplate == null && Entity.Contract != null)
 				Entity.UpdateContractTemplate(UoW);

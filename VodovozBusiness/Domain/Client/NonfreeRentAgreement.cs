@@ -12,6 +12,9 @@ namespace Vodovoz.Domain.Client
 		Nominative = "доп. соглашение платной аренды")]
 	public class NonfreeRentAgreement : AdditionalAgreement
 	{
+		[Display(Name = "Количество месяцев аренды для оплаты")]
+		public virtual int RentMonths { get; set; }
+
 		IList<PaidRentEquipment> equipment = new List<PaidRentEquipment> ();
 
 		[Display (Name = "Список оборудования")]

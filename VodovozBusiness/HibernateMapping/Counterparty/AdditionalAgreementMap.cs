@@ -1,4 +1,4 @@
-﻿using FluentNHibernate.Mapping;
+﻿﻿using FluentNHibernate.Mapping;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.HibernateMapping
@@ -28,6 +28,7 @@ namespace Vodovoz.HibernateMapping
 		public NonfreeRentAgreementMap ()
 		{
 			DiscriminatorValue ("NonfreeRent");
+			Map(x => x.RentMonths).Column("rent_months");
 			HasMany (x => x.Equipment).Cascade.AllDeleteOrphan ().LazyLoad ()
 				.KeyColumn ("additional_agreement_id");
 		}
