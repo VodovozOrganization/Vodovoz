@@ -195,7 +195,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
 		{
-			buttonRemoveDriver.Sensitive = buttonDriverSelectAuto.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() > 0;
+			buttonRemoveDriver.Sensitive = buttonDriverSelectAuto.Sensitive 
+				= buttonOpenDriver.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() > 0;
 
 			if (ytreeviewAtWorkDrivers.Selection.CountSelectedRows() != 1 && districtpriorityview1.Visible)
 				districtpriorityview1.Visible = false;
@@ -211,6 +212,17 @@ namespace Vodovoz.Dialogs.Logistic
 		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)
 		{
 			districtpriorityview1.Visible = !districtpriorityview1.Visible;
+		}
+
+		protected void OnButtonOpenDriverClicked(object sender, EventArgs e)
+		{
+			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
+			foreach(var one in selected)
+			{
+				TabParent.OpenTab(OrmMain.GenerateDialogHashName<Employee>(one.Employee.Id),
+								  () => new EmployeeDlg(one.Employee.Id)
+				                 );
+			}
 		}
 	}
 }
