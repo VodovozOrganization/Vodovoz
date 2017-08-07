@@ -43,7 +43,7 @@ namespace Vodovoz
 
 		#if SHORT
 		List<string> ExcludeNomenclatures = new List<string> {
-			"00000969"
+			 
 		};
 		#endif
 
@@ -790,7 +790,7 @@ namespace Vodovoz
 			{
 				if(item.Nomenclature.Code1c == "00000969")
 				{
-					order.OrderStatus = OrderStatus.Closed; // Задача I-528. @Дима
+					order.IsService = true;
 				}
 			}
 

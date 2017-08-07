@@ -372,6 +372,15 @@ namespace Vodovoz.Domain.Orders
 			set { SetField(ref driverCallId, value, () => DriverCallId); }
 		}
 
+		bool isService;
+
+		[Display(Name = "Сервисное обслуживание")]
+		public virtual bool IsService
+		{
+			get { return isService; }
+			set { SetField(ref isService, value, () => IsService); }
+		}
+
 		#endregion
 
 		public virtual bool CanChangeContractor()

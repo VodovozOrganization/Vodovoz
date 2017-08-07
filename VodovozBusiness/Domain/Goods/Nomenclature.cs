@@ -197,6 +197,15 @@ namespace Vodovoz.Domain.Goods
 			get { return hide; }
 			set { SetField (ref hide, value, () => Hide); }
 		}
+
+		bool noDelivey;
+
+		[Display(Name = "Доставка не требуется")]
+		public virtual bool NoDelivey
+		{
+			get { return noDelivey; }
+			set { SetField(ref noDelivey, value, () => NoDelivey); }
+		}
 			
 		#endregion
 

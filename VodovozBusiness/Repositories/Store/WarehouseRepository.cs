@@ -46,7 +46,8 @@ namespace Vodovoz.Repository.Store
 			var orderitemsSubqury = QueryOver.Of<OrderItem>(() => orderItemsAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderItemsAlias.Nomenclature, () => OrderItemNomenclatureAlias)
-				.Select(n => n.Nomenclature.Id);
+				.Select(n => n.Nomenclature.Id)
+			    .Where(() => OrderItemNomenclatureAlias.NoDelivey == false);
 			var orderEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderEquipmentAlias.Order, () => orderAlias)

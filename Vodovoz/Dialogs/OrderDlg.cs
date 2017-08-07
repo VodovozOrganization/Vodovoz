@@ -468,6 +468,18 @@ namespace Vodovoz
 
 		void AddNomenclature(Nomenclature nomenclature)
 		{
+			if (UoWGeneric.Root.OrderItems.Any(x => x.Nomenclature.NoDelivey == true) && nomenclature.NoDelivey == false)
+			{
+				MessageDialogWorks.RunInfoDialog("В сервисный заказ нельзя добавить не сервисную услугу");
+				return;
+			}
+
+			if (UoWGeneric.Root.OrderItems.Any(x => x.Nomenclature.NoDelivey == false) && nomenclature.NoDelivey == true)
+			{
+				MessageDialogWorks.RunInfoDialog("Услуга без доставки должна добавляться в новый заказ");
+				return;
+			}
+			
 			if(nomenclature.Category == NomenclatureCategory.equipment) {
 				UoWGeneric.Root.AddEquipmentNomenclatureForSale(nomenclature, UoWGeneric);
 			} else if(nomenclature.Category == NomenclatureCategory.water) {
@@ -501,6 +513,13 @@ namespace Vodovoz
 				}
 			} else
 				UoWGeneric.Root.AddAnyGoodsNomenclatureForSale(nomenclature);
+
+			if (nomenclature.NoDelivey == true)
+				UoWGeneric.Root.IsService = true;
+			else
+				UoWGeneric.Root.IsService = false;
+			
+				
 		}
 
 		private void AddRentAgreement(OrderAgreementType type)

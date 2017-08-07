@@ -616,8 +616,7 @@ namespace Vodovoz
 			totalBottlesCountAtDay = 0;
 			bottlesWithoutRL = 0;
 			addressesOverlay.Clear ();
-
-			foreach (var order in ordersAtDay) {
+			foreach (var order in ordersAtDay.Select(x => x).Where(x => x.IsService == false)) {
 				totalBottlesCountAtDay += order.TotalDeliveredBottles;
 				var route = routesAtDay.FirstOrDefault (rl => rl.Addresses.Any (a => a.Order.Id == order.Id));
 

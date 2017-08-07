@@ -75,6 +75,7 @@ namespace Vodovoz
 			referenceRouteColumn.Binding.AddBinding (Entity, n => n.RouteListColumn, w => w.Subject).InitializeFromSource ();
 			referenceManufacturer.SubjectType = typeof(Manufacturer);
 			referenceManufacturer.Binding.AddBinding(Entity, e => e.Manufacturer, w => w.Subject).InitializeFromSource();
+			checkNoDeliver.Binding.AddBinding(Entity, e => e.NoDelivey, w => w.Active).InitializeFromSource();
 
 			yentryShortName.Binding.AddBinding(Entity, e => e.ShortName, w => w.Text, new NullToEmptyStringConverter()).InitializeFromSource();
 			yentryShortName.MaxLength = 20;
