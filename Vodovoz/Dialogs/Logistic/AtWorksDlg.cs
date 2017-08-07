@@ -78,13 +78,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		void FillDialogAtDay()
 		{
-			MainClass.MainWin.ProgressStart(1);
 			uow.Session.Clear();
 
 			logger.Info("Загружаем водителей на {0:d}...", DialogAtDate);
 			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(uow, DialogAtDate);
-
-			MainClass.MainWin.ProgressClose();
+			logger.Info("Ок");
 		}
 
 		protected void OnYdateAtWorksDateChanged(object sender, EventArgs e)
