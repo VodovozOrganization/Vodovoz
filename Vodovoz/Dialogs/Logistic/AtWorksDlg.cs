@@ -151,14 +151,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 			foreach (var driver in addDrivers)
 			{
-				driversAtDay.Add(new AtWorkDriver
-				{
-					Date = DialogAtDate,
-					PriorityAtDay = driver.TripPriority,
-					Employee = driver,
-					Car = allCars.FirstOrDefault(x => x.Driver.Id == driver.Id),
-					Trips = 1
-				});
+				driversAtDay.Add(new AtWorkDriver(driver, DialogAtDate,
+												  allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
+												 ));
 			}
 			MainClass.MainWin.ProgressAdd();
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();

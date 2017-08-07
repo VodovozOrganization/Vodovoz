@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
+using System.Linq;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -73,8 +75,18 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		public AtWorkDriver()
+		protected AtWorkDriver()
 		{
+		}
+
+		public AtWorkDriver(Employee driver, DateTime date, Car car)
+		{
+			Date = date;
+			Employee = driver;
+			PriorityAtDay = driver.TripPriority;
+			Car = car;
+			Trips = 1;
+			Districts = new List<AtWorkDriverDistrictPriority>(driver.Districts.Select(x => x.CreateAtDay(this)));
 		}
 
 		#region Функции 

@@ -972,12 +972,9 @@ namespace Vodovoz
 			MainClass.MainWin.ProgressAdd();
 
 			foreach(var driver in addDrivers) {
-				driversAtDay.Add(new AtWorkDriver {
-					Date = CurDate,
-					Employee = driver,
-					Car = allCars.FirstOrDefault(x => x.Driver.Id == driver.Id),
-					Trips = 1
-				});
+				driversAtDay.Add(new AtWorkDriver(driver, CurDate,
+												  allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
+												 ));
 			}
 			MainClass.MainWin.ProgressAdd();
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();

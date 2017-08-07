@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Logistic
 	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
 	NominativePlural = "приоритеты районов",
 	Nominative = "приоритет района")]
-	public class DriverDistrictPriority: PropertyChangedBase, IDomainObject
+	public class DriverDistrictPriority : PropertyChangedBase, IDomainObject
 	{
 		#region Свойства
 
@@ -16,7 +16,8 @@ namespace Vodovoz.Domain.Logistic
 		private Employee driver;
 
 		[Display(Name = "Водитель")]
-		public virtual Employee Driver {
+		public virtual Employee Driver
+		{
 			get { return driver; }
 			set { SetField(ref driver, value, () => Driver); }
 		}
@@ -24,7 +25,8 @@ namespace Vodovoz.Domain.Logistic
 		private Logistic.LogisticsArea district;
 
 		[Display(Name = "Район")]
-		public virtual Logistic.LogisticsArea District{
+		public virtual Logistic.LogisticsArea District
+		{
 			get { return district; }
 			set { SetField(ref district, value, () => District); }
 		}
@@ -32,9 +34,25 @@ namespace Vodovoz.Domain.Logistic
 		private int priority;
 
 		[Display(Name = "Приоритет")]
-		public virtual int Priority {
+		public virtual int Priority
+		{
 			get { return priority; }
 			set { SetField(ref priority, value, () => Priority); }
+		}
+
+		#endregion
+
+		#region Функции
+
+		public virtual AtWorkDriverDistrictPriority CreateAtDay(AtWorkDriver atDayDriver)
+		{
+			var result = new AtWorkDriverDistrictPriority
+			{
+				Driver = atDayDriver,
+				District = this.District,
+				Priority = this.Priority
+			};
+			return result;
 		}
 
 		#endregion
