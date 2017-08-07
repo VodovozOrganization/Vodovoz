@@ -11,10 +11,11 @@ using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Dialogs.Logistic
 {
-	public partial class AtWorksDlg : TdiTabBase, ITdiDialog
+	public partial class AtWorksDlg : TdiTabBase, ITdiDialog, IOrmDialog
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
+		public IUnitOfWork UoW => uow;
 
 		IList<AtWorkDriver> driversAtDay;
 
@@ -126,6 +127,8 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 		}
 
+		public object EntityObject => throw new NotImplementedException();
+
 		protected void OnButtonAddDriverClicked(object sender, EventArgs e)
 		{
 			var SelectDrivers = new OrmReference(
@@ -198,6 +201,21 @@ namespace Vodovoz.Dialogs.Logistic
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
 		{
 			buttonRemoveDriver.Sensitive = buttonDriverSelectAuto.Sensitive = ytreeviewAtWorkDrivers.Selection.CountSelectedRows() > 0;
+
+			if (ytreeviewAtWorkDrivers.Selection.CountSelectedRows() != 1 && districtpriorityview1.Visible)
+				districtpriorityview1.Visible = false;
+
+			if(ytreeviewAtWorkDrivers.Selection.CountSelectedRows() == 1)
+			{
+				var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
+				districtpriorityview1.ListParent = selected[0];
+				districtpriorityview1.Districts = selected[0].ObservableDistricts;
+			}
+		}
+		
+		protected void OnButtonEditDistrictsClicked(object sender, EventArgs e)
+		{
+			districtpriorityview1.Visible = !districtpriorityview1.Visible;
 		}
 	}
 }

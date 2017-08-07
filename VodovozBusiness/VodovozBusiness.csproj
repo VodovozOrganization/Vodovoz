@@ -400,6 +400,8 @@
     <Compile Include="Repositories\Logistics\CachedDistanceRepository.cs" />
     <Compile Include="Repositories\WaterSalesAgreementFixedPriceRepository.cs" />
     <Compile Include="Tools\Logistic\RouteGeometrySputnikCalculator.cs" />
+    <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
+    <Compile Include="HibernateMapping\Logistic\AtWorkDriverDistrictPriorityMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

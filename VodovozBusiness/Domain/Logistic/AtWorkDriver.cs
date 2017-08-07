@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Bindings.Collections.Generic;
 
 namespace Vodovoz.Domain.Logistic
 {
@@ -46,8 +48,63 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private IList<AtWorkDriverDistrictPriority> districts = new List<AtWorkDriverDistrictPriority>();
+
+		[Display(Name = "Районы")]
+		public virtual IList<AtWorkDriverDistrictPriority> Districts
+		{
+			get { return districts; }
+			set { SetField(ref districts, value, () => Districts); }
+		}
+
+		GenericObservableList<AtWorkDriverDistrictPriority> observableDistricts;
+		//FIXME Кослыль пока не разберемся как научить hibernate работать с обновляемыми списками.
+		public virtual GenericObservableList<AtWorkDriverDistrictPriority> ObservableDistricts
+		{
+			get
+			{
+				if (observableDistricts == null)
+				{
+					observableDistricts = new GenericObservableList<AtWorkDriverDistrictPriority>(districts);
+					observableDistricts.ElementAdded += ObservableDistricts_ElementAdded;
+					observableDistricts.ElementRemoved += ObservableDistricts_ElementRemoved;
+				}
+				return observableDistricts;
+			}
+		}
+
 		public AtWorkDriver()
 		{
 		}
+
+		#region Функции 
+		private void CheckDistrictsPriorities()
+		{
+			for (int i = 0; i < Districts.Count; i++)
+			{
+				if (Districts[i] == null)
+				{
+					Districts.RemoveAt(i);
+					i--;
+					continue;
+				}
+
+				if (Districts[i].Priority != i)
+					Districts[i].Priority = i;
+			}
+		}
+
+		#endregion
+
+		void ObservableDistricts_ElementAdded(object aList, int[] aIdx)
+		{
+			CheckDistrictsPriorities();
+		}
+
+		void ObservableDistricts_ElementRemoved(object aList, int[] aIdx, object aObject)
+		{
+			CheckDistrictsPriorities();
+		}
+
 	}
 }
