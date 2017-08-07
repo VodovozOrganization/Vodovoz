@@ -67,7 +67,7 @@ namespace Vodovoz.Dialogs.Logistic
 					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
 				.AddColumn("Грузоп.").AddTextRenderer(x => x.Car != null ? x.Car.MaxWeight.ToString("D") : null)
-				.AddColumn("")
+				.AddColumn("Районы доставки").AddTextRenderer(x => String.Join(", ", x.Districts.Select(d => d.District.Name)))
 				.Finish();
 			ytreeviewAtWorkDrivers.Selection.Mode = Gtk.SelectionMode.Multiple;
 
