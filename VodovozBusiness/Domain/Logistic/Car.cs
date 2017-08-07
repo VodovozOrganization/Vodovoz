@@ -82,14 +82,6 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref typeOfUse, value, () => TypeOfUse); }
 		}
 
-		private bool isTruck;
-
-		[Display(Name = "Фура")]
-		public virtual bool IsTruck {
-			get { return isTruck; }
-			set { SetField(ref isTruck, value, () => IsTruck); }
-		}
-
 		double maxVolume;
 
 		[Display(Name = "Объём")]

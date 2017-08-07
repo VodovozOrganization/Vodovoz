@@ -60,7 +60,8 @@ namespace Vodovoz
 
 			checkIsCompanyHavings.Binding.AddBinding(Entity, e => e.IsCompanyHavings, w => w.Active).InitializeFromSource();
 			checkIsArchive.Binding.AddBinding(Entity, e => e.IsArchive, w => w.Active).InitializeFromSource();
-			checkIsTruck.Binding.AddBinding(Entity, e => e.IsTruck, w => w.Active).InitializeFromSource();
+			comboTypeOfUse.ItemsEnum = typeof(CarTypeOfUse);
+			comboTypeOfUse.Binding.AddBinding(Entity, e => e.TypeOfUse, w => w.SelectedItemOrNull).InitializeFromSource();
 
 			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Car));
 			if (!UoWGeneric.IsNew) {
@@ -73,6 +74,9 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
+			if (Entity.IsCompanyHavings)
+				Entity.TypeOfUse = null;
+
 			var valid = new QSValidator<Car> (UoWGeneric.Root);
 			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
 				return false;
@@ -117,6 +121,8 @@ namespace Vodovoz
 		{
 			Entity.IsCompanyHavings = checkIsCompanyHavings.Active;
 			dataentryreferenceDriver.Sensitive = !Entity.IsCompanyHavings;
+
+			comboTypeOfUse.Sensitive = Entity.IsCompanyHavings;
 
 			if (Entity.IsCompanyHavings)
 				Entity.Driver = null;
