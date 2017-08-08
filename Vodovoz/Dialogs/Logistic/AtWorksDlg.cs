@@ -189,6 +189,8 @@ namespace Vodovoz.Dialogs.Logistic
 			var car = e.Subject as Car;
 			driversAtDay.Where(x => x.Car != null && x.Car.Id == car.Id).ToList().ForEach(x => x.Car = null);
 			driver.Car = car;
+			if (car.TypeOfUse == CarTypeOfUse.Largus)
+				driver.Trips = 2;
 		}
 
 		void YtreeviewDrivers_Selection_Changed(object sender, EventArgs e)
