@@ -114,7 +114,7 @@ FROM
 WHERE
     (route_lists.`date` BETWEEN @start_date AND @end_date)
         AND cars.is_company_havings = 1
-        AND cars.is_truck = 0
+        AND cars.type_of_use = 'Largus' 
 GROUP BY route_lists.id
 ORDER BY driver_name</CommandText>
         <QueryParameters>
