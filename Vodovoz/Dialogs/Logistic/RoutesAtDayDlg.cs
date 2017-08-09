@@ -400,8 +400,8 @@ namespace Vodovoz
 			var rl = row as RouteList;
 			if (rl != null)
 				return String.Format("{0:hh\\:mm}-{1:hh\\:mm}",
-				                     rl.Addresses.First().PlanTime,
-				                     rl.Addresses.Last().PlanTime);
+				                     rl.Addresses.FirstOrDefault()?.PlanTime,
+				                     rl.Addresses.LastOrDefault()?.PlanTime);
 
 			var rli = row as RouteListItem;
 			if (rli != null)
