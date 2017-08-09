@@ -79,7 +79,7 @@ namespace Vodovoz.Domain.Documents
 		}
 
 		public virtual string EquipmentString { 
-			get { return Equipment != null ? Equipment.Serial : "-"; } 
+			get { return Equipment != null && Equipment.Nomenclature.Serial ? Equipment.Serial : "-"; } 
 		}
 
 		public virtual bool CanEditAmount { 
