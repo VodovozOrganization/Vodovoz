@@ -196,7 +196,7 @@ namespace Vodovoz
 
 				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
 				var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, Entity.Id);
-				if ((forShipment.Count == 0 || (forShipment.Count == 1 && UoWGeneric.Root.Addresses[0].Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)) && UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck)
+				if ((forShipment.Count == 0 || (forShipment.Count == 1 && UoWGeneric.Root.Addresses[0].Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)) && UoWGeneric.Root.Car.TypeOfUse !=CarTypeOfUse.Truck)
 				{
 					if (MessageDialogWorks.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
 					{
@@ -217,20 +217,18 @@ namespace Vodovoz
 					{
 						Entity.ChangeStatus(RouteListStatus.New);
 					}
-					Save();
-					UpdateButtonStatus();
-					return;
 				}
-				if (UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck && MessageDialogWorks.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
+				else if (UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck && MessageDialogWorks.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
 				{
+					Entity.ChangeStatus(RouteListStatus.OnClosing);
 					foreach (var item in UoWGeneric.Root.Addresses)
 					{
 						item.Order.OrderStatus = Domain.Orders.OrderStatus.OnTheWay;
 					}
 					Entity.CompleteRoute();
-					Save();
-				}
 
+				}
+				Save();
 				UpdateButtonStatus();
 				return;
 			}
