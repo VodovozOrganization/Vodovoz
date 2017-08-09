@@ -75,6 +75,12 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		public virtual long TimeOnLoadMinuts{
+			get{
+				return Car.TypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
+			}
+		}
+
 		protected AtWorkDriver()
 		{
 		}
