@@ -373,10 +373,12 @@ WHERE
         WHEN
             fines_items.id IS NOT NULL
         THEN
-            CONCAT('МЛ №',
-                    fines.route_list_id,
-                    ' ',
-                    fines.fine_reason_string)
+            IF(fines.route_list_id IS NOT NULL,
+                CONCAT('МЛ №',
+                        fines.route_list_id,
+                        ' ',
+                        fines.fine_reason_string),
+                fines.fine_reason_string)
     END AS details
 FROM
     (SELECT 
