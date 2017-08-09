@@ -27,7 +27,7 @@ namespace Vodovoz
 			treeRentPackages.ColumnsConfig = ColumnsConfigFactory.Create<PaidRentEquipment>()
 				.AddColumn("Пакет").AddTextRenderer(x => x.PackageName)
 				.AddColumn("Оборудование").AddTextRenderer(x => x.Equipment.NomenclatureName)
-				.AddColumn("Серийный номер").AddTextRenderer(x => x.Equipment.Serial)
+				.AddColumn("Серийный номер").AddTextRenderer(x => x.Equipment != null && x.Equipment.Nomenclature.Serial ? x.Equipment.Serial : "-")
 				.AddColumn("Цена аренды (в сутки)").AddTextRenderer(x => x.PriceString)
 				.Finish();
 

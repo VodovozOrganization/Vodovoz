@@ -57,7 +57,7 @@ namespace Vodovoz.Domain.Client
 
 		public virtual string EquipmentName { get { return Equipment != null ? Equipment.NomenclatureName : ""; } }
 
-		public virtual string EquipmentSerial { get { return Equipment != null ? Equipment.Serial : ""; } }
+		public virtual string EquipmentSerial { get { return Equipment != null && Equipment.Nomenclature.Serial ? Equipment.Serial : ""; } }
 
 		public virtual string DepositString { get { return CurrencyWorks.GetShortCurrencyString (Deposit); } }
 
