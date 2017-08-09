@@ -149,6 +149,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 			foreach (var driver in addDrivers)
 			{
+				if (driversAtDay.Any(x => x.Employee.Id == driver.Id))
+				{
+					logger.Warn("Водитель {0} уже добавлен. Пропускаем...", driver.ShortName);
+					continue;
+				}
 				driversAtDay.Add(new AtWorkDriver(driver, DialogAtDate,
 												  allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
 												 ));
