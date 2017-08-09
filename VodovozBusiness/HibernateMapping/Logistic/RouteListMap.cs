@@ -1,6 +1,6 @@
-﻿using System;
-using Vodovoz.Domain.Logistic;
+﻿using DataAccess.NhibernateFixes;
 using FluentNHibernate.Mapping;
+using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.HibernateMapping
 {
@@ -21,7 +21,9 @@ namespace Vodovoz.HibernateMapping
 			Map (x => x.ClosingFilled).Column("closing_filled");
 			Map (x => x.LastCallTime).Column ("last_call_time");
 			Map (x => x.DifferencesConfirmed).Column ("differences_confirmed");
-			Map (x => x.IsManualAccounting).Column("is_manual_accounting"); 
+			Map (x => x.IsManualAccounting).Column("is_manual_accounting");
+			Map(x => x.OnLoadTimeStart).Column("on_load_start").CustomType<TimeAsTimeSpanTypeClone>();
+			Map(x => x.OnLoadTimeEnd).Column("on_load_end").CustomType<TimeAsTimeSpanTypeClone>();
 
 			References (x => x.Car).Column ("car_id");
 			References (x => x.Shift).Column ("delivery_shift_id");

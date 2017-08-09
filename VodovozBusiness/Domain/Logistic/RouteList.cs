@@ -239,6 +239,22 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref isManualAccounting, value, () => IsManualAccounting); }
 		}
 
+		private TimeSpan? onLoadTimeStart;
+
+		[Display(Name = "На погрузку в")]
+		public virtual TimeSpan? OnLoadTimeStart {
+			get { return onLoadTimeStart; }
+			set { SetField(ref onLoadTimeStart, value, () => OnLoadTimeStart); }
+		}
+
+		private TimeSpan? onLoadTimeEnd;
+
+		[Display(Name = "Закончить погрузку в")]
+		public virtual TimeSpan? OnLoadTimeEnd {
+			get { return onLoadTimeEnd; }
+			set { SetField(ref onLoadTimeEnd, value, () => OnLoadTimeEnd); }
+		}
+
 		#endregion
 
 		#region readonly Свойства
