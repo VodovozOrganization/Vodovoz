@@ -19,11 +19,11 @@ namespace Vodovoz.Domain
 			};
 		}
 
-		public static Rates GetDriverRatesWithOurCar(){
+		public static Rates GetDriverRatesWithOurCar(DateTime route_date){
 			return new Rates
 			{
 				PhoneServiceCompensationRate = 2,
-				FullBottleRate = 7,
+				FullBottleRate = route_date < new DateTime(2017, 8, 8) ? 7 : 10,
 				EmptyBottleRate = 5,
 				CoolerRate = 14,
 				PaymentPerAddress = 30,
