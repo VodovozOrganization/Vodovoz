@@ -796,6 +796,7 @@ Global
 		$0.TextStylePolicy = $27
 		$27.scope = text/x-csharp
 		$27.FileWidth = 80
+		$27.NoTabsAfterNonTabs = True
 		$0.CSharpFormattingPolicy = $28
 		$28.IndentSwitchBody = True
 		$28.IndentBlocksInsideExpressions = True
@@ -822,6 +823,16 @@ Global
 		$28.NewParentheses = False
 		$28.SpacesBeforeBrackets = False
 		$28.scope = text/x-csharp
+		$28.NewLinesForBracesInProperties = False
+		$28.NewLinesForBracesInAccessors = False
+		$28.NewLinesForBracesInAnonymousMethods = False
+		$28.NewLinesForBracesInControlBlocks = False
+		$28.NewLinesForBracesInAnonymousTypes = False
+		$28.NewLinesForBracesInObjectCollectionArrayInitializers = False
+		$28.NewLinesForBracesInLambdaExpressionBody = False
+		$28.NewLineForElse = False
+		$28.NewLineForCatch = False
+		$28.NewLineForFinally = False
 		$0.TextStylePolicy = $29
 		$29.scope = application/x-desktop
 		$29.FileWidth = 80
