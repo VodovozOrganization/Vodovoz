@@ -45,6 +45,10 @@ namespace Vodovoz
 		List<string> ExcludeNomenclatures = new List<string> {
 			 
 		};
+		List<string> NoDeliveriNomenclatures = new List<string>
+		{
+			"00000969", "24065099", "50453099", "00000344"
+		};
 		#endif
 
 		#region Свойства
@@ -788,7 +792,7 @@ namespace Vodovoz
 
 			foreach(var item in order.OrderItems)
 			{
-				if(item.Nomenclature.Code1c == "00000969")
+				if (NoDeliveriNomenclatures.Contains(item.Nomenclature.Code1c))
 				{
 					order.IsService = true;
 				}

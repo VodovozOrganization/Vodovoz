@@ -153,6 +153,22 @@ namespace Vodovoz
 			}
 		}
 
+		bool? restrictHideService;
+
+		public bool? RrestrictService
+		{
+			get
+			{
+				return checkHideService.Active ? true : restrictHideService;
+			}
+			set
+			{
+				restrictHideService = value;
+				checkHideService.Active = value == true;
+				checkHideService.Sensitive = false;
+			}
+		}
+
 		public int[] ExceptIds{ get; set; }
 
 		protected void OnEntryreferenceClientChanged (object sender, EventArgs e)
@@ -200,6 +216,11 @@ namespace Vodovoz
 		}
 
 		protected void OnCheckLessThreeHoursToggled(object sender, EventArgs e)
+		{
+			OnRefiltered();
+		}
+
+		protected void OnCheckServiceToggled(object sender, EventArgs e)
 		{
 			OnRefiltered();
 		}

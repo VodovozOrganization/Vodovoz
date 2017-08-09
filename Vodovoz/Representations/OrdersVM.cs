@@ -90,6 +90,10 @@ namespace Vodovoz.ViewModel
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
+			if (Filter.RrestrictService != null) {
+				query.Where(o => o.IsService != Filter.RrestrictService);
+			}
+
 			if (Filter.ExceptIds != null && Filter.ExceptIds.Length > 0)
 				query.Where (o => !NHibernate.Criterion.RestrictionExtensions.IsIn (o.Id, Filter.ExceptIds));
 
