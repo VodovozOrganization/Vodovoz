@@ -149,6 +149,8 @@ public partial class MainWindow : Gtk.Window
 
 	public void ProgressAdd(double addValue = 1, string text = null)
 	{
+		if(progressStatus == null)
+			return;
 		progressStatus.Adjustment.Value += addValue;
 		if (text != null)
 			progressStatus.Text = text;
