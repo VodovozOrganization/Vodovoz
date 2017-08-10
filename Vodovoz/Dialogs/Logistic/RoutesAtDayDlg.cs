@@ -141,7 +141,7 @@ namespace Vodovoz
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
 				.AddColumn("Погрузка").AddTextRenderer(x => GetRowOnloadTime(x))
 				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
-				//.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
+				.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
 				.AddColumn ("К клиенту").AddTextRenderer (x => GetRowEquipmentToClien (x))
 				.AddColumn ("От клиента").AddTextRenderer (x => GetRowEquipmentFromClien (x))
 				.Finish ();
@@ -399,7 +399,7 @@ namespace Vodovoz
 		string GetRowOnloadTime(object row)
 		{
 			var rl = row as RouteList;
-			if(rl != null)
+			if(rl != null && rl.OnLoadTimeStart.HasValue)
 				return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
 			return null;
 		}

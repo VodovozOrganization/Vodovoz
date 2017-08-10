@@ -147,6 +147,9 @@ namespace Vodovoz.Tools.Logistic
 			if (routeQueue.ContainsKey(routeHash))
 				return -1; //В процессе обработки.
 
+			if(route.Length < 2 || (route.Length == 2 && route[0] == route[1]))
+				return 0;
+
 			routeQueue.Add(routeHash, route);
 
 			if(backgroundThread == null)
