@@ -115,7 +115,6 @@ namespace Vodovoz
 			w5.Fill = false;
 			// Container child vbox2.Gtk.Box+BoxChild
 			this.table1 = new global::Gtk.Table(((uint)(8)), ((uint)(4)), false);
-			this.table1.Name = "table1";
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
@@ -443,8 +442,6 @@ namespace Vodovoz
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.yreferenceDeliveryPoint.Changed += new global::System.EventHandler(this.OnYreferenceDeliveryPointChanged);
 			this.yreferenceClientSelector.Changed += new global::System.EventHandler(this.OnYentryreferencevmClientSelectorChanged);
 			this.disablespinMoneyDebt.ActiveChanged += new global::System.EventHandler(this.OnDisablespinMoneyDebtActiveChanged);

@@ -118,6 +118,7 @@ namespace Vodovoz
 			var colorWhite = new Gdk.Color(0xff, 0xff, 0xff);
 
 			var config = ColumnsConfigFactory.Create<RouteListItemNode>()
+				.AddColumn("Еж. номер").AddTextRenderer(node => node.DalyNumber)
 				.AddColumn("Заказ").AddTextRenderer(node => node.Id)
 				.AddColumn("Дата").AddTextRenderer(node => node.Date)
 				.AddColumn("Адрес").AddTextRenderer(node => node.Address)
@@ -411,6 +412,10 @@ namespace Vodovoz
 		}
 			
 		public RouteListItem RouteListItem { get; set; }
+
+		public string DalyNumber { 
+			get { return RouteListItem.Order.DailyNumber1c.ToString(); } 
+		}
 	}
 }
 
