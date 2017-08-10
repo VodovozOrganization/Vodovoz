@@ -56,7 +56,7 @@ namespace Vodovoz
 
 		private global::Gtk.HBox hbox3;
 
-		private global::Gamma.GtkWidgets.yEntry yentryBottleReserv;
+		private global::Gamma.GtkWidgets.ySpinButton spinBottlesReserv;
 
 		private global::Gtk.HBox hbox5;
 
@@ -402,13 +402,16 @@ namespace Vodovoz
 			this.hbox3.Name = "hbox3";
 			this.hbox3.Spacing = 6;
 			// Container child hbox3.Gtk.Box+BoxChild
-			this.yentryBottleReserv = new global::Gamma.GtkWidgets.yEntry();
-			this.yentryBottleReserv.CanFocus = true;
-			this.yentryBottleReserv.Name = "yentryBottleReserv";
-			this.yentryBottleReserv.IsEditable = true;
-			this.yentryBottleReserv.InvisibleChar = '●';
-			this.hbox3.Add(this.yentryBottleReserv);
-			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.yentryBottleReserv]));
+			this.spinBottlesReserv = new global::Gamma.GtkWidgets.ySpinButton(0, 10000, 1);
+			this.spinBottlesReserv.CanFocus = true;
+			this.spinBottlesReserv.Name = "spinBottlesReserv";
+			this.spinBottlesReserv.Adjustment.PageIncrement = 10;
+			this.spinBottlesReserv.ClimbRate = 1;
+			this.spinBottlesReserv.Numeric = true;
+			this.spinBottlesReserv.ValueAsDecimal = 0m;
+			this.spinBottlesReserv.ValueAsInt = 0;
+			this.hbox3.Add(this.spinBottlesReserv);
+			global::Gtk.Box.BoxChild w25 = ((global::Gtk.Box.BoxChild)(this.hbox3[this.spinBottlesReserv]));
 			w25.Position = 0;
 			w25.Expand = false;
 			w25.Fill = false;

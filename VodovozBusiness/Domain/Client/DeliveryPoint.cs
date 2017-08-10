@@ -315,10 +315,10 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref code1c, value, () => Code1c); }
 		}
 
-		string bottleReserv;
+		int bottleReserv;
 
 		[Display(Name = "Резерв бутылей")]
-		public virtual string BottleReserv {
+		public virtual int BottleReserv {
 			get { return bottleReserv; }
 			set { SetField(ref bottleReserv, value, () => BottleReserv); }
 		}
