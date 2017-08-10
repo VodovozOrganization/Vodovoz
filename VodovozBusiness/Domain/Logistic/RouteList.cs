@@ -255,6 +255,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref onLoadTimeEnd, value, () => OnLoadTimeEnd); }
 		}
 
+		private int? onLoadGate;
+
+		[Display(Name = "Ворота на погрузку")]
+		public virtual int? OnLoadGate {
+			get { return onLoadGate; }
+			set { SetField(ref onLoadGate, value, () => OnLoadGate); }
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -1180,6 +1188,33 @@ namespace Vodovoz.Domain.Logistic
 				Addresses[ix].PlanTime = time.TimeOfDay;
 
 				time = time.AddMinutes(Addresses[ix].TimeOnPoint);
+			}
+		}
+
+		public static void RecalculateOnLoadTime (IList<RouteList> routelists, RouteGeometrySputnikCalculator sputnikCache)
+		{
+			var sorted = routelists.Where(x => x.Addresses.Any())
+			                       .Select(x => new Tuple<TimeSpan, RouteList>(
+				                       x.FirstAddressTime - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
+			                                     x
+				                      ))
+			                       .OrderByDescending(x => x.Item1);
+			var paralellLoading = 4;
+			var loadingPlaces = Enumerable.Range(0, paralellLoading).Select(x => new TimeSpan(1,0,0,0)).ToArray();
+			foreach(var route in sorted)
+			{
+				int selectedPlace = Array.IndexOf(loadingPlaces, loadingPlaces.Max());
+				var endLoading = loadingPlaces[selectedPlace] < route.Item1 ? loadingPlaces[selectedPlace] : route.Item1;
+				route.Item2.OnLoadTimeEnd = endLoading;
+				route.Item2.onLoadTimeStart = loadingPlaces[selectedPlace] 
+					= endLoading - TimeSpan.FromMinutes(route.Item2.TimeOnLoadMinuts);
+				route.Item2.onLoadGate = selectedPlace + 1;
+			}
+		}
+
+		public virtual long TimeOnLoadMinuts {
+			get {
+				return Car.TypeOfUse == CarTypeOfUse.Largus ? 15 : 30;
 			}
 		}
 

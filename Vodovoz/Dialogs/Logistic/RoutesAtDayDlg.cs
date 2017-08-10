@@ -139,8 +139,9 @@ namespace Vodovoz
 				.AddColumn("План").AddTextRenderer(x => GetRowPlanTime(x), useMarkup:true)
 				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x))
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
+				.AddColumn("Погрузка").AddTextRenderer(x => GetRowOnloadTime(x))
 				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
-				.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
+				//.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
 				.AddColumn ("К клиенту").AddTextRenderer (x => GetRowEquipmentToClien (x))
 				.AddColumn ("От клиента").AddTextRenderer (x => GetRowEquipmentFromClien (x))
 				.Finish ();
@@ -393,6 +394,14 @@ namespace Vodovoz
 			if (rl != null)
 				return rl.Addresses.Count.ToString ();
 			return (row as RouteListItem)?.Order.DeliverySchedule.Name;
+		}
+
+		string GetRowOnloadTime(object row)
+		{
+			var rl = row as RouteList;
+			if(rl != null)
+				return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
+			return null;
 		}
 
 		string GetRowPlanTime(object row)
@@ -773,6 +782,7 @@ namespace Vodovoz
 
 		void AddToRLItem_Activated (object sender, EventArgs e)
 		{
+			bool recalculeteLoading = false;
 			var selectedOrders = GetSelectedOrders ();
 
 			var route = ((MenuItemId<RouteList>)sender).ID;
@@ -784,18 +794,30 @@ namespace Vodovoz
 						throw new InvalidProgramException (String.Format ("Маршрутный лист, в котором добавлен заказ {0} не найден.", order.Id));
 					if (alreadyIn.Id == route.Id) // Уже в нужном маршрутном листе.
 						continue;
-
-					alreadyIn.RemoveAddress (alreadyIn.Addresses.First (x => x.Order.Id == order.Id));
+					var toRemoveAddress = alreadyIn.Addresses.First(x => x.Order.Id == order.Id);
+					if(toRemoveAddress.IndexInRoute == 0)
+						recalculeteLoading = true;
+					alreadyIn.RemoveAddress (toRemoveAddress);
 					uow.Save (alreadyIn);
 				}
-				route.AddAddressFromOrder (order);
+				var item = route.AddAddressFromOrder (order);
+				if(item.IndexInRoute == 0)
+					recalculeteLoading = true;
 			}
 			route.ReorderAddressesByDailiNumber ();
 			route.RecalculatePlanTime(distanceCalculator);
 			uow.Save (route);
 			logger.Info ("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
+			if(recalculeteLoading)
+				RecalculateOnLoadTime();
 			UpdateAddressesOnMap ();
 			RoutesWasUpdated ();
+		}
+
+		void RecalculateOnLoadTime()
+		{
+			//FIXME Проверять что все МЛ присутствуют
+			RouteList.RecalculateOnLoadTime(routesAtDay, distanceCalculator);
 		}
 
 		private IList<Order> GetSelectedOrders ()
@@ -1075,6 +1097,7 @@ namespace Vodovoz
 			UpdateRoutesPixBuf();
 			UpdateRoutesButton();
 
+			RecalculateOnLoadTime();
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
 			MainClass.MainWin.ProgressClose();
