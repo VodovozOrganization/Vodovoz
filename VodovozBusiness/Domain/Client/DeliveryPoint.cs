@@ -315,6 +315,14 @@ namespace Vodovoz.Domain.Client
 			set { SetField (ref code1c, value, () => Code1c); }
 		}
 
+		string bottleReserv;
+
+		[Display(Name = "Резерв бутылей")]
+		public virtual string BottleReserv {
+			get { return bottleReserv; }
+			set { SetField(ref bottleReserv, value, () => BottleReserv); }
+		}
+
 		#endregion
 
 		#region Расчетные
@@ -344,6 +352,8 @@ namespace Vodovoz.Domain.Client
 				return new GMap.NET.PointLatLng((double)Latitude, (double)Longitude);
 			}
 		}
+
+
 
 
 		#endregion
