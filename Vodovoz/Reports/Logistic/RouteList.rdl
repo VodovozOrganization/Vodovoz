@@ -1359,6 +1359,19 @@
           <FontSize>10pt</FontSize>
         </Style>
       </Textbox>
+      <Textbox Name="Textbox51">
+        <Height>11.24pt</Height>
+        <Width>222.13pt</Width>
+        <Value>="Погрузка складе с " + Format(First({on_load_start}, 'RouteList'), "hh\:mm") + " по " + Format(First({on_load_end}, 'RouteList'), "hh\\:mm")</Value>
+        <ZIndex>1</ZIndex>
+        <Left>195.6pt</Left>
+        <Top>1.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
     </ReportItems>
   </Body>
   <PageFooter>
@@ -1370,7 +1383,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
@@ -1378,7 +1391,9 @@ driver.name AS DriverName, driver.last_name AS DriverLastname, driver_phone.numb
 cars.model AS CarModel, cars.reg_number AS CarRegNumber, cars.fuel_consumption AS FuelConsumption, fuel_types.name AS FuelType, 
 forwarder.name AS ForwarderName, forwarder.last_name AS ForwarderLastname, forwarder_phone.number AS ForwarderPhone, 
 logistican.name AS LogisticanName, logistican.last_name AS LogisticanLastname,
-route_lists.date as Date
+route_lists.date as Date,
+route_lists.on_load_start,
+route_lists.on_load_end
 FROM route_lists
 LEFT JOIN employees driver ON route_lists.driver_id = driver.id
 LEFT JOIN phones driver_phone ON driver.id = driver_phone.employee_id
@@ -1394,7 +1409,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
@@ -1431,6 +1446,10 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           <DataField>ForwarderLastname</DataField>
           <TypeName>System.String</TypeName>
         </Field>
+        <Field Name="ForwarderPhone">
+          <DataField>ForwarderPhone</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
         <Field Name="LogisticanName">
           <DataField>LogisticanName</DataField>
           <TypeName>System.String</TypeName>
@@ -1439,13 +1458,17 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           <DataField>LogisticanLastname</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="ForwarderPhone">
-          <DataField>ForwarderPhone</DataField>
-          <TypeName>System.String</TypeName>
-        </Field>
         <Field Name="Date">
           <DataField>Date</DataField>
           <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="on_load_start">
+          <DataField>on_load_start</DataField>
+          <TypeName>System.TimeSpan</TypeName>
+        </Field>
+        <Field Name="on_load_end">
+          <DataField>on_load_end</DataField>
+          <TypeName>System.TimeSpan</TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1523,7 +1546,7 @@ ORDER BY daily_number_1c;
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="RouteListId">
           <DataField>RouteListId</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1585,7 +1608,7 @@ ORDER BY daily_number_1c;
       <DataType>Integer</DataType>
       <DefaultValue>
         <Values>
-          <Value>1</Value>
+          <Value>1862</Value>
         </Values>
       </DefaultValue>
       <Nullable>false</Nullable>
@@ -1595,7 +1618,7 @@ ORDER BY daily_number_1c;
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
