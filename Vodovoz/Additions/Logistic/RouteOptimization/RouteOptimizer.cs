@@ -107,7 +107,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			int horizon = 24 * 3600;
 
-			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), horizon, horizon, true, "Time");
+			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
 			for(int ix = 0; ix < allDrivers.Length; ix++)
