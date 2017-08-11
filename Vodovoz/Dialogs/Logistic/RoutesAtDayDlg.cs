@@ -1058,6 +1058,12 @@ namespace Vodovoz
 
 		protected void OnButtonAutoCreateClicked(object sender, EventArgs e)
 		{
+			var logistican = Repository.EmployeeRepository.GetEmployeeForCurrentUser(uow);
+			if(logistican == null) {
+				MessageDialogWorks.RunErrorDialog("Ваш пользователь не привязан к действующему сотруднику, вы не можете создавать маршрутные листы, так как некого указывать в качестве логиста.");
+				return;
+			}
+
 			if(creatingInProgress)
 			{
 				buttonAutoCreate.Label = "Создать маршруты";
@@ -1085,6 +1091,7 @@ namespace Vodovoz
 					rl.Car = propose.Car;
 					rl.Driver = propose.Driver.Employee;
 					rl.Date = CurDate;
+					rl.Logistican = logistican;
 					foreach(var order in propose.Orders)
 					{
 						var address = rl.AddAddressFromOrder(order.Order);
@@ -1092,6 +1099,7 @@ namespace Vodovoz
 					}
 					routesAtDay.Add(rl);
 					propose.RealRoute = rl;
+					uow.Save(rl);
 				}
 			}
 			UpdateRoutesPixBuf();
