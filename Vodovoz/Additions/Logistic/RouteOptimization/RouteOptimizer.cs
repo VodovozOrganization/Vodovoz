@@ -105,16 +105,18 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Создаем модель...");
 			RoutingModel routing = new RoutingModel(Nodes.Length + 1, allDrivers.Length, 0);
 
-			for(int ix = 0; ix < allDrivers.Length; ix++)
-			{
-				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix], distanceCalculator), ix);
-				routing.SetFixedCostOfVehicle((allDrivers[ix].PriorityAtDay - 1) * DriverPriorityPenalty, ix);
-			}
-
 			int horizon = 24 * 3600;
 
 			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), horizon, horizon, true, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
+
+			for(int ix = 0; ix < allDrivers.Length; ix++)
+			{
+				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix], distanceCalculator), ix);
+				routing.SetFixedCostOfVehicle((allDrivers[ix].PriorityAtDay - 1) * DriverPriorityPenalty, ix);
+				if(allDrivers[ix].EndOfDay.HasValue)
+					routing.CumulVar(routing.End(ix), "Time").SetMax((long)allDrivers[ix].EndOfDay.Value.TotalSeconds);
+			}
 
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
