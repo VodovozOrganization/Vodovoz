@@ -65,7 +65,7 @@ namespace Vodovoz.ViewModel
 			}
 
 			var result = query
-				.JoinAlias (o => o.Shift, () => shiftAlias)
+				.JoinAlias (o => o.Shift, () => shiftAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (o => o.Car, () => carAlias)
 				.JoinAlias (o => o.Driver, () => driverAlias)
 				.SelectList (list => list

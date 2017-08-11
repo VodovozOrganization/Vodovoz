@@ -533,10 +533,6 @@ namespace Vodovoz.Domain.Logistic
 				}
 			}
 
-			if (Shift == null)
-				yield return new ValidationResult("Смена маршрутного листа должна быть заполнена.",
-					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Shift) });
-
 			if (Driver == null)
 				yield return new ValidationResult("Не заполнен водитель.",
 					new[] { Gamma.Utilities.PropertyUtil.GetPropertyName(this, o => o.Driver) });
