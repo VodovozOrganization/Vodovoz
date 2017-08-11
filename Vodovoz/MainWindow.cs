@@ -25,10 +25,8 @@ public partial class MainWindow : Gtk.Window
 	private static Logger logger = LogManager.GetCurrentClassLogger();
 	uint LastUiId;
 
-	public TdiNotebook TdiMain
-	{
-		get
-		{
+	public TdiNotebook TdiMain {
+		get {
 			return tdiMain;
 		}
 	}
@@ -53,8 +51,7 @@ public partial class MainWindow : Gtk.Window
 
 		PerformanceHelper.AddTimePoint("Закончена загрузка параметров базы и проверка версии.");
 
-		if (QSMain.User.Login == "root")
-		{
+		if(QSMain.User.Login == "root") {
 			string Message = "Вы зашли в программу под администратором базы данных. У вас есть только возможность создавать других пользователей.";
 			MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent,
 								   MessageType.Info,
@@ -82,7 +79,7 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
 		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_office"] || QSMain.User.Permissions["store_equipment"];
-		if (QSMain.User.Permissions["store_production"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
+		if(QSMain.User.Permissions["store_production"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
 		{
 			ActionReadyForShipment.Sensitive =
 				ActionReadyForReception.Sensitive =
@@ -97,8 +94,7 @@ public partial class MainWindow : Gtk.Window
 
 		unreadedMessagesWidget.MainTab = tdiMain;
 		//Читаем настройки пользователя
-		switch (CurrentUserSettings.Settings.ToolbarStyle)
-		{
+		switch(CurrentUserSettings.Settings.ToolbarStyle) {
 			case ToolbarStyle.Both:
 				ActionToolBarBoth.Activate();
 				break;
@@ -110,8 +106,7 @@ public partial class MainWindow : Gtk.Window
 				break;
 		}
 
-		switch (CurrentUserSettings.Settings.ToolBarIconsSize)
-		{
+		switch(CurrentUserSettings.Settings.ToolBarIconsSize) {
 			case IconsSize.ExtraSmall:
 				ActionIconsExtraSmall.Activate();
 				break;
@@ -141,7 +136,7 @@ public partial class MainWindow : Gtk.Window
 
 	public void ProgressUpdate(double curValue)
 	{
-		if (progressStatus == null || progressStatus.Adjustment == null)
+		if(progressStatus == null || progressStatus.Adjustment == null)
 			return;
 		progressStatus.Adjustment.Value = curValue;
 		QSMain.WaitRedraw();
@@ -152,9 +147,9 @@ public partial class MainWindow : Gtk.Window
 		if(progressStatus == null)
 			return;
 		progressStatus.Adjustment.Value += addValue;
-		if (text != null)
+		if(text != null)
 			progressStatus.Text = text;
-		if (progressStatus.Adjustment.Value > progressStatus.Adjustment.Upper)
+		if(progressStatus.Adjustment.Value > progressStatus.Adjustment.Upper)
 			logger.Warn("Значение ({0}) прогресс бара в статусной строке больше максимального ({1})",
 						(int)progressStatus.Adjustment.Value,
 						(int)progressStatus.Adjustment.Upper
@@ -174,23 +169,23 @@ public partial class MainWindow : Gtk.Window
 	public void OnTdiMainTabAdded(object sender, TabAddedEventArgs args)
 	{
 		var currentTab = args.Tab;
-		if (currentTab is IInfoProvider)
+		if(currentTab is IInfoProvider)
 			(currentTab as IInfoProvider).CurrentObjectChanged += infopanel.OnCurrentObjectChanged;
 	}
 
 	public void OnTdiMainTabClosed(object sender, TabClosedEventArgs args)
 	{
 		var closedTab = args.Tab;
-		if (closedTab is IInfoProvider)
+		if(closedTab is IInfoProvider)
 			infopanel.OnInfoProviderDisposed(closedTab as IInfoProvider);
-		if (tdiMain.NPages == 0)
+		if(tdiMain.NPages == 0)
 			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
 	}
 
 	public void OnTdiMainTabSwitched(object sender, TabSwitchedEventArgs args)
 	{
 		var currentTab = args.Tab;
-		if (currentTab is IInfoProvider)
+		if(currentTab is IInfoProvider)
 			infopanel.SetInfoProvider(currentTab as IInfoProvider);
 		else
 			infopanel.SetInfoProvider(DefaultInfoProvider.Instance);
@@ -198,22 +193,18 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnDeleteEvent(object sender, DeleteEventArgs a)
 	{
-		if (tdiMain.CloseAllTabs())
-		{
+		if(tdiMain.CloseAllTabs()) {
 			a.RetVal = false;
 			MainClass.TrayIcon.Dispose();
 			Application.Quit();
-		}
-		else
-		{
+		} else {
 			a.RetVal = true;
 		}
 	}
 
 	protected void OnQuitActionActivated(object sender, EventArgs e)
 	{
-		if (tdiMain.CloseAllTabs())
-		{
+		if(tdiMain.CloseAllTabs()) {
 			Application.Quit();
 		}
 	}
@@ -238,14 +229,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionOrdersToggled(object sender, EventArgs e)
 	{
-		if (ActionOrders.Active)
+		if(ActionOrders.Active)
 			SwitchToUI("Vodovoz.toolbars.orders.xml");
 	}
 
 	private void SwitchToUI(string uiResource)
 	{
-		if (LastUiId > 0)
-		{
+		if(LastUiId > 0) {
 			this.UIManager.RemoveUi(LastUiId);
 			LastUiId = 0;
 		}
@@ -255,19 +245,19 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionServicesToggled(object sender, EventArgs e)
 	{
-		if (ActionServices.Active)
+		if(ActionServices.Active)
 			SwitchToUI("Vodovoz.toolbars.services.xml");
 	}
 
 	protected void OnActionLogisticsToggled(object sender, EventArgs e)
 	{
-		if (ActionLogistics.Active)
+		if(ActionLogistics.Active)
 			SwitchToUI("logistics.xml");
 	}
 
 	protected void OnActionStockToggled(object sender, EventArgs e)
 	{
-		if (ActionStock.Active)
+		if(ActionStock.Active)
 			SwitchToUI("warehouse.xml");
 	}
 
@@ -482,13 +472,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionCashToggled(object sender, EventArgs e)
 	{
-		if (ActionCash.Active)
+		if(ActionCash.Active)
 			SwitchToUI("cash.xml");
 	}
 
 	protected void OnActionAccountingToggled(object sender, EventArgs e)
 	{
-		if (ActionAccounting.Active)
+		if(ActionAccounting.Active)
 			SwitchToUI("accounting.xml");
 	}
 
@@ -502,14 +492,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionToolBarTextToggled(object sender, EventArgs e)
 	{
-		if (ActionToolBarText.Active)
+		if(ActionToolBarText.Active)
 			ToolBarMode(ToolbarStyle.Text);
 	}
 
 	private void ToolBarMode(ToolbarStyle style)
 	{
-		if (CurrentUserSettings.Settings.ToolbarStyle != style)
-		{
+		if(CurrentUserSettings.Settings.ToolbarStyle != style) {
 			CurrentUserSettings.Settings.ToolbarStyle = style;
 			CurrentUserSettings.SaveSettings();
 		}
@@ -520,13 +509,11 @@ public partial class MainWindow : Gtk.Window
 
 	private void ToolBarMode(IconsSize size)
 	{
-		if (CurrentUserSettings.Settings.ToolBarIconsSize != size)
-		{
+		if(CurrentUserSettings.Settings.ToolBarIconsSize != size) {
 			CurrentUserSettings.Settings.ToolBarIconsSize = size;
 			CurrentUserSettings.SaveSettings();
 		}
-		switch (size)
-		{
+		switch(size) {
 			case IconsSize.ExtraSmall:
 				toolbarMain.IconSize = IconSize.SmallToolbar;
 				break;
@@ -544,37 +531,37 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionToolBarIconToggled(object sender, EventArgs e)
 	{
-		if (ActionToolBarIcon.Active)
+		if(ActionToolBarIcon.Active)
 			ToolBarMode(ToolbarStyle.Icons);
 	}
 
 	protected void OnActionToolBarBothToggled(object sender, EventArgs e)
 	{
-		if (ActionToolBarBoth.Active)
+		if(ActionToolBarBoth.Active)
 			ToolBarMode(ToolbarStyle.Both);
 	}
 
 	protected void OnActionIconsExtraSmallToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsExtraSmall.Active)
+		if(ActionIconsExtraSmall.Active)
 			ToolBarMode(IconsSize.ExtraSmall);
 	}
 
 	protected void OnActionIconsSmallToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsSmall.Active)
+		if(ActionIconsSmall.Active)
 			ToolBarMode(IconsSize.Small);
 	}
 
 	protected void OnActionIconsMiddleToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsMiddle.Active)
+		if(ActionIconsMiddle.Active)
 			ToolBarMode(IconsSize.Middle);
 	}
 
 	protected void OnActionIconsLargeToggled(object sender, EventArgs e)
 	{
-		if (ActionIconsLarge.Active)
+		if(ActionIconsLarge.Active)
 			ToolBarMode(IconsSize.Large);
 	}
 
@@ -630,13 +617,13 @@ public partial class MainWindow : Gtk.Window
 
 	protected void OnActionArchiveToggled(object sender, EventArgs e)
 	{
-		if (ActionArchive.Active)
+		if(ActionArchive.Active)
 			SwitchToUI("archive.xml");
 	}
 
 	protected void OnActionStaffToggled(object sender, EventArgs e)
 	{
-		if (ActionStaff.Active)
+		if(ActionStaff.Active)
 			SwitchToUI("Vodovoz.toolbars.staff.xml");
 	}
 
@@ -806,6 +793,15 @@ public partial class MainWindow : Gtk.Window
 	protected void OnActionRouteListsOnClosingActivated(object sender, EventArgs e)
 	{
 		var widget = new Vodovoz.ReportsParameters.Logistic.RouteListsOnClosingReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
+
+	protected void OnActionOnLoadTimeActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.Logistic.OnLoadTimeAtDayReport();
 		tdiMain.OpenTab(
 			QSReport.ReportViewDlg.GenerateHashName(widget),
 			() => new QSReport.ReportViewDlg(widget)
