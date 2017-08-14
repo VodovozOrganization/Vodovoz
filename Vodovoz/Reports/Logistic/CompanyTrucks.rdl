@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="Data">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id,
@@ -75,6 +75,16 @@
                     order_items.order_id = route_list_addresses.order_id
                         AND nomenclature.category = 'water')),
             0) AS water19_amount,
+    IFNULL(SUM((SELECT 
+                    SUM(order_items.count)
+                FROM
+                    order_items
+                        LEFT JOIN
+                    nomenclature ON nomenclature.id = order_items.nomenclature_id
+                WHERE
+                    order_items.order_id = route_list_addresses.order_id
+                        AND nomenclature.category = 'disposableBottleWater')),
+            0) AS water6_amount,
     SUM(IF((SELECT 
                 SUM(order_items.count)
             FROM
@@ -126,7 +136,7 @@ ORDER BY driver_name</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -173,6 +183,10 @@ ORDER BY driver_name</CommandText>
         </Field>
         <Field Name="wages">
           <DataField>wages</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="water6_amount">
+          <DataField>water6_amount</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
       </Fields>
@@ -226,10 +240,10 @@ ORDER BY driver_name</CommandText>
             <Width>123.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>142.9pt</Width>
+            <Width>127.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>136.3pt</Width>
+            <Width>121.5pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>37.7pt</Width>
@@ -244,7 +258,7 @@ ORDER BY driver_name</CommandText>
             <Width>32.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>33.0pt</Width>
+            <Width>46.9pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>50.0pt</Width>
@@ -348,11 +362,11 @@ ORDER BY driver_name</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <Color >Black</Color>
-                        <BackgroundColor >
+                        <Color>Black</Color>
+                        <BackgroundColor>
                         </BackgroundColor>
-                        <FontFamily >Arial</FontFamily>
-                        <FontSize >10pt</FontSize>
+                        <FontFamily>Arial</FontFamily>
+                        <FontSize>10pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -788,7 +802,7 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="formula">
-                      <Value>=Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5))</Value>
+                      <Value>=Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5))</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -1173,7 +1187,7 @@ ORDER BY driver_name</CommandText>
                     <TableCell>
                       <ReportItems>
                         <Textbox Name="Textbox5">
-                          <Value>=sum(Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 7 +  Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)))</Value>
+                          <Value>=sum(Iif({status} = 'Закрыт' OR {status} = 'Проверка километража', {wages},   Iif((({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5) &lt; 0, 0, ({address_count} * 30) + ({water19_amount} + {water19_absent}) * 10 + {water6_amount} * 1.4 + Iif(({water19_amount} - 5) &lt;0,0,({water19_amount} - 5)) * 5)))</Value>
                           <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                             <BorderStyle>
                               <Default>Solid</Default>
@@ -1402,7 +1416,7 @@ ORDER BY driver_name</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox79">
-                      <Value>7</Value>
+                      <Value>10</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -1569,7 +1583,7 @@ ORDER BY driver_name</CommandText>
       <Textbox Name="Textbox88">
         <Height>15.03pt</Height>
         <Width>287.57pt</Width>
-        <Value>(25адр * 30руб) + (75бут * 7руб) + (70бут * 5руб) = 1625</Value>
+        <Value>(25адр * 30руб) + (75бут * 10руб) + (70бут * 5руб) = 1850</Value>
         <ZIndex>1</ZIndex>
         <Left>399.00pt</Left>
         <Top>137.90pt</Top>
@@ -1583,7 +1597,7 @@ ORDER BY driver_name</CommandText>
       <Textbox Name="Textbox89">
         <Height>12.00pt</Height>
         <Width>254.48pt</Width>
-        <Value>1625руб * 22 дн. = 35750 руб в месяц</Value>
+        <Value>1850руб * 22 дн. = 40700 руб в месяц</Value>
         <ZIndex>1</ZIndex>
         <Left>400.6pt</Left>
         <Top>154.5pt</Top>
