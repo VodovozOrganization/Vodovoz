@@ -155,6 +155,12 @@ namespace Vodovoz.ViewModel
 				RouteListStatus.Closed
 			};
 
+		private List<RouteListStatus> CanDeletedStatuses = new List<RouteListStatus>()
+			{
+				RouteListStatus.New,
+				RouteListStatus.InLoading
+			};
+
 		public override Gtk.Menu GetPopupMenu (RepresentationSelectResult[] selected)
 		{
 			lastMenuSelected = selected;
@@ -192,6 +198,14 @@ namespace Vodovoz.ViewModel
 			menuItemOrderOfAddressesRep.Activated += MenuItemOrderOfAddressesRep_Activated;
 			menuItemOrderOfAddressesRep.Sensitive = false; // NYI @Дима
 			popupMenu.Add(menuItemOrderOfAddressesRep);
+
+			popupMenu.Add(new SeparatorMenuItem());
+
+			Gtk.MenuItem menuItemDeleteRouteList = new Gtk.MenuItem("Удалить МЛ");
+			menuItemDeleteRouteList.Activated += MenuItemRouteListDelete_Activated;
+			menuItemDeleteRouteList.Sensitive = selected.Any(x =>
+				CanDeletedStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
+			popupMenu.Add(menuItemDeleteRouteList);
 
 			return popupMenu;
 		}
@@ -281,6 +295,15 @@ namespace Vodovoz.ViewModel
 				//);
 
 			}
+		}
+
+		void MenuItemRouteListDelete_Activated(object sender, EventArgs e)  
+		{
+			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+
+			var objectType = typeof(RouteList);
+			if(OrmMain.DeleteObject(objectType, routeListIds[0]))
+				this.UpdateNodes();
 		}
 	}
 
