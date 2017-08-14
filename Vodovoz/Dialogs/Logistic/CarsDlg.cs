@@ -74,7 +74,7 @@ namespace Vodovoz
 
 		public override bool Save ()
 		{
-			if (Entity.IsCompanyHavings)
+			if (!Entity.IsCompanyHavings)
 				Entity.TypeOfUse = null;
 
 			var valid = new QSValidator<Car> (UoWGeneric.Root);
