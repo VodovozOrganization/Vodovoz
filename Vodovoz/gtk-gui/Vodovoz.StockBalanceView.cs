@@ -10,6 +10,8 @@ namespace Vodovoz
 
 		private global::Vodovoz.StockBalanceFilter stockbalancefilter1;
 
+		private global::QSWidgetLib.SearchEntity searchentity1;
+
 		private global::Gtk.ScrolledWindow GtkScrolledWindow;
 
 		private global::QSOrmProject.RepresentationTreeView datatreeviewBalance;
@@ -43,6 +45,15 @@ namespace Vodovoz
 			w2.Expand = false;
 			w2.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
+			this.searchentity1 = new global::QSWidgetLib.SearchEntity();
+			this.searchentity1.Events = ((global::Gdk.EventMask)(256));
+			this.searchentity1.Name = "searchentity1";
+			this.vbox1.Add(this.searchentity1);
+			global::Gtk.Box.BoxChild w3 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.searchentity1]));
+			w3.Position = 1;
+			w3.Expand = false;
+			w3.Fill = false;
+			// Container child vbox1.Gtk.Box+BoxChild
 			this.GtkScrolledWindow = new global::Gtk.ScrolledWindow();
 			this.GtkScrolledWindow.Name = "GtkScrolledWindow";
 			this.GtkScrolledWindow.ShadowType = ((global::Gtk.ShadowType)(1));
@@ -52,13 +63,15 @@ namespace Vodovoz
 			this.datatreeviewBalance.Name = "datatreeviewBalance";
 			this.GtkScrolledWindow.Add(this.datatreeviewBalance);
 			this.vbox1.Add(this.GtkScrolledWindow);
-			global::Gtk.Box.BoxChild w4 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
-			w4.Position = 1;
+			global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.GtkScrolledWindow]));
+			w5.Position = 2;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
+			this.searchentity1.TextChanged += new global::System.EventHandler(this.OnSearchentity1TextChanged);
 		}
 	}
 }

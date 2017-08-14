@@ -29,6 +29,12 @@ namespace Vodovoz
 			this.TabName = "Складские остатки";
 			UoW = UnitOfWorkFactory.CreateWithoutRoot ();
 		}
+
+		protected void OnSearchentity1TextChanged(object sender, System.EventArgs e)
+		{
+			datatreeviewBalance.SearchHighlightText = searchentity1.Text;
+			datatreeviewBalance.RepresentationModel.SearchString = searchentity1.Text;
+		}
 	}
 }
 
