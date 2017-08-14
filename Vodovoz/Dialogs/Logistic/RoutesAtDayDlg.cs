@@ -885,6 +885,7 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
+			routesAtDay.ToList().ForEach(x => uow.Save(x));
 			DriversAtDay.ToList().ForEach(x => uow.Save(x));
 			ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
 			uow.Commit ();
@@ -900,7 +901,7 @@ namespace Vodovoz
 
 		public bool HasChanges {
 			get {
-				return uow.HasChanges;
+				return !HasNoChanges;
 			}
 		}
 
@@ -1107,7 +1108,6 @@ namespace Vodovoz
 					}
 					routesAtDay.Add(rl);
 					propose.RealRoute = rl;
-					uow.Save(rl);
 				}
 			}
 			UpdateRoutesPixBuf();
