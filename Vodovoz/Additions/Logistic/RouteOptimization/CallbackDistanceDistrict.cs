@@ -36,6 +36,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(second_index == 0)
 				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint);
 
+			if(Driver.Car.TypeOfUse == CarTypeOfUse.Largus && Nodes[second_index - 1].Bootles > RouteOptimizer.MaxBottlesInOrderForLargus)
+				return RouteOptimizer.LargusMaxBottlePenalty;	
+
 			long distance;
 			var aria = Nodes[second_index - 1].District;
 			if(!priorites.ContainsKey(aria))

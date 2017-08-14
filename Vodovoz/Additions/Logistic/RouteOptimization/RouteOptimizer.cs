@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Google.OrTools.ConstraintSolver;
@@ -20,7 +20,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public static long DistrictPriorityPenalty = 1000; //Штраф за каждый шаг приоритета к каждому адресу, в менее приоритеном районе
 		public static long DriverPriorityPenalty = 20000; //Штраф каждому менее приоритетному водителю, на единицу приоритета, за выход в маршрут.
 		public static long MaxDistanceAddressPenalty = 300000; //Штраф за не отвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
-
+		public static int MaxBottlesInOrderForLargus = 4; //Максимальное количество бутелей в заказе для ларгусов.
+		public static long LargusMaxBottlePenalty = 500000; //Штраф за добавление в лагрус большего количества бутелей. Сейчас установлено больше чем стоимость недоставки заказа.
 		#endregion
 
 		public IList<RouteList> Routes;
@@ -110,14 +111,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
-			for(int ix = 0; ix < allDrivers.Length; ix++)
-			{
-				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix], distanceCalculator), ix);
-				routing.SetFixedCostOfVehicle((allDrivers[ix].PriorityAtDay - 1) * DriverPriorityPenalty, ix);
-				if(allDrivers[ix].EndOfDay.HasValue)
-					routing.CumulVar(routing.End(ix), "Time").SetMax((long)allDrivers[ix].EndOfDay.Value.TotalSeconds);
-			}
-
 			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
 
@@ -129,6 +122,16 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			var addressCapacity = allDrivers.Select(x => (long)(x.Car.MaxRouteAddresses + 1)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
+
+			var bottlesDimension = routing.GetDimensionOrDie("Bottles");
+
+			for(int ix = 0; ix < allDrivers.Length; ix++) {
+				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix], distanceCalculator), ix);
+				routing.SetFixedCostOfVehicle((allDrivers[ix].PriorityAtDay - 1) * DriverPriorityPenalty, ix);
+				//Устанавливаем время окончания рабочего дня у водителя.
+				if(allDrivers[ix].EndOfDay.HasValue)
+					routing.CumulVar(routing.End(ix), "Time").SetMax((long)allDrivers[ix].EndOfDay.Value.TotalSeconds);
+			}
 
 			for(int ix = 0; ix < Nodes.Length; ix++)
 			{
