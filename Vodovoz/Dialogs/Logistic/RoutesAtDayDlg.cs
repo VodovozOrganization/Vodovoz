@@ -649,16 +649,24 @@ namespace Vodovoz
 					if (selectedMarkers.FirstOrDefault (m => ((Order)m.Tag).Id == order.Id) != null)
 						type = PointMarkerType.white;
 
-					var addressMarker = new PointMarker (new PointLatLng ((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type);
+					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type);
 					addressMarker.Tag = order;
-					addressMarker.ToolTipText = String.Format ("{0}\nБутылей: {1}, Время доставки: {2}",
-						order.DeliveryPoint.ShortAddress,
-						order.TotalDeliveredBottles,
-						order.DeliverySchedule?.Name ?? "Не назначено"
-					);
-					if (route != null)
-						addressMarker.ToolTipText += String.Format (" Везёт: {0}", route.Driver.ShortName);
-					addressesOverlay.Markers.Add (addressMarker);
+					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}, Время доставки: {2}",
+					order.DeliveryPoint.ShortAddress,
+					order.TotalDeliveredBottles,
+					order.DeliverySchedule?.Name ?? "Не назначено");
+
+					var identicalPoint= addressesOverlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.Latitude && g.Position.Lng == (double)order.DeliveryPoint.Longitude);
+					var pointShift = 5;
+					if(identicalPoint >= 1) {
+						addressMarker.Offset = new System.Drawing.Point(identicalPoint * pointShift, identicalPoint * pointShift);
+					}  
+
+					if(route != null)
+						addressMarker.ToolTipText += String.Format(" Везёт: {0}", route.Driver.ShortName);
+
+					addressesOverlay.Markers.Add(addressMarker);
+
 				} else
 					addressesWithoutCoordinats++;
 			}
