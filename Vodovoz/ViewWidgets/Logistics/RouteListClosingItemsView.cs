@@ -242,6 +242,11 @@ namespace Vodovoz
 #if SHORT
 						.AddTextRenderer(node => node.FromClientText).Editable()
 #endif
+			   .AddColumn("Вод. телефон").HeaderAlignment(0.5f)
+					.AddTextRenderer()
+						.AddSetter((cell, node) => cell.Markup = FromClientString(node))
+						.AddTextRenderer(node => node.Order.CommentManager)
+
 				.AddColumn("").AddTextRenderer()
 				.RowCells()
 				.AddSetter<CellRenderer>((cell, node) =>
