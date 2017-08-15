@@ -136,7 +136,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			for(int ix = 0; ix < Nodes.Length; ix++)
 			{
 				time_dimension.CumulVar(ix + 1).SetRange((long)Nodes[ix].Order.DeliverySchedule.From.TotalSeconds,
-				                                      (long)Nodes[ix].Order.DeliverySchedule.To.TotalSeconds
+				                                         (long)Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60 //FIXME Внимание здесь задаем экспедитора. Это не равильно, при реализации работы с экспедитором нужно это изменить.
 				                                     );
 				routing.AddDisjunction(new int[]{ix}, MaxDistanceAddressPenalty);
 			}
