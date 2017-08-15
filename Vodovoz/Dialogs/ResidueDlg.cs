@@ -37,7 +37,7 @@ namespace Vodovoz
 
 		private void ConfigureDlg ()
 		{
-			Entity.Date = new DateTime(2017, 4, 24);
+			Entity.Date = new DateTime(2017, 4, 23);
 			ypickerDocDate.Binding.AddBinding(Entity, e => e.Date, w => w.Date).InitializeFromSource();
 			yreferenceClientSelector.RepresentationModel = new ViewModel.CounterpartyVM(UoW);
 			yreferenceClientSelector.Binding.AddBinding(Entity, e => e.Customer, w => w.Subject).InitializeFromSource();
