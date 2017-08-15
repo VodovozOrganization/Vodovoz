@@ -25,6 +25,7 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.OnLoadTimeStart).Column("on_load_start").CustomType<TimeAsTimeSpanTypeClone>();
 			Map(x => x.OnLoadTimeEnd).Column("on_load_end").CustomType<TimeAsTimeSpanTypeClone>();
 			Map(x => x.OnLoadGate).Column("on_load_gate");
+			Map(x => x.OnloadTimeFixed).Column("on_load_time_fixed");
 
 			References (x => x.Car).Column ("car_id");
 			References (x => x.Shift).Column ("delivery_shift_id");

@@ -139,7 +139,7 @@ namespace Vodovoz
 				.AddColumn("План").AddTextRenderer(x => GetRowPlanTime(x), useMarkup:true)
 				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x))
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
-				.AddColumn("Погрузка").AddTextRenderer(x => GetRowOnloadTime(x))
+				.AddColumn("Погрузка").AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true).AddSetter((c, n) => c.Editable = n is RouteList).EditedEvent(OnLoadTimeEdited)
 				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
 				.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
 				.AddColumn ("К клиенту").AddTextRenderer (x => GetRowEquipmentToClien (x))
@@ -400,7 +400,12 @@ namespace Vodovoz
 		{
 			var rl = row as RouteList;
 			if(rl != null && rl.OnLoadTimeStart.HasValue)
-				return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
+			{
+				if(rl.OnloadTimeFixed)
+					return String.Format("<span foreground=\"Turquoise\">{0:hh\\:mm}</span>", rl.OnLoadTimeStart.Value);
+				else
+					return rl.OnLoadTimeStart.Value.ToString("hh\\:mm");
+			}
 			return null;
 		}
 
@@ -1147,6 +1152,30 @@ namespace Vodovoz
 		{
 			ytreeRoutes.ColumnsAutosize();
 			ytreeRoutes.QueueDraw();
+		}
+
+		void OnLoadTimeEdited(object o, Gtk.EditedArgs args)
+		{
+			var routeList = (RouteList)ytreeRoutes.YTreeModel.NodeAtPath(new Gtk.TreePath(args.Path));
+			bool NeedRecalculate = false;
+			TimeSpan fixedTime;
+
+			if(String.IsNullOrWhiteSpace(args.NewText))
+			{
+				NeedRecalculate = routeList.OnloadTimeFixed;
+				routeList.OnloadTimeFixed = false;
+			}
+			else if(TimeSpan.TryParse(args.NewText, out fixedTime))
+			{
+				if(fixedTime != routeList.OnLoadTimeStart)
+					NeedRecalculate = true;
+				routeList.OnloadTimeFixed = true;
+				routeList.OnLoadTimeStart = fixedTime;
+				routeList.OnLoadTimeEnd = fixedTime.Add(TimeSpan.FromMinutes(routeList.TimeOnLoadMinuts));
+			}
+
+			if(NeedRecalculate)
+				RecalculateOnLoadTime();
 		}
 	}
 }

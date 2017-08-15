@@ -263,6 +263,14 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref onLoadGate, value, () => OnLoadGate); }
 		}
 
+		private bool onLoadTimeFixed;
+
+		[Display(Name = "Время погрузки установлено в ручную")]
+		public virtual bool OnloadTimeFixed {
+			get { return onLoadTimeFixed; }
+			set { SetField(ref onLoadTimeFixed, value, () => OnloadTimeFixed); }
+		}
+
 		#endregion
 
 		#region readonly Свойства
@@ -1189,21 +1197,48 @@ namespace Vodovoz.Domain.Logistic
 
 		public static void RecalculateOnLoadTime (IList<RouteList> routelists, RouteGeometrySputnikCalculator sputnikCache)
 		{
-			var sorted = routelists.Where(x => x.Addresses.Any())
+			var sorted = routelists.Where(x => x.Addresses.Any() && !x.OnloadTimeFixed)
 			                       .Select(x => new Tuple<TimeSpan, RouteList>(
 				                       x.FirstAddressTime - TimeSpan.FromSeconds(sputnikCache.TimeFromBase(x.Addresses.First().Order.DeliveryPoint)),
 			                                     x
 				                      ))
 			                       .OrderByDescending(x => x.Item1);
+			var fixedTime = routelists.Where(x => x.Addresses.Any() && x.OnloadTimeFixed).ToList();
 			var paralellLoading = 4;
 			var loadingPlaces = Enumerable.Range(0, paralellLoading).Select(x => new TimeSpan(1,0,0,0)).ToArray();
 			foreach(var route in sorted)
 			{
+				repeat:
 				int selectedPlace = Array.IndexOf(loadingPlaces, loadingPlaces.Max());
 				var endLoading = loadingPlaces[selectedPlace] < route.Item1 ? loadingPlaces[selectedPlace] : route.Item1;
+				var startLoading = endLoading - TimeSpan.FromMinutes(route.Item2.TimeOnLoadMinuts);
+				//Проверяем, не перекрываем ли мы фиксированное время.
+				var interfere = fixedTime.Where(x => x.OnLoadTimeEnd >= startLoading).ToList();
+				var freeplaces = interfere.Count == 0 ? paralellLoading
+				                          : loadingPlaces.Count(x => x.TotalSeconds >= interfere.Min(y => y.OnLoadTimeEnd.Value.TotalSeconds));
+				if(endLoading == loadingPlaces[selectedPlace])
+					logger.Debug("Нехватило места");
+
+				if(freeplaces <= interfere.Count || endLoading <= interfere.Min(x => x.OnLoadTimeStart)) {
+					var selectedTime = interfere.Max(x => x.OnLoadTimeEnd);
+					var selectedFixed = interfere.First(x => x.OnLoadTimeEnd == selectedTime);
+					if(loadingPlaces[selectedPlace] >= selectedFixed.OnLoadTimeEnd.Value) {
+						loadingPlaces[selectedPlace] = selectedFixed.onLoadTimeStart.Value;
+						selectedFixed.OnLoadGate = selectedPlace + 1;
+					} else {
+						logger.Warn("Маршрутный лист {0} с фиксированным временем погрузки {1:hh\\:mm}-{2:hh\\:mm} не влезает целиком в расписание прогрузки.",
+									selectedFixed.Id, selectedFixed.onLoadTimeStart, selectedFixed.OnLoadTimeEnd
+								   );
+						selectedFixed.OnLoadGate = null;
+						if(loadingPlaces[selectedPlace] < selectedFixed.onLoadTimeStart.Value)
+							loadingPlaces[selectedPlace] = selectedFixed.onLoadTimeStart.Value;
+					}
+					fixedTime.Remove(selectedFixed);
+					goto repeat;
+				}
+
 				route.Item2.OnLoadTimeEnd = endLoading;
-				route.Item2.onLoadTimeStart = loadingPlaces[selectedPlace] 
-					= endLoading - TimeSpan.FromMinutes(route.Item2.TimeOnLoadMinuts);
+				route.Item2.onLoadTimeStart = loadingPlaces[selectedPlace] = startLoading;
 				route.Item2.onLoadGate = selectedPlace + 1;
 			}
 		}
