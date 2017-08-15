@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="RouteLists">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.id AS routeListId,
@@ -27,12 +27,14 @@
             IF(employees.patronymic = '',
                 NULL,
                 employees.patronymic)) AS driver_name,
-    (SELECT 
+   (SELECT 
             SUM(total_cash)
         FROM
             route_list_addresses
         WHERE
-            route_list_addresses.route_list_id = route_lists.id) AS nal
+            route_list_addresses.route_list_id = routeListId) AS nal,
+       IFNULL(money,0) AS nalreturn,
+       cashier_comment
 FROM
     route_lists
         LEFT JOIN
@@ -41,11 +43,21 @@ FROM
     route_list_addresses ON route_list_addresses.route_list_id = route_lists.id
         LEFT JOIN
     orders ON route_list_addresses.order_id = orders.id
+        LEFT JOIN
+    cash_income ON cash_income.route_list_id = route_list_addresses.route_list_id
 WHERE
     route_lists.status = 'OnClosing'
+        AND ((route_lists.date &lt; CURDATE()
+        AND @todayRloff = 1)
+        OR (@todayRloff = 0))
 GROUP BY routeListId</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@todayRloff">
+            <Value>={?todayRloff}</Value>
+          </QueryParameter>
+        </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="routeListId">
           <DataField>routeListId</DataField>
           <TypeName>System.Int32</TypeName>
@@ -60,6 +72,14 @@ GROUP BY routeListId</CommandText>
         </Field>
         <Field Name="nal">
           <DataField>nal</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
+        <Field Name="cashier_comment">
+          <DataField>cashier_comment</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="nalreturn">
+          <DataField>nalreturn</DataField>
           <TypeName>System.Int32</TypeName>
         </Field>
       </Fields>
@@ -104,16 +124,19 @@ GROUP BY routeListId</CommandText>
             <Width>34.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>117.9pt</Width>
+            <Width>100.1pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>66.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>201.4pt</Width>
+            <Width>134.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>88.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>74.3pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -201,6 +224,24 @@ GROUP BY routeListId</CommandText>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Комментарий кассира</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
               </TableCells>
             </TableRow>
           </TableRows>
@@ -236,7 +277,7 @@ GROUP BY routeListId</CommandText>
                         </BorderStyle>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>MM/dd/yyyy</Format>
+                        <Format>dd/MM/yyyy</Format>
                         <TextAlign>Center</TextAlign>
                       </Style>
                     </Textbox>
@@ -277,9 +318,24 @@ GROUP BY routeListId</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>={nal}</Value>
+                      <Value>={nal} - {nalreturn}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>={cashier_comment}</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
@@ -333,4 +389,19 @@ GROUP BY routeListId</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
+  <ReportParameters>
+    <ReportParameter Name="todayRloff">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
 </Report>

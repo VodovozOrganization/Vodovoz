@@ -29,21 +29,21 @@ namespace Vodovoz.ReportsParameters.Logistic
 
 		void OnUpdate(bool hide = false)
 		{
-			if (LoadReport != null)
-			{
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		private ReportInfo GetReportInfo()
 		{
+			var parameters = new Dictionary<string, object>();
+			if(buttonToDayRL.Active)
+				parameters.Add("todayRloff", 1);
+			else
+				parameters.Add("todayRloff", 0);
+			
 			return new ReportInfo
 			{
 				Identifier = "Logistic.RouteListOnClosing",
-				Parameters = new Dictionary<string, object>
-				{
-					
-				}
+				Parameters = parameters
 			};
 		}
 
