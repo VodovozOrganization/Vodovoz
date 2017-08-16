@@ -423,8 +423,12 @@ namespace Vodovoz
 				string color;
 				if(rli.PlanTimeStart == null || rli.PlanTimeEnd == null)
 					color = "grey";
-				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From || rli.PlanTimeEnd.Value + TimeSpan.FromMinutes(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
+				else if(rli.PlanTimeEnd.Value + TimeSpan.FromMinutes(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
 					color = "red";
+				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
+					color = "blue";
+				else if(rli.PlanTimeEnd.Value == rli.PlanTimeStart.Value)
+					color = "dark red";
 				else if (rli.PlanTimeEnd.Value - rli.PlanTimeStart.Value <= new TimeSpan(0, 30, 0))
 					color = "orange";
 				else

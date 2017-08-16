@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -1180,18 +1180,18 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual void RecalculatePlanTime(RouteGeometrySputnikCalculator sputnikCache)
 		{
-			DateTime time = default(DateTime);
+			TimeSpan minTime;
 			//Расчет минимального времени к которому нужно\можно подъехать.
 			for (int ix = 0; ix < Addresses.Count; ix++) {
 				
 				if (ix == 0)
-					time = time.Add(Addresses[ix].Order.DeliverySchedule.From);
+					minTime = Addresses[ix].Order.DeliverySchedule.From;
 				else
-					time = time.AddSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
+					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
 
-				Addresses[ix].PlanTimeStart = time.TimeOfDay;
+				Addresses[ix].PlanTimeStart = minTime > Addresses[ix].Order.DeliverySchedule.From ? minTime : Addresses[ix].Order.DeliverySchedule.From;
 
-				time = time.AddMinutes(Addresses[ix].TimeOnPoint);
+				minTime += TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
 			}
 			//Расчет максимального времени до которого нужно подъехать.
 			TimeSpan maxTime;
@@ -1202,8 +1202,24 @@ namespace Vodovoz.Domain.Logistic
 				else
 					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
 
+				if(maxTime > Addresses[ix].Order.DeliverySchedule.To)
+					maxTime = Addresses[ix].Order.DeliverySchedule.To;
+
 				maxTime -= TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
 
+				if(maxTime < Addresses[ix].PlanTimeStart)
+				{ //Расписание испорчено, успеть нельзя. Пытаемся его более менее адекватно отобразить.
+					TimeSpan beforeMin = new TimeSpan(1, 0,0,0);
+					if(ix > 0)
+						beforeMin = Addresses[ix - 1].PlanTimeStart.Value 
+						                             + TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint)) 
+						                             + TimeSpan.FromMinutes(Addresses[ix - 1].TimeOnPoint);
+					if(beforeMin < Addresses[ix].Order.DeliverySchedule.From)
+					{
+						Addresses[ix].PlanTimeStart = beforeMin < maxTime ? maxTime : beforeMin;
+					}
+					maxTime = Addresses[ix].PlanTimeStart.Value;
+				}
 				Addresses[ix].PlanTimeEnd = maxTime;
 			}
 		}
