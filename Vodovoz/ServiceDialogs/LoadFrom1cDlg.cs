@@ -789,7 +789,7 @@ namespace Vodovoz
 					order.ToClientText += " раст";
 
 			}
-
+			#if SHORT
 			foreach(var item in order.OrderItems)
 			{
 				if (NoDeliveriNomenclatures.Contains(item.Nomenclature.Code1c))
@@ -798,7 +798,6 @@ namespace Vodovoz
 				}
 			}
 
-			#if SHORT
 			foreach (var item in order.OrderItems) {
 				if (ExcludeNomenclatures.Contains (item.Nomenclature.Code1c))
 				{
