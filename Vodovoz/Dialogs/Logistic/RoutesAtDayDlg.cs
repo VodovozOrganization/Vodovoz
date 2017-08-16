@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -134,13 +134,14 @@ namespace Vodovoz
 			LoadDistrictsGeometry();
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create ()
+				.AddColumn("Маркер").AddPixbufRenderer(x => GetRowMarker(x))
 				.AddColumn ("МЛ/Адрес").AddTextRenderer (x => GetRowTitle (x))
-				.AddColumn ("Время").AddTextRenderer (x => GetRowTime (x))
+				.AddColumn ("Адр./Время").AddTextRenderer (x => GetRowTime (x), useMarkup: true)
 				.AddColumn("План").AddTextRenderer(x => GetRowPlanTime(x), useMarkup:true)
-				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x))
+				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x), useMarkup: true)
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
+				.AddColumn("Вес").AddTextRenderer(x => GetRowWeight(x), useMarkup: true)
 				.AddColumn("Погрузка").AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true).AddSetter((c, n) => c.Editable = n is RouteList).EditedEvent(OnLoadTimeEdited)
-				.AddColumn ("Маркер").AddPixbufRenderer (x => GetRowMarker (x))
 				.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
 				.AddColumn ("К клиенту").AddTextRenderer (x => GetRowEquipmentToClien (x))
 				.AddColumn ("От клиента").AddTextRenderer (x => GetRowEquipmentFromClien (x))
@@ -392,7 +393,7 @@ namespace Vodovoz
 		{
 			var rl = row as RouteList;
 			if (rl != null)
-				return rl.Addresses.Count.ToString ();
+				return FormatOccupancy(rl.Addresses.Count, rl.Car.MinRouteAddresses, rl.Car.MaxRouteAddresses);
 			return (row as RouteListItem)?.Order.DeliverySchedule.Name;
 		}
 
@@ -445,7 +446,10 @@ namespace Vodovoz
 		{
 			var rl = row as RouteList;
 			if (rl != null)
-				return rl.Addresses.Sum (x => x.Order.TotalDeliveredBottles).ToString ();
+			{
+				var bottles = rl.Addresses.Sum(x => x.Order.TotalDeliveredBottles);
+				return FormatOccupancy(bottles, rl.Car.MinBottles, rl.Car.MaxBottles);
+			}
 
 			var rli = row as RouteListItem;
 			if (rli != null)
@@ -462,6 +466,20 @@ namespace Vodovoz
 			var rli = row as RouteListItem;
 			if (rli != null)
 				return rli.Order.TotalDeliveredBottlesSix.ToString ();
+			return null;
+		}
+
+		string GetRowWeight(object row)
+		{
+			var rl = row as RouteList;
+			if(rl != null) {
+				var weight = rl.Addresses.Sum(x => x.Order.TotalWeight);
+				return FormatOccupancy(weight, null, rl.Car.MaxWeight);
+			}
+
+			var rli = row as RouteListItem;
+			if(rli != null)
+				return rli.Order.TotalWeight.ToString();
 			return null;
 		}
 
@@ -515,6 +533,24 @@ namespace Vodovoz
 				return rli.Order.ToClientText + nomenclatureName;
 			}
 			return null;
+		}
+
+		string FormatOccupancy(int val, int? min, int? max)
+		{
+			string color;
+			if(val > max)
+				color = "red";
+			else if(val < min)
+				color = "blue";
+			else
+				color = "green";
+
+			if(min.HasValue && max.HasValue)
+				return String.Format("<span foreground=\"{0}\">{1}</span>({2}-{3})", color, val, min, max);
+			else if(max.HasValue)
+				return String.Format("<span foreground=\"{0}\">{1}</span>({2})", color, val, max);
+			else
+				return String.Format("<span foreground=\"{0}\">{1}</span>(min {2})", color, val, min);
 		}
 
 		Pixbuf GetRowMarker (object row)

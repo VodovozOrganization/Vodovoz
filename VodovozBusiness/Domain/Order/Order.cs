@@ -644,6 +644,12 @@ namespace Vodovoz.Domain.Orders
 			}
 		}
 
+		public virtual int TotalWeight {
+			get {
+				return (int)OrderItems.Sum(x => x.Count * x.Nomenclature.Weight);
+			}
+		}
+
 		public virtual string RowColor { get { return PreviousOrder == null ? "black" : "red"; } }
 
 		[PropertyChangedAlso(nameof(SumToReceive))]
