@@ -1181,7 +1181,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual void RecalculatePlanTime(RouteGeometrySputnikCalculator sputnikCache)
 		{
 			DateTime time = default(DateTime);
-
+			//Расчет минимального времени к которому нужно\можно подъехать.
 			for (int ix = 0; ix < Addresses.Count; ix++) {
 				
 				if (ix == 0)
@@ -1192,6 +1192,19 @@ namespace Vodovoz.Domain.Logistic
 				Addresses[ix].PlanTimeStart = time.TimeOfDay;
 
 				time = time.AddMinutes(Addresses[ix].TimeOnPoint);
+			}
+			//Расчет максимального времени до которого нужно подъехать.
+			TimeSpan maxTime;
+			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
+
+				if(ix == Addresses.Count - 1)
+					maxTime = Addresses[ix].Order.DeliverySchedule.To;
+				else
+					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
+
+				maxTime -= TimeSpan.FromMinutes(Addresses[ix].TimeOnPoint);
+
+				Addresses[ix].PlanTimeEnd = maxTime;
 			}
 		}
 

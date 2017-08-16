@@ -421,21 +421,17 @@ namespace Vodovoz
 			if (rli != null)
 			{
 				string color;
-				if (rli.PlanTimeStart == null)
+				if(rli.PlanTimeStart == null || rli.PlanTimeEnd == null)
 					color = "grey";
-				else if (rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From - new TimeSpan(0, 30, 0))
-					color = "purple";
-				else if (rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
-					color = "blue";
-				else if (rli.PlanTimeStart.Value > rli.Order.DeliverySchedule.To)
+				else if(rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From || rli.PlanTimeEnd.Value + TimeSpan.FromMinutes(rli.TimeOnPoint) > rli.Order.DeliverySchedule.To)
 					color = "red";
-				else if (rli.PlanTimeStart.Value > rli.Order.DeliverySchedule.To - new TimeSpan(0, 25, 0))
+				else if (rli.PlanTimeEnd.Value - rli.PlanTimeStart.Value <= new TimeSpan(0, 30, 0))
 					color = "orange";
 				else
 					color = "dark green";
 						
-				return String.Format("<span foreground=\"{2}\"> {0:hh\\:mm}</span> (+{1})",
-				                     rli.PlanTimeStart, rli.TimeOnPoint, color);
+				return String.Format("<span foreground=\"{2}\">{0:hh\\:mm}-{1:hh\\:mm}</span> ({3} мин.)",
+				                     rli.PlanTimeStart, rli.PlanTimeEnd, color, rli.TimeOnPoint);
 			}
 
 			return null;
@@ -1109,7 +1105,8 @@ namespace Vodovoz
 					foreach(var order in propose.Orders)
 					{
 						var address = rl.AddAddressFromOrder(order.Order);
-						address.PlanTimeStart = order.ProposedTime.TimeOfDay;
+						address.PlanTimeStart = order.ProposedTimeStart;
+						address.PlanTimeEnd = order.ProposedTimeEnd;
 					}
 					routesAtDay.Add(rl);
 					propose.RealRoute = rl;

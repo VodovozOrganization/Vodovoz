@@ -192,7 +192,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					{
 						var time_var = time_dimension.CumulVar(second_node);
 						var rPoint = new ProposedRoutePoint(
-							new DateTime().AddSeconds(solution.Value(time_var)),
+							TimeSpan.FromSeconds(solution.Min(time_var)),
+							TimeSpan.FromSeconds(solution.Max(time_var)),
 							Nodes[second_node - 1].Order
 						);
 						rPoint.DebugMaxMin = String.Format("\n({0},{1})[{3}-{4}]-{2}",
@@ -214,7 +215,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 						ProposedRoutes.Add(route);
 						logger.Debug("Маршрут {0}: {1}",
 						             route.Driver.Employee.ShortName,
-						             String.Join(" -> ", route.Orders.Select(x => x.ProposedTime.ToShortTimeString() + x.DebugMaxMin))
+						             String.Join(" -> ", route.Orders.Select(x => x.DebugMaxMin))
 						            );
 					}
 				}

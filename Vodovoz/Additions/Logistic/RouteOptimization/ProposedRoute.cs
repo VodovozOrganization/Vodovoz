@@ -29,14 +29,16 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 	public class ProposedRoutePoint
 	{
-		public DateTime ProposedTime;
+		public TimeSpan ProposedTimeStart;
+		public TimeSpan ProposedTimeEnd;
 		public Order Order;
 
 		public string DebugMaxMin;
 
-		public ProposedRoutePoint(DateTime time, Order order)
+		public ProposedRoutePoint(TimeSpan timeStart, TimeSpan timeEnd, Order order)
 		{
-			ProposedTime = time;
+			ProposedTimeStart = timeStart;
+			ProposedTimeEnd = timeEnd;
 			Order = order;
 		}
 	}
