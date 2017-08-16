@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -414,28 +414,28 @@ namespace Vodovoz
 			var rl = row as RouteList;
 			if (rl != null)
 				return String.Format("{0:hh\\:mm}-{1:hh\\:mm}",
-				                     rl.Addresses.FirstOrDefault()?.PlanTime,
-				                     rl.Addresses.LastOrDefault()?.PlanTime);
+				                     rl.Addresses.FirstOrDefault()?.PlanTimeStart,
+				                     rl.Addresses.LastOrDefault()?.PlanTimeStart);
 
 			var rli = row as RouteListItem;
 			if (rli != null)
 			{
 				string color;
-				if (rli.PlanTime == null)
+				if (rli.PlanTimeStart == null)
 					color = "grey";
-				else if (rli.PlanTime.Value < rli.Order.DeliverySchedule.From - new TimeSpan(0, 30, 0))
+				else if (rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From - new TimeSpan(0, 30, 0))
 					color = "purple";
-				else if (rli.PlanTime.Value < rli.Order.DeliverySchedule.From)
+				else if (rli.PlanTimeStart.Value < rli.Order.DeliverySchedule.From)
 					color = "blue";
-				else if (rli.PlanTime.Value > rli.Order.DeliverySchedule.To)
+				else if (rli.PlanTimeStart.Value > rli.Order.DeliverySchedule.To)
 					color = "red";
-				else if (rli.PlanTime.Value > rli.Order.DeliverySchedule.To - new TimeSpan(0, 25, 0))
+				else if (rli.PlanTimeStart.Value > rli.Order.DeliverySchedule.To - new TimeSpan(0, 25, 0))
 					color = "orange";
 				else
 					color = "dark green";
 						
 				return String.Format("<span foreground=\"{2}\"> {0:hh\\:mm}</span> (+{1})",
-				                     rli.PlanTime, rli.TimeOnPoint, color);
+				                     rli.PlanTimeStart, rli.TimeOnPoint, color);
 			}
 
 			return null;
@@ -1109,7 +1109,7 @@ namespace Vodovoz
 					foreach(var order in propose.Orders)
 					{
 						var address = rl.AddAddressFromOrder(order.Order);
-						address.PlanTime = order.ProposedTime.TimeOfDay;
+						address.PlanTimeStart = order.ProposedTime.TimeOfDay;
 					}
 					routesAtDay.Add(rl);
 					propose.RealRoute = rl;

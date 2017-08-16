@@ -321,12 +321,20 @@ namespace Vodovoz.Domain.Logistic
 		public virtual bool Notified30Minutes { get; set; }
 		public virtual bool NotifiedTimeout { get; set; }
 
-		private TimeSpan? planTime;
+		private TimeSpan? planTimeStart;
 
-		[Display(Name = "Запланированное время приезда")]
-		public virtual TimeSpan? PlanTime {
-			get { return planTime; }
-			set { SetField(ref planTime, value, () => PlanTime); }
+		[Display(Name = "Запланированное время приезда min")]
+		public virtual TimeSpan? PlanTimeStart {
+			get { return planTimeStart; }
+			set { SetField(ref planTimeStart, value, () => PlanTimeStart); }
+		}
+
+		private TimeSpan? planTimeEnd;
+
+		[Display(Name = "Запланированное время приезда max")]
+		public virtual TimeSpan? PlanTimeEnd {
+			get { return planTimeEnd; }
+			set { SetField(ref planTimeEnd, value, () => PlanTimeEnd); }
 		}
 
 		#endregion

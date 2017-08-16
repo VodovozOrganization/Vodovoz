@@ -1189,7 +1189,7 @@ namespace Vodovoz.Domain.Logistic
 				else
 					time = time.AddSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
 
-				Addresses[ix].PlanTime = time.TimeOfDay;
+				Addresses[ix].PlanTimeStart = time.TimeOfDay;
 
 				time = time.AddMinutes(Addresses[ix].TimeOnPoint);
 			}
