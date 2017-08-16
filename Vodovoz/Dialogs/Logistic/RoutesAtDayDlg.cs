@@ -339,7 +339,7 @@ namespace Vodovoz
 		{
 			var result = new List<long>();
 			result.Add(RouteGeometrySputnikCalculator.BaseHash);
-			result.AddRange(rl.Addresses.Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
+			result.AddRange(rl.Addresses.Where(x => x.Order.DeliveryPoint.СoordinatesExist).Select(x => CachedDistance.GetHash(x.Order.DeliveryPoint)));
 			result.Add(RouteGeometrySputnikCalculator.BaseHash);
 			return result;
 		}
