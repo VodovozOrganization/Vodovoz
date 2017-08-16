@@ -26,7 +26,7 @@ namespace Vodovoz
 	{
 		private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
-		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot ();
+		private IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		List<string> IncludeParents = new List<string>{
 			"00000002",
@@ -51,16 +51,15 @@ namespace Vodovoz
 		{
 			"00000969", "24065099", "50453099", "00000344"
 		};
-		#endif
+#endif
 
 		#region Свойства
 		private IList<Bank> banks;
 
 		private IList<Bank> Banks {
 			get {
-				if(banks == null)
-				{
-					banks = QSBanks.Repository.BankRepository.ActiveBanks (UoW);
+				if(banks == null) {
+					banks = QSBanks.Repository.BankRepository.ActiveBanks(UoW);
 				}
 				return banks;
 			}
@@ -74,8 +73,8 @@ namespace Vodovoz
 			}
 			set {
 				totalCounterparty = value;
-				labelTotalCounterparty.LabelProp = totalCounterparty.ToString ();
-				QSMain.WaitRedraw ();
+				labelTotalCounterparty.LabelProp = totalCounterparty.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -87,8 +86,8 @@ namespace Vodovoz
 			}
 			set {
 				skipedCounterparty = value;
-				labelSkipedCounterparty.LabelProp = SkipedCounterparty.ToString ();
-				QSMain.WaitRedraw ();
+				labelSkipedCounterparty.LabelProp = SkipedCounterparty.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -100,8 +99,8 @@ namespace Vodovoz
 			}
 			set {
 				skipedOrders = value;
-				labelSkipedOrdres.LabelProp = SkipedOrders.ToString ();
-				QSMain.WaitRedraw ();
+				labelSkipedOrdres.LabelProp = SkipedOrders.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -113,8 +112,8 @@ namespace Vodovoz
 			}
 			set {
 				readedAccounts = value;
-				labelReadedAccounts.LabelProp = ReadedAccounts.ToString ();
-				QSMain.WaitRedraw ();
+				labelReadedAccounts.LabelProp = ReadedAccounts.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -126,8 +125,8 @@ namespace Vodovoz
 			}
 			set {
 				linkAccounts = value;
-				labelLinkedAccount.LabelProp = LinkedAccounts.ToString ();
-				QSMain.WaitRedraw ();
+				labelLinkedAccount.LabelProp = LinkedAccounts.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -139,8 +138,8 @@ namespace Vodovoz
 			}
 			set {
 				inactiveAccounts = value;
-				labelInactiveAccounts.LabelProp = InactiveAccounts.ToString ();
-				QSMain.WaitRedraw ();
+				labelInactiveAccounts.LabelProp = InactiveAccounts.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -152,8 +151,8 @@ namespace Vodovoz
 			}
 			set {
 				readedBanks = value;
-				labelTotalBanks.LabelProp = ReadedBanks.ToString ();
-				QSMain.WaitRedraw ();
+				labelTotalBanks.LabelProp = ReadedBanks.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -165,8 +164,8 @@ namespace Vodovoz
 			}
 			set {
 				inactiveBanks = value;
-				labelInactiveBanks.LabelProp = InactiveBanks.ToString ();
-				QSMain.WaitRedraw ();
+				labelInactiveBanks.LabelProp = InactiveBanks.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -178,8 +177,8 @@ namespace Vodovoz
 			}
 			set {
 				readedNomenclatures = value;
-				labelReadedNomenclatures.LabelProp = ReadedNomenclatures.ToString ();
-				QSMain.WaitRedraw ();
+				labelReadedNomenclatures.LabelProp = ReadedNomenclatures.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -191,8 +190,8 @@ namespace Vodovoz
 			}
 			set {
 				readedOrders = value;
-				labelReadedOrders.LabelProp = ReadedOrders.ToString ();
-				QSMain.WaitRedraw ();
+				labelReadedOrders.LabelProp = ReadedOrders.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -204,8 +203,8 @@ namespace Vodovoz
 			}
 			set {
 				newCounterparties = value;
-				labelNewCounterparties.LabelProp = NewCounterparties.ToString ();
-				QSMain.WaitRedraw ();
+				labelNewCounterparties.LabelProp = NewCounterparties.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -217,8 +216,8 @@ namespace Vodovoz
 			}
 			set {
 				newNomenclatures = value;
-				labelNewNomenclatures.LabelProp = NewNomenclatures.ToString ();
-				QSMain.WaitRedraw ();
+				labelNewNomenclatures.LabelProp = NewNomenclatures.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -230,8 +229,8 @@ namespace Vodovoz
 			}
 			set {
 				newOrders = value;
-				labelNewOrders.LabelProp = NewOrders.ToString ();
-				QSMain.WaitRedraw ();
+				labelNewOrders.LabelProp = NewOrders.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -243,8 +242,8 @@ namespace Vodovoz
 			}
 			set {
 				newAddresses = value;
-				labelNewAddresses.LabelProp = NewAddresses.ToString ();
-				QSMain.WaitRedraw ();
+				labelNewAddresses.LabelProp = NewAddresses.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -256,8 +255,8 @@ namespace Vodovoz
 			}
 			set {
 				changedCounterparties = value;
-				labelCounterpartiesChanged.LabelProp = ChangedCounterparties.ToString ();
-				QSMain.WaitRedraw ();
+				labelCounterpartiesChanged.LabelProp = ChangedCounterparties.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 
@@ -269,31 +268,31 @@ namespace Vodovoz
 			}
 			set {
 				changedOrders = value;
-				labelOrdersChanged.LabelProp = ChangedOrders.ToString ();
-				QSMain.WaitRedraw ();
+				labelOrdersChanged.LabelProp = ChangedOrders.ToString();
+				QSMain.WaitRedraw();
 			}
 		}
 		#endregion
 
-		List<Counterparty> 	CounterpatiesList = new List<Counterparty>();
-//		List<Counterparty> 	ChangedCounterpartiesList = new List<Counterparty>();
-		List<Account1c> 	AccountsList = new List<Account1c>();
-		List<Bank1c> 		Banks1cList = new List<Bank1c>();
-		List<Nomenclature> 	NomenclaturesList = new List<Nomenclature>();
-		List<Order> 		OrdersList = new List<Order>();
-		List<Order> 		ChangedOrdersList = new List<Order>();
-		List<DateTime> 		LoadedOrderDates = new List<DateTime>();
-		List<ChangedItem> 	Changes = new List<ChangedItem>();
+		List<Counterparty> CounterpatiesList = new List<Counterparty>();
+		//		List<Counterparty> 	ChangedCounterpartiesList = new List<Counterparty>();
+		List<Account1c> AccountsList = new List<Account1c>();
+		List<Bank1c> Banks1cList = new List<Bank1c>();
+		List<Nomenclature> NomenclaturesList = new List<Nomenclature>();
+		List<Order> OrdersList = new List<Order>();
+		List<Order> ChangedOrdersList = new List<Order>();
+		List<DateTime> LoadedOrderDates = new List<DateTime>();
+		List<ChangedItem> Changes = new List<ChangedItem>();
 
-		List<DeliverySchedule> 	DeliverySchedules = null;
+		List<DeliverySchedule> DeliverySchedules = null;
 
 		MeasurementUnits unitU;
 		MeasurementUnits UnitServ;
 
 
-		public LoadFrom1cDlg ()
+		public LoadFrom1cDlg()
 		{
-			this.Build ();
+			this.Build();
 			TabName = "Загрузка контрагентов из 1с 7.7";
 
 			FileFilter Filter = new FileFilter();
@@ -302,8 +301,8 @@ namespace Vodovoz
 			Filter.AddPattern("*.xml");
 			filechooserXML.Filter = Filter;
 
-			DeliverySchedules  = UoW.GetAll<DeliverySchedule>().ToList();
-			unitU 	 = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
+			DeliverySchedules = UoW.GetAll<DeliverySchedule>().ToList();
+			unitU = MeasurementUnitsRepository.GetDefaultGoodsUnit(UoW);
 			UnitServ = MeasurementUnitsRepository.GetDefaultGoodsService(UoW);
 
 			vboxChanges.Visible = false;
@@ -321,78 +320,74 @@ namespace Vodovoz
 				.Finish();
 		}
 
-		void YtreeEntites_Selection_Changed (object sender, EventArgs e)
+		void YtreeEntites_Selection_Changed(object sender, EventArgs e)
 		{
 			var item = ytreeEntites.GetSelectedObject<ChangedItem>();
 			ytreeChanges.ItemsDataSource = item?.Fields;
 			ytreeChanges.ColumnsAutosize();
 		}
 
-		protected void OnButtonLoadClicked (object sender, EventArgs e)
+		protected void OnButtonLoadClicked(object sender, EventArgs e)
 		{
 			checkSkipCounterparties.Sensitive = false;
-			logger.Info ("Читаем XML файл...");
+			logger.Info("Читаем XML файл...");
 			progressbar.Text = "Читаем XML файл...";
-			TotalCounterparty = SkipedCounterparty 		= ReadedAccounts
-				= LinkedAccounts		= InactiveAccounts 		= ReadedBanks
-				= InactiveBanks			= ReadedNomenclatures 	= ReadedOrders
-				= NewCounterparties		= NewNomenclatures 		= NewOrders
-				= NewAddresses			= ChangedCounterparties = ChangedOrders
+			TotalCounterparty = SkipedCounterparty = ReadedAccounts
+				= LinkedAccounts = InactiveAccounts = ReadedBanks
+				= InactiveBanks = ReadedNomenclatures = ReadedOrders
+				= NewCounterparties = NewNomenclatures = NewOrders
+				= NewAddresses = ChangedCounterparties = ChangedOrders
 				= 0;
-			
-			CounterpatiesList		 .Clear();
-			AccountsList	  		 .Clear();
-			Banks1cList		  		 .Clear();
-			NomenclaturesList 		 .Clear();
-			OrdersList		  		 .Clear();
-			ChangedOrdersList		 .Clear();
 
-			XmlDocument content = new XmlDocument ();
-			content.Load (filechooserXML.Filename);
+			CounterpatiesList.Clear();
+			AccountsList.Clear();
+			Banks1cList.Clear();
+			NomenclaturesList.Clear();
+			OrdersList.Clear();
+			ChangedOrdersList.Clear();
+
+			XmlDocument content = new XmlDocument();
+			content.Load(filechooserXML.Filename);
 
 			progressbar.Text = "Разбор данных в файле...";
-			foreach(XmlNode node in content.SelectNodes ("/ФайлОбмена/Объект"))
-			{
-				string ruleName = node.Attributes ["ИмяПравила"].Value;
-				switch(ruleName)
-				{
-				case "Контрагенты":
-					ParseCounterparty (node);
-					break;
-				case "БанковскиеСчета":
-					ParseAccount (node);
-					break;
-				case "Банки":
-					ParseBank (node);
-					break;
-				case "КонтактнаяИнформация":
-					ParseContactInfo (node);
-					break;
-				case "Номенклатура":
-					ParseNomenclature (node);
-					break;
-				case "РеализацияТоваровУслуг":
-					ParseOrders (node);
-					break;
+			foreach(XmlNode node in content.SelectNodes("/ФайлОбмена/Объект")) {
+				string ruleName = node.Attributes["ИмяПравила"].Value;
+				switch(ruleName) {
+					case "Контрагенты":
+						ParseCounterparty(node);
+						break;
+					case "БанковскиеСчета":
+						ParseAccount(node);
+						break;
+					case "Банки":
+						ParseBank(node);
+						break;
+					case "КонтактнаяИнформация":
+						ParseContactInfo(node);
+						break;
+					case "Номенклатура":
+						ParseNomenclature(node);
+						break;
+					case "РеализацияТоваровУслуг":
+						ParseOrders(node);
+						break;
 				}
 			}
 			progressbar.Text = "Сопопоставляем расчетные счета с владельщами.";
 			progressbar.Adjustment.Value = 0;
 			progressbar.Adjustment.Upper = AccountsList.Count;
 
-			foreach(var ac1c in AccountsList)
-			{
+			foreach(var ac1c in AccountsList) {
 				progressbar.Adjustment.Value++;
-				QSMain.WaitRedraw ();
+				QSMain.WaitRedraw();
 
-				if (ac1c.DomainAccount.Inactive)
+				if(ac1c.DomainAccount.Inactive)
 					continue;
 
-				var counterparty = CounterpatiesList.Find (c => c.Code1c == ac1c.OwnerCode1c);
+				var counterparty = CounterpatiesList.Find(c => c.Code1c == ac1c.OwnerCode1c);
 
-				if(counterparty != null)
-				{
-					counterparty.AddAccount (ac1c.DomainAccount);
+				if(counterparty != null) {
+					counterparty.AddAccount(ac1c.DomainAccount);
 					LinkedAccounts++;
 				}
 			}
@@ -408,110 +403,97 @@ namespace Vodovoz
 		{
 			bool skipCounterparties = checkSkipCounterparties.Active;
 
-			var parrentNode = node.SelectSingleNode ("Свойство[@Имя='Родитель']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var parrentNode = node.SelectSingleNode("Свойство[@Имя='Родитель']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			if (skipCounterparties)
-			{
-				if((parrentNode == null || !IncludeParents.Contains (parrentNode.InnerText)))
-				{
-					logger.Debug ("Пропускаем... так как не входит в выборку.");
+			if(skipCounterparties) {
+				if((parrentNode == null || !IncludeParents.Contains(parrentNode.InnerText))) {
+					logger.Debug("Пропускаем... так как не входит в выборку.");
 					SkipedCounterparty++;
 					return;
 				}
-				
-				if(ExcludeParents.Contains (parrentNode.InnerText))
-				{
-					logger.Debug ("Пропускаем... так как попадает в исключение.");
+
+				if(ExcludeParents.Contains(parrentNode.InnerText)) {
+					logger.Debug("Пропускаем... так как попадает в исключение.");
 					SkipedCounterparty++;
 					return;
 				}
 			}
 
 			bool isGroup = false;
-			var groupNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
-			if (groupNode != null && groupNode.InnerText == "true") //Если не группа то isGroup == null так как нода "Значение" нет.
+			var groupNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
+			if(groupNode != null && groupNode.InnerText == "true") //Если не группа то isGroup == null так как нода "Значение" нет.
 			{
-				logger.Debug ("Это группа");
+				logger.Debug("Это группа");
 				isGroup = true;
 			}
 
-			var codeNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='Код']/Значение");
+			var codeNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Код']/Значение");
 
-			if(isGroup)
-			{
-				IncludeParents.Add (codeNode.InnerText);
-				logger.Debug ("добавили группу {0}.", codeNode.InnerText);
-			}
-			else
-			{
-				var counterparty = new Counterparty ();
+			if(isGroup) {
+				IncludeParents.Add(codeNode.InnerText);
+				logger.Debug("добавили группу {0}.", codeNode.InnerText);
+			} else {
+				var counterparty = new Counterparty();
 
-				var nameNode = node.SelectSingleNode ("Свойство[@Имя='Наименование']/Значение");
+				var nameNode = node.SelectSingleNode("Свойство[@Имя='Наименование']/Значение");
 				counterparty.Name = nameNode.InnerText;
-				logger.Debug ("Читаем контрагента <{0}>", counterparty.Name);
+				logger.Debug("Читаем контрагента <{0}>", counterparty.Name);
 
 				counterparty.Code1c = codeNode.InnerText;
 
-				var jurNode = node.SelectSingleNode ("Свойство[@Имя='ЮрФизЛицо']/Значение");
+				var jurNode = node.SelectSingleNode("Свойство[@Имя='ЮрФизЛицо']/Значение");
 				counterparty.PersonType = jurNode.InnerText == "ЮрЛицо" ? PersonType.legal : PersonType.natural;
 				counterparty.PaymentMethod = jurNode.InnerText == "ЮрЛицо" ? PaymentType.cashless : PaymentType.cash;
 
-				var accountNode = node.SelectSingleNode ("Свойство[@Имя='ОсновнойБанковскийСчет']/Ссылка/Свойство[@Имя='Код']/Значение");
-				if(accountNode != null)
-				{
-					var ac1c = AccountsList.Find (a => a.DomainAccount.Code1c == accountNode.InnerText);
+				var accountNode = node.SelectSingleNode("Свойство[@Имя='ОсновнойБанковскийСчет']/Ссылка/Свойство[@Имя='Код']/Значение");
+				if(accountNode != null) {
+					var ac1c = AccountsList.Find(a => a.DomainAccount.Code1c == accountNode.InnerText);
 					if(!ac1c.DomainAccount.Inactive)
 						counterparty.DefaultAccount = ac1c.DomainAccount;
 				}
 
-				var commentNode = node.SelectSingleNode ("Свойство[@Имя='Комментарий']/Значение");
-				if(commentNode != null)
-				{
+				var commentNode = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
+				if(commentNode != null) {
 					counterparty.Comment = commentNode.InnerText;
 				}
 
-				var fullnameNode = node.SelectSingleNode ("Свойство[@Имя='НаименованиеПолное']/Значение");
-				if(fullnameNode != null)
-				{
+				var fullnameNode = node.SelectSingleNode("Свойство[@Имя='НаименованиеПолное']/Значение");
+				if(fullnameNode != null) {
 					counterparty.FullName = fullnameNode.InnerText;
 				}
 
-				var INNNode = node.SelectSingleNode ("Свойство[@Имя='ИНН']/Значение");
-				if(INNNode != null)
-				{
+				var INNNode = node.SelectSingleNode("Свойство[@Имя='ИНН']/Значение");
+				if(INNNode != null) {
 					if(INNNode.InnerText.Length > 12)
 						counterparty.INN = INNNode.InnerText.Substring(0, 12);
 					else
 						counterparty.INN = INNNode.InnerText;
 				}
 
-				var KPPNode = node.SelectSingleNode ("Свойство[@Имя='КПП']/Значение");
-				if(KPPNode != null)
-				{
+				var KPPNode = node.SelectSingleNode("Свойство[@Имя='КПП']/Значение");
+				if(KPPNode != null) {
 					if(KPPNode.InnerText.Length > 9)
 						counterparty.KPP = KPPNode.InnerText.Substring(0, 9);
 					else
 						counterparty.KPP = KPPNode.InnerText;
 				}
-					
-				string[] InnSplited = counterparty.INN.Split ('/');
-				if(InnSplited.Length > 1)
-				{
-					counterparty.INN = InnSplited [0];
-					counterparty.KPP = InnSplited [1];
+
+				string[] InnSplited = counterparty.INN.Split('/');
+				if(InnSplited.Length > 1) {
+					counterparty.INN = InnSplited[0];
+					counterparty.KPP = InnSplited[1];
 				}
 
-				if(counterparty.PersonType == PersonType.legal)
-				{
+				if(counterparty.PersonType == PersonType.legal) {
 					counterparty.FullName = counterparty.FullName.TrimStart();
 					var found = CommonValues.Ownerships.FirstOrDefault(x => counterparty.FullName.StartsWith(x.Key));
-					if (!String.IsNullOrEmpty(found.Key))
+					if(!String.IsNullOrEmpty(found.Key))
 						counterparty.TypeOfOwnership = found.Key;
 				}
 
-				var MainNode = node.SelectSingleNode ("Свойство[@Имя='ГоловнойКонтрагент']/Значение");
-				if (MainNode != null)
-					logger.Warn ("ГоловнойКонтрагент не пустой");
+				var MainNode = node.SelectSingleNode("Свойство[@Имя='ГоловнойКонтрагент']/Значение");
+				if(MainNode != null)
+					logger.Warn("ГоловнойКонтрагент не пустой");
 
 				var phoneNode = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
 				if(phoneNode != null) {
@@ -521,57 +503,49 @@ namespace Vodovoz
 				counterparty.CooperationCustomer = true;
 
 				TotalCounterparty++;
-				CounterpatiesList.Add (counterparty);
+				CounterpatiesList.Add(counterparty);
 			}
 
 		}
 
 		void ParseAccount(XmlNode node)
 		{
-			var account1c = new Account1c ();
+			var account1c = new Account1c();
 			Account account = account1c.DomainAccount;
-			var codeNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='Код']/Значение");
+			var codeNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Код']/Значение");
 			account.Code1c = codeNode.InnerText;
 
-			var ownerNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='Владелец']/Ссылка/Свойство[@Имя='Код']/Значение");
-			if (ownerNode != null)
+			var ownerNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Владелец']/Ссылка/Свойство[@Имя='Код']/Значение");
+			if(ownerNode != null)
 				account1c.OwnerCode1c = ownerNode.InnerText;
 			else
-				logger.Warn ("Счет с кодом {0}, без владельца.", codeNode.InnerText);
+				logger.Warn("Счет с кодом {0}, без владельца.", codeNode.InnerText);
 
-			var nameNode = node.SelectSingleNode ("Свойство[@Имя='Наименование']/Значение");
+			var nameNode = node.SelectSingleNode("Свойство[@Имя='Наименование']/Значение");
 			account.Name = nameNode.InnerText;
 
-			var bankNode = node.SelectSingleNode ("Свойство[@Имя='Банк']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var bankNode = node.SelectSingleNode("Свойство[@Имя='Банк']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			if (bankNode != null)
-			{
-				var readedBank = Banks1cList.Find (b => b.Code1c == bankNode.InnerText);
-				if(readedBank.IsDead)
-				{
+			if(bankNode != null) {
+				var readedBank = Banks1cList.Find(b => b.Code1c == bankNode.InnerText);
+				if(readedBank.IsDead) {
 					account.Inactive = true;
-				}
-				else
-				{
+				} else {
 					account.InBank = readedBank.DomainBank;
 				}
-			}
-			else
-			{
-				logger.Warn ("Счет с кодом {0}, без банка.", codeNode.InnerText);
+			} else {
+				logger.Warn("Счет с кодом {0}, без банка.", codeNode.InnerText);
 				account.Inactive = true;
 			}
 
-			var numberNode = node.SelectSingleNode ("Свойство[@Имя='НомерСчета']/Значение");
-			if (numberNode == null)
-			{
-				logger.Warn ("Пустой номер счета.");
+			var numberNode = node.SelectSingleNode("Свойство[@Имя='НомерСчета']/Значение");
+			if(numberNode == null) {
+				logger.Warn("Пустой номер счета.");
 				account.Inactive = true;
-			}
-			else
+			} else
 				account.Number = numberNode.InnerText;
 
-			AccountsList.Add (account1c);
+			AccountsList.Add(account1c);
 			ReadedAccounts++;
 			if(account.Inactive)
 				InactiveAccounts++;
@@ -579,55 +553,52 @@ namespace Vodovoz
 
 		void ParseBank(XmlNode node)
 		{
-			var bank1c = new Bank1c ();
-			var codeNode = node.SelectSingleNode ("Ссылка/Свойство[@Имя='Код']/Значение");
+			var bank1c = new Bank1c();
+			var codeNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Код']/Значение");
 
-			if (codeNode == null)
-			{
-				logger.Warn ("В банке нет  кода!!! Пропускаем...");
+			if(codeNode == null) {
+				logger.Warn("В банке нет  кода!!! Пропускаем...");
 				return;
 			}
-			
+
 			bank1c.Code1c = codeNode.InnerText;
 
-			var domainBank = Banks.FirstOrDefault (b => b.Bik == bank1c.Code1c);
+			var domainBank = Banks.FirstOrDefault(b => b.Bik == bank1c.Code1c);
 			bank1c.DomainBank = domainBank;
 			bank1c.IsDead = domainBank == null;
 
-			if (bank1c.IsDead)
+			if(bank1c.IsDead)
 				InactiveBanks++;
 
-			Banks1cList.Add (bank1c);
+			Banks1cList.Add(bank1c);
 			ReadedBanks++;
 		}
 
 		void ParseContactInfo(XmlNode node)
 		{
-			var typeNode = node.SelectSingleNode ("Свойство[@Имя='Вид']/Значение");
-			var objectNode = node.SelectSingleNode ("Свойство[@Имя='Объект']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var typeNode = node.SelectSingleNode("Свойство[@Имя='Вид']/Значение");
+			var objectNode = node.SelectSingleNode("Свойство[@Имя='Объект']/Ссылка/Свойство[@Имя='Код']/Значение");
 
-			var counterparty = CounterpatiesList.Find (c => c.Code1c == objectNode.InnerText);
-			if(counterparty == null)
-			{
-				logger.Debug ("Контактная информация видемо для пропущеного контаргента. Идем дальше...");
+			var counterparty = CounterpatiesList.Find(c => c.Code1c == objectNode.InnerText);
+			if(counterparty == null) {
+				logger.Debug("Контактная информация видемо для пропущеного контаргента. Идем дальше...");
 				return;
 			}
-			var presentationNode = node.SelectSingleNode ("Свойство[@Имя='Представление']/Значение");
+			var presentationNode = node.SelectSingleNode("Свойство[@Имя='Представление']/Значение");
 
-			switch(typeNode.InnerText)
-			{
-			case "ЮрАдресКонтрагента":
-				counterparty.JurAddress = presentationNode.InnerText;
-				break;
-			case "ФактАдресКонтрагента":
-				counterparty.Address = presentationNode.InnerText;
-				break;
-			case "ТелефонКонтрагента":
-				counterparty.Comment = String.Format ("Телефоны импортированные из 1с 7.7: {0}\n{1}", presentationNode.InnerText, counterparty.Comment);
-				break;
-			default:
-				logger.Warn ("Неизвестный тип контактной информации ({0})", typeNode.InnerText);
-				break;
+			switch(typeNode.InnerText) {
+				case "ЮрАдресКонтрагента":
+					counterparty.JurAddress = presentationNode.InnerText;
+					break;
+				case "ФактАдресКонтрагента":
+					counterparty.Address = presentationNode.InnerText;
+					break;
+				case "ТелефонКонтрагента":
+					counterparty.Comment = String.Format("Телефоны импортированные из 1с 7.7: {0}\n{1}", presentationNode.InnerText, counterparty.Comment);
+					break;
+				default:
+					logger.Warn("Неизвестный тип контактной информации ({0})", typeNode.InnerText);
+					break;
 			}
 		}
 
@@ -635,33 +606,31 @@ namespace Vodovoz
 		{
 			logger.Debug("Парсим номенклатуру");
 			var parentNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='ЭтоГруппа']/Значение");
-			if (parentNode != null)
+			if(parentNode != null)
 				return;
 
 			double number;
 
-			var code1cNode 		 = node.SelectSingleNode("Ссылка/Свойство[@Имя='Код']/Значение");
-			var nameNode 		 = node.SelectSingleNode("Свойство[@Имя='Наименование']/Значение");
+			var code1cNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Код']/Значение");
+			var nameNode = node.SelectSingleNode("Свойство[@Имя='Наименование']/Значение");
 			var officialNameNode = node.SelectSingleNode("Свойство[@Имя='НаименованиеПолное']/Значение");
-			var servicelNode 	 = node.SelectSingleNode("Свойство[@Имя='Услуга']/Значение");
-			var weightNode 		 = node.SelectSingleNode("Свойство[@Имя='Вес']/Значение");
-			var volumeNode 		 = node.SelectSingleNode("Свойство[@Имя='Объем']/Значение");
-			                           
+			var servicelNode = node.SelectSingleNode("Свойство[@Имя='Услуга']/Значение");
+			var weightNode = node.SelectSingleNode("Свойство[@Имя='Вес']/Значение");
+			var volumeNode = node.SelectSingleNode("Свойство[@Имя='Объем']/Значение");
+
 
 			logger.Debug("Создаем номенклатуру");
-			var nomenclature = new Nomenclature
-			{
+			var nomenclature = new Nomenclature {
 				Code1c = code1cNode?.InnerText,
 				Name = nameNode?.InnerText,
 				OfficialName = officialNameNode?.InnerText,
-				Weight = Double.TryParse(weightNode?.InnerText, out number)?number:0,  
-				Volume = Double.TryParse(volumeNode?.InnerText, out number)?number:0
+				Weight = Double.TryParse(weightNode?.InnerText, out number) ? number : 0,
+				Volume = Double.TryParse(volumeNode?.InnerText, out number) ? number : 0
 			};
 			nomenclature.Category = servicelNode?.InnerText == "true"
 				? NomenclatureCategory.service
 				: NomenclatureCategory.additional;
-			switch (nomenclature.Category)
-			{
+			switch(nomenclature.Category) {
 				case NomenclatureCategory.service:
 					nomenclature.Unit = UnitServ;
 					break;
@@ -682,23 +651,23 @@ namespace Vodovoz
 			List<OrderItem> orderItems = new List<OrderItem>();
 
 			logger.Debug("Парсим заказ");
-			var code1cNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
-			var dateNode 		 	  = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
-			var organisationNode 	  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var commentNode 	 	  = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
-			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение");;
-			var counterpartyNode 	  = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var addressNode 	 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
-			var addressCodeNode 	  = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
-			var dailyNumber1c		  = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
-			var toClient 	 		  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
-			var fromClient 	 	  	  = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
-			var clientPhone	 		  = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
-			var goodsNodes 		 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
-			var servicesNodes 	 	  = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
-			var nPayment 			  = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
-			var returnedTare		  = node.SelectSingleNode("Свойство[@Имя='ВозвратнаяТара']/Значение");
-			var informationOnTara	  = node.SelectSingleNode("Свойство[@Имя='ИнформацияПоТаре']/Значение");
+			var code1cNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Номер']/Значение");
+			var dateNode = node.SelectSingleNode("Ссылка/Свойство[@Имя='Дата']/Значение");
+			var organisationNode = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var commentNode = node.SelectSingleNode("Свойство[@Имя='Комментарий']/Значение");
+			var deliverySchedulesNode = node.SelectSingleNode("Свойство[@Имя='ВремяДоставки']/Значение"); ;
+			var counterpartyNode = node.SelectSingleNode("Свойство[@Имя='Контрагент']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var addressNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставки']/Значение");
+			var addressCodeNode = node.SelectSingleNode("Свойство[@Имя='АдресДоставкиКод']/Значение");
+			var dailyNumber1c = node.SelectSingleNode("Свойство[@Имя='ЕжедневныйНомер']/Значение");
+			var toClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеКлиенту']/Значение");
+			var fromClient = node.SelectSingleNode("Свойство[@Имя='ОбоорудованиеОтКлиента']/Значение");
+			var clientPhone = node.SelectSingleNode("Свойство[@Имя='НомерТелефона']/Значение");
+			var goodsNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='Товары']/Запись");
+			var servicesNodes = node.SelectNodes("ТабличнаяЧасть[@Имя='Услуги']/Запись");
+			var nPayment = node.SelectSingleNode("Свойство[@Имя='Организация']/Ссылка/Свойство[@Имя='Код']/Значение");
+			var returnedTare = node.SelectSingleNode("Свойство[@Имя='ВозвратнаяТара']/Значение");
+			var informationOnTara = node.SelectSingleNode("Свойство[@Имя='ИнформацияПоТаре']/Значение");
 
 			Counterparty client = CounterpatiesList.FirstOrDefault(c => c.Code1c == counterpartyNode?.InnerText);
 
@@ -738,35 +707,34 @@ namespace Vodovoz
 			}
 
 			logger.Debug($"Создаем заказ {code1cNode?.InnerText}");
-			Order order = new Order
-				{
-					Code1c 		  	 	= code1cNode?.InnerText,
-					Comment 	  	 	= commentNode?.InnerText,
-					Client 		  	 	= client,
-					DeliveryDate  	 	= deliveryDate,
-					DeliverySchedule 	= deliverySchedule,
-					DeliverySchedule1c 	= deliverySchedulesNode?.InnerText,
-					DeliveryPoint 	 	= deliveryPoint,
-					Address1c 	  	 	= addressNode?.InnerText,
-					Address1cCode 		= addressCodeNode?.InnerText,
-					PaymentType 		= paymentType,
-					ToClientText 		= toClient?.InnerText,
-					FromClientText 		= fromClient?.InnerText,
-					ClientPhone			= clientPhone?.InnerText,
-					InformationOnTara 	= informationOnTara?.InnerText,
-				    ReasonType 			= reasonType
-				};
+			Order order = new Order {
+				Code1c = code1cNode?.InnerText,
+				Comment = commentNode?.InnerText,
+				Client = client,
+				DeliveryDate = deliveryDate,
+				DeliverySchedule = deliverySchedule,
+				DeliverySchedule1c = deliverySchedulesNode?.InnerText,
+				DeliveryPoint = deliveryPoint,
+				Address1c = addressNode?.InnerText,
+				Address1cCode = addressCodeNode?.InnerText,
+				PaymentType = paymentType,
+				ToClientText = toClient?.InnerText,
+				FromClientText = fromClient?.InnerText,
+				ClientPhone = clientPhone?.InnerText,
+				InformationOnTara = informationOnTara?.InnerText,
+				ReasonType = reasonType
+			};
 
 			if(!String.IsNullOrWhiteSpace(dailyNumber1c?.InnerText)) {
 				int number;
 				if(Int32.TryParse(dailyNumber1c.InnerText, out number))
 					order.DailyNumber1c = number;
 			}
-				
+
 			if(!String.IsNullOrWhiteSpace(returnedTare?.InnerText)) {
 				int tareNumber;
 				if(Int32.TryParse(returnedTare?.InnerText, out tareNumber))
-						order.ReturnedTare = tareNumber;
+					order.ReturnedTare = tareNumber;
 			}
 
 			//Заполняем товары для заказа
@@ -808,7 +776,7 @@ namespace Vodovoz
 					return;
 				}
 			}
-			#endif
+#endif
 
 			OrdersList.Add(order);
 			ReadedOrders++;
@@ -859,7 +827,7 @@ namespace Vodovoz
 				Order 		 = order
 			};
 		}
-		#endregion
+#endregion
 
 		protected void OnFilechooserXMLSelectionChanged (object sender, EventArgs e)
 		{
