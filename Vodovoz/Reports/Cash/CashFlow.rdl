@@ -31,9 +31,9 @@ FROM
         LEFT JOIN
     cash_income_category ON cash_income_category.id = cash_income.cash_income_category_id
 WHERE
-cash_income.type &lt;&gt; 'Return' AND
-    cash_income.date BETWEEN @startDate AND DATE_ADD(@endDate, INTERVAL 1 DAY)
-AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
+   cash_income.type &lt;&gt; 'Return' AND
+   cash_income.date &gt;= @startDate AND cash_income.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) 
+   AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
 GROUP BY cash_income.cash_income_category_id
 ORDER BY Category;</CommandText>
         <QueryParameters>
@@ -60,7 +60,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataExpense">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name as Category,
@@ -86,7 +86,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -98,7 +98,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="DataAdvance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name as Category,
@@ -124,7 +124,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <rd:TypeName>System.String</rd:TypeName>
@@ -136,7 +136,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="IncomeReturn">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name AS Category,
@@ -163,7 +163,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -175,7 +175,7 @@ ORDER BY Category;</CommandText>
       </Fields>
     </DataSet>
     <DataSet Name="AdvanceReport">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense_category.name AS Category,
@@ -201,7 +201,7 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="Category">
           <DataField>Category</DataField>
           <TypeName>System.String</TypeName>
@@ -1076,7 +1076,7 @@ ORDER BY Category;</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <Nullable>false</Nullable>
