@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
+using QSOsm;
 using QSOsm.Spuntik;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;

@@ -7,6 +7,7 @@ using GMap.NET.GtkSharp.Markers;
 using GMap.NET.MapProviders;
 using Polylines;
 using QSOrmProject;
+using QSOsm;
 using QSOsm.Spuntik;
 using QSProjectsLib;
 using Vodovoz.Additions.Logistic;
