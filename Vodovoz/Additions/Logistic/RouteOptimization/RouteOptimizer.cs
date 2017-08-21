@@ -135,9 +135,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			for(int ix = 0; ix < Nodes.Length; ix++)
 			{
-				time_dimension.CumulVar(ix + 1).SetRange((long)Nodes[ix].Order.DeliverySchedule.From.TotalSeconds,
-				                                         (long)Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60 //FIXME Внимание здесь задаем экспедитора. Это не равильно, при реализации работы с экспедитором нужно это изменить.
-				                                     );
+				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
+				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60; //FIXME Внимание здесь задаем экспедитора. Это не равильно, при реализации работы с экспедитором нужно это изменить.
+				if(endWindow < startWindow)
+				{
+					logger.Warn("Время разгрузки на точке, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To);
+					endWindow = startWindow;
+				}
+				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
 				routing.AddDisjunction(new int[]{ix}, MaxDistanceAddressPenalty);
 			}
 
