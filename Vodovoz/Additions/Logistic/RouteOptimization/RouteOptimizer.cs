@@ -89,17 +89,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
 
-#region Нужно только для подсчета предположителного количества расстояний.
-			Dictionary<LogisticsArea, int> pointsByDistrict = Nodes.GroupBy(x => x.District).ToDictionary(x => x.Key, y => y.Count());
-			var districtPairs = Drivers.SelectMany(diver =>
-										   diver.Districts.SelectMany(dis1 =>
-			                                                                   diver.Districts//.Where(dis2 => dis2.District.Id >= dis1.District.Id)
-			                                                                   .Select(dis2 => new Tuple<LogisticsArea, LogisticsArea>(dis1.District, dis2.District))
-																			  )).Distinct().ToList();
-			var total = districtPairs.Where(pair => pointsByDistrict.ContainsKey(pair.Item1) && pointsByDistrict.ContainsKey(pair.Item2))
-			                         .Sum(pair => pointsByDistrict[pair.Item1] * pointsByDistrict[pair.Item2] * (pair.Item1 == pair.Item2 ? 2 : 1));
-			distanceCalculator.ProposeNeedCached = total + Nodes.Length * 2;
-#endregion
 			MainClass.MainWin.ProgressAdd();
 			logger.Info("Развозка по {0} районам.", calculatedOrders.Select(x => x.District).Distinct().Count());
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");

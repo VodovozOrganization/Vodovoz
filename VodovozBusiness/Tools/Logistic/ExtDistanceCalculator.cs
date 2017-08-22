@@ -24,7 +24,7 @@ namespace Vodovoz.Tools.Logistic
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
 		Gtk.TextBuffer staticBuffer;
-		public int ProposeNeedCached = 0;
+		int ProposeNeedCached = 0;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
 		long[] hashes;
@@ -48,6 +48,7 @@ namespace Vodovoz.Tools.Logistic
 			                   .Concat(new[] {BaseHash})
 			                   .Distinct().ToArray();
 			totalPoints = hashes.Length;
+			ProposeNeedCached = (hashes.Length * hashes.Length) - hashes.Length;
 			#if DEBUG
 			hashPos = hashes.Select((hash, index) => new { hash, index }).ToDictionary(x => x.hash, x => x.index);
 			matrix = new CachedDistance[hashes.Length, hashes.Length];
@@ -221,7 +222,7 @@ namespace Vodovoz.Tools.Logistic
 			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec,
 			                                  (double)totalCached/ProposeNeedCached, ProposeNeedCached
 			                                 );
-			QSMain.WaitRedraw(200);
+			QSMain.WaitRedraw(100);
 		}
 	}
 
