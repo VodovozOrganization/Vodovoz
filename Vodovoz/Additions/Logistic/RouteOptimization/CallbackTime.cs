@@ -11,9 +11,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private CalculatedOrder[] Nodes;
 		AtWorkDriver Driver;
-		DistanceCalculatorSputnik distanceCalculator;
+		ExtDistanceCalculator distanceCalculator;
 
-		public CallbackTime(CalculatedOrder[] nodes, AtWorkDriver driver, DistanceCalculatorSputnik distanceCalculator)
+		public CallbackTime(CalculatedOrder[] nodes, AtWorkDriver driver, ExtDistanceCalculator distanceCalculator)
 		{
 			Nodes = nodes;
 			Driver = driver;

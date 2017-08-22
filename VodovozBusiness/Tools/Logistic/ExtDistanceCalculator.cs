@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QSOrmProject;
 using QSOsm;
+using QSOsm.Osrm;
 using QSOsm.Spuntik;
 using QSProjectsLib;
 using Vodovoz.Domain.Client;
@@ -10,7 +11,7 @@ using Vodovoz.Domain.Logistic;
 
 namespace Vodovoz.Tools.Logistic
 {
-	public class DistanceCalculatorSputnik : IDistanceCalculator
+	public class ExtDistanceCalculator : IDistanceCalculator
 	{
 		#region Настройки
 		public static int DistanceFalsePenality = 100000;
@@ -26,12 +27,15 @@ namespace Vodovoz.Tools.Logistic
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
 
+		public DistanceProvider Provider;
+
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
 
 		public List<WayHash> ErrorWays = new List<WayHash>();
 
-		public DistanceCalculatorSputnik(DeliveryPoint[] points, Gtk.TextBuffer buffer)
+		public ExtDistanceCalculator(DistanceProvider provider, DeliveryPoint[] points, Gtk.TextBuffer buffer)
 		{
+			Provider = provider;
 			staticBuffer = buffer;
 			var hashes = points.Select(x => CachedDistance.GetHash(x))
 			                   .Concat(new[] {BaseHash})
@@ -137,16 +141,35 @@ namespace Vodovoz.Tools.Logistic
 			points.Add(new PointOnEarth(latitude, longitude));
 			CachedDistance.GetLatLon(toHash, out latitude, out longitude);
 			points.Add(new PointOnEarth(latitude, longitude));
-			var result = SputnikMain.GetRoute(points, false, false);
-			if(result.Status == 0)
+			bool ok = false;
+			CachedDistance cachedValue = null;
+			if(Provider == DistanceProvider.Osrm) {
+				var result = OsrmMain.GetRoute(points, false, false);
+				ok = result.Code == "Ok";
+				if(ok && result.Routes.Any()) {
+					cachedValue = new CachedDistance {
+						Created = DateTime.Now,
+						DistanceMeters = result.Routes.First().TotalDistance,
+						TravelTimeSec = result.Routes.First().TotalTimeSeconds,
+						FromGeoHash = fromHash,
+						ToGeoHash = toHash
+					};
+				}
+			} else{
+				var result = SputnikMain.GetRoute(points, false, false);
+				ok = result.Status == 0;
+				if(ok){
+					cachedValue = new CachedDistance {
+						Created = DateTime.Now,
+						DistanceMeters = result.RouteSummary.TotalDistance,
+						TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
+						FromGeoHash = fromHash,
+						ToGeoHash = toHash
+					};
+				}
+			};
+			if(ok)
 			{
-				var cachedValue = new CachedDistance {
-					Created = DateTime.Now,
-					DistanceMeters = result.RouteSummary.TotalDistance,
-					TravelTimeSec = result.RouteSummary.TotalTimeSeconds,
-					FromGeoHash = fromHash,
-					ToGeoHash = toHash
-				};
 				UoW.TrySave(cachedValue);
 				UoW.Commit();
 				AddNewCacheDistance(cachedValue);
@@ -163,7 +186,7 @@ namespace Vodovoz.Tools.Logistic
 
 		void UpdateText()
 		{
-			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых со спутника: {3}\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
+			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых запрошено: {3}\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
 			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec,
 			                                  (double)totalCached/ProposeNeedCached, ProposeNeedCached
 			                                 );

@@ -30,7 +30,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public IList<AtWorkForwarder> Forwarders;
 
 		private CalculatedOrder[] Nodes;
-		private DistanceCalculatorSputnik distanceCalculator;
+		private ExtDistanceCalculator distanceCalculator;
 
 		public ProgressBar OrdersProgress;
 		public Gtk.TextBuffer DebugBuffer;
@@ -86,7 +86,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				logger.Warn("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
 			}
 
-			distanceCalculator = new DistanceCalculatorSputnik(Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
+			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
 
 #region Нужно только для подсчета предположителного количества расстояний.
 			Dictionary<LogisticsArea, int> pointsByDistrict = Nodes.GroupBy(x => x.District).ToDictionary(x => x.Key, y => y.Count());
