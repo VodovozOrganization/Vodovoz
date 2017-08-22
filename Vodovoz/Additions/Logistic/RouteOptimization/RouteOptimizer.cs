@@ -1,6 +1,7 @@
 ﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Google.OrTools.ConstraintSolver;
 using Gtk;
 using NetTopologySuite.Geometries;
@@ -163,7 +164,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Закрываем модель...");
 			logger.Info("Рассчет расстояний между точками...");
 			routing.CloseModelWithParameters(search_parameters);
-
+			#if DEBUG
+			PrintMatrixCount(distanceCalculator.matrixcount);
+			#endif
 			var lastSolution = solver.MakeLastSolutionCollector();
 			lastSolution.AddObjective(routing.CostVar());
 			routing.AddSearchMonitor(lastSolution);
@@ -177,7 +180,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			PerformanceHelper.AddTimePoint(logger, $"Получили решение.");
 			logger.Info("Готово. Заполняем.");
 			MainClass.MainWin.ProgressAdd();
-
+			#if DEBUG
+			PrintMatrixCount(distanceCalculator.matrixcount);
+			#endif
 			Console.WriteLine("Status = {0}", routing.Status());
 			if(solution != null) {
 				// Solution cost.
@@ -252,6 +257,20 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			);
 
 			}
+		}
+
+		private void PrintMatrixCount(int[,] matrix)
+		{
+			StringBuilder matrixText = new StringBuilder(" ");
+			for(int x = 0; x < matrix.GetLength(1); x++)
+				matrixText.Append(x % 10);
+
+			for(int y = 0; y < matrix.GetLength(0); y++) {
+				matrixText.Append("\n" + y % 10);
+				for(int x = 0; x < matrix.GetLength(1); x++)
+					matrixText.Append(matrix[y, x] > 9 ? "+" : matrix[y, x].ToString());
+			}
+			logger.Debug(matrixText);
 		}
 	}
 }

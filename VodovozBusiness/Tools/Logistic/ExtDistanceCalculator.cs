@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using QSOrmProject;
 using QSOsm;
 using QSOsm.Osrm;
@@ -26,7 +27,13 @@ namespace Vodovoz.Tools.Logistic
 		public int ProposeNeedCached = 0;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
+		long[] hashes;
 
+		#if DEBUG
+		Dictionary<long, int> hashPos;
+		CachedDistance[,] matrix;
+		public int[,] matrixcount;
+		#endif
 		public DistanceProvider Provider;
 
 		private Dictionary<long, Dictionary<long, CachedDistance>> cache = new Dictionary<long, Dictionary<long, CachedDistance>>();
@@ -37,17 +44,38 @@ namespace Vodovoz.Tools.Logistic
 		{
 			Provider = provider;
 			staticBuffer = buffer;
-			var hashes = points.Select(x => CachedDistance.GetHash(x))
+			hashes = points.Select(x => CachedDistance.GetHash(x))
 			                   .Concat(new[] {BaseHash})
 			                   .Distinct().ToArray();
 			totalPoints = hashes.Length;
+			#if DEBUG
+			hashPos = hashes.Select((hash, index) => new { hash, index }).ToDictionary(x => x.hash, x => x.index);
+			matrix = new CachedDistance[hashes.Length, hashes.Length];
+			matrixcount = new int[hashes.Length, hashes.Length];
+			#endif
 			var fromDB = Repository.Logistics.CachedDistanceRepository.GetCache(UoW, hashes);
 			startCached = fromDB.Count;
 			foreach(var distance in fromDB)
 			{
+				#if DEBUG
+				matrix[hashPos[distance.FromGeoHash], hashPos[distance.ToGeoHash]] = distance;
+				#endif
 				AddNewCacheDistance(distance);
 			}
 			UpdateText();
+			#if DEBUG
+			StringBuilder matrixText = new StringBuilder(" ");
+			for(int x = 0; x < matrix.GetLength(1); x++)
+				matrixText.Append(x % 10);
+
+			for(int y = 0; y < matrix.GetLength(0); y++)
+			{
+				matrixText.Append("\n" + y % 10);
+				for(int x = 0; x < matrix.GetLength(1); x++)
+					matrixText.Append(matrix[y, x] != null ? 1 : 0);
+			}
+			logger.Debug(matrixText);
+			#endif
 		}
 
 		private void AddNewCacheDistance(CachedDistance distance)
@@ -125,6 +153,9 @@ namespace Vodovoz.Tools.Logistic
 
 		private CachedDistance GetCache(long fromHash, long toHash)
 		{
+			#if DEBUG
+			matrixcount[hashPos[fromHash], hashPos[toHash]] += 1;
+			#endif
 			if(cache.ContainsKey(fromHash) && cache[fromHash].ContainsKey(toHash))
 				return cache[fromHash][toHash];
 
