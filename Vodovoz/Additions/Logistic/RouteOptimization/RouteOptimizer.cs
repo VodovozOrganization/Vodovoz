@@ -156,6 +156,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			#if DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
 			#endif
+			distanceCalculator.FlushCache();
 			var lastSolution = solver.MakeLastSolutionCollector();
 			lastSolution.AddObjective(routing.CostVar());
 			routing.AddSearchMonitor(lastSolution);

@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +16,7 @@ namespace Vodovoz.Tools.Logistic
 	{
 		#region Настройки
 		public static int DistanceFalsePenality = 100000;
+		public static int SaveBy = 300;
 		#endregion
 
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
@@ -28,6 +29,8 @@ namespace Vodovoz.Tools.Logistic
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
 		long[] hashes;
+
+		int unsavedItems = 0;
 
 		#if DEBUG
 		Dictionary<long, int> hashPos;
@@ -42,6 +45,7 @@ namespace Vodovoz.Tools.Logistic
 
 		public ExtDistanceCalculator(DistanceProvider provider, DeliveryPoint[] points, Gtk.TextBuffer buffer)
 		{
+			UoW.Session.SetBatchSize(SaveBy);
 			Provider = provider;
 			staticBuffer = buffer;
 			hashes = points.Select(x => CachedDistance.GetHash(x))
@@ -202,8 +206,10 @@ namespace Vodovoz.Tools.Logistic
 			};
 			if(ok)
 			{
-				UoW.TrySave(cachedValue);
-				UoW.Commit();
+				UoW.TrySave(cachedValue, false);
+				unsavedItems++;
+				if(unsavedItems >= SaveBy)
+					FlushCache();
 				AddNewCacheDistance(cachedValue);
 				addedCached++;
 				UpdateText();
@@ -216,11 +222,19 @@ namespace Vodovoz.Tools.Logistic
 			return null;
 		}
 
+		public void FlushCache()
+		{
+			var start = DateTime.Now;
+			UoW.Commit();
+			logger.Debug("Сохранили {0} расстояний в кеш за {1} сек.", unsavedItems, (DateTime.Now - start).TotalSeconds);
+			unsavedItems = 0;
+		}
+
 		void UpdateText()
 		{
-			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых запрошено: {3}\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
+			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
 			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec,
-			                                  (double)totalCached/ProposeNeedCached, ProposeNeedCached
+			                                  (double)totalCached/ProposeNeedCached, ProposeNeedCached, unsavedItems
 			                                 );
 			QSMain.WaitRedraw(100);
 		}

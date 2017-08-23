@@ -21,6 +21,8 @@ using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
 using QSSupportLib;
 using Vodovoz.Dialogs.DocumentDialogs;
+using NHibernate.Cfg;
+using NHibernate.AdoNet;
 
 namespace Vodovoz
 {
@@ -49,6 +51,7 @@ namespace Vodovoz
 			var db_config = FluentNHibernate.Cfg.Db.MySQLConfiguration.Standard
 			                                .Dialect<NHibernate.Spatial.Dialect.MySQL57SpatialDialect>()
 						 					.ConnectionString(QSMain.ConnectionString)
+			                                .AdoNetBatchSize(100)
 											.ShowSql()
 											.FormatSql();
 
@@ -57,7 +60,10 @@ namespace Vodovoz
 				System.Reflection.Assembly.GetAssembly (typeof(Vodovoz.HibernateMapping.OrganizationMap)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSBanks.QSBanksMain)),
 				System.Reflection.Assembly.GetAssembly (typeof(QSContacts.QSContactsMain))
-			});
+			}, 
+			                      (cnf) => cnf.DataBaseIntegration(
+				                      dbi => { dbi.BatchSize = 100; dbi.Batcher<MySqlClientBatchingBatcherFactory>();}
+				                     ));
 			OrmMain.ClassMappingList = new List<IOrmObjectMapping> {
 				//Простые справочники
 				OrmObjectMapping<CullingCategory>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
