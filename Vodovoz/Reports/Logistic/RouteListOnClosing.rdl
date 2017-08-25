@@ -27,12 +27,12 @@
             IF(employees.patronymic = '',
                 NULL,
                 employees.patronymic)) AS driver_name,
-   (SELECT 
+    IFNULL( (SELECT 
             SUM(total_cash)
         FROM
             route_list_addresses
         WHERE
-            route_list_addresses.route_list_id = routeListId) AS nal,
+            route_list_addresses.route_list_id = routeListId), 0) AS nal,
        IFNULL(money,0) AS nalreturn,
        cashier_comment
 FROM
@@ -124,16 +124,16 @@ GROUP BY routeListId</CommandText>
             <Width>34.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>100.1pt</Width>
+            <Width>73.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>66.0pt</Width>
+            <Width>49.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>134.8pt</Width>
+            <Width>231.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>88.2pt</Width>
+            <Width>83.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>74.3pt</Width>
@@ -142,7 +142,7 @@ GROUP BY routeListId</CommandText>
         <Header>
           <TableRows>
             <TableRow>
-              <Height>35.3pt</Height>
+              <Height>28.3pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -352,6 +352,59 @@ GROUP BY routeListId</CommandText>
         </Details>
         <Left>25.8pt</Left>
         <Top>18.6pt</Top>
+        <Footer >
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                      <Value>ИТОГО:</Value>
+                    </Textbox>
+                  </ReportItems>
+                  <ColSpan>4</ColSpan>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                      </Style>
+                      <Value>=Sum({nal} - {nalreturn})</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
       </Table>
     </ReportItems>
     <Height>138.6pt</Height>
