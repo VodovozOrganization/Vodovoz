@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using GMap.NET;
+using QSOsm;
 using Vodovoz.Domain.Client;
 
 namespace Vodovoz.Domain.Logistic
@@ -49,12 +50,25 @@ namespace Vodovoz.Domain.Logistic
 			return new PointLatLng(lat, lon);
 		}
 
+		public static PointOnEarth GetPointOnEarth(long hash)
+		{
+			double lat, lon;
+			GetLatLon(hash, out lat, out lon);
+			return new PointOnEarth(lat, lon);
+		}
 
 		public static string GetText(long hash)
 		{
 			double latitude, longitude;
 			GetLatLon(hash, out latitude, out longitude);
 			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", latitude, longitude);
+		}
+
+		public static string GetTextLonLat(long hash)
+		{
+			double latitude, longitude;
+			GetLatLon(hash, out latitude, out longitude);
+			return String.Format(CultureInfo.InvariantCulture, "{0},{1}", longitude, latitude);
 		}
 
 		public override bool Equals(object obj)
