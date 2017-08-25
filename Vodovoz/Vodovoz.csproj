@@ -249,6 +249,7 @@
     <EmbeddedResource Include="icons\map\RedCarVodovoz.png" />
     <EmbeddedResource Include="icons\buttons\vodovoz-logo.png" />
     <EmbeddedResource Include="icons\buttons\car.png" />
+    <EmbeddedResource Include="icons\buttons\sort-ascending.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

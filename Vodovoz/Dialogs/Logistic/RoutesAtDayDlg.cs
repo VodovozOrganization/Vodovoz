@@ -299,7 +299,7 @@ namespace Vodovoz
 		{
 			var row = ytreeRoutes.GetSelectedObject ();
 			buttonRemoveAddress.Sensitive = row is RouteListItem && !checkShowCompleted.Active;
-			buttonOpen.Sensitive = (row is RouteListItem) || (row is RouteList);
+			buttonOpen.Sensitive = buttonRebuildRoute.Sensitive = (row is RouteListItem) || (row is RouteList);
 
 			//Рисуем выделенный маршрут
 			routeOverlay.Clear();
@@ -931,7 +931,7 @@ namespace Vodovoz
 			ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
 			uow.Commit ();
 			HasNoChanges = true;
-			FillDialogAtDay ();
+			FillDialogAtDay();
 			return true;
 		}
 
@@ -1213,6 +1213,35 @@ namespace Vodovoz
 
 			if(NeedRecalculate)
 				RecalculateOnLoadTime();
+		}
+
+		protected void OnButtonRebuildRouteClicked(object sender, EventArgs e)
+		{
+			var selected = ytreeRoutes.GetSelectedObject();
+			RouteList route = selected is RouteListItem ? ((RouteListItem)selected).RouteList: selected as RouteList;
+
+			optimizer.DebugBuffer = textOrdersInfo.Buffer;
+			var newRoute = optimizer.RebuidOneRoute(route);
+			if(newRoute != null) {
+				for(int i = 0; i < route.ObservableAddresses.Count; i++) {
+					var address = route.ObservableAddresses[i];
+					if(i < newRoute.Orders.Count) {
+						if(newRoute.Orders[i].Order.Id != route.ObservableAddresses[i].Order.Id) {
+							address = route.ObservableAddresses.First(x => x.Order.Id == newRoute.Orders[i].Order.Id);
+							route.ObservableAddresses.Remove(address);
+							route.ObservableAddresses.Insert(i, address);
+						}
+						address.PlanTimeStart = newRoute.Orders[i].ProposedTimeStart;
+						address.PlanTimeEnd = newRoute.Orders[i].ProposedTimeEnd;
+					}
+					else
+					{
+						address.PlanTimeStart = null;
+						address.PlanTimeEnd = null;
+					}
+				}
+			} else
+				MessageDialogWorks.RunErrorDialog("Решение не найдено.");
 		}
 	}
 }

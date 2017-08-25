@@ -15,11 +15,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public LogisticsArea District;
 
-		public CalculatedOrder(Order order, LogisticsArea district)
+		public CalculatedOrder(Order order, LogisticsArea district, bool notCalculate = false)
 		{
 			Order = order;
 			District = district;
 
+			if(notCalculate)
+				return;
+			
 			Bootles = order.OrderItems.Where(x => x.Nomenclature.Category == Domain.Goods.NomenclatureCategory.water)
 							 .Sum(x => x.Count);
 			Weight = order.OrderItems.Sum(x => x.Nomenclature.Weight * x.Count);

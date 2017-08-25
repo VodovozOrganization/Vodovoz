@@ -249,6 +249,140 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 		}
 
+		public ProposedRoute RebuidOneRoute(RouteList route)
+		{
+			logger.Info("Подготавливаем заказы...");
+			PerformanceHelper.StartMeasurement($"Строим маршрут");
+			MainClass.MainWin.ProgressStart(4);
+
+			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
+
+			foreach(var address in route.Addresses) {
+				if(address.Order.DeliveryPoint.Longitude == null || address.Order.DeliveryPoint.Latitude == null)
+					continue;
+				
+				calculatedOrders.Add(new CalculatedOrder(address.Order, null));
+			}
+			Nodes = calculatedOrders.ToArray();
+
+			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
+
+			MainClass.MainWin.ProgressAdd();
+			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
+
+			logger.Info("Создаем модель...");
+			RoutingModel routing = new RoutingModel(Nodes.Length + 1, 1, 0);
+
+			int horizon = 24 * 3600;
+
+			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
+			var time_dimension = routing.GetDimensionOrDie("Time");
+
+
+			routing.SetArcCostEvaluatorOfVehicle(new CallbackDistance(Nodes, distanceCalculator), 0);
+
+			for(int ix = 0; ix < Nodes.Length; ix++) {
+				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
+				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(route.Forwarder != null) * 60;
+				if(endWindow < startWindow) {
+					logger.Warn("Время разгрузки на точке, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To);
+					endWindow = startWindow;
+				}
+				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
+				routing.AddDisjunction(new int[] { ix }, MaxDistanceAddressPenalty);
+			}
+
+			RoutingSearchParameters search_parameters =
+					RoutingModel.DefaultSearchParameters();
+			search_parameters.FirstSolutionStrategy =
+								 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
+
+			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
+			search_parameters.FingerprintArcCostEvaluators = true;
+			//search_parameters.OptimizationStep = 100;
+
+			var solver = routing.solver();
+
+			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
+			MainClass.MainWin.ProgressAdd();
+			logger.Info("Закрываем модель...");
+			logger.Info("Рассчет расстояний между точками...");
+			routing.CloseModelWithParameters(search_parameters);
+			distanceCalculator.FlushCache();
+			var lastSolution = solver.MakeLastSolutionCollector();
+			lastSolution.AddObjective(routing.CostVar());
+			routing.AddSearchMonitor(lastSolution);
+			routing.AddSearchMonitor(new CallbackMonitor(solver, OrdersProgress, DebugBuffer, lastSolution));
+
+			PerformanceHelper.AddTimePoint(logger, $"Закрыли модель");
+			logger.Info("Поиск решения...");
+			MainClass.MainWin.ProgressAdd();
+
+			Assignment solution = routing.SolveWithParameters(search_parameters);
+			PerformanceHelper.AddTimePoint(logger, $"Получили решение.");
+			logger.Info("Готово. Заполняем.");
+			MainClass.MainWin.ProgressAdd();
+			Console.WriteLine("Status = {0}", routing.Status());
+			ProposedRoute proposedRoute = null;
+			if(solution != null) {
+				// Solution cost.
+				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
+				time_dimension = routing.GetDimensionOrDie("Time");
+
+				int route_number = 0;
+					
+				proposedRoute = new ProposedRoute(null);
+				long first_node = routing.Start(route_number);
+				long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
+				proposedRoute.RouteCost = routing.GetCost(first_node, second_node, route_number);
+
+				while(!routing.IsEnd(second_node)) {
+					var time_var = time_dimension.CumulVar(second_node);
+					var rPoint = new ProposedRoutePoint(
+						TimeSpan.FromSeconds(solution.Min(time_var)),
+						TimeSpan.FromSeconds(solution.Max(time_var)),
+						Nodes[second_node - 1].Order
+					);
+					rPoint.DebugMaxMin = String.Format("\n({0},{1})[{3}-{4}]-{2}",
+													   new DateTime().AddSeconds(solution.Min(time_var)).ToShortTimeString(),
+													   new DateTime().AddSeconds(solution.Max(time_var)).ToShortTimeString(),
+													   second_node,
+													   rPoint.Order.DeliverySchedule.From.ToString("hh\\:mm"),
+													   rPoint.Order.DeliverySchedule.To.ToString("hh\\:mm")
+													  );
+					proposedRoute.Orders.Add(rPoint);
+
+					first_node = second_node;
+					second_node = solution.Value(routing.NextVar(first_node));
+					proposedRoute.RouteCost += routing.GetCost(first_node, second_node, route_number);
+				}
+			}
+
+			MainClass.MainWin.ProgressAdd();
+			PerformanceHelper.Main.PrintAllPoints(logger);
+
+			if(distanceCalculator.ErrorWays.Count > 0) {
+				logger.Debug("Ошибок получения расстояний {0}", distanceCalculator.ErrorWays.Count);
+				var uniqueFrom = distanceCalculator.ErrorWays.Select(x => x.FromHash).Distinct().ToList();
+				var uniqueTo = distanceCalculator.ErrorWays.Select(x => x.ToHash).Distinct().ToList();
+				logger.Debug("Уникальных точек: отправки = {0}, прибытия = {1}", uniqueFrom.Count, uniqueTo.Count);
+				logger.Debug("Проблемные точки отправки:\n{0}",
+							 String.Join("; ", distanceCalculator.ErrorWays
+										 .GroupBy(x => x.FromHash)
+										 .Where(x => x.Count() > (uniqueTo.Count / 2))
+										 .Select(x => CachedDistance.GetText(x.Key)))
+							);
+				logger.Debug("Проблемные точки прибытия:\n{0}",
+			 			String.Join("; ", distanceCalculator.ErrorWays
+									.GroupBy(x => x.ToHash)
+									.Where(x => x.Count() > (uniqueFrom.Count / 2))
+						 			.Select(x => CachedDistance.GetText(x.Key)))
+				);
+
+			}
+			return proposedRoute;
+		}
+
 		private void PrintMatrixCount(int[,] matrix)
 		{
 			StringBuilder matrixText = new StringBuilder(" ");

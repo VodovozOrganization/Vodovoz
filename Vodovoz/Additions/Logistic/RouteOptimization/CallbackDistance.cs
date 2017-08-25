@@ -7,17 +7,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private CalculatedOrder[] Nodes;
-		//long[,] cachedDistance;
+		IDistanceCalculator distanceCalculator;
 
-		public CallbackDistance(CalculatedOrder[] nodes)
+		public CallbackDistance(CalculatedOrder[] nodes, IDistanceCalculator distanceCalculator)
 		{
 			Nodes = nodes;
-			//cachedDistance = new long[nodes.Length + 1, nodes.Length + 1];
-			//for(int x = 0; x < Nodes.Length; x++)
-			//	for(int y = 0; y < Nodes.Length; y++)
-			//{
-			//	cachedDistance[y, x] = Run(y, x);
-			//}
+			this.distanceCalculator = distanceCalculator;
 		}
 
 		public override long Run(int first_index, int second_index)
@@ -34,11 +29,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			long distance;
 
 			if(first_index == 0)
-				distance = (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
 			else if(second_index == 0)
-				distance = (long)(DistanceCalculator.GetDistanceToBase(Nodes[first_index - 1].Order.DeliveryPoint) * 1000);
+				distance = distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint);
 			else
-				distance = (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+				distance = distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
 			return distance;
 		}
