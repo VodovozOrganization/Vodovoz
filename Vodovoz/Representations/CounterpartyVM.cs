@@ -27,7 +27,7 @@ namespace Vodovoz.ViewModel
 
 		#region IRepresentationModel implementation
 
-		public override void UpdateNodes ()
+		public override void UpdateNodes()
 		{
 			Counterparty counterpartyAlias = null;
 			CounterpartyContract contractAlias = null;
@@ -35,83 +35,81 @@ namespace Vodovoz.ViewModel
 			QSContacts.Phone phoneAlias = null;
 			DeliveryPoint addressAlias = null;
 
-			var query = UoW.Session.QueryOver<Counterparty> (() => counterpartyAlias);
+			var query = UoW.Session.QueryOver<Counterparty>(() => counterpartyAlias);
 
-			if(Filter != null 
-				&& BooleanWorks.CountTrue(Filter.RestrictIncludeCustomer, Filter.RestrictIncludeSupplier, Filter.RestrictIncludePartner) < 3)
-			{
+			if(Filter != null
+				&& BooleanWorks.CountTrue(Filter.RestrictIncludeCustomer, Filter.RestrictIncludeSupplier, Filter.RestrictIncludePartner) < 3) {
 				var dijuction = new Disjunction();
-				if (Filter.RestrictIncludeCustomer)
+				if(Filter.RestrictIncludeCustomer)
 					dijuction.Add<Counterparty>(x => x.CooperationCustomer == true);
 
-				if (Filter.RestrictIncludeSupplier)
+				if(Filter.RestrictIncludeSupplier)
 					dijuction.Add<Counterparty>(x => x.CooperationSupplier == true);
 
-				if (Filter.RestrictIncludePartner)
+				if(Filter.RestrictIncludePartner)
 					dijuction.Add<Counterparty>(x => x.CooperationPartner == true);
 
 				query.Where(dijuction);
 			}
 
-			if(Filter != null && !Filter.RestrictIncludeArhive)
-			{
+			if(Filter != null && !Filter.RestrictIncludeArhive) {
 				query.Where(c => !c.IsArchive);
 			}
 
 			var contractsSubquery = QueryOver.Of<CounterpartyContract>(() => contractAlias)
 				.Where(c => c.Counterparty.Id == counterpartyAlias.Id)
 				.Select(Projections.SqlFunction(
-					                        new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-					                        NHibernateUtil.String,
-					                        Projections.Property(() => contractAlias.Id),
-					                        Projections.Constant(", ")));
+											new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+											NHibernateUtil.String,
+											Projections.Property(() => contractAlias.Id),
+											Projections.Constant(", ")));
 
 			var addressSubquery = QueryOver.Of<DeliveryPoint>(() => addressAlias)
 				.Where(d => d.Counterparty.Id == counterpartyAlias.Id)
 				.Where(() => addressAlias.IsActive)
-				.Select(Projections.SqlFunction (
-					new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+				.Select(Projections.SqlFunction(
+					new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
 					NHibernateUtil.String,
-					Projections.Property (() => addressAlias.CompiledAddress),
-					Projections.Constant ("\n")));
+					Projections.Property(() => addressAlias.CompiledAddress),
+					Projections.Constant("\n")));
 
 			var counterpartyList = query
 				.JoinAlias(c => c.Phones, () => phoneAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.SelectList (list => list
-					.SelectGroup (c => c.Id).WithAlias (() => resultAlias.Id)
-					.Select (c => c.Name).WithAlias (() => resultAlias.Name)
-					.Select (c => c.INN).WithAlias (() => resultAlias.INN)
-					.Select (c => c.IsArchive).WithAlias (() => resultAlias.IsArhive)
-					.SelectSubQuery (contractsSubquery).WithAlias (() => resultAlias.Contracts)
-				.Select (Projections.SqlFunction (
-					new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-					NHibernateUtil.String,
-						Projections.Property (() => phoneAlias.Number),
-					Projections.Constant ("\n"))
-					).WithAlias (() => resultAlias.Phones)
-				.Select (Projections.SqlFunction (
-						new SQLFunctionTemplate (NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
-						NHibernateUtil.String,
-						Projections.Property (() => phoneAlias.DigitsNumber),
-						Projections.Constant ("\n"))
-					).WithAlias (() => resultAlias.PhonesDigits)
-					.SelectSubQuery (addressSubquery).WithAlias (() => resultAlias.Addresses)
+				.SelectList(list => list
+				   .SelectGroup(c => c.Id).WithAlias(() => resultAlias.Id)
+				   .Select(c => c.Name).WithAlias(() => resultAlias.Name)
+				   .Select(c => c.INN).WithAlias(() => resultAlias.INN)
+				   .Select(c => c.IsArchive).WithAlias(() => resultAlias.IsArhive)
+				   .SelectSubQuery(contractsSubquery).WithAlias(() => resultAlias.Contracts)
+			   .Select(Projections.SqlFunction(
+				   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+				   NHibernateUtil.String,
+					   Projections.Property(() => phoneAlias.Number),
+				   Projections.Constant("\n"))
+				   ).WithAlias(() => resultAlias.Phones)
+			   .Select(Projections.SqlFunction(
+					   new SQLFunctionTemplate(NHibernateUtil.String, "GROUP_CONCAT( ?1 SEPARATOR ?2)"),
+					   NHibernateUtil.String,
+					   Projections.Property(() => phoneAlias.DigitsNumber),
+					   Projections.Constant("\n"))
+				   ).WithAlias(() => resultAlias.PhonesDigits)
+				   .SelectSubQuery(addressSubquery).WithAlias(() => resultAlias.Addresses)
 				)
-				.TransformUsing (Transformers.AliasToBean<CounterpartyVMNode> ())
-				.List<CounterpartyVMNode> ();
+				.TransformUsing(Transformers.AliasToBean<CounterpartyVMNode>())
+				.List<CounterpartyVMNode>();
 
-			SetItemsSource (counterpartyList);
+			SetItemsSource(counterpartyList);
 		}
 
-		IColumnsConfig columnsConfig = FluentColumnsConfig <CounterpartyVMNode>.Create ()
-			.AddColumn("Код").AddTextRenderer(x => x.Id.ToString())
-			.AddColumn ("Контрагент").AddTextRenderer (node => node.Name).WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
+		IColumnsConfig columnsConfig = FluentColumnsConfig<CounterpartyVMNode>.Create()
+		                                                                      .AddColumn("Код").AddTextRenderer(x => x.IdText)
+			.AddColumn("Контрагент").AddTextRenderer(node => node.Name).WrapWidth(450).WrapMode(Pango.WrapMode.WordChar)
 			.AddColumn("Телефоны").AddTextRenderer(x => x.Phones)
 			.AddColumn("ИНН").AddTextRenderer(x => x.INN)
 			.AddColumn("Договора").AddTextRenderer(x => x.Contracts)
 			.AddColumn("Точки доставки").AddTextRenderer(x => x.Addresses)
-			.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.RowColor)
-			.Finish ();
+			.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.RowColor)
+			.Finish();
 
 		public override IColumnsConfig ColumnsConfig {
 			get { return columnsConfig; }
@@ -121,24 +119,24 @@ namespace Vodovoz.ViewModel
 
 		#region implemented abstract members of RepresentationModelBase
 
-		protected override bool NeedUpdateFunc (Counterparty updatedSubject)
+		protected override bool NeedUpdateFunc(Counterparty updatedSubject)
 		{
 			return true;
 		}
 
 		#endregion
 
-		public CounterpartyVM () : this (UnitOfWorkFactory.CreateWithoutRoot ())
+		public CounterpartyVM() : this(UnitOfWorkFactory.CreateWithoutRoot())
 		{
-			CreateRepresentationFilter = () => new CounterpartyFilter (UoW);
+			CreateRepresentationFilter = () => new CounterpartyFilter(UoW);
 		}
 
-		public CounterpartyVM (IUnitOfWork uow)
+		public CounterpartyVM(IUnitOfWork uow)
 		{
 			this.UoW = uow;
 		}
 
-		public CounterpartyVM (CounterpartyFilter filter) : this (filter.UoW)
+		public CounterpartyVM(CounterpartyFilter filter) : this(filter.UoW)
 		{
 			Filter = filter;
 		}
@@ -146,7 +144,11 @@ namespace Vodovoz.ViewModel
 
 	public class CounterpartyVMNode
 	{
-		public int Id{ get; set; }
+		public int Id { get; set; }
+
+		[UseForSearch]
+		[SearchHighlight]
+		public string IdText {get{ return Id.ToString();}}
 
 		public bool IsArhive { get; set; }
 
