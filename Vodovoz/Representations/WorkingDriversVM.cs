@@ -19,6 +19,7 @@ namespace Vodovoz.ViewModel
 {
 	public class WorkingDriversVM : RepresentationModelEntityBase<RouteList, WorkingDriverVMNode>
 	{
+		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		#region IRepresentationModel implementation
 
 		public override void UpdateNodes()
@@ -95,10 +96,15 @@ namespace Vodovoz.ViewModel
 			if (currentEmploee != null)
 			{
 				var chats = ChatRepository.GetCurrentUserChats(UoW, null);
+#if DEBUG
+				var badChat = chats.Where(x => x.Driver == null).ToArray();
+				if(badChat.Length > 0)
+					logger.Warn("Чаты с ids={0} без водителей.", String.Join(",", badChat.Select(x => x.Id)));
+#endif
 				var unreaded = ChatMessageRepository.GetUnreadedChatMessages(UoW, currentEmploee, true);
 				foreach (var item in summaryResult)
 				{
-					var chat = chats.FirstOrDefault(x => x.Driver.Id == item.Id);
+					var chat = chats.FirstOrDefault(x => x.Driver?.Id == item.Id);
 					if (chat != null)
 					{
 						var messages = unreaded.FirstOrDefault (x => x.ChatId == chat.Id);
