@@ -6,7 +6,7 @@ using System.Linq;
 using QSOrmProject;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Domain.Chat
+namespace Vodovoz.Domain.Chats
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Masculine,
 		NominativePlural = "чаты",

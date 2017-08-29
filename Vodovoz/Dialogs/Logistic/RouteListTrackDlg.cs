@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Chat;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.GtkSharp.Markers;
@@ -11,15 +10,14 @@ using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Additions.Logistic;
-using Vodovoz.Domain.Chat;
+using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
-using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
+using VodovozService.Chats;
 
 namespace Vodovoz
 {
@@ -139,7 +137,7 @@ namespace Vodovoz
 
 				var chat = ChatRepository.GetChatForDriver (uow, driver);
 				if (chat == null) {
-					var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<ChatClass> ();
+					var chatUoW = UnitOfWorkFactory.CreateWithNewRoot<Chat> ();
 					chatUoW.Root.ChatType = ChatType.DriverAndLogists;
 					chatUoW.Root.Driver = driver;
 					chatUoW.Save ();

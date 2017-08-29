@@ -6,15 +6,14 @@ using NHibernate.Criterion;
 using NHibernate.Dialect.Function;
 using NHibernate.Transform;
 using QSOrmProject;
-using Vodovoz.Domain.Chat;
+using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
 
 namespace Vodovoz.Repository.Chat
 {
 	public static class ChatMessageRepository
 	{
-		public static IList<ChatMessage> GetChatMessagesForPeriod(IUnitOfWork uow, ChatClass chat, int days) {
+		public static IList<ChatMessage> GetChatMessagesForPeriod(IUnitOfWork uow, Chat chat, int days) {
 			ChatMessage chatMessageAlias = null;
 
 			return uow.Session.QueryOver<ChatMessage> (() => chatMessageAlias)
@@ -26,12 +25,12 @@ namespace Vodovoz.Repository.Chat
 
 		public static IList<UnreadedChatDTO> GetUnreadedChatMessages(IUnitOfWork uow, Employee forEmployee, bool accessLogisticChat) {
 			ChatMessage chatMessageAlias = null;
-			ChatClass chatAlias = null;
+			Chat chatAlias = null;
 			LastReadedMessage lastReadedAlias = null;
 			Employee driverAlias = null;
 			UnreadedChatDTO resultAlias = null;
 
-			var chatQuery = uow.Session.QueryOver<ChatClass>(() => chatAlias);
+			var chatQuery = uow.Session.QueryOver<Chat>(() => chatAlias);
 			if (!accessLogisticChat)
 				chatQuery.Where(x => x.ChatType != ChatType.DriverAndLogists);
 
@@ -60,9 +59,9 @@ namespace Vodovoz.Repository.Chat
 
 		public static Dictionary<int, int> GetLastChatMessages(IUnitOfWork uow, Employee forEmployee) {
 			ChatMessage chatMessageAlias = null;
-			ChatClass chatAlias = null;
+			Chat chatAlias = null;
 			//TODO Когда будут другие типы чатов - нужно будет дописать.
-			var resultList = uow.Session.QueryOver<ChatClass> (() => chatAlias)
+			var resultList = uow.Session.QueryOver<Chat> (() => chatAlias)
 				.JoinAlias(() => chatAlias.Messages, () => chatMessageAlias)
 				.Where (() => chatAlias.ChatType == ChatType.DriverAndLogists)
 				.SelectList(list => list

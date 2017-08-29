@@ -3,7 +3,7 @@ using QSOrmProject;
 using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Domain.Chat
+namespace Vodovoz.Domain.Chats
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
 		NominativePlural = "последние прочитанные сообщения",

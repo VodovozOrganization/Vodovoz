@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Chat;
 using Gamma.Utilities;
 using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
-using Vodovoz.Domain.Chat;
+using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
 using Vodovoz.Repository.Chat;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
+using VodovozService.Chats;
 
 namespace Vodovoz
 {

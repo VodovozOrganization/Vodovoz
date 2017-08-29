@@ -1,5 +1,5 @@
 ﻿using System;
-using Vodovoz.Domain.Chat;
+using Vodovoz.Domain.Chats;
 using FluentNHibernate.Mapping;
 
 namespace Vodovoz.HibernateMapping

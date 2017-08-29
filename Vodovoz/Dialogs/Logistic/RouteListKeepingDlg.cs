@@ -4,7 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using Chat;
+using VodovozService.Chats;
 using Gamma.GtkWidgets;
 using Gtk;
 using NHibernate;

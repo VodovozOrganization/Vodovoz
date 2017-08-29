@@ -1,14 +1,12 @@
-﻿using System;
-using QSOrmProject;
-using Vodovoz.Domain.Chat;
+﻿using QSOrmProject;
+using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
 
 namespace Vodovoz.Repository.Chat
 {
 	public static class LastReadedRepository
 	{
-		public static LastReadedMessage GetLastReadedMessageForEmloyee(IUnitOfWork uow, ChatClass chat, Employee employee) {
+		public static LastReadedMessage GetLastReadedMessageForEmloyee(IUnitOfWork uow, Chat chat, Employee employee) {
 			LastReadedMessage lastReadedAlias = null;
 
 			return uow.Session.QueryOver<LastReadedMessage> (() => lastReadedAlias)
@@ -17,7 +15,7 @@ namespace Vodovoz.Repository.Chat
 				.SingleOrDefault();
 		}
 
-		public static int GetLastReadedMessagesCountForEmployee(IUnitOfWork uow, ChatClass chat, Employee employee) {
+		public static int GetLastReadedMessagesCountForEmployee(IUnitOfWork uow, Chat chat, Employee employee) {
 			LastReadedMessage lastReadedAlias = null;
 			ChatMessage chatMessageAlias = null;
 			var lastMessage = GetLastReadedMessageForEmloyee(uow, chat, employee);

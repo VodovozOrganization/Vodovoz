@@ -1,16 +1,15 @@
 ﻿using System;
-using Chat;
-using ChatClass = Vodovoz.Domain.Chat.Chat;
-using QSTDI;
-using Vodovoz.Domain.Chat;
+using System.Collections.Generic;
 using System.ServiceModel;
 using Gtk;
-using System.Collections.Generic;
-using Vodovoz.Repository;
 using QSOrmProject;
-using Vodovoz.Repository.Chat;
-using Vodovoz.Domain.Employees;
 using QSProjectsLib;
+using QSTDI;
+using Vodovoz.Domain.Chats;
+using Vodovoz.Domain.Employees;
+using Vodovoz.Repository;
+using Vodovoz.Repository.Chat;
+using VodovozService.Chats;
 
 namespace Vodovoz
 {
@@ -21,7 +20,7 @@ namespace Vodovoz
 		private bool isActive;
 		private TextTagTable textTags;
 		private Employee currentEmployee;
-		private IUnitOfWorkGeneric<ChatClass> chatUoW;
+		private IUnitOfWorkGeneric<Chat> chatUoW;
 
 		static IChatService getChatService()
 		{
@@ -51,7 +50,7 @@ namespace Vodovoz
 
 		private void configure(int chatId)
 		{
-			chatUoW = UnitOfWorkFactory.CreateForRoot<ChatClass>(chatId);
+			chatUoW = UnitOfWorkFactory.CreateForRoot<Chat>(chatId);
 			currentEmployee = EmployeeRepository.GetEmployeeForCurrentUser(chatUoW);
 
 			if (currentEmployee == null)
