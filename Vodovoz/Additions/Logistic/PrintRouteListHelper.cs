@@ -53,6 +53,17 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
+		public static ReportInfo GetRDLDailyList(int routeListId)
+		{
+			return new ReportInfo {
+				Title = String.Format("Ежедневные номера МЛ № {0}", routeListId),
+				Identifier = "Logistic.AddressesByDailyNumber",
+				Parameters = new Dictionary<string, object> {
+					{ "route_list", routeListId }
+				}
+			};
+		}
+
 		public static ReportInfo GetRDLRouteList(IUnitOfWork uow, RouteList routeList)
 		{
 			var RouteColumns = RouteColumnRepository.ActiveColumns (uow);
