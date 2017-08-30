@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
+using System.Linq;
+using Gamma.Utilities;
 using QSOrmProject;
 using QSProjectsLib;
 using QSReport;
 using QSTDI;
-using Vodovoz.Repository.Logistics;
-using System.Linq;
-using System.ComponentModel.DataAnnotations;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz.Additions.Logistic
 {
@@ -227,6 +228,8 @@ namespace Vodovoz.Additions.Logistic
 		All,
 		[Display (Name = "Маршрутный лист")]
 		RouteList,
+		[Display(Name = "Адреса по ежедневным номерам")]
+		DailyList,
 		[Display (Name = "Лист времени")]
 		TimeList,
 		[Display (Name = "Документ погрузки")]
@@ -291,26 +294,7 @@ namespace Vodovoz.Additions.Logistic
 		public string Name {
 			get
 			{
-				string name = string.Empty;
-				switch (type)
-				{
-					case RouteListPrintableDocuments.LoadDocument:
-						name = "Документ погрузки";
-						break;
-					case RouteListPrintableDocuments.RouteList:
-						name = "Маршрутный лист";
-						break;
-					case RouteListPrintableDocuments.TimeList:
-						name = "Лист времени";
-						break;
-					case RouteListPrintableDocuments.OrderOfAddresses:
-						name = "Отчёт по порядку адресов";
-						break;
-					default:
-						throw new NotImplementedException("Неизвестный тип документа");
-						break;
-				}
-				return name;
+				return RouteListPrintableDocuments.LoadDocument.GetEnumTitle();
 			}
 		}
 
