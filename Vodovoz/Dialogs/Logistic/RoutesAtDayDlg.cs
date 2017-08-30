@@ -635,6 +635,8 @@ namespace Vodovoz
 
 			routesAtDay = routesQuery.ToList ();
 			routesAtDay.ToList ().ForEach (rl => rl.UoW = uow);
+			//Нужно для того чтобы диалог не падал при загрузке если присутствую поломаные МЛ.
+			routesAtDay.ToList().ForEach(rl => rl.CheckAddressOrder());
 
 
 			UpdateRoutesPixBuf ();

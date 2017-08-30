@@ -391,7 +391,7 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
-		private void CheckAddressOrder()
+		public virtual void CheckAddressOrder()
 		{
 			for (int i = 0; i < Addresses.Count; i++) {
 				if (Addresses[i] == null) {
