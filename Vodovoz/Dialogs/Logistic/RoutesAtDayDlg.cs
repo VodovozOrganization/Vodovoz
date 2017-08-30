@@ -1,4 +1,4 @@
-﻿﻿﻿using System;
+﻿﻿﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,7 @@ using Gdk;
 using GMap.NET;
 using GMap.NET.GtkSharp;
 using GMap.NET.MapProviders;
+using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
 using QSTDI;
@@ -106,6 +107,10 @@ namespace Vodovoz
 			}
 		}
 
+		public enum RouteColumnTag{
+			OnloadTime
+		}
+
 		public RoutesAtDayDlg ()
 		{
 			this.Build ();
@@ -133,7 +138,8 @@ namespace Vodovoz
 
 			LoadDistrictsGeometry();
 
-			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create ()
+
+		ytreeRoutes.ColumnsConfig = FluentColumnsConfig<object>.Create ()
 				.AddColumn("Маркер").AddPixbufRenderer(x => GetRowMarker(x))
 				.AddColumn ("МЛ/Адрес").AddTextRenderer (x => GetRowTitle (x))
 				.AddColumn ("Адр./Время").AddTextRenderer (x => GetRowTime (x), useMarkup: true)
@@ -141,12 +147,14 @@ namespace Vodovoz
 				.AddColumn ("Бутылей").AddTextRenderer (x => GetRowBottles (x), useMarkup: true)
 				.AddColumn ("Бут. 6л").AddTextRenderer (x => GetRowBottlesSix (x))
 				.AddColumn("Вес").AddTextRenderer(x => GetRowWeight(x), useMarkup: true)
-				.AddColumn("Погрузка").AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true).AddSetter((c, n) => c.Editable = n is RouteList).EditedEvent(OnLoadTimeEdited)
+				.AddColumn("Погрузка").Tag(RouteColumnTag.OnloadTime).AddTextRenderer(x => GetRowOnloadTime(x), useMarkup: true).AddSetter((c, n) => c.Editable = n is RouteList).EditedEvent(OnLoadTimeEdited)
 				.AddColumn("Километраж").AddTextRenderer(x => GetRowDistance(x))
 				.AddColumn ("К клиенту").AddTextRenderer (x => GetRowEquipmentToClien (x))
 				.AddColumn ("От клиента").AddTextRenderer (x => GetRowEquipmentFromClien (x))
 				.Finish ();
 
+			ytreeRoutes.HasTooltip = true;
+			ytreeRoutes.QueryTooltip += YtreeRoutes_QueryTooltip;;
 			ytreeRoutes.Selection.Changed += YtreeRoutes_Selection_Changed;
 			distanceCalculator.RouteCalculeted += DistanceCalculator_RouteCalculeted;
 
@@ -195,6 +203,40 @@ namespace Vodovoz
 				brokenSelection.Points [dragSelectionPointId] = gmapWidget.FromLocalToLatLng ((int)args.Event.X, (int)args.Event.Y);
 				gmapWidget.UpdatePolygonLocalPosition (brokenSelection);
 				gmapWidget.Refresh ();
+			}
+		}
+
+		void YtreeRoutes_QueryTooltip(object o, Gtk.QueryTooltipArgs args)
+		{
+			int binX;
+			int binY;
+			ytreeRoutes.ConvertWidgetToBinWindowCoords(args.X, args.Y, out binX, out binY);
+			TreePath path;
+			TreeViewColumn col;
+			TreeIter iter;
+
+			if(ytreeRoutes.GetPathAtPos(binX, binY, out path, out col) && ytreeRoutes.Model.GetIter(out iter, path)) {
+				logger.Debug(ytreeRoutes.ColumnsConfig.GetColumnsByTag(RouteColumnTag.OnloadTime).Count());
+				var loadtimeCol = ytreeRoutes.ColumnsConfig.GetColumnsByTag(RouteColumnTag.OnloadTime).Where(x => x == col).ToArray();
+				if(loadtimeCol.Length > 0)
+				{
+					var node = ytreeRoutes.YTreeModel.NodeFromIter(iter) as RouteList;
+					if(node == null)
+						return;
+					var firstDP = node.Addresses.FirstOrDefault()?.Order.DeliveryPoint;
+					args.RetVal = true;
+					args.Tooltip.Text = String.Format("Первый адрес: {0:t}\n" +
+										 "Путь со склада: {1:N1} км. ({2} мин.)\n" +
+										 "Выезд со склада: {3:t}\n" +
+										 "Погрузка на складе: {4} минут",
+					                                  node.FirstAddressTime,
+					                                  firstDP != null ? distanceCalculator.DistanceFromBaseMeter(firstDP) * 0.001 : 0,
+					                                  firstDP != null ? distanceCalculator.TimeFromBase(firstDP) / 60 : 0,
+					                                  node.OnLoadTimeEnd,
+					                                  node.TimeOnLoadMinuts
+					                    );
+				}
+		
 			}
 		}
 
