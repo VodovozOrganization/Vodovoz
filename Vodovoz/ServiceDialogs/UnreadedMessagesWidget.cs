@@ -9,7 +9,7 @@ using QSTDI;
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Chat;
+using Vodovoz.Repository.Chats;
 using VodovozService.Chats;
 
 namespace Vodovoz

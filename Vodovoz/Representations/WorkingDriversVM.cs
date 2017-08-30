@@ -13,7 +13,7 @@ using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Chat;
+using Vodovoz.Repository.Chats;
 
 namespace Vodovoz.ViewModel
 {

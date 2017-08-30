@@ -4,7 +4,7 @@ using Vodovoz.Domain.Chats;
 using System.Collections.Generic;
 using QSProjectsLib;
 
-namespace Vodovoz.Repository.Chat
+namespace Vodovoz.Repository.Chats
 {
 	public static class ChatRepository
 	{

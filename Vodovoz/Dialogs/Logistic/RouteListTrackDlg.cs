@@ -14,7 +14,7 @@ using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Chat;
+using Vodovoz.Repository.Chats;
 using Vodovoz.ServiceDialogs.Chat;
 using Vodovoz.ViewModel;
 using VodovozService.Chats;

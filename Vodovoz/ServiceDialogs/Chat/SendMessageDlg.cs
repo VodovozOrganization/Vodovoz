@@ -7,7 +7,7 @@ using QSOrmProject;
 using QSProjectsLib;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Repository;
-using Vodovoz.Repository.Chat;
+using Vodovoz.Repository.Chats;
 
 namespace Vodovoz.ServiceDialogs.Chat
 {

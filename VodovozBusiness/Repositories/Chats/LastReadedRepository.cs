@@ -2,7 +2,7 @@
 using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Employees;
 
-namespace Vodovoz.Repository.Chat
+namespace Vodovoz.Repository.Chats
 {
 	public static class LastReadedRepository
 	{

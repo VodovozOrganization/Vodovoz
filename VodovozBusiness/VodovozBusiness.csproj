@@ -341,11 +341,11 @@
     <Compile Include="HibernateMapping\Chat\ChatMap.cs" />
     <Compile Include="HibernateMapping\Chat\ChatMessageMap.cs" />
     <Compile Include="HibernateMapping\Chat\LastReadedMessageMap.cs" />
-    <Compile Include="Repositories\Chat\ChatRepository.cs" />
-    <Compile Include="Repositories\Chat\ChatMessageRepository.cs" />
+    <Compile Include="Repositories\Chats\ChatRepository.cs" />
+    <Compile Include="Repositories\Chats\ChatMessageRepository.cs" />
     <Compile Include="HibernateMapping\Counterparty\SignificanceMap.cs" />
     <Compile Include="Domain\Client\Significance.cs" />
-    <Compile Include="Repositories\Chat\LastReadedRepository.cs" />
+    <Compile Include="Repositories\Chats\LastReadedRepository.cs" />
     <Compile Include="Domain\Order\Documents\ShetFacturaDocument.cs" />
     <Compile Include="Domain\Order\Documents\Torg12Document.cs" />
     <Compile Include="Domain\Employees\FineNomenclature.cs" />
@@ -413,7 +413,7 @@
     <Folder Include="Attributes\" />
     <Folder Include="Domain\Chat\" />
     <Folder Include="HibernateMapping\Chat\" />
-    <Folder Include="Repositories\Chat\" />
+    <Folder Include="Repositories\Chats\" />
     <Folder Include="Repositories\Client\" />
     <Folder Include="Tools\" />
     <Folder Include="Tools\Logistic\" />
