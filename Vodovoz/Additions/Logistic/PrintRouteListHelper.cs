@@ -220,6 +220,23 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
+		public static ReportInfo GetRDL(RouteList routeList, RouteListPrintableDocuments type, IUnitOfWork uow = null)
+		{
+			switch(type) {
+				case RouteListPrintableDocuments.LoadDocument:
+					return GetRDLLoadDocument(routeList.Id);
+				case RouteListPrintableDocuments.RouteList:
+					return GetRDLRouteList(uow, routeList);
+				case RouteListPrintableDocuments.TimeList:
+					return GetRDLTimeList(routeList.Id);
+				case RouteListPrintableDocuments.DailyList:
+					return GetRDLDailyList(routeList.Id);
+				case RouteListPrintableDocuments.OrderOfAddresses:
+					return routeList.OrderOfAddressesRep(routeList.Id);
+				default:
+					throw new NotImplementedException("Неизвестный тип документа");
+			}
+		}
 	}
 
 	public enum RouteListPrintableDocuments
@@ -251,26 +268,7 @@ namespace Vodovoz.Additions.Logistic
 
 		public ReportInfo GetReportInfo()
 		{
-			ReportInfo document = null;
-			switch (type)
-			{
-				case RouteListPrintableDocuments.LoadDocument:
-					document = PrintRouteListHelper.GetRDLLoadDocument(routeList.Id);
-					break;
-				case RouteListPrintableDocuments.RouteList:
-					document = PrintRouteListHelper.GetRDLRouteList(UoW, routeList);
-					break;
-				case RouteListPrintableDocuments.TimeList:
-					document = PrintRouteListHelper.GetRDLTimeList(routeList.Id);
-					break;
-				case RouteListPrintableDocuments.OrderOfAddresses:
-					document = routeList.OrderOfAddressesRep(routeList.Id);
-					break;
-				default:
-					throw new NotImplementedException("Неизвестный тип документа");
-					break;
-			}
-			return document;
+			return PrintRouteListHelper.GetRDL(routeList, type, UoW);
 		}
 
 		public ReportInfo GetReportInfoForPreview()

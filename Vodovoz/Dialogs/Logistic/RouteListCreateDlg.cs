@@ -111,26 +111,7 @@ namespace Vodovoz
 
 		private void PrintSelectedDocument (RouteListPrintableDocuments choise)
 		{
-			QSReport.ReportInfo document = null;
-
-			switch (choise)
-			{
-				case RouteListPrintableDocuments.All:
-					PrintRouteListHelper.Print(UoW, Entity, this);
-					break;
-				case RouteListPrintableDocuments.LoadDocument:
-					document = PrintRouteListHelper.GetRDLLoadDocument(Entity.Id);
-					break;
-				case RouteListPrintableDocuments.RouteList:
-					document = PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
-					break;
-				case RouteListPrintableDocuments.TimeList:
-					document = PrintRouteListHelper.GetRDLTimeList(Entity.Id);
-					break;
-				case RouteListPrintableDocuments.OrderOfAddresses:
-					document = Entity.OrderOfAddressesRep(Entity.Id);	
-					break;
-			}
+			QSReport.ReportInfo document = PrintRouteListHelper.GetRDL(Entity, choise, UoW);
 
 			if (document != null)
 			{
