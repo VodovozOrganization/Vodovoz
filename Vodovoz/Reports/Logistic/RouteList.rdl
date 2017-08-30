@@ -49,7 +49,7 @@
     </ReportItems>
   </PageHeader>
   <Body>
-    <Height>220.2pt</Height>
+    <Height>247.2pt</Height>
     <Columns>1</Columns>
     <ReportItems>
       <Textbox Name="Textbox3">
@@ -1235,13 +1235,14 @@
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>37.6pt</Top>
+        <Top>50.4pt</Top>
       </Table>
       <Textbox Name="Textbox5">
-        <Height>25.53pt</Height>
+        <Height>36.03pt</Height>
         <Width>663.95pt</Width>
         <Value>При возникновении проблем звонить в офис по тел. 8-981-701-57-32. СВЕРЬ НАКЛАДНЫЕ С МАРШРУТНЫМ ЛИСТОМ ОБЯЗАТЕЛЬНО!
-По окончанию доставки отзвон в офис 8-981-701-57-32 ОБЯЗАТЕЛЬНО!"</Value>
+По окончанию доставки отзвон в офис 8-981-701-57-32 ОБЯЗАТЕЛЬНО!"
+В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-911-914-01-91</Value>
         <ZIndex>1</ZIndex>
         <Left>0.70pt</Left>
         <Top>12.80pt</Top>
@@ -1257,7 +1258,7 @@
         <Value>="ПРИНЯТО НА СКЛАДЕ"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>144.2pt</Top>
+        <Top>157.0pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1275,7 +1276,7 @@
         <Value>="ПУСТЫХ:"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>163.0pt</Top>
+        <Top>175.8pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1293,7 +1294,7 @@
         <Value>="БРАК: "</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>178.1pt</Top>
+        <Top>190.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1311,7 +1312,7 @@
         <Value>="ПОЛНЫХ:"</Value>
         <ZIndex>1</ZIndex>
         <Left>0.0pt</Left>
-        <Top>193.3pt</Top>
+        <Top>206.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1328,8 +1329,8 @@
         <Width>166.38pt</Width>
         <Value>="Нач. склада ____________"</Value>
         <ZIndex>1</ZIndex>
-        <Left>414.80pt</Left>
-        <Top>154.70pt</Top>
+        <Left>414.8pt</Left>
+        <Top>167.5pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
@@ -1347,7 +1348,7 @@
         <Value>="Водитель ______________"</Value>
         <ZIndex>1</ZIndex>
         <Left>414.6pt</Left>
-        <Top>189.3pt</Top>
+        <Top>202.1pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
