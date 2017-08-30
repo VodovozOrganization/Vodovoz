@@ -61,7 +61,7 @@ namespace Vodovoz.Domain.Chats
 
 		#region Генерируемые
 
-		public string SenderName {
+		public virtual string SenderName {
 			get {
 				return Sender?.ShortName ?? "незнамо кто";
 			}
