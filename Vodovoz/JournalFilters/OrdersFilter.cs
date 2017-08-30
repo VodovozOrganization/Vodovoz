@@ -155,7 +155,7 @@ namespace Vodovoz
 
 		bool? restrictHideService;
 
-		public bool? RrestrictService
+		public bool? RestrictHideService
 		{
 			get
 			{
@@ -166,6 +166,22 @@ namespace Vodovoz
 				restrictHideService = value;
 				checkHideService.Active = value == true;
 				checkHideService.Sensitive = false;
+			}
+		}
+
+		bool? restrictOnlyService;
+
+		public bool? RestrictOnlyService
+		{
+			get
+			{
+				return checkOnlyService.Active ? true : restrictHideService;
+			}
+			set
+			{
+				restrictOnlyService = value;
+				checkOnlyService.Active = value == true;
+				checkOnlyService.Sensitive = false;
 			}
 		}
 
@@ -205,14 +221,14 @@ namespace Vodovoz
 
 		protected void OnCheckOnlySelfDeliveryToggled(object sender, EventArgs e)
 		{
+			checkWithoutSelfDelivery.Active = checkOnlySelfDelivery.Active ? false : checkWithoutSelfDelivery.Active;
 			OnRefiltered ();
-			checkWithoutSelfDelivery.Sensitive = !checkOnlySelfDelivery.Active;
 		}
 
 		protected void OnCheckWithoutSelfDeliveryToggled (object sender, EventArgs e)
 		{
+			checkOnlySelfDelivery.Active = checkWithoutSelfDelivery.Active ? false : checkOnlySelfDelivery.Active;
 			OnRefiltered ();
-			checkOnlySelfDelivery.Sensitive = !checkWithoutSelfDelivery.Active;
 		}
 
 		protected void OnCheckLessThreeHoursToggled(object sender, EventArgs e)
@@ -222,6 +238,13 @@ namespace Vodovoz
 
 		protected void OnCheckServiceToggled(object sender, EventArgs e)
 		{
+			checkOnlyService.Active = checkHideService.Active ? false : checkOnlyService.Active;
+			OnRefiltered();
+		}
+
+		protected void OnCheckOnlyServiceToggled(object sender, EventArgs e)
+		{
+			checkHideService.Active = checkOnlyService.Active ? false : checkHideService.Active;
 			OnRefiltered();
 		}
 	}

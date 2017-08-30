@@ -90,8 +90,13 @@ namespace Vodovoz.ViewModel
 											Projections.Property(() => deliveryScheduleAlias.To)));
 			}
 
-			if (Filter.RrestrictService != null) {
-				query.Where(o => o.IsService != Filter.RrestrictService);
+			if (Filter.RestrictHideService != null) {
+				query.Where(o => o.IsService != Filter.RestrictHideService);
+			}
+
+			if (Filter.RestrictOnlyService != null)
+			{
+				query.Where(o => o.IsService == Filter.RestrictOnlyService);
 			}
 
 			if (Filter.ExceptIds != null && Filter.ExceptIds.Length > 0)
