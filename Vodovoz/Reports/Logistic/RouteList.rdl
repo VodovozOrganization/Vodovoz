@@ -93,23 +93,23 @@
             <Width>0.0pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>39.4pt</Width>
+            <Width>34.6pt</Width>
           </TableColumn>
           <!--table_column-->
           <TableColumn>
-            <Width>140.8pt</Width>
+            <Width>135.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>120.8pt</Width>
-          </TableColumn>
-          <TableColumn>
-            <Width>43pt</Width>
+            <Width>101.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>50pt</Width>
+            <Width>43pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>44.4pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -1383,7 +1383,7 @@
   <DataElementStyle>AttributeNormal</DataElementStyle>
   <DataSets>
     <DataSet Name="RouteList">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>
 SELECT 
@@ -1409,7 +1409,7 @@ WHERE route_lists.id = @route_list_id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="DriverName">
           <DataField>DriverName</DataField>
           <TypeName>System.String</TypeName>
@@ -1618,7 +1618,7 @@ ORDER BY daily_number_1c;
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
