@@ -5,7 +5,7 @@ using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Chats
 {
-	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Neuter,
+	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Neuter,
 		NominativePlural = "сообщения",
 		Nominative = "сообщение")]
 	public class ChatMessage : PropertyChangedBase, IDomainObject
@@ -14,50 +14,59 @@ namespace Vodovoz.Domain.Chats
 
 		private Chat chat;
 
-		[Display (Name = "Чат")]
+		[Display(Name = "Чат")]
 		public virtual Chat Chat {
 			get { return chat; }
-			set { SetField (ref chat, value, () => Chat); }
+			set { SetField(ref chat, value, () => Chat); }
 		}
 
 		Employee sender;
 
-		[Display (Name = "Отправитель")]
+		[Display(Name = "Отправитель")]
 		public virtual Employee Sender {
 			get { return sender; }
-			set { SetField (ref sender, value, () => Sender); }
+			set { SetField(ref sender, value, () => Sender); }
 		}
 
 		private bool isServerNotification;
 
 		public virtual bool IsServerNotification {
-		    get { return isServerNotification; }
-		    set { SetField (ref isServerNotification, value, () => IsServerNotification); }
+			get { return isServerNotification; }
+			set { SetField(ref isServerNotification, value, () => IsServerNotification); }
 		}
 
 		private bool isAutoCeated;
 
-		[Display (Name = "Автоматически созданное сообщение")]
+		[Display(Name = "Автоматически созданное сообщение")]
 		public virtual bool IsAutoCeated {
 			get { return isAutoCeated; }
-			set { SetField (ref isAutoCeated, value, () => IsAutoCeated); }
+			set { SetField(ref isAutoCeated, value, () => IsAutoCeated); }
 		}
 
 		string message;
 
-		[Display (Name = "Сообщение")]
+		[Display(Name = "Сообщение")]
 		public virtual string Message {
 			get { return message; }
-			set { SetField (ref message, value, () => Message); }
+			set { SetField(ref message, value, () => Message); }
 		}
 
 		DateTime dateTime;
 
-		[Display (Name = "Дата и время отправки")]
+		[Display(Name = "Дата и время отправки")]
 		public virtual DateTime DateTime {
 			get { return dateTime; }
-			set { SetField (ref dateTime, value, () => DateTime); }
+			set { SetField(ref dateTime, value, () => DateTime); }
 		}
+
+		#region Генерируемые
+
+		public string SenderName {
+			get {
+				return Sender?.ShortName ?? "незнамо кто";
+			}
+		}
+		#endregion
 	}
 }
 

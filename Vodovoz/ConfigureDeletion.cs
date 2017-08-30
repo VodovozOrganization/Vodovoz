@@ -6,16 +6,17 @@ using QSOrmProject.Deletion;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
+using Vodovoz.Domain.Chats;
 using Vodovoz.Domain.Client;
 using Vodovoz.Domain.Documents;
 using Vodovoz.Domain.Employees;
+using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Orders.Documents;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
@@ -170,6 +171,7 @@ namespace Vodovoz
 				.AddDeleteDependence<FuelOperation>(x => x.Driver)
 				.AddDeleteDependence<WagesMovementOperations>(x => x.Employee)
 				.AddDeleteDependence<Track>(x => x.Driver)
+			    .AddDeleteDependence<Chat>(x => x.Driver)
 				.AddClearDependence<Car> (item => item.Driver)
 				.AddClearDependence<Counterparty> (item => item.Accountant)
 				.AddClearDependence<Counterparty> (item => item.SalesManager)
@@ -205,7 +207,8 @@ namespace Vodovoz
 				.AddClearDependence<RouteList>(x => x.Cashier)
 				.AddClearDependence<Residue>(x => x.Author)
 				.AddClearDependence<Residue>(x => x.LastEditAuthor)
-				.AddClearDependence<Subdivision>(x => x.Chief);
+				.AddClearDependence<Subdivision>(x => x.Chief)
+			    .AddClearDependence<ChatMessage>(x => x.Sender);
 
 			DeleteConfig.AddClearDependence<Account> (ClearDependenceInfo.Create<Employee> (item => item.DefaultAccount));
 
@@ -240,6 +243,11 @@ namespace Vodovoz
 				.AddClearDependence<Employee>(item => item.Subdivision);
 			
 			DeleteConfig.AddHibernateDeleteInfo<EmployeeWorkChart>();
+
+			DeleteConfig.AddHibernateDeleteInfo<Chat>();
+			//Не добавляем сообщения чата чтобы не заполонять вывод удаления. все сообщения удалятся вместе с чатом.
+
+			DeleteConfig.AddHibernateDeleteInfo<ChatMessage>();
 
 			#endregion
 

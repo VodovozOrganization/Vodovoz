@@ -143,7 +143,7 @@ namespace Vodovoz
 						String.Format("\n{0:D}", message.DateTime.Date), 
 						"date");
 				}
-				var userName = message.IsServerNotification ? ChatService.UserNameOfServer : message.Sender.ShortName;
+				var userName = message.IsServerNotification ? ChatService.UserNameOfServer : message.SenderName;
 				tempBuffer.InsertWithTagsByName(
 					ref iter, 
 					string.Format("\n({0:t}) {1}: ", message.DateTime, userName), 
