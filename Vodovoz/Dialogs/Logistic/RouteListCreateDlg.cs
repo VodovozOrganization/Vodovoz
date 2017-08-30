@@ -178,51 +178,40 @@ namespace Vodovoz
 		{
 
 			if (UoWGeneric.Root.Status == RouteListStatus.New) {
-				var valid = new QSValidator<RouteList> (UoWGeneric.Root, 
-					            new Dictionary<object, object> {
+				var valid = new QSValidator<RouteList>(UoWGeneric.Root,
+								new Dictionary<object, object> {
 						{ "NewStatus", RouteListStatus.InLoading }
 					});
-				if (valid.RunDlgIfNotValid ((Window)this.Toplevel))
+				if(valid.RunDlgIfNotValid((Window)this.Toplevel))
 					return;
 
 				UoWGeneric.Root.ChangeStatus(RouteListStatus.InLoading);
 
-				foreach (var address in UoWGeneric.Root.Addresses)
-				{
+				foreach(var address in UoWGeneric.Root.Addresses) {
 					if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
 						address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
 				}
 				Save();
 
 				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.
-				var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment (UoW, Entity.Id);
-				if ((forShipment.Count == 0 || (forShipment.Count == 1 && UoWGeneric.Root.Addresses[0].Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay)) && UoWGeneric.Root.Car.TypeOfUse !=CarTypeOfUse.Truck)
-				{
-					if (MessageDialogWorks.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle()))
-					{
+				var forShipment = Repository.Store.WarehouseRepository.WarehouseForShipment(UoW, Entity.Id);
+				if((forShipment.Count == 0 || TransferredReloadCheck(forShipment)) && UoWGeneric.Root.Car.TypeOfUse != CarTypeOfUse.Truck) {
+					if(MessageDialogWorks.RunQuestionDialog("Для маршрутного листа, нет необходимости грузится на складе. Перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.EnRoute.GetEnumTitle())) {
 						valid = new QSValidator<RouteList>(UoWGeneric.Root,
 							new Dictionary<object, object> {
 							{ "NewStatus", RouteListStatus.EnRoute }
 						});
-						if (valid.RunDlgIfNotValid((Window)this.Toplevel))
-						{
+						if(valid.RunDlgIfNotValid((Window)this.Toplevel)) {
 							Entity.ChangeStatus(RouteListStatus.New);
-						}
-						else
-						{
+						} else {
 							Entity.ChangeStatus(RouteListStatus.EnRoute);
 						}
-					}
-					else
-					{
+					} else {
 						Entity.ChangeStatus(RouteListStatus.New);
 					}
-				}
-				else if (UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck && MessageDialogWorks.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle()))
-				{
+				} else if(UoWGeneric.Root.Car.TypeOfUse == CarTypeOfUse.Truck && MessageDialogWorks.RunQuestionDialog("Маршрутный лист для транспортировки на склад, перевести машрутный лист сразу в статус '{0}'?", RouteListStatus.OnClosing.GetEnumTitle())) {
 					Entity.ChangeStatus(RouteListStatus.OnClosing);
-					foreach (var item in UoWGeneric.Root.Addresses)
-					{
+					foreach(var item in UoWGeneric.Root.Addresses) {
 						item.Order.OrderStatus = Domain.Orders.OrderStatus.OnTheWay;
 					}
 					Entity.CompleteRoute();
@@ -239,5 +228,16 @@ namespace Vodovoz
 			}
 		}
 
+		bool TransferredReloadCheck(IList<Domain.Store.Warehouse> forShipment)
+		{
+			if(forShipment.Count == 0)
+				return false;
+			
+			foreach(var adress in UoWGeneric.Root.Addresses)  
+				if(adress.Order.OrderStatus == Domain.Orders.OrderStatus.OnTheWay && adress.NeedToReload == true)
+					return false;
+			 
+			return true;
+		}
 	}
 }
