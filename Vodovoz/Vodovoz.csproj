@@ -668,6 +668,8 @@
     <Compile Include="gtk-gui\Vodovoz.ViewWidgets.Logistics.DistrictPriorityView.cs" />
     <Compile Include="ReportsParameters\Logistic\OnLoadTimeAtDayReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OnLoadTimeAtDayReport.cs" />
+    <Compile Include="ReportsParameters\SelfDeliveryReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SelfDeliveryReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1032,6 +1034,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\OnLoadTimeAtDay.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Orders\SelfDeliveryReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

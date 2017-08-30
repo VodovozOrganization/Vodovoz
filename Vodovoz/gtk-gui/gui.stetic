@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -766,6 +766,12 @@
         <property name="ShortLabel" translatable="yes">Время погрузки</property>
         <signal name="Activated" handler="OnActionOnLoadTimeActivated" />
       </action>
+      <action id="actionSelfDeliveryReport">
+        <property name="Type">Action</property>
+        <property name="Label" translatable="yes">Отчёт по самовывозу</property>
+        <property name="ShortLabel" translatable="yes">Отчёт по самовывозу</property>
+        <signal name="Activated" handler="OnActionSelfDeliveryReportActivated" />
+      </action>
     </action-group>
     <property name="MemberName" />
     <property name="Title" translatable="yes">MainWindow</property>
@@ -904,6 +910,7 @@
                       <node type="Menuitem" action="ActionOrdersByDistrict" />
                       <node type="Menuitem" action="Action30" />
                       <node type="Menuitem" action="ActionOrdersWithMinPriceLessThan" />
+                      <node type="Menuitem" action="actionSelfDeliveryReport" />
                     </node>
                     <node type="Menuitem" />
                   </node>
@@ -42338,6 +42345,73 @@ RegistrationNumber</property>
             <property name="Label" translatable="yes">Сформировать отчет</property>
             <property name="UseUnderline">True</property>
             <signal name="Clicked" handler="OnButtonCreateReportClicked" />
+          </widget>
+          <packing>
+            <property name="Position">2</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="Gtk.Bin" id="Vodovoz.ReportsParameters.SelfDeliveryReport" design-size="300 300">
+    <property name="MemberName" />
+    <property name="Visible">False</property>
+    <child>
+      <widget class="Gtk.VBox" id="vbox2">
+        <property name="MemberName" />
+        <property name="Spacing">6</property>
+        <child>
+          <widget class="Gtk.HBox" id="hbox3">
+            <property name="MemberName" />
+            <property name="Spacing">6</property>
+            <child>
+              <widget class="Gtk.Label" id="label2">
+                <property name="MemberName" />
+                <property name="LabelProp" translatable="yes">Дата:</property>
+              </widget>
+              <packing>
+                <property name="Position">0</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gamma.Widgets.yDatePicker" id="ydatepicker">
+                <property name="MemberName" />
+                <property name="Events">ButtonPressMask</property>
+                <property name="WithTime">False</property>
+                <property name="Date">0</property>
+                <property name="IsEditable">True</property>
+                <property name="AutoSeparation">False</property>
+              </widget>
+              <packing>
+                <property name="Position">1</property>
+                <property name="AutoSize">True</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="Position">0</property>
+            <property name="AutoSize">True</property>
+            <property name="Expand">False</property>
+            <property name="Fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder />
+        </child>
+        <child>
+          <widget class="Gtk.Button" id="buttonCreateRepot">
+            <property name="MemberName" />
+            <property name="CanFocus">True</property>
+            <property name="Type">TextOnly</property>
+            <property name="Label" translatable="yes">Сформировать отчет</property>
+            <property name="UseUnderline">True</property>
+            <signal name="Clicked" handler="OnButtonCreateRepotClicked" />
           </widget>
           <packing>
             <property name="Position">2</property>
