@@ -1235,14 +1235,13 @@
           </TableRows>
         </Footer>
         <Left>0.0pt</Left>
-        <Top>50.4pt</Top>
+        <Top>38.4pt</Top>
       </Table>
       <Textbox Name="Textbox5">
-        <Height>36.03pt</Height>
-        <Width>663.95pt</Width>
+        <Height>24.02pt</Height>
+        <Width>760.16pt</Width>
         <Value>При возникновении проблем звонить в офис по тел. 8-981-701-57-32. СВЕРЬ НАКЛАДНЫЕ С МАРШРУТНЫМ ЛИСТОМ ОБЯЗАТЕЛЬНО!
-По окончанию доставки отзвон в офис 8-981-701-57-32 ОБЯЗАТЕЛЬНО!
-В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-911-914-01-91</Value>
+По окончанию доставки отзвон в офис 8-981-701-57-32 ОБЯЗАТЕЛЬНО!</Value>
         <ZIndex>1</ZIndex>
         <Left>0.70pt</Left>
         <Top>12.80pt</Top>
@@ -1367,6 +1366,19 @@
         <ZIndex>1</ZIndex>
         <Left>195.6pt</Left>
         <Top>1.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox52" >
+        <Height>14.99pt</Height>
+        <Width>714.51pt</Width>
+        <Value>В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-911-914-01-91</Value>
+        <ZIndex>1</ZIndex>
+        <Left>4.4pt</Left>
+        <Top>137.9pt</Top>
         <Style>
           <BorderStyle />
           <BorderColor />
