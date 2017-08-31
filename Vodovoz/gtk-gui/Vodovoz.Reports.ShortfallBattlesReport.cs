@@ -14,11 +14,11 @@ namespace Vodovoz.Reports
 
 		private global::Gtk.Table table1;
 
-		private global::Gtk.CheckButton checkDriverNoCall;
-
 		private global::Gtk.CheckButton checkOneDriver;
 
 		private global::Gtk.CheckButton checkReason;
+
+		private global::Gamma.Widgets.yEnumComboBox comboboxDriver;
 
 		private global::Gtk.VBox vbox2;
 
@@ -33,6 +33,8 @@ namespace Vodovoz.Reports
 		private global::Gtk.RadioButton radiobuttonFirstOrder;
 
 		private global::Gtk.RadioButton radiobuttonUnknown;
+
+		private global::Gtk.Label label1;
 
 		private global::Gamma.Widgets.yEntryReference yentryDriver;
 
@@ -84,19 +86,6 @@ namespace Vodovoz.Reports
 			this.table1.RowSpacing = ((uint)(6));
 			this.table1.ColumnSpacing = ((uint)(6));
 			// Container child table1.Gtk.Table+TableChild
-			this.checkDriverNoCall = new global::Gtk.CheckButton();
-			this.checkDriverNoCall.CanFocus = true;
-			this.checkDriverNoCall.Name = "checkDriverNoCall";
-			this.checkDriverNoCall.Label = global::Mono.Unix.Catalog.GetString("Водитель без отзвона");
-			this.checkDriverNoCall.DrawIndicator = true;
-			this.checkDriverNoCall.UseUnderline = true;
-			this.table1.Add(this.checkDriverNoCall);
-			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.checkDriverNoCall]));
-			w4.TopAttach = ((uint)(4));
-			w4.BottomAttach = ((uint)(5));
-			w4.XOptions = ((global::Gtk.AttachOptions)(4));
-			w4.YOptions = ((global::Gtk.AttachOptions)(4));
-			// Container child table1.Gtk.Table+TableChild
 			this.checkOneDriver = new global::Gtk.CheckButton();
 			this.checkOneDriver.CanFocus = true;
 			this.checkOneDriver.Name = "checkOneDriver";
@@ -104,9 +93,9 @@ namespace Vodovoz.Reports
 			this.checkOneDriver.DrawIndicator = true;
 			this.checkOneDriver.UseUnderline = true;
 			this.table1.Add(this.checkOneDriver);
-			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.checkOneDriver]));
-			w5.XOptions = ((global::Gtk.AttachOptions)(4));
-			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w4 = ((global::Gtk.Table.TableChild)(this.table1[this.checkOneDriver]));
+			w4.XOptions = ((global::Gtk.AttachOptions)(4));
+			w4.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.checkReason = new global::Gtk.CheckButton();
 			this.checkReason.CanFocus = true;
@@ -115,9 +104,22 @@ namespace Vodovoz.Reports
 			this.checkReason.DrawIndicator = true;
 			this.checkReason.UseUnderline = true;
 			this.table1.Add(this.checkReason);
-			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.checkReason]));
-			w6.TopAttach = ((uint)(2));
-			w6.BottomAttach = ((uint)(3));
+			global::Gtk.Table.TableChild w5 = ((global::Gtk.Table.TableChild)(this.table1[this.checkReason]));
+			w5.TopAttach = ((uint)(2));
+			w5.BottomAttach = ((uint)(3));
+			w5.XOptions = ((global::Gtk.AttachOptions)(4));
+			w5.YOptions = ((global::Gtk.AttachOptions)(4));
+			// Container child table1.Gtk.Table+TableChild
+			this.comboboxDriver = new global::Gamma.Widgets.yEnumComboBox();
+			this.comboboxDriver.Name = "comboboxDriver";
+			this.comboboxDriver.ShowSpecialStateAll = false;
+			this.comboboxDriver.ShowSpecialStateNot = false;
+			this.comboboxDriver.UseShortTitle = false;
+			this.comboboxDriver.DefaultFirst = true;
+			this.table1.Add(this.comboboxDriver);
+			global::Gtk.Table.TableChild w6 = ((global::Gtk.Table.TableChild)(this.table1[this.comboboxDriver]));
+			w6.TopAttach = ((uint)(4));
+			w6.BottomAttach = ((uint)(5));
 			w6.XOptions = ((global::Gtk.AttachOptions)(4));
 			w6.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
@@ -138,7 +140,6 @@ namespace Vodovoz.Reports
 			this.radiobuttonNewAddress.Sensitive = false;
 			this.radiobuttonNewAddress.CanFocus = true;
 			this.radiobuttonNewAddress.Name = "radiobuttonNewAddress";
-			this.radiobuttonNewAddress.Active = true;
 			this.radiobuttonNewAddress.DrawIndicator = true;
 			this.radiobuttonNewAddress.UseUnderline = true;
 			this.radiobuttonNewAddress.Group = new global::GLib.SList(global::System.IntPtr.Zero);
@@ -190,30 +191,42 @@ namespace Vodovoz.Reports
 			w11.Position = 1;
 			w11.Expand = false;
 			w11.Fill = false;
-			this.vbox3.Add(this.vbox4);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.vbox4]));
+			// Container child vbox4.Gtk.Box+BoxChild
+			this.label1 = new global::Gtk.Label();
+			this.label1.Name = "label1";
+			this.label1.LabelProp = global::Mono.Unix.Catalog.GetString("Водитель без отзвона");
+			this.vbox4.Add(this.label1);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.label1]));
 			w12.Position = 2;
+			w12.Expand = false;
+			w12.Fill = false;
+			this.vbox3.Add(this.vbox4);
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.vbox4]));
+			w13.Position = 2;
+			w13.Expand = false;
+			w13.Fill = false;
 			this.table1.Add(this.vbox3);
-			global::Gtk.Table.TableChild w13 = ((global::Gtk.Table.TableChild)(this.table1[this.vbox3]));
-			w13.TopAttach = ((uint)(3));
-			w13.BottomAttach = ((uint)(4));
-			w13.XOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.vbox3]));
+			w14.TopAttach = ((uint)(3));
+			w14.BottomAttach = ((uint)(4));
+			w14.XOptions = ((global::Gtk.AttachOptions)(4));
+			w14.YOptions = ((global::Gtk.AttachOptions)(4));
 			// Container child table1.Gtk.Table+TableChild
 			this.yentryDriver = new global::Gamma.Widgets.yEntryReference();
 			this.yentryDriver.Sensitive = false;
 			this.yentryDriver.Events = ((global::Gdk.EventMask)(256));
 			this.yentryDriver.Name = "yentryDriver";
 			this.table1.Add(this.yentryDriver);
-			global::Gtk.Table.TableChild w14 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryDriver]));
-			w14.TopAttach = ((uint)(1));
-			w14.BottomAttach = ((uint)(2));
-			w14.XOptions = ((global::Gtk.AttachOptions)(4));
-			w14.YOptions = ((global::Gtk.AttachOptions)(4));
+			global::Gtk.Table.TableChild w15 = ((global::Gtk.Table.TableChild)(this.table1[this.yentryDriver]));
+			w15.TopAttach = ((uint)(1));
+			w15.BottomAttach = ((uint)(2));
+			w15.XOptions = ((global::Gtk.AttachOptions)(4));
+			w15.YOptions = ((global::Gtk.AttachOptions)(4));
 			this.vbox1.Add(this.table1);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
-			w15.Position = 1;
-			w15.Expand = false;
-			w15.Fill = false;
+			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.table1]));
+			w16.Position = 1;
+			w16.Expand = false;
+			w16.Fill = false;
 			// Container child vbox1.Gtk.Box+BoxChild
 			this.buttonCreateRepot = new global::Gtk.Button();
 			this.buttonCreateRepot.CanFocus = true;
@@ -221,20 +234,18 @@ namespace Vodovoz.Reports
 			this.buttonCreateRepot.UseUnderline = true;
 			this.buttonCreateRepot.Label = global::Mono.Unix.Catalog.GetString("Сформировать отчет");
 			this.vbox1.Add(this.buttonCreateRepot);
-			global::Gtk.Box.BoxChild w16 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
-			w16.PackType = ((global::Gtk.PackType)(1));
-			w16.Position = 2;
-			w16.Expand = false;
-			w16.Fill = false;
+			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.buttonCreateRepot]));
+			w17.PackType = ((global::Gtk.PackType)(1));
+			w17.Position = 2;
+			w17.Expand = false;
+			w17.Fill = false;
 			this.Add(this.vbox1);
-			if ((this.Child != null))
-			{
+			if((this.Child != null)) {
 				this.Child.ShowAll();
 			}
 			this.Hide();
 			this.checkReason.Toggled += new global::System.EventHandler(this.OnCheckReasonToggled);
 			this.checkOneDriver.Toggled += new global::System.EventHandler(this.OnCheckOneDriverToggled);
-			this.checkDriverNoCall.Toggled += new global::System.EventHandler(this.OnCheckOneDriverToggled);
 			this.buttonCreateRepot.Clicked += new global::System.EventHandler(this.OnButtonCreateRepotClicked);
 		}
 	}

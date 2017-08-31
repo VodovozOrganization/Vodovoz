@@ -4,6 +4,7 @@ using QSReport;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using QSProjectsLib;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vodovoz.Reports
 {
@@ -14,6 +15,7 @@ namespace Vodovoz.Reports
 		{
 			this.Build();
 			ydatepicker.Date = DateTime.Now.Date;
+			comboboxDriver.ItemsEnum = typeof(Drivers);
 			UoW = UnitOfWorkFactory.CreateWithoutRoot();
 			yentryDriver.ItemsQuery = Repository.EmployeeRepository.DriversQuery();
 		}
@@ -78,10 +80,12 @@ namespace Vodovoz.Reports
 				parameters.Add("driver_id", -1);
 			}
 
-			if(checkDriverNoCall.Active)
-				parameters.Add("driver_call", 1);
-			else
+			if(comboboxDriver.SelectedItem.Equals(Drivers.AllDriver))
 				parameters.Add("driver_call", -1);
+			else if(comboboxDriver.SelectedItem.Equals(Drivers.Largus))
+				parameters.Add("driver_call", 1);
+			else if(comboboxDriver.SelectedItem.Equals(Drivers.Hirelings))
+				parameters.Add("driver_call", 0);
 
 			return new ReportInfo {
 				Identifier = "Orders.ShortfallBattlesReport",
@@ -114,6 +118,16 @@ namespace Vodovoz.Reports
 			radiobuttonOrderIncrease.Sensitive = sensitive;
 			radiobuttonFirstOrder.Sensitive = sensitive;
 			radiobuttonUnknown.Sensitive = sensitive;
+		}
+
+		enum Drivers
+		{
+			[Display(Name = "Все")]
+			AllDriver,
+			[Display(Name = "Ларгусы")]
+			Largus,
+			[Display(Name = "Наемники")]
+			Hirelings
 		}
 	}
 }

@@ -154,7 +154,7 @@ namespace Vodovoz.Reports
 			}
 			this.Hide();
 			this.dateperiodpicker1.PeriodChanged += new global::System.EventHandler(this.OnDateperiodpicker1PeriodChanged);
-			this.comboPart.EnumItemSelected += new global::System.EventHandler< Gamma.Widgets.ItemSelectedEventArgs > (this.OnComboPartEnumItemSelected);
+			this.comboPart.EnumItemSelected += new global::System.EventHandler<Gamma.Widgets.ItemSelectedEventArgs>(this.OnComboPartEnumItemSelected);
 			this.buttonRun.Clicked += new global::System.EventHandler(this.OnButtonRunClicked);
 		}
 	}

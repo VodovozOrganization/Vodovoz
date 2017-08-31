@@ -93,13 +93,13 @@
           <TableColumn>
             <Width>36.4pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>23.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>23.6pt</Width>
           </TableColumn>
-          <TableColumn >
+          <TableColumn>
             <Width>23.6pt</Width>
           </TableColumn>
           <TableColumn>
@@ -138,10 +138,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -157,10 +157,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -176,10 +176,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -195,10 +195,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -214,10 +214,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -233,10 +233,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -252,10 +252,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -271,10 +271,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -290,14 +290,14 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox46">
                       <Value>Резерв бут.</Value>
@@ -309,12 +309,12 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox49">
                       <Value>Долг бут.</Value>
@@ -326,12 +326,12 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox52">
                       <Value>Ввод ост.</Value>
@@ -343,7 +343,7 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -360,10 +360,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -379,10 +379,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -398,10 +398,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -417,10 +417,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -436,10 +436,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -455,10 +455,10 @@
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -484,9 +484,9 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -502,9 +502,9 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -520,9 +520,9 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -538,9 +538,9 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -556,10 +556,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>0</Format>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -575,10 +575,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>0</Format>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -594,10 +594,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>0</Format>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -613,10 +613,10 @@
                         <BorderColor />
                         <BorderWidth />
                         <Format>0</Format>
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -631,14 +631,14 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >9pt</FontSize>
+                        <FontSize>9pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
                       <Value>=Fields!bottle_reserv.Value</Value>
@@ -649,12 +649,12 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >7pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox50">
                       <Value>=Fields!debt.Value</Value>
@@ -665,12 +665,12 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >7pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox65">
                       <Value>=Fields!enteredresidue.Value</Value>
@@ -681,7 +681,7 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >7pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -698,9 +698,9 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >7pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
-                      <CanShrink >true</CanShrink>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -715,10 +715,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -733,10 +733,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -751,10 +751,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -769,10 +769,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -787,10 +787,10 @@
                         <TextAlign>Center</TextAlign>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >7pt</FontSize>
+                        <FontSize>7pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
-                      <CanShrink >true</CanShrink>
+                      <CanGrow>true</CanGrow>
+                      <CanShrink>true</CanShrink>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -953,7 +953,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox48">
                       <Value>
@@ -972,7 +972,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox51">
                       <Value>
@@ -991,7 +991,7 @@
                     </Textbox>
                   </ReportItems>
                 </TableCell>
-                <TableCell >
+                <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox66">
                       <Value>
@@ -1469,6 +1469,8 @@ FROM
     deposit_operations ON deposit_operations.order_id = orders.id
         LEFT JOIN
     doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
+        LEFT JOIN 
+    cars ON cars.id = route_lists.car_id
 WHERE
     orders.delivery_date = DATE(@date)
         AND (route_lists.status = 'Closed'
@@ -1476,7 +1478,9 @@ WHERE
         AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
         AND (@reason = -1 OR @reason = reason_type)
         AND (@driver_id = -1 OR @driver_id = employees.id)
-        AND ((@driver_call = 1 AND driver_call_type = 'NoCall' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) OR (@driver_call = -1))
+        AND ((@driver_call = 1 AND driver_call_type = 'NoCall'  AND type_of_use = 'Largus' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) 
+	OR (@driver_call = 0 AND driver_call_type = 'NoCall' AND type_of_use is null AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
+	OR (@driver_call = -1))
         AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NotDelivered')
 GROUP BY ordersIdAlias
 ORDER BY reason_type_status</CommandText>
@@ -1623,7 +1627,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1658,7 +1662,8 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>
