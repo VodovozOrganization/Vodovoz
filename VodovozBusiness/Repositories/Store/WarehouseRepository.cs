@@ -33,8 +33,8 @@ namespace Vodovoz.Repository.Store
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
-			OrderEquipment orderEquipmentAlias = null;
-			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null, resultNomenclatureAlias = null;
+			OrderEquipment orderEquipmentAlias = null, orderNewEquipmentAlias = null;
+			Nomenclature OrderItemNomenclatureAlias = null, OrderEquipmentNomenclatureAlias = null, OrderNewEquipmentNomenclatureAlias = null, resultNomenclatureAlias = null;
 
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
 
@@ -55,11 +55,17 @@ namespace Vodovoz.Repository.Store
 				.Where(() => orderEquipmentAlias.Direction == Direction.Deliver)
 				.JoinAlias(e => e.Nomenclature, () => OrderEquipmentNomenclatureAlias)
 				.SelectList(list => list.Select(() => OrderEquipmentNomenclatureAlias.Id));
+			var orderNewEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderNewEquipmentAlias)
+				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
+				.JoinAlias(() => orderNewEquipmentAlias.Order, () => orderAlias)
+				.JoinAlias(() => orderNewEquipmentAlias.Nomenclature, () => OrderNewEquipmentNomenclatureAlias)
+				.SelectList(list => list.Select(() => OrderNewEquipmentNomenclatureAlias.Id));
 
 			return uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)
 				.Where(new Disjunction()
 					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderitemsSubqury))
 					.Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderEquipmentSubquery))
+				       .Add(Subqueries.WhereProperty<Nomenclature>(n => n.Id).In(orderNewEquipmentSubquery))
 				).Where(n => n.Warehouse != null)
 				.Select(Projections.Distinct(Projections.Property<Nomenclature>(n => n.Warehouse)))
 				.List<Warehouse>();
@@ -92,7 +98,7 @@ namespace Vodovoz.Repository.Store
 			var orderNewEquipmentSubquery = QueryOver.Of<OrderEquipment>(() => orderNewEquipmentAlias)
 				.WithSubquery.WhereProperty(i => i.Order.Id).In(ordersQuery)
 				.JoinAlias(() => orderNewEquipmentAlias.Order, () => orderAlias)
-				.JoinAlias(() => orderNewEquipmentAlias.NewEquipmentNomenclature, () => OrderNewEquipmentNomenclatureAlias)
+				.JoinAlias(() => orderNewEquipmentAlias.Nomenclature, () => OrderNewEquipmentNomenclatureAlias)
 				.SelectList(list => list.Select(() => OrderNewEquipmentNomenclatureAlias.Id));
 
 			return uow.Session.QueryOver<Nomenclature>(() => resultNomenclatureAlias)

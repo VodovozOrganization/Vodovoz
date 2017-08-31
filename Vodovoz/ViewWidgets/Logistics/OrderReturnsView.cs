@@ -219,7 +219,7 @@ namespace Vodovoz
 			get{
 				if (IsEquipment)
 				{
-					return orderEquipment.Equipment != null ? orderEquipment.Equipment.Nomenclature : orderEquipment.NewEquipmentNomenclature;
+					return orderEquipment.Equipment != null ? orderEquipment.Equipment.Nomenclature : orderEquipment.Nomenclature;
 				}
 				else
 				{

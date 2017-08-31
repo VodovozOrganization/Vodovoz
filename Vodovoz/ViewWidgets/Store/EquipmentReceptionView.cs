@@ -109,7 +109,7 @@ namespace Vodovoz
 				.Where(()=>orderEquipmentAlias.Direction==Domain.Orders.Direction.PickUp)
 				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias(()=>equipmentAlias.Nomenclature,()=> equipNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias(()=> orderEquipmentAlias.NewEquipmentNomenclature, ()=> newEqupNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias(()=> orderEquipmentAlias.Nomenclature, ()=> newEqupNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.SelectList (list => list
 					.Select (() => equipmentAlias.Id).WithAlias (() => resultAlias.EquipmentId)
 					.Select (Projections.Conditional(
