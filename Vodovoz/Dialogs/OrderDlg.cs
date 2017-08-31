@@ -115,6 +115,7 @@ namespace Vodovoz
 			treeDocuments.ItemsDataSource = UoWGeneric.Root.ObservableOrderDocuments;
 			treeItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderItems;
 			treeEquipment.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
+			//treeEquipmentFromClient.ItemsDataSource = UoWGeneric.Root.ObservableOrderEquipments;
 			treeDepositRefundItems.ItemsDataSource = UoWGeneric.Root.ObservableOrderDepositItems;
 			treeServiceClaim.ItemsDataSource = UoWGeneric.Root.ObservableInitialOrderService;
 			//TODO FIXME Добавить в таблицу закрывающие заказы.
@@ -260,11 +261,9 @@ namespace Vodovoz
 			treeEquipment.ColumnsConfig = ColumnsConfigFactory.Create<OrderEquipment>()
 				.AddColumn("Наименование").SetDataProperty(node => node.NameString)
 				.AddColumn("Направление").SetDataProperty(node => node.DirectionString)
-				.AddColumn("Причина").SetDataProperty(node => node.ReasonString)
-				.AddColumn("Номер заявки").AddTextRenderer(
-					node => node.ServiceClaim != null
-					? node.ServiceClaim.Id.ToString()
-					: "")
+			    .AddColumn("Кол-во").AddNumericRenderer(node => node.Count)
+				.Adjustment(new Adjustment(0, 0, 1000000, 1, 100, 0)).Editing(true)
+				.AddColumn("")
 				.Finish();
 
 			treeDocuments.ColumnsConfig = ColumnsConfigFactory.Create<OrderDocument>()
@@ -1399,6 +1398,63 @@ namespace Vodovoz
 						continue;
 				}
 			}
+		}
+
+		protected void OnButtonAddEquipmentRepair(object sender, EventArgs e)
+		{
+			if(UoWGeneric.Root.Client == null) {
+				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				return;
+			}
+
+			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.TabName = "Номенклатура на ремонт";
+			SelectDialog.ObjectSelected += NomenclatureForRepair;
+			TabParent.AddSlaveTab(this, SelectDialog);
+		}
+
+		void NomenclatureForRepair(object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			AddNomenclature1(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+		}
+
+		void AddNomenclature1(Nomenclature nomenclature)
+		{
+		 	UoWGeneric.Root.AddEquipmentNomenclatureForRepair(nomenclature, UoWGeneric);
+		}
+
+		protected void OnButtonAddEquipmentFromClient(object sender, EventArgs e)
+		{
+			if(UoWGeneric.Root.Client == null) {
+				MessageDialogWorks.RunWarningDialog("Для добавления товара на продажу должен быть выбран клиент.");
+				return;
+			}
+
+			var nomenclatureFilter = new NomenclatureRepFilter(UoWGeneric);
+			nomenclatureFilter.NomenCategory = NomenclatureCategory.equipment;
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.NomenclatureForSaleVM(nomenclatureFilter));
+			SelectDialog.Mode = OrmReferenceMode.Select;
+			SelectDialog.TabName = "Номенклатура на ремонт";
+			SelectDialog.ObjectSelected += NomenclatureForRepairFromClient;
+			TabParent.AddSlaveTab(this, SelectDialog);
+		}
+
+		void NomenclatureForRepairFromClient(object sender, ReferenceRepresentationSelectedEventArgs e)
+		{
+			AddNomenclatureFromClient(UoWGeneric.Session.Get<Nomenclature>(e.ObjectId));
+		}
+
+		void AddNomenclatureFromClient(Nomenclature nomenclature)
+		{
+			UoWGeneric.Root.AddEquipmentNomenclatureForRepairFromClient(nomenclature, UoWGeneric);
+		}
+
+  		protected void OnButtonDeleteEquipmentClicked(object sender, EventArgs e)
+		{
+			UoWGeneric.Root.DeleteEquipment(treeEquipment.GetSelectedObject() as OrderEquipment);
 		}
 	}
 }

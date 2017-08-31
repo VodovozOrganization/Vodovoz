@@ -16,7 +16,7 @@ namespace Vodovoz
 
 			ytreeviewItems.ColumnsConfig = ColumnsConfigFactory.Create<CarLoadDocumentItem>()
 				.AddColumn("Номенклатура").AddTextRenderer(x => x.Nomenclature.Name)
-				.AddColumn("С/Н оборудования").AddTextRenderer (x => x.Equipment != null || !x.Equipment.Nomenclature.Serial ? x.Equipment.Serial : String.Empty)
+				.AddColumn("С/Н оборудования").AddTextRenderer (x => x.Equipment != null ? x.Equipment.Serial : String.Empty) 
 				.AddColumn("Кол-во на складе").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInStock))
 				.AddColumn("В маршрутнике").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountInRouteList))
 				.AddColumn("В других отгрузках").AddTextRenderer(x => x.Nomenclature.Unit.MakeAmountShortStr(x.AmountLoaded))

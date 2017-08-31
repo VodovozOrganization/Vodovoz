@@ -49,14 +49,14 @@ namespace Vodovoz.Domain.Orders
 		Nomenclature newEquipmentNomenclature;
 
 		[Display (Name = "Номенклатура незарегистрированного оборудования")]
-		public virtual Nomenclature NewEquipmentNomenclature {
+		public virtual Nomenclature Nomenclature {
 			get { return newEquipmentNomenclature; }
 			set { if (Equipment != null && value != null)
 					throw new InvalidOperationException (String.Format ("Если указано конкретное оборудование в {0}, {1} не надо заполнять, так как это поле только для незарегистрированного оборудования.",
 						this.GetPropertyName (e => e.Equipment),
-						this.GetPropertyName (e => e.NewEquipmentNomenclature)
+						this.GetPropertyName (e => e.Nomenclature)
 					));
-				SetField (ref newEquipmentNomenclature, value, () => NewEquipmentNomenclature); }
+				SetField (ref newEquipmentNomenclature, value, () => Nomenclature); }
 		}
 
 		Reason reason;
@@ -100,8 +100,10 @@ namespace Vodovoz.Domain.Orders
 			get { 
 				if (Equipment != null)
 					return Equipment.Title;
-				else if (NewEquipmentNomenclature != null)
-					return String.Format ("{0} (не зарегистрированный)", NewEquipmentNomenclature.Name);
+				else if (Nomenclature != null)
+					//FIXME запуск оборудования - временный фикс
+					return   Nomenclature.ShortName;
+					//return String.Format ("{0} (не зарегистрированный)", NewEquipmentNomenclature.Name);
 				else
 					return "Неизвестное оборудование";
 			}
@@ -121,6 +123,13 @@ namespace Vodovoz.Domain.Orders
 		public virtual string ReasonString { get { return Reason.GetEnumTitle (); } }
 
 		//TODO Номер заявки на обслуживание
+
+		//FIXME запуск оборудования - временный фикс
+		int count;
+		public virtual int Count {
+			get { return count; }
+			set { SetField(ref count, value, () => Count); }
+		}
 
 		#region Функции
 
@@ -142,7 +151,7 @@ namespace Vodovoz.Domain.Orders
 
 			CounterpartyMovementOperation.OperationTime = Order.DeliveryDate.Value.Date.AddHours(23).AddMinutes(59);
 			CounterpartyMovementOperation.Amount = amount;
-			CounterpartyMovementOperation.Nomenclature = Equipment.Nomenclature;
+			CounterpartyMovementOperation.Nomenclature = newEquipmentNomenclature;
 			CounterpartyMovementOperation.Equipment = Equipment;
 			CounterpartyMovementOperation.ForRent = (Reason != Reason.Sale);
 			if (Direction == Direction.Deliver)

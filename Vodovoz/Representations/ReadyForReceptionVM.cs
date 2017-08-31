@@ -60,7 +60,7 @@ namespace Vodovoz.ViewModel
 				.Where(() => orderEquipmentAlias.Order.Id == orderAlias.Id)
 				.JoinAlias (() => orderEquipmentAlias.Equipment, () => equipmentAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.JoinAlias (() => equipmentAlias.Nomenclature, () => OrderEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
-				.JoinAlias (() => orderEquipmentAlias.NewEquipmentNomenclature, () => OrderNewEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
+				.JoinAlias (() => orderEquipmentAlias.Nomenclature, () => OrderNewEquipmentNomenclatureAlias, NHibernate.SqlCommand.JoinType.LeftOuterJoin)
 				.Where(() => OrderEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse || OrderNewEquipmentNomenclatureAlias.Warehouse == Filter.RestrictWarehouse)
 				.Select (i => i.Order);
 

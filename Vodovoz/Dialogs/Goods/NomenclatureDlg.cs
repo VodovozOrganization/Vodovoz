@@ -120,8 +120,9 @@ namespace Vodovoz
 			labelRentPriority.Sensitive = ycheckRentPriority.Sensitive = (selected == NomenclatureCategory.equipment);
 			labelReserve.Sensitive = checkNotReserve.Sensitive = !(selected == NomenclatureCategory.service || selected == NomenclatureCategory.rent || selected == NomenclatureCategory.deposit);
 
-			if (Entity.Category == NomenclatureCategory.equipment)
-				Entity.Serial = true;
+			//FIXME запуск оборудования - временный фикс
+			//if (Entity.Category == NomenclatureCategory.equipment)
+				//Entity.Serial = true;
 		}
 
 		protected void OnRadioPriceToggled (object sender, EventArgs e)
