@@ -138,12 +138,15 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			Printer.DefaultPageSetup.Orientation = orientation;
+			Printer.PrintSettings.Orientation = orientation;
 
 			var rprint = new ReportPrinter(reportInfo);
 			rprint.PrepareReport();
 
 			Printer.NPages = rprint.PageCount;
 			Printer.PrintSettings.NCopies = copies;
+			if(copies > 1)
+				Printer.PrintSettings.Collate = true;
 
 			Printer.DrawPage += rprint.DrawPage;
 			Printer.Run(action, null);
