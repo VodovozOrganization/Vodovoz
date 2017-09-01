@@ -92,7 +92,6 @@ namespace Vodovoz
 
 			referenceDriver.Sensitive = false;
 			enumPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;
-			UoWGeneric.Root.ReorderAddressesByDailiNumber();
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
 			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading);

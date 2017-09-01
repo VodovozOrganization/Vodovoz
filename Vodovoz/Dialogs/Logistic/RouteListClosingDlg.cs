@@ -125,7 +125,6 @@ namespace Vodovoz
 			PerformanceHelper.AddTimePoint("Предварительная загрузка");
 
 			routeListAddressesView.UoW = UoW;
-			Entity.ReorderAddressesByDailiNumber();
 			routeListAddressesView.RouteList = Entity;
 			foreach(RouteListItem item in routeListAddressesView.Items) {
 				item.Order.ObservableOrderItems.ElementChanged += OnOrderReturnsChanged;

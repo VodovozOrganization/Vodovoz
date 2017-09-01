@@ -897,7 +897,6 @@ namespace Vodovoz
 				if(item.IndexInRoute == 0)
 					recalculeteLoading = true;
 			}
-			route.ReorderAddressesByDailiNumber ();
 			route.RecalculatePlanTime(distanceCalculator);
 			uow.Save (route);
 			logger.Info ("В МЛ №{0} добавлено {1} адресов.", route.Id, selectedOrders.Count);
