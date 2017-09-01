@@ -969,9 +969,11 @@ namespace Vodovoz
 
 		public bool Save ()
 		{
+			//Перестраиваем все маршруты
+			RebuildAllRoutes();
 			routesAtDay.ToList().ForEach(x => uow.Save(x));
-			DriversAtDay.ToList().ForEach(x => uow.Save(x));
-			ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
+			//DriversAtDay.ToList().ForEach(x => uow.Save(x));
+			//ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
 			uow.Commit ();
 			HasNoChanges = true;
 			FillDialogAtDay();
@@ -989,6 +991,29 @@ namespace Vodovoz
 			}
 		}
 
+		void RebuildAllRoutes()
+		{
+			int ix = 1;
+			List<string> warnings = new List<string>();
+			optimizer.DebugBuffer = textOrdersInfo.Buffer;
+
+			foreach(var route in routesAtDay) {
+				MainClass.MainWin.ProgressUpdate($"{ix} из {routesAtDay.Count}");
+
+				var newRoute = optimizer.RebuidOneRoute(route);
+				if(newRoute != null) {
+					UpdateAddressesOrder(route, newRoute);
+					var noPlan = route.Addresses.Count(x => !x.PlanTimeStart.HasValue);
+					if(noPlan > 0)
+						warnings.Add($"Для маршрута {route.Id} незапланировано {noPlan} адресов.");
+				} else
+				{
+					warnings.Add($"Маршрут {route.Id} не был перестроен.");
+				}
+			}
+			if(warnings.Count > 0)
+				MessageDialogWorks.RunWarningDialog(String.Join("\n", warnings));
+		}
 
 		protected void OnButtonOpenClicked (object sender, EventArgs e)
 		{
@@ -1266,25 +1291,28 @@ namespace Vodovoz
 			optimizer.DebugBuffer = textOrdersInfo.Buffer;
 			var newRoute = optimizer.RebuidOneRoute(route);
 			if(newRoute != null) {
-				for(int i = 0; i < route.ObservableAddresses.Count; i++) {
-					var address = route.ObservableAddresses[i];
-					if(i < newRoute.Orders.Count) {
-						if(newRoute.Orders[i].Order.Id != route.ObservableAddresses[i].Order.Id) {
-							address = route.ObservableAddresses.First(x => x.Order.Id == newRoute.Orders[i].Order.Id);
-							route.ObservableAddresses.Remove(address);
-							route.ObservableAddresses.Insert(i, address);
-						}
-						address.PlanTimeStart = newRoute.Orders[i].ProposedTimeStart;
-						address.PlanTimeEnd = newRoute.Orders[i].ProposedTimeEnd;
-					}
-					else
-					{
-						address.PlanTimeStart = null;
-						address.PlanTimeEnd = null;
-					}
-				}
+				UpdateAddressesOrder(route, newRoute);
 			} else
 				MessageDialogWorks.RunErrorDialog("Решение не найдено.");
+		}
+
+		private void UpdateAddressesOrder(RouteList updatedRoute, ProposedRoute fromRoute)
+		{
+			for(int i = 0; i < updatedRoute.ObservableAddresses.Count; i++) {
+				var address = updatedRoute.ObservableAddresses[i];
+				if(i < fromRoute.Orders.Count) {
+					if(fromRoute.Orders[i].Order.Id != updatedRoute.ObservableAddresses[i].Order.Id) {
+						address = updatedRoute.ObservableAddresses.First(x => x.Order.Id == fromRoute.Orders[i].Order.Id);
+						updatedRoute.ObservableAddresses.Remove(address);
+						updatedRoute.ObservableAddresses.Insert(i, address);
+					}
+					address.PlanTimeStart = fromRoute.Orders[i].ProposedTimeStart;
+					address.PlanTimeEnd = fromRoute.Orders[i].ProposedTimeEnd;
+				} else {
+					address.PlanTimeStart = null;
+					address.PlanTimeEnd = null;
+				}
+			}
 		}
 	}
 }
