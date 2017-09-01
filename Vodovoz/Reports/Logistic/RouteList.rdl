@@ -7,10 +7,10 @@
   <PageHeight>210mm</PageHeight>
   <PageWidth>297mm</PageWidth>
   <Width>7.5in</Width>
-  <TopMargin>.25in</TopMargin>
-  <LeftMargin>.25in</LeftMargin>
-  <RightMargin>.25in</RightMargin>
-  <BottomMargin>.25in</BottomMargin>
+  <TopMargin>4mm</TopMargin>
+  <LeftMargin>4mm</LeftMargin>
+  <RightMargin>4mm</RightMargin>
+  <BottomMargin>4mm</BottomMargin>
   <PageHeader>
     <Height>25.2pt</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
@@ -438,7 +438,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>План. время</Value>
+                      <Value>План. время прибытия</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
