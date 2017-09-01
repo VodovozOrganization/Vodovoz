@@ -83,9 +83,6 @@ namespace Vodovoz
 			ConfigureInputs (Entity.Category);
 
 			pricesView.UoWGeneric = UoWGeneric;
-			if (UoWGeneric.Root.NomenclaturePrice == null)
-				UoWGeneric.Root.NomenclaturePrice = new List<NomenclaturePrice> ();
-			pricesView.Prices = UoWGeneric.Root.NomenclaturePrice;
 		}
 
 		string GenerateOfficialName (object arg)

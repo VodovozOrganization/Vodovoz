@@ -48,12 +48,9 @@ namespace Vodovoz
 					PricesList = new GenericObservableList<NomenclaturePrice> (prices);
 					PricesList.ElementAdded += OnEmailListElementAdded;
 					PricesList.ElementRemoved += OnEmailListElementRemoved;
-					if (PricesList.Count == 0)
-						PricesList.Add (new NomenclaturePrice ());
-					else {
-						foreach (NomenclaturePrice price in PricesList)
-							AddPriceRow (price);
-					}
+
+					foreach (NomenclaturePrice price in PricesList)
+						AddPriceRow (price);
 				}
 			}
 		}

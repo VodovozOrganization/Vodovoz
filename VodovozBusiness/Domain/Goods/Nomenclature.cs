@@ -174,7 +174,7 @@ namespace Vodovoz.Domain.Goods
 			}
 		}
 
-		IList<NomenclaturePrice> nomenclaturePrice;
+		IList<NomenclaturePrice> nomenclaturePrice = new List<NomenclaturePrice>();
 
 		[Display (Name = "Цены")]
 		public virtual IList<NomenclaturePrice> NomenclaturePrice {
