@@ -23,7 +23,11 @@ namespace Vodovoz.Dialogs.Logistic
 
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
-		Gtk.PrintOperation Printer;//= new Gtk.PrintOperation();
+		Gtk.PrintOperation Printer;
+		Gtk.PageSetup PageSetup;
+		PrintSettings PrintSettings;
+
+		bool showDialog = true;
 
 		public PrintRouteDocumentsDlg()
 		{
@@ -89,6 +93,8 @@ namespace Vodovoz.Dialogs.Logistic
 			var routeCount = Routes.Count(x => x.Selected);
 			progressPrint.Adjustment.Upper = docCount * routeCount;
 			progressPrint.Adjustment.Value = 0;
+			showDialog = true;
+
 			foreach(var route in Routes.Where(x => x.Selected))
 			{
 				progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", route.RouteList.Id, route.RouteList.Driver.ShortName);
@@ -105,23 +111,30 @@ namespace Vodovoz.Dialogs.Logistic
 					progressPrint.Adjustment.Value++;
 					QSMain.WaitRedraw();
 				}
-
 			}
+			progressPrint.Text = "Готово";
 		}
 
 		private void PrintDoc(RouteList route, RouteListPrintableDocuments type, PageOrientation orientation, int copies)
 		{
 			var reportInfo = PrintRouteListHelper.GetRDL(route, type, uow);
 
-			var action = Printer == null ? PrintOperationAction.PrintDialog : PrintOperationAction.Print;
+			var action = showDialog ? PrintOperationAction.PrintDialog : PrintOperationAction.Print;
+			showDialog = false;
 
-			if(Printer == null)
+			Printer = new PrintOperation();
+			Printer.Unit = Unit.Points;
+			Printer.UseFullPage = true;
+
+			if(PrintSettings == null)
 			{
-				Printer = new PrintOperation();
-				Printer.Unit = Unit.Points;
-				Printer.UseFullPage = true;
-				//Printer.ShowProgress = true;
 				Printer.DefaultPageSetup = new PageSetup();
+				Printer.PrintSettings = new PrintSettings();
+			}
+			else
+			{
+				Printer.DefaultPageSetup = PageSetup;
+				Printer.PrintSettings = PrintSettings;
 			}
 
 			Printer.DefaultPageSetup.Orientation = orientation;
@@ -130,12 +143,13 @@ namespace Vodovoz.Dialogs.Logistic
 			rprint.PrepareReport();
 
 			Printer.NPages = rprint.PageCount;
-			if(Printer.PrintSettings == null)
-				Printer.PrintSettings = new PrintSettings();
 			Printer.PrintSettings.NCopies = copies;
 
 			Printer.DrawPage += rprint.DrawPage;
 			Printer.Run(action, null);
+
+			PrintSettings = Printer.PrintSettings;
+			PageSetup = Printer.DefaultPageSetup;
 		}
 	}
 }
