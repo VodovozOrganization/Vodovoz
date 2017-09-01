@@ -15,13 +15,16 @@ public partial class MainWindow : Window
 	Action ActionWarehouseDocuments;
 	Action ActionWarehouseStock;
 	Action ActionClientBalance;
+	//Логистика
 	Action ActionRouteListTable;
 	Action ActionAtWorks;
 	Action ActionRouteListsAtDay;
+	Action ActionRouteListsPrint;
 	Action ActionRouteListClosingTable;
 	Action ActionRouteListKeeping;
 	Action ActionRouteListMileageCheck;
 	Action ActionRouteListTracking;
+
 	Action ActionAddOrder;
 	Action ActionLoadOrders;
 	Action ActionReadyForShipment;
@@ -62,7 +65,8 @@ public partial class MainWindow : Window
 		//Логистика
 		ActionRouteListTable = new Action ("ActionRouteListTable", "Журнал МЛ", null, "table");
 		ActionAtWorks = new Action("ActionAtWorks", "На работе", null, "table");
-		ActionRouteListsAtDay = new Action ("ActionRouteListsAtDay", "Формирование МЛ", null, "table");
+		ActionRouteListsAtDay = new Action ("ActionRouteListsAtDay", "Формирование МЛ", null, null);
+		ActionRouteListsPrint = new Action("ActionRouteListsPrint", "Печать МЛ", null, "print");
 		ActionRouteListClosingTable = new Action("ActionRouteListClosingTable", "Закрытие маршрутных листов",null,"table");
 		ActionRouteListTracking = new Action("ActionRouteListTracking", "Мониторинг машин",null,"table");
 		ActionRouteListKeeping = new Action("ActionRouteListKeeping", "Ведение маршрутных листов",null,"table");
@@ -100,13 +104,16 @@ public partial class MainWindow : Window
 		w1.Add (ActionReadyForReception,null);
 		w1.Add (ActionWarehouseStock, null);
 		w1.Add (ActionClientBalance, null);
+		//Логистика
 		w1.Add (ActionRouteListTable, null);
 		w1.Add(ActionAtWorks, null);
 		w1.Add (ActionRouteListsAtDay, null);
+		w1.Add(ActionRouteListsPrint, null);
 		w1.Add (ActionRouteListClosingTable, null);
 		w1.Add (ActionRouteListKeeping, null);
 		w1.Add (ActionRouteListTracking, null);
 		w1.Add (ActionRouteListMileageCheck, null);
+
 		w1.Add (ActionCashDocuments, null);
 		w1.Add (ActionAccountableDebt, null);
 		w1.Add (ActionUnclosedAdvances, null);
@@ -136,13 +143,16 @@ public partial class MainWindow : Window
 		ActionReadyForReception.Activated+=ActionReadyForReceptionActivated;
 		ActionWarehouseStock.Activated += ActionWarehouseStock_Activated;
 		ActionClientBalance.Activated += ActionClientBalance_Activated;
+		//Логистика
 		ActionRouteListTable.Activated += ActionRouteListTable_Activated;
 		ActionAtWorks.Activated +=ActionAtWorks_Activated;
 		ActionRouteListsAtDay.Activated += ActionRouteListsAtDay_Activated;
+		ActionRouteListsPrint.Activated += ActionRouteListsPrint_Activated;;
 		ActionRouteListClosingTable.Activated+= ActionRouteListClosingTable_Activated;
 		ActionRouteListKeeping.Activated += ActionRouteListKeeping_Activated;
 		ActionRouteListMileageCheck.Activated += ActionRouteListDistanceValidation_Activated;
 		ActionRouteListTracking.Activated += ActionRouteListTracking_Activated;
+
 		ActionCashDocuments.Activated += ActionCashDocuments_Activated;
 		ActionAccountableDebt.Activated += ActionAccountableDebt_Activated;
 		ActionUnclosedAdvances.Activated += ActionUnclosedAdvances_Activated;
@@ -161,6 +171,14 @@ public partial class MainWindow : Window
 //		ActionTransferOperationDlg.Activated += ActionTransferOperationDlg_Activated;
 		ActionTransferOperationJournal.Activated += ActionTransferOperationJournal_Activated;
 		#endregion
+	}
+
+	void ActionRouteListsPrint_Activated(object sender, System.EventArgs e)
+	{
+		tdiMain.OpenTab(
+			TdiTabBase.GenerateHashName<PrintRouteDocumentsDlg>(),
+			() => new PrintRouteDocumentsDlg()
+		);
 	}
 
 	void ActionRouteListAddressesTransferring_Activated (object sender, System.EventArgs e)

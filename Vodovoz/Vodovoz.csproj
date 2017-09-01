@@ -670,6 +670,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.OnLoadTimeAtDayReport.cs" />
     <Compile Include="ReportsParameters\SelfDeliveryReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.SelfDeliveryReport.cs" />
+    <Compile Include="Dialogs\Logistic\PrintRouteDocumentsDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.PrintRouteDocumentsDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

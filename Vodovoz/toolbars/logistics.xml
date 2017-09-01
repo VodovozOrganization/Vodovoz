@@ -3,6 +3,7 @@
 		<toolitem name='ActionRouteListTable' action='ActionRouteListTable'/>
 		<toolitem name='ActionAtWorks' action='ActionAtWorks'/>
 		<toolitem name='ActionRouteListsAtDay' action='ActionRouteListsAtDay'/>
+		<toolitem name='ActionRouteListsPrint' action='ActionRouteListsPrint'/>
 	<!--	<toolitem name='ActionRouteListKeeping' action='ActionRouteListKeeping'/> -->
 		<toolitem name='ActionRouteListTracking' action='ActionRouteListTracking'/>
 		<toolitem name='ActionRouteListMileageCheck' action='ActionRouteListMileageCheck'/>
