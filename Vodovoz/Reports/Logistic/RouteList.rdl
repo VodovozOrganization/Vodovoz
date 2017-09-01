@@ -90,7 +90,7 @@
             <Width>193.4pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>0.0pt</Width>
+            <Width>50.0pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>34.6pt</Width>
@@ -100,7 +100,7 @@
             <Width>135.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>101.8pt</Width>
+            <Width>51.8pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>43pt</Width>
@@ -437,7 +437,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox37">
-                      <Value>Примечание</Value>
+                      <Value>План. время</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -448,9 +448,6 @@
                         <BorderColor />
                         <BorderWidth />
                       </Style>
-                      <Visibility>
-                        <Hidden>true</Hidden>
-                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -823,7 +820,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox40">
-                      <Value>={Comment}</Value>
+                      <Value>={PlanTime}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -832,10 +829,8 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
+						<FontSize>8pt</FontSize>
                       </Style>
-                      <Visibility>
-                        <Hidden>true</Hidden>
-                      </Visibility>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1493,9 +1488,7 @@ SELECT
 route_list_addresses.route_list_id AS RouteListId, orders.id AS OrderId, 
 orders.daily_number_1c, route_list_addresses.need_to_reload AS Reloaded,
 CONCAT(HOUR(delivery_schedule.from_time),'-', HOUR(delivery_schedule.to_time)) AS DeliveryTime,
-#SHORT В сокращенной версии без комментариев.
-#orders.comment AS Comment,
-NULL AS Comment,
+CONCAT(DATE_FORMAT(route_list_addresses.plan_time_start, '%H:%i'),'-', DATE_FORMAT(route_list_addresses.plan_time_end, '%H:%i')) AS PlanTime,
 orders.bottles_return AS EmptyBottles, IF(orders.payment_type = 'cash', orders.sum_to_receive, 0) AS Total, IFNULL(delivery_points.compiled_address_short, delivery_points.compiled_address) AS Address,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', eq_qry.name, ':', eq_qry.cnt)), IF((orders.to_client_text IS NOT NULL) AND (eq_qry.name IS NOT NULL), "; ", ""), orders.to_client_text) AS ToClient,
 CONCAT_WS(' ', GROUP_CONCAT(CONCAT(' ', pickup_eq_qry.name, ':', pickup_eq_qry.cnt)), orders.from_client_text) AS FromClient,
@@ -1551,7 +1544,7 @@ GROUP BY order_id) AS wt_qry ON wt_qry.order_id = orders.id
 
 WHERE route_list_addresses.route_list_id = @route_list_id
 GROUP BY orders.id
-ORDER BY daily_number_1c;
+ORDER BY order_in_route;
         </CommandText>
         <QueryParameters>
           <QueryParameter Name="@route_list_id">
@@ -1580,8 +1573,8 @@ ORDER BY daily_number_1c;
           <DataField>DeliveryTime</DataField>
           <TypeName>System.String</TypeName>
         </Field>
-        <Field Name="Comment">
-          <DataField>Comment</DataField>
+        <Field Name="PlanTime">
+          <DataField>PlanTime</DataField>
           <TypeName>System.String</TypeName>
         </Field>
         <Field Name="EmptyBottles">
