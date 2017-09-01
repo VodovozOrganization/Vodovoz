@@ -142,6 +142,14 @@ public partial class MainWindow : Gtk.Window
 		QSMain.WaitRedraw();
 	}
 
+	public void ProgressUpdate(string curText)
+	{
+		if(progressStatus == null || progressStatus.Adjustment == null)
+			return;
+		progressStatus.Text = curText;
+		QSMain.WaitRedraw();
+	}
+
 	public void ProgressAdd(double addValue = 1, string text = null)
 	{
 		if(progressStatus == null)
