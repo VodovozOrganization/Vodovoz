@@ -187,6 +187,7 @@
                         <BorderWidth />
                         <FontSize>10pt</FontSize>
                       </Style>
+                      <CanGrow >true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -829,7 +830,7 @@
                         <BorderColor />
                         <BorderWidth />
                         <TextAlign>Center</TextAlign>
-						<FontSize>8pt</FontSize>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1367,7 +1368,7 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox52" >
+      <Textbox Name="Textbox52">
         <Height>14.99pt</Height>
         <Width>714.51pt</Width>
         <Value>В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-911-914-01-91</Value>
