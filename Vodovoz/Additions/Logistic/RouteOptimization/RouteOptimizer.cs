@@ -133,7 +133,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					endWindow = startWindow;
 				}
 				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
-				routing.AddDisjunction(new int[]{ix}, MaxDistanceAddressPenalty);
+				routing.AddDisjunction(new int[]{ix + 1}, MaxDistanceAddressPenalty);
 			}
 
 			RoutingSearchParameters search_parameters =
@@ -289,7 +289,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					endWindow = startWindow;
 				}
 				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
-				routing.AddDisjunction(new int[] { ix }, MaxDistanceAddressPenalty);
+				routing.AddDisjunction(new int[] { ix + 1 }, MaxDistanceAddressPenalty);
 			}
 
 			RoutingSearchParameters search_parameters =
