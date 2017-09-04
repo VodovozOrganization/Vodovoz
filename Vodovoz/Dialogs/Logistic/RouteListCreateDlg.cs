@@ -11,6 +11,7 @@ using Vodovoz.Additions.Logistic;
 using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
+using Vodovoz.Domain.Orders;
 using Vodovoz.Repository.Logistics;
 
 namespace Vodovoz
@@ -94,6 +95,17 @@ namespace Vodovoz
 
 			referenceDriver.Sensitive = false;
 			enumPrint.Sensitive = UoWGeneric.Root.Status != RouteListStatus.New;
+
+			if(Entity.Id > 0)
+			{
+				//Нужно только для быстрой загрузки данных диалога. Проверено на МЛ из 200 заказов. Разница в скорости в несколько раз.
+				var orders = UoW.Session.QueryOver<RouteListItem>()
+								.Where(x => x.RouteList == Entity)
+								.Fetch(x => x.Order).Eager
+				                .Fetch(x => x.Order.OrderItems).Eager
+				                .List();
+			}
+
 			createroutelistitemsview1.RouteListUoW = UoWGeneric;
 
 			buttonAccept.Visible = (UoWGeneric.Root.Status == RouteListStatus.New || UoWGeneric.Root.Status == RouteListStatus.InLoading);
