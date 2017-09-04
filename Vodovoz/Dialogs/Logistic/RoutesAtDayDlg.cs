@@ -993,12 +993,13 @@ namespace Vodovoz
 
 		void RebuildAllRoutes()
 		{
-			int ix = 1;
+			int ix = 0;
 			List<string> warnings = new List<string>();
-			optimizer.DebugBuffer = textOrdersInfo.Buffer;
+			optimizer.DebugBuffer = null;
 
 			foreach(var route in routesAtDay) {
-				MainClass.MainWin.ProgressUpdate($"{ix} из {routesAtDay.Count}");
+				ix++;
+				textOrdersInfo.Buffer.Text = $"Строим {ix} из {routesAtDay.Count}";
 
 				var newRoute = optimizer.RebuidOneRoute(route);
 				if(newRoute != null) {
