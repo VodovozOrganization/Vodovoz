@@ -4,8 +4,8 @@
   </Description>
   <Author>
   </Author>
-  <PageHeight>11in</PageHeight>
-  <PageWidth>8.5in</PageWidth>
+  <PageHeight>297mm</PageHeight>
+  <PageWidth>210mm</PageWidth>
   <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
@@ -126,10 +126,10 @@ WHERE
     <Height>28.2pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
-        <Top>7.23pt</Top>
-        <Left>7.23pt</Left>
-        <Width>568.38pt</Width>
-        <Height>18.07pt</Height>
+        <Top>4.10pt</Top>
+        <Left>0.80pt</Left>
+        <Width>557.07pt</Width>
+        <Height>18.82pt</Height>
         <Value>='Раскладка по ежедневным номерам для МЛ №' + {?route_list}</Value>
         <Style>
           <FontSize>15pt</FontSize>
@@ -162,10 +162,10 @@ WHERE
             <Width>229.1pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>203.5pt</Width>
+            <Width>188.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>98.6pt</Width>
+            <Width>95.5pt</Width>
           </TableColumn>
         </TableColumns>
         <Header>
@@ -313,17 +313,17 @@ WHERE
       </Table>
       <List Name="List1">
         <Height>21.15pt</Height>
-        <Width>565.47pt</Width>
-        <Left>6.02pt</Left>
-        <Top>5.72pt</Top>
+        <Width>558.72pt</Width>
+        <Left>0.00pt</Left>
+        <Top>3.30pt</Top>
         <ReportItems>
           <Textbox Name="Textbox7">
             <Height>17.34pt</Height>
-            <Width>155.90pt</Width>
+            <Width>158.90pt</Width>
             <Value>= "Дата МЛ: " + Format ({date}, "d")</Value>
             <ZIndex>1</ZIndex>
-            <Left>1.8pt</Left>
-            <Top>1.8pt</Top>
+            <Left>1.80pt</Left>
+            <Top>1.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -350,8 +350,8 @@ WHERE
             <Width>183.71pt</Width>
             <Value>="Логист: " + {logistican_name}</Value>
             <ZIndex>1</ZIndex>
-            <Left>369.5pt</Left>
-            <Top>1.8pt</Top>
+            <Left>369.50pt</Left>
+            <Top>1.80pt</Top>
             <Style>
               <BorderStyle />
               <BorderColor />
@@ -363,7 +363,7 @@ WHERE
         <DataSetName>RouteInfo</DataSetName>
       </List>
     </ReportItems>
-    <Height>155.7pt</Height>
+    <Height>63.0pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
