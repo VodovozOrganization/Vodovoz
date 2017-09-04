@@ -30,13 +30,13 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Label label2;
 
+		private global::Gtk.CheckButton checkDailyList;
+
 		private global::Gtk.HBox hbox4;
 
 		private global::Gtk.CheckButton checkRoute;
 
 		private global::Gtk.SpinButton spinRoute;
-
-		private global::Gtk.CheckButton checkDailyList;
 
 		protected virtual void Build()
 		{
@@ -149,6 +149,19 @@ namespace Vodovoz.Dialogs.Logistic
 			w11.Expand = false;
 			w11.Fill = false;
 			// Container child vbox3.Gtk.Box+BoxChild
+			this.checkDailyList = new global::Gtk.CheckButton();
+			this.checkDailyList.CanFocus = true;
+			this.checkDailyList.Name = "checkDailyList";
+			this.checkDailyList.Label = global::Mono.Unix.Catalog.GetString("Список ежедневных номеров");
+			this.checkDailyList.Active = true;
+			this.checkDailyList.DrawIndicator = true;
+			this.checkDailyList.UseUnderline = true;
+			this.vbox3.Add(this.checkDailyList);
+			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkDailyList]));
+			w12.Position = 1;
+			w12.Expand = false;
+			w12.Fill = false;
+			// Container child vbox3.Gtk.Box+BoxChild
 			this.hbox4 = new global::Gtk.HBox();
 			this.hbox4.Name = "hbox4";
 			this.hbox4.Spacing = 6;
@@ -161,8 +174,8 @@ namespace Vodovoz.Dialogs.Logistic
 			this.checkRoute.DrawIndicator = true;
 			this.checkRoute.UseUnderline = true;
 			this.hbox4.Add(this.checkRoute);
-			global::Gtk.Box.BoxChild w12 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.checkRoute]));
-			w12.Position = 0;
+			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.checkRoute]));
+			w13.Position = 0;
 			// Container child hbox4.Gtk.Box+BoxChild
 			this.spinRoute = new global::Gtk.SpinButton(1, 20, 1);
 			this.spinRoute.CanFocus = true;
@@ -172,25 +185,12 @@ namespace Vodovoz.Dialogs.Logistic
 			this.spinRoute.Numeric = true;
 			this.spinRoute.Value = 5;
 			this.hbox4.Add(this.spinRoute);
-			global::Gtk.Box.BoxChild w13 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.spinRoute]));
-			w13.Position = 1;
-			w13.Expand = false;
-			w13.Fill = false;
-			this.vbox3.Add(this.hbox4);
-			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox4]));
+			global::Gtk.Box.BoxChild w14 = ((global::Gtk.Box.BoxChild)(this.hbox4[this.spinRoute]));
 			w14.Position = 1;
 			w14.Expand = false;
 			w14.Fill = false;
-			// Container child vbox3.Gtk.Box+BoxChild
-			this.checkDailyList = new global::Gtk.CheckButton();
-			this.checkDailyList.CanFocus = true;
-			this.checkDailyList.Name = "checkDailyList";
-			this.checkDailyList.Label = global::Mono.Unix.Catalog.GetString("Список ежедневных номеров");
-			this.checkDailyList.Active = true;
-			this.checkDailyList.DrawIndicator = true;
-			this.checkDailyList.UseUnderline = true;
-			this.vbox3.Add(this.checkDailyList);
-			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.checkDailyList]));
+			this.vbox3.Add(this.hbox4);
+			global::Gtk.Box.BoxChild w15 = ((global::Gtk.Box.BoxChild)(this.vbox3[this.hbox4]));
 			w15.Position = 2;
 			w15.Expand = false;
 			w15.Fill = false;
@@ -203,7 +203,8 @@ namespace Vodovoz.Dialogs.Logistic
 			global::Gtk.Box.BoxChild w17 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox3]));
 			w17.Position = 2;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();

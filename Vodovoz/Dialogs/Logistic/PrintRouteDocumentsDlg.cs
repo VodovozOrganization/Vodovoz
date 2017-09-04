@@ -99,18 +99,19 @@ namespace Vodovoz.Dialogs.Logistic
 			{
 				progressPrint.Text = String.Format("Печатаем МЛ {0} - {1}", route.RouteList.Id, route.RouteList.Driver.ShortName);
 				QSMain.WaitRedraw();
-				if(checkRoute.Active)
-				{
-					PrintDoc(route.RouteList, RouteListPrintableDocuments.RouteList, PageOrientation.Landscape, spinRoute.ValueAsInt);
-					progressPrint.Adjustment.Value++;
-					QSMain.WaitRedraw();
-				}
 
 				if(checkDailyList.Active) {
 					PrintDoc(route.RouteList, RouteListPrintableDocuments.DailyList, PageOrientation.Portrait, 1);
 					progressPrint.Adjustment.Value++;
 					QSMain.WaitRedraw();
 				}
+
+				if(checkRoute.Active) {
+					PrintDoc(route.RouteList, RouteListPrintableDocuments.RouteList, PageOrientation.Landscape, spinRoute.ValueAsInt);
+					progressPrint.Adjustment.Value++;
+					QSMain.WaitRedraw();
+				}
+
 			}
 			progressPrint.Text = "Готово";
 		}
