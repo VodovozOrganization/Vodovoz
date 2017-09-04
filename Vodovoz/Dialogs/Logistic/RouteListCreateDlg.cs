@@ -1,15 +1,17 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Gamma.Utilities;
 using Gtk;
 using NLog;
 using QSOrmProject;
 using QSProjectsLib;
 using QSValidation;
+using Vodovoz.Additions.Logistic;
+using Vodovoz.Additions.Logistic.RouteOptimization;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
 using Vodovoz.Repository.Logistics;
-using Vodovoz.Additions.Logistic;
 
 namespace Vodovoz
 {
@@ -171,6 +173,21 @@ namespace Vodovoz
 					if(address.Order.OrderStatus < Domain.Orders.OrderStatus.OnLoading)
 						address.Order.ChangeStatus(Domain.Orders.OrderStatus.OnLoading);
 				}
+
+				//Строим маршрут для МЛ.
+				RouteOptimizer optimizer = new RouteOptimizer();
+				var newRoute = optimizer.RebuidOneRoute(Entity);
+				if(newRoute != null) {
+					createroutelistitemsview1.DisableColumnsUpdate = true;
+					newRoute.UpdateAddressOrderInRealRoute(Entity);
+					createroutelistitemsview1.DisableColumnsUpdate = false;
+					var noPlan = Entity.Addresses.Count(x => !x.PlanTimeStart.HasValue);
+					if(noPlan > 0)
+						MessageDialogWorks.RunWarningDialog($"Для маршрута незапланировано {noPlan} адресов.");
+				} else {
+					MessageDialogWorks.RunWarningDialog($"Маршрут не был перестроен.");
+				}
+
 				Save();
 
 				//Проверяем нужно ли маршрутный лист грузить на складе, если нет переводим в статус в пути.

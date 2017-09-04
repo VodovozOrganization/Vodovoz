@@ -25,6 +25,31 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		{
 			Driver = driver;
 		}
+
+
+		/// <summary>
+		/// Метод берет последовательность доставки из построенного маршрута и переносит его в маршрутный лист.
+		/// Переносится только последовательность адресов. Никакие адреса не добавляются и не удаляются.
+		/// Метод нужен для перестройки с учетов времени уже имеющегося МЛ.
+		/// </summary>
+		public void UpdateAddressOrderInRealRoute(RouteList updatedRoute)
+		{
+			for(int i = 0; i < updatedRoute.ObservableAddresses.Count; i++) {
+				var address = updatedRoute.ObservableAddresses[i];
+				if(i < Orders.Count) {
+					if(Orders[i].Order.Id != updatedRoute.ObservableAddresses[i].Order.Id) {
+						address = updatedRoute.ObservableAddresses.First(x => x.Order.Id == Orders[i].Order.Id);
+						updatedRoute.ObservableAddresses.Remove(address);
+						updatedRoute.ObservableAddresses.Insert(i, address);
+					}
+					address.PlanTimeStart = Orders[i].ProposedTimeStart;
+					address.PlanTimeEnd = Orders[i].ProposedTimeEnd;
+				} else {
+					address.PlanTimeStart = null;
+					address.PlanTimeEnd = null;
+				}
+			}
+		}
 	}
 
 	public class ProposedRoutePoint

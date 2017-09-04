@@ -16,10 +16,10 @@ using QSProjectsLib;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
+	[System.ComponentModel.ToolboxItem(true)]
 	public partial class RouteListCreateItemsView : WidgetOnTdiTabBase
 	{
-		static Logger logger = LogManager.GetCurrentClassLogger ();
+		static Logger logger = LogManager.GetCurrentClassLogger();
 
 		private int goodsColumnsCount = -1;
 		private bool isEditable = true;
@@ -28,52 +28,63 @@ namespace Vodovoz
 
 		private IList<RouteColumn> columnsInfo {
 			get {
-				if (_columnsInfo == null)
-					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns (RouteListUoW);
+				if(_columnsInfo == null)
+					_columnsInfo = Repository.Logistics.RouteColumnRepository.ActiveColumns(RouteListUoW);
 				return _columnsInfo;
 			}
 		}
+
 
 		private IUnitOfWorkGeneric<RouteList> routeListUoW;
 
 		public IUnitOfWorkGeneric<RouteList> RouteListUoW {
 			get { return routeListUoW; }
 			set {
-				if (routeListUoW == value)
+				if(routeListUoW == value)
 					return;
 				routeListUoW = value;
-				if (RouteListUoW.Root.Addresses == null)
-					RouteListUoW.Root.Addresses = new List<RouteListItem> ();
+				if(RouteListUoW.Root.Addresses == null)
+					RouteListUoW.Root.Addresses = new List<RouteListItem>();
 				items = RouteListUoW.Root.ObservableAddresses;
 				items.ElementChanged += Items_ElementChanged;
 				items.ListChanged += Items_ListChanged;
 				items.ElementAdded += Items_ElementAdded;
 
-				UpdateColumns ();
+				UpdateColumns();
 
 				ytreeviewItems.ItemsDataSource = items;
 				ytreeviewItems.Reorderable = true;
-				CalculateTotal ();
+				CalculateTotal();
 			}
 		}
+
+		private bool disableColumnsUpdate;
 
 		private bool CanEditRows {
-			get{
-				return QSMain.User.Permissions ["logistican"] 
-					         && RouteListUoW.Root.Status != RouteListStatus.Closed 
-					         && RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
+			get {
+				return QSMain.User.Permissions["logistican"]
+							 && RouteListUoW.Root.Status != RouteListStatus.Closed
+							 && RouteListUoW.Root.Status != RouteListStatus.MileageCheck;
 			}
 		}
 
-		void Items_ElementAdded (object aList, int[] aIdx)
-		{
-			UpdateColumns ();
-			CalculateTotal ();
+		public bool DisableColumnsUpdate { get => disableColumnsUpdate; 
+			set {
+				disableColumnsUpdate = value;
+				if(!disableColumnsUpdate)
+					UpdateColumns();
+			}
 		}
 
-		void Items_ListChanged (object aList)
+		void Items_ElementAdded(object aList, int[] aIdx)
 		{
-			UpdateColumns ();
+			UpdateColumns();
+			CalculateTotal();
+		}
+
+		void Items_ListChanged(object aList)
+		{
+			UpdateColumns();
 		}
 
 		public void OnForwarderChanged()
@@ -81,21 +92,22 @@ namespace Vodovoz
 			UpdateColumns();
 		}
 
-		private void UpdateColumns ()
+		private void UpdateColumns()
 		{
-			var goodsColumns = items.SelectMany (i => i.GoodsByRouteColumns.Keys).Distinct ().ToArray ();
-		
-				var config = ColumnsConfigFactory.Create<RouteListItem>()
-				.AddColumn("Заказ").SetDataProperty(node => node.Order.Id)
-				.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
-				.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
-			if (goodsColumnsCount != goodsColumns.Length)
-			{
+			if(disableColumnsUpdate)
+				return;
+			
+			var goodsColumns = items.SelectMany(i => i.GoodsByRouteColumns.Keys).Distinct().ToArray();
+
+			var config = ColumnsConfigFactory.Create<RouteListItem>()
+			.AddColumn("Заказ").SetDataProperty(node => node.Order.Id)
+			.AddColumn("Адрес").AddTextRenderer(node => node.Order.DeliveryPoint == null ? "Точка доставки не установлена" : String.Format("{0} д.{1}", node.Order.DeliveryPoint.Street, node.Order.DeliveryPoint.Building))
+			.AddColumn("Время").AddTextRenderer(node => node.Order.DeliverySchedule == null ? "" : node.Order.DeliverySchedule.Name);
+			if(goodsColumnsCount != goodsColumns.Length) {
 				goodsColumnsCount = goodsColumns.Length;
 
-				foreach (var column in columnsInfo)
-				{
-					if (!goodsColumns.Contains(column.Id))
+				foreach(var column in columnsInfo) {
+					if(!goodsColumns.Contains(column.Id))
 						continue;
 					int id = column.Id;
 					config = config.AddColumn(column.Name).AddTextRenderer(a => a.GetGoodsAmountForColumn(id).ToString());
@@ -104,8 +116,7 @@ namespace Vodovoz
 			//					.AddColumn ("Логистический район").SetDataProperty (node => node.Order.DeliveryPoint.LogisticsArea == null ? 
 			//						"Не указан" : 
 			//						node.Order.DeliveryPoint.LogisticsArea.Name)			
-			if (RouteListUoW.Root.Forwarder != null)
-			{
+			if(RouteListUoW.Root.Forwarder != null) {
 				config
 					.AddColumn("C экспедитором")
 					.AddToggleRenderer(node => node.WithForwarder).Editing(CanEditRows);
@@ -114,19 +125,17 @@ namespace Vodovoz
 				.AddColumn("Товары").AddTextRenderer(x => ShowAdditional(x.Order.OrderItems))
 				.AddColumn("К клиенту").AddTextRenderer(x => x.ToClientText).Editable(CanEditRows)
 				.AddColumn("От клиента").AddTextRenderer(x => x.FromClientText).Editable(CanEditRows);
-			ytreeviewItems.ColumnsConfig = 
-				config.RowCells ().AddSetter<CellRendererText> ((c, n) => c.Foreground = n.Order.RowColor)
-				.Finish ();
+			ytreeviewItems.ColumnsConfig =
+				config.RowCells().AddSetter<CellRendererText>((c, n) => c.Foreground = n.Order.RowColor)
+				.Finish();
 		}
 
 		private string ShowAdditional(IList<OrderItem> items)
 		{
 			List<string> stringParts = new List<string>();
 
-			foreach (var item in items)
-			{
-				if(item.Nomenclature.Category == NomenclatureCategory.additional)
-				{
+			foreach(var item in items) {
+				if(item.Nomenclature.Category == NomenclatureCategory.additional) {
 					stringParts.Add(
 						string.Format("{0}: {1}", item.Nomenclature.Name, item.Count));
 				}
@@ -135,102 +144,101 @@ namespace Vodovoz
 			return string.Join("\n", stringParts);
 		}
 
-		public void IsEditable (bool val = false)
+		public void IsEditable(bool val = false)
 		{
 			isEditable = val;
 			enumbuttonAddOrder.Sensitive = val;
 			OnSelectionChanged(this, EventArgs.Empty);
 		}
 
-		void Items_ElementChanged (object aList, int[] aIdx)
+		void Items_ElementChanged(object aList, int[] aIdx)
 		{
 			UpdateColumns();
-			CalculateTotal ();
+			CalculateTotal();
 		}
 
-		public RouteListCreateItemsView ()
+		public RouteListCreateItemsView()
 		{
-			this.Build ();
+			this.Build();
 			ytreeviewItems.Selection.Changed += OnSelectionChanged;
 		}
 
-		void OnSelectionChanged (object sender, EventArgs e)
+		void OnSelectionChanged(object sender, EventArgs e)
 		{
-			bool selected = ytreeviewItems.Selection.CountSelectedRows () > 0;
+			bool selected = ytreeviewItems.Selection.CountSelectedRows() > 0;
 			buttonOpenOrder.Sensitive = selected;
 			buttonDelete.Sensitive = selected && isEditable;
 		}
 
 		GenericObservableList<RouteListItem> items;
 
-		protected void OnButtonDeleteClicked (object sender, EventArgs e)
+		protected void OnButtonDeleteClicked(object sender, EventArgs e)
 		{
-			RouteListUoW.Root.RemoveAddress (ytreeviewItems.GetSelectedObject () as RouteListItem);
-			CalculateTotal ();
+			RouteListUoW.Root.RemoveAddress(ytreeviewItems.GetSelectedObject() as RouteListItem);
+			CalculateTotal();
 		}
 
-		protected void OnEnumbuttonAddOrderEnumItemClicked (object sender, EnumItemClickedEventArgs e)
+		protected void OnEnumbuttonAddOrderEnumItemClicked(object sender, EnumItemClickedEventArgs e)
 		{
 			AddOrderEnum choice = (AddOrderEnum)e.ItemEnum;
-			switch (choice) {
+			switch(choice) {
 				case AddOrderEnum.AddOrders:
 					AddOrders();
-				break;
+					break;
 				case AddOrderEnum.AddAllForRegion:
-					AddOrdersFromRegion ();
+					AddOrdersFromRegion();
 					break;
 				default:
 					break;
 			}
 		}
 
-		protected void AddOrders ()
+		protected void AddOrders()
 		{
-			var filter = new OrdersFilter (UnitOfWorkFactory.CreateWithoutRoot ());
+			var filter = new OrdersFilter(UnitOfWorkFactory.CreateWithoutRoot());
 			filter.RestrictStartDate = filter.RestrictEndDate = RouteListUoW.Root.Date.Date;
 			filter.RestrictStatus = OrderStatus.Accepted;
 			filter.ExceptIds = RouteListUoW.Root.Addresses.Select(address => address.Order.Id).ToArray();
 			filter.RestrictSelfDelivery = false;
 
-			ReferenceRepresentation SelectDialog = new ReferenceRepresentation (new ViewModel.OrdersVM (filter));
+			ReferenceRepresentation SelectDialog = new ReferenceRepresentation(new ViewModel.OrdersVM(filter));
 			SelectDialog.Mode = OrmReferenceMode.MultiSelect;
 			SelectDialog.ObjectSelected += (s, ea) => {
-				foreach(var selected in ea.Selected)
-				{
-					var order = RouteListUoW.GetById<Order> (selected.EntityId);
-					RouteListUoW.Root.AddAddressFromOrder (order);
+				foreach(var selected in ea.Selected) {
+					var order = RouteListUoW.GetById<Order>(selected.EntityId);
+					RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
+			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
-		protected void AddOrdersFromRegion ()
+		protected void AddOrdersFromRegion()
 		{
-			OrmReference SelectDialog = new OrmReference (typeof(LogisticsArea), RouteListUoW);
+			OrmReference SelectDialog = new OrmReference(typeof(LogisticsArea), RouteListUoW);
 			SelectDialog.Mode = OrmReferenceMode.Select;
 			SelectDialog.ButtonMode = ReferenceButtonMode.CanEdit;
 			SelectDialog.ObjectSelected += (s, ea) => {
-				if (ea.Subject != null) {
-					foreach (var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as LogisticsArea))
-						RouteListUoW.Root.AddAddressFromOrder (order);
+				if(ea.Subject != null) {
+					foreach(var order in OrderRepository.GetAcceptedOrdersForRegion(RouteListUoW, RouteListUoW.Root.Date, ea.Subject as LogisticsArea))
+						RouteListUoW.Root.AddAddressFromOrder(order);
 				}
 			};
-			MyTab.TabParent.AddSlaveTab (MyTab, SelectDialog);
+			MyTab.TabParent.AddSlaveTab(MyTab, SelectDialog);
 		}
 
-		void CalculateTotal ()
+		void CalculateTotal()
 		{
 			var total = routeListUoW.Root.Addresses.SelectMany(a => a.Order.OrderItems)
 				.Where(i => i.Nomenclature.Category == NomenclatureCategory.water)
 				.Sum(i => i.Count);
 
-			labelSum.LabelProp = String.Format ("Всего бутылей: {0}", total);
+			labelSum.LabelProp = String.Format("Всего бутылей: {0}", total);
 		}
 
 		protected void OnButtonOpenOrderClicked(object sender, EventArgs e)
 		{
-			var selected = ytreeviewItems.GetSelectedObject<RouteListItem> ();
-			if (selected != null) {
+			var selected = ytreeviewItems.GetSelectedObject<RouteListItem>();
+			if(selected != null) {
 				MyTab.TabParent.OpenTab(
 					OrmMain.GenerateDialogHashName<Order>(selected.Order.Id),
 					() => new OrderDlg(selected.Order)
@@ -246,8 +254,8 @@ namespace Vodovoz
 
 	public enum AddOrderEnum
 	{
-		[Display (Name = "Выбрать заказы...")] AddOrders,
-		[Display (Name = "Все заказы для логистического района")]AddAllForRegion
+		[Display(Name = "Выбрать заказы...")] AddOrders,
+		[Display(Name = "Все заказы для логистического района")] AddAllForRegion
 	}
 
 }
