@@ -26,7 +26,7 @@ namespace Vodovoz.Tools.Logistic
 
 		IUnitOfWork UoW = UnitOfWorkFactory.CreateWithoutRoot();
 
-		Gtk.TextBuffer staticBuffer;
+		Gtk.TextBuffer statisticBuffer;
 		int ProposeNeedCached = 0;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
@@ -57,7 +57,7 @@ namespace Vodovoz.Tools.Logistic
 		{
 			UoW.Session.SetBatchSize(SaveBy);
 			Provider = provider;
-			staticBuffer = buffer;
+			statisticBuffer = buffer;
 			MultiThreadLoad = multiThreadLoad;
 			hashes = points.Select(x => CachedDistance.GetHash(x))
 			                   .Concat(new[] {BaseHash})
@@ -312,7 +312,10 @@ namespace Vodovoz.Tools.Logistic
 
 		void UpdateText()
 		{
-			staticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
+			if(statisticBuffer == null)
+				return;
+
+			statisticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
 			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec,
 			                                  (double)totalCached/ProposeNeedCached, ProposeNeedCached, unsavedItems
 			                                 );

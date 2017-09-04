@@ -29,14 +29,16 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public override void PeriodicCheck()
 		{
-			buffer.Text = String.Format("Branches={0}\nFailures={1}\nFailStamp={2}\nSolutions={3}\nWallTime={4}\nCost={5}",
-			                            solver().Branches(),
-			                            solver().Failures(),
-			                            solver().FailStamp(),
-			                            solver().Solutions(),
-			                            solver().WallTime(),
-										bestSol.SolutionCount() > 0 ? bestSol.ObjectiveValue(0) : -1);
-			QSMain.WaitRedraw(200);
+			if(buffer != null) {
+				buffer.Text = String.Format("Branches={0}\nFailures={1}\nFailStamp={2}\nSolutions={3}\nWallTime={4}\nCost={5}",
+											solver().Branches(),
+											solver().Failures(),
+											solver().FailStamp(),
+											solver().Solutions(),
+											solver().WallTime(),
+											bestSol.SolutionCount() > 0 ? bestSol.ObjectiveValue(0) : -1);
+				QSMain.WaitRedraw(200);
+			}
 
 			base.PeriodicCheck();
 		}
