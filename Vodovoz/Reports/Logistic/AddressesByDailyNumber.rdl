@@ -71,9 +71,59 @@ ORDER BY orders.daily_number_1c</CommandText>
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="RouteInfo">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT 
+    route_lists.date,
+    CONCAT_WS('',
+            CONCAT(driver.last_name, ' '),
+            IF(driver.name = '',
+                '',
+                CONCAT(LEFT(driver.name, 1), '.')),
+            IF(driver.patronymic = '',
+                '',
+                CONCAT(LEFT(driver.patronymic, 1), '.'))) AS driver_name,
+    CONCAT_WS('',
+            CONCAT(logistican.last_name, ' '),
+            IF(logistican.name = '',
+                '',
+                CONCAT(LEFT(logistican.name, 1), '.')),
+            IF(logistican.patronymic = '',
+                '',
+                CONCAT(LEFT(logistican.patronymic, 1), '.'))) AS logistican_name
+FROM
+    route_lists
+        LEFT JOIN
+    employees AS driver ON driver.id = route_lists.driver_id
+        LEFT JOIN
+    employees AS logistican ON logistican.id = route_lists.logistican_id
+WHERE
+    route_lists.id = @route_list;</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="route_list">
+            <Value>={?route_list}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="driver_name">
+          <DataField>driver_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="logistican_name">
+          <DataField>logistican_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <PageHeader>
-    <Height>.5in</Height>
+    <Height>28.2pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Top>7.23pt</Top>
@@ -258,9 +308,62 @@ ORDER BY orders.daily_number_1c</CommandText>
             </TableRow>
           </TableRows>
         </Details>
+        <Left>0.0pt</Left>
+        <Top>28.8pt</Top>
       </Table>
+      <List Name="List1">
+        <Height>21.15pt</Height>
+        <Width>565.47pt</Width>
+        <Left>6.02pt</Left>
+        <Top>5.72pt</Top>
+        <ReportItems>
+          <Textbox Name="Textbox7">
+            <Height>17.34pt</Height>
+            <Width>155.90pt</Width>
+            <Value>= "Дата МЛ: " + Format ({date}, "d")</Value>
+            <ZIndex>1</ZIndex>
+            <Left>1.8pt</Left>
+            <Top>1.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>12pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox8">
+            <Height>15.75pt</Height>
+            <Width>199.55pt</Width>
+            <Value>= "Водитель: " + {driver_name}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>164.9pt</Left>
+            <Top>1.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>12pt</FontSize>
+            </Style>
+          </Textbox>
+          <Textbox Name="Textbox9">
+            <Height>14.26pt</Height>
+            <Width>183.71pt</Width>
+            <Value>="Логист: " + {logistican_name}</Value>
+            <ZIndex>1</ZIndex>
+            <Left>369.5pt</Left>
+            <Top>1.8pt</Top>
+            <Style>
+              <BorderStyle />
+              <BorderColor />
+              <BorderWidth />
+              <FontSize>12pt</FontSize>
+            </Style>
+          </Textbox>
+        </ReportItems>
+        <DataSetName>RouteInfo</DataSetName>
+      </List>
     </ReportItems>
-    <Height>36pt</Height>
+    <Height>155.7pt</Height>
   </Body>
   <PageFooter>
     <Height>14pt</Height>
