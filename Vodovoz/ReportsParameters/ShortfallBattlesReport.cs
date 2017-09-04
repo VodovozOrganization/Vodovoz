@@ -82,6 +82,8 @@ namespace Vodovoz.Reports
 
 			if(comboboxDriver.SelectedItem.Equals(Drivers.AllDriver))
 				parameters.Add("driver_call", -1);
+			else if(comboboxDriver.SelectedItem.Equals(Drivers.NoCall))
+				parameters.Add("driver_call", 2);
 			else if(comboboxDriver.SelectedItem.Equals(Drivers.Largus))
 				parameters.Add("driver_call", 1);
 			else if(comboboxDriver.SelectedItem.Equals(Drivers.Hirelings))
@@ -95,9 +97,7 @@ namespace Vodovoz.Reports
 
 		void OnUpdate(bool hide = false)
 		{
-			if (LoadReport != null) {
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		protected void OnButtonCreateRepotClicked (object sender, EventArgs e)
@@ -124,6 +124,8 @@ namespace Vodovoz.Reports
 		{
 			[Display(Name = "Все")]
 			AllDriver,
+			[Display(Name = "Без отзвона")]
+			NoCall,
 			[Display(Name = "Ларгусы")]
 			Largus,
 			[Display(Name = "Наемники")]

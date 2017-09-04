@@ -1478,9 +1478,10 @@ WHERE
         AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
         AND (@reason = -1 OR @reason = reason_type)
         AND (@driver_id = -1 OR @driver_id = employees.id)
-        AND ((@driver_call = 1 AND driver_call_type = 'NoCall'  AND type_of_use = 'Largus' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) 
-	OR (@driver_call = 0 AND driver_call_type = 'NoCall' AND type_of_use is null AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
-	OR (@driver_call = -1))
+        AND ((@driver_call = 1 AND type_of_use = 'Largus' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) 
+           OR (@driver_call = 2 AND driver_call_type = 'NoCall'  AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
+           OR (@driver_call = 0 AND type_of_use is null  AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
+           OR (@driver_call = -1))
         AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NotDelivered')
 GROUP BY ordersIdAlias
 ORDER BY reason_type_status</CommandText>
@@ -1627,7 +1628,7 @@ WHERE
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
       <DefaultValue>
