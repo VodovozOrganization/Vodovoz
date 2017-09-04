@@ -29,7 +29,7 @@ namespace Vodovoz.Repository.Store
 			return QueryOver.Of<Warehouse>();
 		}
 
-		public static IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, int id)
+		public static IList<Warehouse> WarehouseForShipment(IUnitOfWork uow, int routeListId)
 		{
 			Vodovoz.Domain.Orders.Order orderAlias = null;
 			OrderItem orderItemsAlias = null;
@@ -39,7 +39,8 @@ namespace Vodovoz.Repository.Store
 			var ordersQuery = QueryOver.Of<Vodovoz.Domain.Orders.Order>(() => orderAlias);
 
 			var routeListItemsSubQuery = QueryOver.Of<Vodovoz.Domain.Logistic.RouteListItem>()
-				.Where(r => r.RouteList.Id == id)
+				.Where(r => r.RouteList.Id == routeListId)
+			    .Where(x => x.WasTransfered == false || (x.WasTransfered && x.NeedToReload))
 				.Select(r => r.Order.Id);
 			ordersQuery.WithSubquery.WhereProperty(o => o.Id).In(routeListItemsSubQuery).Select(o => o.Id);
 
