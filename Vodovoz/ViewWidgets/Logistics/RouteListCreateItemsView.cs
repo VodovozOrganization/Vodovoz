@@ -58,8 +58,6 @@ namespace Vodovoz
 			}
 		}
 
-		private bool disableColumnsUpdate;
-
 		private bool CanEditRows {
 			get {
 				return QSMain.User.Permissions["logistican"]
@@ -68,8 +66,13 @@ namespace Vodovoz
 			}
 		}
 
+		private bool disableColumnsUpdate;
+
 		public bool DisableColumnsUpdate { get => disableColumnsUpdate; 
 			set {
+				if(disableColumnsUpdate == value)
+					return;
+				
 				disableColumnsUpdate = value;
 				if(!disableColumnsUpdate)
 					UpdateColumns();
