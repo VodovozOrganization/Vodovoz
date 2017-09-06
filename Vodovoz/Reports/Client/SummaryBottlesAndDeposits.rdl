@@ -713,7 +713,7 @@ WHERE
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox42">
-                      <Value>Неустойка</Value>
+                      <Value>Неустойка (шт.)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
