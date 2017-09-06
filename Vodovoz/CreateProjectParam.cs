@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using Gamma.Binding;
 using Gamma.Utilities;
+using NHibernate.AdoNet;
+using NHibernate.Cfg;
 using QSBusinessCommon;
 using QSBusinessCommon.Domain;
 using QSContacts;
 using QSOrmProject;
 using QSOrmProject.DomainMapping;
 using QSProjectsLib;
+using QSSupportLib;
+using Vodovoz.Dialogs.DocumentDialogs;
+using Vodovoz.Dialogs.Logistic;
 using Vodovoz.Domain;
 using Vodovoz.Domain.Accounting;
 using Vodovoz.Domain.Cash;
@@ -19,10 +24,6 @@ using Vodovoz.Domain.Logistic;
 using Vodovoz.Domain.Orders;
 using Vodovoz.Domain.Service;
 using Vodovoz.Domain.Store;
-using QSSupportLib;
-using Vodovoz.Dialogs.DocumentDialogs;
-using NHibernate.Cfg;
-using NHibernate.AdoNet;
 
 namespace Vodovoz
 {
@@ -77,7 +78,7 @@ namespace Vodovoz
 				OrmObjectMapping<UserSettings>.Create().Dialog<UserSettingsDlg>(),
 				OrmObjectMapping<LogisticsArea>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<FuelType>.Create().Dialog<FuelTypeDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).SearchColumn("Стоимость", x => x.Cost.ToString()).End(),
-				OrmObjectMapping<DeliveryShift>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
+				OrmObjectMapping<DeliveryShift>.Create().Dialog<DeliveryShiftDlg>().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				OrmObjectMapping<MovementWagon>.Create().DefaultTableView().SearchColumn("Название", x => x.Name).End(),
 				//Остальные справочники
 				OrmObjectMapping<CommentTemplate>.Create().Dialog<CommentTemplateDlg>().DefaultTableView().SearchColumn("Шаблон комментария", x => x.Comment).End(),
