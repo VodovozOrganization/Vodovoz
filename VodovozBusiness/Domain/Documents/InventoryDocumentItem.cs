@@ -9,8 +9,8 @@ using Vodovoz.Domain.Goods;
 namespace Vodovoz.Domain.Documents
 {
 	[OrmSubject (Gender = QSProjectsLib.GrammaticalGender.Feminine,
-		NominativePlural = "строки инвенторизации",
-		Nominative = "строка инвенторизации")]
+		NominativePlural = "строки инвентаризации",
+		Nominative = "строка инвентаризации")]
 	public class InventoryDocumentItem: PropertyChangedBase, IDomainObject
 	{
 		public virtual int Id { get; set; }

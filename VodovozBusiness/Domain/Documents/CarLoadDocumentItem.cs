@@ -100,8 +100,8 @@ namespace Vodovoz.Domain.Documents
 			
 		public virtual string Title {
 			get{
-				return String.Format("{0} - {1}", 
-					MovementOperation.Nomenclature.Name, 
+				return MovementOperation == null ? Nomenclature.Name : String.Format("{0} - {1}",
+					MovementOperation.Nomenclature.Name,
 					MovementOperation.Nomenclature.Unit?.MakeAmountShortStr(MovementOperation.Amount) ?? MovementOperation.Amount.ToString());
 			}
 		}
