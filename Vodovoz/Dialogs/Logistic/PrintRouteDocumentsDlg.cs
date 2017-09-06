@@ -24,7 +24,6 @@ namespace Vodovoz.Dialogs.Logistic
 		IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();
 
 		Gtk.PrintOperation Printer;
-		Gtk.PageSetup PageSetup;
 		PrintSettings PrintSettings;
 
 		bool showDialog = true;
@@ -126,19 +125,17 @@ namespace Vodovoz.Dialogs.Logistic
 			Printer = new PrintOperation();
 			Printer.Unit = Unit.Points;
 			Printer.UseFullPage = true;
+			//Printer.DefaultPageSetup = new PageSetup();
 
 			if(PrintSettings == null)
 			{
-				Printer.DefaultPageSetup = new PageSetup();
 				Printer.PrintSettings = new PrintSettings();
 			}
 			else
 			{
-				Printer.DefaultPageSetup = PageSetup;
 				Printer.PrintSettings = PrintSettings;
 			}
 
-			Printer.DefaultPageSetup.Orientation = orientation;
 			Printer.PrintSettings.Orientation = orientation;
 
 			var rprint = new ReportPrinter(reportInfo);
@@ -153,7 +150,6 @@ namespace Vodovoz.Dialogs.Logistic
 			Printer.Run(action, null);
 
 			PrintSettings = Printer.PrintSettings;
-			PageSetup = Printer.DefaultPageSetup;
 		}
 	}
 }
