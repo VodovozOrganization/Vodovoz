@@ -26,7 +26,6 @@ using Vodovoz.JournalFilters;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class OrderDlg : OrmGtkDialogBase<Order>, ICounterpartyInfoProvider, IDeliveryPointInfoProvider
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger ();

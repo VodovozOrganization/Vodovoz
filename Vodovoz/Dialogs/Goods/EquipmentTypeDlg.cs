@@ -4,7 +4,6 @@ using QSOrmProject;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class EquipmentTypeDlg : OrmGtkDialogBase<EquipmentType>{
 		protected static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
 

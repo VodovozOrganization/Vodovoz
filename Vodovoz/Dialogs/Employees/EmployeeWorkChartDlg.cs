@@ -11,7 +11,6 @@ using System.Linq;
 
 namespace Dialogs.Employees
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class EmployeeWorkChartDlg : TdiTabBase, ITdiDialog
 	{
 		private IUnitOfWork uow = UnitOfWorkFactory.CreateWithoutRoot();

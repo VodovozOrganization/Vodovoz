@@ -8,7 +8,6 @@ using Vodovoz.Domain.Goods;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class PaidRentPackageDlg : OrmGtkDialogBase<PaidRentPackage>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();

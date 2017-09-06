@@ -14,7 +14,6 @@ using Vodovoz.Repository.Operations;
 
 namespace Vodovoz.Dialogs.DocumentDialogs
 {
-	[System.ComponentModel.ToolboxItem(true)]
 	public partial class TransferOperationDocumentDlg : OrmGtkDialogBase<TransferOperationDocument>
 	{
 		static Logger logger = LogManager.GetCurrentClassLogger();

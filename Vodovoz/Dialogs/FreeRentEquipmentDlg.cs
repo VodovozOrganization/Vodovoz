@@ -10,7 +10,6 @@ using Vodovoz.Domain;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class FreeRentEquipmentDlg : Gtk.Bin, QSTDI.ITdiDialog, IOrmDialog
 	{
 		protected FreeRentEquipment subjectCopy;

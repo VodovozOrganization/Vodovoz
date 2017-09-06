@@ -11,7 +11,6 @@ using Vodovoz.Domain.Store;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class NomenclatureDlg : OrmGtkDialogBase<Nomenclature>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();

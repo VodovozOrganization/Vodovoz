@@ -10,7 +10,6 @@ using Vodovoz.Domain.Client;
 
 namespace Vodovoz
 {
-	[System.ComponentModel.ToolboxItem (true)]
 	public partial class ProxyDlg : OrmGtkDialogBase<Proxy>
 	{
 		private static Logger logger = LogManager.GetCurrentClassLogger ();
