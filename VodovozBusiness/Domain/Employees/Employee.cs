@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
-using System.Linq;
 using Gamma.Utilities;
 using QSBanks;
 using QSOrmProject;
@@ -196,6 +195,14 @@ namespace Vodovoz.Domain.Employees
 		public virtual DateTime? FirstWorkDay {
 			get { return firstWorkDay; }
 			set { SetField(ref firstWorkDay, value, () => FirstWorkDay); }
+		}
+
+		private DeliveryDaySchedule defaultDaySheldule;
+
+		[Display(Name = "График работы по молчанию")]
+		public virtual DeliveryDaySchedule DefaultDaySheldule {
+			get { return defaultDaySheldule; }
+			set { SetField(ref defaultDaySheldule, value, () => DefaultDaySheldule); }
 		}
 
 		private short tripPriority = 6;
