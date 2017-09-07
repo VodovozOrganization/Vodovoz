@@ -824,4 +824,12 @@ public partial class MainWindow : Gtk.Window
 			() => new QSReport.ReportViewDlg(widget)
 		);
 	}
+
+	protected void OnActionDeliveryDayScheduleActivated(object sender, EventArgs e)
+	{
+		tdiMain.OpenTab(
+			OrmReference.GenerateHashName<DeliveryDaySchedule>(),
+			() => new OrmReference(typeof(DeliveryDaySchedule))
+		);
+	}
 }

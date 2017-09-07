@@ -674,6 +674,8 @@
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.PrintRouteDocumentsDlg.cs" />
     <Compile Include="Dialogs\Logistic\DeliveryShiftDlg.cs" />
     <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DeliveryShiftDlg.cs" />
+    <Compile Include="Dialogs\Logistic\DeliveryDayScheduleDlg.cs" />
+    <Compile Include="gtk-gui\Vodovoz.Dialogs.Logistic.DeliveryDayScheduleDlg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

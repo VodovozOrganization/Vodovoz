@@ -403,6 +403,8 @@
     <Compile Include="Domain\Logistic\AtWorkDriverDistrictPriority.cs" />
     <Compile Include="HibernateMapping\Logistic\AtWorkDriverDistrictPriorityMap.cs" />
     <Compile Include="Tools\Logistic\DistanceProvider.cs" />
+    <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />
+    <Compile Include="HibernateMapping\Logistic\DeliveryDayScheduleMap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
