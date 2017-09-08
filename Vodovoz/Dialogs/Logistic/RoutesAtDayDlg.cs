@@ -1181,6 +1181,8 @@ namespace Vodovoz
 				return;
 			}
 
+			UpdateWarningButton();
+
 			if(creatingInProgress)
 			{
 				buttonAutoCreate.Label = "Создать маршруты";
@@ -1225,6 +1227,7 @@ namespace Vodovoz
 			RecalculateOnLoadTime();
 			UpdateAddressesOnMap();
 			RoutesWasUpdated();
+			UpdateWarningButton();
 			MainClass.MainWin.ProgressClose();
 			creatingInProgress = false;
 			optimizer.Cancel = false;
@@ -1293,6 +1296,19 @@ namespace Vodovoz
 				newRoute.UpdateAddressOrderInRealRoute(route);
 			} else
 				MessageDialogWorks.RunErrorDialog("Решение не найдено.");
+		}
+
+		protected void OnButtonWarningsClicked(object sender, EventArgs e)
+		{
+			MessageDialogWorks.RunWarningDialog(
+				String.Join("\n", optimizer.WarningMessages.Select(x => "⚠ " + x))
+			);
+		}
+
+		private void UpdateWarningButton()
+		{
+			buttonWarnings.Visible = optimizer.WarningMessages.Count > 0;
+			buttonWarnings.Label = optimizer.WarningMessages.Count.ToString();
 		}
 	}
 }

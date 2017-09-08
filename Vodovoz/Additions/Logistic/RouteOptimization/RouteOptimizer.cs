@@ -35,6 +35,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public ProgressBar OrdersProgress;
 		public Gtk.TextBuffer DebugBuffer;
+		public List<string> WarningMessages = new List<string>();
 
 		public bool Cancel = false;
 
@@ -59,7 +60,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
 			var allDrivers = Drivers.Where(x => x.Car != null).OrderByDescending(x => x.PriorityAtDay).ToArray();
 			if(allDrivers.Length == 0) {
-				logger.Error("Для построения маршрутов, нет водителей.");
+				AddWarning("Для построения маршрутов, нет водителей.");
 				return;
 			}
 
@@ -84,7 +85,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			Nodes = calculatedOrders.ToArray();
 			if(unusedDistricts.Count > 0)
 			{
-				logger.Warn("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
+				AddWarning("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
 			}
 
 			distanceCalculator = new ExtDistanceCalculator(DistanceProvider.Osrm, Nodes.Select(x => x.Order.DeliveryPoint).ToArray(), DebugBuffer);
@@ -129,7 +130,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60; //FIXME Внимание здесь задаем экспедитора. Это не равильно, при реализации работы с экспедитором нужно это изменить.
 				if(endWindow < startWindow)
 				{
-					logger.Warn("Время разгрузки на точке, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To);
+					AddWarning("Время разгрузки на точке, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To);
 					endWindow = startWindow;
 				}
 				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
@@ -395,6 +396,19 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					matrixText.Append(matrix[y, x] > 9 ? "+" : matrix[y, x].ToString());
 			}
 			logger.Debug(matrixText);
+		}
+
+		private void AddWarning(string text)
+		{
+			WarningMessages.Add(text);
+			logger.Warn(text);
+		}
+
+		private void AddWarning(string text, params object[] args)
+		{
+			text = String.Format(text, args);
+			WarningMessages.Add(text);
+			logger.Warn(text);
 		}
 	}
 }
