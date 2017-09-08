@@ -271,7 +271,7 @@ namespace Vodovoz.Tools.Logistic
 			CachedDistance cachedValue = null;
 			if(Provider == DistanceProvider.Osrm) {
 				var result = OsrmMain.GetRoute(points, false, false);
-				ok = result.Code == "Ok";
+				ok = result?.Code == "Ok";
 				if(ok && result.Routes.Any()) {
 					cachedValue = new CachedDistance {
 						Created = DateTime.Now,
