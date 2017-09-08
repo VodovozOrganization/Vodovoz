@@ -94,10 +94,12 @@ namespace Vodovoz.Tools.Logistic
 			logger.Debug(matrixText);
 
 			logger.Debug(String.Join(";", hashes.Select(point => CachedDistance.GetTextLonLat(point))));
-			#endif
+#endif
 
 			if(MultiThreadLoad && fromDB.Count < ProposeNeedCached)
 				RunPreCalculation();
+			else
+				MultiThreadLoad = false;
 		}
 
 		private void RunPreCalculation()
