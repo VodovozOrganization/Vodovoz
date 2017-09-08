@@ -160,7 +160,6 @@ namespace Vodovoz
 
 			ytreeviewOnDayDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
-				.AddColumn("Поездок").AddNumericRenderer(x => x.Trips).Editing(new Gtk.Adjustment(1, 0, 10,1,1,1))
 				.AddColumn("Автомобиль")
 					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
@@ -172,7 +171,6 @@ namespace Vodovoz
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
 				.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
-				.AddColumn("Поездок").AddNumericRenderer(x => x.Trips).Editing(new Gtk.Adjustment(1, 0, 10, 1, 1, 1))
 				.AddColumn("C водителем").AddComboRenderer(x => x.WithDriver).Tag("WithDriver").Editing()
 				.SetDisplayFunc(x => ((Employee)x).ShortName)
 				.Finish();
@@ -869,7 +867,7 @@ namespace Vodovoz
 
 		void ObservableDriversAtDay_ListChanged(object aList)
 		{
-			var renderer = ytreeviewOnDayForwarders.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkForwarder>>("WithDriver").First();
+			var renderer = ytreeviewOnDayForwarders.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkForwarder, Employee>>("WithDriver").First();
 			renderer.FillItems(driversAtDay.Select(x => x.Employee).ToList());
 		}
 

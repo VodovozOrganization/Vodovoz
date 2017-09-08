@@ -19,6 +19,7 @@ namespace Vodovoz.HibernateMapping
 
 			References(x => x.Employee).Column("employee_id");
 			References(x => x.Car).Column("car_id");
+			References(x => x.DaySchedule).Column("delivery_day_schedule_id");
 
 			HasMany(x => x.Districts).Cascade.AllDeleteOrphan().Inverse()
 									 .KeyColumn("at_work_driver_id")

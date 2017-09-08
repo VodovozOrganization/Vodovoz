@@ -50,6 +50,14 @@ namespace Vodovoz.Domain.Logistic
 			}
 		}
 
+		private DeliveryDaySchedule daySchedule;
+
+		[Display(Name = "График работы")]
+		public virtual DeliveryDaySchedule DaySchedule {
+			get { return daySchedule; }
+			set { SetField(ref daySchedule, value, () => DaySchedule); }
+		}
+
 		private IList<AtWorkDriverDistrictPriority> districts = new List<AtWorkDriverDistrictPriority>();
 
 		[Display(Name = "Районы")]
