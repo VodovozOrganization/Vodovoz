@@ -19,6 +19,7 @@ namespace Vodovoz
 				.AddColumn("Сотрудник").AddTextRenderer(x => x.Employee.FullName)
 				.AddColumn("Штраф").AddNumericRenderer(x => x.Money).Editing().Digits(2)
 				.Adjustment(new Gtk.Adjustment(0, 0, 10000000, 1, 10, 10))
+				.AddColumn("Причина штрафа").AddTextRenderer(x => x.Fine.FineReasonString)
 				.Finish();
 			ytreeviewItems.Selection.Changed += YtreeviewItems_Selection_Changed;
 		}

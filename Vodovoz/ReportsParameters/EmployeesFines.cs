@@ -1,15 +1,30 @@
 ﻿using System;
 using QSReport;
 using System.Collections.Generic;
+using QSOrmProject;
+using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Reports
 {
-	public partial class EmployeesFines : Gtk.Bin, IParametersWidget
+	public partial class EmployeesFines : Gtk.Bin, IOrmDialog, IParametersWidget
 	{
 		public EmployeesFines()
 		{
 			this.Build();
+			UoW = UnitOfWorkFactory.CreateWithoutRoot();
+			yentryDriver.SubjectType = typeof(Employee);
 		}
+		#region IOrmDialog implementation
+
+		public IUnitOfWork UoW { get; private set; }
+
+		public object EntityObject {
+			get {
+				return null;
+			}
+		}
+
+		#endregion
 
 		#region IParametersWidget implementation
 
@@ -27,10 +42,7 @@ namespace Vodovoz.Reports
 
 		void OnUpdate(bool hide = false)
 		{
-			if (LoadReport != null)
-			{
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		protected void OnButtonRunClicked(object sender, EventArgs e)
@@ -39,15 +51,25 @@ namespace Vodovoz.Reports
 		}
 
 		private ReportInfo GetReportInfo()
-		{			
+		{
+			var parameters = new Dictionary<string, object>();
+
+			if(yentryDriver.Subject != null)
+				parameters.Add("drivers", (yentryDriver.Subject as Employee).Id);
+			else {
+				parameters.Add("drivers", -1);
+			}
+			if(dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null) {
+				parameters.Add("startDate", dateperiodpicker1.StartDateOrNull.Value);
+				parameters.Add("endDate", dateperiodpicker1.EndDateOrNull.Value);
+			}else{
+				parameters.Add("startDate", 0);
+				parameters.Add("endDate", 0);
+			}
 			return new ReportInfo
 			{
 				Identifier = "Employees.Fines",
-				Parameters = new Dictionary<string, object>
-				{
-					{ "startDate", dateperiodpicker1.StartDateOrNull.Value },
-					{ "endDate", dateperiodpicker1.EndDateOrNull.Value },
-				}
+				Parameters = parameters
 			};
 		}			
 
@@ -56,11 +78,18 @@ namespace Vodovoz.Reports
 			ValidateParameters();
 		}
 
+		protected void OnYentryDriverChanged(object sender, EventArgs e)
+		{
+			ValidateParameters();
+		}
+
 		private void ValidateParameters()
 		{
 			var datePeriodSelected = dateperiodpicker1.EndDateOrNull != null && dateperiodpicker1.StartDateOrNull != null;
-			buttonRun.Sensitive = datePeriodSelected;
+			var driverSelected = yentryDriver.Subject != null;
+			buttonRun.Sensitive = datePeriodSelected || driverSelected;
 		}
+
 
 	}
 }

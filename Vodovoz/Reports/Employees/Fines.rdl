@@ -92,16 +92,20 @@ FROM
         OR store_writeoff_document_items.nomenclature_id = nomenclature.id
         OR store_regrading_of_goods_items.nomenclature_old_id = nomenclature.id
 WHERE
-    fines.date &gt;= @startDate
-        AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
+    (fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY) AND @drivers = -1) OR
+    (employees.id = @drivers AND fines.date &gt;= @startDate AND fines.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)) OR
+    (employees.id = @drivers AND @startDate = '0' AND @endDate = '0')
 GROUP BY fines_items.id
 ORDER BY employee , date</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
-            <Value>=Parameters!startDate</Value>
+            <Value>={?startDate}</Value>
           </QueryParameter>
           <QueryParameter Name="endDate">
-            <Value>=Parameters!endDate</Value>
+            <Value>={?endDate}</Value>
+          </QueryParameter>
+          <QueryParameter Name="drivers">
+            <Value>={?drivers}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -533,7 +537,9 @@ ORDER BY employee , date</CommandText>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <ReportParameters>
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <ReportParameters >
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -560,7 +566,13 @@ ORDER BY employee , date</CommandText>
       <Prompt>
       </Prompt>
     </ReportParameter>
+    <ReportParameter Name="drivers">
+      <DataType>String</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
   </ReportParameters>
-  <DataElementName>Report</DataElementName>
-  <DataElementStyle>AttributeNormal</DataElementStyle>
 </Report>
