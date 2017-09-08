@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -1140,7 +1140,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25328,6 +25327,7 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -25337,6 +25337,7 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">3</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
               </packing>
             </child>
             <child>
@@ -25352,7 +25353,8 @@ RegistrationNumber</property>
               </widget>
               <packing>
                 <property name="Position">4</property>
-                <property name="AutoSize">True</property>
+                <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
               </packing>
             </child>
             <child>
@@ -25369,6 +25371,7 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">5</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
               </packing>
             </child>
             <child>
@@ -25385,6 +25388,7 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">6</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
               </packing>
             </child>
             <child>
@@ -25401,6 +25405,7 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">7</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
               </packing>
             </child>
             <child>
@@ -25417,6 +25422,23 @@ RegistrationNumber</property>
               <packing>
                 <property name="Position">8</property>
                 <property name="AutoSize">False</property>
+                <property name="Expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="Gtk.Button" id="buttonStock">
+                <property name="MemberName" />
+                <property name="CanFocus">True</property>
+                <property name="Type">TextOnly</property>
+                <property name="Label" translatable="yes">Остатки</property>
+                <property name="UseUnderline">True</property>
+                <signal name="Clicked" handler="OnButtonStockClicked" />
+              </widget>
+              <packing>
+                <property name="Position">9</property>
+                <property name="AutoSize">True</property>
+                <property name="Expand">False</property>
+                <property name="Fill">False</property>
               </packing>
             </child>
           </widget>
@@ -25431,7 +25453,7 @@ RegistrationNumber</property>
           <widget class="Gtk.Notebook" id="notebook1">
             <property name="MemberName" />
             <property name="CanFocus">True</property>
-            <property name="CurrentPage">1</property>
+            <property name="CurrentPage">0</property>
             <child>
               <widget class="Gtk.VBox" id="vbox3">
                 <property name="MemberName" />
