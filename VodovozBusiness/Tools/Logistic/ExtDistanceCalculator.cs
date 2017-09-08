@@ -148,6 +148,16 @@ namespace Vodovoz.Tools.Logistic
 					inWorkWays.RemoveAll(x => x.FromHash == fromHash && x.ToHash == toHash);
 				}
 			}
+
+			Gtk.Application.Invoke(delegate {
+				CheckAndDisableThreads();
+			});
+		}
+
+		private void CheckAndDisableThreads()
+		{
+			if(Threads.All(x => !x.IsAlive))
+				MultiThreadLoad = false;
 		}
 
 		private void AddNewCacheDistance(CachedDistance distance)
