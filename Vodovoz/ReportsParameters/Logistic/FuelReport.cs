@@ -40,19 +40,37 @@ namespace Vodovoz.Reports
 		#endregion
 
 		private ReportInfo GetReportInfo()
-		{			
+		{ 
+			var parameters = new Dictionary<string, object>();
+
+			if(yentryreferenceCar.Subject != null){
+				parameters.Add("car_id", (yentryreferenceCar.Subject as Car)?.Id);
+				parameters.Add("driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
+						   ? -1 : (yentryreferenceCar.Subject as Car)?.Driver?.Id);
+			}
+			else {
+				parameters.Add("car_id", -1);
+				parameters.Add("driver_id", -1);
+			}
+
+			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
+			parameters.Add("end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1));
+			  
+
+				//new Dictionary<string, object>
+				//{
+				//	{ "start_date", dateperiodpicker.StartDateOrNull },
+				//	{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
+				//	{ "car_id", (yentryreferenceCar.Subject as Car)?.Id },
+				//	{ "driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
+				//		  ? -1 : (yentryreferenceCar.Subject as Car)?.Driver?.Id}
+				//}
+
 			return new ReportInfo
 			{
 				Identifier = "Logistic.FuelReport",
 				UseUserVariables = true,
-				Parameters = new Dictionary<string, object>
-				{ 
-					{ "start_date", dateperiodpicker.StartDateOrNull },
-					{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
-					{ "car_id", (yentryreferenceCar.Subject as Car)?.Id },
-					{ "driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
-						  ? -1 : (yentryreferenceCar.Subject as Car)?.Driver?.Id}
-				}
+				Parameters = parameters
 			};
 		}	
 
@@ -63,17 +81,13 @@ namespace Vodovoz.Reports
 
 		void OnUpdate(bool hide = false)
 		{
-			if (LoadReport != null)
-			{
-				LoadReport(this, new LoadReportEventArgs(GetReportInfo(), hide));
-			}
+			LoadReport?.Invoke(this, new LoadReportEventArgs(GetReportInfo(), hide));
 		}
 
 		void CanRun()
 		{
 			buttonCreateReport.Sensitive = 
-				(dateperiodpicker.EndDateOrNull != null && dateperiodpicker.StartDateOrNull != null
-			&& yentryreferenceCar.Subject != null);
+				(dateperiodpicker.EndDateOrNull != null && dateperiodpicker.StartDateOrNull != null);
 		}
 
 		protected void OnDateperiodpickerPeriodChanged(object sender, EventArgs e)
@@ -81,10 +95,6 @@ namespace Vodovoz.Reports
 			CanRun();
 		}
 
-		protected void OnYentryreferenceCarChanged(object sender, EventArgs e)
-		{
-			CanRun();
-		}
 	}
 }
 

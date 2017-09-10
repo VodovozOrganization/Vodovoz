@@ -37,21 +37,24 @@
             <Width>76.3pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>60.1pt</Width>
+            <Width>43.5pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>192.1pt</Width>
+            <Width>163.7pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>65.9pt</Width>
+            <Width>61.2pt</Width>
           </TableColumn>
           <TableColumn>
-            <Width>64.5pt</Width>
+            <Width>48.6pt</Width>
           </TableColumn>
           <TableColumn>
             <Width>60.5pt</Width>
           </TableColumn>
           <TableColumn>
+            <Width>52.9pt</Width>
+          </TableColumn>
+          <TableColumn >
             <Width>52.9pt</Width>
           </TableColumn>
           <TableColumn>
@@ -67,7 +70,7 @@
         <Header>
           <TableRows>
             <TableRow>
-              <Height>12 pt</Height>
+              <Height>23.2pt</Height>
               <TableCells>
                 <TableCell>
                   <ReportItems>
@@ -157,7 +160,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox6">
-                      <Value>Расстояние</Value>
+                      <Value>Расст.</Value>
                       <Style>
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -194,7 +197,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox24">
-                      <Value>Выдано литров талонами</Value>
+                      <Value>Выдано литров талонами (дизель)</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <TextAlign>Center</TextAlign>
                         <BorderStyle>
@@ -204,6 +207,25 @@
                         <BorderColor />
                         <BorderWidth />
                         <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>Выдано литров талонами (,ензин)</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <VerticalAlign>Middle</VerticalAlign>
+                        <FontSize>8pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -384,7 +406,22 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox25">
-                      <Value>=Fields!liters_coupons.Value</Value>
+                      <Value>=Iif({fuel_type}=3, {liters_coupons}, "")</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <TextAlign>Center</TextAlign>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Value>=Iif({fuel_type}!=3, {liters_coupons}, "")</Value>
                       <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
                         <BorderStyle>
                           <Default>Solid</Default>
@@ -516,8 +553,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                       <Value>
                       </Value>
@@ -568,7 +605,23 @@
                         <TextAlign>Center</TextAlign>
                         <VerticalAlign>Middle</VerticalAlign>
                       </Style>
-                      <Value>=Sum(Fields!liters_coupons.Value)</Value>
+                      <Value>=Sum(Iif({fuel_type}=3, {liters_coupons}, 0))</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell >
+                  <ReportItems>
+                    <Textbox Name="Textbox29">
+                      <Value>=Sum(Iif({fuel_type}!=3, {liters_coupons}, 0))</Value>
+                      <Style xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Center</TextAlign>
+                        <VerticalAlign>Middle</VerticalAlign>
+                      </Style>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -689,6 +742,7 @@ FROM
             SUM(fuel_operations.liters_outlayed) AS liters_outlayed,
             SUM(fuel_operations.liters_gived) AS liters_gived,
             SUM(fuel_documents.payed_for_fuel) AS payed_for_fuel,
+            IFNULL(fuel_documents.fuel_type_id,0) AS fuel_type,
             SUM(IFNULL(fuel_documents.fuel_coupons, 0)) AS liters_coupons,
             cars.reg_number AS reg_number
     FROM
@@ -708,7 +762,9 @@ FROM
     WHERE
         fuel_operations.date &gt;= @start_date
             AND fuel_operations.date &lt;= @end_date
-            AND (IF(@driver_id = -1, fuel_operations.car_id = @car_id, fuel_operations.driver_id = @driver_id))
+	AND ((@driver_id = -1 AND fuel_operations.car_id = @car_id)
+	  OR (@driver_id &lt;&gt; -1 AND fuel_operations.driver_id = @driver_id)
+	  OR (@car_id = -1 AND @driver_id = -1))
     GROUP BY route_list_id , date) AS main</CommandText>
         <QueryParameters>
           <QueryParameter Name="start_date">
@@ -774,10 +830,14 @@ FROM
           <DataField>balance</DataField>
           <TypeName>System.Double</TypeName>
         </Field>
+        <Field Name="fuel_type">
+          <DataField>fuel_type</DataField>
+          <TypeName>System.Int32</TypeName>
+        </Field>
       </Fields>
     </DataSet>
     <DataSet Name="StartBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     SUM(IF(internal.liters_gived IS NULL, 0, internal.liters_gived)
@@ -802,7 +862,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="balance">
           <DataField>balance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -866,7 +926,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
