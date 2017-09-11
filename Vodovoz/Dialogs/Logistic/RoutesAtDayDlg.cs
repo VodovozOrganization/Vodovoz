@@ -1143,7 +1143,6 @@ namespace Vodovoz
 				forwardersAtDay.Add(new AtWorkForwarder {
 					Date = CurDate,
 					Employee = forwarder,
-					Trips = 1
 				});
 			}
 			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();

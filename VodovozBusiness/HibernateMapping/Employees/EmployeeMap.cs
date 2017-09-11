@@ -37,6 +37,7 @@ namespace Vodovoz
 			References (x => x.User).Column ("user_id");
 			References (x => x.DefaultAccount).Column ("default_account_id");
 			References(x => x.DefaultDaySheldule).Column("default_delivery_day_schedule_id");
+			References(x => x.DefaultForwarder).Column("default_forwarder_id");
 
 			HasMany (x => x.Accounts).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");
 			HasMany (x => x.Phones).Cascade.AllDeleteOrphan ().LazyLoad ().KeyColumn ("employee_id");

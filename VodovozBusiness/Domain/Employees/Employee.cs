@@ -205,12 +205,20 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref defaultDaySheldule, value, () => DefaultDaySheldule); }
 		}
 
+		private Employee defaultForwarder;
+
+		[Display(Name = "Экспедитор по умолчанию")]
+		public virtual Employee DefaultForwarder {
+			get { return defaultForwarder; }
+			set { SetField(ref defaultForwarder, value, () => DefaultForwarder); }
+		}
+
 		private short tripPriority = 6;
 
 		/// <summary>
 		/// Приорите(1-10) чем меньше тем лучше. Фактически это штраф.
 		/// </summary>
-		[Display(Name = "Приоритет для маршрутов")]
+		[Display(Name = "П/// риоритет для маршрутов")]
 		public virtual short TripPriority {
 			get { return tripPriority; }
 			set { SetField(ref tripPriority, value, () => TripPriority); }

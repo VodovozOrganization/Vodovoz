@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -56,6 +56,14 @@ namespace Vodovoz.Domain.Logistic
 		public virtual DeliveryDaySchedule DaySchedule {
 			get { return daySchedule; }
 			set { SetField(ref daySchedule, value, () => DaySchedule); }
+		}
+
+		private Employee withForwarder;
+
+		[Display(Name = "С экспедитором")]
+		public virtual Employee WithForwarder {
+			get { return withForwarder; }
+			set { SetField(ref withForwarder, value, () => WithForwarder); }
 		}
 
 		private IList<AtWorkDriverDistrictPriority> districts = new List<AtWorkDriverDistrictPriority>();
