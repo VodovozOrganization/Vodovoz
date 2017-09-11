@@ -12,7 +12,7 @@ namespace Vodovoz
 
 		private global::Gtk.Button buttonCancel;
 
-		private global::Gtk.Button buttonPrint;
+		private global::QSOrmProject.EnumMenuButton enumPrint;
 
 		private global::QSOrmProject.EnumMenuButton enummenuRLActions;
 
@@ -192,16 +192,17 @@ namespace Vodovoz
 			w4.Expand = false;
 			w4.Fill = false;
 			// Container child hbox8.Gtk.Box+BoxChild
-			this.buttonPrint = new global::Gtk.Button();
-			this.buttonPrint.CanFocus = true;
-			this.buttonPrint.Name = "buttonPrint";
-			this.buttonPrint.UseUnderline = true;
-			this.buttonPrint.Label = global::Mono.Unix.Catalog.GetString("Печать");
+			this.enumPrint = new global::QSOrmProject.EnumMenuButton();
+			this.enumPrint.CanFocus = true;
+			this.enumPrint.Name = "enumPrint";
+			this.enumPrint.UseUnderline = true;
+			this.enumPrint.UseMarkup = false;
+			this.enumPrint.Label = global::Mono.Unix.Catalog.GetString("Распечатать");
 			global::Gtk.Image w5 = new global::Gtk.Image();
 			w5.Pixbuf = global::Stetic.IconLoader.LoadIcon(this, "gtk-print", global::Gtk.IconSize.Menu);
-			this.buttonPrint.Image = w5;
-			this.hbox8.Add(this.buttonPrint);
-			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.buttonPrint]));
+			this.enumPrint.Image = w5;
+			this.hbox8.Add(this.enumPrint);
+			global::Gtk.Box.BoxChild w6 = ((global::Gtk.Box.BoxChild)(this.hbox8[this.enumPrint]));
 			w6.PackType = ((global::Gtk.PackType)(1));
 			w6.Position = 2;
 			w6.Expand = false;
@@ -919,11 +920,11 @@ namespace Vodovoz
 			w78.Expand = false;
 			w78.Fill = false;
 			this.Add(this.vbox1);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonPrint.Clicked += new global::System.EventHandler(this.OnButtonPrintClicked);
 			this.yspinActualDistance.ValueChanged += new global::System.EventHandler(this.OnYspinActualDistanceValueChanged);
 			this.ycheckHideCells.Toggled += new global::System.EventHandler(this.OnYcheckHideCellsToggled);
 			this.buttonAddTicket.Clicked += new global::System.EventHandler(this.OnButtonAddTicketClicked);

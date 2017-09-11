@@ -1140,6 +1140,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -17980,14 +17981,14 @@ RegistrationNumber</property>
               </packing>
             </child>
             <child>
-              <widget class="Gtk.Button" id="buttonPrint">
+              <widget class="QSOrmProject.EnumMenuButton" id="enumPrint">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Type">TextAndIcon</property>
                 <property name="Icon">stock:gtk-print Menu</property>
-                <property name="Label" translatable="yes">Печать</property>
+                <property name="Label" translatable="yes">Распечатать</property>
                 <property name="UseUnderline">True</property>
-                <signal name="Clicked" handler="OnButtonPrintClicked" />
+                <property name="UseMarkup">False</property>
               </widget>
               <packing>
                 <property name="PackType">End</property>
@@ -25327,7 +25328,6 @@ RegistrationNumber</property>
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Информация</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>

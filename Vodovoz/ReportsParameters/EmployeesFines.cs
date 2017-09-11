@@ -66,6 +66,10 @@ namespace Vodovoz.Reports
 				parameters.Add("startDate", 0);
 				parameters.Add("endDate", 0);
 			}
+
+			parameters.Add("showbottom", false);
+			parameters.Add("routelist", 0);
+
 			return new ReportInfo
 			{
 				Identifier = "Employees.Fines",

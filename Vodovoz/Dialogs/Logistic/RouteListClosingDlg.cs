@@ -49,6 +49,16 @@ namespace Vodovoz
 
 		}
 
+		public enum RouteListPrintDocuments
+		{
+			[Display(Name = "Все")]
+			All,
+			[Display(Name = "Маршрутный лист")]
+			RouteList,
+			[Display(Name = "Штрафы")]
+			Fines
+		}
+
 		#endregion
 
 		#region Конструкторы и конфигурирование диалога
@@ -186,6 +196,9 @@ namespace Vodovoz
 
 			//Подписки на обновления
 			OrmMain.GetObjectDescription<CarUnloadDocument>().ObjectUpdatedGeneric += OnCalUnloadUpdated;
+
+			enumPrint.ItemsEnum = typeof(RouteListPrintDocuments);
+			enumPrint.EnumItemClicked += (sender, e) => PrintSelectedDocument((RouteListPrintDocuments)e.ItemEnum);
 		}
 
 		private decimal GetCashOrder()
@@ -461,25 +474,51 @@ namespace Vodovoz
 			else {
 				Save();
 
-				var document = Vodovoz.Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
-				this.TabParent.OpenTab(
-					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-					() => new QSReport.ReportViewDlg(document));
+				PrintRouteList();
+				
 				UpdateButtonState();
 				this.OnCloseTab(false);
 			}
 		}
 
-		protected void OnButtonPrintClicked(object sender, EventArgs e)
+
+
+		void PrintSelectedDocument(RouteListPrintDocuments choise)
 		{
 			if(!MessageDialogWorks.RunQuestionDialog("Перед печатью необходимо сохранить документ.\nСохранить?"))
 				return;
 			UoW.Save();
 
-			var document = Vodovoz.Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
-			this.TabParent.OpenTab(
-				QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
-				() => new QSReport.ReportViewDlg(document));
+			switch(choise) {
+				case RouteListPrintDocuments.All:
+					PrintRouteList();
+					PrintFines();
+					break;
+				case RouteListPrintDocuments.RouteList: PrintRouteList();
+					break;
+				case RouteListPrintDocuments.Fines: PrintFines();
+					break;
+			}
+		}
+
+		void PrintRouteList()
+		{
+			{
+				var document = Additions.Logistic.PrintRouteListHelper.GetRDLRouteList(UoW, Entity);
+				this.TabParent.OpenTab(
+					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+					() => new QSReport.ReportViewDlg(document));
+			}
+		}
+
+		void PrintFines()
+		{
+			{
+				var document = Additions.Logistic.PrintRouteListHelper.GetRDLFine(Entity);
+				this.TabParent.OpenTab(
+					QSTDI.TdiTabBase.GenerateHashName<QSReport.ReportViewDlg>(),
+					() => new QSReport.ReportViewDlg(document));
+			}
 		}
 
 		protected void OnButtonBottleAddEditFineClicked(object sender, EventArgs e)

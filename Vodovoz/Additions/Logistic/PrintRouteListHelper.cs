@@ -231,6 +231,23 @@ namespace Vodovoz.Additions.Logistic
 			};
 		}
 
+		public static ReportInfo GetRDLFine(RouteList routeList)
+		{
+			
+			return new ReportInfo {
+				Title = String.Format("Штрафы сотрудника {0}", routeList.Driver.LastName),
+				Identifier = "Employees.Fines",
+				Parameters = new Dictionary<string, object> {
+					{ "drivers", routeList.Driver.Id },
+					{ "startDate", routeList.Date },
+					{ "endDate", routeList.Date },
+					{ "routelist", routeList.Id },
+					{ "showbottom", true}
+				},
+				UseUserVariables = true
+			};
+		}
+
 		public static ReportInfo GetRDL(RouteList routeList, RouteListPrintableDocuments type, IUnitOfWork uow = null)
 		{
 			switch(type) {
