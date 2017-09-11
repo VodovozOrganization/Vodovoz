@@ -88,6 +88,15 @@ namespace Vodovoz.Tools.Logistic
 			return TimeSec(BaseHash, toHash);
 		}
 
+		/// <summary>
+		/// Возвращаем время до базы в секундах
+		/// </summary>
+		public int TimeToBase(DeliveryPoint fromDP)
+		{
+			var fromHash = CachedDistance.GetHash(fromDP);
+			return TimeSec(fromHash, BaseHash);
+		}
+
 		public int DistanceToBaseMeter(DeliveryPoint fromDP)
 		{
 			var fromHash = CachedDistance.GetHash(fromDP);

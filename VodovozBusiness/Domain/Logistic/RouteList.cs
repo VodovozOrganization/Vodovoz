@@ -1,4 +1,4 @@
-﻿﻿﻿using System;
+﻿﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -1186,7 +1186,14 @@ namespace Vodovoz.Domain.Logistic
 			for (int ix = 0; ix < Addresses.Count; ix++) {
 				
 				if (ix == 0)
+				{
 					minTime = Addresses[ix].Order.DeliverySchedule.From;
+
+					var timeFromBase = TimeSpan.FromSeconds(sputnikCache.TimeFromBase(Addresses[ix].Order.DeliveryPoint));
+					var onBase = minTime - timeFromBase;
+					if(Shift != null && onBase < Shift.StartTime)
+						minTime = Shift.StartTime + timeFromBase;
+				}
 				else
 					minTime += TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix - 1].Order.DeliveryPoint, Addresses[ix].Order.DeliveryPoint));
 
@@ -1199,7 +1206,13 @@ namespace Vodovoz.Domain.Logistic
 			for(int ix = Addresses.Count - 1; ix >= 0; ix--) {
 
 				if(ix == Addresses.Count - 1)
+				{
 					maxTime = Addresses[ix].Order.DeliverySchedule.To;
+					var timeToBase = TimeSpan.FromSeconds(sputnikCache.TimeToBase(Addresses[ix].Order.DeliveryPoint));
+					var onBase = maxTime + timeToBase;
+					if(Shift != null && onBase > Shift.EndTime)
+						maxTime = Shift.EndTime - timeToBase;
+				}
 				else
 					maxTime -= TimeSpan.FromSeconds(sputnikCache.TimeSec(Addresses[ix].Order.DeliveryPoint, Addresses[ix + 1].Order.DeliveryPoint));
 
