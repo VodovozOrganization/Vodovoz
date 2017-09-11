@@ -297,6 +297,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
+			var cumulTimeOnEnd = routing.CumulVar(routing.End(0), "Time");
+			var cumulTimeOnBegin = routing.CumulVar(routing.Start(0), "Time");
+
+			if(route.Shift != null) {
+				var shift = route.Shift;
+				cumulTimeOnEnd.SetMax((long)shift.EndTime.TotalSeconds);
+				cumulTimeOnBegin.SetMin((long)shift.StartTime.TotalSeconds);
+			}
 
 			routing.SetArcCostEvaluatorOfVehicle(new CallbackDistance(Nodes, distanceCalculator), 0);
 
