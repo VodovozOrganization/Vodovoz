@@ -28,6 +28,7 @@ namespace Vodovoz.Tools.Logistic
 
 		Gtk.TextBuffer statisticBuffer;
 		int ProposeNeedCached = 0;
+		DateTime? startLoadTime;
 		int startCached, totalCached, addedCached, totalPoints, totalErrors;
 		long totalMeters, totalSec;
 
@@ -104,6 +105,7 @@ namespace Vodovoz.Tools.Logistic
 
 		private void RunPreCalculation()
 		{
+			startLoadTime = DateTime.Now;
 			Threads = new Thread[ThreadCount];
 			foreach(var ix in Enumerable.Range(0, ThreadCount))
 			{
@@ -327,9 +329,13 @@ namespace Vodovoz.Tools.Logistic
 			if(statisticBuffer == null)
 				return;
 
-			statisticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
-			                                  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters/totalSec,
-			                                  (double)totalCached/ProposeNeedCached, ProposeNeedCached, unsavedItems
+			double remainTime = 0;
+			if(startLoadTime.HasValue)
+				remainTime = (DateTime.Now - startLoadTime.Value).Ticks * ((double)(ProposeNeedCached - totalCached) / addedCached);
+			statisticBuffer.Text = String.Format("Уникальных координат: {0}\nРасстояний загружено: {1}\nРасстояний в кеше: {2}/{7}(~{6:P})\nОсталось времени: {9:hh\\:mm\\:ss}\nНовых запрошено: {3}({8})\nОшибок в запросах: {4}\nСреднее скорости: {5:F2}м/с",
+											  totalPoints, startCached, totalCached, addedCached, totalErrors, (double)totalMeters / totalSec,
+											  (double)totalCached / ProposeNeedCached, ProposeNeedCached, unsavedItems,
+			                                     TimeSpan.FromTicks((long)remainTime)
 			                                 );
 			QSMain.WaitRedraw(100);
 		}
