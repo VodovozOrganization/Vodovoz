@@ -1206,6 +1206,7 @@ namespace Vodovoz
 				foreach(var propose in optimizer.ProposedRoutes)
 				{
 					var rl = new RouteList();
+					rl.UoW = uow;
 					rl.Car = propose.Car;
 					rl.Driver = propose.Driver.Employee;
 					rl.Shift = propose.Shift;
