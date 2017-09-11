@@ -1151,7 +1151,7 @@ namespace Vodovoz.Domain.Orders
 			else
 				byFormula += CalculateGoDoorCount(bottels, 4) * 3; //3 минут на 4 бутыли c экспедитором.
 
-			if (byFormula < 15) // 20 минут.
+			if (byFormula < 15) // минимальное время нахождения на адресе.
 				return 15;
 			else
 				return byFormula;
