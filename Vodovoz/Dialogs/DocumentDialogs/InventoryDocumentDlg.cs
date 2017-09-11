@@ -55,7 +55,7 @@ namespace Vodovoz
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
-			yentryrefWarehouse.Sensitive = isEditingStore;
+			yentryrefWarehouse.Sensitive = isEditingPermission;
 
 			ytextviewCommnet.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
 

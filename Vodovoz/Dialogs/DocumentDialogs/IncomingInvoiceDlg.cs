@@ -57,7 +57,7 @@ namespace Vodovoz
 
 			referenceWarehouse.SubjectType = typeof(Warehouse);
 			referenceWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();
-			referenceWarehouse.Sensitive = isEditingStore;
+			referenceWarehouse.Sensitive = isEditingPermission;
 
 			var counterpartyFilter = new CounterpartyFilter(UoW);
 			counterpartyFilter.RestrictIncludeSupplier = true;
