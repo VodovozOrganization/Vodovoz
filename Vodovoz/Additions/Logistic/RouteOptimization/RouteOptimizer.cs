@@ -58,8 +58,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			MainClass.MainWin.ProgressStart(4);
 
 			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
-			var allDrivers = Drivers.Where(x => x.Car != null).OrderByDescending(x => x.PriorityAtDay).ToArray();
-			if(allDrivers.Length == 0) {
+			var possibleRoutes = Drivers.Where(x => x.Car != null)
+			                        .OrderByDescending(x => x.PriorityAtDay)
+			                        .SelectMany(x => x.DaySchedule != null 
+			                                    ? x.DaySchedule.Shifts.Select(s => new PossibleTrip(x, s)) 
+			                                    : new[] { new PossibleTrip(x, null) }
+			                                   )
+			                        .ToArray();
+			if(possibleRoutes.Length == 0) {
 				AddWarning("Для построения маршрутов, нет водителей.");
 				return;
 			}
@@ -76,7 +82,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var aria = areas.Find(x => x.Geometry.Contains(point));
 				if(aria != null)
 				{
-					if(allDrivers.SelectMany(x => x.Districts).Any(x => x.District.Id == aria.Id))
+					if(possibleRoutes.SelectMany(x => x.Driver.Districts).Any(x => x.District.Id == aria.Id))
 						calculatedOrders.Add(new CalculatedOrder(order, aria));
 					else if(!unusedDistricts.Contains(aria))
 						unusedDistricts.Add(aria);
@@ -95,33 +101,45 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			PerformanceHelper.AddTimePoint(logger, $"Подготовка заказов");
 
 			logger.Info("Создаем модель...");
-			RoutingModel routing = new RoutingModel(Nodes.Length + 1, allDrivers.Length, 0);
+			RoutingModel routing = new RoutingModel(Nodes.Length + 1, possibleRoutes.Length, 0);
 
 			int horizon = 24 * 3600;
 
 			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
-			var bottlesCapacity = allDrivers.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
+			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Driver.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
 
-			var weightCapacity = allDrivers.Select(x => (long)x.Car.MaxWeight + 1).ToArray();
+			var weightCapacity = possibleRoutes.Select(x => (long)x.Driver.Car.MaxWeight + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
 
-			var volumeCapacity = allDrivers.Select(x => (long)(x.Car.MaxVolume * 1000) + 1).ToArray();
+			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Driver.Car.MaxVolume * 1000) + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
 
-			var addressCapacity = allDrivers.Select(x => (long)(x.Car.MaxRouteAddresses + 1)).ToArray();
+			var addressCapacity = possibleRoutes.Select(x => (long)(x.Driver.Car.MaxRouteAddresses + 1)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			var bottlesDimension = routing.GetDimensionOrDie("Bottles");
 
-			for(int ix = 0; ix < allDrivers.Length; ix++) {
-				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, allDrivers[ix], distanceCalculator), ix);
-				routing.SetFixedCostOfVehicle((allDrivers[ix].PriorityAtDay - 1) * DriverPriorityPenalty, ix);
-				//Устанавливаем время окончания рабочего дня у водителя.
-				if(allDrivers[ix].EndOfDay.HasValue)
-					routing.CumulVar(routing.End(ix), "Time").SetMax((long)allDrivers[ix].EndOfDay.Value.TotalSeconds);
+			for(int ix = 0; ix < possibleRoutes.Length; ix++) {
+				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, possibleRoutes[ix].Driver, distanceCalculator), ix);
+				routing.SetFixedCostOfVehicle((possibleRoutes[ix].Driver.PriorityAtDay - 1) * DriverPriorityPenalty, ix);
+
+				var cumulTimeOnEnd = routing.CumulVar(routing.End(ix), "Time");
+				var cumulTimeOnBegin = routing.CumulVar(routing.Start(ix), "Time");
+
+				if(possibleRoutes[ix].Shift != null)
+				{
+					var shift = possibleRoutes[ix].Shift;
+					var endTime = possibleRoutes[ix].Driver.EndOfDay.HasValue
+					                                ? Math.Min(shift.EndTime.TotalSeconds, possibleRoutes[ix].Driver.EndOfDay.Value.TotalSeconds)
+					                                : shift.EndTime.TotalSeconds;
+					cumulTimeOnEnd.SetMax((long)endTime);
+					cumulTimeOnBegin.SetMin((long)shift.StartTime.TotalSeconds);
+				}
+				else if(possibleRoutes[ix].Driver.EndOfDay.HasValue) //Устанавливаем время окончания рабочего дня у водителя.
+					cumulTimeOnEnd.SetMax((long)possibleRoutes[ix].Driver.EndOfDay.Value.TotalSeconds);
 			}
 
 			for(int ix = 0; ix < Nodes.Length; ix++)
@@ -184,7 +202,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				for(int route_number = 0; route_number < routing.Vehicles(); route_number++)
 				{
 					//FIXME Нужно понять, есть ли у водителя маршрут.
-					var route = new ProposedRoute(allDrivers[route_number]);
+					var route = new ProposedRoute(possibleRoutes[route_number]);
 					long first_node = routing.Start(route_number);
 					long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
 					route.RouteCost = routing.GetCost(first_node, second_node, route_number);

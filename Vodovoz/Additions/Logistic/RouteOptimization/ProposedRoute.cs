@@ -10,6 +10,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	{
 		public List<ProposedRoutePoint> Orders = new List<ProposedRoutePoint>();
 		public AtWorkDriver Driver;
+		public DeliveryShift Shift;
 
 		public RouteList RealRoute;
 
@@ -21,11 +22,17 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 		}
 
-		public ProposedRoute(AtWorkDriver driver)
+		public ProposedRoute(AtWorkDriver driver, DeliveryShift shift)
 		{
 			Driver = driver;
+			Shift = shift;
 		}
 
+		public ProposedRoute(PossibleTrip trip)
+		{
+			Driver = trip?.Driver;
+			Shift = trip?.Shift;
+		}
 
 		/// <summary>
 		/// Метод берет последовательность доставки из построенного маршрута и переносит его в маршрутный лист.

@@ -214,7 +214,6 @@ namespace Vodovoz
 			TreeIter iter;
 
 			if(ytreeRoutes.GetPathAtPos(binX, binY, out path, out col) && ytreeRoutes.Model.GetIter(out iter, path)) {
-				logger.Debug(ytreeRoutes.ColumnsConfig.GetColumnsByTag(RouteColumnTag.OnloadTime).Count());
 				var loadtimeCol = ytreeRoutes.ColumnsConfig.GetColumnsByTag(RouteColumnTag.OnloadTime).Where(x => x == col).ToArray();
 				if(loadtimeCol.Length > 0)
 				{
@@ -1209,6 +1208,7 @@ namespace Vodovoz
 					var rl = new RouteList();
 					rl.Car = propose.Car;
 					rl.Driver = propose.Driver.Employee;
+					rl.Shift = propose.Shift;
 					rl.Date = CurDate;
 					rl.Logistican = logistican;
 					foreach(var order in propose.Orders)

@@ -1247,7 +1247,7 @@ namespace Vodovoz.Domain.Logistic
 				var freeplaces = interfere.Count == 0 ? paralellLoading
 				                          : loadingPlaces.Count(x => x.TotalSeconds >= interfere.Min(y => y.OnLoadTimeEnd.Value.TotalSeconds));
 				if(endLoading == loadingPlaces[selectedPlace])
-					logger.Debug("Нехватило места");
+					logger.Debug("Нехватило места на погрузке");
 
 				if(freeplaces <= interfere.Count || endLoading <= interfere.Min(x => x.OnLoadTimeStart)) {
 					var selectedTime = interfere.Max(x => x.OnLoadTimeEnd);
