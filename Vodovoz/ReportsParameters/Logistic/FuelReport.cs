@@ -55,16 +55,6 @@ namespace Vodovoz.Reports
 
 			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
 			parameters.Add("end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1));
-			  
-
-				//new Dictionary<string, object>
-				//{
-				//	{ "start_date", dateperiodpicker.StartDateOrNull },
-				//	{ "end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1) },
-				//	{ "car_id", (yentryreferenceCar.Subject as Car)?.Id },
-				//	{ "driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
-				//		  ? -1 : (yentryreferenceCar.Subject as Car)?.Driver?.Id}
-				//}
 
 			return new ReportInfo
 			{
