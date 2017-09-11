@@ -23,7 +23,6 @@ using Vodovoz.Panel;
 using Vodovoz.Repository;
 using QSDocTemplates;
 using Vodovoz.JournalFilters;
-using Vodovoz.ViewModel;
 
 namespace Vodovoz
 {
@@ -400,26 +399,6 @@ namespace Vodovoz
 				notebook1.CurrentPage = 5;
 		}
 
-		protected void OnButtonStockClicked(object sender, EventArgs e)
-		{
-			LoadViewStock();
-		}
-
-		private void LoadViewStock()
-		{
-			ITdiTab MyTab = TdiHelper.FindMyTab(this);
-			if(MyTab == null) {
-				logger.Warn("Родительская вкладка не найдена.");
-				return;
-			}
-
-			var inStockTab = new ReferenceRepresentation(new StockBalanceVM()).Buttons(ReferenceButtonMode.None);
-			ITdiTab tab = TabParent.FindTab(inStockTab.TabName);
-			if(tab != null)
-				return;  
-
-			MyTab.TabParent.AddSlaveTab(MyTab, inStockTab);
-		}
 		#endregion
 
 		protected void OnReferenceClientChanged(object sender, EventArgs e)

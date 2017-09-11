@@ -248,12 +248,11 @@ namespace Vodovoz
 			global::Gtk.Box.BoxChild w20 = ((global::Gtk.Box.BoxChild)(this.vbox4[this.fineitemsview]));
 			w20.Position = 2;
 			this.Add(this.vbox4);
-			if((this.Child != null)) {
+			if ((this.Child != null))
+			{
 				this.Child.ShowAll();
 			}
 			this.Hide();
-			this.buttonSave.Clicked += new global::System.EventHandler(this.OnButtonSaveClicked);
-			this.buttonCancel.Clicked += new global::System.EventHandler(this.OnButtonCancelClicked);
 			this.buttonGetReasonFromTemplate.Clicked += new global::System.EventHandler(this.OnButtonGetReasonFromTemplateClicked);
 			this.buttonDivideAtAll.Clicked += new global::System.EventHandler(this.OnButtonDivideAtAllClicked);
 		}
