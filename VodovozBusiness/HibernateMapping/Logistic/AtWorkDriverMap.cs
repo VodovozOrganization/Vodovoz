@@ -13,7 +13,6 @@ namespace Vodovoz.HibernateMapping
 
 			Id(x => x.Id).Column ("id").GeneratedBy.Native();
 			Map(x => x.Date).Column("date");
-			Map(x => x.Trips).Column("trips");
 			Map(x => x.PriorityAtDay).Column("piority_at_day");
 			Map(x => x.EndOfDay).Column("end_of_day").CustomType<TimeAsTimeSpanTypeClone>();
 

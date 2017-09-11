@@ -91,10 +91,10 @@ namespace Vodovoz.Domain.Logistic
 		{
 			Date = date;
 			Employee = driver;
-			PriorityAtDay = driver.TripPriority;
-			Car = car;
-			Trips = 1;
-			Districts = new List<AtWorkDriverDistrictPriority>(driver.Districts.Select(x => x.CreateAtDay(this)));
+			priorityAtDay = driver.TripPriority;
+			this.car = car;
+			daySchedule = driver.DefaultDaySheldule;
+			districts = new List<AtWorkDriverDistrictPriority>(driver.Districts.Select(x => x.CreateAtDay(this)));
 		}
 
 		#region Функции 

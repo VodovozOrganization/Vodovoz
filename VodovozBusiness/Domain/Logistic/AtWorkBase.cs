@@ -24,14 +24,5 @@ namespace Vodovoz.Domain.Logistic
 			get { return date; }
 			set { SetField(ref date, value, () => Date); }
 		}
-
-		private ushort trips = 1;
-
-		[Display(Name = "Количество поездок")]
-		[Obsolete("Потом нужно будет удалить")]
-		public virtual ushort Trips {
-			get { return trips; }
-			set { SetField(ref trips, value, () => Trips); }
-		}
 	}
 }
