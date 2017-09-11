@@ -65,11 +65,7 @@
                     WHEN store_regrading_of_goods_items.id IS NOT NULL THEN store_regrading_of_goods_items.amount
                 END)
         SEPARATOR ',\n') AS nomenclature_info,
-    CASE
-        WHEN store_inventory_item.id IS NOT NULL THEN store_inventory_item.comment
-        WHEN store_writeoff_document_items.id IS NOT NULL THEN store_writeoff_document_items.comment
-        WHEN store_regrading_of_goods_items.id IS NOT NULL THEN store_regrading_of_goods_items.comment
-    END AS comment
+       fines.fine_reason_string AS comment
 FROM
     fines_items
         LEFT JOIN
@@ -395,7 +391,7 @@ ORDER BY employee , date</CommandText>
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="document">
-                      <Value>=Fields!comment.Value</Value>
+                      <Value>={comment}</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -539,7 +535,7 @@ ORDER BY employee , date</CommandText>
   </PageFooter>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="startDate">
       <DataType>String</DataType>
       <DefaultValue>
