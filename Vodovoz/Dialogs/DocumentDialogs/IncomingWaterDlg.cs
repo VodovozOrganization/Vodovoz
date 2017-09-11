@@ -45,7 +45,7 @@ namespace Vodovoz
 
 		void ConfigureDlg()
 		{
-			if (QSMain.User.Permissions["store_manage"])
+			if (QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
 				isEditingStore = true;
 			labelTimeStamp.Binding.AddBinding(Entity, e => e.DateString, w => w.LabelProp).InitializeFromSource();
 			spinAmount.Binding.AddBinding(Entity, e => e.Amount, w => w.ValueAsInt).InitializeFromSource();

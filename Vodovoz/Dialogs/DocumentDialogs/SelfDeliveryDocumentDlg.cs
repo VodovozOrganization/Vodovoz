@@ -57,7 +57,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			if (QSMain.User.Permissions["store_manage"])
+			if (QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
 				isEditingStore = true;
 			ylabelDate.Binding.AddFuncBinding(Entity, e => e.TimeStamp.ToString("g"), w => w.LabelProp).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);

@@ -78,7 +78,7 @@ public partial class MainWindow : Gtk.Window
 			ActionRouteListTracking.Sensitive =
 			ActionRouteListMileageCheck.Sensitive =
 			ActionRouteListAddressesTransferring.Sensitive = QSMain.User.Permissions["logistican"];
-		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_office"] || QSMain.User.Permissions["store_equipment"];
+		ActionStock.Sensitive = QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"] || QSMain.User.Permissions["store_production"] || QSMain.User.Permissions["store_office"] || QSMain.User.Permissions["store_equipment"];
 		if(QSMain.User.Permissions["store_production"]) // TODO: Вот поэтому группы доступа стоило бы создавать и настраивать в каком-нибудь диалоге, а не хардкодить. @Дима
 		{
 			ActionReadyForShipment.Sensitive =

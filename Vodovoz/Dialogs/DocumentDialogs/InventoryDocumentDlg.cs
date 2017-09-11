@@ -13,7 +13,7 @@ namespace Vodovoz
 	public partial class InventoryDocumentDlg : OrmGtkDialogBase<InventoryDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = false;
+		bool isEditingPermission = false;
 
 		public InventoryDocumentDlg()
 		{
@@ -49,7 +49,9 @@ namespace Vodovoz
 		void ConfigureDlg ()
 		{
 			if (QSMain.User.Permissions["store_manage"])
-				isEditingStore = true;
+				isEditingPermission = true;
+			
+			buttonSave.Sensitive = isEditingPermission;
 			ydatepickerDocDate.Binding.AddBinding(Entity, e => e.TimeStamp, w => w.Date).InitializeFromSource();
 			yentryrefWarehouse.SubjectType = typeof(Warehouse);
 			yentryrefWarehouse.Binding.AddBinding(Entity, e => e.Warehouse, w => w.Subject).InitializeFromSource();

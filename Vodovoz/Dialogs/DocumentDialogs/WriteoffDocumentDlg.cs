@@ -16,7 +16,7 @@ namespace Vodovoz
 	public partial class WriteoffDocumentDlg : OrmGtkDialogBase<WriteoffDocument>
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger ();
-		bool isEditingStore = true;
+		bool isEditingPermission = true;
 
 		public WriteoffDocumentDlg ()
 		{
@@ -32,7 +32,7 @@ namespace Vodovoz
 			if (WarehouseRepository.WarehouseByPermission(UoWGeneric) != null)
 			{
 				Entity.WriteoffWarehouse = WarehouseRepository.WarehouseByPermission(UoWGeneric);
-				isEditingStore = false;
+				isEditingPermission = false;
 			}
 			else if (CurrentUserSettings.Settings.DefaultWarehouse != null)
 				Entity.WriteoffWarehouse = UoWGeneric.GetById<Warehouse>(CurrentUserSettings.Settings.DefaultWarehouse.Id);
@@ -44,7 +44,7 @@ namespace Vodovoz
 		{
 			this.Build ();
 			UoWGeneric = UnitOfWorkFactory.CreateForRoot<WriteoffDocument> (id);
-			isEditingStore = false;
+			isEditingPermission = false;
 			ConfigureDlg ();
 		}
 
@@ -84,7 +84,13 @@ namespace Vodovoz
 				(int)WriteoffType.counterparty :
 				(int)WriteoffType.warehouse;
 
-			referenceWarehouse.Sensitive = isEditingStore;
+			referenceWarehouse.Sensitive = isEditingPermission;
+
+			if(QSMain.User.Permissions["store_manage"])
+				isEditingPermission = true;
+			else
+				isEditingPermission = false;
+			buttonSave.Sensitive = isEditingPermission;
 		 
 
 			writeoffdocumentitemsview1.DocumentUoW = UoWGeneric;

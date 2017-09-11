@@ -69,7 +69,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			if (QSMain.User.Permissions["store_manage"])
+			if (QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
 			 	isEditingStore = true;
 			
 			bottlereceptionview1.UoW = UoW;

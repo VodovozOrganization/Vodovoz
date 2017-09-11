@@ -49,7 +49,7 @@ namespace Vodovoz
 
 		void ConfigureDlg ()
 		{
-			if (QSMain.User.Permissions["store_manage"])
+			if (QSMain.User.Permissions["store_manage"] || QSMain.User.Permissions["store_worker"])
 				isEditingStore = true;
 			
 			textComment.Binding.AddBinding(Entity, e => e.Comment, w => w.Buffer.Text).InitializeFromSource();
