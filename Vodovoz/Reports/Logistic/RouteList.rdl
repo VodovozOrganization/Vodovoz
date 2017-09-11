@@ -187,7 +187,7 @@
                         <BorderWidth />
                         <FontSize>10pt</FontSize>
                       </Style>
-                      <CanGrow >true</CanGrow>
+                      <CanGrow>true</CanGrow>
                     </Textbox>
                   </ReportItems>
                 </TableCell>
@@ -1371,7 +1371,7 @@
       <Textbox Name="Textbox52">
         <Height>14.99pt</Height>
         <Width>714.51pt</Width>
-        <Value>В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-911-914-01-91</Value>
+        <Value>В случае возникновения проблем с мобильным приложением ОБЯЗАТЕЛЬНО звонить в IT-отдел по тел.: +7-953-165-93-98</Value>
         <ZIndex>1</ZIndex>
         <Left>4.4pt</Left>
         <Top>137.9pt</Top>
