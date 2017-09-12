@@ -8,7 +8,8 @@ namespace Stetic
 
 		internal static void Initialize(Gtk.Widget iconRenderer)
 		{
-			if((Stetic.Gui.initialized == false)) {
+			if ((Stetic.Gui.initialized == false))
+			{
 				Stetic.Gui.initialized = true;
 				global::Gtk.IconFactory w1 = new global::Gtk.IconFactory();
 				global::Gtk.IconSet w2 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.users.png"));
@@ -33,6 +34,8 @@ namespace Stetic
 				w1.Add("table", w11);
 				global::Gtk.IconSet w12 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("view-filter.png"));
 				w1.Add("view-filter", w12);
+				global::Gtk.IconSet w13 = new global::Gtk.IconSet(global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.toolbar.employees.png"));
+				w1.Add("employees", w13);
 				w1.AddDefault();
 			}
 		}
@@ -55,14 +58,16 @@ namespace Stetic
 
 		private void OnSizeRequested(object sender, Gtk.SizeRequestedArgs args)
 		{
-			if((this.child != null)) {
+			if ((this.child != null))
+			{
 				args.Requisition = this.child.SizeRequest();
 			}
 		}
 
 		private void OnSizeAllocated(object sender, Gtk.SizeAllocatedArgs args)
 		{
-			if((this.child != null)) {
+			if ((this.child != null))
+			{
 				this.child.Allocation = args.Allocation;
 			}
 		}
@@ -80,11 +85,13 @@ namespace Stetic
 
 		private void OnRealized(object sender, System.EventArgs args)
 		{
-			if((this.uimanager != null)) {
+			if ((this.uimanager != null))
+			{
 				Gtk.Widget w;
 				w = this.child.Toplevel;
-				if(((w != null)
-							&& typeof(Gtk.Window).IsInstanceOfType(w))) {
+				if (((w != null)
+							&& typeof(Gtk.Window).IsInstanceOfType(w)))
+				{
 					((Gtk.Window)(w)).AddAccelGroup(this.uimanager.AccelGroup);
 					this.uimanager = null;
 				}
@@ -97,18 +104,27 @@ namespace Stetic
 		public static Gdk.Pixbuf LoadIcon(Gtk.Widget widget, string name, Gtk.IconSize size)
 		{
 			Gdk.Pixbuf res = widget.RenderIcon(name, size, null);
-			if((res != null)) {
+			if ((res != null))
+			{
 				return res;
-			} else {
+			}
+			else
+			{
 				int sz;
 				int sy;
 				global::Gtk.Icon.SizeLookup(size, out sz, out sy);
-				try {
+				try
+				{
 					return Gtk.IconTheme.Default.LoadIcon(name, sz, 0);
-				} catch(System.Exception) {
-					if((name != "gtk-missing-image")) {
+				}
+				catch (System.Exception)
+				{
+					if ((name != "gtk-missing-image"))
+					{
 						return Stetic.IconLoader.LoadIcon(widget, "gtk-missing-image", size);
-					} else {
+					}
+					else
+					{
 						Gdk.Pixmap pmap = new Gdk.Pixmap(Gdk.Screen.Default.RootWindow, sz, sz);
 						Gdk.GC gc = new Gdk.GC(pmap);
 						gc.RgbFgColor = new Gdk.Color(255, 255, 255);

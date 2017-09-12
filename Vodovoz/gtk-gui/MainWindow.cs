@@ -459,7 +459,7 @@ public partial class MainWindow
 		this.ActionIconsMiddle.ShortLabel = global::Mono.Unix.Catalog.GetString("Средние иконки");
 		w1.Add(this.ActionIconsMiddle, null);
 		this.ActionIconsLarge = new global::Gtk.RadioAction("ActionIconsLarge", global::Mono.Unix.Catalog.GetString("Большие иконки"), null, null, 0);
-		this.ActionIconsLarge.Group = this.ActionIconsSmall.Group;
+		this.ActionIconsLarge.Group = this.ActionIconsMiddle.Group;
 		this.ActionIconsLarge.ShortLabel = global::Mono.Unix.Catalog.GetString("Большие иконки");
 		w1.Add(this.ActionIconsLarge, null);
 		this.ActionDeliveryPoints = new global::Gtk.Action("ActionDeliveryPoints", global::Mono.Unix.Catalog.GetString("Точки доставки"), null, null);
@@ -525,7 +525,7 @@ public partial class MainWindow
 		this.ActionCashierComments = new global::Gtk.Action("ActionCashierComments", global::Mono.Unix.Catalog.GetString("Отчет по комментариям кассиров"), null, null);
 		this.ActionCashierComments.ShortLabel = global::Mono.Unix.Catalog.GetString("Отчет по комментариям кассиров");
 		w1.Add(this.ActionCashierComments, null);
-		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "users", 0);
+		this.ActionStaff = new global::Gtk.RadioAction("ActionStaff", global::Mono.Unix.Catalog.GetString("Кадры"), null, "employees", 0);
 		this.ActionStaff.Group = this.ActionLogistics.Group;
 		this.ActionStaff.ShortLabel = global::Mono.Unix.Catalog.GetString("Кадры");
 		w1.Add(this.ActionStaff, null);
@@ -699,7 +699,8 @@ public partial class MainWindow
 		w13.Expand = false;
 		w13.Fill = false;
 		this.Add(this.hbox1);
-		if((this.Child != null)) {
+		if ((this.Child != null))
+		{
 			this.Child.ShowAll();
 		}
 		this.DefaultWidth = 950;

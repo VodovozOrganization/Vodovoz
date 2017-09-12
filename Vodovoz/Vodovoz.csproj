@@ -250,6 +250,7 @@
     <EmbeddedResource Include="icons\buttons\vodovoz-logo.png" />
     <EmbeddedResource Include="icons\buttons\car.png" />
     <EmbeddedResource Include="icons\buttons\sort-ascending.png" />
+    <EmbeddedResource Include="icons\toolbar\employees.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="gtk-gui\generated.cs" />

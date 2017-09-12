@@ -26,7 +26,7 @@
     <widget-library name="../../../QSProjects/QSOrmProject/bin/Debug/QSOrmProject.dll" />
     <widget-library name="../../../QSProjects/QSHistoryLog/bin/Debug/QSHistoryLog.dll" />
     <widget-library name="../../../QSProjects/QSExtraGammaWidgets/bin/Debug/QSExtraGammaWidgets.dll" />
-    <widget-library name="../bin/DebugWin/Vodovoz.exe" internal="true" />
+    <widget-library name="../bin/Debug/Vodovoz.exe" internal="true" />
   </import>
   <icon-factory>
     <icon-set id="users">
@@ -82,6 +82,11 @@
     <icon-set id="view-filter">
       <source>
         <property name="Image">resource:view-filter.png</property>
+      </source>
+    </icon-set>
+    <icon-set id="employees">
+      <source>
+        <property name="Image">resource:Vodovoz.icons.toolbar.employees.png</property>
       </source>
     </icon-set>
   </icon-factory>
@@ -667,7 +672,7 @@
         <property name="Type">Radio</property>
         <property name="Label" translatable="yes">Кадры</property>
         <property name="ShortLabel" translatable="yes">Кадры</property>
-        <property name="StockId">users</property>
+        <property name="StockId">employees</property>
         <property name="DrawAsRadio">False</property>
         <property name="Active">False</property>
         <property name="Value">0</property>
