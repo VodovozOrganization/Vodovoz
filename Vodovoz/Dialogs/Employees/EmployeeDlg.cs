@@ -66,6 +66,9 @@ namespace Vodovoz
 			yentryDeliveryDaySchedule.SubjectType = typeof(DeliveryDaySchedule);
 			yentryDeliveryDaySchedule.Binding.AddBinding(Entity, e => e.DefaultDaySheldule, w => w.Subject).InitializeFromSource();
 
+			yentryDefaultForwarder.ItemsQuery = Repository.EmployeeRepository.ForwarderQuery();
+			yentryDefaultForwarder.Binding.AddBinding(Entity, e => e.DefaultForwarder, w => w.Subject).InitializeFromSource();
+
 			referenceNationality.SubjectType = typeof(Nationality);
 			referenceNationality.Binding.AddBinding(Entity, e => e.Nationality, w => w.Subject).InitializeFromSource();
 			yentrySubdivision.SubjectType = typeof(Subdivision);

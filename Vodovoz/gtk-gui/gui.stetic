@@ -1145,7 +1145,6 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
-                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -1797,6 +1796,7 @@
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
                 <property name="Label" translatable="yes">Основное</property>
+                <property name="Active">True</property>
                 <property name="DrawIndicator">False</property>
                 <property name="HasLabel">True</property>
                 <property name="UseUnderline">True</property>
@@ -2527,10 +2527,16 @@
                 <child>
                   <widget class="Gtk.Table" id="table1">
                     <property name="MemberName" />
-                    <property name="NRows">3</property>
+                    <property name="NRows">4</property>
                     <property name="NColumns">4</property>
                     <property name="RowSpacing">6</property>
                     <property name="ColumnSpacing">6</property>
+                    <child>
+                      <placeholder />
+                    </child>
+                    <child>
+                      <placeholder />
+                    </child>
                     <child>
                       <widget class="Gamma.GtkWidgets.yEntry" id="dataentryAndroidLogin">
                         <property name="MemberName" />
@@ -2620,6 +2626,7 @@
                     <child>
                       <widget class="Gtk.Label" id="label21">
                         <property name="MemberName" />
+                        <property name="Xalign">1</property>
                         <property name="LabelProp" translatable="yes">График работы по умолчанию:</property>
                       </widget>
                       <packing>
@@ -2700,6 +2707,27 @@
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gamma.Widgets.yEntryReference" id="yentryDefaultForwarder">
+                        <property name="MemberName" />
+                        <property name="Events">ButtonPressMask</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">3</property>
+                        <property name="BottomAttach">4</property>
+                        <property name="LeftAttach">3</property>
+                        <property name="RightAttach">4</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gamma.Widgets.yEntryReference" id="yentryDeliveryDaySchedule">
                         <property name="MemberName" />
                         <property name="Events">ButtonPressMask</property>
@@ -2709,6 +2737,28 @@
                         <property name="BottomAttach">3</property>
                         <property name="LeftAttach">3</property>
                         <property name="RightAttach">4</property>
+                        <property name="AutoSize">True</property>
+                        <property name="XOptions">Fill</property>
+                        <property name="YOptions">Fill</property>
+                        <property name="XExpand">False</property>
+                        <property name="XFill">True</property>
+                        <property name="XShrink">False</property>
+                        <property name="YExpand">False</property>
+                        <property name="YFill">True</property>
+                        <property name="YShrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="Gamma.GtkWidgets.yLabel" id="ylabel1">
+                        <property name="MemberName" />
+                        <property name="Xalign">1</property>
+                        <property name="LabelProp" translatable="yes">Экспедитор по умолчанию:</property>
+                      </widget>
+                      <packing>
+                        <property name="TopAttach">3</property>
+                        <property name="BottomAttach">4</property>
+                        <property name="LeftAttach">2</property>
+                        <property name="RightAttach">3</property>
                         <property name="AutoSize">True</property>
                         <property name="XOptions">Fill</property>
                         <property name="YOptions">Fill</property>
@@ -42089,7 +42139,7 @@ RegistrationNumber</property>
       </widget>
     </child>
   </widget>
-  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.AtWorksDlg" design-size="988 300">
+  <widget class="Gtk.Bin" id="Vodovoz.Dialogs.Logistic.AtWorksDlg" design-size="1164 300">
     <property name="MemberName" />
     <property name="Visible">False</property>
     <child>
@@ -42320,6 +42370,22 @@ RegistrationNumber</property>
                       </packing>
                     </child>
                     <child>
+                      <widget class="Gtk.Button" id="buttonForwarder">
+                        <property name="MemberName" />
+                        <property name="CanFocus">True</property>
+                        <property name="Type">TextAndIcon</property>
+                        <property name="Icon">file:./icons/buttons/user22.png</property>
+                        <property name="Label" translatable="yes">Выбрать экспедитора</property>
+                        <property name="UseUnderline">True</property>
+                      </widget>
+                      <packing>
+                        <property name="Position">4</property>
+                        <property name="AutoSize">True</property>
+                        <property name="Expand">False</property>
+                        <property name="Fill">False</property>
+                      </packing>
+                    </child>
+                    <child>
                       <widget class="Gtk.Button" id="buttonEditDistricts">
                         <property name="MemberName" />
                         <property name="CanFocus">True</property>
@@ -42331,7 +42397,7 @@ RegistrationNumber</property>
                       </widget>
                       <packing>
                         <property name="PackType">End</property>
-                        <property name="Position">4</property>
+                        <property name="Position">5</property>
                         <property name="AutoSize">True</property>
                         <property name="Expand">False</property>
                         <property name="Fill">False</property>
