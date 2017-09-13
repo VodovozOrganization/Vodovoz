@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
+using Gamma.Utilities;
 using Gtk;
 using QSOrmProject;
 using QSProjectsLib;
@@ -36,7 +37,9 @@ namespace Vodovoz.Dialogs.Logistic
 
 			ytreeRoutes.ColumnsConfig = FluentColumnsConfig<PrintRoute>.Create()
 				.AddColumn("Печатать").AddToggleRenderer(x => x.Selected)
+				.AddSetter((c, n) => c.Visible = n.RouteList.Status >= RouteListStatus.InLoading)
 				.AddColumn("Номер").AddTextRenderer(x => x.RouteList.Id.ToString())
+				.AddColumn("Статус").AddTextRenderer(x => x.RouteList.Status.GetEnumTitle())
 				.AddColumn("Водитель").AddTextRenderer(x => x.RouteList.Driver.ShortName)
 				.AddColumn("Автомобиль")
 				.AddPixbufRenderer(x => x.RouteList.Car != null && x.RouteList.Car.IsCompanyHavings ? vodovozCarIcon : null)
@@ -79,11 +82,15 @@ namespace Vodovoz.Dialogs.Logistic
 			                     .Select(x => new PrintRoute(x))
 			                     .ToList();
 			ytreeRoutes.SetItemsSource<PrintRoute>(new GenericObservableList<PrintRoute>(Routes));
+			var notPrintedRoutes = Routes.Where(x => x.RouteList.Status < RouteListStatus.InLoading).ToList();
+			if(notPrintedRoutes.Count > 0)
+				MessageDialogWorks.RunWarningDialog(String.Format("Маршрутные листы {0} не могут быть напечатаны, так как еще не подтверждены.",
+				                                                  String.Join(", ", notPrintedRoutes.Select(x => $"{x.RouteList.Id}({x.RouteList.Driver.ShortName})"))));
 		}
 
 		protected void OnCheckSelectAllToggled(object sender, EventArgs e)
 		{
-			Routes.ForEach(x => x.Selected = checkSelectAll.Active);
+			Routes.Where(x => x.RouteList.Status >= RouteListStatus.InLoading).ToList().ForEach(x => x.Selected = checkSelectAll.Active);
 		}
 
 		protected void OnButtonPrintClicked(object sender, EventArgs e)
