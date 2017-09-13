@@ -18,8 +18,14 @@ namespace Vodovoz.Dialogs.Logistic
 		public IUnitOfWork UoW => uow;
 
 		IList<AtWorkDriver> driversAtDay;
+		IList<AtWorkForwarder> forwardersAtDay;
 
 		GenericObservableList<AtWorkDriver> observableDriversAtDay;
+		GenericObservableList<AtWorkForwarder> observableForwardersAtDay;
+
+		enum Columns{
+			Forwarder
+		}
 
 		private DateTime DialogAtDate
 		{
@@ -37,6 +43,22 @@ namespace Vodovoz.Dialogs.Logistic
 			get
 			{
 				return driversAtDay;
+			}
+		}
+
+
+		private IList<AtWorkForwarder> ForwardersAtDay{
+			set{
+				forwardersAtDay = value;
+				if(observableForwardersAtDay != null)
+					observableForwardersAtDay.ListChanged -= ObservableForwardersAtDay_ListChanged;
+				observableForwardersAtDay = new GenericObservableList<AtWorkForwarder>(forwardersAtDay);
+				observableForwardersAtDay.ListChanged += ObservableForwardersAtDay_ListChanged;
+				ytreeviewOnDayForwarders.SetItemsSource(observableForwardersAtDay);
+				ObservableForwardersAtDay_ListChanged(null);
+			}
+			get{
+				return forwardersAtDay;
 			}
 		}
 
@@ -65,6 +87,8 @@ namespace Vodovoz.Dialogs.Logistic
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(uow.GetAll<DeliveryDaySchedule>().ToList()).Editing()
 				.AddColumn("Оконч. работы").AddTextRenderer(x => x.EndOfDayText).Editable()
+				.AddColumn("Экспедитор").AddComboRenderer(x => x.WithForwarder)
+				.SetDisplayFunc(x => x.Employee.ShortName).Editing().Tag(Columns.Forwarder)
 				.AddColumn("Автомобиль")
 					.AddPixbufRenderer(x => x.Car != null && x.Car.IsCompanyHavings ? vodovozCarIcon : null)
 					.AddTextRenderer(x => x.Car != null ? x.Car.RegistrationNumber : "нет")
@@ -75,15 +99,32 @@ namespace Vodovoz.Dialogs.Logistic
 
 			ytreeviewAtWorkDrivers.Selection.Changed += YtreeviewDrivers_Selection_Changed;
 
+			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
+				.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
+				.AddColumn("Едет с водителем").AddTextRenderer(x => RenderForwaderWithDriver(x))
+				.Finish();
+			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
+
+			ytreeviewOnDayForwarders.Selection.Changed += ytreeviewForwarders_Selection_Changed;
+
 			ydateAtWorks.Date = DateTime.Today;
+		}
+
+		string RenderForwaderWithDriver(AtWorkForwarder atWork)
+		{
+			return String.Join(", ", driversAtDay.Where(x => x.WithForwarder == atWork).Select(x => x.Employee.ShortName));
 		}
 
 		void FillDialogAtDay()
 		{
 			uow.Session.Clear();
 
+			logger.Info("Загружаем экспедиторов на {0:d}...", DialogAtDate);
+			ForwardersAtDay = Repository.Logistics.AtWorkRepository.GetForwardersAtDay(uow, DialogAtDate);
+
 			logger.Info("Загружаем водителей на {0:d}...", DialogAtDate);
 			DriversAtDay = Repository.Logistics.AtWorkRepository.GetDriversAtDay(uow, DialogAtDate);
+
 			logger.Info("Ок");
 		}
 
@@ -109,6 +150,7 @@ namespace Vodovoz.Dialogs.Logistic
 		public bool Save()
 		{
 			DriversAtDay.ToList().ForEach(x => uow.Save(x));
+			ForwardersAtDay.ToList().ForEach(x => uow.Save(x));
 			uow.Commit();
 			FillDialogAtDay();
 			return true;
@@ -228,6 +270,59 @@ namespace Vodovoz.Dialogs.Logistic
 								  () => new EmployeeDlg(one.Employee.Id)
 				                 );
 			}
+		}
+
+		protected void OnHideForwadersToggled(object o, Gtk.ToggledArgs args)
+		{
+			vboxForwarders.Visible = hideForwaders.ArrowDirection == Gtk.ArrowType.Down;
+		}
+
+		void ytreeviewForwarders_Selection_Changed(object sender, EventArgs e)
+		{
+			buttonRemoveForwarder.Sensitive = ytreeviewOnDayForwarders.Selection.CountSelectedRows() > 0;
+		}
+
+		protected void OnButtonAddForwarderClicked(object sender, EventArgs e)
+		{
+			var SelectForwarder = new OrmReference(
+				uow,
+				Repository.EmployeeRepository.ActiveForwarderOrderedQuery()
+			);
+			SelectForwarder.Mode = OrmReferenceMode.MultiSelect;
+			SelectForwarder.ObjectSelected += SelectForwarder_ObjectSelected; ;
+			OpenSlaveTab(SelectForwarder);
+		}
+
+		void SelectForwarder_ObjectSelected(object sender, OrmReferenceObjectSectedEventArgs e)
+		{
+			var addForwarder = e.GetEntities<Employee>();
+			foreach(var forwarder in addForwarder) {
+				if(forwardersAtDay.Any(x => x.Employee.Id == forwarder.Id)) {
+					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
+					continue;
+				}
+				forwardersAtDay.Add(new AtWorkForwarder {
+					Date = DialogAtDate,
+					Employee = forwarder,
+				});
+			}
+			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
+		}
+
+		protected void OnButtonRemoveForwarderClicked(object sender, EventArgs e)
+		{
+			var toDel = ytreeviewOnDayForwarders.GetSelectedObjects<AtWorkForwarder>();
+			foreach(var forwarder in toDel) {
+				if(forwarder.Id > 0)
+					uow.Delete(forwarder);
+				observableForwardersAtDay.Remove(forwarder);
+			}
+		}
+
+		void ObservableForwardersAtDay_ListChanged(object aList)
+		{
+			var renderer = ytreeviewAtWorkDrivers.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkDriver, AtWorkForwarder>>(Columns.Forwarder).First();
+			renderer.FillItems(ForwardersAtDay);
 		}
 	}
 }

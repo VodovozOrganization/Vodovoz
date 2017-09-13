@@ -14,7 +14,6 @@ namespace Vodovoz.HibernateMapping
 			Map(x => x.Date).Column("date");
 
 			References(x => x.Employee).Column("employee_id");
-			References(x => x.WithDriver).Column("with_driver_id");
 		}
 	}
 }

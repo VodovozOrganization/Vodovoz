@@ -58,10 +58,10 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref daySchedule, value, () => DaySchedule); }
 		}
 
-		private Employee withForwarder;
+		private AtWorkForwarder withForwarder;
 
 		[Display(Name = "С экспедитором")]
-		public virtual Employee WithForwarder {
+		public virtual AtWorkForwarder WithForwarder {
 			get { return withForwarder; }
 			set { SetField(ref withForwarder, value, () => WithForwarder); }
 		}

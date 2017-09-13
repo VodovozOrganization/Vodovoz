@@ -171,8 +171,6 @@ namespace Vodovoz
 
 			ytreeviewOnDayForwarders.ColumnsConfig = FluentColumnsConfig<AtWorkForwarder>.Create()
 				.AddColumn("Экспедитор").AddTextRenderer(x => x.Employee.ShortName)
-				.AddColumn("C водителем").AddComboRenderer(x => x.WithDriver).Tag("WithDriver").Editing()
-				.SetDisplayFunc(x => ((Employee)x).ShortName)
 				.Finish();
 			ytreeviewOnDayForwarders.Selection.Mode = Gtk.SelectionMode.Multiple;
 
