@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿using System;
+﻿﻿﻿﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -1138,10 +1138,7 @@ namespace Vodovoz
 					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
 					continue;
 				}
-				forwardersAtDay.Add(new AtWorkForwarder {
-					Date = CurDate,
-					Employee = forwarder,
-				});
+				forwardersAtDay.Add(new AtWorkForwarder (forwarder, CurDate));
 			}
 			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 		}

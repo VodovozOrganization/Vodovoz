@@ -4,6 +4,7 @@ using System.Data.Bindings.Collections.Generic;
 using System.Linq;
 using Gamma.ColumnConfig;
 using QSOrmProject;
+using QSProjectsLib;
 using QSTDI;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -198,9 +199,24 @@ namespace Vodovoz.Dialogs.Logistic
 					logger.Warn("Водитель {0} уже добавлен. Пропускаем...", driver.ShortName);
 					continue;
 				}
-				driversAtDay.Add(new AtWorkDriver(driver, DialogAtDate,
+				var atwork = new AtWorkDriver(driver, DialogAtDate,
 												  allCars.FirstOrDefault(x => x.Driver.Id == driver.Id)
-												 ));
+												 );
+				if(driver.DefaultForwarder != null)
+				{
+					var forwarder = ForwardersAtDay.FirstOrDefault(x => x.Employee.Id == driver.DefaultForwarder.Id);
+					if(forwarder == null) {
+						if(MessageDialogWorks.RunQuestionDialog($"Водитель {driver.ShortName} обычно ездить с экспедитором {driver.DefaultForwarder.ShortName}. Он отсутствует в списке экспедиторов. Добавить его в список?")) {
+							forwarder = new AtWorkForwarder(driver.DefaultForwarder, DialogAtDate);
+							observableForwardersAtDay.Add(forwarder);
+						}
+					}
+					if(forwarder != null && DriversAtDay.All(x => x.WithForwarder != forwarder))
+					{
+						atwork.WithForwarder = forwarder;
+					}
+				}
+				driversAtDay.Add(atwork);
 			}
 			MainClass.MainWin.ProgressAdd();
 			DriversAtDay = driversAtDay.OrderBy(x => x.Employee.ShortName).ToList();
@@ -301,10 +317,7 @@ namespace Vodovoz.Dialogs.Logistic
 					logger.Warn($"Экспедитор {forwarder.ShortName} пропущен так как уже присутствует в списке.");
 					continue;
 				}
-				forwardersAtDay.Add(new AtWorkForwarder {
-					Date = DialogAtDate,
-					Employee = forwarder,
-				});
+				forwardersAtDay.Add(new AtWorkForwarder (forwarder, DialogAtDate));
 			}
 			ForwardersAtDay = forwardersAtDay.OrderBy(x => x.Employee.ShortName).ToList();
 		}
