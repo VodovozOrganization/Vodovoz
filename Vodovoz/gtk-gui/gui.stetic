@@ -42462,7 +42462,23 @@ RegistrationNumber</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder />
+                          <widget class="Gtk.Button" id="buttonAppointForwarders">
+                            <property name="MemberName" />
+                            <property name="Tooltip" translatable="yes">Распределить оставшихся экспедиторов по водителям</property>
+                            <property name="CanFocus">True</property>
+                            <property name="Type">TextAndIcon</property>
+                            <property name="Icon">resource:Vodovoz.icons.menu.users.png</property>
+                            <property name="Label" translatable="yes">Распределить оставшихся</property>
+                            <property name="UseUnderline">True</property>
+                            <signal name="Clicked" handler="OnButtonAppointForwardersClicked" />
+                          </widget>
+                          <packing>
+                            <property name="PackType">End</property>
+                            <property name="Position">2</property>
+                            <property name="AutoSize">True</property>
+                            <property name="Expand">False</property>
+                            <property name="Fill">False</property>
+                          </packing>
                         </child>
                       </widget>
                       <packing>

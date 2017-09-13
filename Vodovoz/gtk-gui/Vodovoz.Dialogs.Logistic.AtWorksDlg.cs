@@ -54,6 +54,8 @@ namespace Vodovoz.Dialogs.Logistic
 
 		private global::Gtk.Button buttonRemoveForwarder;
 
+		private global::Gtk.Button buttonAppointForwarders;
+
 		private global::Vodovoz.ViewWidgets.Logistics.DistrictPriorityView districtpriorityview1;
 
 		protected virtual void Build()
@@ -302,29 +304,45 @@ namespace Vodovoz.Dialogs.Logistic
 			w29.Position = 1;
 			w29.Expand = false;
 			w29.Fill = false;
+			// Container child hbox6.Gtk.Box+BoxChild
+			this.buttonAppointForwarders = new global::Gtk.Button();
+			this.buttonAppointForwarders.TooltipMarkup = "Распределить оставшихся экспедиторов по водителям";
+			this.buttonAppointForwarders.CanFocus = true;
+			this.buttonAppointForwarders.Name = "buttonAppointForwarders";
+			this.buttonAppointForwarders.UseUnderline = true;
+			this.buttonAppointForwarders.Label = global::Mono.Unix.Catalog.GetString("Распределить оставшихся");
+			global::Gtk.Image w30 = new global::Gtk.Image();
+			w30.Pixbuf = global::Gdk.Pixbuf.LoadFromResource("Vodovoz.icons.menu.users.png");
+			this.buttonAppointForwarders.Image = w30;
+			this.hbox6.Add(this.buttonAppointForwarders);
+			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.hbox6[this.buttonAppointForwarders]));
+			w31.PackType = ((global::Gtk.PackType)(1));
+			w31.Position = 2;
+			w31.Expand = false;
+			w31.Fill = false;
 			this.vboxForwarders.Add(this.hbox6);
-			global::Gtk.Box.BoxChild w30 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.hbox6]));
-			w30.Position = 1;
-			w30.Expand = false;
-			w30.Fill = false;
+			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.vboxForwarders[this.hbox6]));
+			w32.Position = 1;
+			w32.Expand = false;
+			w32.Fill = false;
 			this.vbox2.Add(this.vboxForwarders);
-			global::Gtk.Box.BoxChild w31 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxForwarders]));
-			w31.Position = 4;
+			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.vbox2[this.vboxForwarders]));
+			w33.Position = 4;
 			this.hbox2.Add(this.vbox2);
-			global::Gtk.Box.BoxChild w32 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
-			w32.Position = 0;
+			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.vbox2]));
+			w34.Position = 0;
 			// Container child hbox2.Gtk.Box+BoxChild
 			this.districtpriorityview1 = new global::Vodovoz.ViewWidgets.Logistics.DistrictPriorityView();
 			this.districtpriorityview1.Events = ((global::Gdk.EventMask)(256));
 			this.districtpriorityview1.Name = "districtpriorityview1";
 			this.hbox2.Add(this.districtpriorityview1);
-			global::Gtk.Box.BoxChild w33 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.districtpriorityview1]));
-			w33.Position = 1;
-			w33.Expand = false;
-			w33.Fill = false;
+			global::Gtk.Box.BoxChild w35 = ((global::Gtk.Box.BoxChild)(this.hbox2[this.districtpriorityview1]));
+			w35.Position = 1;
+			w35.Expand = false;
+			w35.Fill = false;
 			this.vbox1.Add(this.hbox2);
-			global::Gtk.Box.BoxChild w34 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
-			w34.Position = 1;
+			global::Gtk.Box.BoxChild w36 = ((global::Gtk.Box.BoxChild)(this.vbox1[this.hbox2]));
+			w36.Position = 1;
 			this.Add(this.vbox1);
 			if ((this.Child != null))
 			{
@@ -343,6 +361,7 @@ namespace Vodovoz.Dialogs.Logistic
 			this.hideForwaders.Toggled += new global::Gtk.ToggledHandler(this.OnHideForwadersToggled);
 			this.buttonAddForwarder.Clicked += new global::System.EventHandler(this.OnButtonAddForwarderClicked);
 			this.buttonRemoveForwarder.Clicked += new global::System.EventHandler(this.OnButtonRemoveForwarderClicked);
+			this.buttonAppointForwarders.Clicked += new global::System.EventHandler(this.OnButtonAppointForwardersClicked);
 		}
 	}
 }

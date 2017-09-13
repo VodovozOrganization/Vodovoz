@@ -337,5 +337,23 @@ namespace Vodovoz.Dialogs.Logistic
 			var renderer = ytreeviewAtWorkDrivers.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkDriver, AtWorkForwarder>>(Columns.Forwarder).First();
 			renderer.FillItems(ForwardersAtDay, "без экспедитора");
 		}
+
+		protected void OnButtonAppointForwardersClicked(object sender, EventArgs e)
+		{
+			var toAdd = new List<AtWorkForwarder>();
+			foreach(var forwarder in ForwardersAtDay.Where(f => DriversAtDay.All(d => d.WithForwarder != f)))
+			{
+				var defaulDriver = DriversAtDay.FirstOrDefault(d => d.WithForwarder == null && d.Employee.DefaultForwarder.Id == forwarder.Employee.Id);
+				if(defaulDriver != null)
+					defaulDriver.WithForwarder = forwarder;
+				else
+					toAdd.Add(forwarder);
+			}
+
+			if(toAdd.Count == 0)
+				return;
+
+			//var maxBottleDistricts = 
+		}
 	}
 }
