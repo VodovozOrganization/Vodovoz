@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Data.Bindings.Collections.Generic;
 using System.Linq;
@@ -322,7 +322,7 @@ namespace Vodovoz.Dialogs.Logistic
 		void ObservableForwardersAtDay_ListChanged(object aList)
 		{
 			var renderer = ytreeviewAtWorkDrivers.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkDriver, AtWorkForwarder>>(Columns.Forwarder).First();
-			renderer.FillItems(ForwardersAtDay);
+			renderer.FillItems(ForwardersAtDay, "без экспедитора");
 		}
 	}
 }
