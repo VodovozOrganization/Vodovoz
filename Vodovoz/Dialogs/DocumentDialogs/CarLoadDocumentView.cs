@@ -1,9 +1,10 @@
-﻿using System;
+﻿﻿using System;
 using QSOrmProject;
 using Gamma.GtkWidgets;
 using Vodovoz.Domain.Documents;
 using System.Collections.Generic;
 using QSProjectsLib;
+using System.Linq;
 
 namespace Vodovoz
 {
@@ -113,6 +114,15 @@ namespace Vodovoz
 				if (!MessageDialogWorks.RunQuestionDialog("Список будет очищен. Продолжить?"))
 					return;
 			}
+
+			DocumentUoW.Root.FillFromRouteList(DocumentUoW, false);
+			if(DocumentUoW.Root.Items.Any(i => i.Nomenclature.Warehouse == null)) {
+				string str = "";
+				foreach(var nomenclarure in DocumentUoW.Root.Items.Where(i => i.Nomenclature.Warehouse == null))
+					str = string.Join("\n", nomenclarure.Nomenclature.Name);
+				MessageDialogWorks.RunErrorDialog("В МЛ есть номенклатура не привязанная к складу.", str);
+			}
+
 			DocumentUoW.Root.FillFromRouteList(DocumentUoW, true);
 			DocumentUoW.Root.UpdateAlreadyLoaded(DocumentUoW);
 			if (DocumentUoW.Root.Warehouse != null)
