@@ -84,12 +84,8 @@ namespace Vodovoz
 		private IList<AtWorkDriver> DriversAtDay{
 			set{
 				driversAtDay = value;
-				if(observableDriversAtDay != null)
-					observableDriversAtDay.ListChanged -= ObservableDriversAtDay_ListChanged;
 				observableDriversAtDay = new GenericObservableList<AtWorkDriver>(driversAtDay);
-				observableDriversAtDay.ListChanged += ObservableDriversAtDay_ListChanged;
 				ytreeviewOnDayDrivers.SetItemsSource(observableDriversAtDay);
-				ObservableDriversAtDay_ListChanged(null);
 			}
 			get{
 				return driversAtDay;
@@ -860,12 +856,6 @@ namespace Vodovoz
 			}
 			menu.ShowAll ();
 			menuAddToRL.Menu = menu;
-		}
-
-		void ObservableDriversAtDay_ListChanged(object aList)
-		{
-			var renderer = ytreeviewOnDayForwarders.ColumnsConfig.GetRendererMappingByTagGeneric<ComboRendererMapping<AtWorkForwarder, Employee>>("WithDriver").First();
-			renderer.FillItems(driversAtDay.Select(x => x.Employee).ToList());
 		}
 
 		void AddToRLItem_Activated (object sender, EventArgs e)
