@@ -343,7 +343,7 @@ namespace Vodovoz.Dialogs.Logistic
 			var toAdd = new List<AtWorkForwarder>();
 			foreach(var forwarder in ForwardersAtDay.Where(f => DriversAtDay.All(d => d.WithForwarder != f)))
 			{
-				var defaulDriver = DriversAtDay.FirstOrDefault(d => d.WithForwarder == null && d.Employee.DefaultForwarder.Id == forwarder.Employee.Id);
+				var defaulDriver = DriversAtDay.FirstOrDefault(d => d.WithForwarder == null && d.Employee.DefaultForwarder?.Id == forwarder.Employee.Id);
 				if(defaulDriver != null)
 					defaulDriver.WithForwarder = forwarder;
 				else
@@ -353,7 +353,32 @@ namespace Vodovoz.Dialogs.Logistic
 			if(toAdd.Count == 0)
 				return;
 
-			//var maxBottleDistricts = 
+			var orders = LogisticAreaRepository.OrdersCountByArea(uow, DialogAtDate, 12);
+			var districtsBottles = orders.GroupBy(x => x.DistrictId).ToDictionary(x => x.Key, x => x.Sum(o => o.WaterCount));
+
+			foreach(var forwarder in toAdd)
+			{
+				var driversToAdd = DriversAtDay.Where(x => x.WithForwarder == null && x.Car != null && x.Car.TypeOfUse != CarTypeOfUse.Largus).ToList();
+
+				if(driversToAdd.Count == 0)
+				{
+					logger.Warn("Не осталось водителей для добавленя экспедиторов.");
+					break;
+				}
+
+				Func<int, int> ManOnDistrict = (int districtId) => driversAtDay.Where(dr => dr.Car != null && dr.Car.TypeOfUse != CarTypeOfUse.Largus && dr.Districts.Any(dd2 => dd2.District.Id == districtId))
+				                                                               .Sum(dr => dr.WithForwarder == null ? 1 : 2);
+				
+				var driver = driversToAdd.OrderByDescending(x => districtsBottles.Where(db => x.Employee.Districts.Any(dd => dd.District.Id == db.Key))
+				                                            .Max(db => (double)db.Value / ManOnDistrict(db.Key))).First();
+
+				var testSum = driversToAdd.ToDictionary(x => x, x => districtsBottles.Where(db => x.Employee.Districts.Any(dd => dd.District.Id == db.Key))
+				                                        .Max(db => (double)db.Value / ManOnDistrict(db.Key)));
+
+				driver.WithForwarder = forwarder;
+			}
+
+			MessageDialogWorks.RunInfoDialog("Готово.");
 		}
 	}
 }
