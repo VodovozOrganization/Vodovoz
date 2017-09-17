@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Bindings.Collections.Generic;
@@ -13,7 +13,6 @@ using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Goods;
 using Vodovoz.Domain.Operations;
 using Vodovoz.Domain.Orders;
-using Vodovoz.Repository;
 using Vodovoz.Tools.Logistic;
 
 namespace Vodovoz.Domain.Logistic
@@ -286,7 +285,7 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal PhoneSum {
 			get {
 
-				return Wages.GetDriverRates().PhoneServiceCompensationRate * UniqueAddressCount;
+				return Wages.GetDriverRates(Date).PhoneServiceCompensationRate * UniqueAddressCount;
 			}
 		}
 

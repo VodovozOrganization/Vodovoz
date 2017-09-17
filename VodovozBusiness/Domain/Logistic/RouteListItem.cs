@@ -548,7 +548,7 @@ namespace Vodovoz.Domain.Logistic
 
 			bool withForwarder = RouteList.Forwarder != null;
 			bool ich = RouteList.Car.IsCompanyHavings;
-			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(withForwarder);
+			var rates = ich ? Wages.GetDriverRatesWithOurCar(RouteList.Date) : Wages.GetDriverRates(RouteList.Date, withForwarder);
 
 			return CalculateWage(rates);
 		}

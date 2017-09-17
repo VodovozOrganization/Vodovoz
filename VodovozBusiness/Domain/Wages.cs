@@ -3,11 +3,11 @@
 namespace Vodovoz.Domain
 {
 	public class Wages{
-		public static Rates GetDriverRates(bool withForwarder=false){
+		public static Rates GetDriverRates(DateTime route_date, bool withForwarder=false){
 			return new Rates
 			{
 				PhoneServiceCompensationRate = 2,
-				FullBottleRate = withForwarder ? 10 : 15,
+				FullBottleRate = route_date < new DateTime(2017, 9, 18) ? (withForwarder ? 10 : 15) : (withForwarder ? 15 : 20),
 				EmptyBottleRate = 5,
 				CoolerRate = withForwarder ? 20 : 30,
 				PaymentPerAddress = 50,
