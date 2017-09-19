@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Logistic;
@@ -27,8 +27,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		}
 
 		public int DriverPriority{
-			get{ // Если маршрут добавлен в ручную, то используем нулевой приорите, что бы этому водителю с большей вероятностью достались адреса.
-				return OldRoute != null ? 0 : atWorkDriver.PriorityAtDay;
+			get{ // Если маршрут добавлен в ручную, то используем максимальный приоритет, что бы этому водителю с большей вероятностью достались адреса.
+				return OldRoute != null ? 1 : atWorkDriver.PriorityAtDay;
 			}
 		}
 

@@ -218,7 +218,7 @@ namespace Vodovoz.Domain.Employees
 		/// <summary>
 		/// Приорите(1-10) чем меньше тем лучше. Фактически это штраф.
 		/// </summary>
-		[Display(Name = "П/// риоритет для маршрутов")]
+		[Display(Name = "Приоритет для маршрутов")]
 		public virtual short TripPriority {
 			get { return tripPriority; }
 			set { SetField(ref tripPriority, value, () => TripPriority); }
