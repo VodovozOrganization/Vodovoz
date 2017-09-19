@@ -54,6 +54,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public void CreateRoutes()
 		{
+			WarningMessages.Clear();
+
 			logger.Info("Подготавливаем заказы...");
 			PerformanceHelper.StartMeasurement($"Строим оптимальные маршруты");
 			MainClass.MainWin.ProgressStart(4);
