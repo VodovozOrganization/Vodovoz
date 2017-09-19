@@ -1,4 +1,4 @@
-﻿﻿﻿using System;
+﻿﻿﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -126,16 +126,16 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
-			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
+			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
 
-			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.MaxWeight + 1).ToArray();
+			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.MaxWeight).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
 
-			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxVolume * 1000) + 1).ToArray();
+			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxVolume * 1000)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
 
-			var addressCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxRouteAddresses + 1)).ToArray();
+			var addressCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxRouteAddresses)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			var bottlesDimension = routing.GetDimensionOrDie("Bottles");
