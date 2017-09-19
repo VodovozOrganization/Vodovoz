@@ -90,6 +90,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				return;
 			}
 
+			TestCars(possibleRoutes);
+
 			var areas = UoW.GetAll<LogisticsArea>().ToList();
 			List<LogisticsArea> unusedDistricts = new List<LogisticsArea>();
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
@@ -171,7 +173,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60; //FIXME Внимание здесь задаем экспедитора. Это не равильно, при реализации работы с экспедитором нужно это изменить.
 				if(endWindow < startWindow)
 				{
-					AddWarning("Время разгрузки на точке, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To);
+					AddWarning("Время разгрузки на {2}, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To, Nodes[ix].Order.DeliveryPoint.ShortAddress);
 					endWindow = startWindow;
 				}
 				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
@@ -459,6 +461,30 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			text = String.Format(text, args);
 			WarningMessages.Add(text);
 			logger.Warn(text);
+		}
+
+		private void TestCars(PossibleTrip[] trips)
+		{
+			var addressProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxRouteAddresses < 1).ToList();
+			if(addressProblems.Count > 1)
+				AddWarning("Автомобилям {0} не будут назначены заказы, так как максимальное количество адресов у них меньше 1.",
+				           String.Join(", ", addressProblems.Select(x => x.RegistrationNumber)));
+
+			var bottlesProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxBottles < 1).ToList();
+			if(bottlesProblems.Count > 1)
+				AddWarning("Автомобили {0} не смогут везти воду, так как максимальное количество бутылей у них меньше 1.",
+						   String.Join(", ", bottlesProblems.Select(x => x.RegistrationNumber)));
+
+			var volumeProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxVolume < 1).ToList();
+			if(volumeProblems.Count > 1)
+				AddWarning("Автомобили {0} смогут погрузить только безьобемные товары, так как максимальный объем погрузки у них меньше 1.",
+						   String.Join(", ", volumeProblems.Select(x => x.RegistrationNumber)));
+
+			var weightProblems = trips.Select(x => x.Car).Distinct().Where(x => x.MaxWeight < 1).ToList();
+			if(weightProblems.Count > 1)
+				AddWarning("Автомобили {0} не смогут вести грузы, так как грузоподьемность уних меньше 1 кг.",
+						   String.Join(", ", weightProblems.Select(x => x.RegistrationNumber)));
+
 		}
 	}
 }
