@@ -405,6 +405,7 @@
     <Compile Include="Tools\Logistic\DistanceProvider.cs" />
     <Compile Include="Domain\Logistic\DeliveryDaySchedule.cs" />
     <Compile Include="HibernateMapping\Logistic\DeliveryDayScheduleMap.cs" />
+    <Compile Include="Domain\Logistic\IDistrictPriority.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

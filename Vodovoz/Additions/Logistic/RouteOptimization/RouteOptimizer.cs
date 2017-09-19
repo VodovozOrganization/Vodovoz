@@ -18,6 +18,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		#region Настройки оптимизации
 		public static long UnlikeDistrictPenalty = 100000; //Штраф за поездку в отсутствующий в списке район
+		public static long RemoveOrderFromExistRLPenalty = 100000; //Штраф за передачу заказа другому водителю, если заказ уже находится в маршрутном листе сформированным до построения.
 		public static long DistrictPriorityPenalty = 1000; //Штраф за каждый шаг приоритета к каждому адресу, в менее приоритеном районе
 		public static long DriverPriorityPenalty = 20000; //Штраф каждому менее приоритетному водителю, на единицу приоритета, за выход в маршрут.
 		public static long MaxDistanceAddressPenalty = 300000; //Штраф за не отвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
@@ -58,13 +59,25 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			MainClass.MainWin.ProgressStart(4);
 
 			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
-			var possibleRoutes = Drivers.Where(x => x.Car != null)
+			var trips = Drivers.Where(x => x.Car != null)
 			                        .OrderByDescending(x => x.PriorityAtDay)
 			                        .SelectMany(x => x.DaySchedule != null 
 			                                    ? x.DaySchedule.Shifts.Select(s => new PossibleTrip(x, s)) 
 			                                    : new[] { new PossibleTrip(x, null) }
 			                                   )
-			                        .ToArray();
+			                   .ToList();
+
+			foreach(var existRoute in Routes)
+			{
+				var trip = trips.FirstOrDefault(x => x.Driver == existRoute.Driver && x.Shift == existRoute.Shift);
+				if(trip != null)
+					trip.OldRoute = existRoute;
+				else
+					trips.Add(new PossibleTrip(existRoute));
+			}
+
+			var possibleRoutes = trips.ToArray();
+
 			if(possibleRoutes.Length == 0) {
 				AddWarning("Для построения маршрутов, нет водителей.");
 				return;
@@ -82,7 +95,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var aria = areas.Find(x => x.Geometry.Contains(point));
 				if(aria != null)
 				{
-					if(possibleRoutes.SelectMany(x => x.Driver.Districts).Any(x => x.District.Id == aria.Id))
+					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
+					if(oldRoute != null)
+						calculatedOrders.Add(new CalculatedOrder(order, aria, false, oldRoute));
+					else if(possibleRoutes.SelectMany(x => x.Driver.Districts).Any(x => x.District.Id == aria.Id))
 						calculatedOrders.Add(new CalculatedOrder(order, aria));
 					else if(!unusedDistricts.Contains(aria))
 						unusedDistricts.Add(aria);
@@ -108,23 +124,23 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
-			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Driver.Car.MaxBottles + 1).ToArray();
+			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
 
-			var weightCapacity = possibleRoutes.Select(x => (long)x.Driver.Car.MaxWeight + 1).ToArray();
+			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.MaxWeight + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
 
-			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Driver.Car.MaxVolume * 1000) + 1).ToArray();
+			var volumeCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxVolume * 1000) + 1).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackVolume(Nodes), 0, volumeCapacity, true, "Volume");
 
-			var addressCapacity = possibleRoutes.Select(x => (long)(x.Driver.Car.MaxRouteAddresses + 1)).ToArray();
+			var addressCapacity = possibleRoutes.Select(x => (long)(x.Car.MaxRouteAddresses + 1)).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			var bottlesDimension = routing.GetDimensionOrDie("Bottles");
 
 			for(int ix = 0; ix < possibleRoutes.Length; ix++) {
-				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, possibleRoutes[ix].Driver, distanceCalculator), ix);
-				routing.SetFixedCostOfVehicle((possibleRoutes[ix].Driver.PriorityAtDay - 1) * DriverPriorityPenalty, ix);
+				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, possibleRoutes[ix], distanceCalculator), ix);
+				routing.SetFixedCostOfVehicle((possibleRoutes[ix].DriverPriority - 1) * DriverPriorityPenalty, ix);
 
 				var cumulTimeOnEnd = routing.CumulVar(routing.End(ix), "Time");
 				var cumulTimeOnBegin = routing.CumulVar(routing.Start(ix), "Time");
@@ -132,14 +148,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				if(possibleRoutes[ix].Shift != null)
 				{
 					var shift = possibleRoutes[ix].Shift;
-					var endTime = possibleRoutes[ix].Driver.EndOfDay.HasValue
-					                                ? Math.Min(shift.EndTime.TotalSeconds, possibleRoutes[ix].Driver.EndOfDay.Value.TotalSeconds)
+					var endTime = possibleRoutes[ix].EarlyEnd.HasValue
+					                                ? Math.Min(shift.EndTime.TotalSeconds, possibleRoutes[ix].EarlyEnd.Value.TotalSeconds)
 					                                : shift.EndTime.TotalSeconds;
 					cumulTimeOnEnd.SetMax((long)endTime);
 					cumulTimeOnBegin.SetMin((long)shift.StartTime.TotalSeconds);
 				}
-				else if(possibleRoutes[ix].Driver.EndOfDay.HasValue) //Устанавливаем время окончания рабочего дня у водителя.
-					cumulTimeOnEnd.SetMax((long)possibleRoutes[ix].Driver.EndOfDay.Value.TotalSeconds);
+				else if(possibleRoutes[ix].EarlyEnd.HasValue) //Устанавливаем время окончания рабочего дня у водителя.
+					cumulTimeOnEnd.SetMax((long)possibleRoutes[ix].EarlyEnd.Value.TotalSeconds);
 			}
 
 			for(int ix = 0; ix < Nodes.Length; ix++)
@@ -172,6 +188,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Закрываем модель...");
 			logger.Info("Рассчет расстояний между точками...");
 			routing.CloseModelWithParameters(search_parameters);
+
 			#if DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
 			#endif
@@ -233,7 +250,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					{
 						ProposedRoutes.Add(route);
 						logger.Debug("Маршрут {0}: {1}",
-						             route.Driver.Employee.ShortName,
+						             route.Trip.Driver.ShortName,
 						             String.Join(" -> ", route.Orders.Select(x => x.DebugMaxMin))
 						            );
 					}

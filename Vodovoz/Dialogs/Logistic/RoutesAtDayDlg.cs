@@ -1186,23 +1186,31 @@ namespace Vodovoz
 
 			if(optimizer.ProposedRoutes.Count > 0)
 			{
-				routesAtDay.Clear();
+				//Удаляем корректно адреса из уже имеющихся МЛ. Чтобы они встали в правильный статус.
+				foreach(var route in routesAtDay.Where(x => x.Id > 0)) {
+					foreach(var odrer in route.Addresses.ToList()) {
+						route.RemoveAddress(odrer);
+					}
+				}
+
 				foreach(var propose in optimizer.ProposedRoutes)
 				{
-					var rl = new RouteList();
+					var rl = propose.Trip.OldRoute ?? new RouteList();
 					rl.UoW = uow;
-					rl.Car = propose.Car;
-					rl.Driver = propose.Driver.Employee;
-					rl.Shift = propose.Shift;
+					rl.Car = propose.Trip.Car;
+					rl.Driver = propose.Trip.Driver;
+					rl.Shift = propose.Trip.Shift;
 					rl.Date = CurDate;
 					rl.Logistican = logistican;
+
 					foreach(var order in propose.Orders)
 					{
 						var address = rl.AddAddressFromOrder(order.Order);
 						address.PlanTimeStart = order.ProposedTimeStart;
 						address.PlanTimeEnd = order.ProposedTimeEnd;
 					}
-					routesAtDay.Add(rl);
+					if(propose.Trip.OldRoute == null) // Это новый маршрут и его нужно добавить.
+						routesAtDay.Add(rl);
 					propose.RealRoute = rl;
 				}
 			}

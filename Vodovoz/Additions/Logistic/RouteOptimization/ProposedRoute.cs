@@ -9,29 +9,15 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	public class ProposedRoute
 	{
 		public List<ProposedRoutePoint> Orders = new List<ProposedRoutePoint>();
-		public AtWorkDriver Driver;
-		public DeliveryShift Shift;
+		public PossibleTrip Trip;
 
 		public RouteList RealRoute;
 
 		public long RouteCost;
 
-		public Car Car {
-			get {
-				return Driver.Car;
-			}
-		}
-
-		public ProposedRoute(AtWorkDriver driver, DeliveryShift shift)
-		{
-			Driver = driver;
-			Shift = shift;
-		}
-
 		public ProposedRoute(PossibleTrip trip)
 		{
-			Driver = trip?.Driver;
-			Shift = trip?.Shift;
+			Trip = trip;
 		}
 
 		/// <summary>

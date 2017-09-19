@@ -8,6 +8,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	public class CalculatedOrder
 	{
 		public Order Order;
+		public RouteList ExistRoute;
 
 		public int Bootles;
 		public double Weight;
@@ -15,10 +16,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public LogisticsArea District;
 
-		public CalculatedOrder(Order order, LogisticsArea district, bool notCalculate = false)
+		public CalculatedOrder(Order order, LogisticsArea district, bool notCalculate = false, RouteList existRoute = null)
 		{
 			Order = order;
 			District = district;
+			ExistRoute = existRoute;
 
 			if(notCalculate)
 				return;

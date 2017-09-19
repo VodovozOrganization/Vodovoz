@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Bindings.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using QSOrmProject;
-using Vodovoz.Domain.Employees;
 
 namespace Vodovoz.Domain.Logistic
 {
 	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
 	NominativePlural = "приоритеты районов",
 	Nominative = "приоритет района")]
-	public class AtWorkDriverDistrictPriority : PropertyChangedBase, IDomainObject
+	public class AtWorkDriverDistrictPriority : PropertyChangedBase, IDomainObject, IDistrictPriority
 	{
 		#region Свойства
 

@@ -7,7 +7,7 @@ namespace Vodovoz.Domain.Logistic
 	[OrmSubject(Gender = QSProjectsLib.GrammaticalGender.Masculine,
 	NominativePlural = "приоритеты районов",
 	Nominative = "приоритет района")]
-	public class DriverDistrictPriority : PropertyChangedBase, IDomainObject
+	public class DriverDistrictPriority : PropertyChangedBase, IDomainObject, IDistrictPriority
 	{
 		#region Свойства
 

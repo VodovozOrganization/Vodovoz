@@ -10,15 +10,15 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 	{
 		static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 		private CalculatedOrder[] Nodes;
-		AtWorkDriver Driver;
+		PossibleTrip Trip;
 		Dictionary<LogisticsArea, int> priorites;
 		IDistanceCalculator distanceCalculator;
 
-		public CallbackDistanceDistrict(CalculatedOrder[] nodes, AtWorkDriver driver, IDistanceCalculator distanceCalculator)
+		public CallbackDistanceDistrict(CalculatedOrder[] nodes, PossibleTrip trip, IDistanceCalculator distanceCalculator)
 		{
 			Nodes = nodes;
-			Driver = driver;
-			priorites = driver.Districts.ToDictionary(x => x.District, x => x.Priority);
+			Trip = trip;
+			priorites = trip.Districts.ToDictionary(x => x.District, x => x.Priority);
 			this.distanceCalculator = distanceCalculator;
 		}
 
@@ -36,26 +36,36 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if(second_index == 0)
 				return distanceCalculator.DistanceToBaseMeter(Nodes[first_index - 1].Order.DeliveryPoint);
 
-			if(Driver.Car.TypeOfUse == CarTypeOfUse.Largus && Nodes[second_index - 1].Bootles > RouteOptimizer.MaxBottlesInOrderForLargus)
+			bool fromExistRoute = false;
+			if(Nodes[second_index - 1].ExistRoute != null && Trip.OldRoute != Nodes[second_index - 1].ExistRoute)
+				return RouteOptimizer.RemoveOrderFromExistRLPenalty + GetSimpleDistance(first_index, second_index);
+			else
+				fromExistRoute = true;
+
+			if(Trip.Car.TypeOfUse == CarTypeOfUse.Largus && Nodes[second_index - 1].Bootles > RouteOptimizer.MaxBottlesInOrderForLargus)
 				return RouteOptimizer.LargusMaxBottlePenalty;	
 
 			long distance;
 			var aria = Nodes[second_index - 1].District;
-			if(!priorites.ContainsKey(aria))
-			{
-				if (first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без спутника.
-					return RouteOptimizer.UnlikeDistrictPenalty + (int)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
-				else
-					return RouteOptimizer.UnlikeDistrictPenalty + (int)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
-			}
-
+			if(!priorites.ContainsKey(aria) && !fromExistRoute)
+				return RouteOptimizer.UnlikeDistrictPenalty + GetSimpleDistance(first_index, second_index);
 
 			if(first_index == 0)
 				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
 			else
 				distance = distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
-			return distance + priorites[aria] * RouteOptimizer.DistrictPriorityPenalty ;
+			//Если адрес из уже существующего маршрута, не 
+			return fromExistRoute ? distance : distance + priorites[aria] * RouteOptimizer.DistrictPriorityPenalty ;
+		}
+
+		private long GetSimpleDistance(int first_index, int second_index)
+		{
+			if(first_index == 0)//РАССТОЯНИЯ ПРЯМЫЕ без спутника.
+				return (long)(DistanceCalculator.GetDistanceFromBase(Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+			else
+				return (long)(DistanceCalculator.GetDistance(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint) * 1000);
+
 		}
 	}
 }
