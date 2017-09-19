@@ -76,6 +76,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					trip.OldRoute = existRoute;
 				else
 					trips.Add(new PossibleTrip(existRoute));
+				//Проверяем все ли заказы из МЛ присутствуют в списке заказов. Если их нет. Добавляем.
+				foreach(var address in existRoute.Addresses) {
+					if(!Orders.Any(x => x.Id == address.Order.Id))
+						Orders.Add(address.Order);
+				}
 			}
 
 			var possibleRoutes = trips.ToArray();
