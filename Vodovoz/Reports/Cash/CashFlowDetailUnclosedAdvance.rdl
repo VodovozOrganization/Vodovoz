@@ -537,6 +537,7 @@ ORDER BY Category;</CommandText>
                             <BorderWidth />
                           </Style>
                           <Value>={description}</Value>
+                          <CanGrow >true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
