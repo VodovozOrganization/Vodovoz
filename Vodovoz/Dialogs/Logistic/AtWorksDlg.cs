@@ -264,11 +264,14 @@ namespace Vodovoz.Dialogs.Logistic
 			if (ytreeviewAtWorkDrivers.Selection.CountSelectedRows() != 1 && districtpriorityview1.Visible)
 				districtpriorityview1.Visible = false;
 
+			buttonOpenCar.Sensitive = false;
+
 			if(ytreeviewAtWorkDrivers.Selection.CountSelectedRows() == 1)
 			{
 				var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
 				districtpriorityview1.ListParent = selected[0];
 				districtpriorityview1.Districts = selected[0].ObservableDistricts;
+				buttonOpenCar.Sensitive = selected[0].Car != null;
 			}
 		}
 		
@@ -379,6 +382,14 @@ namespace Vodovoz.Dialogs.Logistic
 			}
 
 			MessageDialogWorks.RunInfoDialog("Готово.");
+		}
+
+		protected void OnButtonOpenCarClicked(object sender, EventArgs e)
+		{
+			var selected = ytreeviewAtWorkDrivers.GetSelectedObjects<AtWorkDriver>();
+			TabParent.OpenTab(OrmMain.GenerateDialogHashName<Car>(selected[0].Car.Id),
+			                  () => new CarsDlg(selected[0].Car)
+			                 );
 		}
 	}
 }
