@@ -55,6 +55,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public void CreateRoutes()
 		{
 			WarningMessages.Clear();
+			ProposedRoutes.Clear(); //Очищаем сразу, так как можем выйти из метода ранее.
 
 			logger.Info("Подготавливаем заказы...");
 			PerformanceHelper.StartMeasurement($"Строим оптимальные маршруты");
@@ -195,6 +196,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			PerformanceHelper.AddTimePoint(logger, $"Настроили оптимизацию");
 			MainClass.MainWin.ProgressAdd();
 			logger.Info("Закрываем модель...");
+
+			if(WarningMessages.Count > 0 &&
+				!MessageDialogWorks.RunQuestionDialog("При построении транспортной модели обнаружены следующие проблемы:\n{0}\nПродолжить?",
+													 String.Join("\n", WarningMessages.Select(x => "⚠ " + x))))
+				return;
+
 			logger.Info("Рассчет расстояний между точками...");
 			routing.CloseModelWithParameters(search_parameters);
 
@@ -218,7 +225,6 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			#if DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
 			#endif
-			ProposedRoutes.Clear();
 			Console.WriteLine("Status = {0}", routing.Status());
 			if(solution != null) {
 				// Solution cost.
