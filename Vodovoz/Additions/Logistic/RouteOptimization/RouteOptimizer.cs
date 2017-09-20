@@ -107,7 +107,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
 					if(oldRoute != null)
 						calculatedOrders.Add(new CalculatedOrder(order, aria, false, oldRoute));
-					else if(possibleRoutes.SelectMany(x => x.Driver.Districts).Any(x => x.District.Id == aria.Id))
+					else if(possibleRoutes.SelectMany(x => x.Districts).Any(x => x.District.Id == aria.Id))
 						calculatedOrders.Add(new CalculatedOrder(order, aria));
 					else if(!unusedDistricts.Contains(aria))
 						unusedDistricts.Add(aria);
@@ -263,6 +263,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 						             String.Join(" -> ", route.Orders.Select(x => x.DebugMaxMin))
 						            );
 					}
+					else
+						logger.Debug("Маршрут {0}: пустой", route.Trip.Driver.ShortName);
 				}
 			}
 
