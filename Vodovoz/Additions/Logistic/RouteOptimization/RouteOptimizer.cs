@@ -218,11 +218,11 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			#if DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
 			#endif
+			ProposedRoutes.Clear();
 			Console.WriteLine("Status = {0}", routing.Status());
 			if(solution != null) {
 				// Solution cost.
 				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
-				ProposedRoutes.Clear();
 				time_dimension = routing.GetDimensionOrDie("Time");
 
 				for(int route_number = 0; route_number < routing.Vehicles(); route_number++)
