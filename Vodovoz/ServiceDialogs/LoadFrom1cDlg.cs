@@ -1029,9 +1029,10 @@ namespace Vodovoz
 					var change = ChangedItem.CompareAndChange(exist, loaded);
 					if (change != null) {
 						if(exist.OrderStatus > OrderStatus.Accepted) {
-							MessageDialogWorks.RunErrorDialog(
-								$"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше \"Подтвержден\".\n" +
-								"Данный заказ НЕ будет повторно загружен или изменен");
+							// Закомментил на случай, если вдруг понадобится.
+						//	MessageDialogWorks.RunErrorDialog(
+						//		$"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше \"Подтвержден\".\n" +
+						//		"Данный заказ НЕ будет повторно загружен или изменен");
 
 							change.Title = $"Заказ с кодом {exist.Code1c} уже загружен и имеет статус выше подтвержденного";
 							Changes.Add(change);
