@@ -17,7 +17,7 @@
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageHeader>
   <Body>
-    <Height>296.4pt</Height>
+    <Height>445.4pt</Height>
     <ReportItems>
       <Textbox Name="Textbox1">
         <Height>21.10pt</Height>
@@ -905,7 +905,7 @@
         <Left>0.0pt</Left>
         <Top>208.4pt</Top>
       </Table>
-      <Table Name="Table5" >
+      <Table Name="Table5">
         <DataSetName>UnclosedAdvances</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1068,7 +1068,7 @@
         <Left>5.8pt</Left>
         <Top>249.6pt</Top>
       </Table>
-      <Textbox Name="Textbox51" >
+      <Textbox Name="Textbox51">
         <Height>13.49pt</Height>
         <Width>128.72pt</Width>
         <Value>Незакрытые авансы:</Value>
@@ -1081,6 +1081,203 @@
           <BorderWidth />
         </Style>
       </Textbox>
+      <Textbox Name="Textbox52" >
+        <Height>13.50pt</Height>
+        <Width>167.86pt</Width>
+        <Value>Незакрытые маршрутные листы</Value>
+        <ZIndex>1</ZIndex>
+        <Left>9.00pt</Left>
+        <Top>278.50pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+      </Textbox>
+      <Table Name="Table6" >
+        <DataSetName>UnclosedRouteLists</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Value>Номер</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Value>Дата</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Value>Статус</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Value>=Fields!id.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Value>=Fields!date.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Value>=Fields!status.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>6.7pt</Left>
+        <Top>293.2pt</Top>
+      </Table>
+      <Table Name="Table7" >
+        <DataSetName>DriverBalance</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth>
+            <Default>10pt</Default>
+            <Left>10pt</Left>
+            <Right>10pt</Right>
+            <Top>10pt</Top>
+            <Bottom>10pt</Bottom>
+          </BorderWidth>
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>186.7pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>10.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox60">
+                      <Value>="Баланс водителя: " + Fields!fuelBalance.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>6.6pt</Left>
+        <Top>326.4pt</Top>
+      </Table>
     </ReportItems>
     <Columns>1</Columns>
   </Body>
@@ -1302,7 +1499,7 @@ GROUP BY wages_movement_operations.employee_id</CommandText>
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="UnclosedAdvances" >
+    <DataSet Name="UnclosedAdvances">
       <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
@@ -1357,10 +1554,79 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
+    <DataSet Name="UnclosedRouteLists" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	id,
+    date,
+    status
+FROM
+	route_lists
+WHERE
+	route_lists.status &lt;&gt; 'Closed'
+	AND driver_id = @driver_id
+	AND date &gt; @start_date
+	AND date &lt; @end_date</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="driver_id">
+            <Value>=Parameters!driver_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="start_date">
+            <Value>=Parameters!start_date</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="date">
+          <DataField>date</DataField>
+          <TypeName>System.DateTime</TypeName>
+        </Field>
+        <Field Name="status">
+          <DataField>status</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="DriverBalance" >
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>SELECT
+	(SUM(liters_gived) - SUM(liters_outlayed)) as fuelBalance
+FROM
+	fuel_operations
+WHERE
+	driver_id = @driver_id
+	AND date &lt; @end_date
+GROUP BY
+	driver_id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="driver_id">
+            <Value>=Parameters!driver_id</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>=Parameters!end_date</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="fuelBalance">
+          <DataField>fuelBalance</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
@@ -1390,14 +1656,15 @@ WHERE
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
   <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
