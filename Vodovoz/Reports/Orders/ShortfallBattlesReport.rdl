@@ -1390,99 +1390,115 @@
       <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
-    bottles_movement_operations.delivery_point_id AS pointid,
-    orders.id AS ordersIdAlias,
-    TRIM(counterparty.full_name) AS counterparty,
-    delivery_points.compiled_address_short AS address,
-    CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
-    orders.comment AS comment,
-    (SELECT 
-        SUM(order_items.actual_count)
-                FROM
-                    orders
-                        LEFT JOIN
-                    order_items ON order_id = orders.id
-                        LEFT JOIN
-                    nomenclature ON nomenclature.id = order_items.nomenclature_id
-                WHERE
-                   orders.id = ordersIdAlias AND nomenclature.category = 'water')  AS actual_count,
-    delivered,
-    returned,
-    (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) AS bottles,
-   IFNULL((SELECT 
-                    order_items.count
-                FROM
-                    orders
-                        LEFT JOIN
-                    order_items ON order_id = orders.id
-                        LEFT JOIN
-                    nomenclature ON nomenclature.id = order_items.nomenclature_id
-                WHERE
-                    orders.id = ordersIdAlias
-                        AND nomenclature.id = (SELECT 
-                            str_value
-                        FROM
-                            base_parameters
-                        WHERE
-                            base_parameters.name = 'forfeit_nomenclature_id')),
-            received_deposit) AS forfeitAndDeposit,
-       CASE reason_type
-        WHEN 'Unknown' THEN 'неизв.'
-        WHEN 'NewAddress' THEN 'новый адрес'
-        WHEN 'OrderIncrease' THEN 'увелич. заказа'
-        WHEN 'FirstOrder' THEN 'первый заказ'
-    END AS reason_type_status,
-    returned_tare,
-    information_on_tara,
-    driver_call_id,
-    CASE driver_call_type
-        WHEN 'NoCall'  THEN 'не звонил'
-        WHEN 'CallFromAddress' THEN 'с адреса'
-        WHEN 'CallFromAnywhere' THEN 'не с адреса'
-    END AS driver_call_string,
-    comment_manager,
-    bottle_reserv,
-    IF(bottles_residue IS NOT NULL, "да", "нет") AS enteredresidue,
-        (SELECT 
-            SUM(delivered) - SUM(returned)
-        FROM
-            bottles_movement_operations
-        WHERE
-            pointid = bottles_movement_operations.delivery_point_id) AS debt
+	bottles_movement_operations.delivery_point_id AS pointid,
+	orders.id AS ordersIdAlias,
+	TRIM(counterparty.full_name) AS counterparty,
+	delivery_points.compiled_address_short AS address,
+	CONCAT_WS(' ', employees.last_name, employees.name) AS driver_name,
+	orders.comment AS comment,
+	(SELECT 
+		SUM(order_items.actual_count)
+	FROM
+		orders
+	LEFT JOIN
+		order_items ON order_id = orders.id
+	LEFT JOIN
+		nomenclature ON nomenclature.id = order_items.nomenclature_id
+	WHERE
+		orders.id = ordersIdAlias AND nomenclature.category = 'water')  AS actual_count,
+	delivered,
+	returned,
+	(IFNULL(CAST(returned_tare AS SIGNED),0) - IFNULL(CAST(returned AS SIGNED),0) - 
+    IFNULL((SELECT 
+		order_items.count
+	FROM
+		orders
+	LEFT JOIN
+		order_items ON order_id = orders.id
+	LEFT JOIN
+		nomenclature ON nomenclature.id = order_items.nomenclature_id
+	WHERE
+		orders.id = ordersIdAlias
+		AND nomenclature.id = (SELECT 
+			str_value
+		FROM
+			base_parameters
+		WHERE
+			base_parameters.name = 'forfeit_nomenclature_id')),0)
+    - (IFNULL(received_deposit,0)/200)) AS bottles,
+	IFNULL((SELECT 
+			order_items.count
+		FROM
+			orders
+		LEFT JOIN
+			order_items ON order_id = orders.id
+		LEFT JOIN
+			nomenclature ON nomenclature.id = order_items.nomenclature_id
+		WHERE
+			orders.id = ordersIdAlias
+		AND nomenclature.id = (SELECT 
+				str_value
+			FROM
+				base_parameters
+			WHERE
+				base_parameters.name = 'forfeit_nomenclature_id')),received_deposit) AS forfeitAndDeposit,
+	CASE reason_type
+		WHEN 'Unknown' THEN 'неизв.'
+		WHEN 'NewAddress' THEN 'новый адрес'
+		WHEN 'OrderIncrease' THEN 'увелич. заказа'
+		WHEN 'FirstOrder' THEN 'первый заказ'
+		END AS reason_type_status,
+	returned_tare,
+	information_on_tara,
+	driver_call_id,
+	CASE driver_call_type
+		WHEN 'NoCall'  THEN 'не звонил'
+		WHEN 'CallFromAddress' THEN 'с адреса'
+		WHEN 'CallFromAnywhere' THEN 'не с адреса'
+		END AS driver_call_string,
+	comment_manager,
+	bottle_reserv,
+	IF(bottles_residue IS NOT NULL, "да", "нет") AS enteredresidue,
+	(SELECT 
+		SUM(delivered) - SUM(returned)
+	FROM
+		bottles_movement_operations
+	WHERE
+		pointid = bottles_movement_operations.delivery_point_id) AS debt
 FROM
-    orders
-        LEFT JOIN
-    order_items ON order_id = orders.id
-        LEFT JOIN
-    counterparty ON counterparty.id = orders.client_id
-        LEFT JOIN
-    delivery_points ON delivery_points.id = orders.delivery_point_id
-        LEFT JOIN
-    route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status &lt;&gt; 'Transfered'
-        LEFT JOIN
-    route_lists ON route_lists.id = route_list_addresses.route_list_id
-        LEFT JOIN
-    employees ON employees.id = route_lists.driver_id
-        LEFT JOIN
-    bottles_movement_operations ON bottles_movement_operations.id = orders.bottles_movement_operation_id
-        LEFT JOIN
-    deposit_operations ON deposit_operations.order_id = orders.id
-        LEFT JOIN
-    doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
-        LEFT JOIN 
-    cars ON cars.id = route_lists.car_id
+	orders
+LEFT JOIN
+	order_items ON order_id = orders.id
+LEFT JOIN
+	counterparty ON counterparty.id = orders.client_id
+LEFT JOIN
+	delivery_points ON delivery_points.id = orders.delivery_point_id
+LEFT JOIN
+	route_list_addresses ON route_list_addresses.order_id = orders.id AND route_list_addresses.status &lt;&gt; 'Transfered'
+LEFT JOIN
+	route_lists ON route_lists.id = route_list_addresses.route_list_id
+LEFT JOIN
+	employees ON employees.id = route_lists.driver_id
+LEFT JOIN
+	bottles_movement_operations ON bottles_movement_operations.id = orders.bottles_movement_operation_id
+LEFT JOIN
+	deposit_operations ON deposit_operations.order_id = orders.id
+LEFT JOIN
+	doc_residue ON bottles_movement_operations.delivery_point_id = doc_residue.delivery_point_id
+LEFT JOIN 
+	cars ON cars.id = route_lists.car_id
 WHERE
-    orders.delivery_date = DATE(@date)
-        AND (route_lists.status = 'Closed'
-        OR route_lists.status = 'MileageCheck')
-        AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
-        AND (@reason = -1 OR @reason = reason_type)
-        AND (@driver_id = -1 OR @driver_id = employees.id)
-        AND ((@driver_call = 1 AND type_of_use = 'Largus' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) 
-           OR (@driver_call = 2 AND (driver_call_type = 'NoCall'OR (driver_call_type = 'NoCall' AND type_of_use = 'Largus' ) OR (driver_call_type = 'NoCall' AND type_of_use is null))  AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
-           OR (@driver_call = 0 AND type_of_use is null  AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
-           OR (@driver_call = -1))
-        AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NotDelivered')
+	orders.delivery_date = DATE(@date)
+	AND(route_lists.status = 'Closed'
+		OR route_lists.status = 'MileageCheck')
+	AND (CAST(delivered AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0
+	AND (@reason = -1 OR @reason = reason_type)
+	AND (@driver_id = -1 OR @driver_id = employees.id)
+	AND ((@driver_call = 1 AND type_of_use = 'Largus' AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0) 
+		OR (@driver_call = 2 AND (driver_call_type = 'NoCall'OR (driver_call_type = 'NoCall' AND type_of_use = 'Largus' ) OR (driver_call_type = 'NoCall' AND type_of_use is null))  AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
+			OR (@driver_call = 0 AND type_of_use is null  AND returned &lt; delivered AND (CAST(returned_tare AS SIGNED) - CAST(returned AS SIGNED)) &gt; 0)
+				OR (@driver_call = -1))
+	AND NOT (orders.order_status = 'Canceled' OR orders.order_status = 'DeliveryCanceled' OR orders.order_status = 'NotDelivered')
 GROUP BY ordersIdAlias
 ORDER BY reason_type_status</CommandText>
         <QueryParameters>
@@ -1619,15 +1635,6 @@ WHERE
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <DataSources>
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz;user=;password=;port=3306;server=rs.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
   <ReportParameters>
     <ReportParameter Name="date">
       <DataType>String</DataType>
@@ -1667,4 +1674,13 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_temp;user=root;password=qsolution;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>
