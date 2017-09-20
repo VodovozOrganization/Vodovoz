@@ -27,7 +27,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		}
 
 		public int DriverPriority{
-			get{ // Если маршрут добавлен в ручную, то используем максимальный приоритет, что бы этому водителю с большей вероятностью достались адреса.
+			get{ // Если маршрут добавлен в ручную, то используем максимальный приоритет, чтобы этому водителю с большей вероятностью достались адреса.
 				return OldRoute != null ? 1 : atWorkDriver.PriorityAtDay;
 			}
 		}
@@ -38,22 +38,20 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 		}
 
-		public IList<IDistrictPriority> Districts{
-			get{
-				return atWorkDriver != null ? atWorkDriver.Districts.Cast<IDistrictPriority>().ToList() : Driver.Districts.Cast<IDistrictPriority>().ToList();
-			}
-		}
+		public IDistrictPriority[] Districts { get; private set; }
 
 		public PossibleTrip(AtWorkDriver driver, DeliveryShift shift)
 		{
 			atWorkDriver = driver;
 			Shift = shift;
+			Districts = atWorkDriver.Districts.Cast<IDistrictPriority>().ToArray();
 		}
 
 		public PossibleTrip(RouteList oldRoute)
 		{
 			OldRoute = oldRoute;
 			Shift = oldRoute.Shift;
+			Districts = Driver.Districts.Cast<IDistrictPriority>().ToArray();
 		}
 	}
 }
