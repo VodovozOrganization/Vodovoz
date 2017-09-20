@@ -15,29 +15,29 @@ namespace Vodovoz
 {
 	public partial class EmployeeDlg : OrmGtkDialogBase<Employee>
 	{
-		private static Logger logger = LogManager.GetCurrentClassLogger ();
+		private static Logger logger = LogManager.GetCurrentClassLogger();
 
-		public EmployeeDlg ()
+		public EmployeeDlg()
 		{
-			this.Build ();
-			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee> ();
+			this.Build();
+			UoWGeneric = UnitOfWorkFactory.CreateWithNewRoot<Employee>();
 			TabName = "Новый сотрудник";
-			ConfigureDlg ();
+			ConfigureDlg();
 		}
 
-		public EmployeeDlg (int id)
+		public EmployeeDlg(int id)
 		{
-			this.Build ();
-			logger.Info ("Загрузка информации о сотруднике...");
-			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Employee> (id);
-			ConfigureDlg ();
+			this.Build();
+			logger.Info("Загрузка информации о сотруднике...");
+			UoWGeneric = UnitOfWorkFactory.CreateForRoot<Employee>(id);
+			ConfigureDlg();
 		}
 
-		public EmployeeDlg (Employee sub) : this (sub.Id)
+		public EmployeeDlg(Employee sub) : this(sub.Id)
 		{
 		}
 
-		private void ConfigureDlg ()
+		private void ConfigureDlg()
 		{
 			dataentryPassportSeria.MaxLength = 30;
 			dataentryPassportSeria.Binding.AddBinding(Entity, e => e.PassportSeria, w => w.Text).InitializeFromSource();
@@ -50,6 +50,7 @@ namespace Vodovoz
 			notebookMain.ShowTabs = false;
 
 			checkIsFired.Binding.AddBinding(Entity, e => e.IsFired, w => w.Active).InitializeFromSource();
+			checkLargusDriver.Binding.AddBinding(Entity, e => e.LargusDriver, w => w.Active).InitializeFromSource();
 
 			dataentryLastName.Binding.AddBinding(Entity, e => e.LastName, w => w.Text).InitializeFromSource();
 			dataentryName.Binding.AddBinding(Entity, e => e.Name, w => w.Text).InitializeFromSource();
@@ -83,17 +84,17 @@ namespace Vodovoz
 			photoviewEmployee.Binding.AddBinding(Entity, e => e.Photo, w => w.ImageFile).InitializeFromSource();
 			photoviewEmployee.GetSaveFileName = () => Entity.FullName;
 
-			attachmentFiles.AttachToTable = OrmMain.GetDBTableName (typeof(Employee));
-			if (!UoWGeneric.IsNew) {
+			attachmentFiles.AttachToTable = OrmMain.GetDBTableName(typeof(Employee));
+			if(!UoWGeneric.IsNew) {
 				attachmentFiles.ItemId = UoWGeneric.Root.Id;
-				attachmentFiles.UpdateFileList ();
+				attachmentFiles.UpdateFileList();
 			}
 			phonesView.UoW = UoWGeneric;
-			if (UoWGeneric.Root.Phones == null)
-				UoWGeneric.Root.Phones = new List<Phone> ();
+			if(UoWGeneric.Root.Phones == null)
+				UoWGeneric.Root.Phones = new List<Phone>();
 			phonesView.Phones = UoWGeneric.Root.Phones;
-			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account> (UoWGeneric, o => o.Accounts);
-			accountsView.SetTitle ("Банковские счета сотрудника");
+			accountsView.ParentReference = new ParentReferenceGeneric<Employee, Account>(UoWGeneric, o => o.Accounts);
+			accountsView.SetTitle("Банковские счета сотрудника");
 			ydateFirstWorkDay.Binding.AddBinding(Entity, e => e.FirstWorkDay, w => w.DateOrNull).InitializeFromSource();
 			yspinTripsPriority.Binding.AddBinding(Entity, e => e.TripPriority, w => w.ValueAsShort).InitializeFromSource();
 
@@ -105,84 +106,87 @@ namespace Vodovoz
 
 			ytreeviewDistricts.SetItemsSource(Entity.ObservableDistricts);
 
-			logger.Info ("Ok");
+			logger.Info("Ok");
 		}
 
-		public override bool HasChanges { 
+		public override bool HasChanges {
 			get { return UoWGeneric.HasChanges || attachmentFiles.HasChanges; }
 		}
 
-		void OnPropertyChanged (object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		void OnPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
-			logger.Debug ("Property {0} changed", e.PropertyName);
+			logger.Debug("Property {0} changed", e.PropertyName);
 		}
 
-		public override bool Save ()
+		public override bool Save()
 		{
 			//Проверяем, чтобы в БД не попала пустая строка
-			if (string.IsNullOrWhiteSpace(Entity.AndroidLogin))
+			if(string.IsNullOrWhiteSpace(Entity.AndroidLogin))
 				Entity.AndroidLogin = null;
-			
-			var valid = new QSValidator<Employee> (UoWGeneric.Root);
-			if (valid.RunDlgIfNotValid ((Gtk.Window)this.Toplevel))
+
+			var valid = new QSValidator<Employee>(UoWGeneric.Root);
+			if(valid.RunDlgIfNotValid((Gtk.Window)this.Toplevel))
 				return false;
 
-			if (Entity.User != null) {
-				var associatedEmployees = Repository.EmployeeRepository.GetEmployeesForUser (UoW, Entity.User.Id);
-				if (associatedEmployees.Any (e => e.Id != Entity.Id)) {
-					string mes = String.Format ("Пользователь {0} уже связан с сотрудником {1}, при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
-						             Entity.User.Name,
-						             String.Join (", ", associatedEmployees.Select (e => e.ShortName))
-					             );
-					if (MessageDialogWorks.RunQuestionDialog (mes)) {
-						foreach (var ae in associatedEmployees.Where (e => e.Id != Entity.Id)) {
+			if(Entity.User != null) {
+				var associatedEmployees = Repository.EmployeeRepository.GetEmployeesForUser(UoW, Entity.User.Id);
+				if(associatedEmployees.Any(e => e.Id != Entity.Id)) {
+					string mes = String.Format("Пользователь {0} уже связан с сотрудником {1}, при привязке этого сотрудника к пользователю, старая связь будет удалена. Продолжить?",
+									 Entity.User.Name,
+									 String.Join(", ", associatedEmployees.Select(e => e.ShortName))
+								 );
+					if(MessageDialogWorks.RunQuestionDialog(mes)) {
+						foreach(var ae in associatedEmployees.Where(e => e.Id != Entity.Id)) {
 							ae.User = null;
-							UoWGeneric.Save (ae);
+							UoWGeneric.Save(ae);
 						}
 					} else
 						return false;
 				}
 			}
-				
-			phonesView.SaveChanges ();	
-			logger.Info ("Сохраняем сотрудника...");
+
+			phonesView.SaveChanges();
+			logger.Info("Сохраняем сотрудника...");
 			try {
-				UoWGeneric.Save ();
-				if (UoWGeneric.IsNew) {
+				UoWGeneric.Save();
+				if(UoWGeneric.IsNew) {
 					attachmentFiles.ItemId = UoWGeneric.Root.Id;
 				}
-				attachmentFiles.SaveChanges ();
-			} catch (Exception ex) {
-				logger.Error (ex, "Не удалось записать сотрудника.");
-				QSProjectsLib.QSMain.ErrorMessage ((Gtk.Window)this.Toplevel, ex);
+				attachmentFiles.SaveChanges();
+			} catch(Exception ex) {
+				logger.Error(ex, "Не удалось записать сотрудника.");
+				QSProjectsLib.QSMain.ErrorMessage((Gtk.Window)this.Toplevel, ex);
 				return false;
 			}
-			logger.Info ("Ok");
+			logger.Info("Ok");
 			return true;
 
 		}
 
-		protected void OnRadioTabInfoToggled (object sender, EventArgs e)
+		protected void OnRadioTabInfoToggled(object sender, EventArgs e)
 		{
-			if (radioTabInfo.Active)
+			if(radioTabInfo.Active)
 				notebookMain.CurrentPage = 0;
 		}
 
-		protected void OnRadioTabFilesToggled (object sender, EventArgs e)
+		protected void OnRadioTabFilesToggled(object sender, EventArgs e)
 		{
-			if (radioTabFiles.Active)
+			if(radioTabFiles.Active)
 				notebookMain.CurrentPage = 3;
 		}
 
-		protected void OnRadioTabAccountingToggled (object sender, EventArgs e)
+		protected void OnRadioTabAccountingToggled(object sender, EventArgs e)
 		{
-			if (radioTabAccounting.Active)
+			if(radioTabAccounting.Active)
 				notebookMain.CurrentPage = 2;
 		}
 
-		protected void OnComboCategoryEnumItemSelected (object sender, Gamma.Widgets.ItemSelectedEventArgs e)
+		protected void OnComboCategoryEnumItemSelected(object sender, Gamma.Widgets.ItemSelectedEventArgs e)
 		{
-			radioTabLogistic.Visible = ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
+			radioTabLogistic.Visible 
+			    = checkLargusDriver.Visible
+				= labelLargusDriver.Visible
+				= ((EmployeeCategory)e.SelectedItem == EmployeeCategory.driver);
 		}
 
 		protected void OnRadioTabLogisticToggled(object sender, EventArgs e)
@@ -198,7 +202,7 @@ namespace Vodovoz
 				Repository.Logistics.LogisticAreaRepository.ActiveAreaQuery()
 			);
 			SelectDistrict.Mode = OrmReferenceMode.MultiSelect;
-			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected;;
+			SelectDistrict.ObjectSelected += SelectDistrict_ObjectSelected; ;
 			TabParent.AddSlaveTab(this, SelectDistrict);
 		}
 
@@ -212,11 +216,12 @@ namespace Vodovoz
 		{
 			var addDistricts = e.GetEntities<LogisticsArea>();
 			addDistricts.Where(x => Entity.Districts.All(d => d.District.Id != x.Id))
-			            .Select(x => new DriverDistrictPriority {
-				Driver = Entity,
-				District = x
-			}).ToList().ForEach(x => Entity.ObservableDistricts.Add(x));
+						.Select(x => new DriverDistrictPriority {
+							Driver = Entity,
+							District = x
+						}).ToList().ForEach(x => Entity.ObservableDistricts.Add(x));
 		}
+
 	}
 }
 

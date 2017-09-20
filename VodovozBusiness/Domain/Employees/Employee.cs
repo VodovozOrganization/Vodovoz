@@ -213,6 +213,14 @@ namespace Vodovoz.Domain.Employees
 			set { SetField(ref defaultForwarder, value, () => DefaultForwarder); }
 		}
 
+		private bool largusDriver;
+
+		[Display(Name = "Сотрудник - водитель Ларгуса")]
+		public virtual bool LargusDriver{
+			get { return largusDriver; }
+			set {SetField(ref largusDriver, value, () => LargusDriver);}
+		}
+
 		private short tripPriority = 6;
 
 		/// <summary>
