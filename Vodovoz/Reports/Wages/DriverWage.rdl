@@ -1081,7 +1081,7 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <Textbox Name="Textbox52" >
+      <Textbox Name="Textbox52">
         <Height>13.50pt</Height>
         <Width>167.86pt</Width>
         <Value>Незакрытые маршрутные листы</Value>
@@ -1094,7 +1094,7 @@
           <BorderWidth />
         </Style>
       </Textbox>
-      <Table Name="Table6" >
+      <Table Name="Table6">
         <DataSetName>UnclosedRouteLists</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1222,7 +1222,7 @@
         <Left>6.7pt</Left>
         <Top>293.2pt</Top>
       </Table>
-      <Table Name="Table7" >
+      <Table Name="Table7">
         <DataSetName>DriverBalance</DataSetName>
         <NoRows>Query returned no rows!</NoRows>
         <Style>
@@ -1288,7 +1288,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="DriverInfo">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     route_lists.date AS date,
@@ -1324,7 +1324,7 @@ GROUP BY route_lists.id;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="date">
           <DataField>date</DataField>
           <TypeName>System.DateTime</TypeName>
@@ -1554,8 +1554,8 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="UnclosedRouteLists" >
-      <Query>
+    <DataSet Name="UnclosedRouteLists">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	id,
@@ -1566,8 +1566,7 @@ FROM
 WHERE
 	route_lists.status &lt;&gt; 'Closed'
 	AND driver_id = @driver_id
-	AND date &gt; @start_date
-	AND date &lt; @end_date</CommandText>
+	AND date &lt;= @end_date</CommandText>
         <QueryParameters>
           <QueryParameter Name="driver_id">
             <Value>=Parameters!driver_id</Value>
@@ -1580,7 +1579,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1595,16 +1594,16 @@ WHERE
         </Field>
       </Fields>
     </DataSet>
-    <DataSet Name="DriverBalance" >
-      <Query>
+    <DataSet Name="DriverBalance">
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	(SUM(liters_gived) - SUM(liters_outlayed)) as fuelBalance
 FROM
 	fuel_operations
 WHERE
-	driver_id = @driver_id
-	AND date &lt; @end_date
+	driver_id = 14
+	AND DATE(DATE_ADD(date, INTERVAL -1 DAY)) &lt;= @end_date
 GROUP BY
 	driver_id</CommandText>
         <QueryParameters>
@@ -1616,7 +1615,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="fuelBalance">
           <DataField>fuelBalance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1626,7 +1625,7 @@ GROUP BY
   </DataSets>
   <DataElementName>Report</DataElementName>
   <DataElementStyle>AttributeNormal</DataElementStyle>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="driver_id">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
