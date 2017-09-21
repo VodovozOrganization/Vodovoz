@@ -136,8 +136,7 @@ namespace Vodovoz
 
 			if(routeListItem.Order.PaymentType == PaymentType.cashless && routeListItem.TotalCash != 0)
 			{
-				routeListItem.TotalCash = routeListItem.CalculateTotalCash();
-				routeListItem.DefaultTotalCash = routeListItem.TotalCash;
+				routeListItem.RecalculateTotalCash();
 			}
 		}
 

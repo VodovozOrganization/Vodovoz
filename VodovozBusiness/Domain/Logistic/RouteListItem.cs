@@ -241,6 +241,9 @@ namespace Vodovoz.Domain.Logistic
 			}
 			set
 			{
+				if(defaultTotalCash == -1)
+					defaultTotalCash = value;
+				
 				SetField(ref totalCash, value, () => TotalCash);
 			}
 		}
@@ -274,21 +277,6 @@ namespace Vodovoz.Domain.Logistic
 		public virtual decimal DriverWageTotal { get { return DriverWage + DriverWageSurcharge; } }
 
 		decimal defaultTotalCash = -1;
-		public virtual decimal DefaultTotalCash
-		{
-			get
-			{
-				if (defaultTotalCash == -1)
-				{
-					defaultTotalCash = TotalCash;
-				}
-				return defaultTotalCash;
-			}
-			set
-			{
-				SetField(ref defaultTotalCash, value, () => DefaultTotalCash);
-			}
-		}
 
 		decimal forwarderWage;
 		public virtual decimal ForwarderWage
@@ -343,7 +331,7 @@ namespace Vodovoz.Domain.Logistic
 
 		public virtual bool HasUserSpecifiedTotalCash()
 		{
-			return TotalCash != DefaultTotalCash;
+			return TotalCash != defaultTotalCash;
 		}
 
 		public virtual string Title
@@ -537,7 +525,7 @@ namespace Vodovoz.Domain.Logistic
 			if (!HasUserSpecifiedTotalCash())
 			{
 				TotalCash = CalculateTotalCash();
-				DefaultTotalCash = TotalCash;
+				defaultTotalCash = TotalCash;
 			}
 		}
 
