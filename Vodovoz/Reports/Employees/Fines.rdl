@@ -310,7 +310,6 @@ ORDER BY employee , date</CommandText>
                             <FontWeight>Bold</FontWeight>
                             <BorderColor />
                             <BorderWidth />
-                            <Format>C</Format>
                             <BackgroundColor>Gainsboro</BackgroundColor>
                           </Style>
                         </Textbox>
@@ -416,7 +415,6 @@ ORDER BY employee , date</CommandText>
                         <PaddingLeft>2pt</PaddingLeft>
                         <BorderColor />
                         <BorderWidth />
-                        <Format>C</Format>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -495,7 +493,6 @@ ORDER BY employee , date</CommandText>
                         <BorderColor />
                         <BorderWidth />
                         <FontWeight>Bold</FontWeight>
-                        <Format>C</Format>
                       </Style>
                       <Value>=Sum({money})</Value>
                     </Textbox>
@@ -667,7 +664,7 @@ ORDER BY employee , date</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >12pt</FontSize>
+                        <FontSize>12pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -742,7 +739,7 @@ ORDER BY employee , date</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >12pt</FontSize>
+                        <FontSize>12pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -817,7 +814,7 @@ ORDER BY employee , date</CommandText>
                         <FontWeight>Bold</FontWeight>
                         <BorderColor />
                         <BorderWidth />
-                        <FontSize >12pt</FontSize>
+                        <FontSize>12pt</FontSize>
                       </Style>
                     </Textbox>
                   </ReportItems>
