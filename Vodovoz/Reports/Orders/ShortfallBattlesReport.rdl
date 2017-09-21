@@ -1387,7 +1387,7 @@
   </PageFooter>
   <DataSets>
     <DataSet Name="Orders">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
 	bottles_movement_operations.delivery_point_id AS pointid,
@@ -1408,7 +1408,7 @@
 		orders.id = ordersIdAlias AND nomenclature.category = 'water')  AS actual_count,
 	delivered,
 	returned,
-	(IFNULL(CAST(returned_tare AS SIGNED),0) - IFNULL(CAST(returned AS SIGNED),0) - 
+	TRUNCATE((IFNULL(CAST(returned_tare AS SIGNED),0) - IFNULL(CAST(returned AS SIGNED),0) - 
     IFNULL((SELECT 
 		order_items.count
 	FROM
@@ -1425,7 +1425,7 @@
 			base_parameters
 		WHERE
 			base_parameters.name = 'forfeit_nomenclature_id')),0)
-    - (IFNULL(received_deposit,0)/200)) AS bottles,
+    - (IFNULL(received_deposit,0)/200)),0) AS bottles,
 	IFNULL((SELECT 
 			order_items.count
 		FROM
@@ -1516,7 +1516,7 @@ ORDER BY reason_type_status</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="ordersIdAlias">
           <DataField>ordersIdAlias</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1674,7 +1674,7 @@ WHERE
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
