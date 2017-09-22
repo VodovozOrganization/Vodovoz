@@ -33,7 +33,7 @@ namespace Vodovoz.Reports
 
 		public string Title	{ 
 			get {
-				return "Отчет по бензину";
+				return "Отчет по выдаче топлива";
 			}
 		}
 
@@ -43,6 +43,9 @@ namespace Vodovoz.Reports
 		{ 
 			var parameters = new Dictionary<string, object>();
 
+			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
+			parameters.Add("end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1));
+
 			if(yentryreferenceCar.Subject != null){
 				parameters.Add("car_id", (yentryreferenceCar.Subject as Car)?.Id);
 				parameters.Add("driver_id", (yentryreferenceCar.Subject as Car)?.IsCompanyHavings == true
@@ -51,10 +54,13 @@ namespace Vodovoz.Reports
 			else {
 				parameters.Add("car_id", -1);
 				parameters.Add("driver_id", -1);
-			}
 
-			parameters.Add("start_date", dateperiodpicker.StartDateOrNull);
-			parameters.Add("end_date", dateperiodpicker.EndDate.AddDays(1).AddTicks(-1));
+				return new ReportInfo {
+					Identifier = "Logistic.FuelReportSummary",
+					UseUserVariables = true,
+					Parameters = parameters
+				};
+			}
 
 			return new ReportInfo
 			{

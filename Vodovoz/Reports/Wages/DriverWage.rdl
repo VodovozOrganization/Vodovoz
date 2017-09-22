@@ -1205,12 +1205,14 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox58">
-                      <Value>=Fields!status.Value</Value>
+                      <Value>=Switch( Fields!status.Value = 'New', "Новый", Fields!status.Value = 'InLoading', "На погрузке", Fields!status.Value = 'EnRoute', "В пути", Fields!status.Value = 'OnClosing', "На закрытии", Fields!status.Value = 'NotDelivered', "Не доставлен")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1555,7 +1557,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="UnclosedRouteLists">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	id,
@@ -1579,7 +1581,7 @@ WHERE
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="id">
           <DataField>id</DataField>
           <TypeName>System.UInt32</TypeName>
@@ -1595,7 +1597,7 @@ WHERE
       </Fields>
     </DataSet>
     <DataSet Name="DriverBalance">
-      <Query >
+      <Query>
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT
 	(SUM(liters_gived) - SUM(liters_outlayed)) as fuelBalance
@@ -1615,7 +1617,7 @@ GROUP BY
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields >
+      <Fields>
         <Field Name="fuelBalance">
           <DataField>fuelBalance</DataField>
           <TypeName>System.Decimal</TypeName>
@@ -1659,7 +1661,7 @@ GROUP BY
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources >
+  <DataSources>
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>

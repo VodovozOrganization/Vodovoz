@@ -89,6 +89,30 @@ namespace Vodovoz.Domain.Logistic
 			set { SetField(ref fuelCashExpense, value, () => FuelCashExpense); }
 		}
 
+		private Employee author;
+
+		[Display(Name = "Автор документа")]
+		public virtual Employee Author{
+			get { return author; }
+			set { SetField(ref author, value, () => Author);}
+		}
+
+		private Employee lastEditor;
+
+		[Display(Name = "Автор последней правки")]
+		public virtual Employee LastEditor {
+			get { return lastEditor; }
+			set { SetField(ref lastEditor, value, () => LastEditor); }
+		}
+
+		private DateTime lastEditDate;
+
+		[Display(Name = "Дата последней правки")]
+		public virtual DateTime LastEditDate{
+			get { return lastEditDate; }
+			set { SetField(ref lastEditDate, value, () => LastEditDate);}
+		}
+
 		public FuelDocument()
 		{
 		}

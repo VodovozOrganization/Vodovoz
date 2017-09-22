@@ -154,7 +154,12 @@ namespace Vodovoz
 			}
 			if (Entity.FuelCashExpense != null)
 			{
-				Entity.FuelCashExpense.Casher = cashier;
+				if(Entity.Author == null)
+				{
+					Entity.Author = cashier;
+				}
+				Entity.FuelCashExpense.Casher = Entity.LastEditor = cashier;
+				Entity.LastEditDate = DateTime.Now;
 			}
 
 			var valid = new QSValidator<FuelDocument> (UoWGeneric.Root);
