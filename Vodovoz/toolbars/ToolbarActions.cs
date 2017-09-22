@@ -277,6 +277,7 @@ public partial class MainWindow : Window
 		tdiMain.OpenTab(
 			ReferenceRepresentation.GenerateHashName<FinesVM>(),
 			() => new ReferenceRepresentation (new FinesVM ()).CustomTabName("Журнал штрафов")
+			.Buttons(QSMain.User.Permissions["can_delete_fines"] ? ReferenceButtonMode.CanAll : (ReferenceButtonMode.CanAdd | ReferenceButtonMode.CanEdit))
 		);
 	}
 
