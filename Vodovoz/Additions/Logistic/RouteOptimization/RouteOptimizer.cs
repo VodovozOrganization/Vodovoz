@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -63,15 +63,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 			//Сортируем в обратном порядке потому что алгоритм отдает предпочтение водителям с конца.
 			var trips = Drivers.Where(x => x.Car != null)
-			                        .OrderByDescending(x => x.PriorityAtDay)
-			                        .SelectMany(x => x.DaySchedule != null 
-			                                    ? x.DaySchedule.Shifts.Select(s => new PossibleTrip(x, s)) 
-			                                    : new[] { new PossibleTrip(x, null) }
-			                                   )
-			                   .ToList();
+							   .OrderBy(x => x.PriorityAtDay)
+									.SelectMany(x => x.DaySchedule != null
+												? x.DaySchedule.Shifts.Select(s => new PossibleTrip(x, s))
+												: new[] { new PossibleTrip(x, null) }
+											   )
+							   .ToList();
 
-			foreach(var existRoute in Routes)
-			{
+			foreach(var existRoute in Routes) {
 				var trip = trips.FirstOrDefault(x => x.Driver == existRoute.Driver && x.Shift == existRoute.Shift);
 				if(trip != null)
 					trip.OldRoute = existRoute;
@@ -97,14 +96,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			List<LogisticsArea> unusedDistricts = new List<LogisticsArea>();
 			List<CalculatedOrder> calculatedOrders = new List<CalculatedOrder>();
 
-			foreach(var order in Orders)
-			{
+			foreach(var order in Orders) {
 				if(order.DeliveryPoint.Longitude == null || order.DeliveryPoint.Latitude == null)
 					continue;
 				var point = new Point((double)order.DeliveryPoint.Latitude.Value, (double)order.DeliveryPoint.Longitude.Value);
 				var aria = areas.Find(x => x.Geometry.Contains(point));
-				if(aria != null)
-				{
+				if(aria != null) {
 					var oldRoute = Routes.FirstOrDefault(r => r.Addresses.Any(a => a.Order.Id == order.Id));
 					if(oldRoute != null)
 						calculatedOrders.Add(new CalculatedOrder(order, aria, false, oldRoute));
@@ -115,8 +112,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				}
 			}
 			Nodes = calculatedOrders.ToArray();
-			if(unusedDistricts.Count > 0)
-			{
+			if(unusedDistricts.Count > 0) {
 				AddWarning("Районы без водителей: {0}", String.Join(", ", unusedDistricts.Select(x => x.Name)));
 			}
 
@@ -135,7 +131,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
 			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();
-			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles" );
+			routing.AddDimensionWithVehicleCapacity(new CallbackBottles(Nodes), 0, bottlesCapacity, true, "Bottles");
 
 			var weightCapacity = possibleRoutes.Select(x => (long)x.Car.MaxWeight).ToArray();
 			routing.AddDimensionWithVehicleCapacity(new CallbackWeight(Nodes), 0, weightCapacity, true, "Weight");
@@ -155,38 +151,38 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				var cumulTimeOnEnd = routing.CumulVar(routing.End(ix), "Time");
 				var cumulTimeOnBegin = routing.CumulVar(routing.Start(ix), "Time");
 
-				if(possibleRoutes[ix].Shift != null)
-				{
+				if(possibleRoutes[ix].Shift != null) {
 					var shift = possibleRoutes[ix].Shift;
 					var endTime = possibleRoutes[ix].EarlyEnd.HasValue
-					                                ? Math.Min(shift.EndTime.TotalSeconds, possibleRoutes[ix].EarlyEnd.Value.TotalSeconds)
-					                                : shift.EndTime.TotalSeconds;
+													? Math.Min(shift.EndTime.TotalSeconds, possibleRoutes[ix].EarlyEnd.Value.TotalSeconds)
+													: shift.EndTime.TotalSeconds;
 					cumulTimeOnEnd.SetMax((long)endTime);
 					cumulTimeOnBegin.SetMin((long)shift.StartTime.TotalSeconds);
-				}
-				else if(possibleRoutes[ix].EarlyEnd.HasValue) //Устанавливаем время окончания рабочего дня у водителя.
+				} else if(possibleRoutes[ix].EarlyEnd.HasValue) //Устанавливаем время окончания рабочего дня у водителя.
 					cumulTimeOnEnd.SetMax((long)possibleRoutes[ix].EarlyEnd.Value.TotalSeconds);
 			}
 
-			for(int ix = 0; ix < Nodes.Length; ix++)
-			{
+			for(int ix = 0; ix < Nodes.Length; ix++) {
 				var startWindow = Nodes[ix].Order.DeliverySchedule.From.TotalSeconds;
 				var endWindow = Nodes[ix].Order.DeliverySchedule.To.TotalSeconds - Nodes[ix].Order.CalculateTimeOnPoint(false) * 60; //FIXME Внимание здесь задаем экспедитора. Это не равильно, при реализации работы с экспедитором нужно это изменить.
-				if(endWindow < startWindow)
-				{
+				if(endWindow < startWindow) {
 					AddWarning("Время разгрузки на {2}, не помещается в диапазон времени доставки. {0}-{1}", Nodes[ix].Order.DeliverySchedule.From, Nodes[ix].Order.DeliverySchedule.To, Nodes[ix].Order.DeliveryPoint.ShortAddress);
 					endWindow = startWindow;
 				}
 				time_dimension.CumulVar(ix + 1).SetRange((long)startWindow, (long)endWindow);
-				routing.AddDisjunction(new int[]{ix + 1}, MaxDistanceAddressPenalty);
+				routing.AddDisjunction(new int[] { ix + 1 }, MaxDistanceAddressPenalty);
 			}
 
+			logger.Debug("Nodes.Length = {0}", Nodes.Length);
+			logger.Debug("routing.Nodes() = {0}", routing.Nodes());
+			logger.Debug("GetNumberOfDisjunctions = {0}", routing.GetNumberOfDisjunctions());
+
 			RoutingSearchParameters search_parameters =
-			        RoutingModel.DefaultSearchParameters();
+					RoutingModel.DefaultSearchParameters();
 			// Setting first solution heuristic (cheapest addition).
 			search_parameters.FirstSolutionStrategy =
-				                 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
-			
+								 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
+
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
 			search_parameters.FingerprintArcCostEvaluators = true;
 			//search_parameters.OptimizationStep = 100;
@@ -205,9 +201,9 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			logger.Info("Рассчет расстояний между точками...");
 			routing.CloseModelWithParameters(search_parameters);
 
-			#if DEBUG
+#if DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
-			#endif
+#endif
 			distanceCalculator.FlushCache();
 			var lastSolution = solver.MakeLastSolutionCollector();
 			lastSolution.AddObjective(routing.CostVar());
@@ -222,57 +218,61 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			PerformanceHelper.AddTimePoint(logger, $"Получили решение.");
 			logger.Info("Готово. Заполняем.");
 			MainClass.MainWin.ProgressAdd();
-			#if DEBUG
+#if DEBUG
 			PrintMatrixCount(distanceCalculator.matrixcount);
-			#endif
+#endif
 			Console.WriteLine("Status = {0}", routing.Status());
 			if(solution != null) {
 				// Solution cost.
 				Console.WriteLine("Cost = {0}", solution.ObjectiveValue());
 				time_dimension = routing.GetDimensionOrDie("Time");
 
-				for(int route_number = 0; route_number < routing.Vehicles(); route_number++)
-				{
+				for(int route_number = 0; route_number < routing.Vehicles(); route_number++) {
 					//FIXME Нужно понять, есть ли у водителя маршрут.
 					var route = new ProposedRoute(possibleRoutes[route_number]);
 					long first_node = routing.Start(route_number);
 					long second_node = solution.Value(routing.NextVar(first_node)); // Пропускаем первый узел, так как это наша база.
 					route.RouteCost = routing.GetCost(first_node, second_node, route_number);
 
-					while(!routing.IsEnd(second_node))
-					{
+					while(!routing.IsEnd(second_node)) {
 						var time_var = time_dimension.CumulVar(second_node);
 						var rPoint = new ProposedRoutePoint(
 							TimeSpan.FromSeconds(solution.Min(time_var)),
 							TimeSpan.FromSeconds(solution.Max(time_var)),
 							Nodes[second_node - 1].Order
 						);
-						rPoint.DebugMaxMin = String.Format("\n({0},{1})[{3}-{4}]-{2}",
-						                                   new DateTime().AddSeconds(solution.Min(time_var)).ToShortTimeString(),
-						                                   new DateTime().AddSeconds(solution.Max(time_var)).ToShortTimeString(),
-						                                   second_node,
-						                                   rPoint.Order.DeliverySchedule.From.ToString("hh\\:mm"),
-						                                   rPoint.Order.DeliverySchedule.To.ToString("hh\\:mm")
+						rPoint.DebugMaxMin = String.Format("\n({0},{1})[{3}-{4}]-{2} Cost:{5}",
+														   new DateTime().AddSeconds(solution.Min(time_var)).ToShortTimeString(),
+														   new DateTime().AddSeconds(solution.Max(time_var)).ToShortTimeString(),
+														   second_node,
+														   rPoint.Order.DeliverySchedule.From.ToString("hh\\:mm"),
+														   rPoint.Order.DeliverySchedule.To.ToString("hh\\:mm"),
+														   routing.GetCost(first_node, second_node, route_number)
 														  );
 						route.Orders.Add(rPoint);
-						
+
 						first_node = second_node;
 						second_node = solution.Value(routing.NextVar(first_node));
 						route.RouteCost += routing.GetCost(first_node, second_node, route_number);
 					}
 
-					if(route.Orders.Count > 0)
-					{
+					if(route.Orders.Count > 0) {
 						ProposedRoutes.Add(route);
 						logger.Debug("Маршрут {0}: {1}",
-						             route.Trip.Driver.ShortName,
-						             String.Join(" -> ", route.Orders.Select(x => x.DebugMaxMin))
-						            );
-					}
-					else
+									 route.Trip.Driver.ShortName,
+									 String.Join(" -> ", route.Orders.Select(x => x.DebugMaxMin))
+									);
+					} else
 						logger.Debug("Маршрут {0}: пустой", route.Trip.Driver.ShortName);
 				}
 			}
+
+#if DEBUG
+			logger.Debug("SGoToBase:{0}",String.Join(", ", CallbackDistanceDistrict.SGoToBase.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+			logger.Debug("SFromExistPenality:{0}", String.Join(", ", CallbackDistanceDistrict.SFromExistPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+			logger.Debug("SUnlikeDistrictPenality:{0}", String.Join(", ", CallbackDistanceDistrict.SUnlikeDistrictPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+			logger.Debug("SLargusPenality:{0}", String.Join(", ", CallbackDistanceDistrict.SLargusPenality.Select(x => $"{x.Key.Driver.ShortName}={x.Value}")));
+#endif
 
 			MainClass.MainWin.ProgressAdd();
 
