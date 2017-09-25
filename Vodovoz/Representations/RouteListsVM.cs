@@ -161,6 +161,13 @@ namespace Vodovoz.ViewModel
 				RouteListStatus.InLoading
 			};
 
+		private List<RouteListStatus> FuelIssuingStatuses = new List<RouteListStatus>()
+			{
+				RouteListStatus.New,
+				RouteListStatus.InLoading,
+				RouteListStatus.EnRoute
+			};
+
 		public override Gtk.Menu GetPopupMenu (RepresentationSelectResult[] selected)
 		{
 			lastMenuSelected = selected;
@@ -206,6 +213,12 @@ namespace Vodovoz.ViewModel
 			menuItemDeleteRouteList.Sensitive = selected.Any(x =>
 				CanDeletedStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
 			popupMenu.Add(menuItemDeleteRouteList);
+
+			Gtk.MenuItem menuItemRouteListFuelIssuingDlg = new Gtk.MenuItem("Выдать топливо");
+			menuItemRouteListFuelIssuingDlg.Activated += MenuItemRouteListFuelIssuing_Activated;
+			menuItemRouteListFuelIssuingDlg.Sensitive = selected.Any(x =>
+			FuelIssuingStatuses.Contains((x.VMNode as RouteListsVMNode).StatusEnum));
+			popupMenu.Add(menuItemRouteListFuelIssuingDlg);
 
 			return popupMenu;
 		}
@@ -304,6 +317,24 @@ namespace Vodovoz.ViewModel
 			var objectType = typeof(RouteList);
 			if(OrmMain.DeleteObject(objectType, routeListIds[0]))
 				this.UpdateNodes();
+		}
+
+		void MenuItemRouteListFuelIssuing_Activated(object sender, EventArgs e)
+		{
+			var routeListIds = lastMenuSelected.Select(x => x.EntityId).ToArray();
+			var RouteList = UoW.GetById<RouteList>(routeListIds[0]);
+
+			if(RouteList.FuelGivedDocument == null){
+				MainClass.MainWin.TdiMain.OpenTab(
+					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
+					() => new FuelDocumentDlg(UoW.GetById<RouteList>(routeListIds[0]))
+				);
+			}else{
+				MainClass.MainWin.TdiMain.OpenTab(
+					OrmMain.GenerateDialogHashName<RouteList>(routeListIds[0]),
+					() => new FuelDocumentDlg(UoW.GetById<RouteList>(routeListIds[0]), RouteList.FuelGivedDocument.Id)
+				);
+			}
 		}
 	}
 
