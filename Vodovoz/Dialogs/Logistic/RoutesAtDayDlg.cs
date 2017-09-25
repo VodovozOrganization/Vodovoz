@@ -367,7 +367,7 @@ namespace Vodovoz
 
 				routeOverlay.Routes.Add(route);
 
-				//Если выбран адрес, переключаем на него карту.
+				//Если выбран адрес, центруем на него карту.
 				var rli = row as RouteListItem;
 				if(rli != null)
 				{
@@ -651,7 +651,7 @@ namespace Vodovoz
 				.Fetch (x => x.OrderItems).Eager
 				.Future ();
 
-			ordersAtDay = ordersQuery.Where (x => x.DeliverySchedule.To <= ytimeToDelivery.Time).ToList ();
+			ordersAtDay = ordersQuery.Where (x => x.DeliverySchedule?.To <= ytimeToDelivery.Time).ToList ();
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 			MainClass.MainWin.ProgressAdd();
