@@ -15,7 +15,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 		public override long Run(int first_index, int second_index)
 		{
-			return (first_index != second_index && first_index <= ordersCount && second_index <= ordersCount) ? 1 : 0;
+			return (first_index != second_index && second_index != 0 && first_index <= ordersCount && second_index <= ordersCount) ? 1 : 0;
 		}
 	}
 }
