@@ -21,6 +21,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		Dictionary<LogisticsArea, int> priorites;
 		IDistanceCalculator distanceCalculator;
 		long fixedAddressPenality;
+		long?[,] resultsCache;
 
 		public CallbackDistanceDistrict(CalculatedOrder[] nodes, PossibleTrip trip, IDistanceCalculator distanceCalculator)
 		{
@@ -29,6 +30,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			priorites = trip.Districts.ToDictionary(x => x.District, x => x.Priority);
 			fixedAddressPenality = RouteOptimizer.DriverPriorityAddressPenalty * (Trip.DriverPriority - 1);
 			this.distanceCalculator = distanceCalculator;
+			resultsCache = new long?[Nodes.Length + 1, Nodes.Length + 1];
 #if DEBUG
 			SGoToBase[Trip] = 0;
 			SFromExistPenality[Trip] = 0;
@@ -38,6 +40,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		}
 
 		public override long Run(int first_index, int second_index)
+		{
+			if(resultsCache[first_index, second_index] == null)
+				resultsCache[first_index, second_index] = Calculate(first_index, second_index);
+			
+			return resultsCache[first_index, second_index].Value;
+		}
+
+		private long Calculate(int first_index, int second_index)
 		{
 			if(first_index > Nodes.Length || second_index > Nodes.Length || first_index < 0 || second_index < 0) {
 				logger.Error($"Get Distance {first_index} -> {second_index} out of orders ({Nodes.Length})");
