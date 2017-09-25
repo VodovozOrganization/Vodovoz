@@ -20,12 +20,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		PossibleTrip Trip;
 		Dictionary<LogisticsArea, int> priorites;
 		IDistanceCalculator distanceCalculator;
+		long fixedAddressPenality;
 
 		public CallbackDistanceDistrict(CalculatedOrder[] nodes, PossibleTrip trip, IDistanceCalculator distanceCalculator)
 		{
 			Nodes = nodes;
 			Trip = trip;
 			priorites = trip.Districts.ToDictionary(x => x.District, x => x.Priority);
+			fixedAddressPenality = RouteOptimizer.DriverPriorityAddressPenalty * (Trip.DriverPriority - 1);
 			this.distanceCalculator = distanceCalculator;
 #if DEBUG
 			SGoToBase[Trip] = 0;
@@ -63,29 +65,39 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 				fromExistRoute = true;
 			}
 
-			if(Trip.Car.TypeOfUse == CarTypeOfUse.Largus && Nodes[second_index - 1].Bootles > RouteOptimizer.MaxBottlesInOrderForLargus) {
+			bool addressForLargus = Nodes[second_index - 1].Bootles <= RouteOptimizer.MaxBottlesInOrderForLargus;
+			long distance = 0;
+
+			if(Trip.Car.TypeOfUse == CarTypeOfUse.Largus && !addressForLargus) {
 #if DEBUG
 				SLargusPenality[Trip]++;
 #endif
 				return RouteOptimizer.LargusMaxBottlePenalty;
 			}
 
-			long distance;
+			if(Trip.Car.TypeOfUse != CarTypeOfUse.Largus && addressForLargus)
+				distance += RouteOptimizer.SmallOrderNotLargusPenalty;
+
 			var aria = Nodes[second_index - 1].District;
-			if(!priorites.ContainsKey(aria) && !fromExistRoute) {
+
+			if(!fromExistRoute)//Если адрес из уже существующего маршрута, не учитываем приоритеты районов
+			{
+				if(priorites.ContainsKey(aria))
+					distance += priorites[aria] * RouteOptimizer.DistrictPriorityPenalty;
+				else{
 #if DEBUG
-				SUnlikeDistrictPenality[Trip]++;
+					SUnlikeDistrictPenality[Trip]++;
 #endif
-				return RouteOptimizer.UnlikeDistrictPenalty + GetSimpleDistance(first_index, second_index);
+					distance += RouteOptimizer.UnlikeDistrictPenalty;
+				}
 			}
 
 			if(first_index == 0)
-				distance = distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
+				distance += distanceCalculator.DistanceFromBaseMeter(Nodes[second_index - 1].Order.DeliveryPoint);
 			else
-				distance = distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
+				distance += distanceCalculator.DistanceMeter(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
-			//Если адрес из уже существующего маршрута, не 
-			return fromExistRoute ? distance : distance + priorites[aria] * RouteOptimizer.DistrictPriorityPenalty ;
+			return distance + fixedAddressPenality;
 		}
 
 		private long GetSimpleDistance(int first_index, int second_index)

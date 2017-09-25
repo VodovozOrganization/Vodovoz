@@ -20,10 +20,12 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public static long UnlikeDistrictPenalty = 100000; //Штраф за поездку в отсутствующий в списке район
 		public static long RemoveOrderFromExistRLPenalty = 100000; //Штраф за передачу заказа другому водителю, если заказ уже находится в маршрутном листе сформированным до построения.
 		public static long DistrictPriorityPenalty = 1000; //Штраф за каждый шаг приоритета к каждому адресу, в менее приоритеном районе
-		public static long DriverPriorityPenalty = 20000; //Штраф каждому менее приоритетному водителю, на единицу приоритета, за выход в маршрут.
+		public static long DriverPriorityPenalty = 10000; //Штраф каждому менее приоритетному водителю, на единицу приоритета, за выход в маршрут.
+		public static long DriverPriorityAddressPenalty = 800; //Штраф каждому менее приоритетному водителю на единицу приоритета, на каждом адресе.
 		public static long MaxDistanceAddressPenalty = 300000; //Штраф за не отвезенный заказ. Или максимальное расстояние на которое имеет смысл ехать.
 		public static int MaxBottlesInOrderForLargus = 4; //Максимальное количество бутелей в заказе для ларгусов.
 		public static long LargusMaxBottlePenalty = 500000; //Штраф за добавление в лагрус большего количества бутелей. Сейчас установлено больше чем стоимость недоставки заказа.
+		public static long SmallOrderNotLargusPenalty = 25000; //Штраф за добавление небольшого количества бутелей не в ларгус.
 		#endregion
 
 		public IList<RouteList> Routes;
@@ -184,7 +186,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 								 FirstSolutionStrategy.Types.Value.ParallelCheapestInsertion;
 
 			search_parameters.TimeLimitMs = MaxTimeSeconds * 1000;
-			search_parameters.FingerprintArcCostEvaluators = true;
+			search_parameters.FingerprintArcCostEvaluators = false;
 			//search_parameters.OptimizationStep = 100;
 
 			var solver = routing.solver();
