@@ -1,10 +1,6 @@
 ﻿using QSOrmProject;
 using Vodovoz.Domain.Employees;
 using Vodovoz.Domain.Chats;
-<<<<<<< Updated upstream:VodovozBusiness/Repositories/Chats/ChatRepository.cs
-=======
-using ChatClass = Vodovoz.Domain.Chats.Chat;
->>>>>>> Stashed changes:VodovozBusiness/Repositories/Chat/ChatRepository.cs
 using System.Collections.Generic;
 using QSProjectsLib;
 
@@ -34,4 +30,3 @@ namespace Vodovoz.Repository.Chats
 		}
 	}
 }
-
