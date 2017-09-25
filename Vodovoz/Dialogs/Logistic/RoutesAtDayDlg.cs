@@ -651,7 +651,18 @@ namespace Vodovoz
 				.Fetch (x => x.OrderItems).Eager
 				.Future ();
 
-			ordersAtDay = ordersQuery.Where (x => x.DeliverySchedule?.To <= ytimeToDelivery.Time).ToList ();
+			var withoutTime = ordersQuery.Where(x => x.DeliverySchedule == null).ToList();
+			var withoutLocation = ordersQuery.Where(x => x.DeliveryPoint == null || !x.DeliveryPoint.СoordinatesExist).ToList();
+			if(withoutTime.Count > 0 || withoutLocation.Count > 0)
+				MessageDialogWorks.RunWarningDialog("Не все заказы были загружены!" +
+				                                    (withoutTime.Count > 0 ? ("\n* У заказов отсутсвует время доставки: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "") +
+				                                    (withoutLocation.Count > 0 ? ("\n* У заказов отсутствуют координаты: " + String.Join(", ", withoutTime.Select(x => x.Id.ToString()))) : "")
+												   );
+
+			ordersAtDay = ordersQuery.Where (x => x.DeliverySchedule != null)
+			                         .Where(x => x.DeliverySchedule.To <= ytimeToDelivery.Time)
+			                         .Where(x => x.DeliveryPoint != null)
+			                         .ToList ();
 
 			logger.Info("Загружаем МЛ на {0:d}...", ydateForRoutes.Date);
 			MainClass.MainWin.ProgressAdd();
