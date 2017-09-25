@@ -366,6 +366,13 @@ namespace Vodovoz
 				route.Stroke.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
 
 				routeOverlay.Routes.Add(route);
+
+				//Если выбран адрес, переключаем на него карту.
+				var rli = row as RouteListItem;
+				if(rli != null)
+				{
+					gmapWidget.Position = rli.Order.DeliveryPoint.GmapPoint;
+				}
 			}
 			logger.Info("Ok");
 		}
