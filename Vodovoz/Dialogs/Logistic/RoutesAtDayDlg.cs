@@ -39,6 +39,7 @@ namespace Vodovoz
 		IList<RouteList> routesAtDay;
 		IList<AtWorkDriver> driversAtDay;
 		IList<AtWorkForwarder> forwardersAtDay;
+		IList<LogisticsArea> logisticanDistricts;
 		RouteOptimizer optimizer = new RouteOptimizer();
 		RouteGeometrySputnikCalculator distanceCalculator = new RouteGeometrySputnikCalculator();
 
@@ -727,10 +728,12 @@ namespace Vodovoz
 
 					var addressMarker = new PointMarker(new PointLatLng((double)order.DeliveryPoint.Latitude, (double)order.DeliveryPoint.Longitude), type);
 					addressMarker.Tag = order;
-					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}, Время доставки: {2}",
-					order.DeliveryPoint.ShortAddress,
-					order.TotalDeliveredBottles,
-					order.DeliverySchedule?.Name ?? "Не назначено");
+					addressMarker.ToolTipText = String.Format("{0}\nБутылей: {1}, Время доставки: {2}\nРайон: {3}",
+						order.DeliveryPoint.ShortAddress,
+						order.TotalDeliveredBottles,
+						order.DeliverySchedule?.Name ?? "Не назначено",
+						logisticanDistricts?.FirstOrDefault(x => x.Geometry.Contains(order.DeliveryPoint.NetTopologyPoint))?.Name
+					                                         );
 
 					var identicalPoint= addressesOverlay.Markers.Count(g => g.Position.Lat == (double)order.DeliveryPoint.Latitude && g.Position.Lng == (double)order.DeliveryPoint.Longitude);
 					var pointShift = 5;
@@ -1059,8 +1062,8 @@ namespace Vodovoz
 		{
 			logger.Info("Загружаем районы...");
 			districtsOverlay.Clear();
-			var districts = uow.GetAll<LogisticsArea>();
-			foreach(var district in districts)
+			logisticanDistricts = uow.GetAll<LogisticsArea>().ToList();
+			foreach(var district in logisticanDistricts)
 			{
 				if(district.Geometry == null)
 					continue;
