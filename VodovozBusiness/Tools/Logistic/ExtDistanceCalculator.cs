@@ -251,8 +251,11 @@ namespace Vodovoz.Tools.Logistic
 				waitDistance = new WayHash(fromHash, toHash);
 				while(!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash))
 				{
-					UpdateText();
 					//Внутри вызывается QSMain.WaitRedraw();
+					UpdateText();
+					//Если по какой то причине, не получили расстояние. Не висим. Пробуем еще раз через сервис.
+					if(waitDistance == null && (!cache.ContainsKey(fromHash) || !cache[fromHash].ContainsKey(toHash)))
+						return LoadDistanceFromService(fromHash, toHash);
 				}
 
 				return cache[fromHash][toHash];
