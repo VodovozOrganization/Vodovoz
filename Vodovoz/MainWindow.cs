@@ -832,4 +832,13 @@ public partial class MainWindow : Gtk.Window
 			() => new OrmReference(typeof(DeliveryDaySchedule))
 		);
 	}
+
+	protected void OnActionShipmentReportActivated(object sender, EventArgs e)
+	{
+		var widget = new Vodovoz.ReportsParameters.Logistic.ShipmentReport();
+		tdiMain.OpenTab(
+			QSReport.ReportViewDlg.GenerateHashName(widget),
+			() => new QSReport.ReportViewDlg(widget)
+		);
+	}
 }
