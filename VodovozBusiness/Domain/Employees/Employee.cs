@@ -221,6 +221,14 @@ namespace Vodovoz.Domain.Employees
 			set {SetField(ref largusDriver, value, () => LargusDriver);}
 		}
 
+		private float driverSpeed = 1;
+
+		[Display(Name = "Скорость работы водителя")]
+		public virtual float DriverSpeed {
+			get { return driverSpeed; }
+			set { SetField(ref driverSpeed, value, () => DriverSpeed); }
+		}
+
 		private short tripPriority = 6;
 
 		/// <summary>
