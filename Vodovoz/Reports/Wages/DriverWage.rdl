@@ -1009,7 +1009,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox47">
-                      <Value>=Fields!uaDate.Value</Value>
+                      <Value>=Format(Fields!uaDate.Value, "dd/MM/yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
@@ -1065,7 +1065,7 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>5.8pt</Left>
+        <Left>0.0pt</Left>
         <Top>249.6pt</Top>
       </Table>
       <Textbox Name="Textbox51">
@@ -1192,12 +1192,14 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox57">
-                      <Value>=Fields!date.Value</Value>
+                      <Value>==Format(Fields!date.Value, "dd/MM/yyyy")</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
+                        <BorderColor  />
+                        <BorderWidth  />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1211,8 +1213,8 @@
                         <BorderStyle>
                           <Default>Solid</Default>
                         </BorderStyle>
-                        <BorderColor  />
-                        <BorderWidth  />
+                        <BorderColor />
+                        <BorderWidth />
                       </Style>
                     </Textbox>
                   </ReportItems>
@@ -1221,8 +1223,8 @@
             </TableRow>
           </TableRows>
         </Details>
-        <Left>6.7pt</Left>
-        <Top>293.2pt</Top>
+        <Left>0.0pt</Left>
+        <Top>294.0pt</Top>
       </Table>
       <Table Name="Table7">
         <DataSetName>DriverBalance</DataSetName>
@@ -1246,7 +1248,7 @@
         </Style>
         <TableColumns>
           <TableColumn>
-            <Width>186.7pt</Width>
+            <Width>222.0pt</Width>
           </TableColumn>
         </TableColumns>
         <Details>
@@ -1257,7 +1259,7 @@
                 <TableCell>
                   <ReportItems>
                     <Textbox Name="Textbox60">
-                      <Value>="Баланс водителя: " + Fields!fuelBalance.Value</Value>
+                      <Value>="Баланс водителя по топливу: " + Fields!fuelBalance.Value</Value>
                       <CanGrow>true</CanGrow>
                       <Style>
                         <BorderStyle>
