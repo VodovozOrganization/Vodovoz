@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,6 +26,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 		public static int MaxBottlesInOrderForLargus = 4; //Максимальное количество бутелей в заказе для ларгусов.
 		public static long LargusMaxBottlePenalty = 500000; //Штраф за добавление в лагрус большего количества бутелей. Сейчас установлено больше чем стоимость недоставки заказа.
 		public static long SmallOrderNotLargusPenalty = 25000; //Штраф за добавление небольшого количества бутелей не в ларгус.
+		public static long MinAddressesInRoutePenalty = 50000; //Штраф за каждый адрес в маршруте меньше минимального
+		public static long MinBottlesInRoutePenalty = 10000; //Штраф за каждую бутыль в маршруте меньше минимального
 		#endregion
 
 		public IList<RouteList> Routes;
@@ -145,6 +147,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			routing.AddDimensionWithVehicleCapacity(new CallbackAddressCount(Nodes.Length), 0, addressCapacity, true, "AddressCount");
 
 			var bottlesDimension = routing.GetDimensionOrDie("Bottles");
+			var addressDimension = routing.GetDimensionOrDie("AddressCount");
 
 			for(int ix = 0; ix < possibleRoutes.Length; ix++) {
 				routing.SetArcCostEvaluatorOfVehicle(new CallbackDistanceDistrict(Nodes, possibleRoutes[ix], distanceCalculator), ix);
@@ -152,6 +155,10 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 
 				var cumulTimeOnEnd = routing.CumulVar(routing.End(ix), "Time");
 				var cumulTimeOnBegin = routing.CumulVar(routing.Start(ix), "Time");
+
+				//Устанавливаем минимальные границы для диапазонов
+				bottlesDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinBottles, MinBottlesInRoutePenalty);
+				addressDimension.SetEndCumulVarSoftLowerBound(ix, possibleRoutes[ix].Car.MinRouteAddresses, MinAddressesInRoutePenalty);
 
 				if(possibleRoutes[ix].Shift != null) {
 					var shift = possibleRoutes[ix].Shift;
