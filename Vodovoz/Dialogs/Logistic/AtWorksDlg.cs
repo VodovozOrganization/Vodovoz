@@ -84,6 +84,7 @@ namespace Vodovoz.Dialogs.Logistic
 			ytreeviewAtWorkDrivers.ColumnsConfig = FluentColumnsConfig<AtWorkDriver>.Create()
 				.AddColumn("Приоритет").AddNumericRenderer(x => x.PriorityAtDay).Editing(new Gtk.Adjustment(6, 1, 10,1,1,1))
 				.AddColumn("Водитель").AddTextRenderer(x => x.Employee.ShortName)
+				.AddColumn("Скор.").AddTextRenderer(x => x.Employee.DriverSpeed.ToString("P0"))
 				.AddColumn("График работы").AddComboRenderer(x => x.DaySchedule)
 					.SetDisplayFunc(x => x.Name)
 					.FillItems(uow.GetAll<DeliveryDaySchedule>().ToList()).Editing()
