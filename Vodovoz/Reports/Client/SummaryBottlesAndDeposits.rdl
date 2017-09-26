@@ -55,7 +55,7 @@
                     base_parameters.name = 'forfeit1с_nomenclature_id'))
                     ) AS forfeit,
 	 (SELECT 
-             order_items.actual_count 
+			order_items.actual_count 
         FROM
             order_items
         WHERE
@@ -103,7 +103,14 @@
 				(out_bd_op.deposit_type = 'Bottles' OR inc_bd_op.deposit_type = 'Bottles')
                 AND 
                 transfer_operations.id = docs.order_id))
-                ) AS bottles_deposit,
+                ) +
+			IFNULL((SELECT
+					order_items.price
+				FROM
+					order_items
+				WHERE
+					order_items.order_id = docs.order_id
+                    AND order_items.nomenclature_id = 157),0) AS bottles_deposit,
 	IFNULL((SELECT 
 			SUM(deposit_operations.received_deposit - deposit_operations.refund_deposit)
 		FROM
@@ -274,7 +281,7 @@ ORDER BY docs.doc_date;</CommandText>
           </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="order_id">
           <DataField>order_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -297,10 +304,14 @@ ORDER BY docs.doc_date;</CommandText>
         </Field>
         <Field Name="sum">
           <DataField>sum</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
+          <rd:TypeName>System.Decimal</rd:TypeName>
         </Field>
         <Field Name="forfeit">
           <DataField>forfeit</DataField>
+          <rd:TypeName>System.Decimal</rd:TypeName>
+        </Field>
+        <Field Name="forfeitCount">
+          <DataField>forfeitCount</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
         <Field Name="delivered">
@@ -326,10 +337,6 @@ ORDER BY docs.doc_date;</CommandText>
         <Field Name="doc_name">
           <DataField>doc_name</DataField>
           <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="forfeitCount">
-          <DataField>forfeitCount</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>
@@ -1824,11 +1831,11 @@ ____________(                        )
       </Prompt>
     </ReportParameter>
   </ReportParameters>
-  <DataSources>
+  <DataSources >
     <DataSource Name="DS1">
       <ConnectionProperties>
         <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_temp;user=;password=;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <ConnectString>database=Vodovoz_temp;user=saendra;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
         <IntegratedSecurity>false</IntegratedSecurity>
       </ConnectionProperties>
     </DataSource>
