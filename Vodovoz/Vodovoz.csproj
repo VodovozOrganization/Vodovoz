@@ -680,6 +680,8 @@
     <Compile Include="Additions\Logistic\RouteOptimization\PossibleTrip.cs" />
     <Compile Include="ReportsParameters\Logistic\ShipmentReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ShipmentReport.cs" />
+    <Compile Include="ReportsParameters\Logistic\BottlesMovementReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.BottlesMovementReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -1056,6 +1058,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\ShipmentReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\Logistic\BottlesMovementReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

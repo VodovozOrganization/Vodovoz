@@ -1,0 +1,1736 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
+  <Description>
+  </Description>
+  <Author>
+  </Author>
+  <PageHeight>11in</PageHeight>
+  <PageWidth>8.5in</PageWidth>
+  <Width>7.5in</Width>
+  <TopMargin>.25in</TopMargin>
+  <LeftMargin>.25in</LeftMargin>
+  <RightMargin>.25in</RightMargin>
+  <BottomMargin>.25in</BottomMargin>
+  <PageHeader>
+    <Height>.5in</Height>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+    <ReportItems >
+      <Textbox Name="Textbox29">
+        <Height>18.78pt</Height>
+        <Width>577.39pt</Width>
+        <Value>="Отчёт по движению бутылей за " + Format(Convert.ToDateTime({?start_date}), "dd.MM.yyyy") +Iif({?start_date}={?end_date}, "", " - " + Format(Convert.ToDateTime({?end_date}), "dd.MM.yyyy"))</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>10.60pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+          <FontSize>14pt</FontSize>
+          <TextAlign>Center</TextAlign>
+          <VerticalAlign>Middle</VerticalAlign>
+        </Style>
+      </Textbox>
+    </ReportItems>
+  </PageHeader>
+  <Body>
+    <Height>254.2pt</Height>
+    <Columns >1</Columns>
+    <ReportItems >
+      <Table Name="Table1">
+        <DataSetName>Closed</DataSetName>
+        <NoRows>Нет закрытых МЛ.</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>76.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>36.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>60.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>62.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>61.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.8pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>38.2pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox2">
+                      <Value>Водитель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox3">
+                      <Value>МЛ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox4">
+                      <Value>Общее количество 19л. бут. планируемое</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox5">
+                      <Value>Общее количество 19л. бут. фактическое</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox18">
+                      <Value>Недовозы</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox6">
+                      <Value>Сданных полных бутылей</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox7">
+                      <Value>Планируемое количество пустых бутылей</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox8">
+                      <Value>Фактическое кол-во пустых бутылей по кассе</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox9">
+                      <Value>Фактическое кол-во пустых бутылей по складу</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox61">
+                      <Value>Всего штрафов</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox10">
+                      <Value>=Fields!last_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox11">
+                      <Value>=Fields!id.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox12">
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox13">
+                      <Value>=Fields!actual_count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox19">
+                      <Value>=Fields!count.Value - Fields!actual_count.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox14">
+                      <Value>=Fields!amount_unloaded_full.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox15">
+                      <Value>=Fields!bottles_to_return.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox16">
+                      <Value>=Fields!bottles_returned.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox17">
+                      <Value>=Fields!amount_unloaded_empty.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox68">
+                      <Value>=Fields!total_fines.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>27.2pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox20">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox21">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox22">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!count.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox23">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!actual_count.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox24">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!count.Value) - Sum(Fields!actual_count.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox25">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>=Sum(Fields!amount_unloaded_full.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox26">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!bottles_to_return.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox27">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!bottles_returned.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox28">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!amount_unloaded_empty.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox70">
+                      <Value>=Sum(Fields!total_fines.Value)</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Table Name="Table2">
+        <DataSetName>NotClosed</DataSetName>
+        <NoRows>Нет незакрытых МЛ.</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>76.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>36.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>57.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>59.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>62.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>63.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>61.3pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.7pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Header>
+          <TableRows>
+            <TableRow>
+              <Height>38.9pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox47">
+                      <Value>Водитель</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox30">
+                      <Value>МЛ</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox31">
+                      <Value>Общее количество 19л. бут. планируемое</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox32">
+                      <Value>Общее количество 19л. бут. фактическое</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox45">
+                      <Value>Недовозы</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox33">
+                      <Value>Сданных полных бутылей</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox34">
+                      <Value>Планируемое количество пустых бутылей</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox35">
+                      <Value>Фактическое кол-во пустых бутылей по кассе</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox36">
+                      <Value>Фактическое кол-во пустых бутылей по складу</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>8pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox74">
+                      <Value>Всего штрафов</Value>
+                      <Style>
+                        <TextAlign>Center</TextAlign>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <FontWeight>Bold</FontWeight>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontSize>10pt</FontSize>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+          <RepeatOnNewPage>true</RepeatOnNewPage>
+        </Header>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>12 pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox37">
+                      <Value>=Fields!last_name.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox38">
+                      <Value>=Fields!id.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox39">
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox40">
+                      <Value>=Fields!actual_count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox46">
+                      <Value>=Fields!count.Value - Fields!actual_count.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox41">
+                      <Value>=Fields!amount_unloaded_full.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox42">
+                      <Value>=Fields!bottles_to_return.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox43">
+                      <Value>=Fields!bottles_returned.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox44">
+                      <Value>=Fields!amount_unloaded_empty.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox75">
+                      <Value>=Fields!total_fines.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>0.0pt</Left>
+        <Top>131.7pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox48">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>
+                      </Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox49">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <FontWeight>Bold</FontWeight>
+                        <TextAlign>Right</TextAlign>
+                      </Style>
+                      <Value>Итого:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox50">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!count.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox51">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!actual_count.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox52">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!count.Value) - Sum(Fields!actual_count.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox53">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!amount_unloaded_full.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox54">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!bottles_to_return.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox55">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!bottles_returned.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox56">
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                      <Value>=Sum(Fields!amount_unloaded_empty.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox76">
+                      <Value>=Sum(Fields!total_fines.Value)</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+      <Table Name="Table3">
+        <DataSetName>Total</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>Solid</Default>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>36.7pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>58.2pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.0pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>56.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>60.6pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>62.1pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>62.9pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>61.5pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>50.7pt</Width>
+          </TableColumn>
+        </TableColumns>
+        <Details>
+          <TableRows>
+            <TableRow>
+              <Height>13.5pt</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox71">
+                      <Value>Итого:</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Right</TextAlign>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox62">
+                      <Value>=Fields!count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox63">
+                      <Value>=Fields!actual_count.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox69">
+                      <Value>=Fields!count.Value - Fields!actual_count.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox64">
+                      <Value>=Fields!amount_unloaded_full.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox65">
+                      <Value>=Fields!bottles_to_return.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox66">
+                      <Value>=Fields!bottles_returned.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox67">
+                      <Value>=Fields!amount_unloaded_empty.Value</Value>
+                      <CanGrow>true</CanGrow>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox77">
+                      <Value>=Fields!total_fines.Value</Value>
+                      <Style>
+                        <BorderStyle>
+                          <Default>Solid</Default>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Details>
+        <Left>77.3pt</Left>
+        <Top>203.9pt</Top>
+      </Table>
+      <Textbox Name="Textbox72">
+        <Height>13.49pt</Height>
+        <Width>166.36pt</Width>
+        <Value>Закрытые маршрутные листы:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.00pt</Left>
+        <Top>12.00pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Textbox Name="Textbox73">
+        <Height>13.52pt</Height>
+        <Width>177.66pt</Width>
+        <Value>Незакрытые маршрутные листы:</Value>
+        <ZIndex>1</ZIndex>
+        <Left>0.0pt</Left>
+        <Top>117.0pt</Top>
+        <Style>
+          <BorderStyle />
+          <BorderColor />
+          <BorderWidth />
+          <FontWeight>Bold</FontWeight>
+        </Style>
+      </Textbox>
+      <Table Name="Table4">
+        <DataSetName>Closed</DataSetName>
+        <NoRows>Query returned no rows!</NoRows>
+        <Style>
+          <BorderStyle>
+            <Default>None</Default>
+            <Left>None</Left>
+            <Right>None</Right>
+            <Top>None</Top>
+            <Bottom>None</Bottom>
+          </BorderStyle>
+          <BorderColor />
+          <BorderWidth />
+        </Style>
+        <TableColumns>
+          <TableColumn>
+            <Width>119.8pt</Width>
+          </TableColumn>
+          <TableColumn>
+            <Width>1in</Width>
+          </TableColumn>
+        </TableColumns>
+        <Left>0.0pt</Left>
+        <Top>98.3pt</Top>
+        <Footer>
+          <TableRows>
+            <TableRow>
+              <Height>.2in</Height>
+              <TableCells>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox57">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                      </Style>
+                      <Value>Итого зависло бутылей:</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+                <TableCell>
+                  <ReportItems>
+                    <Textbox Name="Textbox58">
+                      <Style>
+                        <BorderStyle>
+                          <Default>None</Default>
+                          <Left>None</Left>
+                          <Right>None</Right>
+                          <Top>None</Top>
+                          <Bottom>None</Bottom>
+                        </BorderStyle>
+                        <BorderColor />
+                        <BorderWidth />
+                        <TextAlign>Left</TextAlign>
+                      </Style>
+                      <Value>=Sum(Fields!actual_count.Value) - Sum(Fields!amount_unloaded_empty.Value)</Value>
+                    </Textbox>
+                  </ReportItems>
+                </TableCell>
+              </TableCells>
+            </TableRow>
+          </TableRows>
+        </Footer>
+      </Table>
+    </ReportItems>
+  </Body>
+  <PageFooter>
+    <Height>14pt</Height>
+    <ReportItems>
+      <Textbox Name="Textbox1">
+        <Top>1pt</Top>
+        <Left>10pt</Left>
+        <Height>12pt</Height>
+        <Width>3in</Width>
+        <Value>=Globals!PageNumber + ' of ' + Globals!TotalPages</Value>
+        <Style>
+          <FontSize>10pt</FontSize>
+          <FontWeight>Normal</FontWeight>
+        </Style>
+      </Textbox>
+    </ReportItems>
+    <PrintOnFirstPage>true</PrintOnFirstPage>
+    <PrintOnLastPage>true</PrintOnLastPage>
+  </PageFooter>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>database=Vodovoz_honeybee;user=saendra;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
+  <DataElementName >Report</DataElementName>
+  <DataElementStyle >AttributeNormal</DataElementStyle>
+  <DataSets >
+    <DataSet Name="Closed">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>select
+	employees.last_name,
+	route_lists.id,
+	ifnull(rla.count,0) as count,
+	ifnull(rla.actual_count,0) as actual_count,
+	truncate(ifnull(returned_full.amount,0),0) as amount_unloaded_full,
+	ifnull(rla.bottles_to_return,0) as bottles_to_return,
+	ifnull(rla.bottles_returned,0) as bottles_returned,
+	truncate(ifnull(returned_empty.amount,0),0) as amount_unloaded_empty,
+	sum(ifnull(fines.total_money,0)) as total_fines
+from
+	route_lists
+left join
+	employees on employees.id = route_lists.driver_id
+left join
+	fines on fines.route_list_id = route_lists.id
+left join
+	(select
+		route_list_addresses.route_list_id as route_list_id,
+		sum(ifnull(orders.returned_tare,0)) as bottles_to_return,
+		sum(route_list_addresses.bottles_returned) as bottles_returned,
+		sum(order_items.count) as count,
+		sum(order_items.actual_count) as actual_count
+	from
+		route_list_addresses
+	left join
+		orders on orders.id = route_list_addresses.order_id
+	left join 
+		order_items on order_items.order_id = orders.id
+	left join
+		nomenclature on nomenclature.id = order_items.nomenclature_id
+	where
+		nomenclature.category = 'water'
+	group by
+		route_list_addresses.route_list_id) as rla on rla.route_list_id = route_lists.id
+left join
+	(select
+		store_car_unload_documents.route_list_id as route_list_id,
+		sum(ifnull(warehouse_movement_operations.amount, 0)) as amount
+	from
+		store_car_unload_documents
+	left join
+		store_car_unload_document_items on store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+	left join
+		warehouse_movement_operations on warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+	left join
+		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
+	where
+		nomenclature.category = 'water'
+	group by
+		store_car_unload_documents.route_list_id) as returned_full on returned_full.route_list_id = route_lists.id
+left join
+	(select
+		store_car_unload_documents.route_list_id as route_list_id,
+		sum(ifnull(warehouse_movement_operations.amount, 0)) as amount
+	from
+		store_car_unload_documents
+	left join
+		store_car_unload_document_items on store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+	left join
+		warehouse_movement_operations on warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+	left join
+		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
+	where
+		nomenclature.category = 'bottle'
+	group by
+		store_car_unload_documents.route_list_id) as returned_empty on returned_empty.route_list_id = route_lists.id
+where
+	route_lists.date &gt;= @start_date
+	and route_lists.date &lt;= @end_date
+	and route_lists.status = 'Closed'
+group by
+	route_lists.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="last_name">
+          <DataField>last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="actual_count">
+          <DataField>actual_count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="amount_unloaded_full">
+          <DataField>amount_unloaded_full</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="bottles_to_return">
+          <DataField>bottles_to_return</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="bottles_returned">
+          <DataField>bottles_returned</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="amount_unloaded_empty">
+          <DataField>amount_unloaded_empty</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_fines">
+          <DataField>total_fines</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="NotClosed">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>select
+	employees.last_name,
+	route_lists.id,
+	ifnull(rla.count,0) as count,
+	ifnull(rla.actual_count,0) as actual_count,
+	truncate(ifnull(returned_full.amount,0),0) as amount_unloaded_full,
+	ifnull(rla.bottles_to_return,0) as bottles_to_return,
+	ifnull(rla.bottles_returned,0) as bottles_returned,
+	truncate(ifnull(returned_empty.amount,0),0) as amount_unloaded_empty,
+	sum(ifnull(fines.total_money,0)) as total_fines
+from
+	route_lists
+left join
+	employees on employees.id = route_lists.driver_id
+left join
+	fines on fines.route_list_id = route_lists.id
+left join
+	(select
+		route_list_addresses.route_list_id as route_list_id,
+		sum(ifnull(orders.returned_tare,0)) as bottles_to_return,
+		sum(route_list_addresses.bottles_returned) as bottles_returned,
+		sum(order_items.count) as count,
+		sum(order_items.actual_count) as actual_count
+	from
+		route_list_addresses
+	left join
+		orders on orders.id = route_list_addresses.order_id
+	left join 
+		order_items on order_items.order_id = orders.id
+	left join
+		nomenclature on nomenclature.id = order_items.nomenclature_id
+	where
+		nomenclature.category = 'water'
+	group by
+		route_list_addresses.route_list_id) as rla on rla.route_list_id = route_lists.id
+left join
+	(select
+		store_car_unload_documents.route_list_id as route_list_id,
+		sum(ifnull(warehouse_movement_operations.amount, 0)) as amount
+	from
+		store_car_unload_documents
+	left join
+		store_car_unload_document_items on store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+	left join
+		warehouse_movement_operations on warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+	left join
+		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
+	where
+		nomenclature.category = 'water'
+	group by
+		store_car_unload_documents.route_list_id) as returned_full on returned_full.route_list_id = route_lists.id
+left join
+	(select
+		store_car_unload_documents.route_list_id as route_list_id,
+		sum(ifnull(warehouse_movement_operations.amount, 0)) as amount
+	from
+		store_car_unload_documents
+	left join
+		store_car_unload_document_items on store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+	left join
+		warehouse_movement_operations on warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+	left join
+		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
+	where
+		nomenclature.category = 'bottle'
+	group by
+		store_car_unload_documents.route_list_id) as returned_empty on returned_empty.route_list_id = route_lists.id
+where
+	route_lists.date &gt;= @start_date
+	and route_lists.date &lt;= @end_date
+	and route_lists.status &lt;&gt; 'Closed'
+group by
+	route_lists.id</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="last_name">
+          <DataField>last_name</DataField>
+          <TypeName>System.String</TypeName>
+        </Field>
+        <Field Name="id">
+          <DataField>id</DataField>
+          <TypeName>System.UInt32</TypeName>
+        </Field>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="actual_count">
+          <DataField>actual_count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="amount_unloaded_full">
+          <DataField>amount_unloaded_full</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="bottles_to_return">
+          <DataField>bottles_to_return</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="bottles_returned">
+          <DataField>bottles_returned</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="amount_unloaded_empty">
+          <DataField>amount_unloaded_empty</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_fines">
+          <DataField>total_fines</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+    <DataSet Name="Total">
+      <Query>
+        <DataSourceName>DS1</DataSourceName>
+        <CommandText>select
+	sum(ifnull(rla.count,0)) as count,
+	sum(ifnull(rla.actual_count,0)) as actual_count,
+	sum(truncate(ifnull(returned_full.amount,0),0)) as amount_unloaded_full,
+	sum(ifnull(rla.bottles_to_return,0)) as bottles_to_return,
+	sum(ifnull(rla.bottles_returned,0)) as bottles_returned,
+	sum(truncate(ifnull(returned_empty.amount,0),0)) as amount_unloaded_empty,
+	sum(ifnull(fines.total_money,0)) as total_fines
+from
+	route_lists
+left join
+	employees on employees.id = route_lists.driver_id
+left join
+	fines on fines.route_list_id = route_lists.id
+left join
+	(select
+		route_list_addresses.route_list_id as route_list_id,
+		sum(ifnull(orders.returned_tare,0)) as bottles_to_return,
+		sum(route_list_addresses.bottles_returned) as bottles_returned,
+		sum(order_items.count) as count,
+		sum(order_items.actual_count) as actual_count
+	from
+		route_list_addresses
+	left join
+		orders on orders.id = route_list_addresses.order_id
+	left join 
+		order_items on order_items.order_id = orders.id
+	left join
+		nomenclature on nomenclature.id = order_items.nomenclature_id
+	where
+		nomenclature.category = 'water'
+	group by
+		route_list_addresses.route_list_id) as rla on rla.route_list_id = route_lists.id
+left join
+	(select
+		store_car_unload_documents.route_list_id as route_list_id,
+		sum(ifnull(warehouse_movement_operations.amount, 0)) as amount
+	from
+		store_car_unload_documents
+	left join
+		store_car_unload_document_items on store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+	left join
+		warehouse_movement_operations on warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+	left join
+		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
+	where
+		nomenclature.category = 'water'
+	group by
+		store_car_unload_documents.route_list_id) as returned_full on returned_full.route_list_id = route_lists.id
+left join
+	(select
+		store_car_unload_documents.route_list_id as route_list_id,
+		sum(ifnull(warehouse_movement_operations.amount, 0)) as amount
+	from
+		store_car_unload_documents
+	left join
+		store_car_unload_document_items on store_car_unload_document_items.car_unload_document_id = store_car_unload_documents.id
+	left join
+		warehouse_movement_operations on warehouse_movement_operations.id = store_car_unload_document_items.warehouse_movement_operation_id
+	left join
+		nomenclature on nomenclature.id = warehouse_movement_operations.nomenclature_id
+	where
+		nomenclature.category = 'bottle'
+	group by
+		store_car_unload_documents.route_list_id) as returned_empty on returned_empty.route_list_id = route_lists.id
+where
+	route_lists.date &gt;= @start_date
+	and route_lists.date &lt;= @end_date</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="start_date">
+            <Value>={?start_date}</Value>
+          </QueryParameter>
+          <QueryParameter Name="end_date">
+            <Value>={?end_date}</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Fields>
+        <Field Name="count">
+          <DataField>count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="actual_count">
+          <DataField>actual_count</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="amount_unloaded_full">
+          <DataField>amount_unloaded_full</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="bottles_to_return">
+          <DataField>bottles_to_return</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="bottles_returned">
+          <DataField>bottles_returned</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="amount_unloaded_empty">
+          <DataField>amount_unloaded_empty</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+        <Field Name="total_fines">
+          <DataField>total_fines</DataField>
+          <TypeName>System.Decimal</TypeName>
+        </Field>
+      </Fields>
+    </DataSet>
+  </DataSets>
+  <ReportParameters >
+    <ReportParameter Name="start_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017/09/25</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="end_date">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>2017/09/26</Value>
+        </Values>
+      </DefaultValue>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Report>
