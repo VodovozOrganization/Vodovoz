@@ -26,6 +26,7 @@ namespace Vodovoz.Reports
 			comboIncomeCategory.ItemsList = CategoryRepository.IncomeCategories (uow);
 			comboExpenseCategory.Sensitive = comboIncomeCategory.Sensitive = false;
 			yentryrefCasher.ItemsQuery = Repository.EmployeeRepository.OfficeWorkersQuery();
+			yentryrefEmployee.SubjectType = typeof(Employee);
 
 			var recurciveConfig = OrmMain.GetObjectDescription<ExpenseCategory>().TableView.RecursiveTreeConfig;
 			var list = CategoryRepository.ExpenseCategories(uow);
@@ -111,6 +112,7 @@ namespace Vodovoz.Reports
 				ids.Add(0); //Add fake value
 
 			int casherId = yentryrefCasher.Subject == null ? -1 : (yentryrefCasher.Subject as Employee).Id;
+			int employeeId = yentryrefEmployee.Subject == null ? -1 : (yentryrefEmployee.Subject as Employee).Id;
 			
 			return new ReportInfo {
 				Identifier = ReportName,
@@ -120,7 +122,8 @@ namespace Vodovoz.Reports
 					{ "IncomeCategory", inCat },
 					{ "ExpenseCategory", ids },
 					{ "ExpenseCategoryUsed", exCategorySelected ? 1 : 0 },
-					{ "Casher", casherId }
+					{ "Casher", casherId },
+					{ "Employee", employeeId }
 				}
 			};
 		}

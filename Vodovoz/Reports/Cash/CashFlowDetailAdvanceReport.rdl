@@ -66,6 +66,7 @@ WHERE
         AND cash_advance_report.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
         AND IF(@expenseCategoryUsed, cash_advance_report.cash_expense_category_id IN (@expenseCategory), 1)
 AND (@Casher = -1 OR cash_advance_report.casher_employee_id = @Casher)
+AND (@Employee = -1 OR cash_advance_report.employee_id = @Employee)
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -82,6 +83,9 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
           <QueryParameter Name="Casher">
             <Value>={?Casher}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Employee">
+            <Value>={?Employee}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -653,7 +657,16 @@ ORDER BY Category;</CommandText>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
       <MultiValue>false</MultiValue>
-      <Prompt />
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Employee">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
     </ReportParameter>
   </ReportParameters>
 </Report>

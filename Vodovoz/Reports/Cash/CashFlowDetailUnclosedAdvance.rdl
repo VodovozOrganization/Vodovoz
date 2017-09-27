@@ -13,7 +13,7 @@
   <BottomMargin>.25in</BottomMargin>
   <DataSets>
     <DataSet Name="DataAdvance">
-      <Query>
+      <Query >
         <DataSourceName>DS1</DataSourceName>
         <CommandText>SELECT 
     cash_expense.id as expense_id,
@@ -70,6 +70,7 @@ WHERE
         1)
         AND (@Casher = - 1
         OR cash_expense.casher_employee_id = @Casher)
+        AND (@Employee = -1 OR cash_expense.employee_id = @Employee)
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -87,9 +88,12 @@ ORDER BY Category;</CommandText>
           <QueryParameter Name="Casher">
             <Value>={?Casher}</Value>
           </QueryParameter>
+          <QueryParameter Name="Employee">
+            <Value>={?Employee}</Value>
+          </QueryParameter>
         </QueryParameters>
       </Query>
-      <Fields>
+      <Fields >
         <Field Name="expense_id">
           <DataField>expense_id</DataField>
           <rd:TypeName>System.UInt32</rd:TypeName>
@@ -537,7 +541,7 @@ ORDER BY Category;</CommandText>
                             <BorderWidth />
                           </Style>
                           <Value>={description}</Value>
-                          <CanGrow >true</CanGrow>
+                          <CanGrow>true</CanGrow>
                         </Textbox>
                       </ReportItems>
                     </TableCell>
@@ -663,7 +667,7 @@ ORDER BY Category;</CommandText>
       </ConnectionProperties>
     </DataSource>
   </DataSources>
-  <ReportParameters>
+  <ReportParameters >
     <ReportParameter Name="StartDate">
       <DataType>String</DataType>
       <DefaultValue>
@@ -723,6 +727,13 @@ ORDER BY Category;</CommandText>
       <MultiValue>false</MultiValue>
       <Prompt>
       </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Employee">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt />
     </ReportParameter>
   </ReportParameters>
 </Report>

@@ -15,7 +15,7 @@
     <Height>.5in</Height>
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
-    <ReportItems >
+    <ReportItems>
       <Textbox Name="Textbox29">
         <Height>18.78pt</Height>
         <Width>577.39pt</Width>
@@ -37,8 +37,8 @@
   </PageHeader>
   <Body>
     <Height>254.2pt</Height>
-    <Columns >1</Columns>
-    <ReportItems >
+    <Columns>1</Columns>
+    <ReportItems>
       <Table Name="Table1">
         <DataSetName>Closed</DataSetName>
         <NoRows>Нет закрытых МЛ.</NoRows>
@@ -1333,18 +1333,9 @@
     <PrintOnFirstPage>true</PrintOnFirstPage>
     <PrintOnLastPage>true</PrintOnLastPage>
   </PageFooter>
-  <DataSources >
-    <DataSource Name="DS1">
-      <ConnectionProperties>
-        <DataProvider>MySQL.NET</DataProvider>
-        <ConnectString>database=Vodovoz_honeybee;user=saendra;password=qwerty;port=3306;server=vod-srv.qsolution.ru</ConnectString>
-        <IntegratedSecurity>false</IntegratedSecurity>
-      </ConnectionProperties>
-    </DataSource>
-  </DataSources>
-  <DataElementName >Report</DataElementName>
-  <DataElementStyle >AttributeNormal</DataElementStyle>
-  <DataSets >
+  <DataElementName>Report</DataElementName>
+  <DataElementStyle>AttributeNormal</DataElementStyle>
+  <DataSets>
     <DataSet Name="Closed">
       <Query>
         <DataSourceName>DS1</DataSourceName>
@@ -1705,7 +1696,7 @@ where
       </Fields>
     </DataSet>
   </DataSets>
-  <ReportParameters >
+  <ReportParameters>
     <ReportParameter Name="start_date">
       <DataType>String</DataType>
       <DefaultValue>
@@ -1733,4 +1724,14 @@ where
       </Prompt>
     </ReportParameter>
   </ReportParameters>
+  <DataSources >
+    <DataSource Name="DS1">
+      <ConnectionProperties>
+        <DataProvider>MySQL.NET</DataProvider>
+        <ConnectString>
+        </ConnectString>
+        <IntegratedSecurity>false</IntegratedSecurity>
+      </ConnectionProperties>
+    </DataSource>
+  </DataSources>
 </Report>

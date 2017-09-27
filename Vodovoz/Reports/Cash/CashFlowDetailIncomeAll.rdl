@@ -93,6 +93,9 @@
           <Parameter Name="Casher" >
             <Value>=Parameters!Casher</Value>
           </Parameter>
+          <Parameter Name="Employee" >
+            <Value>=Parameters!Employee</Value>
+          </Parameter>
         </Parameters>
       </Subreport>
       <Subreport Name="Subreport1" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2005/01/reportdefinition">
@@ -123,6 +126,9 @@
           </Parameter>
           <Parameter Name="Casher" >
             <Value>=Parameters!Casher</Value>
+          </Parameter>
+          <Parameter Name="Employee" >
+            <Value>=Parameters!Employee</Value>
           </Parameter>
         </Parameters>
       </Subreport>
@@ -219,6 +225,14 @@
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="Casher">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Employee">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>

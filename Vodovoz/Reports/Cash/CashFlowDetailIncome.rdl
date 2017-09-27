@@ -43,6 +43,7 @@ cash_income.type &lt;&gt; 'Return' AND
 cash_income.date &gt;= @startDate AND cash_income.date &lt; DATE_ADD(@endDate, INTERVAL 1 DAY)
  AND (@incomeCategory = -1 OR cash_income_category.id = @incomeCategory)
 AND (@Casher = -1 OR cash_income.casher_employee_id = @Casher)
+AND (@Employee = -1 OR cash_income.employee_id = @Employee)
 ORDER BY Category;</CommandText>
         <QueryParameters>
           <QueryParameter Name="startDate">
@@ -56,6 +57,9 @@ ORDER BY Category;</CommandText>
           </QueryParameter>
           <QueryParameter Name="Casher">
             <Value>={?Casher}</Value>
+          </QueryParameter>
+          <QueryParameter Name="Employee">
+            <Value>={?Employee}</Value>
           </QueryParameter>
         </QueryParameters>
       </Query>
@@ -514,6 +518,14 @@ ORDER BY Category;</CommandText>
       </Prompt>
     </ReportParameter>
     <ReportParameter Name="Casher">
+      <DataType>Integer</DataType>
+      <Nullable>false</Nullable>
+      <AllowBlank>false</AllowBlank>
+      <MultiValue>false</MultiValue>
+      <Prompt>
+      </Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Employee">
       <DataType>Integer</DataType>
       <Nullable>false</Nullable>
       <AllowBlank>false</AllowBlank>
