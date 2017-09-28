@@ -5,10 +5,10 @@ namespace Vodovoz.Domain.Orders
 
 	public enum OrderStatus
 	{
+		[Display(Name = "Отменён")]
+		Canceled,
 		[Display (Name = "Новый")]
 		NewOrder,
-		[Display (Name = "Отменён")]
-		Canceled,
 		[Display (Name = "Ожидание оплаты")]
 		WaitForPayment,
 		[Display (Name = "Принят")]

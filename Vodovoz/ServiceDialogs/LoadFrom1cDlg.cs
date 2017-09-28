@@ -1040,6 +1040,20 @@ namespace Vodovoz
 							continue;
 						}
 
+						if(exist.OrderStatus == OrderStatus.Canceled)
+						{
+							exist = loaded;
+
+							if(loaded.DeliverySchedule != null && loaded.DeliveryPoint != null)
+							{
+								exist.OrderStatus = OrderStatus.Accepted;
+							}
+							else
+							{
+								exist.OrderStatus = OrderStatus.NewOrder;
+							}
+						}
+
 						ChangedOrders++;
 						Changes.Add(change);
 						UoW.Save(exist);
