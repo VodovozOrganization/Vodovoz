@@ -40,8 +40,8 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			else
 				travelTime = distanceCalculator.TimeSec(Nodes[first_index - 1].Order.DeliveryPoint, Nodes[second_index - 1].Order.DeliveryPoint);
 
-			if (first_index != 0)
-				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null) * 60;
+			if(first_index != 0)
+				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(false) * 60;
 
 			return (long)Trip.Driver.TimeCorrection(serviceTime + travelTime);
 		}

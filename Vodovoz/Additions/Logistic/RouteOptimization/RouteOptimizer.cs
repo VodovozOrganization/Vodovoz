@@ -130,8 +130,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			RoutingModel routing = new RoutingModel(Nodes.Length + 1, possibleRoutes.Length, 0);
 
 			int horizon = 24 * 3600;
-			var timeEvaluators = possibleRoutes.Select(x => new CallbackTime(Nodes, x, distanceCalculator)).ToArray();
-			routing.AddDimensionWithVehicleTransits(timeEvaluators, 3 * 3600, horizon, false, "Time");
+			routing.AddDimension(new CallbackTime(Nodes, null, distanceCalculator), 3 * 3600, horizon, false, "Time");
 			var time_dimension = routing.GetDimensionOrDie("Time");
 
 			var bottlesCapacity = possibleRoutes.Select(x => (long)x.Car.MaxBottles).ToArray();

@@ -20,14 +20,14 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			}
 		}
 
-		public Employee Forwarder {
+	/*	public Employee Forwarder {
 			get {
 				if(OldRoute != null)
 					return OldRoute.Forwarder;
 				else
 					return atWorkDriver.WithForwarder?.Employee;
 			}
-		}
+		} */
 
 		public Car Car{
 			get{
