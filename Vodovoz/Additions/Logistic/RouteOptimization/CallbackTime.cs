@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿﻿using System.Collections.Generic;
 using System.Linq;
 using Google.OrTools.ConstraintSolver;
 using Vodovoz.Domain.Logistic;
@@ -43,7 +43,7 @@ namespace Vodovoz.Additions.Logistic.RouteOptimization
 			if (first_index != 0)
 				serviceTime = Nodes[first_index - 1].Order.CalculateTimeOnPoint(Trip.Forwarder != null) * 60;
 
-			return (long)((double)(serviceTime + travelTime) / Trip.Driver.DriverSpeed);
+			return (long)Trip.Driver.TimeCorrection(serviceTime + travelTime);
 		}
 	}
 }
