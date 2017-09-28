@@ -682,6 +682,8 @@
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.ShipmentReport.cs" />
     <Compile Include="ReportsParameters\Logistic\BottlesMovementReport.cs" />
     <Compile Include="gtk-gui\Vodovoz.ReportsParameters.Logistic.BottlesMovementReport.cs" />
+    <Compile Include="ReportsParameters\MastersVisitReport.cs" />
+    <Compile Include="gtk-gui\Vodovoz.ReportsParameters.MastersVisitReport.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -828,6 +830,7 @@
     <Folder Include="ServiceDialogs\Chat\" />
     <Folder Include="ServiceDialogs\Database\" />
     <Folder Include="Additions\Logistic\RouteOptimization\" />
+    <Folder Include="Reports\ServiceCenter\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
@@ -1061,6 +1064,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Reports\Logistic\BottlesMovementReport.rdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Reports\ServiceCenter\MastersVisitReport.rdl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
